@@ -64,6 +64,7 @@ export type Format =
   | 'int64'
   | 'float'
   | 'double'
+  | 'binary'
 
 /**
  * Content type definitions with their schemas
@@ -99,6 +100,13 @@ export type PathItem = {
 }
 
 /**
+ * Security requirement object definition
+ */
+type SecurityRequirementObject = {
+  [key: string]: string[]
+}
+
+/**
  * Operation definition
  */
 export type Operation = {
@@ -106,7 +114,7 @@ export type Operation = {
   summary?: string
   description?: string
   operationId?: string
-  security?: string[]
+  security?: SecurityRequirementObject[]
   parameters?: PathParameters[]
   requestBody?: RequestBody
   responses: Response
@@ -152,6 +160,7 @@ export type Schema = {
     name?: string
     wrapped?: boolean
   }
+  security?: SecurityRequirementObject[]
 }
 
 /**
@@ -177,22 +186,6 @@ export type Components = {
       content: Content
     }
   >
-  securitySchemes?: {
-    petstore_auth?: {
-      type: string
-      flows: {
-        implicit: {
-          authorizationUrl: string
-          scopes: Record<string, string>
-        }
-      }
-    }
-    api_key?: {
-      type: string
-      name: string
-      in: string
-    }
-  }
 }
 
 /**
@@ -211,7 +204,7 @@ export type ParamsObject = {
 export type PathParameters = {
   schema: Schema
   description?: string
-  required: boolean
+  required?: boolean
   name: string
   in: Parameter
 }
@@ -221,7 +214,7 @@ export type PathParameters = {
  */
 export type RequestBody = {
   description?: string
-  required: boolean
+  required?: boolean
   content?: Content
 }
 
