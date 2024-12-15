@@ -4,20 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "coverage": "vitest run --coverage"
   },
-  "keywords": [
-    "hono",
-    "openapi"
-  ],
+  "keywords": ["hono", "openapi"],
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@types/node": "^22.10.2",
