@@ -6,7 +6,7 @@ import { generateRouteName } from './generate-route-name'
 
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
- * 
+ *
  * @function generateRoute
  * @param path - The URL path pattern for the route
  * @param method - The HTTP method (GET, POST, etc.)

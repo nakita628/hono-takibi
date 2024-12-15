@@ -11,7 +11,7 @@ type GenerateCreateRouteParams = {
 
 /**
  * Generates TypeScript code for a Hono route definition
- * 
+ *
  * @function generateCreateRoute
  * @param args - Object containing route definition properties
  * @returns Generated TypeScript code string for the route definition

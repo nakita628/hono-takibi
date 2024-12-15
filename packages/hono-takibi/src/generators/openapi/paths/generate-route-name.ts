@@ -2,7 +2,7 @@ import { capitalize } from '../../../core/text/capitalize'
 
 /**
  * Generates a route name string based on HTTP method and path
- * 
+ *
  * @function generateRouteName
  * @param method - HTTP method (e.g., 'get', 'post', 'put')
  * @param path - URL path pattern (e.g., '/users/{id}/posts')

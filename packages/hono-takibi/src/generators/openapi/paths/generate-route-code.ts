@@ -5,7 +5,7 @@ import { isOperation } from '../../../core/validator/is-operation'
 
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
- * 
+ *
  * @function generateRouteCode
  * @param openAPIPaths - OpenAPI paths object containing route definitions
  * @returns Generated TypeScript code string for all valid routes

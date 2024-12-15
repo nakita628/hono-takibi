@@ -5,7 +5,7 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
 
 /**
  * Generates a response schema for different status codes
- * 
+ *
  * @function generateResponseSchema
  * @param responses - OpenAPI response definitions for different status codes
  * @returns Generated TypeScript code string for response validation

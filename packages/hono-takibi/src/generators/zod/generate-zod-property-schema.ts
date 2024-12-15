@@ -5,7 +5,7 @@ import { generateZodSchema } from './generate-zod-schema'
 
 /**
  * Generates a Zod schema string for a given OpenAPI schema definition
- * 
+ *
  * @function generatePropertySchema
  * @param schema - OpenAPI schema definition
  * @returns Generated Zod schema string

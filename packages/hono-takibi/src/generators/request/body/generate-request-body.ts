@@ -1,6 +1,6 @@
 /**
  * Generates a request body configuration for OpenAPI schema
- * 
+ *
  * @function generateRequestBody
  * @param required - Whether the request body is required
  * @param zodSchema - Zod schema string for request body validation
