@@ -11,6 +11,7 @@ const honoTakibiSchema = z.object({
 })
 
 const getRoute = createRoute({
+  tags: ['Hono Takibi🔥'],
   method: 'get',
   path: '/',
   responses: {
@@ -32,14 +33,14 @@ app.openapi(getRoute, (c) => {
 app
   .doc('/doc', {
     info: {
-      title: 'Hono API',
+      title: 'Hono🔥 Takibi API',
       version: 'v1',
     },
     openapi: '3.0.0',
     tags: [
       {
-        name: 'Hono',
-        description: 'Hono API',
+        name: 'Hono Takibi🔥',
+        description: 'Hono Takibi🔥 API',
       },
     ],
   })
