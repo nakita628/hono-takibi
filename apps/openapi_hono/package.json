@@ -2,16 +2,23 @@
   "name": "openapi_hono",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "migrate": "prisma migrate dev --name init",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hono/zod-openapi": "^0.18.3",
+    "@prisma/client": "^6.0.1",
     "hono": "^4.6.14"
   },
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.0",
     "@types/node": "^20.11.17",
-    "tsx": "^4.7.1"
+    "@vitest/coverage-v8": "^2.1.8",
+    "prisma": "^6.0.1",
+    "tsx": "^4.7.1",
+    "vitest": "^2.1.8"
   }
 }

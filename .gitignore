@@ -3,3 +3,7 @@ node_modules
 pnpm-lock.yaml
 dist
 coverage
+.env
+migrations
+dev.db
+dev.db-journal

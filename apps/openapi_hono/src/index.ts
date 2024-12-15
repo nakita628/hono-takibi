@@ -1,33 +1,30 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
+import { deletePostsIdRoute, getPostsRoute, getRoute, postPostsRoute, putPostsIdRoute } from './openapi/index.js'
+import { getHandler } from './handler/hono-handler.js'
+import {
+  deletePostsIdRouteHandler,
+  getPostsRouteHandler,
+  postPostsRouteHandler,
+  putPostsIdRouteHandler,
+} from './handler/posts_handler.js'
 
 const app = new OpenAPIHono()
 
-const honoTakibiSchema = z.object({
-  message: z.string().openapi({
-    example: 'Hono Takibi🔥',
-  }),
-})
+const api = app
+  .openapi(getRoute, getHandler)
+  .openapi(postPostsRoute, postPostsRouteHandler)
+  .openapi(getPostsRoute, getPostsRouteHandler)
+  .openapi(putPostsIdRoute, putPostsIdRouteHandler)
+  .openapi(deletePostsIdRoute, deletePostsIdRouteHandler)
 
-const getRoute = createRoute({
-  tags: ['Hono Takibi🔥'],
-  method: 'get',
-  path: '/',
-  responses: {
-    200: {
-      content: {
-        'application/json': {
-          schema: honoTakibiSchema,
-        },
-      },
-      description: 'Hono Takibi🔥',
-    },
-  },
-})
-
-app.openapi(getRoute, (c) => {
-  return c.json({ message: 'Hono Takibi🔥' })
+api.use('*', async (c, next) => {
+  try {
+    await next()
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 500)
+  }
 })
 
 app
@@ -39,8 +36,12 @@ app
     openapi: '3.0.0',
     tags: [
       {
-        name: 'Hono Takibi🔥',
-        description: 'Hono Takibi🔥 API',
+        name: 'Hono',
+        description: 'Hono API',
+      },
+      {
+        name: 'Post',
+        description: 'Post API',
       },
     ],
   })
@@ -53,3 +54,5 @@ serve({
   fetch: app.fetch,
   port,
 })
+
+export { api }
