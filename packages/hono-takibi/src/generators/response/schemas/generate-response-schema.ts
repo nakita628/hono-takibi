@@ -1,7 +1,8 @@
 import { Responses } from '../../../types'
-import { getRefName } from '../../../core/schema/references/get-ref-name'
-import { generateZodArray } from '../../zod/generate-zod-array'
-import { generateZodSchema } from '../../zod/generate-zod-schema'
+// import { getRefName } from '../../../core/schema/references/get-ref-name'
+// import { generateZodArray } from '../../zod/generate-zod-array'
+// import { generateZodSchema } from '../../zod/generate-zod-schema'
+import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**
  * Generates a response schema for different status codes
@@ -73,18 +74,7 @@ export function generateResponseSchema(responses: Responses): string {
     if (!jsonContent) return `${code}:{description:'${response.description}',},`
     // 2.3 generate zod schema
     const schema = jsonContent.schema
-    const zodSchema = (() => {
-      if (schema.$ref) return getRefName(schema.$ref) || 'z.any()'
-      if (schema.type === 'array') {
-        if (!schema.items) return 'z.array(z.any())'
-        if (schema.items.$ref) {
-          const refName = getRefName(schema.items.$ref)
-          if (refName) return generateZodArray(refName)
-        }
-        return `z.array(${generateZodSchema(schema.items)})`
-      }
-      return generateZodSchema(schema)
-    })()
+    const zodSchema = generatePropertySchema(schema)
     // 2.4 generating a response definition
     return `${code}:{description:'${response.description}',content:{'application/json':{schema:${zodSchema},},},},`
   })
