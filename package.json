@@ -1,0 +1,15 @@
+{
+  "name": "hono-takibi-monorepo",
+  "private": true,
+  "scripts": {
+    "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
+    "fmt": "pnpm biome format --write ./",
+    "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
+    "typecheck": "pnpm -F hono-takibi typecheck",
+    "test": "pnpm -F hono-takibi test",
+    "coverage": "pnpm -F hono-takibi coverage"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  }
+}
