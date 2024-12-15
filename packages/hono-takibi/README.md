@@ -9,5 +9,5 @@ npm add -D hono-takibi
 # Usage
 
 ```bash
-npx hono-takibi path/to/openapi.yml -o path/to/output_hono.ts
+npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```

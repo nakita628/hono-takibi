@@ -16,6 +16,7 @@ const getZodFormatStringTestCases: [Format, string][] = [
   ['int64', 'z.number()'],
   ['float', 'z.number()'],
   ['double', 'z.number()'],
+  ['binary', 'z.instanceof(Uint8Array)'],
 ]
 
 describe('getZodStringFormatData', () => {

@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist", "README.md"],
+  "bin": {
+    "hono-takibi": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

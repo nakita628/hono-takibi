@@ -54,5 +54,5 @@ const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
  * - Used in schema generation for request/response validation
  */
 export function getZodFormatString(format: Format): string {
-  return FORMAT_TO_ZOD_VALIDATION[format] ?? ''
+  return FORMAT_TO_ZOD_VALIDATION[format]
 }
