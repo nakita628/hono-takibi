@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { traverseSchema } from './traverse_schema'
-import { Schema } from '../../types'
+import { Schema } from '../../../types'
 
 describe('traverseSchema', () => {
   let refs: Set<string>

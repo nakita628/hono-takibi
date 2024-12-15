@@ -1,10 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'path'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
-import { main } from '.'
-
-const honoCode = `import { createRoute, z } from '@hono/zod-openapi'
+import { createRoute, z } from '@hono/zod-openapi'
 
 const Order = z.object({
   id: z.number().int().optional(),
@@ -118,8 +112,7 @@ export const getPetFindByStatusRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByStatus',
-  description:
-    'Multiple status values can be provided with comma separated strings',
+  description: 'Multiple status values can be provided with comma separated strings',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     query: z.object({
@@ -139,8 +132,7 @@ export const getPetFindByTagsRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByTags',
-  description:
-    'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: { query: z.object({ tags: z.array(z.string()).optional() }) },
   responses: {
@@ -255,8 +247,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   tags: ['store'],
   method: 'get',
   path: '/store/order/{orderId}',
-  description:
-    'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
+  description: 'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
   request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     200: {
@@ -386,56 +377,4 @@ export const deleteUserUsernameRoute = createRoute({
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
   },
-})
-`
-
-describe('Hono Takibi', () => {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url))
-  const projectRoot = path.resolve(__dirname, '..')
-  const input = path.join(projectRoot, 'example/pet-store.yaml')
-  const output = path.join(projectRoot, 'routes/petstore-index.ts')
-
-  beforeEach(() => {
-    // 1. create test directory
-    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
-    // 2. create directory if it does not exist
-    if (!fs.existsSync(`${projectRoot}/routes`)) {
-      fs.mkdirSync(`${projectRoot}/routes`, { recursive: true })
-    }
-    // 3. set as CLI argument
-    process.argv = ['/usr/local/bin/node', `/${projectRoot}/dist/index.js`, input, '-o', output]
-  })
-
-  afterEach(() => {
-    // 1. reset Mock
-    vi.restoreAllMocks()
-    // 2. remove output file if it exists
-    if (fs.existsSync(output)) {
-      fs.rmSync(output, { recursive: true })
-    }
-  })
-
-  // test the normal system
-  it.concurrent('Hono Takibi CLI', async () => {
-    await main(true)
-    expect(fs.existsSync(output)).toBe(true)
-    const result = fs.readFileSync(output, { encoding: 'utf-8' })
-    const expected = honoCode
-    expect(result).toEqual(expected)
-  })
-
-  // testing for error systems
-  it.concurrent('should handle invalid input file path', async () => {
-    // 1. set a nonexistent file path
-    const nonExistentFile = path.join(projectRoot, 'test.yaml')
-    // 2. set as CLI argument
-    process.argv[2] = nonExistentFile
-    // 3. spy on console.error
-    const consoleError = vi.spyOn(console, 'error')
-    try {
-      await main(true)
-    } catch (error) {
-      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
-    }
-  })
 })
