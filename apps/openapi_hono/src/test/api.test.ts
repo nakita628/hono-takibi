@@ -1,8 +1,8 @@
 import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'crypto'
-import { api } from '../index.js'
-import { prisma } from '../infra/index.js'
+import prisma from '../infra/index.js'
+import api from '../index.js'
 
 const test = testClient(api)
 

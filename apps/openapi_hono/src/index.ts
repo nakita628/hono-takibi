@@ -1,5 +1,5 @@
 import { serve } from '@hono/node-server'
-import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { deletePostsIdRoute, getPostsRoute, getRoute, postPostsRoute, putPostsIdRoute } from './openapi/index.js'
 import { getHandler } from './handler/hono-handler.js'
@@ -55,4 +55,4 @@ serve({
   port,
 })
 
-export { api }
+export default api
