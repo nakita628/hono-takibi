@@ -2,6 +2,7 @@
   "name": "hono-takibi-monorepo",
   "private": true,
   "scripts": {
+    "dev": "pnpm -F openapi_hono dev",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "fmt": "pnpm biome format --write ./",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
