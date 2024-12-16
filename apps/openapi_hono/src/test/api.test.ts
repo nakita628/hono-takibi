@@ -17,7 +17,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(input).toEqual({
       message: 'Hono🔥',
     })
-    expect(res.status).toEqual(200)
+    expect(res.status).toBe(200)
   })
 
   //   postPostsHandler
@@ -29,7 +29,7 @@ describe('Hono Zod OpenAPI Test', () => {
     })
     const input = await res.json()
     expect(input).toEqual({ message: 'Created' })
-    expect(res.status).toEqual(201)
+    expect(res.status).toBe(201)
   })
 
   it('postPostsHandler ZodError', async () => {
@@ -56,7 +56,7 @@ describe('Hono Zod OpenAPI Test', () => {
         name: 'ZodError',
       },
     })
-    expect(res.status).toEqual(400)
+    expect(res.status).toBe(400)
   })
 
   it('getPostsHandler 200', async () => {
@@ -79,59 +79,37 @@ describe('Hono Zod OpenAPI Test', () => {
 
     const res = await test.posts.$get({
       query: {
-        page: 1,
-        rows: 10,
+        page: '1',
+        rows: '10',
       },
     })
 
     const input = await res.json()
 
-    // const expected = postDatas
-    //   .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    //   .slice(0, 10)
-    //   .map((post) => ({
-    //     ...post,
-    //     createdAt: new Date(post.createdAt).toISOString(),
-    //     updatedAt: new Date(post.updatedAt).toISOString(),
-    //   }))
+    const expected = postDatas
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10)
+      .map((post) => ({
+        ...post,
+        createdAt: new Date(post.createdAt).toISOString(),
+        updatedAt: new Date(post.updatedAt).toISOString(),
+      }))
 
-    // expect(input).toEqual(expected)
-    // expect(res.status).toEqual(200)
+    expect(input).toEqual(expected)
+    expect(res.status).toEqual(200)
   })
 
   it('getPostsHandler 400', async () => {
     const res = await test.posts.$get({
       query: {
-        page: -1,
-        rows: -1,
+        page: '-1',
+        rows: '-1',
       },
     })
     const input = await res.json()
 
-    const expected = {
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'invalid_type',
-            expected: 'number',
-            received: 'string',
-            path: ['page'],
-            message: 'Expected number, received string',
-          },
-          {
-            code: 'invalid_type',
-            expected: 'number',
-            received: 'string',
-            path: ['rows'],
-            message: 'Expected number, received string',
-          },
-        ],
-        name: 'ZodError',
-      },
-    }
-
-    expect(input).toEqual(expected)
+    expect(input).toEqual({ message: 'Bad Request' })
+    expect(res.status).toBe(400)
   })
 
   // putPostsIdHandler
@@ -154,7 +132,7 @@ describe('Hono Zod OpenAPI Test', () => {
       },
     })
 
-    expect(res.status).toEqual(204)
+    expect(res.status).toBe(204)
 
     const updatedPost = await prisma.post.findUnique({
       where: {
@@ -251,7 +229,7 @@ describe('Hono Zod OpenAPI Test', () => {
       },
     })
 
-    expect(res.status).toEqual(204)
+    expect(res.status).toBe(204)
 
     const deletedPost = await prisma.post.findUnique({
       where: {

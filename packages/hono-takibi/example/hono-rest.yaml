@@ -123,13 +123,13 @@ paths:
           name: page
           required: true
           schema:
-            type: integer
+            type: string
           description: The page number to retrieve.
         - in: query
           name: rows
           required: true
           schema:
-            type: integer
+            type: string
           description: The number of posts per page.
       responses:
         '200':
