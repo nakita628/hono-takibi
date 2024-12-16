@@ -1,7 +1,13 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
-import { deletePostsIdRoute, getPostsRoute, getRoute, postPostsRoute, putPostsIdRoute } from './openapi/index.js'
+import {
+  deletePostsIdRoute,
+  getPostsRoute,
+  getRoute,
+  postPostsRoute,
+  putPostsIdRoute,
+} from './openapi/index.js'
 import { getHandler } from './handler/hono-handler.js'
 import {
   deletePostsIdRouteHandler,

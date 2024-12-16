@@ -77,7 +77,9 @@ export function generateRequestParameter(
     const zodSchema = generatePropertySchema(schema)
     const request_body_required = requestBody.required ?? false
     const requestBodyCode = generateRequestBody(request_body_required, zodSchema)
-    return params ? generateInsertRequestBody(params, requestBodyCode) : generateRequestParams(requestBodyCode)
+    return params
+      ? generateInsertRequestBody(params, requestBodyCode)
+      : generateRequestParams(requestBodyCode)
   }
 
   return params

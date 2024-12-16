@@ -9,7 +9,7 @@
     "include": ["**/*.ts", "**/*.json"],
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 120
+    "lineWidth": 100
   },
   "javascript": {
     "formatter": {

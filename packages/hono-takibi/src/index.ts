@@ -41,6 +41,7 @@ export async function main(dev: boolean = false) {
     // 7. format code
     const formattedCode = await format(hono, {
       parser: 'typescript',
+      printWidth: 100,
       singleQuote: true,
       semi: false,
     })

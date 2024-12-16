@@ -1,5 +1,10 @@
 import { type RouteHandler } from '@hono/zod-openapi'
-import type { deletePostsIdRoute, getPostsRoute, postPostsRoute, putPostsIdRoute } from '../openapi/index.js'
+import type {
+  deletePostsIdRoute,
+  getPostsRoute,
+  postPostsRoute,
+  putPostsIdRoute,
+} from '../openapi/index.js'
 import { deletePostsId, getPosts, postPosts, putPostsId } from '../service/posts_service.js'
 import type { Post } from '@prisma/client'
 
