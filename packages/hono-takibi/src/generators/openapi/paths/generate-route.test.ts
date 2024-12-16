@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { generateRoute } from './generate-route'
 import { Operation } from '../../../types'
 
-const generateRouteTestCases: { path: string; method: string; operation: Operation; expected: string }[] = [
+const generateRouteTestCases: {
+  path: string
+  method: string
+  operation: Operation
+  expected: string
+}[] = [
   {
     path: '/',
     method: 'get',

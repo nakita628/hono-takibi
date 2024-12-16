@@ -20,8 +20,11 @@ const getZodFormatStringTestCases: [Format, string][] = [
 ]
 
 describe('getZodStringFormatData', () => {
-  it.concurrent.each(getZodFormatStringTestCases)(`getZodStringFormatData('%s') -> '%s'`, (input, expected) => {
-    const result = getZodFormatString(input)
-    expect(result).toBe(expected)
-  })
+  it.concurrent.each(getZodFormatStringTestCases)(
+    `getZodStringFormatData('%s') -> '%s'`,
+    (input, expected) => {
+      const result = getZodFormatString(input)
+      expect(result).toBe(expected)
+    },
+  )
 })

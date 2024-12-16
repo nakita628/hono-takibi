@@ -22,10 +22,7 @@ const Customer = z.object({
   address: z.array(Address).optional(),
 })
 
-const Category = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-})
+const Category = z.object({ id: z.number().int().optional(), name: z.string().optional() })
 
 const User = z.object({
   id: z.number().int().optional(),
@@ -38,10 +35,7 @@ const User = z.object({
   userStatus: z.number().int().optional(),
 })
 
-const Tag = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-})
+const Tag = z.object({ id: z.number().int().optional(), name: z.string().optional() })
 
 const Pet = z.object({
   id: z.number().int().optional(),
@@ -75,14 +69,9 @@ export const putPetRoute = createRoute({
   path: '/pet',
   description: 'Update an existing pet by Id',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: {
-    body: { required: true, content: { 'application/json': { schema: Pet } } },
-  },
+  request: { body: { required: true, content: { 'application/json': { schema: Pet } } } },
   responses: {
-    200: {
-      description: 'Successful operation',
-      content: { 'application/json': { schema: Pet } },
-    },
+    200: { description: 'Successful operation', content: { 'application/json': { schema: Pet } } },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
     422: { description: 'Validation exception' },
@@ -95,14 +84,9 @@ export const postPetRoute = createRoute({
   path: '/pet',
   description: 'Add a new pet to the store',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: {
-    body: { required: true, content: { 'application/json': { schema: Pet } } },
-  },
+  request: { body: { required: true, content: { 'application/json': { schema: Pet } } } },
   responses: {
-    200: {
-      description: 'Successful operation',
-      content: { 'application/json': { schema: Pet } },
-    },
+    200: { description: 'Successful operation', content: { 'application/json': { schema: Pet } } },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
   },
@@ -114,11 +98,7 @@ export const getPetFindByStatusRoute = createRoute({
   path: '/pet/findByStatus',
   description: 'Multiple status values can be provided with comma separated strings',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: {
-    query: z.object({
-      status: z.enum(['available', 'pending', 'sold']).optional(),
-    }),
-  },
+  request: { query: z.object({ status: z.enum(['available', 'pending', 'sold']).optional() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -132,7 +112,8 @@ export const getPetFindByTagsRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByTags',
-  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  description:
+    'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: { query: z.object({ tags: z.array(z.string()).optional() }) },
   responses: {
@@ -152,10 +133,7 @@ export const getPetPetIdRoute = createRoute({
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
   request: { params: z.object({ petId: z.number().int() }) },
   responses: {
-    200: {
-      description: 'successful operation',
-      content: { 'application/json': { schema: Pet } },
-    },
+    200: { description: 'successful operation', content: { 'application/json': { schema: Pet } } },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
   },
@@ -167,10 +145,7 @@ export const postPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    query: z.object({
-      name: z.string().optional(),
-      status: z.string().optional(),
-    }),
+    query: z.object({ name: z.string().optional(), status: z.string().optional() }),
     params: z.object({ petId: z.number().int() }),
   },
   responses: { 400: { description: 'Invalid input' } },
@@ -215,9 +190,7 @@ export const getStoreInventoryRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: {
-        'application/json': { schema: z.record(z.string(), z.number().int()) },
-      },
+      content: { 'application/json': { schema: z.record(z.string(), z.number().int()) } },
     },
   },
 })
@@ -227,12 +200,7 @@ export const postStoreOrderRoute = createRoute({
   method: 'post',
   path: '/store/order',
   description: 'Place a new order in the store',
-  request: {
-    body: {
-      required: false,
-      content: { 'application/json': { schema: Order } },
-    },
-  },
+  request: { body: { required: false, content: { 'application/json': { schema: Order } } } },
   responses: {
     200: {
       description: 'successful operation',
@@ -247,7 +215,8 @@ export const getStoreOrderOrderIdRoute = createRoute({
   tags: ['store'],
   method: 'get',
   path: '/store/order/{orderId}',
-  description: 'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
+  description:
+    'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
   request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     200: {
@@ -277,12 +246,7 @@ export const postUserRoute = createRoute({
   method: 'post',
   path: '/user',
   description: 'This can only be done by the logged in user.',
-  request: {
-    body: {
-      required: false,
-      content: { 'application/json': { schema: User } },
-    },
-  },
+  request: { body: { required: false, content: { 'application/json': { schema: User } } } },
   responses: {
     default: {
       description: 'successful operation',
@@ -297,16 +261,10 @@ export const postUserCreateWithListRoute = createRoute({
   path: '/user/createWithList',
   description: 'Creates list of users with given input array',
   request: {
-    body: {
-      required: false,
-      content: { 'application/json': { schema: z.array(User) } },
-    },
+    body: { required: false, content: { 'application/json': { schema: z.array(User) } } },
   },
   responses: {
-    200: {
-      description: 'Successful operation',
-      content: { 'application/json': { schema: User } },
-    },
+    200: { description: 'Successful operation', content: { 'application/json': { schema: User } } },
     default: { description: 'successful operation' },
   },
 })
@@ -316,10 +274,7 @@ export const getUserLoginRoute = createRoute({
   method: 'get',
   path: '/user/login',
   request: {
-    query: z.object({
-      username: z.string().optional(),
-      password: z.string().optional(),
-    }),
+    query: z.object({ username: z.string().optional(), password: z.string().optional() }),
   },
   responses: {
     200: {
@@ -343,10 +298,7 @@ export const getUserUsernameRoute = createRoute({
   path: '/user/{username}',
   request: { params: z.object({ username: z.string() }) },
   responses: {
-    200: {
-      description: 'successful operation',
-      content: { 'application/json': { schema: User } },
-    },
+    200: { description: 'successful operation', content: { 'application/json': { schema: User } } },
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
   },
@@ -358,10 +310,7 @@ export const putUserUsernameRoute = createRoute({
   path: '/user/{username}',
   description: 'This can only be done by the logged in user.',
   request: {
-    body: {
-      required: false,
-      content: { 'application/json': { schema: User } },
-    },
+    body: { required: false, content: { 'application/json': { schema: User } } },
     params: z.object({ username: z.string() }),
   },
   responses: { default: { description: 'successful operation' } },

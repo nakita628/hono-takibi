@@ -30,8 +30,11 @@ const findReferencesTestCases: { schema: Schema; expected: Set<string> }[] = [
 ]
 
 describe('findReferences', () => {
-  it.concurrent.each(findReferencesTestCases)('findReferences($schema) -> $expected', async ({ schema, expected }) => {
-    const result = findReferences(schema)
-    expect(result).toEqual(expected)
-  })
+  it.concurrent.each(findReferencesTestCases)(
+    'findReferences($schema) -> $expected',
+    async ({ schema, expected }) => {
+      const result = findReferences(schema)
+      expect(result).toEqual(expected)
+    },
+  )
 })

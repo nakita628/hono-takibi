@@ -8,6 +8,12 @@ const generateComponentsCodeTestCases: {
 }[] = [
   {
     input: {
+      schemas: {},
+    },
+    expected: '',
+  },
+  {
+    input: {
       schemas: {
         Product: {
           type: 'object',

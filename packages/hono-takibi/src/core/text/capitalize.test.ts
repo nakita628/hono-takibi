@@ -58,8 +58,11 @@ const capitalizeTestCases = [
 ]
 
 describe('capitalize', () => {
-  it.concurrent.each(capitalizeTestCases)('capitalize($input) -> $expected', async ({ input, expected }) => {
-    const result = capitalize(input)
-    expect(result).toBe(expected)
-  })
+  it.concurrent.each(capitalizeTestCases)(
+    'capitalize($input) -> $expected',
+    async ({ input, expected }) => {
+      const result = capitalize(input)
+      expect(result).toBe(expected)
+    },
+  )
 })

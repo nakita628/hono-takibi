@@ -49,7 +49,10 @@ import { generatePropertySchema } from './generate-zod-property-schema'
  * - Uses .partial() when no properties are required
  * - Maintains property order from input
  */
-export function generateZodPropertiesSchema(properties: Record<string, Schema>, required: string[]): string {
+export function generateZodPropertiesSchema(
+  properties: Record<string, Schema>,
+  required: string[],
+): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const propertySchema = generatePropertySchema(schema)

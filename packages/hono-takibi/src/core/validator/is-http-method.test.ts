@@ -19,8 +19,11 @@ const isHttpMethodTestCases = [
 ]
 
 describe('isHttpMethod', () => {
-  it.concurrent.each(isHttpMethodTestCases)('isHttpMethod($method) -> $expected', async ({ method, expected }) => {
-    const result = isHttpMethod(method)
-    expect(result).toBe(expected)
-  })
+  it.concurrent.each(isHttpMethodTestCases)(
+    'isHttpMethod($method) -> $expected',
+    async ({ method, expected }) => {
+      const result = isHttpMethod(method)
+      expect(result).toBe(expected)
+    },
+  )
 })

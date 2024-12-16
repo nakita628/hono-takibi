@@ -61,8 +61,11 @@ const isOperationTestCases: { obj: Operation; expected: boolean }[] = [
 ]
 
 describe('isOperation', () => {
-  it.concurrent.each(isOperationTestCases)('isOperation($object) -> $expected', async ({ obj, expected }) => {
-    const result = isOperation(obj)
-    expect(result).toBe(expected)
-  })
+  it.concurrent.each(isOperationTestCases)(
+    'isOperation($object) -> $expected',
+    async ({ obj, expected }) => {
+      const result = isOperation(obj)
+      expect(result).toBe(expected)
+    },
+  )
 })
