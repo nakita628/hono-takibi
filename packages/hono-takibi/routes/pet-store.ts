@@ -112,7 +112,8 @@ export const getPetFindByStatusRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByStatus',
-  description: 'Multiple status values can be provided with comma separated strings',
+  description:
+    'Multiple status values can be provided with comma separated strings',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     query: z.object({
@@ -132,7 +133,8 @@ export const getPetFindByTagsRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByTags',
-  description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
+  description:
+    'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: { query: z.object({ tags: z.array(z.string()).optional() }) },
   responses: {
@@ -247,7 +249,8 @@ export const getStoreOrderOrderIdRoute = createRoute({
   tags: ['store'],
   method: 'get',
   path: '/store/order/{orderId}',
-  description: 'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
+  description:
+    'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
   request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     200: {
