@@ -7,6 +7,7 @@ import { generateRequestParams } from './generate-request-params'
 import { PathParameters, RequestBody } from '../../../types'
 import { getRefName } from '../../../core/schema/references/get-ref-name'
 import { generateZodSchema } from '../../zod/generate-zod-schema'
+import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
@@ -73,23 +74,8 @@ export function generateRequestParameter(
 
   if (requestBody?.content?.['application/json']) {
     const schema = requestBody.content['application/json'].schema
-    const zodSchema = (() => {
-      if (schema.$ref) {
-        return getRefName(schema.$ref) || 'z.any()'
-      }
-      if (schema.type === 'array') {
-        if (!schema.items) return 'z.array(z.any())'
-        if ('$ref' in schema.items && schema.items.$ref) {
-          const refName = getRefName(schema.items.$ref)
-          return `z.array(${refName || 'z.any()'})`
-        }
-        return `z.array(${generateZodSchema(schema.items)})`
-      }
-      return generateZodSchema(schema)
-    })()
-
+    const zodSchema = generatePropertySchema(schema)
     const request_body_required = requestBody.required ?? false
-
     const requestBodyCode = generateRequestBody(request_body_required, zodSchema)
     return params ? generateInsertRequestBody(params, requestBodyCode) : generateRequestParams(requestBodyCode)
   }
