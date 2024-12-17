@@ -3,6 +3,8 @@ import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-defin
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
 import { decapitalize } from '../../../core/text/decapitalize'
+import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
+import { generateSchemasExport } from '../paths/generate-schemas-export'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -62,16 +64,16 @@ export function generateComponentsCode(components: Components): string {
     .map((schemaName) => {
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
-      // 4.2 decapitalize schema name
-      const decapitalizedSchemaName = decapitalize(schemaName)
+      // 4.2 get camelCase schema name
+      const camelCaseSchemaName = getCamelCaseSchemaName(schemaName)
       // 4.3 generate zod schema
       const zodSchema = generateZodSchema(schema)
       // 4.4 generate zod schema definition
-      return generateZodSchemaDefinition(decapitalizedSchemaName, zodSchema)
+      return generateZodSchemaDefinition(camelCaseSchemaName, zodSchema)
     })
     .join('\n\n')
   // 5. generate export statement
-  const exports = `\n\nexport const schemas = {\n  ${orderedSchemas.join(',\n  ')}\n}`
+  const exports = generateSchemasExport(orderedSchemas)
   // 6. final code assembly
-  return `${schemaDefinitions}${exports}`
+  return `${schemaDefinitions}\n\n${exports}`
 }
