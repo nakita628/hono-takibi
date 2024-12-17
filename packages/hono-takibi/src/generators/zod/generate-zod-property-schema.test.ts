@@ -8,7 +8,7 @@ const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = 
     schema: {
       $ref: '#/components/schemas/User',
     },
-    expected: 'User',
+    expected: 'userSchema',
   },
   {
     schema: {
@@ -17,7 +17,7 @@ const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = 
         $ref: '#/components/schemas/Post',
       },
     },
-    expected: 'z.array(Post)',
+    expected: 'z.array(postSchema)',
   },
   {
     schema: {

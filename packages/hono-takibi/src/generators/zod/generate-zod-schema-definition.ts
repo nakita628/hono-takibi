@@ -20,5 +20,5 @@
  * - Creates reusable schema definitions
  */
 export function generateZodSchemaDefinition(name: string, zodSchema: string): string {
-  return `const ${name}Schema = ${zodSchema}`
+  return `const ${name} = ${zodSchema}`
 }

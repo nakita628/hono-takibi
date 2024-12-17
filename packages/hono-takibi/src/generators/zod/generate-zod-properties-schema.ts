@@ -40,7 +40,7 @@ import { generatePropertySchema } from './generate-zod-property-schema'
  *   },
  *   []
  * )
- * // Returns: 'z.object({category: Category.optional(),tags: z.array(Tag).optional()})'
+ * // Returns: 'z.object({category: categorySchema.optional(),tags: z.array(tagSchema).optional()})'
  *
  * @remarks
  * - Generates Zod schema strings for object properties

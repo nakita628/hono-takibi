@@ -2,7 +2,6 @@ import { Components } from '../../../types'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
-import { decapitalize } from '../../../core/text/decapitalize'
 import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
 import { generateSchemasExport } from '../paths/generate-schemas-export'
 
@@ -34,9 +33,9 @@ import { generateSchemasExport } from '../paths/generate-schemas-export'
  * }
  * generateComponentsCode(components)
  * // Returns:
- * // export const Profile = z.object({ name: z.string() })
- * // export const User = z.object({ profile: Profile })
- * // export const schemas = { Profile, User }
+ * // export const profileSchema = z.object({ name: z.string() })
+ * // export const userSchema = z.object({ profile: profileSchema })
+ * // export const schemas = { profileSchema, userSchema }
  *
  * // Without schemas
  * generateComponentsCode({})
