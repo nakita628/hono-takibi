@@ -177,19 +177,19 @@ const generateComponentsCodeTestCases: {
         },
       },
     },
-    expected: `const Product = z.object({id: z.string().uuid().optional(),name: z.string(),description: z.string().optional(),price: z.number(),category: z.string(),stock: z.number().int().optional(),tags: z.array(z.string()).optional()})
+    expected: `const productSchema = z.object({id: z.string().uuid().optional(),name: z.string(),description: z.string().optional(),price: z.number(),category: z.string(),stock: z.number().int().optional(),tags: z.array(z.string()).optional()})
 
-const OrderItem = z.object({productId: z.string().uuid(),quantity: z.number().int(),price: z.number().optional()})
+const orderItemSchema = z.object({productId: z.string().uuid(),quantity: z.number().int(),price: z.number().optional()})
 
-const Order = z.object({id: z.string().uuid().optional(),userId: z.string().uuid(),products: z.array(OrderItem),total: z.number(),status: z.enum(["pending","shipped","delivered","cancelled"]).optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
+const orderSchema = z.object({id: z.string().uuid().optional(),userId: z.string().uuid(),products: z.array(orderItemSchema),total: z.number(),status: z.enum(["pending","shipped","delivered","cancelled"]).optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
 
-const User = z.object({id: z.string().uuid().optional(),username: z.string(),email: z.string().email(),firstName: z.string().optional(),lastName: z.string().optional(),address: z.string().optional(),phone: z.string().optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
+const userSchema = z.object({id: z.string().uuid().optional(),username: z.string(),email: z.string().email(),firstName: z.string().optional(),lastName: z.string().optional(),address: z.string().optional(),phone: z.string().optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
 
 export const schemas = {
-  Product,
-  OrderItem,
-  Order,
-  User
+productSchema,
+orderItemSchema,
+orderSchema,
+userSchema
 }`,
   },
 ]
