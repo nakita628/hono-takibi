@@ -2,6 +2,8 @@ import { Components } from '../../../types'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
+import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
+import { generateSchemasExport } from '../paths/generate-schemas-export'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -31,9 +33,9 @@ import { resolveSchemasDependencies } from '../../../core/schema/references/reso
  * }
  * generateComponentsCode(components)
  * // Returns:
- * // export const Profile = z.object({ name: z.string() })
- * // export const User = z.object({ profile: Profile })
- * // export const schemas = { Profile, User }
+ * // export const profileSchema = z.object({ name: z.string() })
+ * // export const userSchema = z.object({ profile: profileSchema })
+ * // export const schemas = { profileSchema, userSchema }
  *
  * // Without schemas
  * generateComponentsCode({})
@@ -61,14 +63,16 @@ export function generateComponentsCode(components: Components): string {
     .map((schemaName) => {
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
-      // 4.2 generate zod schema
+      // 4.2 get camelCase schema name
+      const camelCaseSchemaName = getCamelCaseSchemaName(schemaName)
+      // 4.3 generate zod schema
       const zodSchema = generateZodSchema(schema)
-      // 4.3 generate zod schema definition
-      return generateZodSchemaDefinition(schemaName, zodSchema)
+      // 4.4 generate zod schema definition
+      return generateZodSchemaDefinition(camelCaseSchemaName, zodSchema)
     })
     .join('\n\n')
   // 5. generate export statement
-  const exports = `\n\nexport const schemas = {\n  ${orderedSchemas.join(',\n  ')}\n}`
+  const exports = generateSchemasExport(orderedSchemas)
   // 6. final code assembly
-  return `${schemaDefinitions}${exports}`
+  return `${schemaDefinitions}\n\n${exports}`
 }

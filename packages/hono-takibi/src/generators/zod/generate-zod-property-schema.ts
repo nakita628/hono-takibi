@@ -2,6 +2,7 @@ import { Schema } from '../../types'
 import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'
+import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
 
 /**
  * Generates a Zod schema string for a given OpenAPI schema definition
@@ -13,14 +14,14 @@ import { generateZodSchema } from './generate-zod-schema'
  * @example
  * // Reference type
  * generatePropertySchema({ $ref: '#/components/schemas/User' })
- * // Returns: 'User'
+ * // Returns: 'userSchema'
  *
  * // Array with reference type
  * generatePropertySchema({
  *   type: 'array',
  *   items: { $ref: '#/components/schemas/Post' }
  * })
- * // Returns: 'z.array(Post)'
+ * // Returns: 'z.array(postSchema)'
  *
  * // Basic type
  * generatePropertySchema({ type: 'string' })
@@ -28,12 +29,17 @@ import { generateZodSchema } from './generate-zod-schema'
  */
 export function generatePropertySchema(schema: Schema): string {
   if (schema.$ref) {
-    return getRefName(schema.$ref) || 'z.any()'
+    const refName = getRefName(schema.$ref)
+    if (refName) {
+      const camelCaseRefName = getCamelCaseSchemaName(refName)
+      return getRefName(camelCaseRefName) || 'z.any()'
+    }
   }
   if (schema.type === 'array' && schema.items?.$ref) {
     const refName = getRefName(schema.items.$ref)
     if (refName) {
-      return generateZodArray(refName)
+      const camelCaseRefName = getCamelCaseSchemaName(refName)
+      return generateZodArray(camelCaseRefName)
     }
   }
   return generateZodSchema(schema)

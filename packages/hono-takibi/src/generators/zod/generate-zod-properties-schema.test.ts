@@ -48,7 +48,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional(),username: z.string().optional(),address: z.array(Address).optional()})',
+      'z.object({id: z.number().int().optional(),username: z.string().optional(),address: z.array(addressSchema).optional()})',
   },
   {
     properties: {
@@ -73,7 +73,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: ['name', 'photoUrls'],
     expected:
-      'z.object({id: z.number().int().optional(),name: z.string(),category: Category.optional(),photoUrls: z.array(z.string()),tags: z.array(Tag).optional(),status: z.enum(["available","pending","sold"]).optional()})',
+      'z.object({id: z.number().int().optional(),name: z.string(),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})',
   },
   {
     properties: {

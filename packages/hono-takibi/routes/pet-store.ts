@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const Order = z.object({
+const orderSchema = z.object({
   id: z.number().int().optional(),
   petId: z.number().int().optional(),
   quantity: z.number().int().optional(),
@@ -9,22 +9,22 @@ const Order = z.object({
   complete: z.boolean().optional(),
 })
 
-const Address = z.object({
+const addressSchema = z.object({
   street: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   zip: z.string().optional(),
 })
 
-const Customer = z.object({
+const customerSchema = z.object({
   id: z.number().int().optional(),
   username: z.string().optional(),
-  address: z.array(Address).optional(),
+  address: z.array(addressSchema).optional(),
 })
 
-const Category = z.object({ id: z.number().int().optional(), name: z.string().optional() })
+const categorySchema = z.object({ id: z.number().int().optional(), name: z.string().optional() })
 
-const User = z.object({
+const userSchema = z.object({
   id: z.number().int().optional(),
   username: z.string().optional(),
   firstName: z.string().optional(),
@@ -35,32 +35,32 @@ const User = z.object({
   userStatus: z.number().int().optional(),
 })
 
-const Tag = z.object({ id: z.number().int().optional(), name: z.string().optional() })
+const tagSchema = z.object({ id: z.number().int().optional(), name: z.string().optional() })
 
-const Pet = z.object({
+const petSchema = z.object({
   id: z.number().int().optional(),
   name: z.string(),
-  category: Category.optional(),
+  category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
-  tags: z.array(Tag).optional(),
+  tags: z.array(tagSchema).optional(),
   status: z.enum(['available', 'pending', 'sold']).optional(),
 })
 
-const ApiResponse = z.object({
+const apiResponseSchema = z.object({
   code: z.number().int().optional(),
   type: z.string().optional(),
   message: z.string().optional(),
 })
 
 export const schemas = {
-  Order,
-  Address,
-  Customer,
-  Category,
-  User,
-  Tag,
-  Pet,
-  ApiResponse,
+  orderSchema,
+  addressSchema,
+  customerSchema,
+  categorySchema,
+  userSchema,
+  tagSchema,
+  petSchema,
+  apiResponseSchema,
 }
 
 export const putPetRoute = createRoute({
@@ -69,9 +69,12 @@ export const putPetRoute = createRoute({
   path: '/pet',
   description: 'Update an existing pet by Id',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: Pet } } } },
+  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
   responses: {
-    200: { description: 'Successful operation', content: { 'application/json': { schema: Pet } } },
+    200: {
+      description: 'Successful operation',
+      content: { 'application/json': { schema: petSchema } },
+    },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
     422: { description: 'Validation exception' },
@@ -84,9 +87,12 @@ export const postPetRoute = createRoute({
   path: '/pet',
   description: 'Add a new pet to the store',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: Pet } } } },
+  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
   responses: {
-    200: { description: 'Successful operation', content: { 'application/json': { schema: Pet } } },
+    200: {
+      description: 'Successful operation',
+      content: { 'application/json': { schema: petSchema } },
+    },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
   },
@@ -102,7 +108,7 @@ export const getPetFindByStatusRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.array(Pet) } },
+      content: { 'application/json': { schema: z.array(petSchema) } },
     },
     400: { description: 'Invalid status value' },
   },
@@ -119,7 +125,7 @@ export const getPetFindByTagsRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.array(Pet) } },
+      content: { 'application/json': { schema: z.array(petSchema) } },
     },
     400: { description: 'Invalid tag value' },
   },
@@ -133,7 +139,10 @@ export const getPetPetIdRoute = createRoute({
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
   request: { params: z.object({ petId: z.number().int() }) },
   responses: {
-    200: { description: 'successful operation', content: { 'application/json': { schema: Pet } } },
+    200: {
+      description: 'successful operation',
+      content: { 'application/json': { schema: petSchema } },
+    },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
   },
@@ -176,7 +185,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: ApiResponse } },
+      content: { 'application/json': { schema: apiResponseSchema } },
     },
   },
 })
@@ -200,11 +209,11 @@ export const postStoreOrderRoute = createRoute({
   method: 'post',
   path: '/store/order',
   description: 'Place a new order in the store',
-  request: { body: { required: false, content: { 'application/json': { schema: Order } } } },
+  request: { body: { required: false, content: { 'application/json': { schema: orderSchema } } } },
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: Order } },
+      content: { 'application/json': { schema: orderSchema } },
     },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
@@ -221,7 +230,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: Order } },
+      content: { 'application/json': { schema: orderSchema } },
     },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },
@@ -246,11 +255,11 @@ export const postUserRoute = createRoute({
   method: 'post',
   path: '/user',
   description: 'This can only be done by the logged in user.',
-  request: { body: { required: false, content: { 'application/json': { schema: User } } } },
+  request: { body: { required: false, content: { 'application/json': { schema: userSchema } } } },
   responses: {
     default: {
       description: 'successful operation',
-      content: { 'application/json': { schema: User } },
+      content: { 'application/json': { schema: userSchema } },
     },
   },
 })
@@ -261,10 +270,13 @@ export const postUserCreateWithListRoute = createRoute({
   path: '/user/createWithList',
   description: 'Creates list of users with given input array',
   request: {
-    body: { required: false, content: { 'application/json': { schema: z.array(User) } } },
+    body: { required: false, content: { 'application/json': { schema: z.array(userSchema) } } },
   },
   responses: {
-    200: { description: 'Successful operation', content: { 'application/json': { schema: User } } },
+    200: {
+      description: 'Successful operation',
+      content: { 'application/json': { schema: userSchema } },
+    },
     default: { description: 'successful operation' },
   },
 })
@@ -298,7 +310,10 @@ export const getUserUsernameRoute = createRoute({
   path: '/user/{username}',
   request: { params: z.object({ username: z.string() }) },
   responses: {
-    200: { description: 'successful operation', content: { 'application/json': { schema: User } } },
+    200: {
+      description: 'successful operation',
+      content: { 'application/json': { schema: userSchema } },
+    },
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
   },
@@ -310,7 +325,7 @@ export const putUserUsernameRoute = createRoute({
   path: '/user/{username}',
   description: 'This can only be done by the logged in user.',
   request: {
-    body: { required: false, content: { 'application/json': { schema: User } } },
+    body: { required: false, content: { 'application/json': { schema: userSchema } } },
     params: z.object({ username: z.string() }),
   },
   responses: { default: { description: 'successful operation' } },
