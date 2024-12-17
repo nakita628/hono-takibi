@@ -17,3 +17,7 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```bash
 npx hono-takibi example/pet-store.yaml -o routes/pet-store.ts
 ```
+
+```bash
+npx hono-takibi example/hono-rest.yaml -o routes/hono-rest.ts
+```

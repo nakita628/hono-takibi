@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const Error = z.object({ message: z.string() })
+const errorSchema = z.object({ message: z.string() })
 
-const Post = z.object({
+const postSchema = z.object({
   id: z.string().uuid(),
   post: z.string().min(1).max(140),
   createdAt: z.string().datetime(),
@@ -10,8 +10,8 @@ const Post = z.object({
 })
 
 export const schemas = {
-  Error,
-  Post,
+  errorSchema,
+  postSchema,
 }
 
 export const getRoute = createRoute({
@@ -22,9 +22,7 @@ export const getRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response with a welcome message.',
-      content: {
-        'application/json': { schema: z.object({ message: z.string() }) },
-      },
+      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
     },
   },
 })
@@ -37,25 +35,21 @@ export const postPostsRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: {
-        'application/json': {
-          schema: z.object({ post: z.string().min(1).max(140) }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
     },
   },
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -64,20 +58,26 @@ export const getPostsRoute = createRoute({
   tags: ['Post'],
   method: 'get',
   path: '/posts',
-  description: 'Retrieve a paginated list of posts. Specify the page and number of posts per page.',
-  request: { query: z.object({ page: z.string(), rows: z.string() }) },
+  description:
+    'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
+  request: {
+    query: z.object({
+      page: z.string().pipe(z.coerce.number().int().min(0)).optional(),
+      rows: z.string().pipe(z.coerce.number().int().min(0)).optional(),
+    }),
+  },
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(Post) } },
+      content: { 'application/json': { schema: z.array(postSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -90,11 +90,7 @@ export const putPostsIdRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: {
-        'application/json': {
-          schema: z.object({ post: z.string().min(1).max(140) }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
     },
     params: z.object({ id: z.string().uuid() }),
   },
@@ -102,11 +98,11 @@ export const putPostsIdRoute = createRoute({
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -121,11 +117,11 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: Error } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })

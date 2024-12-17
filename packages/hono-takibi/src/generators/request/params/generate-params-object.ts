@@ -80,9 +80,13 @@ export function generateParamsObject(parameters: PathParameters[]): ParamsObject
   }
 
   return parameters.reduce((acc, param) => {
-    const zodSchema = generateZodSchema(param.schema)
     const optionalSuffix = param.required ? '' : '.optional()'
     const paramLocation = PARAM_LOCATION_TO_KEY[param.in]
+    // query && integer
+    const zodSchema =
+      paramLocation === 'query' && param.schema.type === 'integer'
+        ? 'z.string().pipe(z.coerce.number().int().min(0))'
+        : generateZodSchema(param.schema)
 
     acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`
     return acc

@@ -89,12 +89,12 @@ paths:
       description: get PostList posts with optional pagination
       parameters:
         - schema:
-            type: string
+            type: integer
           required: true
           name: page
           in: query
         - schema:
-            type: string
+            type: integer
           required: true
           name: rows
           in: query

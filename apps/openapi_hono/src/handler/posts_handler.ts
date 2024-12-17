@@ -15,14 +15,9 @@ export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async 
 }
 
 export const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
-  const { page, rows } = c.req.valid('query')
-  const pageNumber = parseInt(page)
-  const rowsPerPage = parseInt(rows)
-  if (isNaN(pageNumber) || isNaN(rowsPerPage) || pageNumber < 1 || rowsPerPage < 1) {
-    return c.json({ message: 'Bad Request' }, 400)
-  }
-  const limit = rowsPerPage
-  const offset = (pageNumber - 1) * rowsPerPage
+  const { page = 1, rows = 10 } = c.req.valid('query')
+  const limit = rows ?? 10
+  const offset = (page - 1) * rows
   const posts: Post[] = await getPosts(limit, offset)
   return c.json(posts, 200)
 }

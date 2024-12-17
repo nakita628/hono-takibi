@@ -80,7 +80,7 @@ describe('Hono Zod OpenAPI Test', () => {
     const res = await test.posts.$get({
       query: {
         page: '1',
-        rows: '10',
+        rows: '15',
       },
     })
 
@@ -88,7 +88,7 @@ describe('Hono Zod OpenAPI Test', () => {
 
     const expected = postDatas
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10)
+      .slice(0, 15)
       .map((post) => ({
         ...post,
         createdAt: new Date(post.createdAt).toISOString(),
@@ -108,7 +108,32 @@ describe('Hono Zod OpenAPI Test', () => {
     })
     const input = await res.json()
 
-    expect(input).toEqual({ message: 'Bad Request' })
+    expect(input).toEqual({
+      success: false,
+      error: {
+        issues: [
+          {
+            code: 'too_small',
+            minimum: 0,
+            type: 'number',
+            inclusive: true,
+            exact: false,
+            message: 'Number must be greater than or equal to 0',
+            path: ['page'],
+          },
+          {
+            code: 'too_small',
+            minimum: 0,
+            type: 'number',
+            inclusive: true,
+            exact: false,
+            message: 'Number must be greater than or equal to 0',
+            path: ['rows'],
+          },
+        ],
+        name: 'ZodError',
+      },
+    })
     expect(res.status).toBe(400)
   })
 

@@ -3,11 +3,11 @@ import { generateParamsObject } from './generate-params-object'
 import { ParamsObject, PathParameters } from '../../../types'
 
 const generateParamsObjectTestCases: {
-  input: PathParameters[]
+  parameters: PathParameters[]
   expected: ParamsObject
 }[] = [
   {
-    input: [
+    parameters: [
       {
         schema: { type: 'string' },
         required: true,
@@ -29,7 +29,7 @@ const generateParamsObjectTestCases: {
     },
   },
   {
-    input: [
+    parameters: [
       {
         schema: { type: 'string', format: 'uuid' },
         required: true,
@@ -45,7 +45,7 @@ const generateParamsObjectTestCases: {
     },
   },
   {
-    input: [
+    parameters: [
       {
         schema: { type: 'string' },
         required: true,
@@ -67,7 +67,7 @@ const generateParamsObjectTestCases: {
     },
   },
   {
-    input: [
+    parameters: [
       {
         schema: { type: 'string', format: 'uuid' },
         required: true,
@@ -78,7 +78,7 @@ const generateParamsObjectTestCases: {
     expected: { query: {}, params: { id: 'z.string().uuid()' }, headers: {}, body: {} },
   },
   {
-    input: [
+    parameters: [
       {
         schema: { type: 'string', format: 'uuid' },
         required: true,
@@ -88,13 +88,38 @@ const generateParamsObjectTestCases: {
     ],
     expected: { query: {}, params: { id: 'z.string().uuid()' }, headers: {}, body: {} },
   },
+  {
+    parameters: [
+      {
+        schema: { type: 'integer' },
+        required: true,
+        name: 'page',
+        in: 'query',
+      },
+      {
+        schema: { type: 'integer' },
+        required: true,
+        name: 'rows',
+        in: 'query',
+      },
+    ],
+    expected: {
+      query: {
+        page: 'z.string().pipe(z.coerce.number().int().min(0))',
+        rows: 'z.string().pipe(z.coerce.number().int().min(0))',
+      },
+      params: {},
+      headers: {},
+      body: {},
+    },
+  },
 ]
 
 describe('generateRequestBody', () => {
   it.concurrent.each(generateParamsObjectTestCases)(
-    'generateParamsObject($input) -> $expected',
-    async ({ input, expected }) => {
-      const result = generateParamsObject(input)
+    'generateParamsObject($parameters) -> $expected',
+    async ({ parameters, expected }) => {
+      const result = generateParamsObject(parameters)
       expect(result).toEqual(expected)
     },
   )
