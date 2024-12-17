@@ -2,6 +2,7 @@ import { Components } from '../../../types'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
+import { decapitalize } from '../../../core/text/decapitalize'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -61,10 +62,12 @@ export function generateComponentsCode(components: Components): string {
     .map((schemaName) => {
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
-      // 4.2 generate zod schema
+      // 4.2 decapitalize schema name
+      const decapitalizedSchemaName = decapitalize(schemaName)
+      // 4.3 generate zod schema
       const zodSchema = generateZodSchema(schema)
-      // 4.3 generate zod schema definition
-      return generateZodSchemaDefinition(schemaName, zodSchema)
+      // 4.4 generate zod schema definition
+      return generateZodSchemaDefinition(decapitalizedSchemaName, zodSchema)
     })
     .join('\n\n')
   // 5. generate export statement
