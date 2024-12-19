@@ -11,3 +11,7 @@ npm add -D hono-takibi
 ```bash
 npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```
+
+## Demo
+
+![demo](./demo/hono-takibi.gif)

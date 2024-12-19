@@ -9,7 +9,7 @@ npm add -D hono-takibi
 # Usage
 
 ```bash
-npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
+npx hono-takibi path/to/input.yaml -o path/to/output.ts
 ```
 
 # Example
@@ -19,5 +19,9 @@ npx hono-takibi example/pet-store.yaml -o routes/pet-store.ts
 ```
 
 ```bash
-npx hono-takibi example/hono-rest.yaml -o routes/hono-rest.ts
+npx hono-takibi example/hono.yaml -o routes/hono.ts
 ```
+
+## Demo
+
+![demo](../../demo/hono-takibi.gif)
