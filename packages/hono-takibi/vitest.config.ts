@@ -5,7 +5,13 @@ export default defineConfig({
     include: ['**/src/**/*.test.ts'],
     exclude: ['**/node_modules'],
     coverage: {
-      exclude: ['**/src/types/**', 'routes/**', 'vitest.config.ts', '**/dist/**'],
+      exclude: [
+        '**/src/types/**',
+        '**/src/index.ts',
+        'routes/**',
+        'vitest.config.ts',
+        '**/dist/**',
+      ],
     },
   },
 })
