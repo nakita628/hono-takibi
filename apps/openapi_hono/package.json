@@ -1,5 +1,6 @@
 {
   "name": "openapi_hono",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
