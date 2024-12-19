@@ -8,7 +8,7 @@ import {
   postPostsRoute,
   putPostsIdRoute,
 } from './openapi/index.js'
-import { getHandler } from './handler/hono-handler.js'
+import { getHandler } from './handler/hono_handler.js'
 import {
   deletePostsIdRouteHandler,
   getPostsRouteHandler,
