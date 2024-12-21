@@ -7,3 +7,4 @@ coverage
 migrations
 dev.db
 dev.db-journal
+.DS_Store
