@@ -3,6 +3,9 @@ import { getZodFormatString } from './get-zod-string-format'
 import { Format } from '../../types'
 
 const getZodFormatStringTestCases: [Format, string][] = [
+  ['max', '.max()'],
+  ['min', '.min()'],
+  ['length', '.length()'],
   ['email', '.email()'],
   ['uri', '.url()'],
   ['emoji', '.emoji()'],
@@ -12,6 +15,14 @@ const getZodFormatStringTestCases: [Format, string][] = [
   ['ulid', '.ulid()'],
   ['ip', '.ip()'],
   ['date-time', '.datetime()'],
+  ['cidr', '.cidr()'],
+  ['trim', '.trim()'],
+  ['toLowerCase', '.toLowerCase()'],
+  ['toUpperCase', '.toUpperCase()'],
+  ['date', '.date()'],
+  ['time', '.time()'],
+  ['duration', '.duration()'],
+  ['base64', '.base64()'],
   ['int32', 'z.number()'],
   ['int64', 'z.number()'],
   ['float', 'z.number()'],

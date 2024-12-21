@@ -51,6 +51,10 @@ export type Type =
  * Format specifications for string types
  */
 export type Format =
+  // validations
+  | 'max'
+  | 'min'
+  | 'length'
   | 'email'
   | 'uri'
   | 'emoji'
@@ -58,8 +62,17 @@ export type Format =
   | 'cuid'
   | 'cuid2'
   | 'ulid'
-  | 'date-time'
-  | 'ip'
+  | 'date-time' // ISO 8601; by default only `Z` timezone allowed
+  | 'ip' // defaults to allow both IPv4 and IPv6
+  | 'cidr' // defaults to allow both IPv4 and IPv6
+  // transforms
+  | 'trim' // trim whitespace
+  | 'toLowerCase' // toLowerCase
+  | 'toUpperCase' // toUpperCase
+  | 'date' // ISO date format (YYYY-MM-DD)
+  | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
+  | 'duration' // ISO 8601 duration
+  | 'base64'
   | 'int32'
   | 'int64'
   | 'float'
