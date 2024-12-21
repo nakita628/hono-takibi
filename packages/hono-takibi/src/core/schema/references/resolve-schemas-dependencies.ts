@@ -1,4 +1,4 @@
-import { Schema } from '../../../types'
+import type { Schema } from '../../../types'
 import { resolveSchemaOrder } from './resolve-schema-order'
 import { resolveSchemaReferences } from './resolve-schema-references'
 

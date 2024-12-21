@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'path'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { main } from '.'
 
 const honoCode = `import { createRoute, z } from '@hono/zod-openapi'
@@ -385,6 +385,36 @@ describe('Hono Takibi', () => {
     expect(result).toEqual(expected)
   })
 
+  // test failed yaml
+  it.concurrent('failed yaml', async () => {
+    // 1. set a failed yaml file
+    const failedYaml = path.join(projectRoot, 'example/failed.yaml')
+    // 2. set as CLI argument
+    process.argv[2] = failedYaml
+    // 3. spy on console.error
+    const consoleError = vi.spyOn(console, 'error')
+    try {
+      await main(true)
+    } catch (e) {
+      expect(e.message).toBe(
+        `Cannot destructure property 'schemas' of 'components' as it is undefined.`,
+      )
+      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
+    }
+  })
+
+  // test for missing arguments
+  it('should handle missing arguments', async () => {
+    process.argv = ['/usr/local/bin/node', 'test']
+    const consoleError = vi.spyOn(console, 'error')
+    try {
+      await main(true)
+    } catch (e) {
+      expect(e.message).toBe('Expected a file path, URL, or object. Got undefined')
+      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
+    }
+  })
+
   // testing for error systems
   it.concurrent('should handle invalid input file path', async () => {
     // 1. set a nonexistent file path
@@ -395,7 +425,7 @@ describe('Hono Takibi', () => {
     const consoleError = vi.spyOn(console, 'error')
     try {
       await main(true)
-    } catch (error) {
+    } catch (e) {
       expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
     }
   })

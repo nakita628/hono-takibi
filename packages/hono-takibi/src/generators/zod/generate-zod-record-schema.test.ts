@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodRecordSchema } from './generate-zod-record-schema'
-import { Format, Type } from '../../types'
+import type { Format, Type } from '../../types'
 
 const generateZodRecordSchemaTestCases: {
   additionalProperties: { type: Type; format: Format }

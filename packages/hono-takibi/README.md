@@ -1,8 +1,25 @@
 # Hono Takibi
 
-![demo](../../demo/hono-takibi.gif)
+![img](assets/img/hono-takibi.png)
 
-Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.
+## Migrate Legacy APIs to Hono
+
+**Hono Takibi** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.
+
+## What Problem Does It Solve?
+
+Moving to [Zod OpenAPI Hono](https://hono.dev/examples/zod-openapi) requires:
+
+* Manual conversion of OpenAPI paths to Hono routes
+* Translation of OpenAPI schemas to Zod schemas
+* Implementation of type-safe request/response handling
+
+If you have OpenAPI specifications, Hono Takibi automates the conversion process to [@hono/zod-openapi](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), allowing you to focus on implementing your business logic rather than dealing with boilerplate code. While we aim for full compatibility in the generated code, we're continuously working to improve the conversion accuracy and support more OpenAPI features. We welcome feedback and contributions to make this tool even better for the community.
+
+**Hono Takibi** automates this process by:
+- Converting OpenAPI schemas to Zod schemas
+- Generating type-safe route definitions
+- Creating proper variable names and exports
 
 ```bash
 npm add -D hono-takibi
@@ -406,3 +423,7 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 ```
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.

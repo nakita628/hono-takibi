@@ -1,7 +1,4 @@
-import { Responses } from '../../../types'
-// import { getRefName } from '../../../core/schema/references/get-ref-name'
-// import { generateZodArray } from '../../zod/generate-zod-array'
-// import { generateZodSchema } from '../../zod/generate-zod-schema'
+import type { Responses } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**

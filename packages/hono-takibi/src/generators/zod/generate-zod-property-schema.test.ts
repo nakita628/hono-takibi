@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-
 import { generatePropertySchema } from './generate-zod-property-schema'
-import { Schema } from '../../types'
+import type { Schema } from '../../types'
 
 const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = [
   {
@@ -54,7 +53,7 @@ const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = 
 
 describe('generatePropertySchema', () => {
   it.concurrent.each(generatePropertySchemaTestCases)(
-    `generatePropertySchema($schema) -> $expected`,
+    'generatePropertySchema($schema) -> $expected',
     ({ schema, expected }) => {
       const result = generatePropertySchema(schema)
       expect(result).toBe(expected)

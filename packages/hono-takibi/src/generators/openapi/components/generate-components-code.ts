@@ -1,4 +1,4 @@
-import { Components } from '../../../types'
+import type { Components } from '../../../types'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'

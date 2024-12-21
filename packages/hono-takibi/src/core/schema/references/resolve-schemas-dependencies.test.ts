@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Schema } from '../../../types'
 import { resolveSchemasDependencies } from './resolve-schemas-dependencies'
-import { Schema } from '../../../types'
 
 describe('resolveSchemasDependencies', () => {
   it('should return empty array for empty schemas', () => {

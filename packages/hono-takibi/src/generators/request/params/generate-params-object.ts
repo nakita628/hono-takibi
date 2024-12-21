@@ -1,4 +1,4 @@
-import { Parameter, ParamsObject, PathParameters } from '../../../types'
+import type { Parameter, ParamsObject, Parameters } from '../../../types'
 import { generateZodSchema } from '../../zod/generate-zod-schema'
 
 /**
@@ -71,7 +71,7 @@ const PARAM_LOCATION_TO_KEY: Record<Parameter, keyof ParamsObject> = {
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
  */
-export function generateParamsObject(parameters: PathParameters[]): ParamsObject {
+export function generateParamsObject(parameters: Parameters[]): ParamsObject {
   const initialParamsObj: ParamsObject = {
     query: {},
     params: {},

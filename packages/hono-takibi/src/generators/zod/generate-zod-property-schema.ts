@@ -1,4 +1,4 @@
-import { Schema } from '../../types'
+import type { Schema } from '../../types'
 import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'

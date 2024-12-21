@@ -28,7 +28,7 @@ apiResponseSchema
 
 describe('generateSchemasExport', () => {
   it.concurrent.each(generateSchemasExportTestCases)(
-    `generateSchemasExport($orderedSchemas) -> $expected`,
+    'generateSchemasExport($orderedSchemas) -> $expected',
     ({ orderedSchemas, expected }) => {
       const result = generateSchemasExport(orderedSchemas)
       expect(result).toBe(expected)

@@ -1,4 +1,4 @@
-import { Format, Type } from '../../types'
+import type { Format, Type } from '../../types'
 import { generateZodSchema } from './generate-zod-schema'
 
 /**

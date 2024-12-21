@@ -1,4 +1,4 @@
-import { type RouteHandler } from '@hono/zod-openapi'
+import type { RouteHandler } from '@hono/zod-openapi'
 import type {
   deletePostsIdRoute,
   getPostsRoute,

@@ -1,4 +1,4 @@
-import SwaggerParser from '@apidevtools/swagger-parser'
+import type SwaggerParser from '@apidevtools/swagger-parser'
 
 /**
  * Base OpenAPI type derived from SwaggerParser
@@ -51,15 +51,29 @@ export type Type =
  * Format specifications for string types
  */
 export type Format =
+  // validations
+  // | 'max'
+  // | 'min'
+  // | 'length'
   | 'email'
   | 'uri'
   | 'emoji'
   | 'uuid'
+  // | 'nanoid'
   | 'cuid'
   | 'cuid2'
   | 'ulid'
-  | 'date-time'
-  | 'ip'
+  | 'date-time' // ISO 8601; by default only `Z` timezone allowed
+  | 'ip' // defaults to allow both IPv4 and IPv6
+  | 'cidr' // defaults to allow both IPv4 and IPv6
+  // transforms
+  | 'trim' // trim whitespace
+  | 'toLowerCase' // toLowerCase
+  | 'toUpperCase' // toUpperCase
+  | 'date' // ISO date format (YYYY-MM-DD)
+  | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
+  | 'duration' // ISO 8601 duration
+  | 'base64'
   | 'int32'
   | 'int64'
   | 'float'
@@ -115,7 +129,7 @@ export type Operation = {
   description?: string
   operationId?: string
   security?: SecurityRequirementObject[]
-  parameters?: PathParameters[]
+  parameters?: Parameters[]
   requestBody?: RequestBody
   responses: Response
 }
@@ -168,24 +182,8 @@ export type Schema = {
  */
 export type Components = {
   schemas: Record<string, Schema>
-  parameters?: Record<
-    string,
-    {
-      name: string
-      in: string
-      description?: string
-      required?: boolean
-      schema: Schema
-      explode?: boolean
-    }
-  >
-  requestBodies?: Record<
-    string,
-    {
-      description: string
-      content: Content
-    }
-  >
+  parameters?: Record<string, Parameters>
+  requestBodies?: Record<string, RequestBody>
 }
 
 /**
@@ -199,14 +197,15 @@ export type ParamsObject = {
 }
 
 /**
- * Path parameter definition
+ * Parameter definition
  */
-export type PathParameters = {
+export type Parameters = {
   schema: Schema
   description?: string
   required?: boolean
   name: string
   in: Parameter
+  explode?: boolean
 }
 
 /**

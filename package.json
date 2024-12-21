@@ -5,6 +5,7 @@
     "dev": "pnpm -F openapi_hono dev",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "fmt": "pnpm biome format --write ./",
+    "lint": "pnpm biome lint",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",

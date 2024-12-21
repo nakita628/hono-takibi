@@ -1,4 +1,4 @@
-import { Format } from '../../types'
+import type { Format } from '../../types'
 
 /**
  * Mapping of OpenAPI formats to Zod validation methods
@@ -9,6 +9,9 @@ import { Format } from '../../types'
  * - Empty string for unrecognized formats
  */
 const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
+  // max: '.max()',
+  // min: '.min()',
+  // length: '.length()',
   email: '.email()',
   uri: '.url()',
   emoji: '.emoji()',
@@ -18,6 +21,14 @@ const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
   ulid: '.ulid()',
   'date-time': '.datetime()',
   ip: '.ip()',
+  cidr: '.cidr()',
+  trim: '.trim()',
+  toLowerCase: '.toLowerCase()',
+  toUpperCase: '.toUpperCase()',
+  date: '.date()',
+  time: '.time()',
+  duration: '.duration()',
+  base64: '.base64()',
   int32: 'z.number()',
   int64: 'z.number()',
   float: 'z.number()',

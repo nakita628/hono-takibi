@@ -1,4 +1,4 @@
-import { OpenAPISpec } from '../types'
+import type { OpenAPISpec } from '../types'
 
 export const petStoreOpenAPI: OpenAPISpec = {
   openapi: '3.0.3',

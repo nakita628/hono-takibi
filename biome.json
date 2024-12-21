@@ -1,11 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "files": { "ignoreUnknown": true },
   "organizeImports": {
     "enabled": true
   },
   "formatter": {
     "enabled": true,
-    "ignore": ["./node_modules/**"],
+    "ignore": ["**/node_modules/**"],
     "include": ["**/*.ts", "**/*.json"],
     "indentStyle": "space",
     "indentWidth": 2,
@@ -23,6 +24,41 @@
       "enabled": true,
       "indentStyle": "space",
       "indentWidth": 2
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
+    "rules": {
+      "complexity": {
+        "noBannedTypes": "warn",
+        "noExtraBooleanCast": "error",
+        "noForEach": "warn",
+        "noMultipleSpacesInRegularExpressionLiterals": "error",
+        "noStaticOnlyClass": "error",
+        "noUselessConstructor": "error",
+        "noUselessRename": "error",
+        "noUselessSwitchCase": "error",
+        "useLiteralKeys": "error",
+        "useOptionalChain": "error",
+        "useSimplifiedLogicExpression": "error"
+      },
+      "performance": {
+        "noDelete": "error"
+      },
+      "style": {
+        "noArguments": "error",
+        "noNegationElse": "warn",
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "error",
+        "noUnusedTemplateLiteral": "error",
+        "noVar": "error",
+        "useConst": "error",
+        "useExponentiationOperator": "error",
+        "useNamingConvention": "off",
+        "useShorthandArrayType": "error",
+        "useTemplate": "error"
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Schema, Type } from '../../types'
+import type { Schema, Type } from '../../types'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodStringSchema } from './generate-zod-string-schema'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
@@ -115,9 +115,8 @@ export function generateZodSchema(schema: Schema): string {
   if (type === 'array' && items) {
     return generateZodArray(generateZodSchema(items))
   }
-  const zodSchema = TYPE_TO_ZOD_SCHEMA[type!]
-  if (zodSchema) {
-    return zodSchema
+  if (type) {
+    return TYPE_TO_ZOD_SCHEMA[type]
   }
   console.warn(`Unknown type: ${type}, falling back to z.any()`)
   return 'z.any()'

@@ -1,4 +1,4 @@
-import { OpenAPISpec } from '../../types'
+import type { OpenAPISpec } from '../../types'
 import { generateComponentsCode } from '../openapi/components/generate-components-code'
 import { generateRouteCode } from '../openapi/paths/generate-route-code'
 

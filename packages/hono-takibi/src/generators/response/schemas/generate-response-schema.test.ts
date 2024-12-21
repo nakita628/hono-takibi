@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateResponseSchema } from './generate-response-schema'
-import { Responses } from '../../../types'
+import type { Responses } from '../../../types'
 
 const generateResponseSchemaTestCases: {
   responses: Responses

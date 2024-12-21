@@ -1,4 +1,4 @@
-import { Operation } from '../../../types'
+import type { Operation } from '../../../types'
 import { generateCreateRoute } from './generate-create-route'
 import { generateRequestParameter } from '../../request/params/generate-request-parameter'
 import { generateResponseSchema } from '../../response/schemas/generate-response-schema'

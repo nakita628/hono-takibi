@@ -1,4 +1,4 @@
-import { Schema } from '../../../types'
+import type { Schema } from '../../../types'
 import { traverseSchema } from './traverse_schema'
 
 /**

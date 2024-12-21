@@ -17,7 +17,7 @@ const getRefNameTestCases = [
 ]
 
 describe('getRefName', () => {
-  it.concurrent.each(getRefNameTestCases)(`getRefName($ref) -> $expected`, ({ ref, expected }) => {
+  it.concurrent.each(getRefNameTestCases)('getRefName($ref) -> $expected', ({ ref, expected }) => {
     const result = getRefName(ref)
     expect(result).toBe(expected)
   })

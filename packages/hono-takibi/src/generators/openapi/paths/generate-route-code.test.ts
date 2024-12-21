@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
-import { OpenAPIPaths } from '../../../types'
+import type { OpenAPIPaths } from '../../../types'
 import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
 
 const generateRouteCodeTestCases: { input: OpenAPIPaths; expected: string }[] = [
