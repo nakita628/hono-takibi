@@ -52,9 +52,9 @@ export type Type =
  */
 export type Format =
   // validations
-  | 'max'
-  | 'min'
-  | 'length'
+  // | 'max'
+  // | 'min'
+  // | 'length'
   | 'email'
   | 'uri'
   | 'emoji'

@@ -9,9 +9,9 @@ import { Format } from '../../types'
  * - Empty string for unrecognized formats
  */
 const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
-  max: '.max()',
-  min: '.min()',
-  length: '.length()',
+  // max: '.max()',
+  // min: '.min()',
+  // length: '.length()',
   email: '.email()',
   uri: '.url()',
   emoji: '.emoji()',

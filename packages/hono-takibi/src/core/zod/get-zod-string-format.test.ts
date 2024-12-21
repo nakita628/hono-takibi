@@ -3,9 +3,9 @@ import { getZodFormatString } from './get-zod-string-format'
 import { Format } from '../../types'
 
 const getZodFormatStringTestCases: [Format, string][] = [
-  ['max', '.max()'],
-  ['min', '.min()'],
-  ['length', '.length()'],
+  // ['max', '.max()'],
+  // ['min', '.min()'],
+  // ['length', '.length()'],
   ['email', '.email()'],
   ['uri', '.url()'],
   ['emoji', '.emoji()'],
