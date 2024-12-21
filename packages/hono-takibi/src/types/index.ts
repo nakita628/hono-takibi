@@ -59,6 +59,7 @@ export type Format =
   | 'uri'
   | 'emoji'
   | 'uuid'
+  // | 'nanoid'
   | 'cuid'
   | 'cuid2'
   | 'ulid'

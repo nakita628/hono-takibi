@@ -10,6 +10,7 @@ const getZodFormatStringTestCases: [Format, string][] = [
   ['uri', '.url()'],
   ['emoji', '.emoji()'],
   ['uuid', '.uuid()'],
+  // ['nanoid', 'nanoid()'],
   ['cuid', '.cuid()'],
   ['cuid2', '.cuid2()'],
   ['ulid', '.ulid()'],
