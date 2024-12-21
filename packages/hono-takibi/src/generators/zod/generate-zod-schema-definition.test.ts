@@ -9,8 +9,10 @@ const generateSchemaDefinitionTestCases = [
   },
   {
     name: 'Address',
-    schema: 'z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
-    expected: 'const Address = z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
+    schema:
+      'z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
+    expected:
+      'const Address = z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
   },
 ]
 
