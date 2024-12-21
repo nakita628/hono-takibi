@@ -128,7 +128,7 @@ export type Operation = {
   description?: string
   operationId?: string
   security?: SecurityRequirementObject[]
-  parameters?: PathParameters[]
+  parameters?: Parameters[]
   requestBody?: RequestBody
   responses: Response
 }
@@ -181,24 +181,8 @@ export type Schema = {
  */
 export type Components = {
   schemas: Record<string, Schema>
-  parameters?: Record<
-    string,
-    {
-      name: string
-      in: string
-      description?: string
-      required?: boolean
-      schema: Schema
-      explode?: boolean
-    }
-  >
-  requestBodies?: Record<
-    string,
-    {
-      description: string
-      content: Content
-    }
-  >
+  parameters?: Record<string, Parameters>
+  requestBodies?: Record<string, RequestBody>
 }
 
 /**
@@ -212,14 +196,15 @@ export type ParamsObject = {
 }
 
 /**
- * Path parameter definition
+ * Parameter definition
  */
-export type PathParameters = {
+export type Parameters = {
   schema: Schema
   description?: string
   required?: boolean
   name: string
   in: Parameter
+  explode?: boolean
 }
 
 /**

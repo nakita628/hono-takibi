@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
-import { PathParameters, RequestBody } from '../../../types'
+import { Parameters, RequestBody } from '../../../types'
 
 const generateRequestParameterTestCases: {
-  parameters: PathParameters[] | undefined
+  parameters: Parameters[] | undefined
   requestBody: RequestBody | undefined
   expected: string
 }[] = [

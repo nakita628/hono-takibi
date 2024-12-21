@@ -4,9 +4,7 @@ import { generateRequestBody } from '../body/generate-request-body'
 import { generateRequestParamsArray } from './generate-request-params-array'
 import { generateInsertRequestBody } from '../body/generate-insert-request-body'
 import { generateRequestParams } from './generate-request-params'
-import { PathParameters, RequestBody } from '../../../types'
-import { getRefName } from '../../../core/schema/references/get-ref-name'
-import { generateZodSchema } from '../../zod/generate-zod-schema'
+import { Parameters, RequestBody } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**
@@ -57,7 +55,7 @@ import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
  * - Handles schema references and inline schemas
  */
 export function generateRequestParameter(
-  parameters: PathParameters[] | undefined,
+  parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
 ): string {
   if (!parameters && !requestBody?.content?.['application/json']) {
