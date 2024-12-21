@@ -420,4 +420,4 @@ export const deletePostsIdRoute = createRoute({
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](packages/hono-takibi/LICENSE) for more information.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
