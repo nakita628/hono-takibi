@@ -1,6 +1,6 @@
 # Hono Takibi
 
-![img](img/hono-takibi.png)
+![img](packages/hono-takibi/assets/img/hono-takibi.png)
 
 ```bash
 npm add -D hono-takibi
@@ -417,3 +417,7 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 ```
+
+## License
+
+Distributed under the MIT License. See [LICENSE](packages/hono-takibi/LICENSE) for more information.

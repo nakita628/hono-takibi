@@ -1,6 +1,6 @@
 # Hono Takibi
 
-![img](../../img/hono-takibi.png)
+![img](assets/img/hono-takibi.png)
 
 ## Migrate Legacy APIs to Hono
 
@@ -423,3 +423,7 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 ```
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
