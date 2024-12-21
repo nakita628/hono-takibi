@@ -17,9 +17,8 @@ Moving to [@hono/zod-openapi](https://hono.dev/examples/zod-openapi) requires:
 * Manual conversion of OpenAPI paths to Hono routes
 * Translation of OpenAPI schemas to Zod schemas
 * Implementation of type-safe request/response handling
-* Integration with [@hono/zod-openapi](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)
 
-Hono Takibi automates this conversion process from OpenAPI to Zod-powered Hono routes, allowing you to focus on implementing your business logic rather than dealing with boilerplate code. While the generated code aims for full compatibility with @hono/zod-openapi, we're continuously working to improve the conversion accuracy and support more OpenAPI features. We welcome feedback and contributions to make this tool even better for the community.
+If you have OpenAPI specifications, Hono Takibi automates the conversion process to [@hono/zod-openapi](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), allowing you to focus on implementing your business logic rather than dealing with boilerplate code. While we aim for full compatibility in the generated code, we're continuously working to improve the conversion accuracy and support more OpenAPI features. We welcome feedback and contributions to make this tool even better for the community.
 
 **Hono Takibi** automates this process by:
 - Converting OpenAPI schemas to Zod schemas
