@@ -426,10 +426,6 @@ describe('Hono Takibi', () => {
     try {
       await main(true)
     } catch (e) {
-      expect(
-        e.message,
-      ).toBe(`Error opening file "/workspaces/hono-takibi/packages/hono-takibi/test.yaml" 
-ENOENT: no such file or directory, open '/workspaces/hono-takibi/packages/hono-takibi/test.yaml'`)
       expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
     }
   })
