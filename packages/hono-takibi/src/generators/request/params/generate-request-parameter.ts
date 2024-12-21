@@ -58,7 +58,7 @@ export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
 ): string {
-  if (!parameters && !requestBody?.content?.['application/json']) {
+  if (!(parameters || requestBody?.content?.['application/json'])) {
     return ''
   }
 
