@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Components } from '../../../types'
+import type { Components } from '../../../types'
 import { generateComponentsCode } from './generate-components-code'
 
 const generateComponentsCodeTestCases: {

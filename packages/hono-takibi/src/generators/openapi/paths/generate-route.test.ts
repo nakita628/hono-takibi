@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Operation } from '../../../types'
 import { generateRoute } from './generate-route'
-import { Operation } from '../../../types'
 
 const generateRouteTestCases: {
   path: string

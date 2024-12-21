@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Operation } from '../../types'
+import type { Operation } from '../../types'
 import { isOperation } from './is-operation'
 
 const isOperationTestCases: { obj: Operation; expected: boolean }[] = [

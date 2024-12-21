@@ -6,7 +6,7 @@ const generateZodObjectSchemaTestCases = [
     input: {
       name: 'string',
     },
-    expected: `z.object({name:string})`,
+    expected: 'z.object({name:string})',
   },
 ]
 

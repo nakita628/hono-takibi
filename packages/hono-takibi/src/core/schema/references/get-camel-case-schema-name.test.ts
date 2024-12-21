@@ -38,7 +38,7 @@ const getCamelCaseSchemaNameTestCases = [
 
 describe('getCamelCaseSchemaName', () => {
   it.concurrent.each(getCamelCaseSchemaNameTestCases)(
-    `getCamelCaseSchemaName($schemaName) -> $expected`,
+    'getCamelCaseSchemaName($schemaName) -> $expected',
     ({ schemaName, expected }) => {
       const result = getCamelCaseSchemaName(schemaName)
       expect(result).toBe(expected)

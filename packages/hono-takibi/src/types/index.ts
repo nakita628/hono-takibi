@@ -1,4 +1,4 @@
-import SwaggerParser from '@apidevtools/swagger-parser'
+import type SwaggerParser from '@apidevtools/swagger-parser'
 
 /**
  * Base OpenAPI type derived from SwaggerParser

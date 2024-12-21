@@ -1,4 +1,4 @@
-import { Format } from '../../types'
+import type { Format } from '../../types'
 
 /**
  * Mapping of OpenAPI formats to Zod validation methods

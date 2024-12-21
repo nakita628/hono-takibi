@@ -1,5 +1,5 @@
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
-import { Format } from '../../types'
+import type { Format } from '../../types'
 
 type GenerateZodStringSchemaParams = {
   pattern?: string

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'path'
-import fs from 'fs'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { main } from '.'
 
 const honoCode = `import { createRoute, z } from '@hono/zod-openapi'

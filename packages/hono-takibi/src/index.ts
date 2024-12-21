@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import SwaggerParser from '@apidevtools/swagger-parser'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { format } from 'prettier'
 import { generateHono } from './generators/hono/generate-hono'
-import { OpenAPISpec } from './types'
+import type { OpenAPISpec } from './types'
 
 /**
  * CLI entry point for hono-takibi
@@ -25,7 +25,7 @@ import { OpenAPISpec } from './types'
  * npx hono-takibi openapi.yaml -o routes.ts
  * ```
  */
-export async function main(dev: boolean = false) {
+export async function main(dev = false) {
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)

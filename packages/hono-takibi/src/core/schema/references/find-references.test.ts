@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { findReferences } from './find-references'
-import { Schema } from '../../../types'
+import type { Schema } from '../../../types'
 
 const findReferencesTestCases: { schema: Schema; expected: Set<string> }[] = [
   {

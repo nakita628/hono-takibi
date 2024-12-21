@@ -1,6 +1,6 @@
 import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
 import prisma from '../infra/index.js'
 import api from '../index.js'
 

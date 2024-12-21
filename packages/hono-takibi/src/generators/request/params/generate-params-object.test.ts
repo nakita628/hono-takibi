@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateParamsObject } from './generate-params-object'
-import { ParamsObject, Parameters } from '../../../types'
+import type { ParamsObject, Parameters } from '../../../types'
 
 const generateParamsObjectTestCases: {
   parameters: Parameters[]

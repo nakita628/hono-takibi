@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Schema } from '../../types'
 import { generateZodSchema } from './generate-zod-schema'
-import { Schema } from '../../types'
 
 const generateZodSchemaTestCases: { input: Schema; expected: string }[] = [
   {

@@ -4,7 +4,7 @@ import { generateRequestBody } from '../body/generate-request-body'
 import { generateRequestParamsArray } from './generate-request-params-array'
 import { generateInsertRequestBody } from '../body/generate-insert-request-body'
 import { generateRequestParams } from './generate-request-params'
-import { Parameters, RequestBody } from '../../../types'
+import type { Parameters, RequestBody } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**

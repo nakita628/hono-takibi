@@ -1,4 +1,4 @@
-import { HttpMethod } from '../../types'
+import type { HttpMethod } from '../../types'
 
 /**
  * Type guard function to check if a string is a valid HTTP method

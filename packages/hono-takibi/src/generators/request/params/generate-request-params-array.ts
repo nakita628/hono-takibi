@@ -1,4 +1,4 @@
-import { ParamsObject } from '../../../types'
+import type { ParamsObject } from '../../../types'
 import { generateZodObjectSchema } from '../../zod/generate-zod-object-schema'
 
 /**

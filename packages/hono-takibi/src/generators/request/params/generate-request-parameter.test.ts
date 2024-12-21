@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
-import { Parameters, RequestBody } from '../../../types'
+import type { Parameters, RequestBody } from '../../../types'
 
 const generateRequestParameterTestCases: {
   parameters: Parameters[] | undefined
@@ -45,7 +45,7 @@ const generateRequestParameterTestCases: {
       },
     ],
     requestBody: undefined,
-    expected: `request:{query:z.object({page:z.string(),rows:z.string()})},`,
+    expected: 'request:{query:z.object({page:z.string(),rows:z.string()})},',
   },
   {
     parameters: [
