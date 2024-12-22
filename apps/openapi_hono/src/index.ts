@@ -36,7 +36,7 @@ api.use('*', async (c, next) => {
 app
   .doc('/doc', {
     info: {
-      title: 'Hono🔥 Takibi API',
+      title: 'Hono Sample API',
       version: 'v1',
     },
     openapi: '3.0.0',
