@@ -424,6 +424,15 @@ export const deletePostsIdRoute = createRoute({
 })
 ```
 
+## Development Status
+
+This project is in **early development** and:
+- May contain bugs or incomplete features
+- Not all OpenAPI features are supported yet
+- Breaking changes may occur between versions
+
+We welcome feedback and contributions to improve the tool!
+
 ## License
 
 Distributed under the MIT License. See [LICENSE](https://github.com/nakita-Ypm/hono-takibi?tab=MIT-1-ov-file) for more information.
