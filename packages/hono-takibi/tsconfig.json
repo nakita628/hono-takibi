@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "strict": true,
+    "target": "ES2022",
     "declaration": true,
-    "module": "NodeNext",
-    "skipLibCheck": true,
+    "outDir": "./dist",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
+  "types": ["node", "vitest/globals"],
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test.ts", "node_modules"]
+  "exclude": ["**/src/**/*.test.ts", "**/src/data/**/*.ts"]
 }
