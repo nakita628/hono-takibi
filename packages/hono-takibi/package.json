@@ -5,7 +5,16 @@
   "license": "MIT",
   "keywords": ["hono", "openapi"],
   "homepage": "https://github.com/nakita-Ypm/hono-takibi",
-  "bugs": { "url": "https://github.com/nakita-Ypm/hono-takibi/issues" },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nakita-Ypm/hono-takibi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nakita-Ypm/hono-takibi/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -16,7 +25,8 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    // "release": "npm pkg fix && npm publish"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",

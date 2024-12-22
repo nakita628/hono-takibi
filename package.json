@@ -9,7 +9,8 @@
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",
-    "coverage": "pnpm -F hono-takibi coverage"
+    "coverage": "pnpm -F hono-takibi coverage",
+    "release": "pnpm build && pnpm -F hono-takibi release"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
