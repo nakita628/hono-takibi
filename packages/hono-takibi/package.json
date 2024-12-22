@@ -25,7 +25,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "coverage": "vitest run --coverage",
+    "coverage": "vitest run --coverage"
     // "release": "npm pkg fix && npm publish"
   },
   "dependencies": {
