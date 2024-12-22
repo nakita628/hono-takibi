@@ -1,15 +1,17 @@
 {
   "name": "hono-takibi-monorepo",
   "private": true,
+  "license": "MIT",
   "scripts": {
-    "dev": "pnpm -F openapi_hono dev",
+    "dev": "cp apps/openapi_hono/.env.example apps/openapi_hono/.env && pnpm -F openapi_hono migrate && pnpm -F openapi_hono dev",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "fmt": "pnpm biome format --write ./",
     "lint": "pnpm biome lint",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",
-    "coverage": "pnpm -F hono-takibi coverage"
+    "coverage": "pnpm -F hono-takibi coverage",
+    "release": "pnpm build && pnpm -F hono-takibi release"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
