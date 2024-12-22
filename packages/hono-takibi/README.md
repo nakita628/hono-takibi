@@ -424,14 +424,45 @@ export const deletePostsIdRoute = createRoute({
 })
 ```
 
-## Development Status
+## ⚠️ Development Status
 
-This project is in **early development** and:
-- May contain bugs or incomplete features
-- Not all OpenAPI features are supported yet
-- Breaking changes may occur between versions
+This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
 We welcome feedback and contributions to improve the tool!
+
+### Current Limitations
+
+1. **Schema Naming Convention**
+   - Only generates camelCase schema names
+   - Example: `Post` in OpenAPI becomes `postSchema` in generated code
+   - No support for custom naming conventions yet
+
+2. **OpenAPI Support**
+   - Not all OpenAPI features are supported
+   - Complex schemas might not convert correctly
+   - Limited support for certain response types
+   - Some OpenAPI validations may not be perfectly converted to Zod validations
+
+### 🙏 Seeking Advice
+
+As a relatively new developer, I would greatly appreciate feedback on:
+
+- Code architecture and best practices
+- Error handling approaches
+- Testing strategies
+- Performance improvements
+- Security considerations
+- Naming convention flexibility
+- OpenAPI to Zod conversion strategies
+
+I welcome any feedback, suggestions, or contributions that could help make this tool more robust and reliable. Feel free to:
+- Open issues for bugs or suggestions
+- Submit PRs with improvements
+- Share your experience using the tool
+- Provide guidance on better coding practices
+- Report any conversion inconsistencies you find
+
+Let's make this tool better together! 🔥
 
 ## License
 
