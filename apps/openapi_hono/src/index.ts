@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
+import { apiReference } from '@scalar/hono-api-reference'
 import {
   deletePostsIdRoute,
   getPostsRoute,
@@ -33,6 +34,7 @@ api.use('*', async (c, next) => {
   }
 })
 
+// swagger
 app
   .doc('/doc', {
     info: {
@@ -52,6 +54,17 @@ app
     ],
   })
   .get('/ui', swaggerUI({ url: '/doc' }))
+
+// scalar
+app.get(
+  '/docs',
+  apiReference({
+    theme: 'saturn',
+    spec: {
+      url: '/doc',
+    },
+  }),
+)
 
 const port = 3000
 console.log(`Server is running on http://localhost:${port}`)
