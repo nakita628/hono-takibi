@@ -3,16 +3,16 @@ import { generateZodSchemaDefinition } from './generate-zod-schema-definition'
 
 const generateSchemaDefinitionTestCases = [
   {
-    name: 'Order',
+    name: 'orderSchema',
     schema: `z.object({id:z.number().int(),petId:z.number().int(),quantity:z.number().int(),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]),complete:z.boolean()}).optional()`,
-    expected: `const Order = z.object({id:z.number().int(),petId:z.number().int(),quantity:z.number().int(),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]),complete:z.boolean()}).optional()`,
+    expected: `const orderSchema = z.object({id:z.number().int(),petId:z.number().int(),quantity:z.number().int(),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]),complete:z.boolean()}).optional()`,
   },
   {
-    name: 'Address',
+    name: 'addressSchema',
     schema:
       'z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
     expected:
-      'const Address = z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
+      'const addressSchema = z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
   },
 ]
 

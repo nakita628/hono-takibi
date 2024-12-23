@@ -7,12 +7,12 @@
  * @returns Generated constant declaration string
  *
  * @example
- * generateZodSchemaDefinition('User', 'z.object({ id: z.number(), name: z.string() })')
- * // Returns: 'const User = z.object({ id: z.number(), name: z.string() })'
+ * generateZodSchemaDefinition('userSchema', 'z.object({ id: z.number(), name: z.string() })')
+ * // Returns: 'const userSchema = z.object({ id: z.number(), name: z.string() })'
  *
  * @example
- * generateZodSchemaDefinition('Status', 'z.enum(["active", "inactive"])')
- * // Returns: 'const Status = z.enum(["active", "inactive"])'
+ * generateZodSchemaDefinition('statusSchema', 'z.enum(["active", "inactive"])')
+ * // Returns: 'const statusSchema = z.enum(["active", "inactive"])'
  *
  * @remarks
  * - Used for generating Zod schema constant declarations

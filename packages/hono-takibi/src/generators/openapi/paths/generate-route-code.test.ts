@@ -3,9 +3,9 @@ import { generateRouteCode } from './generate-route-code'
 import type { OpenAPIPaths } from '../../../types'
 import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
 
-const generateRouteCodeTestCases: { input: OpenAPIPaths; expected: string }[] = [
+const generateRouteCodeTestCases: { openAPIPaths: OpenAPIPaths; expected: string }[] = [
   {
-    input: petStoreOpenAPI.paths,
+    openAPIPaths: petStoreOpenAPI.paths,
     expected: `export const putPetRoute=createRoute({tags:["pet"],method:'put',path:'/pet',description:'Update an existing pet by Id',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:petSchema,},},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:petSchema,},},},400:{description:'Invalid ID supplied',},404:{description:'Pet not found',},422:{description:'Validation exception',},}})
 
 export const postPetRoute=createRoute({tags:["pet"],method:'post',path:'/pet',description:'Add a new pet to the store',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:petSchema,},},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:petSchema,},},},400:{description:'Invalid input',},422:{description:'Validation exception',},}})
@@ -48,9 +48,9 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
 
 describe('generateRouteCode', () => {
   it.concurrent.each(generateRouteCodeTestCases)(
-    'generateRouteCode($input) -> $expected',
-    async ({ input, expected }) => {
-      const result = generateRouteCode(input)
+    'generateRouteCode($openAPIPaths) -> $expected',
+    async ({ openAPIPaths, expected }) => {
+      const result = generateRouteCode(openAPIPaths)
       expect(result).toBe(expected)
     },
   )

@@ -22,6 +22,7 @@
     "hono-takibi": "dist/index.js"
   },
   "scripts": {
+    "deps": "rm -rf node_modules && pnpm install",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

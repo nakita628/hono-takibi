@@ -3,7 +3,7 @@ import { generateZodObjectSchema } from './generate-zod-object-schema'
 
 const generateZodObjectSchemaTestCases = [
   {
-    input: {
+    object: {
       name: 'string',
     },
     expected: 'z.object({name:string})',
@@ -12,9 +12,9 @@ const generateZodObjectSchemaTestCases = [
 
 describe('generateZodObjectSchema', () => {
   it.concurrent.each(generateZodObjectSchemaTestCases)(
-    'generateZodObjectSchema($input) -> $expected',
-    async ({ input, expected }) => {
-      const result = generateZodObjectSchema(input)
+    'generateZodObjectSchema($object) -> $expected',
+    async ({ object, expected }) => {
+      const result = generateZodObjectSchema(object)
       expect(result).toBe(expected)
     },
   )

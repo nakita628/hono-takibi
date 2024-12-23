@@ -3,17 +3,17 @@ import type { Components } from '../../../types'
 import { generateComponentsCode } from './generate-components-code'
 
 const generateComponentsCodeTestCases: {
-  input: Components
+  components: Components
   expected: string
 }[] = [
   {
-    input: {
+    components: {
       schemas: {},
     },
     expected: '',
   },
   {
-    input: {
+    components: {
       schemas: {
         Product: {
           type: 'object',
@@ -196,9 +196,9 @@ userSchema
 
 describe('generateComponentsCode', () => {
   it.concurrent.each(generateComponentsCodeTestCases)(
-    'generateComponentsCode($input) -> $expected',
-    async ({ input, expected }) => {
-      const result = generateComponentsCode(input)
+    'generateComponentsCode($components) -> $expected',
+    async ({ components, expected }) => {
+      const result = generateComponentsCode(components)
       expect(result).toBe(expected)
     },
   )
