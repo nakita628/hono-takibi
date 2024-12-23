@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "deps": "rm -rf node_modules && pnpm install",
     "dev": "tsx watch src/index.ts",
     "migrate": "prisma migrate dev --name init",
     "test": "vitest run",
