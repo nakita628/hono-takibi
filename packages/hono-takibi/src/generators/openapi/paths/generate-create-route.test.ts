@@ -3,7 +3,7 @@ import { generateCreateRoute } from './generate-create-route'
 
 const generateCreateRouteTestCases = [
   {
-    input: {
+    args: {
       routeName: 'deletePostsId',
       tagsCode: '["Post"]',
       methodCode: 'delete',
@@ -19,16 +19,16 @@ const generateCreateRouteTestCases = [
 describe('generateCreateRoute', () => {
   it.concurrent.each(generateCreateRouteTestCases)(
     `generateCreateRoute(
-     $input.routeName,
-     $input.tagList, 
-     $input.method, 
-     $input.path, 
-     $input.description, 
-     $input.requestParams, 
-     $input.responsesCode) 
+     $args.routeName,
+     $args.tagList, 
+     $args.method, 
+     $args.path, 
+     $args.description, 
+     $args.requestParams, 
+     $args.responsesCode) 
      -> $expected`,
-    async ({ input, expected }) => {
-      const result = generateCreateRoute(input)
+    async ({ args, expected }) => {
+      const result = generateCreateRoute(args)
       expect(result).toBe(expected)
     },
   )
