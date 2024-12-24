@@ -1,4 +1,4 @@
-![img](assets/icon/hono-takibi.png)
+![img](https://raw.githubusercontent.com/nakita-Ypm/hono-takibi/refs/heads/main/packages/hono-takibi/assets/icon/hono-takibi.png)
 
 # Hono Takibi
 
