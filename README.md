@@ -1,3 +1,5 @@
+![img](packages/hono-takibi/assets/icon/hono-takibi.png)
+
 # Hono Takibi
 
 ![img](packages/hono-takibi/assets/img/hono-takibi.png)
