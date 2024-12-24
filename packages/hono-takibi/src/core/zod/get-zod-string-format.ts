@@ -30,6 +30,7 @@ const FORMAT_STRING_TO_ZOD_VALIDATION: Record<FormatString, string> = {
   time: '.time()',
   duration: '.duration()',
   base64: '.base64()',
+  binary: '.instanceof(Uint8Array)',
 } as const
 
 /**

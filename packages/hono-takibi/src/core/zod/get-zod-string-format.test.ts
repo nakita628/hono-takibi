@@ -24,7 +24,7 @@ const getZodFormatStringTestCases: [FormatString, string][] = [
   ['time', '.time()'],
   ['duration', '.duration()'],
   ['base64', '.base64()'],
-  // ['binary', 'z.instanceof(Uint8Array)'],
+  ['binary', '.instanceof(Uint8Array)'],
 ]
 
 describe('getZodStringFormatData', () => {
