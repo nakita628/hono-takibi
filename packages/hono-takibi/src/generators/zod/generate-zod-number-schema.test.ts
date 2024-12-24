@@ -31,7 +31,7 @@ const generateZodNumberSchemaTestCases: {
 
 describe('generateZodNumberSchema', () => {
   it.concurrent.each(generateZodNumberSchemaTestCases)(
-    `generateZodNumberSchema(%s) -> %s`,
+    'generateZodNumberSchema(%s) -> %s',
     ({ args, expected }) => {
       const result = generateZodNumberSchema(args)
       expect(result).toBe(expected)
