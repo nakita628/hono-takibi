@@ -143,7 +143,7 @@ export const getPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   description: 'Returns a single pet',
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { params: z.object({ petId: z.number().int() }) },
+  request: { params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -161,7 +161,7 @@ export const postPetPetIdRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     query: z.object({ name: z.string().optional(), status: z.string().optional() }),
-    params: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
   },
   responses: { 400: { description: 'Invalid input' } },
 })
@@ -173,7 +173,7 @@ export const deletePetPetIdRoute = createRoute({
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    params: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
     headers: z.object({ api_key: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
@@ -186,7 +186,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     query: z.object({ additionalMetadata: z.string().optional() }),
-    params: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
   },
   responses: {
     200: {
@@ -232,7 +232,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-  request: { params: z.object({ orderId: z.number().int() }) },
+  request: { params: z.object({ orderId: z.string().pipe(z.coerce.number().int()) }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -249,7 +249,7 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-  request: { params: z.object({ orderId: z.number().int() }) },
+  request: { params: z.object({ orderId: z.string().pipe(z.coerce.number().int()) }) },
   responses: {
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },

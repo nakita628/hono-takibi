@@ -91,13 +91,38 @@ const generateParamsObjectTestCases: {
   {
     parameters: [
       {
-        schema: { type: 'integer' },
+        schema: { type: 'number', minimum: 0 },
         required: true,
         name: 'page',
         in: 'query',
       },
       {
-        schema: { type: 'integer' },
+        schema: { type: 'number', minimum: 0 },
+        required: true,
+        name: 'rows',
+        in: 'query',
+      },
+    ],
+    expected: {
+      query: {
+        page: 'z.string().pipe(z.coerce.number().min(0))',
+        rows: 'z.string().pipe(z.coerce.number().min(0))',
+      },
+      params: {},
+      headers: {},
+      body: {},
+    },
+  },
+  {
+    parameters: [
+      {
+        schema: { type: 'integer', minimum: 0 },
+        required: true,
+        name: 'page',
+        in: 'query',
+      },
+      {
+        schema: { type: 'integer', minimum: 0 },
         required: true,
         name: 'rows',
         in: 'query',
