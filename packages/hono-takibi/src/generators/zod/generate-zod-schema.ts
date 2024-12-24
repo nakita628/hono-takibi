@@ -3,6 +3,9 @@ import { generateZodArray } from './generate-zod-array'
 import { generateZodStringSchema } from './generate-zod-string-schema'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
 import { generateZodRecordSchema } from './generate-zod-record-schema'
+import { isFormatString } from '../../core/validator/is-format-string'
+import { generateZodNumberSchema } from './generate-zod-number-schema'
+import { generateZodIntegerSchema } from './generate-zod-integer-schema'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -90,6 +93,8 @@ export function generateZodSchema(schema: Schema): string {
     pattern,
     minLength,
     maxLength,
+    minimum,
+    maximum,
     properties,
     required = [],
     items,
@@ -110,8 +115,33 @@ export function generateZodSchema(schema: Schema): string {
     return generateZodPropertiesSchema(properties, required)
   }
   if (type === 'string') {
-    return generateZodStringSchema({ pattern, minLength, maxLength, format })
+    return generateZodStringSchema({
+      pattern,
+      minLength,
+      maxLength,
+      format: format && isFormatString(format) ? format : undefined,
+    })
   }
+
+  if (type === 'number') {
+    return generateZodNumberSchema({
+      pattern,
+      minLength,
+      maxLength,
+      minimum,
+      maximum,
+    })
+  }
+
+  if (type === 'integer') {
+    return generateZodIntegerSchema({
+      minLength,
+      maxLength,
+      minimum,
+      maximum,
+    })
+  }
+
   if (type === 'array' && items) {
     return generateZodArray(generateZodSchema(items))
   }

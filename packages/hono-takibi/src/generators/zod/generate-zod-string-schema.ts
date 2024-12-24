@@ -1,11 +1,11 @@
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
-import type { Format } from '../../types'
+import type { FormatString } from '../../types'
 
 type GenerateZodStringSchemaParams = {
   pattern?: string
   minLength?: number
   maxLength?: number
-  format?: Format
+  format?: FormatString
 }
 
 /**

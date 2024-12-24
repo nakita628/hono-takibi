@@ -1,4 +1,5 @@
 import type { Parameter, ParamsObject, Parameters } from '../../../types'
+import { generateZodCoerce } from '../../zod/generate-zod-coerce'
 import { generateZodSchema } from '../../zod/generate-zod-schema'
 
 /**
@@ -84,8 +85,9 @@ export function generateParamsObject(parameters: Parameters[]): ParamsObject {
     const paramLocation = PARAM_LOCATION_TO_KEY[param.in]
     // query && integer
     const zodSchema =
-      paramLocation === 'query' && param.schema.type === 'integer'
-        ? 'z.string().pipe(z.coerce.number().int().min(0))'
+      (paramLocation === 'query' && param.schema.type === 'number') ||
+      param.schema.type === 'integer'
+        ? generateZodCoerce('z.string()', generateZodSchema(param.schema))
         : generateZodSchema(param.schema)
 
     acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`

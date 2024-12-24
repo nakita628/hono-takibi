@@ -1,4 +1,4 @@
-import type { Format } from '../../types'
+import type { FormatString } from '../../types'
 
 /**
  * Mapping of OpenAPI formats to Zod validation methods
@@ -8,7 +8,7 @@ import type { Format } from '../../types'
  * - Number formats map to number type
  * - Empty string for unrecognized formats
  */
-const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
+const FORMAT_STRING_TO_ZOD_VALIDATION: Record<FormatString, string> = {
   // max: '.max()',
   // min: '.min()',
   // length: '.length()',
@@ -16,6 +16,7 @@ const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
   uri: '.url()',
   emoji: '.emoji()',
   uuid: '.uuid()',
+  nanoid: '.nanoid()',
   cuid: '.cuid()',
   cuid2: '.cuid2()',
   ulid: '.ulid()',
@@ -29,11 +30,7 @@ const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
   time: '.time()',
   duration: '.duration()',
   base64: '.base64()',
-  int32: 'z.number()',
-  int64: 'z.number()',
-  float: 'z.number()',
-  double: 'z.number()',
-  binary: 'z.instanceof(Uint8Array)',
+  binary: '.instanceof(Uint8Array)',
 } as const
 
 /**
@@ -64,6 +61,6 @@ const FORMAT_TO_ZOD_VALIDATION: Record<Format, string> = {
  * - Returns empty string for unrecognized formats
  * - Used in schema generation for request/response validation
  */
-export function getZodFormatString(format: Format): string {
-  return FORMAT_TO_ZOD_VALIDATION[format]
+export function getZodFormatString(format: FormatString): string {
+  return FORMAT_STRING_TO_ZOD_VALIDATION[format]
 }

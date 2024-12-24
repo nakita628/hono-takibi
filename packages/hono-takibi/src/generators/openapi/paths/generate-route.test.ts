@@ -73,7 +73,6 @@ const generateRouteTestCases: {
         '201': {
           description: 'Created',
           content: {
-            // contentを追加
             'application/json': {
               schema: {
                 name: 'response',

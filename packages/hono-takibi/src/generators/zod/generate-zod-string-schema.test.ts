@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodStringSchema } from './generate-zod-string-schema'
-import type { Format } from '../../types'
+import type { FormatString } from '../../types'
 
 const generateZodStringSchemaTestCases: {
   args: {
     pattern?: string
     minLength?: number
     maxLength?: number
-    format?: Format
+    format?: FormatString
   }
   expected: string
 }[] = [
