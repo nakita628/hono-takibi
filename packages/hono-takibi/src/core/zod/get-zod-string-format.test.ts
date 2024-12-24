@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { getZodFormatString } from './get-zod-string-format'
-import type { Format } from '../../types'
+import type { FormatString } from '../../types'
 
-const getZodFormatStringTestCases: [Format, string][] = [
+const getZodFormatStringTestCases: [FormatString, string][] = [
   // ['max', '.max()'],
   // ['min', '.min()'],
   // ['length', '.length()'],
@@ -10,7 +10,7 @@ const getZodFormatStringTestCases: [Format, string][] = [
   ['uri', '.url()'],
   ['emoji', '.emoji()'],
   ['uuid', '.uuid()'],
-  // ['nanoid', 'nanoid()'],
+  ['nanoid', '.nanoid()'],
   ['cuid', '.cuid()'],
   ['cuid2', '.cuid2()'],
   ['ulid', '.ulid()'],
@@ -24,11 +24,7 @@ const getZodFormatStringTestCases: [Format, string][] = [
   ['time', '.time()'],
   ['duration', '.duration()'],
   ['base64', '.base64()'],
-  ['int32', 'z.number()'],
-  ['int64', 'z.number()'],
-  ['float', 'z.number()'],
-  ['double', 'z.number()'],
-  ['binary', 'z.instanceof(Uint8Array)'],
+  // ['binary', 'z.instanceof(Uint8Array)'],
 ]
 
 describe('getZodStringFormatData', () => {
