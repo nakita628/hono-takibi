@@ -76,6 +76,7 @@ export type FormatString =
   | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
   | 'duration' // ISO 8601 duration
   | 'base64'
+  | 'binary'
 
 export type FormatNumber = 'int32' | 'int64' | 'float' | 'double'
 
