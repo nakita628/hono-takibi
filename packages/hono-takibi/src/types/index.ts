@@ -47,10 +47,12 @@ export type Type =
   | 'array'
   | 'object'
 
+export type Format = FormatString | FormatNumber
+
 /**
  * Format specifications for string types
  */
-export type Format =
+export type FormatString =
   // validations
   // | 'max'
   // | 'min'
@@ -59,7 +61,7 @@ export type Format =
   | 'uri'
   | 'emoji'
   | 'uuid'
-  // | 'nanoid'
+  | 'nanoid'
   | 'cuid'
   | 'cuid2'
   | 'ulid'
@@ -74,11 +76,8 @@ export type Format =
   | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
   | 'duration' // ISO 8601 duration
   | 'base64'
-  | 'int32'
-  | 'int64'
-  | 'float'
-  | 'double'
-  | 'binary'
+
+export type FormatNumber = 'int32' | 'int64' | 'float' | 'double'
 
 /**
  * Content type definitions with their schemas
@@ -160,6 +159,8 @@ export type Schema = {
   pattern?: string
   minLength?: number
   maxLength?: number
+  minimum?: number
+  maximum?: number
   example?: string | number | Array<string | number>
   properties?: Record<string, Schema>
   required?: string[]
