@@ -168,7 +168,7 @@ paths:
           required: false
           schema:
             type: integer
-            minimum: 1
+            minimum: 0
             default: 1
           description: The page number to retrieve. Must be a positive integer. Defaults to 1.
         - in: query
@@ -176,7 +176,7 @@ paths:
           required: false
           schema:
             type: integer
-            minimum: 1
+            minimum: 0
             default: 10
           description: The number of posts per page. Must be a positive integer. Defaults to 10.
       responses:
