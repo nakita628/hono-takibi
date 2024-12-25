@@ -13,7 +13,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "Post": {
         "type": "object",
@@ -40,7 +42,12 @@
             "description": "Timestamp when the post was last updated"
           }
         },
-        "required": ["id", "post", "createdAt", "updatedAt"]
+        "required": [
+          "id",
+          "post",
+          "createdAt",
+          "updatedAt"
+        ]
       }
     }
   },
@@ -57,7 +64,9 @@
   "paths": {
     "/": {
       "get": {
-        "tags": ["Hono"],
+        "tags": [
+          "Hono"
+        ],
         "summary": "Welcome message",
         "description": "Retrieve a simple welcome message from the Hono API.",
         "responses": {
@@ -73,7 +82,9 @@
                       "example": "Hono🔥"
                     }
                   },
-                  "required": ["message"]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -83,7 +94,9 @@
     },
     "/posts": {
       "post": {
-        "tags": ["Post"],
+        "tags": [
+          "Post"
+        ],
         "summary": "Create a new post",
         "description": "Submit a new post with a maximum length of 140 characters.",
         "requestBody": {
@@ -100,7 +113,9 @@
                     "maxLength": 140
                   }
                 },
-                "required": ["post"]
+                "required": [
+                  "post"
+                ]
               },
               "example": {
                 "post": "This is my first post!"
@@ -151,7 +166,9 @@
         }
       },
       "get": {
-        "tags": ["Post"],
+        "tags": [
+          "Post"
+        ],
         "summary": "Retrieve a list of posts",
         "description": "Retrieve a paginated list of posts. Specify the page number and the number of posts per page.",
         "parameters": [
@@ -161,7 +178,7 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "minimum": 1,
+              "minimum": 0,
               "default": 1
             },
             "description": "The page number to retrieve. Must be a positive integer. Defaults to 1."
@@ -172,7 +189,7 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "minimum": 1,
+              "minimum": 0,
               "default": 10
             },
             "description": "The number of posts per page. Must be a positive integer. Defaults to 10."
@@ -231,7 +248,9 @@
     },
     "/posts/{id}": {
       "put": {
-        "tags": ["Post"],
+        "tags": [
+          "Post"
+        ],
         "summary": "Update an existing post",
         "description": "Update the content of an existing post identified by its unique ID.",
         "parameters": [
@@ -260,7 +279,9 @@
                     "maxLength": 140
                   }
                 },
-                "required": ["post"]
+                "required": [
+                  "post"
+                ]
               },
               "example": {
                 "post": "Updated post content."
@@ -301,7 +322,9 @@
         }
       },
       "delete": {
-        "tags": ["Post"],
+        "tags": [
+          "Post"
+        ],
         "summary": "Delete a post",
         "description": "Delete an existing post identified by its unique ID.",
         "parameters": [
