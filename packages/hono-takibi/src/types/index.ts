@@ -94,11 +94,7 @@ type Content = {
     schema: Schema
   }
   'application/octet-stream'?: {
-    schema: {
-      type: Type
-      format?: Format
-      items?: Schema
-    }
+    schema: Schema
   }
 }
 
