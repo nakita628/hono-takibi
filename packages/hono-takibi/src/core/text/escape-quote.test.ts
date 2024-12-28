@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { escape } from './escape'
+import { escapeQuote } from './escape-quote'
 
 const escapeTestCases = [
   {
@@ -46,7 +46,7 @@ const escapeTestCases = [
 
 describe('escape', () => {
   it.concurrent.each(escapeTestCases)('escape($str) -> $expected', ({ str, expected }) => {
-    const result = escape(str)
+    const result = escapeQuote(str)
     expect(result).toBe(expected)
   })
 })
