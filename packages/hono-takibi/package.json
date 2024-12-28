@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/n-akita-takibi/hono-takibi.git"
+    "url": "git+https://github.com/nakita628/hono-takibi.git"
   },
   "bugs": {
-    "url": "https://github.com/n-akita-takibi/hono-takibi/issues"
+    "url": "https://github.com/nakita628/hono-takibi/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
