@@ -1,8 +1,8 @@
-![img](https://raw.githubusercontent.com/nakita-Ypm/hono-takibi/refs/heads/main/packages/hono-takibi/assets/icon/hono-takibi.png)
+![img](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/icon/hono-takibi.png)
 
 # Hono Takibi
 
-![img](https://raw.githubusercontent.com/nakita-Ypm/hono-takibi/refs/heads/main/packages/hono-takibi/assets/img/hono-takibi.png)
+![img](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/img/hono-takibi.png)
 
 ```bash
 npm add -D hono-takibi
