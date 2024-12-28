@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { escapeString } from './escape'
+import { escape } from './escape'
 
-const escapeStringTestCases = [
+const escapeTestCases = [
   {
     str: "It's a test",
     expected: "It\\'s a test",
@@ -27,10 +27,6 @@ const escapeStringTestCases = [
     expected: "\\'",
   },
   {
-    str: undefined,
-    expected: '',
-  },
-  {
     str: '',
     expected: '',
   },
@@ -48,12 +44,9 @@ const escapeStringTestCases = [
   },
 ]
 
-describe('escapeString', () => {
-  it.concurrent.each(escapeStringTestCases)(
-    'escapeString($str) -> $expected',
-    ({ str, expected }) => {
-      const result = escapeString(str)
-      expect(result).toBe(expected)
-    },
-  )
+describe('escape', () => {
+  it.concurrent.each(escapeTestCases)('escape($str) -> $expected', ({ str, expected }) => {
+    const result = escape(str)
+    expect(result).toBe(expected)
+  })
 })

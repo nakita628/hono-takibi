@@ -1,4 +1,4 @@
-import { escapeString } from '../../../core/text/escape'
+import { escape } from '../../../core/text/escape'
 import type { Responses } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
@@ -66,15 +66,15 @@ export function generateResponseSchema(responses: Responses): string {
   const responseEntries = responseCodes.map((code) => {
     const response = responses[code]
     // 2.1 no content (description only response)
-    if (!response.content) return `${code}:{description:'${escapeString(response.description)}',},`
+    if (!response.content) return `${code}:{description:'${escape(response.description)}',},`
     // 2.2 processing application/json content types
     const jsonContent = response.content['application/json']
-    if (!jsonContent) return `${code}:{description:'${escapeString(response.description)}',},`
+    if (!jsonContent) return `${code}:{description:'${escape(response.description)}',},`
     // 2.3 generate zod schema
     const schema = jsonContent.schema
     const zodSchema = generatePropertySchema(schema)
     // 2.4 generating a response definition
-    return `${code}:{description:'${escapeString(response.description)}',content:{'application/json':{schema:${zodSchema},},},},`
+    return `${code}:{description:'${escape(response.description)}',content:{'application/json':{schema:${zodSchema},},},},`
   })
   // 3.combine all response definitions
   return responseEntries.join('')

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { petStoreOpenAPI } from '../../data/pet-store-openapi'
 import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
 
-const generateHonoTestCases = [
+const generateZodOpenAPIHonoTestCases = [
   {
     openAPISpec: petStoreOpenAPI,
     expected: `import { createRoute, z } from '@hono/zod-openapi';
@@ -74,9 +74,9 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   },
 ]
 
-describe('generateHono', () => {
-  it.concurrent.each(generateHonoTestCases)(
-    'generateHono($openAPISpec) -> $expected',
+describe('generateZodOpenAPIHono', () => {
+  it.concurrent.each(generateZodOpenAPIHonoTestCases)(
+    'generateZodOpenAPIHono($openAPISpec) -> $expected',
     async ({ openAPISpec, expected }) => {
       const result = generateZodOpenAPIHono(openAPISpec)
       expect(result).toBe(expected)

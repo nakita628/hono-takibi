@@ -1,10 +1,10 @@
 /**
  * Escapes single quotes in a string
  *
- * @function escapeString
+ * @function escape
  * @param str - The string to escape
  * @returns The escaped string
  */
-export function escapeString(str: string | undefined): string {
-  return str?.replace(/'/g, "\\'") ?? ''
+export function escape(str: string): string {
+  return str?.replace(/'/g, "\\'")
 }
