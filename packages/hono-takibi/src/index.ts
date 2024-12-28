@@ -4,7 +4,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
 import { format } from 'prettier'
-import { generateHono } from './generators/hono/generate-hono'
+import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import type { OpenAPISpec } from './types'
 
 /**
@@ -37,7 +37,7 @@ export async function main(dev = false) {
     // 5. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
     // 6. generate Hono code
-    const hono = generateHono(openAPI)
+    const hono = generateZodOpenAPIHono(openAPI)
     // 7. format code
     const formattedCode = await format(hono, {
       parser: 'typescript',

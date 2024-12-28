@@ -11,11 +11,11 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
 /**
  * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
  *
- * @function generateHonoCode
+ * @function generateZodOpenAPIHonoCode
  * @param openAPISpec - OpenAPI specification object containing components and paths
  * @returns Generated TypeScript code
  */
-export function generateHono(openAPISpec: OpenAPISpec): string {
+export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec): string {
   // 1. get components
   const components = openAPISpec.components
   // 2. get paths
