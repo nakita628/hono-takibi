@@ -34,7 +34,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({street: z.string().optional(),city: z.string().optional(),state: z.string().optional(),zip: z.string().optional()})',
+      'z.object({street: z.string().openapi({example:"437 Lytton"}).optional(),city: z.string().openapi({example:"Palo Alto"}).optional(),state: z.string().openapi({example:"CA"}).optional(),zip: z.string().openapi({example:"94301"}).optional()})'
   },
   {
     properties: {
@@ -48,7 +48,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional(),username: z.string().optional(),address: z.array(addressSchema).optional()})',
+      'z.object({id: z.number().int().optional(),username: z.string().openapi({example:"fehguy"}).optional(),address: z.array(addressSchema).optional()})',
   },
   {
     properties: {
@@ -73,7 +73,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: ['name', 'photoUrls'],
     expected:
-      'z.object({id: z.number().int().optional(),name: z.string(),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})',
+      'z.object({id: z.number().int().optional(),name: z.string().openapi({example:"doggie"}),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})',
   },
   {
     properties: {
