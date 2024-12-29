@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodNumberSchema } from './generate-zod-number-schema'
-import type { FormatNumber } from '../../types'
+import type { ExampleValue } from '../../types'
 const generateZodNumberSchemaTestCases: {
   args: {
     pattern?: string
@@ -8,6 +8,7 @@ const generateZodNumberSchemaTestCases: {
     maxLength?: number
     minimum?: number
     maximum?: number
+    example?: ExampleValue
   }
   expected: string
 }[] = [
@@ -26,6 +27,10 @@ const generateZodNumberSchemaTestCases: {
   {
     args: { maxLength: 10 },
     expected: 'z.number().max(10)',
+  },
+  {
+    args: { example: 123 },
+    expected: 'z.number().openapi({example:123})',
   },
 ]
 

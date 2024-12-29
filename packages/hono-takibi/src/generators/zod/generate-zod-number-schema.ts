@@ -1,4 +1,4 @@
-import type { FormatNumber, ExampleValue } from '../../types'
+import type { ExampleValue } from '../../types'
 
 type GenerateZodNumberSchemaParams = {
   pattern?: string
@@ -26,6 +26,6 @@ export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): st
   if (typeof minimum === 'number') validations.push(`.min(${minimum})`)
   if (typeof maximum === 'number') validations.push(`.max(${maximum})`)
   // example
-  if (example) validations.push(`.example(${example})`)
+  if (example) validations.push(`.openapi({example:${JSON.stringify(example)}})`)
   return validations.join('')
 }
