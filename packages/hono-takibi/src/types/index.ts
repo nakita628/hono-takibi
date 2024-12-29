@@ -81,21 +81,48 @@ export type FormatString =
 export type FormatNumber = 'int32' | 'int64' | 'float' | 'double'
 
 /**
+ * Primitive values allowed in examples
+ */
+type PrimitiveExample = string | number | boolean | null
+
+/**
+ * Object values allowed in examples
+ */
+type ObjectExample = {
+  [key: string]: PrimitiveExample | ObjectExample | ArrayExample
+}
+
+/**
+ * Array values allowed in examples
+ */
+type ArrayExample = Array<PrimitiveExample | ObjectExample>
+
+/**
+ * Combined example type
+ */
+type ExampleValue = PrimitiveExample | ObjectExample | ArrayExample
+
+/**
  * Content type definitions with their schemas
  */
 type Content = {
   'application/json'?: {
     schema: Schema
+    example?: ExampleValue
   }
   'application/xml'?: {
     schema: Schema
+    example?: ExampleValue
   }
   'application/x-www-form-urlencoded'?: {
     schema: Schema
+    example?: ExampleValue
   }
   'application/octet-stream'?: {
     schema: Schema
+    example?: ExampleValue
   }
+
 }
 
 /**
@@ -158,7 +185,7 @@ export type Schema = {
   maxLength?: number
   minimum?: number
   maximum?: number
-  example?: string | number | Array<string | number>
+  example?: ExampleValue
   properties?: Record<string, Schema>
   required?: string[]
   items?: Schema
