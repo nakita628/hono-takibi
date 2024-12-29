@@ -122,7 +122,6 @@ type Content = {
     schema: Schema
     example?: ExampleValue
   }
-
 }
 
 /**
