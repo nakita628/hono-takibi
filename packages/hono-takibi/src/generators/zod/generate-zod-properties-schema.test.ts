@@ -34,7 +34,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({street: z.string().openapi({example:"437 Lytton"}).optional(),city: z.string().openapi({example:"Palo Alto"}).optional(),state: z.string().openapi({example:"CA"}).optional(),zip: z.string().openapi({example:"94301"}).optional()})'
+      'z.object({street: z.string().openapi({example:"437 Lytton"}).optional(),city: z.string().openapi({example:"Palo Alto"}).optional(),state: z.string().openapi({example:"CA"}).optional(),zip: z.string().openapi({example:"94301"}).optional()})',
   },
   {
     properties: {

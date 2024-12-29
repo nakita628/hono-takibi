@@ -10,28 +10,31 @@ const orderSchema = z.object({
 })
 
 const addressSchema = z.object({
-  street: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
+  street: z.string().openapi({ example: '437 Lytton' }).optional(),
+  city: z.string().openapi({ example: 'Palo Alto' }).optional(),
+  state: z.string().openapi({ example: 'CA' }).optional(),
+  zip: z.string().openapi({ example: '94301' }).optional(),
 })
 
 const customerSchema = z.object({
   id: z.number().int().optional(),
-  username: z.string().optional(),
+  username: z.string().openapi({ example: 'fehguy' }).optional(),
   address: z.array(addressSchema).optional(),
 })
 
-const categorySchema = z.object({ id: z.number().int().optional(), name: z.string().optional() })
+const categorySchema = z.object({
+  id: z.number().int().optional(),
+  name: z.string().openapi({ example: 'Dogs' }).optional(),
+})
 
 const userSchema = z.object({
   id: z.number().int().optional(),
-  username: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
+  username: z.string().openapi({ example: 'theUser' }).optional(),
+  firstName: z.string().openapi({ example: 'John' }).optional(),
+  lastName: z.string().openapi({ example: 'James' }).optional(),
+  email: z.string().openapi({ example: 'john@email.com' }).optional(),
+  password: z.string().openapi({ example: '12345' }).optional(),
+  phone: z.string().openapi({ example: '12345' }).optional(),
   userStatus: z.number().int().optional(),
 })
 
@@ -39,7 +42,7 @@ const tagSchema = z.object({ id: z.number().int().optional(), name: z.string().o
 
 const petSchema = z.object({
   id: z.number().int().optional(),
-  name: z.string(),
+  name: z.string().openapi({ example: 'doggie' }),
   category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
   tags: z.array(tagSchema).optional(),
