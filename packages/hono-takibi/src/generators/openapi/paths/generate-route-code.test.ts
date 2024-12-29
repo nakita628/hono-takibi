@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
 import type { OpenAPIPaths } from '../../../types'
 import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
+import { honoRestOpenAPI } from '../../../data/hono-rest-openapi'
 
 const generateRouteCodeTestCases: { openAPIPaths: OpenAPIPaths; expected: string }[] = [
   {
@@ -43,6 +44,18 @@ export const getUserUsernameRoute=createRoute({tags:["user"],method:'get',path:'
 export const putUserUsernameRoute=createRoute({tags:["user"],method:'put',path:'/user/{username}',description:'This can only be done by the logged in user.',request:{body:{required:false,content:{'application/json':{schema:userSchema,},},},params:z.object({username:z.string()})},responses:{default:{description:'successful operation',},}})
 
 export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',path:'/user/{username}',description:'This can only be done by the logged in user.',request:{params:z.object({username:z.string()})},responses:{400:{description:'Invalid username supplied',},404:{description:'User not found',},}})`,
+  },
+  {
+    openAPIPaths: honoRestOpenAPI.paths,
+    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message: z.string()}),},},},}})
+
+export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',description:'Submit a new post with a maximum length of 140 characters.',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},},responses:{201:{description:'Post successfully created.',content:{'application/json':{schema:errorSchema,},},},400:{description:'Invalid request due to bad input.',content:{'application/json':{schema:errorSchema,},},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema,},},},}})
+
+export const getPostsRoute=createRoute({tags:["Post"],method:'get',path:'/posts',description:'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',request:{query:z.object({page:z.string().pipe(z.coerce.number().int().min(0)).optional(),rows:z.string().pipe(z.coerce.number().int().min(0)).optional()})},responses:{200:{description:'Successfully retrieved a list of posts.',content:{'application/json':{schema:z.array(postSchema),},},},400:{description:'Invalid request due to bad input.',content:{'application/json':{schema:errorSchema,},},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema,},},},}})
+
+export const putPostsIdRoute=createRoute({tags:["Post"],method:'put',path:'/posts/{id}',description:'Update the content of an existing post identified by its unique ID.',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},params:z.object({id:z.string().uuid()})},responses:{204:{description:'Post successfully updated.',},400:{description:'Invalid input.',content:{'application/json':{schema:errorSchema,},},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema,},},},}})
+
+export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:'/posts/{id}',description:'Delete an existing post identified by its unique ID.',request:{params:z.object({id:z.string().uuid()})},responses:{204:{description:'Post successfully deleted.',},400:{description:'Invalid input.',content:{'application/json':{schema:errorSchema,},},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema,},},},}})`,
   },
 ]
 
