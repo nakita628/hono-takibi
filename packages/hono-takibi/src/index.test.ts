@@ -44,9 +44,6 @@ describe('Hono Takibi', () => {
     await main(true)
     expect(fs.existsSync(output)).toBe(true)
     const result = fs.readFileSync(output, { encoding: 'utf-8' })
-    console.log('--------------------------------')
-    console.log(result)
-    console.log('--------------------------------')
     const expected = honoRestOpenAPIHonoCode
     expect(result).toEqual(expected)
   })
