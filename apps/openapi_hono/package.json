@@ -7,7 +7,8 @@
     "dev": "tsx watch src/index.ts",
     "migrate": "prisma migrate dev --name init",
     "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "takibi": "hono-takibi ./src/openapi/openapi.yaml -o ./src/openapi/index.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
@@ -20,6 +21,7 @@
     "@scalar/hono-api-reference": "^0.5.165",
     "@types/node": "^20.11.17",
     "@vitest/coverage-v8": "^2.1.8",
+    "hono-takibi": "^0.0.7",
     "prisma": "^6.0.1",
     "tsx": "^4.7.1",
     "vitest": "^2.1.8"
