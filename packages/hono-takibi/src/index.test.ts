@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { main } from '.'
 import { petStoreZodOpenAPIHonoCode } from './data/expected/pet-store-openapi'
-
+import { honoRestOpenAPIHonoCode } from './data/expected/hono-rest-openapi'
 describe('Hono Takibi', () => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const projectRoot = path.resolve(__dirname, '..')
@@ -32,11 +32,22 @@ describe('Hono Takibi', () => {
   })
 
   // test the normal system
-  it.concurrent('Hono Takibi CLI', async () => {
+  it.concurrent('Hono Takibi CLI pet-store.yaml', async () => {
     await main(true)
     expect(fs.existsSync(output)).toBe(true)
     const result = fs.readFileSync(output, { encoding: 'utf-8' })
     const expected = petStoreZodOpenAPIHonoCode
+    expect(result).toEqual(expected)
+  })
+
+  it.concurrent('Hono Takibi CLI hono-rest-openapi.yaml', async () => {
+    await main(true)
+    expect(fs.existsSync(output)).toBe(true)
+    const result = fs.readFileSync(output, { encoding: 'utf-8' })
+    console.log('--------------------------------')
+    console.log(result)
+    console.log('--------------------------------')
+    const expected = honoRestOpenAPIHonoCode
     expect(result).toEqual(expected)
   })
 
