@@ -177,13 +177,13 @@ const generateComponentsCodeTestCases: {
         },
       },
     },
-    expected: `const productSchema = z.object({id: z.string().uuid().optional(),name: z.string(),description: z.string().optional(),price: z.number(),category: z.string(),stock: z.number().int().optional(),tags: z.array(z.string()).optional()})
+    expected: `const productSchema = z.object({id: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name: z.string().openapi({example:"Wireless Mouse"}),description: z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price: z.number(),category: z.string().openapi({example:"Electronics"}),stock: z.number().int().optional(),tags: z.array(z.string()).optional()})
 
-const orderItemSchema = z.object({productId: z.string().uuid(),quantity: z.number().int(),price: z.number().optional()})
+const orderItemSchema = z.object({productId: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity: z.number().int(),price: z.number().optional()})
 
-const orderSchema = z.object({id: z.string().uuid().optional(),userId: z.string().uuid(),products: z.array(orderItemSchema),total: z.number(),status: z.enum(["pending","shipped","delivered","cancelled"]).optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
+const orderSchema = z.object({id: z.string().uuid().openapi({example:"987e6543-e21b-34d3-a789-426614174111"}).optional(),userId: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),products: z.array(orderItemSchema),total: z.number(),status: z.enum(["pending","shipped","delivered","cancelled"]).optional(),createdAt: z.string().datetime().openapi({example:"2023-10-10T14:48:00.000Z"}).optional(),updatedAt: z.string().datetime().openapi({example:"2023-10-11T10:30:00.000Z"}).optional()})
 
-const userSchema = z.object({id: z.string().uuid().optional(),username: z.string(),email: z.string().email(),firstName: z.string().optional(),lastName: z.string().optional(),address: z.string().optional(),phone: z.string().optional(),createdAt: z.string().datetime().optional(),updatedAt: z.string().datetime().optional()})
+const userSchema = z.object({id: z.string().uuid().openapi({example:"321e6547-e89b-12d3-a456-426614174999"}).optional(),username: z.string().openapi({example:"john_doe"}),email: z.string().email().openapi({example:"john.doe@example.com"}),firstName: z.string().openapi({example:"John"}).optional(),lastName: z.string().openapi({example:"Doe"}).optional(),address: z.string().openapi({example:"123 Main St, Anytown, USA"}).optional(),phone: z.string().openapi({example:"+1-555-1234"}).optional(),createdAt: z.string().datetime().openapi({example:"2023-01-15T09:30:00.000Z"}).optional(),updatedAt: z.string().datetime().openapi({example:"2023-06-20T16:45:00.000Z"}).optional()})
 
 export const schemas = {
 productSchema,

@@ -8,6 +8,7 @@ const generateZodStringSchemaTestCases: {
     minLength?: number
     maxLength?: number
     format?: FormatString
+    example?: string
   }
   expected: string
 }[] = [
@@ -55,6 +56,12 @@ const generateZodStringSchemaTestCases: {
       format: 'email',
     },
     expected: 'z.string().regex(/^[a-zA-Z]+$/).min(3).max(20).email()',
+  },
+  {
+    args: {
+      example: 'Hono🔥',
+    },
+    expected: 'z.string().openapi({example:"Hono🔥"})',
   },
 ]
 

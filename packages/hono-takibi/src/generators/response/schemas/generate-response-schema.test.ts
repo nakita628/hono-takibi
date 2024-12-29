@@ -23,7 +23,7 @@ const generateResponseSchemaTestCases: {
         },
       },
     },
-    expected: `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string()}),},},},`,
+    expected: `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Hono🔥"})}),},},},`,
   },
 ]
 
