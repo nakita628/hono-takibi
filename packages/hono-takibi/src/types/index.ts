@@ -100,7 +100,7 @@ type ArrayExample = Array<PrimitiveExample | ObjectExample>
 /**
  * Combined example type
  */
-type ExampleValue = PrimitiveExample | ObjectExample | ArrayExample
+export type ExampleValue = PrimitiveExample | ObjectExample | ArrayExample
 
 /**
  * Content type definitions with their schemas
