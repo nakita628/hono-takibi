@@ -39,7 +39,7 @@ const generateRouteTestCases: {
         },
       },
     },
-    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string()}),},},},}})`,
+    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Hono🔥"})}),},},},}})`
   },
   {
     path: '/posts',
@@ -123,7 +123,7 @@ const generateRouteTestCases: {
         },
       },
     },
-    expected: `export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',description:'create a new post',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},},responses:{201:{description:'Created',content:{'application/json':{schema:z.object({}),},},},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message: z.string()}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema:z.object({message: z.string()}),},},},}})`,
+    expected: `export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',description:'create a new post',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},},responses:{201:{description:'Created',content:{'application/json':{schema:z.object({}),},},},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Bad Request"})}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Internal Server Error"})}),},},},}})`
   },
 ]
 
