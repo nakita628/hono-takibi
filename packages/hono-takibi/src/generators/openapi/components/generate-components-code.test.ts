@@ -177,9 +177,9 @@ const generateComponentsCodeTestCases: {
         },
       },
     },
-    expected: `const productSchema = z.object({id: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name: z.string().openapi({example:"Wireless Mouse"}),description: z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price: z.number().openapi({example:29.99}),category: z.string().openapi({example:"Electronics"}),stock: z.number().int().optional(),tags: z.array(z.string()).optional()})
+    expected: `const productSchema = z.object({id: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name: z.string().openapi({example:"Wireless Mouse"}),description: z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price: z.number().openapi({example:29.99}),category: z.string().openapi({example:"Electronics"}),stock: z.number().int().openapi({example:150}).optional(),tags: z.array(z.string()).optional()})
 
-const orderItemSchema = z.object({productId: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity: z.number().int(),price: z.number().openapi({example:29.99}).optional()})
+const orderItemSchema = z.object({productId: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity: z.number().int().openapi({example:2}),price: z.number().openapi({example:29.99}).optional()})
 
 const orderSchema = z.object({id: z.string().uuid().openapi({example:"987e6543-e21b-34d3-a789-426614174111"}).optional(),userId: z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),products: z.array(orderItemSchema),total: z.number().openapi({example:59.98}),status: z.enum(["pending","shipped","delivered","cancelled"]).optional(),createdAt: z.string().datetime().openapi({example:"2023-10-10T14:48:00.000Z"}).optional(),updatedAt: z.string().datetime().openapi({example:"2023-10-11T10:30:00.000Z"}).optional()})
 

@@ -143,6 +143,7 @@ export function generateZodSchema(schema: Schema): string {
       maxLength,
       minimum,
       maximum,
+      example,
     })
   }
 
