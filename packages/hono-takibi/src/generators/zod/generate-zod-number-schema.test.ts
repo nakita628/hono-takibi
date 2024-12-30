@@ -8,7 +8,6 @@ const generateZodNumberSchemaTestCases: {
     maxLength?: number
     minimum?: number
     maximum?: number
-    example?: ExampleValue
   }
   expected: string
 }[] = [
@@ -27,10 +26,6 @@ const generateZodNumberSchemaTestCases: {
   {
     args: { maxLength: 10 },
     expected: 'z.number().max(10)',
-  },
-  {
-    args: { example: 123 },
-    expected: 'z.number().openapi({example:123})',
   },
 ]
 

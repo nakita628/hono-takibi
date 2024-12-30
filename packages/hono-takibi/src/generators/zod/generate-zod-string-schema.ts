@@ -6,7 +6,6 @@ type GenerateZodStringSchemaParams = {
   minLength?: number
   maxLength?: number
   format?: FormatString
-  example?: ExampleValue
 }
 
 /**
@@ -48,11 +47,10 @@ type GenerateZodStringSchemaParams = {
  */
 export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
   const validations = ['z.string()']
-  const { pattern, minLength, maxLength, format, example } = args
+  const { pattern, minLength, maxLength, format } = args
   if (pattern) validations.push(`.regex(/${pattern}/)`)
   if (minLength) validations.push(`.min(${minLength})`)
   if (maxLength) validations.push(`.max(${maxLength})`)
   if (format) validations.push(getZodFormatString(format))
-  if (example) validations.push(`.openapi({example:${JSON.stringify(example)}})`)
   return validations.join('')
 }
