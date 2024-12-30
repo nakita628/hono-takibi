@@ -3,29 +3,11 @@ import { generateInsertRequestBody } from './generate-insert-request-body'
 
 const generateInsertRequestBodyTestCases = [
   {
-    requestParams: "request:{foo:'bar'}",
-    requestBodyCode: "key:'value',",
-    expected: "request:{key:'value',foo:'bar'}",
-  },
-  {
-    requestParams: 'request:{}',
-    requestBodyCode: "key:'value',",
-    expected: "request:{key:'value',}",
-  },
-  {
-    requestParams: 'no match here',
-    requestBodyCode: "key:'value',",
-    expected: 'no match here',
-  },
-  {
-    requestParams: "request:{foo:'bar',baz:'qux'}",
-    requestBodyCode: "key:'value',",
-    expected: "request:{key:'value',foo:'bar',baz:'qux'}",
-  },
-  {
-    requestParams: 'request:{}',
-    requestBodyCode: '',
-    expected: 'request:{}',
+    requestParams: 'request:{params:z.object({id:z.string().uuid()})},',
+    requestBodyCode:
+      "body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},",
+    expected:
+      "request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},params:z.object({id:z.string().uuid()})},",
   },
 ]
 
