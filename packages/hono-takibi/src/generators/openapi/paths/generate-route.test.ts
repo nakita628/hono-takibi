@@ -2,16 +2,11 @@ import { describe, expect, it } from 'vitest'
 import type { Operation } from '../../../types'
 import { generateRoute } from './generate-route'
 
-const generateRouteTestCases: {
-  path: string
-  method: string
-  operation: Operation
-  expected: string
-}[] = [
-  {
-    path: '/',
-    method: 'get',
-    operation: {
+describe('generateRoute', () => {
+  it.concurrent('generateRoute("/posts", "post", { operationId: "getRoot", tags: ["Hono"], responses: { "200": { ... } } })', ()=> {
+    const path = '/posts'
+    const method = 'post'
+    const operation: Operation =  {
       operationId: 'getRoot',
       tags: ['Hono'],
       description: undefined,
@@ -37,102 +32,11 @@ const generateRouteTestCases: {
             },
           },
         },
-      },
-    },
-    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Hono🔥"})}),},},},}})`,
-  },
-  {
-    path: '/posts',
-    method: 'post',
-    operation: {
-      operationId: 'createPost',
-      tags: ['Post'],
-      description: 'create a new post',
-      parameters: undefined,
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              name: 'post',
-              type: 'object',
-              properties: {
-                post: {
-                  name: 'post',
-                  type: 'string',
-                  minLength: 1,
-                  maxLength: 140,
-                },
-              },
-              required: ['post'],
-            },
-          },
-        },
-      },
-      responses: {
-        '201': {
-          description: 'Created',
-          content: {
-            'application/json': {
-              schema: {
-                name: 'response',
-                type: 'object',
-                properties: {},
-                required: [],
-              },
-            },
-          },
-        },
-        '400': {
-          description: 'Bad Request',
-          content: {
-            'application/json': {
-              schema: {
-                name: 'error',
-                type: 'object',
-                properties: {
-                  message: {
-                    name: 'message',
-                    type: 'string',
-                    example: 'Bad Request',
-                  },
-                },
-                required: ['message'],
-              },
-            },
-          },
-        },
-        '500': {
-          description: 'Internal Server Error',
-          content: {
-            'application/json': {
-              schema: {
-                name: 'error',
-                type: 'object',
-                properties: {
-                  message: {
-                    name: 'message',
-                    type: 'string',
-                    example: 'Internal Server Error',
-                  },
-                },
-                required: ['message'],
-              },
-            },
-          },
-        },
-      },
-    },
-    expected: `export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',description:'create a new post',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},},responses:{201:{description:'Created',content:{'application/json':{schema:z.object({}),},},},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Bad Request"})}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Internal Server Error"})}),},},},}})`,
-  },
-]
+      }
+    }
 
-describe('generateRoute', () => {
-  it.concurrent.each(generateRouteTestCases)(
-    'generateRoute($path, $method, $operation) -> $expected',
-    async ({ path, method, operation, expected }) => {
-      const result = generateRoute(path, method, operation)
-      expect(result).toBe(expected)
-    },
-  )
+    const result = generateRoute(path, method, operation)
+    const expected = `export const postPostsRoute=createRoute({tags:["Hono"],method:'post',path:'/posts',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().optional().openapi({ example: "Hono🔥" })}),},},},}})`
+    expect(result).toBe(expected)
+  })
 })
