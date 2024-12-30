@@ -46,9 +46,16 @@ export function generatePropertySchema(schema: Schema): string {
   const zodSchema = generateZodSchema(schema)
   const { example } = schema
 
+  // // add example
+  // if (example) {
+  //   return `${zodSchema}.optional().openapi({example:${JSON.stringify(example)}})`
+  // }
+
   // add example
   if (example) {
-    return `${zodSchema}.openapi({example:${JSON.stringify(example)}})`
+    const hasOptional = zodSchema.includes('.optional()')
+    const schemaWithoutOptional = zodSchema.replace('.optional()', '')
+    return `${schemaWithoutOptional}${hasOptional ? '.optional()' : ''}.openapi({example:${JSON.stringify(example)}})`
   }
 
   return zodSchema

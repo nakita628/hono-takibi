@@ -17,6 +17,298 @@ const generateComponentsCodeTestCases: {
   {
     components: {
       schemas: {
+        Order: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+              example: 10,
+            },
+            petId: {
+              type: 'integer',
+              format: 'int64',
+              example: 198772,
+            },
+            quantity: {
+              type: 'integer',
+              format: 'int32',
+              example: 7,
+            },
+            shipDate: {
+              type: 'string',
+              format: 'date-time',
+            },
+            status: {
+              type: 'string',
+              description: 'Order Status',
+              example: 'approved',
+              enum: ['placed', 'approved', 'delivered'],
+            },
+            complete: {
+              type: 'boolean',
+            },
+          },
+          xml: {
+            name: 'order',
+          },
+        },
+        Customer: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+              example: 100000,
+            },
+            username: {
+              type: 'string',
+              example: 'fehguy',
+            },
+            address: {
+              type: 'array',
+              xml: {
+                name: 'addresses',
+                wrapped: true,
+              },
+              items: {
+                $ref: '#/components/schemas/Address',
+              },
+            },
+          },
+          xml: {
+            name: 'customer',
+          },
+        },
+        Address: {
+          type: 'object',
+          properties: {
+            street: {
+              type: 'string',
+              example: '437 Lytton',
+            },
+            city: {
+              type: 'string',
+              example: 'Palo Alto',
+            },
+            state: {
+              type: 'string',
+              example: 'CA',
+            },
+            zip: {
+              type: 'string',
+              example: '94301',
+            },
+          },
+          xml: {
+            name: 'address',
+          },
+        },
+        Category: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+              example: 1,
+            },
+            name: {
+              type: 'string',
+              example: 'Dogs',
+            },
+          },
+          xml: {
+            name: 'category',
+          },
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+              example: 10,
+            },
+            username: {
+              type: 'string',
+              example: 'theUser',
+            },
+            firstName: {
+              type: 'string',
+              example: 'John',
+            },
+            lastName: {
+              type: 'string',
+              example: 'James',
+            },
+            email: {
+              type: 'string',
+              example: 'john@email.com',
+            },
+            password: {
+              type: 'string',
+              example: '12345',
+            },
+            phone: {
+              type: 'string',
+              example: '12345',
+            },
+            userStatus: {
+              type: 'integer',
+              description: 'User Status',
+              format: 'int32',
+              example: 1,
+            },
+          },
+          xml: {
+            name: 'user',
+          },
+        },
+        Tag: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+            },
+            name: {
+              type: 'string',
+            },
+          },
+          xml: {
+            name: 'tag',
+          },
+        },
+        Pet: {
+          required: ['name', 'photoUrls'],
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+              example: 10,
+            },
+            name: {
+              type: 'string',
+              example: 'doggie',
+            },
+            category: {
+              $ref: '#/components/schemas/Category',
+            },
+            photoUrls: {
+              type: 'array',
+              xml: {
+                wrapped: true,
+              },
+              items: {
+                type: 'string',
+                xml: {
+                  name: 'photoUrl',
+                },
+              },
+            },
+            tags: {
+              type: 'array',
+              xml: {
+                wrapped: true,
+              },
+              items: {
+                $ref: '#/components/schemas/Tag',
+              },
+            },
+            status: {
+              type: 'string',
+              description: 'pet status in the store',
+              enum: ['available', 'pending', 'sold'],
+            },
+          },
+          xml: {
+            name: 'pet',
+          },
+        },
+        ApiResponse: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'integer',
+              format: 'int32',
+            },
+            type: {
+              type: 'string',
+            },
+            message: {
+              type: 'string',
+            },
+          },
+          xml: {
+            name: '##default',
+          },
+        },
+      },
+      requestBodies: {
+        Pet: {
+          description: 'Pet object that needs to be added to the store',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Pet',
+              },
+            },
+            'application/xml': {
+              schema: {
+                $ref: '#/components/schemas/Pet',
+              },
+            },
+          },
+        },
+        UserArray: {
+          description: 'List of user object',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  $ref: '#/components/schemas/User',
+                },
+              },
+            },
+          },
+        },
+      },
+      // memo securitySchemes need?
+    },
+    expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()})
+
+const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()})
+
+const customerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()})
+
+const categorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()})
+
+const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()})
+
+const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()})
+
+const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})
+
+const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()})
+
+export const schemas = {
+orderSchema,
+addressSchema,
+customerSchema,
+categorySchema,
+userSchema,
+tagSchema,
+petSchema,
+apiResponseSchema
+}`,
+  },
+
+  // sample
+  {
+    components: {
+      schemas: {
         Product: {
           type: 'object',
           required: ['name', 'price', 'category'],
