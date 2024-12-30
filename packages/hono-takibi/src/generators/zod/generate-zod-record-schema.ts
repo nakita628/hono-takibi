@@ -35,5 +35,5 @@ export function generateZodRecordSchema(additionalProperties: {
   format: Format
 }): string {
   const schema = generateZodSchema(additionalProperties)
-  return `z.record(z.string(), ${schema})`
+  return `z.record(z.string(),${schema})`
 }
