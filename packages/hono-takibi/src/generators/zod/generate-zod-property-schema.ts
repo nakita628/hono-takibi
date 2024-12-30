@@ -42,5 +42,14 @@ export function generatePropertySchema(schema: Schema): string {
       return generateZodArray(camelCaseRefName)
     }
   }
-  return generateZodSchema(schema)
+
+  const zodSchema = generateZodSchema(schema)
+  const { example } = schema
+
+  // add example
+  if (example) {
+    return `${zodSchema}.openapi({example:${JSON.stringify(example)}})`
+  }
+
+  return zodSchema
 }
