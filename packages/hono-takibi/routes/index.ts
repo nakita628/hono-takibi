@@ -22,7 +22,11 @@ export const getRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response with a welcome message.',
-      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ message: z.string().openapi({ example: 'Hono🔥' }) }),
+        },
+      },
     },
   },
 })
