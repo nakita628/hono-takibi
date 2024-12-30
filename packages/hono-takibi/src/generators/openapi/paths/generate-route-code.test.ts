@@ -47,7 +47,7 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   },
   {
     openAPIPaths: honoRestOpenAPI.paths,
-    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message: z.string().optional().openapi({ example: "Hono🔥" })}),},},},}})
+    expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message: z.string().optional().openapi({example:"Hono🔥"})}),},},},}})
 
 export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',description:'Submit a new post with a maximum length of 140 characters.',request:{body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)}),},},},},responses:{201:{description:'Post successfully created.',content:{'application/json':{schema:errorSchema,},},},400:{description:'Invalid request due to bad input.',content:{'application/json':{schema:errorSchema,},},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema,},},},}})
 
