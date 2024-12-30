@@ -1,4 +1,4 @@
-import { DefaultValue } from '../../types'
+import type { DefaultValue } from '../../types'
 
 type GenerateZodIntegerSchemaParams = {
   minLength?: number
