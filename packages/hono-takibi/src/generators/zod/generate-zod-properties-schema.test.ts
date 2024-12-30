@@ -133,7 +133,7 @@ describe('generateZodPropertiesSchema ', () => {
     }
     const required: string[] = ['name', 'photoUrls']
     const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),name: z.string().optional().openapi({ example: "doggie" }),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})`
+    const expected = 'z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),name: z.string().optional().openapi({ example: "doggie" }),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})'
     expect(result).toBe(expected)
   })
 
@@ -141,12 +141,11 @@ describe('generateZodPropertiesSchema ', () => {
     const properties: Record<string, Schema> = {
       code: { type: 'integer', format: 'int32' },
       type: { type: 'string' },
-      message: { type: 'string' }
+      message: { type: 'string' },
     }
     const required: string[] = []
     const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})`
+    const expected = 'z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})'
     expect(result).toBe(expected)
   })
-
 })
