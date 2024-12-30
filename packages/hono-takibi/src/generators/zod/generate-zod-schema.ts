@@ -95,6 +95,7 @@ export function generateZodSchema(schema: Schema): string {
     maxLength,
     minimum,
     maximum,
+    default: defaultValue, // reserved word
     properties,
     required = [],
     items,
@@ -119,6 +120,7 @@ export function generateZodSchema(schema: Schema): string {
       minLength,
       maxLength,
       format: format && isFormatString(format) ? format : undefined,
+      default: defaultValue,
     })
   }
 
@@ -130,6 +132,7 @@ export function generateZodSchema(schema: Schema): string {
       maxLength,
       minimum,
       maximum,
+      default: defaultValue,
     })
   }
 
@@ -140,6 +143,7 @@ export function generateZodSchema(schema: Schema): string {
       maxLength,
       minimum,
       maximum,
+      default: defaultValue,
     })
   }
 

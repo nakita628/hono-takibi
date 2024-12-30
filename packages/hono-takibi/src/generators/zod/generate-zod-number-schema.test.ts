@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodNumberSchema } from './generate-zod-number-schema'
-import type { ExampleValue } from '../../types'
+import type { DefaultValue } from '../../types'
 const generateZodNumberSchemaTestCases: {
   args: {
     pattern?: string
@@ -8,6 +8,7 @@ const generateZodNumberSchemaTestCases: {
     maxLength?: number
     minimum?: number
     maximum?: number
+    default?: DefaultValue
   }
   expected: string
 }[] = [
@@ -26,6 +27,10 @@ const generateZodNumberSchemaTestCases: {
   {
     args: { maxLength: 10 },
     expected: 'z.number().max(10)',
+  },
+  {
+    args: { default: 1 },
+    expected: 'z.number().default(1)',
   },
 ]
 
