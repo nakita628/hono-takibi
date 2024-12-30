@@ -1,5 +1,4 @@
-import { removeZodPrefix } from '../../core/text/remove-zod-prefix'
-import { ExampleValue } from '../../types'
+import type { ExampleValue } from '../../types'
 import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
 
 /**
