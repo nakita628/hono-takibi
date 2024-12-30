@@ -23,7 +23,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),petId: z.number().int().optional().openapi({example:198772}).optional(),quantity: z.number().int().optional().openapi({example:7}).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete: z.boolean().optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:10}).optional(),petId:z.number().int().optional().openapi({example:198772}).optional(),quantity:z.number().int().optional().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete:z.boolean().optional()})',
   },
   {
     properties: {
@@ -41,7 +41,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),petId: z.number().int().optional().openapi({example:198772}).optional(),quantity: z.number().int().optional().openapi({example:7}).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete: z.boolean().optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:10}).optional(),petId:z.number().int().optional().openapi({example:198772}).optional(),quantity:z.number().int().optional().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete:z.boolean().optional()})',
   },
   {
     properties: {
@@ -52,7 +52,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({street: z.string().optional().openapi({example:"437 Lytton"}).optional(),city: z.string().optional().openapi({example:"Palo Alto"}).optional(),state: z.string().optional().openapi({example:"CA"}).optional(),zip: z.string().optional().openapi({example:"94301"}).optional()})',
+      'z.object({street:z.string().optional().openapi({example:"437 Lytton"}).optional(),city:z.string().optional().openapi({example:"Palo Alto"}).optional(),state:z.string().optional().openapi({example:"CA"}).optional(),zip:z.string().optional().openapi({example:"94301"}).optional()})',
   },
 
   {
@@ -67,7 +67,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:100000}).optional(),username: z.string().optional().openapi({example:"fehguy"}).optional(),address: z.array(addressSchema).optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:100000}).optional(),username:z.string().optional().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()})',
   },
   {
     properties: {
@@ -76,7 +76,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:1}).optional(),name: z.string().optional().openapi({example:"Dogs"}).optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:1}).optional(),name:z.string().optional().openapi({example:"Dogs"}).optional()})',
   },
 
   {
@@ -97,7 +97,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),username: z.string().optional().openapi({example:"theUser"}).optional(),firstName: z.string().optional().openapi({example:"John"}).optional(),lastName: z.string().optional().openapi({example:"James"}).optional(),email: z.string().optional().openapi({example:"john@email.com"}).optional(),password: z.string().optional().openapi({example:"12345"}).optional(),phone: z.string().optional().openapi({example:"12345"}).optional(),userStatus: z.number().int().optional().openapi({example:1}).optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:10}).optional(),username:z.string().optional().openapi({example:"theUser"}).optional(),firstName:z.string().optional().openapi({example:"John"}).optional(),lastName:z.string().optional().openapi({example:"James"}).optional(),email:z.string().optional().openapi({example:"john@email.com"}).optional(),password:z.string().optional().openapi({example:"12345"}).optional(),phone:z.string().optional().openapi({example:"12345"}).optional(),userStatus:z.number().int().optional().openapi({example:1}).optional()})',
   },
   {
     properties: {
@@ -127,7 +127,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: ['name', 'photoUrls'],
     expected:
-      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),name: z.string().optional().openapi({example:"doggie"}),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})',
+      'z.object({id:z.number().int().optional().openapi({example:10}).optional(),name:z.string().optional().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})',
   },
   {
     properties: {
@@ -137,7 +137,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})',
+      'z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()})',
   },
 ]
 
