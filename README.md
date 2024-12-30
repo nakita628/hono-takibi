@@ -420,9 +420,22 @@ export const deletePostsIdRoute = createRoute({
 })
 ```
 
-## ⚠️ Development Status
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
+
+### ⚠️ WARNING: Potential Breaking Changes Without Notice
+
+**This package is in active development and may introduce breaking changes without prior notice.**
+Specifically:
+- Query parameter coercion behavior may change
+- Schema generation logic might be updated
+- Output code structure could be modified
+- Example value handling might be altered
+
+We strongly recommend:
+- Pinning to exact versions in production
+- Testing thoroughly when updating versions
+- Reviewing generated code after updates
 
 We welcome feedback and contributions to improve the tool!
 
