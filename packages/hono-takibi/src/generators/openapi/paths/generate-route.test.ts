@@ -38,7 +38,7 @@ describe('generateRoute', () => {
       }
 
       const result = generateRoute(path, method, operation)
-      const expected = `export const postPostsRoute=createRoute({tags:["Hono"],method:'post',path:'/posts',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().optional().openapi({ example: "Hono🔥" })}),},},},}})`
+      const expected = `export const postPostsRoute=createRoute({tags:["Hono"],method:'post',path:'/posts',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message:z.string().optional().openapi({example:"Hono🔥"})}),},},},}})`
       expect(result).toBe(expected)
     },
   )

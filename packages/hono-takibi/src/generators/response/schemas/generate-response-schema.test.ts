@@ -20,7 +20,7 @@ describe('generateResponseSchema', () => {
         },
       }
       const result = generateResponseSchema(responses)
-      const expected = `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().optional().openapi({ example: "Hono🔥" }).optional()}),},},},`
+      const expected = `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message:z.string().optional().openapi({example:"Hono🔥"}).optional()}),},},},`
       expect(result).toBe(expected)
     },
   )

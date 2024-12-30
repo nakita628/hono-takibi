@@ -23,7 +23,7 @@ export const deletePetPetIdRoute=createRoute({tags:["pet"],method:'delete',path:
 
 export const postPetPetIdUploadImageRoute=createRoute({tags:["pet"],method:'post',path:'/pet/{petId}/uploadImage',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.string().pipe(z.coerce.number().int())})},responses:{200:{description:'successful operation',content:{'application/json':{schema:apiResponseSchema,},},},}})
 
-export const getStoreInventoryRoute=createRoute({tags:["store"],method:'get',path:'/store/inventory',description:'Returns a map of status codes to quantities',security:[{"api_key":[]}],responses:{200:{description:'successful operation',content:{'application/json':{schema:z.record(z.string(), z.number().int()),},},},}})
+export const getStoreInventoryRoute=createRoute({tags:["store"],method:'get',path:'/store/inventory',description:'Returns a map of status codes to quantities',security:[{"api_key":[]}],responses:{200:{description:'successful operation',content:{'application/json':{schema:z.record(z.string(),z.number().int()),},},},}})
 
 export const postStoreOrderRoute=createRoute({tags:["store"],method:'post',path:'/store/order',description:'Place a new order in the store',request:{body:{required:false,content:{'application/json':{schema:orderSchema,},},},},responses:{200:{description:'successful operation',content:{'application/json':{schema:orderSchema,},},},400:{description:'Invalid input',},422:{description:'Validation exception',},}})
 
