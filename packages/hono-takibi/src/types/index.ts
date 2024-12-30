@@ -103,6 +103,11 @@ type ArrayExample = Array<PrimitiveExample | ObjectExample>
 export type ExampleValue = PrimitiveExample | ObjectExample | ArrayExample
 
 /**
+ * Default value type
+ */
+export type DefaultValue = PrimitiveExample | ObjectExample | ArrayExample
+
+/**
  * Content type definitions with their schemas
  */
 type Content = {
@@ -184,6 +189,7 @@ export type Schema = {
   maxLength?: number
   minimum?: number
   maximum?: number
+  default?: DefaultValue
   example?: ExampleValue
   properties?: Record<string, Schema>
   required?: string[]

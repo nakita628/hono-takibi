@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodStringSchema } from './generate-zod-string-schema'
-import type { FormatString } from '../../types'
+import type { DefaultValue, FormatString } from '../../types'
 
 const generateZodStringSchemaTestCases: {
   args: {
@@ -8,6 +8,7 @@ const generateZodStringSchemaTestCases: {
     minLength?: number
     maxLength?: number
     format?: FormatString
+    default?: DefaultValue
   }
   expected: string
 }[] = [
@@ -55,6 +56,19 @@ const generateZodStringSchemaTestCases: {
       format: 'email',
     },
     expected: 'z.string().regex(/^[a-zA-Z]+$/).min(3).max(20).email()',
+  },
+  {
+    args: {
+      default: 'hello',
+    },
+    expected: `z.string().default("hello")`,
+  },
+  {
+    args: {
+      format: 'email',
+      default: 'test@example.com',
+    },
+    expected: `z.string().email().default("test@example.com")`,
   },
 ]
 

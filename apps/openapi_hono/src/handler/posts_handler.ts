@@ -15,8 +15,8 @@ export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async 
 }
 
 export const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
-  const { page = 1, rows = 10 } = c.req.valid('query')
-  const limit = rows ?? 10
+  const { page, rows } = c.req.valid('query')
+  const limit = rows
   const offset = (page - 1) * rows
   const posts: Post[] = await getPosts(limit, offset)
   return c.json(posts, 200)
