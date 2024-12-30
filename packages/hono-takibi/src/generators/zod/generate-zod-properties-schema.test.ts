@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest'
 import type { Schema } from '../../types'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
 
-describe('generateZodPropertiesSchema ', () => {
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+const generateZodPropertiesSchemaTestCases: {
+  properties: Record<string, Schema>
+  required: string[]
+  expected: string
+}[] = [
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 10 },
       petId: { type: 'integer', format: 'int64', example: 198772 },
       quantity: { type: 'integer', format: 'int32', example: 7 },
@@ -16,15 +20,13 @@ describe('generateZodPropertiesSchema ', () => {
         enum: ['placed', 'approved', 'delivered'],
       },
       complete: { type: 'boolean' },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),petId: z.number().int().optional().openapi({ example: 198772 }).optional(),quantity: z.number().int().optional().openapi({ example: 7 }).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({ example: "approved" }).optional(),complete: z.boolean().optional()})`
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+    },
+    required: [],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),petId: z.number().int().optional().openapi({example:198772}).optional(),quantity: z.number().int().optional().openapi({example:7}).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete: z.boolean().optional()})',
+  },
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 10 },
       petId: { type: 'integer', format: 'int64', example: 198772 },
       quantity: { type: 'integer', format: 'int32', example: 7 },
@@ -36,28 +38,25 @@ describe('generateZodPropertiesSchema ', () => {
         enum: ['placed', 'approved', 'delivered'],
       },
       complete: { type: 'boolean' },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),petId: z.number().int().optional().openapi({ example: 198772 }).optional(),quantity: z.number().int().optional().openapi({ example: 7 }).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({ example: "approved" }).optional(),complete: z.boolean().optional()})`
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+    },
+    required: [],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),petId: z.number().int().optional().openapi({example:198772}).optional(),quantity: z.number().int().optional().openapi({example:7}).optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional().openapi({example:"approved"}).optional(),complete: z.boolean().optional()})',
+  },
+  {
+    properties: {
       street: { type: 'string', example: '437 Lytton' },
       city: { type: 'string', example: 'Palo Alto' },
       state: { type: 'string', example: 'CA' },
       zip: { type: 'string', example: '94301' },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({street: z.string().optional().openapi({ example: "437 Lytton" }).optional(),city: z.string().optional().openapi({ example: "Palo Alto" }).optional(),state: z.string().optional().openapi({ example: "CA" }).optional(),zip: z.string().optional().openapi({ example: "94301" }).optional()})`
-    expect(result).toBe(expected)
-  })
+    },
+    required: [],
+    expected:
+      'z.object({street: z.string().optional().openapi({example:"437 Lytton"}).optional(),city: z.string().optional().openapi({example:"Palo Alto"}).optional(),state: z.string().optional().openapi({example:"CA"}).optional(),zip: z.string().optional().openapi({example:"94301"}).optional()})',
+  },
 
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 100000 },
       username: { type: 'string', example: 'fehguy' },
       address: {
@@ -65,26 +64,23 @@ describe('generateZodPropertiesSchema ', () => {
         xml: { name: 'addresses', wrapped: true },
         items: { $ref: '#/components/schemas/Address' },
       },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 100000 }).optional(),username: z.string().optional().openapi({ example: "fehguy" }).optional(),address: z.array(addressSchema).optional()})`
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+    },
+    required: [],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:100000}).optional(),username: z.string().optional().openapi({example:"fehguy"}).optional(),address: z.array(addressSchema).optional()})',
+  },
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 1 },
       name: { type: 'string', example: 'Dogs' },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 1 }).optional(),name: z.string().optional().openapi({ example: "Dogs" }).optional()})`
-    expect(result).toBe(expected)
-  })
+    },
+    required: [],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:1}).optional(),name: z.string().optional().openapi({example:"Dogs"}).optional()})',
+  },
 
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 10 },
       username: { type: 'string', example: 'theUser' },
       firstName: { type: 'string', example: 'John' },
@@ -98,15 +94,13 @@ describe('generateZodPropertiesSchema ', () => {
         format: 'int32',
         example: 1,
       },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = `z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),username: z.string().optional().openapi({ example: "theUser" }).optional(),firstName: z.string().optional().openapi({ example: "John" }).optional(),lastName: z.string().optional().openapi({ example: "James" }).optional(),email: z.string().optional().openapi({ example: "john@email.com" }).optional(),password: z.string().optional().openapi({ example: "12345" }).optional(),phone: z.string().optional().openapi({ example: "12345" }).optional(),userStatus: z.number().int().optional().openapi({ example: 1 }).optional()})`
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+    },
+    required: [],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),username: z.string().optional().openapi({example:"theUser"}).optional(),firstName: z.string().optional().openapi({example:"John"}).optional(),lastName: z.string().optional().openapi({example:"James"}).optional(),email: z.string().optional().openapi({example:"john@email.com"}).optional(),password: z.string().optional().openapi({example:"12345"}).optional(),phone: z.string().optional().openapi({example:"12345"}).optional(),userStatus: z.number().int().optional().openapi({example:1}).optional()})',
+  },
+  {
+    properties: {
       id: { type: 'integer', format: 'int64', example: 10 },
       name: { type: 'string', example: 'doggie' },
       category: { $ref: '#/components/schemas/Category' },
@@ -130,22 +124,29 @@ describe('generateZodPropertiesSchema ', () => {
         description: 'pet status in the store',
         enum: ['available', 'pending', 'sold'],
       },
-    }
-    const required: string[] = ['name', 'photoUrls']
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = 'z.object({id: z.number().int().optional().openapi({ example: 10 }).optional(),name: z.string().optional().openapi({ example: "doggie" }),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('generateZodPropertiesSchema(properties, required)', () => {
-    const properties: Record<string, Schema> = {
+    },
+    required: ['name', 'photoUrls'],
+    expected:
+      'z.object({id: z.number().int().optional().openapi({example:10}).optional(),name: z.string().optional().openapi({example:"doggie"}),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})',
+  },
+  {
+    properties: {
       code: { type: 'integer', format: 'int32' },
       type: { type: 'string' },
       message: { type: 'string' },
-    }
-    const required: string[] = []
-    const result = generateZodPropertiesSchema(properties, required)
-    const expected = 'z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})'
-    expect(result).toBe(expected)
-  })
+    },
+    required: [],
+    expected:
+      'z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})',
+  },
+]
+
+describe('generateZodPropertiesSchema', () => {
+  it.concurrent.each(generateZodPropertiesSchemaTestCases)(
+    'generateZodPropertiesSchema($properties, $required) -> $expected',
+    async ({ properties, required, expected }) => {
+      const result = generateZodPropertiesSchema(properties, required)
+      expect(result).toBe(expected)
+    },
+  )
 })
