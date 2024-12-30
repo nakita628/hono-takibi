@@ -56,7 +56,8 @@ export function generateZodPropertiesSchema(
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const propertySchema = generatePropertySchema(schema)
-    return `${key}: ${propertySchema}${isRequired ? '' : '.optional()'}`
+    return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
+  // Maybe you don't need to use .partial().
   return `z.object({${objectProperties}})${required ? '' : '.partial()'}`
 }

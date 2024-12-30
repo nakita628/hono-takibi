@@ -8,11 +8,11 @@ const generateZodRecordSchemaTestCases: {
 }[] = [
   {
     additionalProperties: { type: 'integer', format: 'int32' },
-    expected: 'z.record(z.string(), z.number().int())',
+    expected: 'z.record(z.string(),z.number().int())',
   },
   {
     additionalProperties: { type: 'string', format: 'email' },
-    expected: 'z.record(z.string(), z.string().email())',
+    expected: 'z.record(z.string(),z.string().email())',
   },
 ]
 

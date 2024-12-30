@@ -1,4 +1,4 @@
-import type { FormatNumber } from '../../types'
+import type { ExampleValue } from '../../types'
 
 type GenerateZodNumberSchemaParams = {
   pattern?: string

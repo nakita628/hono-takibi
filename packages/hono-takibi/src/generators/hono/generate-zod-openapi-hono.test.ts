@@ -7,21 +7,21 @@ const generateZodOpenAPIHonoTestCases = [
     openAPISpec: petStoreOpenAPI,
     expected: `import { createRoute, z } from '@hono/zod-openapi';
 
-const orderSchema = z.object({id: z.number().int().optional(),petId: z.number().int().optional(),quantity: z.number().int().optional(),shipDate: z.string().datetime().optional(),status: z.enum(["placed","approved","delivered"]).optional(),complete: z.boolean().optional()})
+const orderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()})
 
-const addressSchema = z.object({street: z.string().openapi({example:"437 Lytton"}).optional(),city: z.string().openapi({example:"Palo Alto"}).optional(),state: z.string().openapi({example:"CA"}).optional(),zip: z.string().openapi({example:"94301"}).optional()})
+const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()})
 
-const customerSchema = z.object({id: z.number().int().optional(),username: z.string().openapi({example:"fehguy"}).optional(),address: z.array(addressSchema).optional()})
+const customerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()})
 
-const categorySchema = z.object({id: z.number().int().optional(),name: z.string().openapi({example:"Dogs"}).optional()})
+const categorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()})
 
-const userSchema = z.object({id: z.number().int().optional(),username: z.string().openapi({example:"theUser"}).optional(),firstName: z.string().openapi({example:"John"}).optional(),lastName: z.string().openapi({example:"James"}).optional(),email: z.string().openapi({example:"john@email.com"}).optional(),password: z.string().openapi({example:"12345"}).optional(),phone: z.string().openapi({example:"12345"}).optional(),userStatus: z.number().int().optional()})
+const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()})
 
-const tagSchema = z.object({id: z.number().int().optional(),name: z.string().optional()})
+const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()})
 
-const petSchema = z.object({id: z.number().int().optional(),name: z.string().openapi({example:"doggie"}),category: categorySchema.optional(),photoUrls: z.array(z.string()),tags: z.array(tagSchema).optional(),status: z.enum(["available","pending","sold"]).optional()})
+const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})
 
-const apiResponseSchema = z.object({code: z.number().int().optional(),type: z.string().optional(),message: z.string().optional()})
+const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()})
 
 export const schemas = {
 orderSchema,
@@ -50,7 +50,7 @@ export const deletePetPetIdRoute=createRoute({tags:["pet"],method:'delete',path:
 
 export const postPetPetIdUploadImageRoute=createRoute({tags:["pet"],method:'post',path:'/pet/{petId}/uploadImage',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.string().pipe(z.coerce.number().int())})},responses:{200:{description:'successful operation',content:{'application/json':{schema:apiResponseSchema,},},},}})
 
-export const getStoreInventoryRoute=createRoute({tags:["store"],method:'get',path:'/store/inventory',description:'Returns a map of status codes to quantities',security:[{"api_key":[]}],responses:{200:{description:'successful operation',content:{'application/json':{schema:z.record(z.string(), z.number().int()),},},},}})
+export const getStoreInventoryRoute=createRoute({tags:["store"],method:'get',path:'/store/inventory',description:'Returns a map of status codes to quantities',security:[{"api_key":[]}],responses:{200:{description:'successful operation',content:{'application/json':{schema:z.record(z.string(),z.number().int()),},},},}})
 
 export const postStoreOrderRoute=createRoute({tags:["store"],method:'post',path:'/store/order',description:'Place a new order in the store',request:{body:{required:false,content:{'application/json':{schema:orderSchema,},},},},responses:{200:{description:'successful operation',content:{'application/json':{schema:orderSchema,},},},400:{description:'Invalid input',},422:{description:'Validation exception',},}})
 

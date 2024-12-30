@@ -95,7 +95,6 @@ export function generateZodSchema(schema: Schema): string {
     maxLength,
     minimum,
     maximum,
-    example,
     properties,
     required = [],
     items,
@@ -119,7 +118,6 @@ export function generateZodSchema(schema: Schema): string {
       pattern,
       minLength,
       maxLength,
-      example,
       format: format && isFormatString(format) ? format : undefined,
     })
   }

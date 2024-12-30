@@ -2,36 +2,25 @@ import { describe, expect, it } from 'vitest'
 import { generateResponseSchema } from './generate-response-schema'
 import type { Responses } from '../../../types'
 
-const generateResponseSchemaTestCases: {
-  responses: Responses
-  expected: string
-}[] = [
-  {
-    responses: {
-      '200': {
-        description: 'Hono🔥',
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                message: { type: 'string', example: 'Hono🔥' },
+describe('generateResponseSchema', () => {
+  it.concurrent(
+    'generateResponseSchema({ "200": { description: "Hono🔥", content: { "application/json": { schema: { type: "object", properties: { message: { type: "string", example: "Hono🔥" } } } } } } })',
+    () => {
+      const responses: Responses = {
+        '200': {
+          description: 'Hono🔥',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { message: { type: 'string', example: 'Hono🔥' } },
               },
-              required: ['message'],
             },
           },
         },
-      },
-    },
-    expected: `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message: z.string().openapi({example:"Hono🔥"})}),},},},`,
-  },
-]
-
-describe('generateResponseSchemas', () => {
-  it.concurrent.each(generateResponseSchemaTestCases)(
-    'generateResponseSchemas($responses) -> $expected',
-    async ({ responses, expected }) => {
+      }
       const result = generateResponseSchema(responses)
+      const expected = `200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"}).optional()}),},},},`
       expect(result).toBe(expected)
     },
   )

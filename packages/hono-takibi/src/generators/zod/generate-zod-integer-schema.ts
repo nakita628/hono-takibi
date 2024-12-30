@@ -1,3 +1,5 @@
+import { ExampleValue } from '../../types'
+
 type GenerateZodIntegerSchemaParams = {
   minLength?: number
   maxLength?: number
@@ -20,6 +22,5 @@ export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): 
   // 0 falsy value
   if (typeof minimum === 'number') validations.push(`.min(${minimum})`)
   if (typeof maximum === 'number') validations.push(`.max(${maximum})`)
-
   return validations.join('')
 }

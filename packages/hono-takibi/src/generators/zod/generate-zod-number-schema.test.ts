@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodNumberSchema } from './generate-zod-number-schema'
-import type { FormatNumber } from '../../types'
+import type { ExampleValue } from '../../types'
 const generateZodNumberSchemaTestCases: {
   args: {
     pattern?: string
