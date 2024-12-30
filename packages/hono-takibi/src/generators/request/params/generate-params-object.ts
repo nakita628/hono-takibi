@@ -73,6 +73,7 @@ const PARAM_LOCATION_TO_KEY: Record<Parameter, keyof ParamsObject> = {
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
  */
+// want to refactor this
 export function generateParamsObject(parameters: Parameters[]): ParamsObject {
   const initialParamsObj: ParamsObject = {
     query: {},
@@ -84,14 +85,17 @@ export function generateParamsObject(parameters: Parameters[]): ParamsObject {
   return parameters.reduce((acc, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     const paramLocation = PARAM_LOCATION_TO_KEY[param.in]
+    const baseSchema = generateZodSchema(param.schema)
 
-    const zodSchema =
+    const isCoerceNeeded =
       (paramLocation === 'query' && param.schema.type === 'number') ||
       param.schema.type === 'integer'
-        ? generateZodCoerce('z.string()', generateZodSchema(param.schema), param.schema.example)
-        : param.schema.example
-          ? generateZodOpenAPIExample(generateZodSchema(param.schema), param.schema.example)
-          : generateZodSchema(param.schema)
+
+    const zodSchema = isCoerceNeeded
+      ? generateZodCoerce('z.string()', baseSchema, param.schema.example)
+      : param.schema.example
+        ? generateZodOpenAPIExample(baseSchema, param.schema.example)
+        : baseSchema
 
     acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`
     return acc
