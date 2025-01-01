@@ -1,4 +1,5 @@
 import type { DefaultValue, ExampleValue } from '../../types'
+import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodIntegerSchemaParams = {
   minLength?: number
@@ -27,6 +28,6 @@ export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): 
   // default
   if (args.default) validations.push(`.default(${args.default})`)
   // example
-  if (args.example) validations.push(`.openapi({example:${args.example}})`)
+  if (args.example) validations.push(generateZodToOpenAPI(args.example))
   return validations.join('')
 }

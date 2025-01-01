@@ -1,4 +1,5 @@
 import type { DefaultValue, ExampleValue } from '../../types'
+import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodNumberSchemaParams = {
   pattern?: string
@@ -29,6 +30,6 @@ export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): st
   // default
   if (args.default) validations.push(`.default(${args.default})`)
   // example
-  if (args.example) validations.push(`.openapi({example:${args.example}})`)
+  if (args.example) validations.push(generateZodToOpenAPI(args.example))
   return validations.join('')
 }
