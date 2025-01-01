@@ -96,6 +96,7 @@ export function generateZodSchema(schema: Schema): string {
     minimum,
     maximum,
     default: defaultValue, // reserved word
+    example,
     properties,
     required = [],
     items,
@@ -104,7 +105,12 @@ export function generateZodSchema(schema: Schema): string {
   } = schema
 
   // enum
-  if (enumValues) return `z.enum(${JSON.stringify(enumValues)})`
+  if (enumValues) {
+    if (example) {
+      return `z.enum(${JSON.stringify(enumValues)}).openapi({example:${JSON.stringify(example)}})`
+    }
+    return `z.enum(${JSON.stringify(enumValues)})`
+  }
 
   // object
   if (type === 'object') {
@@ -121,6 +127,7 @@ export function generateZodSchema(schema: Schema): string {
       maxLength,
       format: format && isFormatString(format) ? format : undefined,
       default: defaultValue,
+      example,
     })
   }
 
@@ -133,6 +140,7 @@ export function generateZodSchema(schema: Schema): string {
       minimum,
       maximum,
       default: defaultValue,
+      example,
     })
   }
 
@@ -144,6 +152,7 @@ export function generateZodSchema(schema: Schema): string {
       minimum,
       maximum,
       default: defaultValue,
+      example,
     })
   }
 

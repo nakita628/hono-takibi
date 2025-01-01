@@ -3,7 +3,7 @@ import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'
 import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
-import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
+// import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
 
 /**
  * Generates a Zod schema string for a given OpenAPI schema definition
@@ -43,13 +43,5 @@ export function generatePropertySchema(schema: Schema): string {
       return generateZodArray(camelCaseRefName)
     }
   }
-
-  const zodSchema = generateZodSchema(schema)
-  const { example } = schema
-
-  // add example
-  if (example) {
-    return generateZodOpenAPIExample(zodSchema, example)
-  }
-  return zodSchema
+  return generateZodSchema(schema)
 }
