@@ -1,5 +1,6 @@
 import type { DefaultValue, ExampleValue } from '../../types'
 import { generateZodDefault } from './generate-zod-default'
+import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
@@ -26,9 +27,12 @@ export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): st
   if (pattern) validations.push(`.regex(/${pattern}/)`)
   // minLength
   if (minLength) validations.push(generateZodMin(minLength))
-  if (maxLength) validations.push(`.max(${maxLength})`)
+  // maxLength
+  if (maxLength) validations.push(generateZodMax(maxLength))
   // 0 falsy value
+  // minimum
   if (typeof minimum === 'number') validations.push(generateZodMin(minimum))
+  // maximum
   if (typeof maximum === 'number') validations.push(`.max(${maximum})`)
   // default
   if (args.default) validations.push(generateZodDefault(args.default))
