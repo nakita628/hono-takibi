@@ -26,7 +26,7 @@ const generateZodIntegerSchemaTestCases: {
   },
   {
     args: { example: 1 },
-    expected: 'z.number().int().example(1)',
+    expected: 'z.number().int().openapi({example:1})',
   },
 ]
 

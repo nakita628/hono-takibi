@@ -35,7 +35,7 @@ const generateZodNumberSchemaTestCases: {
   },
   {
     args: { example: 1 },
-    expected: 'z.number().example(1)',
+    expected: 'z.number().openapi({example:1})',
   },
 ]
 

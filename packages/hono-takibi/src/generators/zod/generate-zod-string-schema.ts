@@ -57,6 +57,6 @@ export function generateZodStringSchema(args: GenerateZodStringSchemaParams): st
   // default
   if (defaultValue) validations.push(`.default(${JSON.stringify(defaultValue)})`)
   // example
-  if (example) validations.push(`.example(${JSON.stringify(example)})`)
+  if (example) validations.push(`.openapi({example:${JSON.stringify(example)}})`)
   return validations.join('')
 }

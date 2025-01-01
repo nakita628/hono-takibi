@@ -75,7 +75,7 @@ const generateZodStringSchemaTestCases: {
     args: {
       example: 'test@example.com',
     },
-    expected: `z.string().example("test@example.com")`,
+    expected: `z.string().openapi({example:"test@example.com"})`,
   },
 ]
 

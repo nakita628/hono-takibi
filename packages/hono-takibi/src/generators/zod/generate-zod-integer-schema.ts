@@ -27,6 +27,6 @@ export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): 
   // default
   if (args.default) validations.push(`.default(${args.default})`)
   // example
-  if (args.example) validations.push(`.example(${args.example})`)
+  if (args.example) validations.push(`.openapi({example:${args.example}})`)
   return validations.join('')
 }
