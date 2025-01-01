@@ -41,6 +41,7 @@ export default defineConfig({
           { text: 'Primitives', link: '/docs/zod/primitives' },
           { text: 'Strings', link: '/docs/zod/strings' },
           { text: 'Numbers', link: '/docs/zod/numbers' },
+          { text: 'BigInts', link: '/docs/zod/bigints' },
         ]
       }
     ],
