@@ -13,7 +13,6 @@ describe('generateZodToOpenAPI', () => {
     'generateZodToOpenAPI($example) -> $expected',
     async ({ example, expected }) => {
       const result = generateZodToOpenAPI(example)
-      console.log(result)
       expect(result).toBe(expected)
     },
   )

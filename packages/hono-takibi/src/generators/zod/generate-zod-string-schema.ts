@@ -1,5 +1,6 @@
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import type { FormatString, ExampleValue, DefaultValue } from '../../types'
+import { generateZodDefault } from './generate-zod-default'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodStringSchemaParams = {
@@ -56,7 +57,7 @@ export function generateZodStringSchema(args: GenerateZodStringSchemaParams): st
   if (maxLength) validations.push(`.max(${maxLength})`)
   if (format) validations.push(getZodFormatString(format))
   // default
-  if (defaultValue) validations.push(`.default(${JSON.stringify(defaultValue)})`)
+  if (defaultValue) validations.push(generateZodDefault(defaultValue))
   // example
   if (example) validations.push(generateZodToOpenAPI(example))
   return validations.join('')
