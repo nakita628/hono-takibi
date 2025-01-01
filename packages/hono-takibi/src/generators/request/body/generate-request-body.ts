@@ -1,3 +1,5 @@
+import type { Content } from '../../../types'
+
 /**
  * Generates a request body configuration for OpenAPI schema
  *
@@ -15,6 +17,26 @@
  * generateRequestBody(false, 'z.object({ age: z.number() })')
  * // Returns: 'body:{required:false,content:{'application/json':{schema:z.object({ age: z.number() }),},},},'
  */
-export function generateRequestBody(required: boolean, zodSchema: string): string {
-  return `body:{required:${required},content:{'application/json':{schema:${zodSchema},},},},`
+export function generateRequestBody(
+  required: boolean,
+  content: Content,
+  zodSchema: string,
+): string {
+  if (content['application/json']) {
+    return `body:{required:${required},content:{'application/json':{schema:${zodSchema},},},},`
+  }
+
+  if (content['application/xml']) {
+    return `body:{required:${required},content:{'application/xml':{schema:${zodSchema},},},},`
+  }
+
+  if (content['application/x-www-form-urlencoded']) {
+    return `body:{required:${required},content:{'application/x-www-form-urlencoded':{schema:${zodSchema},},},},`
+  }
+
+  if (content['application/octet-stream']) {
+    return `body:{required:${required},content:{'application/octet-stream':{schema:${zodSchema},},},},`
+  }
+
+  return ''
 }

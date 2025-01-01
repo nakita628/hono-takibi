@@ -219,6 +219,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   path: '/pet/{petId}/uploadImage',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
+    body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
     query: z.object({ additionalMetadata: z.string().optional() }),
     params: z.object({ petId: z.number().int() }),
   },
@@ -383,6 +384,7 @@ export const deleteUserUsernameRoute = createRoute({
   },
 })
 `
+
     expect(result).toEqual(expected)
   })
 

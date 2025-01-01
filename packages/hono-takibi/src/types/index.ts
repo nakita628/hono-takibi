@@ -110,7 +110,7 @@ export type DefaultValue = PrimitiveExample | ObjectExample | ArrayExample
 /**
  * Content type definitions with their schemas
  */
-type Content = {
+export type Content = {
   'application/json'?: {
     schema: Schema
     example?: ExampleValue

@@ -74,7 +74,53 @@ export function generateRequestParameter(
     const schema = requestBody.content['application/json'].schema
     const zodSchema = generatePropertySchema(schema)
     const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(request_body_required, zodSchema)
+    const requestBodyCode = generateRequestBody(
+      request_body_required,
+      requestBody.content,
+      zodSchema,
+    )
+    return params
+      ? generateInsertRequestBody(params, requestBodyCode)
+      : generateRequestParams(requestBodyCode)
+  }
+
+  if (requestBody?.content?.['application/xml']) {
+    const schema = requestBody.content['application/xml'].schema
+    const zodSchema = generatePropertySchema(schema)
+    const request_body_required = requestBody.required ?? false
+    const requestBodyCode = generateRequestBody(
+      request_body_required,
+      requestBody.content,
+      zodSchema,
+    )
+    return params
+      ? generateInsertRequestBody(params, requestBodyCode)
+      : generateRequestParams(requestBodyCode)
+  }
+
+  if (requestBody?.content?.['application/x-www-form-urlencoded']) {
+    const schema = requestBody.content['application/x-www-form-urlencoded'].schema
+    const zodSchema = generatePropertySchema(schema)
+    const request_body_required = requestBody.required ?? false
+    const requestBodyCode = generateRequestBody(
+      request_body_required,
+      requestBody.content,
+      zodSchema,
+    )
+    return params
+      ? generateInsertRequestBody(params, requestBodyCode)
+      : generateRequestParams(requestBodyCode)
+  }
+
+  if (requestBody?.content?.['application/octet-stream']) {
+    const schema = requestBody.content['application/octet-stream'].schema
+    const zodSchema = generatePropertySchema(schema)
+    const request_body_required = requestBody.required ?? false
+    const requestBodyCode = generateRequestBody(
+      request_body_required,
+      requestBody.content,
+      zodSchema,
+    )
     return params
       ? generateInsertRequestBody(params, requestBodyCode)
       : generateRequestParams(requestBodyCode)

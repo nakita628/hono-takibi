@@ -21,7 +21,7 @@ export const postPetPetIdRoute=createRoute({tags:["pet"],method:'post',path:'/pe
 
 export const deletePetPetIdRoute=createRoute({tags:["pet"],method:'delete',path:'/pet/{petId}',description:'delete a pet',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{params:z.object({petId:z.number().int()}),headers:z.object({api_key:z.string().optional()})},responses:{400:{description:'Invalid pet value',},}})
 
-export const postPetPetIdUploadImageRoute=createRoute({tags:["pet"],method:'post',path:'/pet/{petId}/uploadImage',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.number().int()})},responses:{200:{description:'successful operation',content:{'application/json':{schema:apiResponseSchema,},},},}})
+export const postPetPetIdUploadImageRoute=createRoute({tags:["pet"],method:'post',path:'/pet/{petId}/uploadImage',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:false,content:{'application/octet-stream':{schema:z.string(),},},},query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.number().int()})},responses:{200:{description:'successful operation',content:{'application/json':{schema:apiResponseSchema,},},},}})
 
 export const getStoreInventoryRoute=createRoute({tags:["store"],method:'get',path:'/store/inventory',description:'Returns a map of status codes to quantities',security:[{"api_key":[]}],responses:{200:{description:'successful operation',content:{'application/json':{schema:z.record(z.string(),z.number().int()),},},},}})
 
