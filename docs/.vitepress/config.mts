@@ -34,6 +34,14 @@ export default defineConfig({
         items: [
           { text: 'Hono Takibi', link: '/docs' },
         ]
+      },
+      {
+        text: 'Zod',
+        items: [
+          { text: 'Primitives', link: '/docs/zod/primitives' },
+          { text: 'Strings', link: '/docs/zod/strings' },
+          { text: 'Numbers', link: '/docs/zod/numbers' },
+        ]
       }
     ],
 
