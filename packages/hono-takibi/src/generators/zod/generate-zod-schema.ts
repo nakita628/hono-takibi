@@ -105,7 +105,12 @@ export function generateZodSchema(schema: Schema): string {
   } = schema
 
   // enum
-  if (enumValues) return `z.enum(${JSON.stringify(enumValues)})`
+  if (enumValues) {
+    if (example) {
+      return `z.enum(${JSON.stringify(enumValues)}).openapi({example:${JSON.stringify(example)}})`
+    }
+    return `z.enum(${JSON.stringify(enumValues)})`
+  }
 
   // object
   if (type === 'object') {
