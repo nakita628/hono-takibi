@@ -4,6 +4,7 @@ import type { FormatString, ExampleValue, DefaultValue } from '../../types'
 import { generateZodDefault } from './generate-zod-default'
 import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
+import { generateZodRegex } from './generate-zod-regex'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodStringSchemaParams = {
@@ -55,7 +56,8 @@ type GenerateZodStringSchemaParams = {
 export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
   const validations = ['z.string()']
   const { pattern, minLength, maxLength, format, default: defaultValue, example } = args
-  if (pattern) validations.push(`.regex(/${pattern}/)`)
+  // pattern
+  if (pattern) validations.push(generateZodRegex(pattern))
   // minLength
   if (minLength) validations.push(generateZodMin(minLength))
   // maxLength
