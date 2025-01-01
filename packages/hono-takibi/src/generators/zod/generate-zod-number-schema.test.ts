@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodNumberSchema } from './generate-zod-number-schema'
-import type { DefaultValue } from '../../types'
+import type { DefaultValue, ExampleValue } from '../../types'
 const generateZodNumberSchemaTestCases: {
   args: {
     pattern?: string
@@ -9,6 +9,7 @@ const generateZodNumberSchemaTestCases: {
     minimum?: number
     maximum?: number
     default?: DefaultValue
+    example?: ExampleValue
   }
   expected: string
 }[] = [
@@ -32,11 +33,15 @@ const generateZodNumberSchemaTestCases: {
     args: { default: 1 },
     expected: 'z.number().default(1)',
   },
+  {
+    args: { example: 1 },
+    expected: 'z.number().example(1)',
+  },
 ]
 
 describe('generateZodNumberSchema', () => {
   it.concurrent.each(generateZodNumberSchemaTestCases)(
-    'generateZodNumberSchema(%s) -> %s',
+    'generateZodNumberSchema($args) -> $expected',
     ({ args, expected }) => {
       const result = generateZodNumberSchema(args)
       expect(result).toBe(expected)

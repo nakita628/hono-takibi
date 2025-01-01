@@ -1,4 +1,4 @@
-import type { DefaultValue } from '../../types'
+import type { DefaultValue, ExampleValue } from '../../types'
 
 type GenerateZodNumberSchemaParams = {
   pattern?: string
@@ -7,6 +7,7 @@ type GenerateZodNumberSchemaParams = {
   minimum?: number
   maximum?: number
   default?: DefaultValue
+  example?: ExampleValue
 }
 
 /**
@@ -27,5 +28,7 @@ export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): st
   if (typeof maximum === 'number') validations.push(`.max(${maximum})`)
   // default
   if (args.default) validations.push(`.default(${args.default})`)
+  // example
+  if (args.example) validations.push(`.example(${args.example})`)
   return validations.join('')
 }
