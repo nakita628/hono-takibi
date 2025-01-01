@@ -1,5 +1,10 @@
+import { main } from '../..'
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import type { FormatString, ExampleValue, DefaultValue } from '../../types'
+import { generateZodDefault } from './generate-zod-default'
+import { generateZodMax } from './generate-zod-max'
+import { generateZodMin } from './generate-zod-min'
+import { generateZodRegex } from './generate-zod-regex'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodStringSchemaParams = {
@@ -51,12 +56,16 @@ type GenerateZodStringSchemaParams = {
 export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
   const validations = ['z.string()']
   const { pattern, minLength, maxLength, format, default: defaultValue, example } = args
-  if (pattern) validations.push(`.regex(/${pattern}/)`)
-  if (minLength) validations.push(`.min(${minLength})`)
-  if (maxLength) validations.push(`.max(${maxLength})`)
+  // pattern
+  if (pattern) validations.push(generateZodRegex(pattern))
+  // minLength
+  if (minLength) validations.push(generateZodMin(minLength))
+  // maxLength
+  if (maxLength) validations.push(generateZodMax(maxLength))
+  // format
   if (format) validations.push(getZodFormatString(format))
   // default
-  if (defaultValue) validations.push(`.default(${JSON.stringify(defaultValue)})`)
+  if (defaultValue) validations.push(generateZodDefault(defaultValue))
   // example
   if (example) validations.push(generateZodToOpenAPI(example))
   return validations.join('')

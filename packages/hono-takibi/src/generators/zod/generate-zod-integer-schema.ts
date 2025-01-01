@@ -1,7 +1,12 @@
 import type { DefaultValue, ExampleValue } from '../../types'
+import { generateZodDefault } from './generate-zod-default'
+import { generateZodMax } from './generate-zod-max'
+import { generateZodMin } from './generate-zod-min'
+import { generateZodRegex } from './generate-zod-regex'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodIntegerSchemaParams = {
+  pattern?: string
   minLength?: number
   maxLength?: number
   minimum?: number
@@ -19,14 +24,20 @@ type GenerateZodIntegerSchemaParams = {
  */
 export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): string {
   const validations = ['z.number().int()']
-  const { minLength, maxLength, minimum, maximum } = args
-  if (minLength) validations.push(`.min(${minLength})`)
-  if (maxLength) validations.push(`.max(${maxLength})`)
+  const { pattern, minLength, maxLength, minimum, maximum } = args
+  // pattern
+  if (pattern) validations.push(generateZodRegex(pattern))
+  // minLength
+  if (minLength) validations.push(generateZodMin(minLength))
+  // maxLength
+  if (maxLength) validations.push(generateZodMax(maxLength))
   // 0 falsy value
-  if (typeof minimum === 'number') validations.push(`.min(${minimum})`)
-  if (typeof maximum === 'number') validations.push(`.max(${maximum})`)
+  // minimum
+  if (typeof minimum === 'number') validations.push(generateZodMin(minimum))
+  // maximum
+  if (typeof maximum === 'number') validations.push(generateZodMax(maximum))
   // default
-  if (args.default) validations.push(`.default(${args.default})`)
+  if (args.default) validations.push(generateZodDefault(args.default))
   // example
   if (args.example) validations.push(generateZodToOpenAPI(args.example))
   return validations.join('')
