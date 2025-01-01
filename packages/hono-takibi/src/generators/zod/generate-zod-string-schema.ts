@@ -1,5 +1,6 @@
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import type { FormatString, ExampleValue, DefaultValue } from '../../types'
+import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
 type GenerateZodStringSchemaParams = {
   pattern?: string
@@ -57,6 +58,6 @@ export function generateZodStringSchema(args: GenerateZodStringSchemaParams): st
   // default
   if (defaultValue) validations.push(`.default(${JSON.stringify(defaultValue)})`)
   // example
-  if (example) validations.push(`.openapi({example:${JSON.stringify(example)}})`)
+  if (example) validations.push(generateZodToOpenAPI(example))
   return validations.join('')
 }
