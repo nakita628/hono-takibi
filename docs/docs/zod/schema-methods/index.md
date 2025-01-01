@@ -1,3 +1,7 @@
+---
+prev: false
+next: false
+---
 
 # Zod Schema methods
 
