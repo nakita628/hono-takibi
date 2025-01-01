@@ -8,7 +8,7 @@ hero:
   tagline: Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.
 
   image:
-    src: https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/icon/hono-takibi.png
+    src: hono-takibi.png
     alt: Hono Takibi
   actions:
     - theme: brand
@@ -29,3 +29,5 @@ features:
     title: Early Development
     details: Currently in active development. Breaking changes may occur without notice. Please pin to exact versions in production.  
 ---
+
+![Hono Takibi](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/icon/hono-takibi.png)
