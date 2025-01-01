@@ -43,6 +43,12 @@ export default defineConfig({
           { text: 'Numbers', link: '/docs/zod/numbers' },
           { text: 'BigInts', link: '/docs/zod/bigints' },
         ]
+      },
+      {
+        text: 'Other',
+        items: [
+          { text: 'Query Parameters', link: '/docs/other/query-parameters' },
+        ]
       }
     ],
 
