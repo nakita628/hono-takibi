@@ -1,3 +1,8 @@
+---
+prev: false
+next: false
+---
+
 # Numbers
 
 * [Zod Numbers](https://zod.dev/?id=numbers)

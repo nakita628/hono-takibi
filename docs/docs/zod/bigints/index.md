@@ -1,3 +1,8 @@
+---
+prev: false
+next: false
+---
+
 # BigInts
 
 * [Zod BigInts](https://zod.dev/?id=bigints)

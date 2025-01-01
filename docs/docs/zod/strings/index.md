@@ -1,3 +1,8 @@
+---
+prev: false
+next: false
+---
+
 # Strings
 
 * [Zod Strings](https://zod.dev/?id=strings)

@@ -1,3 +1,8 @@
+---
+prev: false
+next: false
+---
+
 # Hono Takibi
 
 **[Hono Takibi](https://github.com/nakita628/hono-takibi)** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.

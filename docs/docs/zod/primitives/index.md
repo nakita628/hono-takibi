@@ -1,3 +1,8 @@
+---
+prev: false
+next: false
+---
+
 # Primitives
 
 * [Zod Primitives](https://zod.dev/?id=primitives)
