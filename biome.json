@@ -28,7 +28,7 @@
   },
   "linter": {
     "enabled": true,
-    "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
+    "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/docs/**"],
     "rules": {
       "complexity": {
         "noBannedTypes": "warn",
