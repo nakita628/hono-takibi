@@ -6,6 +6,10 @@ hero:
   name: "Hono Takibi"
   text: "Zod OpenAPI Hono Code Generator"
   tagline: Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.
+
+  image:
+    src: https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/icon/hono-takibi.png
+    alt: Hono Takibi
   actions:
     - theme: brand
       text: Get Started
@@ -14,12 +18,14 @@ hero:
       text: View on GitHub
       link: https://github.com/nakita628/hono-takibi
 
-# features:
-#   - title: Feature A
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature B
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature C
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+features:
+  - icon: 🔥
+    title: Route Generation
+    details: Generates Hono routes from OpenAPI specifications.
+  - icon: 🚀
+    title: Schema & Variable Name Generation
+    details: Converts OpenAPI schemas to Zod schemas and creates consistent route names. No manual schema writing or naming needed.
+  - icon: 🛠️
+    title: Early Development
+    details: Currently in active development. Breaking changes may occur without notice. Please pin to exact versions in production.  
 ---
-
