@@ -79,9 +79,6 @@ describe('generateZodOpenAPIHono', () => {
     'generateZodOpenAPIHono($openAPISpec) -> $expected',
     async ({ openAPISpec, expected }) => {
       const result = generateZodOpenAPIHono(openAPISpec)
-      console.log('--------------------------------')
-      console.log(result)
-      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )
