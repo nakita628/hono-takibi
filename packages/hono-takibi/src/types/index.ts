@@ -42,7 +42,6 @@ export type Type =
   | 'unknown'
   | 'array'
   | 'object'
-  | 'trace'
 
 export type Format = FormatString | FormatNumber
 
