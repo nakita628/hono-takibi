@@ -82,6 +82,29 @@ const generateRequestBodyTestCases: {
   status: z.enum(['available', 'pending', 'sold']).optional(),
 })}},},`,
   },
+  // duplication
+  {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          $ref: '#/components/schemas/Pet',
+        },
+      },
+      'application/xml': {
+        schema: {
+          $ref: '#/components/schemas/Pet',
+        },
+      },
+      'application/x-www-form-urlencoded': {
+        schema: {
+          $ref: '#/components/schemas/Pet',
+        },
+      },
+    },
+    schema: 'petSchema',
+    expected: `body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},`
+  },
 ]
 
 describe('generateRequestBody', () => {

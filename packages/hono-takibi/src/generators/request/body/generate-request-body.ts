@@ -25,25 +25,16 @@ export function generateRequestBody(
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
 
-  const contentParts = contentTypes.map((contentType) => `'${contentType}':{schema:${zodSchema}}`)
+  // check duplication
+  const schemas = new Set(contentTypes.map((type) => JSON.stringify(content[type].schema)))
 
-  return `body:{required:${required},content:{${contentParts.join(',')}},},`
-
-  // if (content['application/json']) {
-  //   return `body:{required:${required},content:{'application/json':{schema:${zodSchema},},},},`
-  // }
-
-  // if (content['application/xml']) {
-  //   return `body:{required:${required},content:{'application/xml':{schema:${zodSchema},},},},`
-  // }
-
-  // if (content['application/x-www-form-urlencoded']) {
-  //   return `body:{required:${required},content:{'application/x-www-form-urlencoded':{schema:${zodSchema},},},},`
-  // }
-
-  // if (content['application/octet-stream']) {
-  //   return `body:{required:${required},content:{'application/octet-stream':{schema:${zodSchema},},},},`
-  // }
-
-  // return ''
+  // all duplication same schema
+  if (schemas.size === 1) {
+    const contentParts: string[] = []
+    for (const contentType of contentTypes) {
+      contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
+    }
+    return `body:{required:${required},content:{${contentParts.join(',')}},},`
+  }
+  return ''
 }
