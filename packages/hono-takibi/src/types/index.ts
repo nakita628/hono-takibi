@@ -119,25 +119,6 @@ export type Content = {
   }
 }
 
-// export type Content = {
-//   'application/json'?: {
-//     schema: Schema
-//     example?: ExampleValue
-//   }
-//   'application/xml'?: {
-//     schema: Schema
-//     example?: ExampleValue
-//   }
-//   'application/x-www-form-urlencoded'?: {
-//     schema: Schema
-//     example?: ExampleValue
-//   }
-//   'application/octet-stream'?: {
-//     schema: Schema
-//     example?: ExampleValue
-//   }
-// }
-
 /**
  * Path item definition with HTTP methods and parameters
  */
