@@ -23,9 +23,6 @@ const generateParamsObjectTestCases: {
     ],
     expected: {
       query: { page: 'z.string()', rows: 'z.string()' },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
   {
@@ -37,12 +34,7 @@ const generateParamsObjectTestCases: {
         in: 'path',
       },
     ],
-    expected: {
-      query: {},
-      params: { id: 'z.string().uuid()' },
-      headers: {},
-      body: {},
-    },
+    expected: { path: { id: 'z.string().uuid()' } },
   },
   {
     parameters: [
@@ -61,9 +53,6 @@ const generateParamsObjectTestCases: {
     ],
     expected: {
       query: { page: 'z.string()', rows: 'z.string()' },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
   {
@@ -75,18 +64,7 @@ const generateParamsObjectTestCases: {
         in: 'path',
       },
     ],
-    expected: { query: {}, params: { id: 'z.string().uuid()' }, headers: {}, body: {} },
-  },
-  {
-    parameters: [
-      {
-        schema: { type: 'string', format: 'uuid' },
-        required: true,
-        name: 'id',
-        in: 'path',
-      },
-    ],
-    expected: { query: {}, params: { id: 'z.string().uuid()' }, headers: {}, body: {} },
+    expected: { path: { id: 'z.string().uuid()' } },
   },
   {
     parameters: [
@@ -108,9 +86,6 @@ const generateParamsObjectTestCases: {
         page: 'z.string().pipe(z.coerce.number().min(0))',
         rows: 'z.string().pipe(z.coerce.number().min(0))',
       },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
   {
@@ -133,9 +108,6 @@ const generateParamsObjectTestCases: {
         page: 'z.string().pipe(z.coerce.number().int().min(0))',
         rows: 'z.string().pipe(z.coerce.number().int().min(0))',
       },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
 
@@ -158,9 +130,6 @@ const generateParamsObjectTestCases: {
       query: {
         page: 'z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({example:1}))',
       },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
   {
@@ -181,9 +150,6 @@ const generateParamsObjectTestCases: {
       query: {
         page: 'z.string().pipe(z.coerce.number().int().max(10).default(10).openapi({example:10}))',
       },
-      params: {},
-      headers: {},
-      body: {},
     },
   },
 ]

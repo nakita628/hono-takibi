@@ -74,7 +74,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
+    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},path:z.object({id:z.string().uuid()})},`,
   },
   {
     parameters: [
@@ -108,7 +108,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.number().int()})},`,
+    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},path:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
   },
 ]
 

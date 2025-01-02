@@ -73,26 +73,49 @@ const PARAM_LOCATION_TO_KEY: Record<Parameter, keyof ParamsObject> = {
  * - Maintains empty objects for unused parameter locations
  */
 // want to refactor this
-export function generateParamsObject(parameters: Parameters[]): ParamsObject {
-  const initialParamsObj: ParamsObject = {
-    query: {},
-    params: {},
-    headers: {},
-    body: {},
-  }
+// export function generateParamsObject(parameters: Parameters[]): ParamsObject {
+//   const initialParamsObj: ParamsObject = {
+//     query: {},
+//     params: {},
+//     headers: {},
+//     body: {},
+//   }
 
-  return parameters.reduce((acc, param) => {
+//   return parameters.reduce((acc, param) => {
+//     const optionalSuffix = param.required ? '' : '.optional()'
+//     const paramLocation = PARAM_LOCATION_TO_KEY[param.in]
+//     const baseSchema = generateZodSchema(param.schema)
+
+//     const isCoerceNeeded =
+//       paramLocation === 'query' &&
+//       (param.schema.type === 'number' || param.schema.type === 'integer')
+
+//     const zodSchema = isCoerceNeeded ? generateZodCoerce('z.string()', baseSchema) : baseSchema
+
+//     acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`
+//     return acc
+//   }, initialParamsObj)
+// }
+
+export function generateParamsObject(parameters: Parameters[]): ParamsObject {
+  return parameters.reduce((acc: ParamsObject, param) => {
+    const paramLocation = param.in
     const optionalSuffix = param.required ? '' : '.optional()'
-    const paramLocation = PARAM_LOCATION_TO_KEY[param.in]
     const baseSchema = generateZodSchema(param.schema)
 
-    const isCoerceNeeded =
-      paramLocation === 'query' &&
-      (param.schema.type === 'number' || param.schema.type === 'integer')
+    // Initialize section if it doesn't exist
+    if (!acc[paramLocation]) {
+      acc[paramLocation] = {}
+    }
 
-    const zodSchema = isCoerceNeeded ? generateZodCoerce('z.string()', baseSchema) : baseSchema
+    // Handle coercion for query number/integer types
+    const zodSchema =
+      param.in === 'query' && (param.schema.type === 'number' || param.schema.type === 'integer')
+        ? generateZodCoerce('z.string()', baseSchema)
+        : baseSchema
 
+    // Add parameter to its section
     acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`
     return acc
-  }, initialParamsObj)
+  }, {})
 }
