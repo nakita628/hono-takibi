@@ -1,5 +1,5 @@
 import type { Schema } from '../../../types'
-import { traverseSchema } from './traverse_schema'
+import { traverseSchema } from './traverse-schema'
 
 /**
  * Collects all $ref references from an OpenAPI schema by recursively traversing it
