@@ -103,7 +103,7 @@ const generateRequestBodyTestCases: {
       },
     },
     schema: 'petSchema',
-    expected: `body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},`
+    expected: `body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},`,
   },
 ]
 
