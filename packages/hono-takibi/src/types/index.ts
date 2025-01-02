@@ -24,7 +24,8 @@ export type OpenAPIPaths = {
 /**
  * HTTP methods supported in OpenAPI
  */
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
+
+export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
 
 /**
  * Data types supported in OpenAPI schemas
@@ -41,6 +42,7 @@ export type Type =
   | 'unknown'
   | 'array'
   | 'object'
+  | 'trace'
 
 export type Format = FormatString | FormatNumber
 
