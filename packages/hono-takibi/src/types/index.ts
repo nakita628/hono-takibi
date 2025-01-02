@@ -207,13 +207,15 @@ export type Components = {
 }
 
 /**
- * Object containing different types of parameters
+ * Dynamic parameter section type
+ */
+export type ParamSection = Record<string, string>
+
+/**
+ * Flexible parameters object type that can handle any section name
  */
 export type ParamsObject = {
-  query: Record<string, string>
-  params: Record<string, string>
-  headers: Record<string, string>
-  body: Record<string, string>
+  [section: string]: ParamSection
 }
 
 /**

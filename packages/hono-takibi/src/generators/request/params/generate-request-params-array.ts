@@ -38,7 +38,10 @@ import { generateZodObjectSchema } from '../../zod/generate-zod-object-schema'
  */
 export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
   // 1.  define sections to be processed
-  const sections: Array<keyof ParamsObject> = ['query', 'params', 'headers']
+  const sections = Object.entries(paramsObj)
+    .filter(([_, obj]) => obj && Object.keys(obj).length > 0)
+    .map(([section]) => section)
+
   // 2. processing of each section
   return (
     sections
