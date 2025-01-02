@@ -9,6 +9,7 @@ const isHttpMethodTestCases = [
   { method: 'patch', expected: true },
   { method: 'options', expected: true },
   { method: 'head', expected: true },
+  { method: 'trace', expected: true },
   { method: 'GET', expected: false },
   { method: 'POST', expected: false },
   { method: 'PUT', expected: false },
@@ -16,6 +17,7 @@ const isHttpMethodTestCases = [
   { method: 'PATCH', expected: false },
   { method: 'OPTIONS', expected: false },
   { method: 'HEAD', expected: false },
+  { method: 'TRACE', expected: false },
 ]
 
 describe('isHttpMethod', () => {

@@ -1,3 +1,4 @@
+import { isUniqueContentSchema } from '../../../core/validator/is-unique-content-schema'
 import type { Content } from '../../../types'
 
 /**
@@ -26,10 +27,10 @@ export function generateRequestBody(
   if (contentTypes.length === 0) return ''
 
   // check duplication
-  const schemas = new Set(contentTypes.map((type) => JSON.stringify(content[type].schema)))
+  const isUniqueSchema = isUniqueContentSchema(contentTypes, content)
 
   // all duplication same schema
-  if (schemas.size === 1) {
+  if (isUniqueSchema) {
     const contentParts: string[] = []
     for (const contentType of contentTypes) {
       contentParts.push(`'${contentType}':{schema:${zodSchema}}`)

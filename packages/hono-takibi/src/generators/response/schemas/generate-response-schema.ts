@@ -1,4 +1,5 @@
 import { escapeQuote } from '../../../core/text/escape-quote'
+import { isUniqueContentSchema } from '../../../core/validator/is-unique-content-schema'
 import type { Responses } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
@@ -78,12 +79,10 @@ export function generateResponseSchema(responses: Responses): string {
     // check duplication
     const contentTypes = Object.keys(response.content)
 
-    const schemas = new Set(
-      contentTypes.map((type) => JSON.stringify(response?.content?.[type].schema)),
-    )
+    const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
 
     // all duplication same schema
-    if (schemas.size === 1) {
+    if (isUniqueSchema) {
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)

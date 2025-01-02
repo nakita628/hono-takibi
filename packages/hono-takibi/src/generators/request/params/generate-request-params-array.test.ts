@@ -10,8 +10,6 @@ const generateRequestParamsArrayTestCases: {
     paramsObject: {
       query: { id: 'z.string()' },
       params: { id: 'z.string()' },
-      headers: {},
-      body: {},
     },
     expected: ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})'],
   },

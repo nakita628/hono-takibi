@@ -15,6 +15,7 @@ export function isHttpMethod(method: string): method is HttpMethod {
     method === 'delete' ||
     method === 'patch' ||
     method === 'options' ||
-    method === 'head'
+    method === 'head' ||
+    method === 'trace'
   )
 }

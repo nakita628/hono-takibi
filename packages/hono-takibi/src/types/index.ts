@@ -24,12 +24,8 @@ export type OpenAPIPaths = {
 /**
  * HTTP methods supported in OpenAPI
  */
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
-/**
- * Parameter types in OpenAPI
- */
-export type Parameter = 'query' | 'path' | 'header' | 'body'
+export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
 
 /**
  * Data types supported in OpenAPI schemas
@@ -125,7 +121,7 @@ export type Content = {
 export type PathItem = {
   summary?: string
   description?: string
-  parameters?: Parameter[]
+  parameters?: string[]
 } & {
   [Method in HttpMethod]?: Operation
 }
@@ -154,7 +150,7 @@ export type Operation = {
 /**
  * Response definition with description and content
  */
-type ResponseDefinition = {
+export type ResponseDefinition = {
   description: string
   content?: Content
 }
@@ -207,13 +203,15 @@ export type Components = {
 }
 
 /**
- * Object containing different types of parameters
+ * Dynamic parameter section type
+ */
+export type ParamSection = Record<string, string>
+
+/**
+ * Flexible parameters object type that can handle any section name
  */
 export type ParamsObject = {
-  query: Record<string, string>
-  params: Record<string, string>
-  headers: Record<string, string>
-  body: Record<string, string>
+  [section: string]: ParamSection
 }
 
 /**
@@ -224,7 +222,7 @@ export type Parameters = {
   description?: string
   required?: boolean
   name: string
-  in: Parameter
+  in: string
   explode?: boolean
 }
 

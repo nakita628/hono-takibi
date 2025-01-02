@@ -108,7 +108,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.number().int()})},`,
+    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
   },
 ]
 
@@ -117,6 +117,10 @@ describe('generateRequestParameters', () => {
     'generateRequestParameters($parameters, $requestBody) -> $expected',
     async ({ parameters, requestBody, expected }) => {
       const result = generateRequestParameter(parameters, requestBody)
+
+      console.log('--------------------------------')
+      console.log(result)
+      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )
