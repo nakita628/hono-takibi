@@ -1,16 +1,6 @@
-import type { Parameter, ParamsObject, Parameters } from '../../../types'
+import type { ParamsObject, Parameters } from '../../../types'
 import { generateZodCoerce } from '../../zod/generate-zod-coerce'
 import { generateZodSchema } from '../../zod/generate-zod-schema'
-
-/**
- * Mapping of parameter locations to their corresponding object keys
- */
-const PARAM_LOCATION_TO_KEY: Record<Parameter, keyof ParamsObject> = {
-  query: 'query',
-  path: 'params',
-  header: 'headers',
-  body: 'body',
-} as const
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
