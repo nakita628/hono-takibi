@@ -27,11 +27,6 @@ export type OpenAPIPaths = {
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
 
 /**
- * Parameter types in OpenAPI
- */
-export type Parameter = 'query' | 'path' | 'header' | 'body'
-
-/**
  * Data types supported in OpenAPI schemas
  */
 export type Type =
@@ -125,7 +120,7 @@ export type Content = {
 export type PathItem = {
   summary?: string
   description?: string
-  parameters?: Parameter[]
+  parameters?: string[]
 } & {
   [Method in HttpMethod]?: Operation
 }
@@ -226,7 +221,7 @@ export type Parameters = {
   description?: string
   required?: boolean
   name: string
-  in: Parameter
+  in: string
   explode?: boolean
 }
 
