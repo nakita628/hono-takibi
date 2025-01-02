@@ -74,7 +74,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},path:z.object({id:z.string().uuid()})},`,
+    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
   },
   {
     parameters: [
@@ -108,7 +108,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},path:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
+    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
   },
 ]
 
@@ -117,6 +117,10 @@ describe('generateRequestParameters', () => {
     'generateRequestParameters($parameters, $requestBody) -> $expected',
     async ({ parameters, requestBody, expected }) => {
       const result = generateRequestParameter(parameters, requestBody)
+
+      console.log('--------------------------------')
+      console.log(result)
+      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )

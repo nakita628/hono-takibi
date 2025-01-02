@@ -207,7 +207,7 @@ export const getPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   description: 'Returns a single pet',
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { path: z.object({ petId: z.number().int() }) },
+  request: { params: z.object({ petId: z.number().int() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -227,7 +227,7 @@ export const postPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    path: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.number().int() }),
     query: z.object({ name: z.string().optional(), status: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid input' } },
@@ -241,7 +241,7 @@ export const deletePetPetIdRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     header: z.object({ api_key: z.string().optional() }),
-    path: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.number().int() }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
 })
@@ -253,7 +253,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
-    path: z.object({ petId: z.number().int() }),
+    params: z.object({ petId: z.number().int() }),
     query: z.object({ additionalMetadata: z.string().optional() }),
   },
   responses: {
@@ -309,7 +309,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-  request: { path: z.object({ orderId: z.number().int() }) },
+  request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -329,7 +329,7 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-  request: { path: z.object({ orderId: z.number().int() }) },
+  request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },
@@ -412,7 +412,7 @@ export const getUserUsernameRoute = createRoute({
   tags: ['user'],
   method: 'get',
   path: '/user/{username}',
-  request: { path: z.object({ username: z.string() }) },
+  request: { params: z.object({ username: z.string() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -440,7 +440,7 @@ export const putUserUsernameRoute = createRoute({
         'application/x-www-form-urlencoded': { schema: userSchema },
       },
     },
-    path: z.object({ username: z.string() }),
+    params: z.object({ username: z.string() }),
   },
   responses: { default: { description: 'successful operation' } },
 })
@@ -450,13 +450,14 @@ export const deleteUserUsernameRoute = createRoute({
   method: 'delete',
   path: '/user/{username}',
   description: 'This can only be done by the logged in user.',
-  request: { path: z.object({ username: z.string() }) },
+  request: { params: z.object({ username: z.string() }) },
   responses: {
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
   },
 })
 `
+
     expect(result).toBe(expected)
   })
 

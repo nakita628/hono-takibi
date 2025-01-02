@@ -96,7 +96,7 @@ export const putPostsIdRoute = createRoute({
       required: true,
       content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
     },
-    path: z.object({ id: z.string().uuid() }),
+    params: z.object({ id: z.string().uuid() }),
   },
   responses: {
     204: { description: 'Post successfully updated.' },
@@ -116,7 +116,7 @@ export const deletePostsIdRoute = createRoute({
   method: 'delete',
   path: '/posts/{id}',
   description: 'Delete an existing post identified by its unique ID.',
-  request: { path: z.object({ id: z.string().uuid() }) },
+  request: { params: z.object({ id: z.string().uuid() }) },
   responses: {
     204: { description: 'Post successfully deleted.' },
     400: {

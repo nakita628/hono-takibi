@@ -50,6 +50,10 @@ export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
         // 2.1 process only if object is not empty
         if (Object.keys(obj).length) {
           const schema = generateZodObjectSchema(obj)
+          // path is params convention
+          if (section === 'path') {
+            return `params:${schema}`
+          }
           return `${section}:${schema}`
         }
         return null
