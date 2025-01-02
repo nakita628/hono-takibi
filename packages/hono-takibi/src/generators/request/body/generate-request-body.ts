@@ -22,21 +22,28 @@ export function generateRequestBody(
   content: Content,
   zodSchema: string,
 ): string {
-  if (content['application/json']) {
-    return `body:{required:${required},content:{'application/json':{schema:${zodSchema},},},},`
-  }
+  const contentTypes = Object.keys(content)
+  if (contentTypes.length === 0) return ''
 
-  if (content['application/xml']) {
-    return `body:{required:${required},content:{'application/xml':{schema:${zodSchema},},},},`
-  }
+  const contentParts = contentTypes.map((contentType) => `'${contentType}':{schema:${zodSchema}}`)
 
-  if (content['application/x-www-form-urlencoded']) {
-    return `body:{required:${required},content:{'application/x-www-form-urlencoded':{schema:${zodSchema},},},},`
-  }
+  return `body:{required:${required},content:{${contentParts.join(',')}},},`
 
-  if (content['application/octet-stream']) {
-    return `body:{required:${required},content:{'application/octet-stream':{schema:${zodSchema},},},},`
-  }
+  // if (content['application/json']) {
+  //   return `body:{required:${required},content:{'application/json':{schema:${zodSchema},},},},`
+  // }
 
-  return ''
+  // if (content['application/xml']) {
+  //   return `body:{required:${required},content:{'application/xml':{schema:${zodSchema},},},},`
+  // }
+
+  // if (content['application/x-www-form-urlencoded']) {
+  //   return `body:{required:${required},content:{'application/x-www-form-urlencoded':{schema:${zodSchema},},},},`
+  // }
+
+  // if (content['application/octet-stream']) {
+  //   return `body:{required:${required},content:{'application/octet-stream':{schema:${zodSchema},},},},`
+  // }
+
+  // return ''
 }

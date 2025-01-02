@@ -110,24 +110,33 @@ export type DefaultValue = PrimitiveExample | ObjectExample | ArrayExample
 /**
  * Content type definitions with their schemas
  */
+type ContentType = string
+
 export type Content = {
-  'application/json'?: {
-    schema: Schema
-    example?: ExampleValue
-  }
-  'application/xml'?: {
-    schema: Schema
-    example?: ExampleValue
-  }
-  'application/x-www-form-urlencoded'?: {
-    schema: Schema
-    example?: ExampleValue
-  }
-  'application/octet-stream'?: {
+  [key in ContentType]: {
     schema: Schema
     example?: ExampleValue
   }
 }
+
+// export type Content = {
+//   'application/json'?: {
+//     schema: Schema
+//     example?: ExampleValue
+//   }
+//   'application/xml'?: {
+//     schema: Schema
+//     example?: ExampleValue
+//   }
+//   'application/x-www-form-urlencoded'?: {
+//     schema: Schema
+//     example?: ExampleValue
+//   }
+//   'application/octet-stream'?: {
+//     schema: Schema
+//     example?: ExampleValue
+//   }
+// }
 
 /**
  * Path item definition with HTTP methods and parameters

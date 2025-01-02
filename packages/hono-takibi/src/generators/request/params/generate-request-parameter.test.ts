@@ -27,7 +27,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},},`,
+    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`,
   },
   {
     parameters: [
@@ -74,8 +74,42 @@ const generateRequestParameterTestCases: {
         },
       },
     },
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},params:z.object({id:z.string().uuid()})},`,
+    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`
   },
+  {
+    parameters: [
+      {
+        name: 'petId',
+        in: 'path',
+        description: 'ID of pet to update',
+        required: true,
+        schema: {
+          type: 'integer',
+          format: 'int64',
+        },
+      },
+      {
+        name: 'additionalMetadata',
+        in: 'query',
+        description: 'Additional Metadata',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    ],
+    requestBody: {
+      content: {
+        'application/octet-stream': {
+          schema: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},query:z.object({additionalMetadata:z.string().optional()}),params:z.object({petId:z.number().int()})},`,
+  }
 ]
 
 describe('generateRequestParameters', () => {
@@ -83,7 +117,7 @@ describe('generateRequestParameters', () => {
     'generateRequestParameters($parameters, $requestBody) -> $expected',
     async ({ parameters, requestBody, expected }) => {
       const result = generateRequestParameter(parameters, requestBody)
-      expect(result).toEqual(expected)
+      expect(result).toBe(expected)
     },
   )
 })

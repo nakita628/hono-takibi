@@ -58,10 +58,12 @@ export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
 ): string {
-  if (!(parameters || requestBody?.content?.['application/json'])) {
+  // Early return if no parameters or content
+  if (!(parameters || requestBody?.content)) {
     return ''
   }
 
+  // Generate params if they exist
   const params = parameters
     ? (() => {
         const paramsObj = generateParamsObject(parameters)
@@ -70,61 +72,92 @@ export function generateRequestParameter(
       })()
     : ''
 
-  if (requestBody?.content?.['application/json']) {
-    const schema = requestBody.content['application/json'].schema
-    const zodSchema = generatePropertySchema(schema)
-    const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(
-      request_body_required,
-      requestBody.content,
-      zodSchema,
-    )
-    return params
-      ? generateInsertRequestBody(params, requestBodyCode)
-      : generateRequestParams(requestBodyCode)
-  }
-
-  if (requestBody?.content?.['application/xml']) {
-    const schema = requestBody.content['application/xml'].schema
-    const zodSchema = generatePropertySchema(schema)
-    const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(
-      request_body_required,
-      requestBody.content,
-      zodSchema,
-    )
-    return params
-      ? generateInsertRequestBody(params, requestBodyCode)
-      : generateRequestParams(requestBodyCode)
-  }
-
-  if (requestBody?.content?.['application/x-www-form-urlencoded']) {
-    const schema = requestBody.content['application/x-www-form-urlencoded'].schema
-    const zodSchema = generatePropertySchema(schema)
-    const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(
-      request_body_required,
-      requestBody.content,
-      zodSchema,
-    )
-    return params
-      ? generateInsertRequestBody(params, requestBodyCode)
-      : generateRequestParams(requestBodyCode)
-  }
-
-  if (requestBody?.content?.['application/octet-stream']) {
-    const schema = requestBody.content['application/octet-stream'].schema
-    const zodSchema = generatePropertySchema(schema)
-    const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(
-      request_body_required,
-      requestBody.content,
-      zodSchema,
-    )
-    return params
-      ? generateInsertRequestBody(params, requestBodyCode)
-      : generateRequestParams(requestBodyCode)
+  // Handle request body if it exists
+  if (requestBody?.content) {
+    const contentType = Object.keys(requestBody.content)[0]
+    if (contentType) {
+      const schema = requestBody.content[contentType].schema
+      const zodSchema = generatePropertySchema(schema)
+      const request_body_required = requestBody.required ?? false
+      const requestBodyCode = generateRequestBody(
+        request_body_required,
+        requestBody.content,
+        zodSchema,
+      )
+      return params
+        ? generateInsertRequestBody(params, requestBodyCode)
+        : generateRequestParams(requestBodyCode)
+    }
   }
 
   return params
+  // if (!(parameters || requestBody?.content?.['application/json'])) {
+  //   return ''
+  // }
+
+  // const params = parameters
+  //   ? (() => {
+  //       const paramsObj = generateParamsObject(parameters)
+  //       const requestParamsArr = generateRequestParamsArray(paramsObj)
+  //       return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
+  //     })()
+  //   : ''
+
+  // if (requestBody?.content?.['application/json']) {
+  //   const schema = requestBody.content['application/json'].schema
+  //   const zodSchema = generatePropertySchema(schema)
+  //   const request_body_required = requestBody.required ?? false
+  //   const requestBodyCode = generateRequestBody(
+  //     request_body_required,
+  //     requestBody.content,
+  //     zodSchema,
+  //   )
+  //   return params
+  //     ? generateInsertRequestBody(params, requestBodyCode)
+  //     : generateRequestParams(requestBodyCode)
+  // }
+
+  // if (requestBody?.content?.['application/xml']) {
+  //   const schema = requestBody.content['application/xml'].schema
+  //   const zodSchema = generatePropertySchema(schema)
+  //   const request_body_required = requestBody.required ?? false
+  //   const requestBodyCode = generateRequestBody(
+  //     request_body_required,
+  //     requestBody.content,
+  //     zodSchema,
+  //   )
+  //   return params
+  //     ? generateInsertRequestBody(params, requestBodyCode)
+  //     : generateRequestParams(requestBodyCode)
+  // }
+
+  // if (requestBody?.content?.['application/x-www-form-urlencoded']) {
+  //   const schema = requestBody.content['application/x-www-form-urlencoded'].schema
+  //   const zodSchema = generatePropertySchema(schema)
+  //   const request_body_required = requestBody.required ?? false
+  //   const requestBodyCode = generateRequestBody(
+  //     request_body_required,
+  //     requestBody.content,
+  //     zodSchema,
+  //   )
+  //   return params
+  //     ? generateInsertRequestBody(params, requestBodyCode)
+  //     : generateRequestParams(requestBodyCode)
+  // }
+
+  // if (requestBody?.content?.['application/octet-stream']) {
+  //   const schema = requestBody.content['application/octet-stream'].schema
+  //   const zodSchema = generatePropertySchema(schema)
+  //   const request_body_required = requestBody.required ?? false
+  //   const requestBodyCode = generateRequestBody(
+  //     request_body_required,
+  //     requestBody.content,
+  //     zodSchema,
+  //   )
+  //   return params
+  //     ? generateInsertRequestBody(params, requestBodyCode)
+  //     : generateRequestParams(requestBodyCode)
+  // }
+
+  // return params
 }
