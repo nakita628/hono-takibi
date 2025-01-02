@@ -74,7 +74,22 @@ export function generateResponseSchema(responses: Responses): string {
     const schema = jsonContent.schema
     const zodSchema = generatePropertySchema(schema)
     // 2.4 generating a response definition
-    return `${code}:{description:'${escapeQuote(response.description)}',content:{'application/json':{schema:${zodSchema},},},},`
+
+    // check duplication
+    const contentTypes = Object.keys(response.content)
+    
+    const schemas = new Set(
+      contentTypes.map((type) => JSON.stringify(response?.content?.[type].schema)),
+    )
+    
+    // all duplication same schema
+    if (schemas.size === 1) {
+      const contentParts: string[] = []
+      for (const contentType of contentTypes) {
+        contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
+      }
+      return `${code}:{description:'${escapeQuote(response.description)}',content:{${contentParts.join(',')}},},`
+    }
   })
   // 3.combine all response definitions
   return responseEntries.join('')

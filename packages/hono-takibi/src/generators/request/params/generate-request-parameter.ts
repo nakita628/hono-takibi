@@ -58,9 +58,12 @@ export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
 ): string {
-  if (!(parameters || requestBody?.content?.['application/json'])) {
+  // Early return if no parameters or content
+  if (!(parameters || requestBody?.content)) {
     return ''
   }
+
+  const requestBodyContentTypes = Object.keys(requestBody?.content || {})
 
   const params = parameters
     ? (() => {
@@ -70,11 +73,25 @@ export function generateRequestParameter(
       })()
     : ''
 
-  if (requestBody?.content?.['application/json']) {
-    const schema = requestBody.content['application/json'].schema
-    const zodSchema = generatePropertySchema(schema)
+  if (requestBodyContentTypes.length > 0 && requestBody?.content) {
+    // Eliminate schema duplication
+    const uniqueSchemas = new Map<string, string>()
+
+    for (const contentType of requestBodyContentTypes) {
+      const { schema } = requestBody.content[contentType]
+      const zodSchema = generatePropertySchema(schema)
+      uniqueSchemas.set(zodSchema, zodSchema)
+    }
+
     const request_body_required = requestBody.required ?? false
-    const requestBodyCode = generateRequestBody(request_body_required, zodSchema)
+    const [firstSchema] = uniqueSchemas.values()
+
+    const requestBodyCode = generateRequestBody(
+      request_body_required,
+      requestBody.content,
+      firstSchema,
+    )
+
     return params
       ? generateInsertRequestBody(params, requestBodyCode)
       : generateRequestParams(requestBodyCode)

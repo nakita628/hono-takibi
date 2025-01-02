@@ -72,7 +72,16 @@ export const putPetRoute = createRoute({
   path: '/pet',
   description: 'Update an existing pet by Id',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'Successful operation',
@@ -90,7 +99,16 @@ export const postPetRoute = createRoute({
   path: '/pet',
   description: 'Add a new pet to the store',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'Successful operation',
@@ -140,7 +158,7 @@ export const getPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   description: 'Returns a single pet',
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }) },
+  request: { params: z.object({ petId: z.number().int() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -158,7 +176,7 @@ export const postPetPetIdRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     query: z.object({ name: z.string().optional(), status: z.string().optional() }),
-    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
+    params: z.object({ petId: z.number().int() }),
   },
   responses: { 400: { description: 'Invalid input' } },
 })
@@ -170,7 +188,7 @@ export const deletePetPetIdRoute = createRoute({
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
+    params: z.object({ petId: z.number().int() }),
     headers: z.object({ api_key: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
@@ -182,8 +200,9 @@ export const postPetPetIdUploadImageRoute = createRoute({
   path: '/pet/{petId}/uploadImage',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
+    body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
     query: z.object({ additionalMetadata: z.string().optional() }),
-    params: z.object({ petId: z.string().pipe(z.coerce.number().int()) }),
+    params: z.object({ petId: z.number().int() }),
   },
   responses: {
     200: {
@@ -212,7 +231,16 @@ export const postStoreOrderRoute = createRoute({
   method: 'post',
   path: '/store/order',
   description: 'Place a new order in the store',
-  request: { body: { required: false, content: { 'application/json': { schema: orderSchema } } } },
+  request: {
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: orderSchema },
+        'application/xml': { schema: orderSchema },
+        'application/x-www-form-urlencoded': { schema: orderSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'successful operation',
@@ -229,7 +257,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-  request: { params: z.object({ orderId: z.string().pipe(z.coerce.number().int()) }) },
+  request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     200: {
       description: 'successful operation',
@@ -246,7 +274,7 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   path: '/store/order/{orderId}',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-  request: { params: z.object({ orderId: z.string().pipe(z.coerce.number().int()) }) },
+  request: { params: z.object({ orderId: z.number().int() }) },
   responses: {
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },
@@ -258,7 +286,16 @@ export const postUserRoute = createRoute({
   method: 'post',
   path: '/user',
   description: 'This can only be done by the logged in user.',
-  request: { body: { required: false, content: { 'application/json': { schema: userSchema } } } },
+  request: {
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
+      },
+    },
+  },
   responses: {
     default: {
       description: 'successful operation',
@@ -328,7 +365,14 @@ export const putUserUsernameRoute = createRoute({
   path: '/user/{username}',
   description: 'This can only be done by the logged in user.',
   request: {
-    body: { required: false, content: { 'application/json': { schema: userSchema } } },
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
+      },
+    },
     params: z.object({ username: z.string() }),
   },
   responses: { default: { description: 'successful operation' } },
