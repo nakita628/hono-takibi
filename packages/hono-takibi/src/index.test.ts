@@ -109,7 +109,16 @@ export const putPetRoute = createRoute({
   path: '/pet',
   description: 'Update an existing pet by Id',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'Successful operation',
@@ -127,7 +136,16 @@ export const postPetRoute = createRoute({
   path: '/pet',
   description: 'Add a new pet to the store',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { body: { required: true, content: { 'application/json': { schema: petSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'Successful operation',
@@ -250,7 +268,16 @@ export const postStoreOrderRoute = createRoute({
   method: 'post',
   path: '/store/order',
   description: 'Place a new order in the store',
-  request: { body: { required: false, content: { 'application/json': { schema: orderSchema } } } },
+  request: {
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: orderSchema },
+        'application/xml': { schema: orderSchema },
+        'application/x-www-form-urlencoded': { schema: orderSchema },
+      },
+    },
+  },
   responses: {
     200: {
       description: 'successful operation',
@@ -296,7 +323,16 @@ export const postUserRoute = createRoute({
   method: 'post',
   path: '/user',
   description: 'This can only be done by the logged in user.',
-  request: { body: { required: false, content: { 'application/json': { schema: userSchema } } } },
+  request: {
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
+      },
+    },
+  },
   responses: {
     default: {
       description: 'successful operation',
@@ -366,7 +402,14 @@ export const putUserUsernameRoute = createRoute({
   path: '/user/{username}',
   description: 'This can only be done by the logged in user.',
   request: {
-    body: { required: false, content: { 'application/json': { schema: userSchema } } },
+    body: {
+      required: false,
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
+      },
+    },
     params: z.object({ username: z.string() }),
   },
   responses: { default: { description: 'successful operation' } },
@@ -384,8 +427,7 @@ export const deleteUserUsernameRoute = createRoute({
   },
 })
 `
-
-    expect(result).toEqual(expected)
+    expect(result).toBe(expected)
   })
 
   // test failed yaml
