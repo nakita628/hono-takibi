@@ -79,7 +79,7 @@ export function generateResponseSchema(responses: Responses): string {
     const contentTypes = Object.keys(response.content)
     
     const schemas = new Set(
-      contentTypes.map((type) => JSON.stringify(response!.content![type].schema)),
+      contentTypes.map((type) => JSON.stringify(response?.content?.[type].schema)),
     )
     
     // all duplication same schema
