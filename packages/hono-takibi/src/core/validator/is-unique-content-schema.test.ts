@@ -1,22 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { isUniqueContentSchema } from './is-unique-content-schema'
-import { ResponseDefinition } from '../../types'
+import { Content } from '../../types'
 
 const isUniqueContentSchemaTestCases: {
   contentTypes: string[]
-  response: ResponseDefinition
+  content: Content
   expected: boolean
 }[] = [
   // true
   {
     contentTypes: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'],
-    response: {
-      description: 'Update an existent pet in the store',
-      content: {
-        'application/json': { schema: { $ref: '#/components/schemas/Pet' } },
-        'application/xml': { schema: { $ref: '#/components/schemas/Pet' } },
-        'application/x-www-form-urlencoded': { schema: { $ref: '#/components/schemas/Pet' } },
-      },
+    content: {
+      'application/json': { schema: { $ref: '#/components/schemas/Pet' } },
+      'application/xml': { schema: { $ref: '#/components/schemas/Pet' } },
+      'application/x-www-form-urlencoded': { schema: { $ref: '#/components/schemas/Pet' } },
     },
     expected: true,
   },
@@ -24,12 +21,9 @@ const isUniqueContentSchemaTestCases: {
   // false
   {
     contentTypes: ['application/json', 'application/xml'],
-    response: {
-      description: 'Different references',
-      content: {
-        'application/json': { schema: { $ref: '#/components/schemas/User' } },
-        'application/xml': { schema: { $ref: '#/components/schemas/Admin' } },
-      },
+    content: {
+      'application/json': { schema: { $ref: '#/components/schemas/User' } },
+      'application/xml': { schema: { $ref: '#/components/schemas/Admin' } },
     },
     expected: false,
   },
@@ -37,9 +31,9 @@ const isUniqueContentSchemaTestCases: {
 
 describe('isUniqueContentSchema', () => {
   it.concurrent.each(isUniqueContentSchemaTestCases)(
-    'isUniqueContentSchema($contentTypes, $response) -> $expected',
-    async ({ contentTypes, response, expected }) => {
-      const result = isUniqueContentSchema(contentTypes, response)
+    'isUniqueContentSchema($contentTypes, $content) -> $expected',
+    async ({ contentTypes, content, expected }) => {
+      const result = isUniqueContentSchema(contentTypes, content)
       expect(result).toBe(expected)
     },
   )

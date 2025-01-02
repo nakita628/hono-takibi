@@ -154,7 +154,7 @@ export type Operation = {
 /**
  * Response definition with description and content
  */
-type ResponseDefinition = {
+export type ResponseDefinition = {
   description: string
   content?: Content
 }
