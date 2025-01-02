@@ -77,11 +77,11 @@ export function generateResponseSchema(responses: Responses): string {
 
     // check duplication
     const contentTypes = Object.keys(response.content)
-    
+
     const schemas = new Set(
       contentTypes.map((type) => JSON.stringify(response?.content?.[type].schema)),
     )
-    
+
     // all duplication same schema
     if (schemas.size === 1) {
       const contentParts: string[] = []
