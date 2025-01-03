@@ -1,6 +1,7 @@
 import { escapeQuote } from '../../../core/text/escape-quote'
 import { isUniqueContentSchema } from '../../../core/validator/is-unique-content-schema'
 import type { Responses } from '../../../types'
+import { generateDescription } from '../../openapi/description/generate-description'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**
@@ -66,15 +67,17 @@ export function generateResponseSchema(responses: Responses): string {
   // 2. processing for each response code
   const responseEntries = responseCodes.map((code) => {
     const response = responses[code]
-    // 2.1 no content (description only response)
-    if (!response.content) return `${code}:{description:'${escapeQuote(response.description)}',},`
-    // 2.2 processing application/json content types
+    // 2.1 generate description
+    const description = generateDescription(response.description)
+    // 2.2 no content (description only response)
+    if (!response.content) return `${code}:${description}`
+    // 2.3 processing application/json content types
     const jsonContent = response.content['application/json']
-    if (!jsonContent) return `${code}:{description:'${escapeQuote(response.description)}',},`
-    // 2.3 generate zod schema
+    if (!jsonContent) return `${code}:${description}`
+    // 2.4 generate zod schema
     const schema = jsonContent.schema
     const zodSchema = generatePropertySchema(schema)
-    // 2.4 generating a response definition
+    // 2.5 generating a response definition
 
     // check duplication
     const contentTypes = Object.keys(response.content)
