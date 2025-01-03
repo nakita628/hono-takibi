@@ -1,5 +1,12 @@
 import type { Format, FormatString } from '../../types'
 
+/**
+ * Checks if the format is a string type
+ *
+ * @function isFormatString
+ * @param format - OpenAPI format type
+ * @returns true if the format is a string type, false otherwise
+ */
 export function isFormatString(format: Format): format is FormatString {
   return [
     'email',

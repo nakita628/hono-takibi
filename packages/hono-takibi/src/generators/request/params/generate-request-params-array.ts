@@ -7,34 +7,6 @@ import { generateZodObjectSchema } from '../../zod/generate-zod-object-schema'
  * @function generateRequestParamsArray
  * @param paramsObj - Object containing query, path, and header parameter schemas
  * @returns Array of Zod schema strings for non-empty parameter sections
- *
- * @example
- * // Input object with query and path parameters
- * const params = {
- *   query: { page: 'z.string()', limit: 'z.number()' },
- *   params: { id: 'z.string()' },
- *   headers: {}
- * }
- *
- * generateRequestParamsArray(params)
- * // Returns:
- * // [
- * //   'query:z.object({ page: z.string(), limit: z.number() })',
- * //   'params:z.object({ id: z.string() })'
- * // ]
- *
- * @example
- * // Input object with only headers
- * const params = {
- *   query: {},
- *   params: {},
- *   headers: { 'x-api-key': 'z.string()' }
- *   body: {}
- * }
- *
- * generateRequestParamsArray(params)
- * // Returns:
- * // ['headers:z.object({ "x-api-key": z.string() })']
  */
 export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
   // 1.  define sections to be processed
