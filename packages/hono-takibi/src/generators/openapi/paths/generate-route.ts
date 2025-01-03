@@ -56,7 +56,12 @@ import { escapeQuote } from '../../../core/text/escape-quote'
  */
 
 export function generateRoute(path: string, method: string, operation: Operation): string {
-  const { tags, description, security, parameters, requestBody, responses } = operation
+  const { tags, summary, description, security, parameters, requestBody, responses } = operation
+
+  console.log('--------------------------------')
+  console.log(operation)
+  console.log('--------------------------------')
+
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
   const requestParams = generateRequestParameter(parameters, requestBody)
@@ -66,6 +71,7 @@ export function generateRoute(path: string, method: string, operation: Operation
     tagsCode: `tags:${tagList},`,
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
+    summaryCode: summary ? `summary:'${escapeQuote(summary)}',` : '',
     descriptionCode: description ? `description:'${escapeQuote(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',

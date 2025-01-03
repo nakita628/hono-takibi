@@ -3,6 +3,7 @@ type GenerateCreateRouteParams = {
   tagsCode: string
   methodCode: string
   pathCode: string
+  summaryCode?: string
   descriptionCode?: string
   securityCode?: string
   requestParams: string
@@ -60,6 +61,7 @@ export function generateCreateRoute(args: GenerateCreateRouteParams): string {
     args.tagsCode,
     args.methodCode,
     args.pathCode,
+    args.summaryCode,
     args.descriptionCode,
     args.securityCode,
     args.requestParams,
