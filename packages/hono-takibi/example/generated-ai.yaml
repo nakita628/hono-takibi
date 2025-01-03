@@ -1,71 +1,40 @@
 openapi: 3.0.3
 info:
-  title: Todo API
-  description: これはシンプルなToDoリストを管理するためのAPIです。
+  title: Mixed Auth API (No Global Security)
+  description: 全体にはsecurityを記載せず、エンドポイント単位でJWT認証を設定する例
   version: 1.0.0
+
 servers:
   - url: https://api.example.com/v1
     description: 本番サーバー
 
 tags:
-  - name: Todos
-    description: Todoアイテムに関する操作
+  - name: Public
+    description: 認証不要のエンドポイント
+  - name: Private
+    description: JWT認証が必要なエンドポイント
 
 paths:
-  /todos:
+  /public:
     get:
       tags:
-        - Todos
-      summary: Todo一覧の取得
-      description: 登録されているTodoをすべて取得します。
-      operationId: getAllTodos
+        - Public
+      summary: Public endpoint
+      description: このエンドポイントには JWT は不要です
+      operationId: getPublic
+      # ★ securityフィールドを空の配列にする ⇒ 「認証不要」
+      security: []
       responses:
         '200':
-          description: Todoの配列が返却されます。
+          description: OK (認証不要)
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Todo'
-        '500':
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    post:
-      tags:
-        - Todos
-      summary: Todoの新規作成
-      description: Todoを新しく登録します。
-      operationId: createTodo
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TodoCreateRequest'
-            examples:
-              validRequest:
-                summary: バリデーションを通るリクエスト例
-                value:
-                  title: "買い物へ行く"
-                  description: "牛乳、パン、卵を購入"
-                  completed: false
-      responses:
-        '201':
-          description: 新規作成されたTodoを返却します。
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Todo'
-        '400':
-          description: リクエスト不正
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "This endpoint is public."
         '500':
           description: サーバーエラー
           content:
@@ -73,108 +42,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /todos/{todoId}:
+  /private:
     get:
       tags:
-        - Todos
-      summary: Todoの取得
-      description: 指定したIDのTodoを取得します。
-      operationId: getTodoById
-      parameters:
-        - name: todoId
-          in: path
-          description: TodoのID
-          required: true
-          schema:
-            type: string
+        - Private
+      summary: Private endpoint
+      description: このエンドポイントには有効な JWT (Bearer Token) が必要です
+      operationId: getPrivate
+      # ★ securityフィールドでJWTAuthを指定 ⇒ 「認証必須」
+      security:
+        - JWTAuth: []
       responses:
         '200':
-          description: Todoオブジェクトを返却します。
+          description: OK (JWT 認証必須)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Todo'
-        '404':
-          description: 指定したIDのTodoが存在しません。
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    put:
-      tags:
-        - Todos
-      summary: Todoの更新
-      description: 指定したIDのTodoを更新します。
-      operationId: updateTodo
-      parameters:
-        - name: todoId
-          in: path
-          description: TodoのID
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TodoUpdateRequest'
-            examples:
-              validRequest:
-                summary: バリデーションを通る更新用リクエスト例
-                value:
-                  title: "買い物リスト更新"
-                  description: "牛乳、パン、卵、チーズを購入"
-                  completed: false
-      responses:
-        '200':
-          description: 更新されたTodoを返却します。
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Todo'
-        '400':
-          description: リクエスト不正
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: 指定したIDのTodoが存在しません。
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    delete:
-      tags:
-        - Todos
-      summary: Todoの削除
-      description: 指定したIDのTodoを削除します。
-      operationId: deleteTodo
-      parameters:
-        - name: todoId
-          in: path
-          description: TodoのID
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: 削除に成功しました（レスポンスボディはありません）。
-        '404':
-          description: 指定したIDのTodoが存在しません。
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Private endpoint, token required."
+        '401':
+          description: 認証エラー（トークンなし/不正）
           content:
             application/json:
               schema:
@@ -188,78 +78,21 @@ paths:
 
 components:
   schemas:
-    Todo:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "123e4567-e89b-12d3-a456-426614174000"
-        title:
-          type: string
-          example: "買い物へ行く"
-        description:
-          type: string
-          example: "牛乳、パン、卵を購入"
-        completed:
-          type: boolean
-          example: false
-        createdAt:
-          type: string
-          format: date-time
-          example: "2024-01-01T12:00:00Z"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2024-01-02T09:15:00Z"
-      required:
-        - id
-        - title
-
-    TodoCreateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          example: "買い物へ行く"
-        description:
-          type: string
-          example: "牛乳、パン、卵を購入"
-        completed:
-          type: boolean
-          default: false
-      required:
-        - title
-
-    TodoUpdateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        completed:
-          type: boolean
-      required:
-        - title
-
     ErrorResponse:
       type: object
       properties:
         code:
           type: integer
-          example: 400
+          example: 401
         message:
           type: string
-          example: "Invalid request"
+          example: "Invalid or missing token."
       required:
         - code
         - message
 
   securitySchemes:
-    BearerAuth:
+    JWTAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
-security:
-  - BearerAuth: []

@@ -14,33 +14,6 @@ import { escapeQuote } from '../../../core/text/escape-quote'
  * @param operation - The OpenAPI Operation object containing route details
  * @returns Generated TypeScript code string for the route
  *
- * @example
- * const operation = {
- *   tags: ['users'],
- *   description: 'Create a new user',
- *   security: [{ bearerAuth: [] }],
- *   requestBody: {
- *     content: {
- *       'application/json': {
- *         schema: { $ref: '#/components/schemas/CreateUserInput' }
- *       }
- *     }
- *   },
- *   responses: {
- *     '201': {
- *       description: 'User created successfully',
- *       content: {
- *         'application/json': {
- *           schema: { $ref: '#/components/schemas/User' }
- *         }
- *       }
- *     }
- *   }
- * }
- *
- * const route = generateRoute('/users', 'post', operation)
- * // Returns: TypeScript code for a type-safe POST /users route
- *
  * @note
  * - Generates a complete route definition including:
  *   - Route name based on method and path
@@ -57,11 +30,6 @@ import { escapeQuote } from '../../../core/text/escape-quote'
 
 export function generateRoute(path: string, method: string, operation: Operation): string {
   const { tags, summary, description, security, parameters, requestBody, responses } = operation
-
-  console.log('--------------------------------')
-  console.log(operation)
-  console.log('--------------------------------')
-
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
   const requestParams = generateRequestParameter(parameters, requestBody)
