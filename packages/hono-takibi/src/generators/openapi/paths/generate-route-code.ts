@@ -10,38 +10,6 @@ import { isOperation } from '../../../core/validator/is-operation'
  * @param openAPIPaths - OpenAPI paths object containing route definitions
  * @returns Generated TypeScript code string for all valid routes
  *
- * @example
- * const paths = {
- *   '/users': {
- *     get: {
- *       operationId: 'getUsers',
- *       responses: {
- *         '200': {
- *           description: 'List of users',
- *           content: {
- *             'application/json': {
- *               schema: { $ref: '#/components/schemas/UserList' }
- *             }
- *           }
- *         }
- *       }
- *     },
- *     post: {
- *       operationId: 'createUser',
- *       requestBody: {
- *         content: {
- *           'application/json': {
- *             schema: { $ref: '#/components/schemas/CreateUserInput' }
- *           }
- *         }
- *       }
- *     }
- *   }
- * }
- *
- * const code = generateRouteCode(paths)
- * // Returns TypeScript code for both GET and POST /users routes
- *
  * @note
  * - Processes each path and HTTP method combination
  * - Validates HTTP methods and operation objects
