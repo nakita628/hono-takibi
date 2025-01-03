@@ -4,7 +4,7 @@ import type { Format, FormatNumber } from '../../types'
  * Checks if the format is a number type
  *
  * @function isFormatNumber
- * 
+ *
  * @param format - OpenAPI format type
  * @returns true if the format is a number type, false otherwise
  */
