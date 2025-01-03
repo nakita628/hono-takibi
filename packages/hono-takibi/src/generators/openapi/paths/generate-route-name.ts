@@ -7,19 +7,6 @@ import { capitalize } from '../../../core/text/capitalize'
  * @param path - URL path pattern (e.g., '/users/{id}/posts')
  * @returns Formatted route name string
  *
- * @example
- * // Basic path
- * generateRouteName('get', '/users')
- * // Returns: 'getUsersRoute'
- *
- * // Path with parameters
- * generateRouteName('post', '/users/{id}/posts')
- * // Returns: 'postUsersIdPostsRoute'
- *
- * // Path with hyphens
- * generateRouteName('put', '/user-profiles/{id}')
- * // Returns: 'putUserProfilesIdRoute'
- *
  * @remarks
  * Transformation process:
  * 1. Replace special characters (/{}-)  with spaces

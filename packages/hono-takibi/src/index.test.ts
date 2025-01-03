@@ -107,6 +107,7 @@ export const putPetRoute = createRoute({
   tags: ['pet'],
   method: 'put',
   path: '/pet',
+  summary: 'Update an existing pet',
   description: 'Update an existing pet by Id',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
@@ -137,6 +138,7 @@ export const postPetRoute = createRoute({
   tags: ['pet'],
   method: 'post',
   path: '/pet',
+  summary: 'Add a new pet to the store',
   description: 'Add a new pet to the store',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
@@ -166,6 +168,7 @@ export const getPetFindByStatusRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByStatus',
+  summary: 'Finds Pets by status',
   description: 'Multiple status values can be provided with comma separated strings',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: { query: z.object({ status: z.enum(['available', 'pending', 'sold']).optional() }) },
@@ -185,6 +188,7 @@ export const getPetFindByTagsRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/findByTags',
+  summary: 'Finds Pets by tags',
   description:
     'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
@@ -205,6 +209,7 @@ export const getPetPetIdRoute = createRoute({
   tags: ['pet'],
   method: 'get',
   path: '/pet/{petId}',
+  summary: 'Find pet by ID',
   description: 'Returns a single pet',
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
   request: { params: z.object({ petId: z.number().int() }) },
@@ -225,6 +230,7 @@ export const postPetPetIdRoute = createRoute({
   tags: ['pet'],
   method: 'post',
   path: '/pet/{petId}',
+  summary: 'Updates a pet in the store with form data',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     params: z.object({ petId: z.number().int() }),
@@ -237,6 +243,7 @@ export const deletePetPetIdRoute = createRoute({
   tags: ['pet'],
   method: 'delete',
   path: '/pet/{petId}',
+  summary: 'Deletes a pet',
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
@@ -250,6 +257,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   tags: ['pet'],
   method: 'post',
   path: '/pet/{petId}/uploadImage',
+  summary: 'uploads an image',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
@@ -268,6 +276,7 @@ export const getStoreInventoryRoute = createRoute({
   tags: ['store'],
   method: 'get',
   path: '/store/inventory',
+  summary: 'Returns pet inventories by status',
   description: 'Returns a map of status codes to quantities',
   security: [{ api_key: [] }],
   responses: {
@@ -282,6 +291,7 @@ export const postStoreOrderRoute = createRoute({
   tags: ['store'],
   method: 'post',
   path: '/store/order',
+  summary: 'Place an order for a pet',
   description: 'Place a new order in the store',
   request: {
     body: {
@@ -307,6 +317,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
   tags: ['store'],
   method: 'get',
   path: '/store/order/{orderId}',
+  summary: 'Find purchase order by ID',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
   request: { params: z.object({ orderId: z.number().int() }) },
@@ -327,6 +338,7 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   tags: ['store'],
   method: 'delete',
   path: '/store/order/{orderId}',
+  summary: 'Delete purchase order by ID',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
   request: { params: z.object({ orderId: z.number().int() }) },
@@ -340,6 +352,7 @@ export const postUserRoute = createRoute({
   tags: ['user'],
   method: 'post',
   path: '/user',
+  summary: 'Create user',
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
@@ -366,6 +379,7 @@ export const postUserCreateWithListRoute = createRoute({
   tags: ['user'],
   method: 'post',
   path: '/user/createWithList',
+  summary: 'Creates list of users with given input array',
   description: 'Creates list of users with given input array',
   request: {
     body: { required: false, content: { 'application/json': { schema: z.array(userSchema) } } },
@@ -386,6 +400,7 @@ export const getUserLoginRoute = createRoute({
   tags: ['user'],
   method: 'get',
   path: '/user/login',
+  summary: 'Logs user into the system',
   request: {
     query: z.object({ username: z.string().optional(), password: z.string().optional() }),
   },
@@ -405,6 +420,7 @@ export const getUserLogoutRoute = createRoute({
   tags: ['user'],
   method: 'get',
   path: '/user/logout',
+  summary: 'Logs out current logged in user session',
   responses: { default: { description: 'successful operation' } },
 })
 
@@ -412,6 +428,7 @@ export const getUserUsernameRoute = createRoute({
   tags: ['user'],
   method: 'get',
   path: '/user/{username}',
+  summary: 'Get user by user name',
   request: { params: z.object({ username: z.string() }) },
   responses: {
     200: {
@@ -430,6 +447,7 @@ export const putUserUsernameRoute = createRoute({
   tags: ['user'],
   method: 'put',
   path: '/user/{username}',
+  summary: 'Update user',
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
@@ -449,6 +467,7 @@ export const deleteUserUsernameRoute = createRoute({
   tags: ['user'],
   method: 'delete',
   path: '/user/{username}',
+  summary: 'Delete user',
   description: 'This can only be done by the logged in user.',
   request: { params: z.object({ username: z.string() }) },
   responses: {
@@ -457,7 +476,6 @@ export const deleteUserUsernameRoute = createRoute({
   },
 })
 `
-
     expect(result).toBe(expected)
   })
 

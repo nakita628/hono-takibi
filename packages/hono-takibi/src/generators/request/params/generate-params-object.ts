@@ -9,53 +9,6 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
  * @param parameters - Array of OpenAPI path parameters
  * @returns ParamsObject with Zod schemas organized by parameter location
  *
- * @example
- * // Query and path parameters
- * generateParamsObject([
- *   {
- *     name: 'userId',
- *     in: 'path',
- *     required: true,
- *     schema: { type: 'string' }
- *   },
- *   {
- *     name: 'filter',
- *     in: 'query',
- *     required: false,
- *     schema: { type: 'string' }
- *   }
- * ])
- * // Returns:
- * // {
- * //   query: { filter: 'z.string().optional()' },
- * //   params: { userId: 'z.string()' },
- * //   headers: {},
- * //   body: {}
- * // }
- *
- * @example
- * // Body parameter
- * generateParamsObject([
- *   {
- *     name: 'user',
- *     in: 'body',
- *     required: true,
- *     schema: {
- *       type: 'object',
- *       properties: {
- *         name: { type: 'string' }
- *       }
- *     }
- *   }
- * ])
- * // Returns:
- * // {
- * //   query: {},
- * //   params: {},
- * //   headers: {},
- * //   body: { user: 'z.object({name: z.string().optional()})' }
- * // }
- *
  * @remarks
  * - Creates Zod schemas for each parameter based on its schema definition
  * - Handles optional parameters by adding .optional() suffix

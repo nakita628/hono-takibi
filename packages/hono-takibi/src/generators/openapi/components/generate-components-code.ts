@@ -13,34 +13,6 @@ import { generateSchemasExport } from '../paths/generate-schemas-export'
  * @param components - OpenAPI components object containing schema definitions
  * @returns Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
  *
- * @example
- * // With schemas
- * const components = {
- *   schemas: {
- *     User: {
- *       type: 'object',
- *       properties: {
- *         profile: { $ref: '#/components/schemas/Profile' }
- *       }
- *     },
- *     Profile: {
- *       type: 'object',
- *       properties: {
- *         name: { type: 'string' }
- *       }
- *     }
- *   }
- * }
- * generateComponentsCode(components)
- * // Returns:
- * // export const profileSchema = z.object({ name: z.string() })
- * // export const userSchema = z.object({ profile: profileSchema })
- * // export const schemas = { profileSchema, userSchema }
- *
- * // Without schemas
- * generateComponentsCode({})
- * // Returns: ''
- *
  * @note The function:
  * 1. Extracts schemas from components
  * 2. Resolves dependencies between schemas to determine correct generation order

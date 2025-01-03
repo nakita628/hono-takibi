@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: Mixed Auth API (No Global Security)
+  description: 全体にはsecurityを記載せず、エンドポイント単位でJWT認証を設定する例
+  version: 1.0.0
+
+servers:
+  - url: https://api.example.com/v1
+    description: 本番サーバー
+
+tags:
+  - name: Public
+    description: 認証不要のエンドポイント
+  - name: Private
+    description: JWT認証が必要なエンドポイント
+
+paths:
+  /public:
+    get:
+      tags:
+        - Public
+      summary: Public endpoint
+      description: このエンドポイントには JWT は不要です
+      operationId: getPublic
+      # ★ securityフィールドを空の配列にする ⇒ 「認証不要」
+      security: []
+      responses:
+        '200':
+          description: OK (認証不要)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "This endpoint is public."
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /private:
+    get:
+      tags:
+        - Private
+      summary: Private endpoint
+      description: このエンドポイントには有効な JWT (Bearer Token) が必要です
+      operationId: getPrivate
+      # ★ securityフィールドでJWTAuthを指定 ⇒ 「認証必須」
+      security:
+        - JWTAuth: []
+      responses:
+        '200':
+          description: OK (JWT 認証必須)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Private endpoint, token required."
+        '401':
+          description: 認証エラー（トークンなし/不正）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 401
+        message:
+          type: string
+          example: "Invalid or missing token."
+      required:
+        - code
+        - message
+
+  securitySchemes:
+    JWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

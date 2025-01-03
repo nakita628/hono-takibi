@@ -16,33 +16,6 @@ import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
  * @param requestBody - Request body definition from OpenAPI specification
  * @returns Generated TypeScript code string for request validation
  *
- * @example
- * // Path parameters only
- * const params = [{
- *   name: 'userId',
- *   in: 'path',
- *   required: true,
- *   schema: { type: 'string' }
- * }]
- * generateRequestParameter(params, undefined)
- * // Returns: 'request: { params: z.object({ userId: z.string() }) }'
- *
- * // Request body only
- * const body = {
- *   content: {
- *     'application/json': {
- *       schema: { $ref: '#/components/schemas/CreateUser' }
- *     }
- *   },
- *   required: true
- * }
- * generateRequestParameter(undefined, body)
- * // Returns: 'request: { json: CreateUser }'
- *
- * // Both parameters and body
- * generateRequestParameter(params, body)
- * // Returns: 'request: { params: z.object({ userId: z.string() }), json: CreateUser }'
- *
  * @note
  * - Handles both path parameters and request body validation
  * - Supports:
