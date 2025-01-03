@@ -85,7 +85,10 @@ export const putPetRoute = createRoute({
   responses: {
     200: {
       description: 'Successful operation',
-      content: { 'application/json': { schema: petSchema } },
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+      },
     },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
@@ -112,7 +115,10 @@ export const postPetRoute = createRoute({
   responses: {
     200: {
       description: 'Successful operation',
-      content: { 'application/json': { schema: petSchema } },
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+      },
     },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
@@ -129,7 +135,10 @@ export const getPetFindByStatusRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.array(petSchema) } },
+      content: {
+        'application/json': { schema: z.array(petSchema) },
+        'application/xml': { schema: z.array(petSchema) },
+      },
     },
     400: { description: 'Invalid status value' },
   },
@@ -146,7 +155,10 @@ export const getPetFindByTagsRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.array(petSchema) } },
+      content: {
+        'application/json': { schema: z.array(petSchema) },
+        'application/xml': { schema: z.array(petSchema) },
+      },
     },
     400: { description: 'Invalid tag value' },
   },
@@ -162,7 +174,10 @@ export const getPetPetIdRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: petSchema } },
+      content: {
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+      },
     },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
@@ -175,8 +190,8 @@ export const postPetPetIdRoute = createRoute({
   path: '/pet/{petId}',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    query: z.object({ name: z.string().optional(), status: z.string().optional() }),
     params: z.object({ petId: z.number().int() }),
+    query: z.object({ name: z.string().optional(), status: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid input' } },
 })
@@ -188,8 +203,8 @@ export const deletePetPetIdRoute = createRoute({
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
+    header: z.object({ api_key: z.string().optional() }),
     params: z.object({ petId: z.number().int() }),
-    headers: z.object({ api_key: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
 })
@@ -201,8 +216,8 @@ export const postPetPetIdUploadImageRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
-    query: z.object({ additionalMetadata: z.string().optional() }),
     params: z.object({ petId: z.number().int() }),
+    query: z.object({ additionalMetadata: z.string().optional() }),
   },
   responses: {
     200: {
@@ -261,7 +276,10 @@ export const getStoreOrderOrderIdRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: orderSchema } },
+      content: {
+        'application/json': { schema: orderSchema },
+        'application/xml': { schema: orderSchema },
+      },
     },
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },
@@ -299,7 +317,10 @@ export const postUserRoute = createRoute({
   responses: {
     default: {
       description: 'successful operation',
-      content: { 'application/json': { schema: userSchema } },
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+      },
     },
   },
 })
@@ -315,7 +336,10 @@ export const postUserCreateWithListRoute = createRoute({
   responses: {
     200: {
       description: 'Successful operation',
-      content: { 'application/json': { schema: userSchema } },
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+      },
     },
     default: { description: 'successful operation' },
   },
@@ -331,7 +355,10 @@ export const getUserLoginRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.string() } },
+      content: {
+        'application/xml': { schema: z.string() },
+        'application/json': { schema: z.string() },
+      },
     },
     400: { description: 'Invalid username/password supplied' },
   },
@@ -352,7 +379,10 @@ export const getUserUsernameRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: userSchema } },
+      content: {
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+      },
     },
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
