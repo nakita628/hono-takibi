@@ -153,6 +153,12 @@ export type Operation = {
 export type ResponseDefinition = {
   description: string
   content?: Content
+  headers?: {
+    [key: string]: {
+      description?: string
+      schema: Schema
+    }
+  }
 }
 
 /**
