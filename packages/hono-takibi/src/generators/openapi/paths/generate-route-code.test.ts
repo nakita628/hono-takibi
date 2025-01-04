@@ -55,7 +55,7 @@ export const getPostsRoute=createRoute({tags:["Post"],method:'get',path:'/posts'
 
 export const putPostsIdRoute=createRoute({tags:["Post"],method:'put',path:'/posts/{id}',summary:'Update an existing post',description:'Update the content of an existing post identified by its unique ID.',request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},responses:{204:{description:'Post successfully updated.',},400:{description:'Invalid input.',content:{'application/json':{schema:errorSchema}},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema}},},}})
 
-export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:'/posts/{id}',summary:'Delete a post',description:'Delete an existing post identified by its unique ID.',request:{params:z.object({id:z.string().uuid()})},responses:{204:{description:'Post successfully deleted.',},400:{description:'Invalid input.',content:{'application/json':{schema:errorSchema}},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema}},},}})`,
+export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:'/posts/{id}',summary:'Delete a post',description:'Delete an existing post identified by its unique ID.',request:{params:z.object({id:z.string().uuid().openapi({param:{name:'id',in:'path'},example:"123e4567-e89b-12d3-a456-426614174000"})})},responses:{204:{description:'Post successfully deleted.',},400:{description:'Invalid input.',content:{'application/json':{schema:errorSchema}},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema}},},}})`,
   },
 ]
 
