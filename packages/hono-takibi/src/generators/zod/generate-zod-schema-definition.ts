@@ -24,5 +24,5 @@ export function generateZodSchemaDefinition(
   zodSchema: string,
   schemaName: string,
 ): string {
-  return `const ${name} = ${zodSchema}.openapi(${schemaName})`
+  return `const ${name} = ${zodSchema}.openapi('${schemaName}')`
 }
