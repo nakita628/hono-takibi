@@ -169,7 +169,7 @@ const generateParamsObjectTestCases: {
     ],
     expected: {
       path: {
-        id: 'z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"})',
+        id: `z.string().uuid().openapi({param:{name:'id',in:'path'},example:"123e4567-e89b-12d3-a456-426614174000"})`,
       },
     },
   },
@@ -180,10 +180,6 @@ describe('generateRequestBody', () => {
     'generateParamsObject($parameters) -> $expected',
     async ({ parameters, expected }) => {
       const result = generateParamsObject(parameters)
-
-      // console.log('--------------------------------')
-      // console.log(result)
-      // console.log('--------------------------------')
       expect(result).toEqual(expected)
     },
   )

@@ -18,7 +18,11 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
 export function generateParamsObject(parameters: Parameters[]): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
-    const baseSchema = generateZodSchema(param.schema)
+    // path params are generated with the param name
+    const baseSchema =
+      param.in === 'path'
+        ? generateZodSchema(param.schema, param.name, true)
+        : generateZodSchema(param.schema)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {
@@ -30,12 +34,6 @@ export function generateParamsObject(parameters: Parameters[]): ParamsObject {
       param.in === 'query' && (param.schema.type === 'number' || param.schema.type === 'integer')
         ? generateZodCoerce('z.string()', baseSchema)
         : baseSchema
-
-    if (param.in === 'path') {
-      console.log(param.name)
-      console.log(param.schema)
-      console.log(baseSchema)
-    }
 
     // Add parameter to its section
     acc[param.in][param.name] = `${zodSchema}${optionalSuffix}`
