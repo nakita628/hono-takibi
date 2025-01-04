@@ -40,7 +40,7 @@ export function generateComponentsCode(components: Components): string {
       // 4.3 generate zod schema
       const zodSchema = generateZodSchema(schema)
       // 4.4 generate zod schema definition
-      return generateZodSchemaDefinition(camelCaseSchemaName, zodSchema)
+      return generateZodSchemaDefinition(camelCaseSchemaName, zodSchema, schemaName)
     })
     .join('\n\n')
   // 5. generate export statement

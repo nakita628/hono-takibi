@@ -19,6 +19,10 @@
  * - Part of OpenAPI to Zod schema conversion process
  * - Creates reusable schema definitions
  */
-export function generateZodSchemaDefinition(name: string, zodSchema: string): string {
-  return `const ${name} = ${zodSchema}`
+export function generateZodSchemaDefinition(
+  name: string,
+  zodSchema: string,
+  schemaName: string,
+): string {
+  return `const ${name} = ${zodSchema}.openapi(${schemaName})`
 }

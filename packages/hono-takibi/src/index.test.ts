@@ -37,60 +37,76 @@ describe('Hono Takibi', () => {
     const result = fs.readFileSync(output, { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
-const orderSchema = z.object({
-  id: z.number().int().openapi({ example: 10 }).optional(),
-  petId: z.number().int().openapi({ example: 198772 }).optional(),
-  quantity: z.number().int().openapi({ example: 7 }).optional(),
-  shipDate: z.string().datetime().optional(),
-  status: z.enum(['placed', 'approved', 'delivered']).openapi({ example: 'approved' }).optional(),
-  complete: z.boolean().optional(),
-})
+const orderSchema = z
+  .object({
+    id: z.number().int().openapi({ example: 10 }).optional(),
+    petId: z.number().int().openapi({ example: 198772 }).optional(),
+    quantity: z.number().int().openapi({ example: 7 }).optional(),
+    shipDate: z.string().datetime().optional(),
+    status: z.enum(['placed', 'approved', 'delivered']).openapi({ example: 'approved' }).optional(),
+    complete: z.boolean().optional(),
+  })
+  .openapi(Order)
 
-const addressSchema = z.object({
-  street: z.string().openapi({ example: '437 Lytton' }).optional(),
-  city: z.string().openapi({ example: 'Palo Alto' }).optional(),
-  state: z.string().openapi({ example: 'CA' }).optional(),
-  zip: z.string().openapi({ example: '94301' }).optional(),
-})
+const addressSchema = z
+  .object({
+    street: z.string().openapi({ example: '437 Lytton' }).optional(),
+    city: z.string().openapi({ example: 'Palo Alto' }).optional(),
+    state: z.string().openapi({ example: 'CA' }).optional(),
+    zip: z.string().openapi({ example: '94301' }).optional(),
+  })
+  .openapi(Address)
 
-const customerSchema = z.object({
-  id: z.number().int().openapi({ example: 100000 }).optional(),
-  username: z.string().openapi({ example: 'fehguy' }).optional(),
-  address: z.array(addressSchema).optional(),
-})
+const customerSchema = z
+  .object({
+    id: z.number().int().openapi({ example: 100000 }).optional(),
+    username: z.string().openapi({ example: 'fehguy' }).optional(),
+    address: z.array(addressSchema).optional(),
+  })
+  .openapi(Customer)
 
-const categorySchema = z.object({
-  id: z.number().int().openapi({ example: 1 }).optional(),
-  name: z.string().openapi({ example: 'Dogs' }).optional(),
-})
+const categorySchema = z
+  .object({
+    id: z.number().int().openapi({ example: 1 }).optional(),
+    name: z.string().openapi({ example: 'Dogs' }).optional(),
+  })
+  .openapi(Category)
 
-const userSchema = z.object({
-  id: z.number().int().openapi({ example: 10 }).optional(),
-  username: z.string().openapi({ example: 'theUser' }).optional(),
-  firstName: z.string().openapi({ example: 'John' }).optional(),
-  lastName: z.string().openapi({ example: 'James' }).optional(),
-  email: z.string().openapi({ example: 'john@email.com' }).optional(),
-  password: z.string().openapi({ example: '12345' }).optional(),
-  phone: z.string().openapi({ example: '12345' }).optional(),
-  userStatus: z.number().int().openapi({ example: 1 }).optional(),
-})
+const userSchema = z
+  .object({
+    id: z.number().int().openapi({ example: 10 }).optional(),
+    username: z.string().openapi({ example: 'theUser' }).optional(),
+    firstName: z.string().openapi({ example: 'John' }).optional(),
+    lastName: z.string().openapi({ example: 'James' }).optional(),
+    email: z.string().openapi({ example: 'john@email.com' }).optional(),
+    password: z.string().openapi({ example: '12345' }).optional(),
+    phone: z.string().openapi({ example: '12345' }).optional(),
+    userStatus: z.number().int().openapi({ example: 1 }).optional(),
+  })
+  .openapi(User)
 
-const tagSchema = z.object({ id: z.number().int().optional(), name: z.string().optional() })
+const tagSchema = z
+  .object({ id: z.number().int().optional(), name: z.string().optional() })
+  .openapi(Tag)
 
-const petSchema = z.object({
-  id: z.number().int().openapi({ example: 10 }).optional(),
-  name: z.string().openapi({ example: 'doggie' }),
-  category: categorySchema.optional(),
-  photoUrls: z.array(z.string()),
-  tags: z.array(tagSchema).optional(),
-  status: z.enum(['available', 'pending', 'sold']).optional(),
-})
+const petSchema = z
+  .object({
+    id: z.number().int().openapi({ example: 10 }).optional(),
+    name: z.string().openapi({ example: 'doggie' }),
+    category: categorySchema.optional(),
+    photoUrls: z.array(z.string()),
+    tags: z.array(tagSchema).optional(),
+    status: z.enum(['available', 'pending', 'sold']).optional(),
+  })
+  .openapi(Pet)
 
-const apiResponseSchema = z.object({
-  code: z.number().int().optional(),
-  type: z.string().optional(),
-  message: z.string().optional(),
-})
+const apiResponseSchema = z
+  .object({
+    code: z.number().int().optional(),
+    type: z.string().optional(),
+    message: z.string().optional(),
+  })
+  .openapi(ApiResponse)
 
 export const schemas = {
   orderSchema,
