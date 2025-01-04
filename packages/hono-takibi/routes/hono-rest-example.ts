@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const errorSchema = z.object({ message: z.string() }).openapi('errorSchema')
+const errorSchema = z.object({ message: z.string() }).openapi('Error')
 
 const postSchema = z
   .object({
@@ -9,7 +9,7 @@ const postSchema = z
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   })
-  .openapi('postSchema')
+  .openapi('Post')
 
 export const schemas = {
   errorSchema,
