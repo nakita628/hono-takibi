@@ -13,6 +13,7 @@ type GenerateZodNumberSchemaParams = {
   maximum?: number
   default?: DefaultValue
   example?: ExampleValue
+  isPath?: boolean
 }
 
 /**
@@ -24,7 +25,7 @@ type GenerateZodNumberSchemaParams = {
  */
 export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): string {
   const validations = ['z.number()']
-  const { pattern, minLength, maxLength, minimum, maximum } = args
+  const { pattern, minLength, maxLength, minimum, maximum, isPath } = args
   // pattern
   if (pattern) validations.push(generateZodRegex(pattern))
   // minLength

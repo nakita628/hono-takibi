@@ -22,7 +22,10 @@ type GenerateZodIntegerSchemaParams = {
  * @param args - The parameters to generate the zod schema.
  * @returns A zod schema for an integer.
  */
-export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): string {
+export function generateZodIntegerSchema(
+  args: GenerateZodIntegerSchemaParams,
+  isPath?: boolean,
+): string {
   const validations = ['z.number().int()']
   const { pattern, minLength, maxLength, minimum, maximum } = args
   // pattern

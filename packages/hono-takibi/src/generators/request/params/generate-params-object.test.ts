@@ -152,6 +152,27 @@ const generateParamsObjectTestCases: {
       },
     },
   },
+  // path with example
+  {
+    parameters: [
+      {
+        in: 'path',
+        name: 'id',
+        required: true,
+        schema: {
+          type: 'string',
+          format: 'uuid',
+          example: '123e4567-e89b-12d3-a456-426614174000',
+        },
+        description: 'Unique identifier of the post.',
+      },
+    ],
+    expected: {
+      path: {
+        id: 'z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"})',
+      },
+    },
+  },
 ]
 
 describe('generateRequestBody', () => {
@@ -159,6 +180,10 @@ describe('generateRequestBody', () => {
     'generateParamsObject($parameters) -> $expected',
     async ({ parameters, expected }) => {
       const result = generateParamsObject(parameters)
+
+      // console.log('--------------------------------')
+      // console.log(result)
+      // console.log('--------------------------------')
       expect(result).toEqual(expected)
     },
   )

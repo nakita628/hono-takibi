@@ -14,6 +14,7 @@ type GenerateZodStringSchemaParams = {
   format?: FormatString
   default?: DefaultValue
   example?: ExampleValue
+  isPath?: boolean
 }
 
 /**
@@ -55,7 +56,7 @@ type GenerateZodStringSchemaParams = {
  */
 export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
   const validations = ['z.string()']
-  const { pattern, minLength, maxLength, format, default: defaultValue, example } = args
+  const { pattern, minLength, maxLength, format, default: defaultValue, example, isPath } = args
   // pattern
   if (pattern) validations.push(generateZodRegex(pattern))
   // minLength
