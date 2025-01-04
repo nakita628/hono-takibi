@@ -22,8 +22,7 @@ const generateSchemaDefinitionTestCases = [
     name: 'userSchema',
     schema: `z.object({id:z.string().openapi({example:'1212121'}),name:z.string().openapi({example:'John Doe'}),age:z.number().openapi({example:42}),})`,
     schemaName: 'User',
-    expected:
-      `const userSchema = z.object({id:z.string().openapi({example:'1212121'}),name:z.string().openapi({example:'John Doe'}),age:z.number().openapi({example:42}),}).openapi(User)`,
+    expected: `const userSchema = z.object({id:z.string().openapi({example:'1212121'}),name:z.string().openapi({example:'John Doe'}),age:z.number().openapi({example:42}),}).openapi(User)`,
   },
 ]
 
