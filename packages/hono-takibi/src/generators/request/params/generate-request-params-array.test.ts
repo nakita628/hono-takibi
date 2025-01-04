@@ -13,6 +13,20 @@ const generateRequestParamsArrayTestCases: {
     },
     expected: ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})'],
   },
+  {
+    paramsObject: { path: { petId: 'z.number().int()' } },
+    expected: ['params:z.object({petId:z.number().int()})'],
+  },
+  {
+    paramsObject: {
+      header: { api_key: 'z.string().optional()' },
+      path: { petId: 'z.number().int()' },
+    },
+    expected: [
+      'header:z.object({api_key:z.string().optional()})',
+      'params:z.object({petId:z.number().int()})',
+    ],
+  },
 ]
 
 describe('generateRequestParamsArray', () => {

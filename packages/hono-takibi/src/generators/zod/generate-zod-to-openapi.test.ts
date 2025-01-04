@@ -6,13 +6,19 @@ const generateZodToOpenAPITestCases = [
     example: 'John Doe',
     expected: `.openapi({example:"John Doe"})`,
   },
+  {
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    paramName: 'id',
+    isPath: true,
+    expected: `.openapi({param:{name:'id',in:'path'},example:"123e4567-e89b-12d3-a456-426614174000"})`,
+  },
 ]
 
 describe('generateZodToOpenAPI', () => {
   it.concurrent.each(generateZodToOpenAPITestCases)(
-    'generateZodToOpenAPI($example) -> $expected',
-    async ({ example, expected }) => {
-      const result = generateZodToOpenAPI(example)
+    'generateZodToOpenAPI($example, $paramName, $isPath) -> $expected',
+    async ({ example, paramName, isPath, expected }) => {
+      const result = generateZodToOpenAPI(example, paramName, isPath)
       expect(result).toBe(expected)
     },
   )

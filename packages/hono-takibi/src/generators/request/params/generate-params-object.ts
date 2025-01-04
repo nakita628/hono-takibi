@@ -17,13 +17,16 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
  */
 export function generateParamsObject(parameters: Parameters[]): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
-    const paramLocation = param.in
     const optionalSuffix = param.required ? '' : '.optional()'
-    const baseSchema = generateZodSchema(param.schema)
+    // path params are generated with the param name
+    const baseSchema =
+      param.in === 'path'
+        ? generateZodSchema(param.schema, param.name, true)
+        : generateZodSchema(param.schema)
 
     // Initialize section if it doesn't exist
-    if (!acc[paramLocation]) {
-      acc[paramLocation] = {}
+    if (!acc[param.in]) {
+      acc[param.in] = {}
     }
 
     // Handle coercion for query number/integer types
@@ -33,7 +36,7 @@ export function generateParamsObject(parameters: Parameters[]): ParamsObject {
         : baseSchema
 
     // Add parameter to its section
-    acc[paramLocation][param.name] = `${zodSchema}${optionalSuffix}`
+    acc[param.in][param.name] = `${zodSchema}${optionalSuffix}`
     return acc
   }, {})
 }
