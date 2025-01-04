@@ -86,7 +86,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function generateZodSchema(schema: Schema, isPath?: boolean): string {
+export function generateZodSchema(schema: Schema, paramName?: string, isPath?: boolean): string {
   const {
     type,
     format,
@@ -128,6 +128,7 @@ export function generateZodSchema(schema: Schema, isPath?: boolean): string {
       format: format && isFormatString(format) ? format : undefined,
       default: defaultValue,
       example,
+      paramName,
       isPath,
     })
   }
@@ -142,6 +143,7 @@ export function generateZodSchema(schema: Schema, isPath?: boolean): string {
       maximum,
       default: defaultValue,
       example,
+      paramName,
       isPath,
     })
   }
@@ -155,7 +157,8 @@ export function generateZodSchema(schema: Schema, isPath?: boolean): string {
       maximum,
       default: defaultValue,
       example,
-      // isPath,
+      paramName,
+      isPath,
     })
   }
 

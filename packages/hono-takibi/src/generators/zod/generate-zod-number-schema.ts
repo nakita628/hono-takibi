@@ -13,6 +13,7 @@ type GenerateZodNumberSchemaParams = {
   maximum?: number
   default?: DefaultValue
   example?: ExampleValue
+  paramName?: string
   isPath?: boolean
 }
 
@@ -25,21 +26,21 @@ type GenerateZodNumberSchemaParams = {
  */
 export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): string {
   const validations = ['z.number()']
-  const { pattern, minLength, maxLength, minimum, maximum, isPath } = args
   // pattern
-  if (pattern) validations.push(generateZodRegex(pattern))
+  if (args.pattern) validations.push(generateZodRegex(args.pattern))
   // minLength
-  if (minLength) validations.push(generateZodMin(minLength))
+  if (args.minLength) validations.push(generateZodMin(args.minLength))
   // maxLength
-  if (maxLength) validations.push(generateZodMax(maxLength))
+  if (args.maxLength) validations.push(generateZodMax(args.maxLength))
   // 0 falsy value
   // minimum
-  if (typeof minimum === 'number') validations.push(generateZodMin(minimum))
+  if (typeof args.minimum === 'number') validations.push(generateZodMin(args.minimum))
   // maximum
-  if (typeof maximum === 'number') validations.push(generateZodMax(maximum))
+  if (typeof args.maximum === 'number') validations.push(generateZodMax(args.maximum))
   // default
   if (args.default) validations.push(generateZodDefault(args.default))
   // example
-  if (args.example) validations.push(generateZodToOpenAPI(args.example))
+  if (args.example)
+    validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
   return validations.join('')
 }

@@ -14,6 +14,7 @@ type GenerateZodStringSchemaParams = {
   format?: FormatString
   default?: DefaultValue
   example?: ExampleValue
+  paramName?: string
   isPath?: boolean
 }
 
@@ -56,18 +57,18 @@ type GenerateZodStringSchemaParams = {
  */
 export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
   const validations = ['z.string()']
-  const { pattern, minLength, maxLength, format, default: defaultValue, example, isPath } = args
   // pattern
-  if (pattern) validations.push(generateZodRegex(pattern))
+  if (args.pattern) validations.push(generateZodRegex(args.pattern))
   // minLength
-  if (minLength) validations.push(generateZodMin(minLength))
+  if (args.minLength) validations.push(generateZodMin(args.minLength))
   // maxLength
-  if (maxLength) validations.push(generateZodMax(maxLength))
+  if (args.maxLength) validations.push(generateZodMax(args.maxLength))
   // format
-  if (format) validations.push(getZodFormatString(format))
+  if (args.format) validations.push(getZodFormatString(args.format))
   // default
-  if (defaultValue) validations.push(generateZodDefault(defaultValue))
+  if (args.default) validations.push(generateZodDefault(args.default))
   // example
-  if (example) validations.push(generateZodToOpenAPI(example))
+  if (args.example)
+    validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
   return validations.join('')
 }
