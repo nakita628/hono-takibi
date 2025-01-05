@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-type TakibiConfig = {
+type Config = {
   openapiInput: {
     file: string
   }
@@ -17,7 +17,7 @@ type TakibiConfig = {
   }
 }
 
-export const DEFAULT_CONFIG: TakibiConfig = {
+export const DEFAULT_CONFIG: Config = {
   openapiInput: {
     file: 'openapi.yaml',
   },
@@ -39,8 +39,8 @@ export const DEFAULT_CONFIG: TakibiConfig = {
  *
  * @returns The configuration object.
  */
-export function getConfig(): TakibiConfig {
-  const config: TakibiConfig = fs.existsSync('hono-takibi.json')
+export function getConfig(): Config {
+  const config: Config = fs.existsSync('hono-takibi.json')
     ? { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
     : DEFAULT_CONFIG
   return config

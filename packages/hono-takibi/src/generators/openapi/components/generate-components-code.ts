@@ -25,6 +25,7 @@ import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pas
 export function generateComponentsCode(
   components: Components,
   namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  exportEnabled: boolean = true,
 ): string {
   // 1. schema extraction
   const { schemas } = components
@@ -54,5 +55,8 @@ export function generateComponentsCode(
   // 5. generate export statement
   const exports = generateSchemasExport(orderedSchemas, namingCase)
   // 6. final code assembly
-  return `${schemaDefinitions}\n\n${exports}`
+  if (exportEnabled) {
+    return `${schemaDefinitions}\n\n${exports}`
+  }
+  return schemaDefinitions
 }
