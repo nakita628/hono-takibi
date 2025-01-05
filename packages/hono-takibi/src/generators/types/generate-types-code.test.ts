@@ -1,15 +1,52 @@
 import { describe, expect, it } from 'vitest'
 import type { Components } from '../../types'
+import type { Config } from '../../config'
 import { generateTypesCode } from './generate-types-code'
+
+const camelCaseConfig: Config = {
+  openapiInput: {
+    file: 'openapi.yaml',
+  },
+  generatedOutput: {
+    directory: 'routes',
+    file: 'index.ts',
+  },
+  schemaOptions: {
+    namingCase: 'camelCase',
+    exportEnabled: false,
+  },
+  typeOptions: {
+    namingCase: 'camelCase',
+  },
+}
+
+const pascalCaseConfig: Config = {
+  openapiInput: {
+    file: 'openapi.yaml',
+  },
+  generatedOutput: {
+    directory: 'routes',
+    file: 'index.ts',
+  },
+  schemaOptions: {
+    namingCase: 'PascalCase',
+    exportEnabled: false,
+  },
+  typeOptions: {
+    namingCase: 'PascalCase',
+  },
+}
+
 const generateTypesCodeTestCases: {
   components: Components
-  namingCase?: 'camelCase' | 'PascalCase'
+  config: Config
   expected: string
 }[] = [
   {
     components: {
       schemas: {},
     },
+    config: camelCaseConfig,
     expected: '',
   },
   // pet store camelCase
@@ -277,22 +314,22 @@ const generateTypesCodeTestCases: {
       // memo securitySchemes need?
     },
 
-    namingCase: 'camelCase',
-    expected: `export type orderSchema = z.infer<typeof orderSchema>
+    config: camelCaseConfig,
+    expected: `export type order = z.infer<typeof orderSchema>
 
-export type addressSchema = z.infer<typeof addressSchema>
+export type address = z.infer<typeof addressSchema>
 
-export type customerSchema = z.infer<typeof customerSchema>
+export type customer = z.infer<typeof customerSchema>
 
-export type categorySchema = z.infer<typeof categorySchema>
+export type category = z.infer<typeof categorySchema>
 
-export type userSchema = z.infer<typeof userSchema>
+export type user = z.infer<typeof userSchema>
 
-export type tagSchema = z.infer<typeof tagSchema>
+export type tag = z.infer<typeof tagSchema>
 
-export type petSchema = z.infer<typeof petSchema>
+export type pet = z.infer<typeof petSchema>
 
-export type apiResponseSchema = z.infer<typeof apiResponseSchema>`,
+export type apiResponse = z.infer<typeof apiResponseSchema>`,
   },
   // pet store PascalCase
   {
@@ -559,30 +596,30 @@ export type apiResponseSchema = z.infer<typeof apiResponseSchema>`,
       // memo securitySchemes need?
     },
 
-    namingCase: 'PascalCase',
-    expected: `export type OrderSchema = z.infer<typeof OrderSchema>
+    config: pascalCaseConfig,
+    expected: `export type Order = z.infer<typeof OrderSchema>
 
-export type AddressSchema = z.infer<typeof AddressSchema>
+export type Address = z.infer<typeof AddressSchema>
 
-export type CustomerSchema = z.infer<typeof CustomerSchema>
+export type Customer = z.infer<typeof CustomerSchema>
 
-export type CategorySchema = z.infer<typeof CategorySchema>
+export type Category = z.infer<typeof CategorySchema>
 
-export type UserSchema = z.infer<typeof UserSchema>
+export type User = z.infer<typeof UserSchema>
 
-export type TagSchema = z.infer<typeof TagSchema>
+export type Tag = z.infer<typeof TagSchema>
 
-export type PetSchema = z.infer<typeof PetSchema>
+export type Pet = z.infer<typeof PetSchema>
 
-export type ApiResponseSchema = z.infer<typeof ApiResponseSchema>`,
+export type ApiResponse = z.infer<typeof ApiResponseSchema>`,
   },
 ]
 
 describe('generateTypesCode', () => {
   it.concurrent.each(generateTypesCodeTestCases)(
-    'generateTypesCode($components, $namingCase) -> $expected',
-    async ({ components, namingCase, expected }) => {
-      const result = generateTypesCode(components, namingCase)
+    'generateTypesCode($components, $config) -> $expected',
+    async ({ components, config, expected }) => {
+      const result = generateTypesCode(components, config)
       expect(result).toBe(expected)
     },
   )
