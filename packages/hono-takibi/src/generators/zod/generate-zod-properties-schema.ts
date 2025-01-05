@@ -63,5 +63,3 @@ export function generateZodPropertiesSchema(
   return `z.object({${objectProperties}})${required ? '' : '.partial()'}`
   // return `z.object({${objectProperties}})${required.length === 0 ? '.partial()' : ''}`
 }
-
-

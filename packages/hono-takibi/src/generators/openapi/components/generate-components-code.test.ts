@@ -290,7 +290,7 @@ const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(
 
 const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
 
-const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
+const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
 const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
 
@@ -787,7 +787,7 @@ userSchema
 
 const AddressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()}).openapi('Address')
 
-const CustomerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()}).openapi('Customer')
+const CustomerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(AddressSchema).optional()}).openapi('Customer')
 
 const CategorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()}).openapi('Category')
 
@@ -795,7 +795,7 @@ const UserSchema = z.object({id:z.number().int().openapi({example:10}).optional(
 
 const TagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
 
-const PetSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
+const PetSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:CategorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
 const ApiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
 
@@ -983,7 +983,7 @@ ApiResponseSchema
 
 const OrderItemSchema = z.object({productId:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity:z.number().int().openapi({example:2}),price:z.number().openapi({example:29.99}).optional()}).openapi('OrderItem')
 
-const OrderSchema = z.object({id:z.string().uuid().openapi({example:"987e6543-e21b-34d3-a789-426614174111"}).optional(),userId:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),products:z.array(orderItemSchema),total:z.number().openapi({example:59.98}),status:z.enum(["pending","shipped","delivered","cancelled"]).openapi({example:"shipped"}).optional(),createdAt:z.string().datetime().openapi({example:"2023-10-10T14:48:00.000Z"}).optional(),updatedAt:z.string().datetime().openapi({example:"2023-10-11T10:30:00.000Z"}).optional()}).openapi('Order')
+const OrderSchema = z.object({id:z.string().uuid().openapi({example:"987e6543-e21b-34d3-a789-426614174111"}).optional(),userId:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),products:z.array(OrderItemSchema),total:z.number().openapi({example:59.98}),status:z.enum(["pending","shipped","delivered","cancelled"]).openapi({example:"shipped"}).optional(),createdAt:z.string().datetime().openapi({example:"2023-10-10T14:48:00.000Z"}).optional(),updatedAt:z.string().datetime().openapi({example:"2023-10-11T10:30:00.000Z"}).optional()}).openapi('Order')
 
 const UserSchema = z.object({id:z.string().uuid().openapi({example:"321e6547-e89b-12d3-a456-426614174999"}).optional(),username:z.string().openapi({example:"john_doe"}),email:z.string().email().openapi({example:"john.doe@example.com"}),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"Doe"}).optional(),address:z.string().openapi({example:"123 Main St, Anytown, USA"}).optional(),phone:z.string().openapi({example:"+1-555-1234"}).optional(),createdAt:z.string().datetime().openapi({example:"2023-01-15T09:30:00.000Z"}).optional(),updatedAt:z.string().datetime().openapi({example:"2023-06-20T16:45:00.000Z"}).optional()}).openapi('User')
 

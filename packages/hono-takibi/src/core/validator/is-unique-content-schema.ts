@@ -7,8 +7,6 @@ import type { Content } from '../../types'
  * @returns Unique content schema
  */
 export function isUniqueContentSchema(contentTypes: string[], content: Content) {
-  console.log(contentTypes)
-  console.log(content)
   const schema = new Set(contentTypes.map((type) => JSON.stringify(content?.[type].schema)))
   return schema.size === 1
 }
