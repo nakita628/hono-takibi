@@ -5,8 +5,10 @@
 ![img](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/img/hono-takibi.png)
 
 ```bash
-npm add -D hono-takibi
+npm install -D hono-takibi
 ```
+
+
 
 ## Migrate Legacy APIs to Hono
 

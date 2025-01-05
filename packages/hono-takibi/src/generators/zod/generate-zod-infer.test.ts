@@ -3,13 +3,6 @@ import { generateZodInfer } from './generate-zod-infer'
 import type { Config } from '../../config'
 
 const camelCaseConfig: Config = {
-  openapiInput: {
-    file: 'openapi.yaml',
-  },
-  generatedOutput: {
-    directory: 'routes',
-    file: 'index.ts',
-  },
   schemaOptions: {
     namingCase: 'camelCase',
     exportEnabled: false,
@@ -21,13 +14,6 @@ const camelCaseConfig: Config = {
 }
 
 const pascalCaseConfig: Config = {
-  openapiInput: {
-    file: 'openapi.yaml',
-  },
-  generatedOutput: {
-    directory: 'routes',
-    file: 'index.ts',
-  },
   schemaOptions: {
     namingCase: 'PascalCase',
     exportEnabled: false,

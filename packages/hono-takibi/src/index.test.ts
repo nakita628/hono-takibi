@@ -642,13 +642,6 @@ export const deletePostsIdRoute = createRoute({
   it.concurrent('Hono Takibi CLI type-hono-rest-example.ts', async () => {
     // config
     const config: Config = {
-      openapiInput: {
-        file: 'openapi.yaml',
-      },
-      generatedOutput: {
-        directory: 'routes',
-        file: 'index.ts',
-      },
       schemaOptions: {
         namingCase: 'camelCase',
         exportEnabled: true,

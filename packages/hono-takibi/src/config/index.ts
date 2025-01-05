@@ -1,13 +1,6 @@
 import fs from 'node:fs'
 
 export type Config = {
-  openapiInput: {
-    file: string
-  }
-  generatedOutput: {
-    directory: string
-    file: string
-  }
   schemaOptions: {
     namingCase: 'camelCase' | 'PascalCase'
     exportEnabled: boolean
@@ -19,13 +12,6 @@ export type Config = {
 }
 
 export const DEFAULT_CONFIG: Config = {
-  openapiInput: {
-    file: 'openapi.yaml',
-  },
-  generatedOutput: {
-    directory: 'routes',
-    file: 'index.ts',
-  },
   schemaOptions: {
     namingCase: 'camelCase',
     exportEnabled: false,
