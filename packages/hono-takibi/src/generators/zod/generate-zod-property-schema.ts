@@ -40,7 +40,7 @@ export function generatePropertySchema(
         namingCase === 'camelCase'
           ? getCamelCaseSchemaName(refName)
           : getPascalCaseSchemaName(refName)
-      return getRefName(variableName) || 'z.any()'
+      return variableName || 'z.any()'
     }
   }
   if (schema.type === 'array' && schema.items?.$ref) {

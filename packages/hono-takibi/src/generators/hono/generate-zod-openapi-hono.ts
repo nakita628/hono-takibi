@@ -25,6 +25,7 @@ export function generateZodOpenAPIHono(
   const { paths } = openAPISpec
   // 3. generate components code
   const componentsCode = generateComponentsCode(components, namingCase)
+
   // 4. generate route code
   const routeCode = generateRouteCode(paths, namingCase)
   // 5. generate hono code

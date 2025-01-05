@@ -650,7 +650,6 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 `
-
     expect(result).toBe(expected)
   })
 

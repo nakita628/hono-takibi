@@ -9,7 +9,7 @@
   },
 
   "schemaOptions": {
-    "namingCase": "PascalCase",
+    "namingCase": "camelCase",
     "exportEnabled": false
   },
 

@@ -24,7 +24,7 @@ import { isOperation } from '../../../core/validator/is-operation'
  */
 export function generateRouteCode(
   openAPIPaths: OpenAPIPaths,
-  namingCase: 'camelCase' | 'PascalCase',
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ) {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
