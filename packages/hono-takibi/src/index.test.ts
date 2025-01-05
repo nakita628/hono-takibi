@@ -8,7 +8,7 @@ describe('Hono Takibi', () => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const projectRoot = path.resolve(__dirname, '..')
   const input = path.join(projectRoot, 'example/pet-store.yaml')
-  const output = path.join(projectRoot, 'routes/petstore-index.ts')
+  const output = path.join(projectRoot, 'routes/petstore.ts')
 
   beforeEach(() => {
     // 1. create test directory
@@ -33,8 +33,8 @@ describe('Hono Takibi', () => {
   // test the normal system
   it.concurrent('Hono Takibi CLI pet-store.yaml', async () => {
     await main(true)
-    expect(fs.existsSync('routes/petstore-index.ts')).toBe(true)
-    const result = fs.readFileSync('routes/petstore-index.ts', { encoding: 'utf-8' })
+    expect(fs.existsSync('routes/petstore.ts')).toBe(true)
+    const result = fs.readFileSync('routes/petstore.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const orderSchema = z
