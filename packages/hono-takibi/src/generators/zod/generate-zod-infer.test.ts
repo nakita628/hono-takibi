@@ -1,100 +1,138 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodInfer } from './generate-zod-infer'
+import type { Config } from '../../config'
+
+const camelCaseConfig: Config = {
+  openapiInput: {
+    file: 'openapi.yaml',
+  },
+  generatedOutput: {
+    directory: 'routes',
+    file: 'index.ts',
+  },
+  schemaOptions: {
+    namingCase: 'camelCase',
+    exportEnabled: false,
+  },
+  typeOptions: {
+    namingCase: 'camelCase',
+  },
+}
+
+const pascalCaseConfig: Config = {
+  openapiInput: {
+    file: 'openapi.yaml',
+  },
+  generatedOutput: {
+    directory: 'routes',
+    file: 'index.ts',
+  },
+  schemaOptions: {
+    namingCase: 'PascalCase',
+    exportEnabled: false,
+  },
+  typeOptions: {
+    namingCase: 'PascalCase',
+  },
+}
 
 const generateZodInferTestCases: {
-  schemaName: string
-  namingCase: 'camelCase' | 'PascalCase'
+  schema: string
+  config: Config
   expected: string
 }[] = [
   // camelCase
   {
-    schemaName: 'Order',
-    namingCase: 'camelCase',
-    expected: 'export type order = z.infer<typeof Order>',
+    schema: 'Order',
+    config: camelCaseConfig,
+    expected: 'export type order = z.infer<typeof orderSchema>',
   },
   {
-    schemaName: 'Address',
-    namingCase: 'camelCase',
-    expected: 'export type address = z.infer<typeof Address>',
+    schema: 'Address',
+    config: camelCaseConfig,
+    expected: 'export type address = z.infer<typeof addressSchema>',
   },
   {
-    schemaName: 'Customer',
-    namingCase: 'camelCase',
-    expected: 'export type customer = z.infer<typeof Customer>',
+    schema: 'Customer',
+    config: camelCaseConfig,
+    expected: 'export type customer = z.infer<typeof customerSchema>',
   },
   {
-    schemaName: 'Category',
-    namingCase: 'camelCase',
-    expected: 'export type category = z.infer<typeof Category>',
+    schema: 'Category',
+    config: camelCaseConfig,
+    expected: 'export type category = z.infer<typeof categorySchema>',
   },
   {
-    schemaName: 'User',
-    namingCase: 'camelCase',
-    expected: 'export type user = z.infer<typeof User>',
+    schema: 'User',
+    config: camelCaseConfig,
+    expected: 'export type user = z.infer<typeof userSchema>',
   },
   {
-    schemaName: 'Tag',
-    namingCase: 'camelCase',
-    expected: 'export type tag = z.infer<typeof Tag>',
+    schema: 'Tag',
+    config: camelCaseConfig,
+    expected: 'export type tag = z.infer<typeof tagSchema>',
   },
   {
-    schemaName: 'Pet',
-    namingCase: 'camelCase',
-    expected: 'export type pet = z.infer<typeof Pet>',
+    schema: 'Pet',
+    config: camelCaseConfig,
+    expected: 'export type pet = z.infer<typeof petSchema>',
   },
   {
-    schemaName: 'ApiResponse',
-    namingCase: 'camelCase',
-    expected: 'export type apiResponse = z.infer<typeof ApiResponse>',
+    schema: 'ApiResponse',
+    config: camelCaseConfig,
+    expected: 'export type apiResponse = z.infer<typeof apiResponseSchema>',
   },
   // PascalCase
   {
-    schemaName: 'Order',
-    namingCase: 'PascalCase',
-    expected: 'export type Order = z.infer<typeof Order>',
+    schema: 'Order',
+    config: pascalCaseConfig,
+    expected: 'export type Order = z.infer<typeof OrderSchema>',
   },
   {
-    schemaName: 'Address',
-    namingCase: 'PascalCase',
-    expected: 'export type Address = z.infer<typeof Address>',
+    schema: 'Address',
+    config: pascalCaseConfig,
+    expected: 'export type Address = z.infer<typeof AddressSchema>',
   },
   {
-    schemaName: 'Customer',
-    namingCase: 'PascalCase',
-    expected: 'export type Customer = z.infer<typeof Customer>',
+    schema: 'Customer',
+    config: pascalCaseConfig,
+    expected: 'export type Customer = z.infer<typeof CustomerSchema>',
   },
   {
-    schemaName: 'Category',
-    namingCase: 'PascalCase',
-    expected: 'export type Category = z.infer<typeof Category>',
+    schema: 'Category',
+    config: pascalCaseConfig,
+    expected: 'export type Category = z.infer<typeof CategorySchema>',
   },
   {
-    schemaName: 'User',
-    namingCase: 'PascalCase',
-    expected: 'export type User = z.infer<typeof User>',
+    schema: 'User',
+    config: pascalCaseConfig,
+    expected: 'export type User = z.infer<typeof UserSchema>',
   },
   {
-    schemaName: 'Tag',
-    namingCase: 'PascalCase',
-    expected: 'export type Tag = z.infer<typeof Tag>',
+    schema: 'Tag',
+    config: pascalCaseConfig,
+    expected: 'export type Tag = z.infer<typeof TagSchema>',
   },
   {
-    schemaName: 'Pet',
-    namingCase: 'PascalCase',
-    expected: 'export type Pet = z.infer<typeof Pet>',
+    schema: 'Pet',
+    config: pascalCaseConfig,
+    expected: 'export type Pet = z.infer<typeof PetSchema>',
   },
   {
-    schemaName: 'ApiResponse',
-    namingCase: 'PascalCase',
-    expected: 'export type ApiResponse = z.infer<typeof ApiResponse>',
+    schema: 'ApiResponse',
+    config: pascalCaseConfig,
+    expected: 'export type ApiResponse = z.infer<typeof ApiResponseSchema>',
   },
 ]
 
 describe('generateZodInfer', () => {
   it.concurrent.each(generateZodInferTestCases)(
-    'generateZodInfer($schemaName, $namingCase) -> $expected',
-    async ({ schemaName, namingCase, expected }) => {
-      const result = generateZodInfer(schemaName, namingCase)
+    'generateZodInfer($schema, $config) -> $expected',
+    async ({ schema, config, expected }) => {
+      const result = generateZodInfer(schema, config)
+      console.log('--------------------------------')
+      console.log(result)
+      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )
