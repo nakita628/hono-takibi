@@ -16,6 +16,7 @@ const camelCaseConfig: Config = {
   },
   typeOptions: {
     namingCase: 'camelCase',
+    exportEnabled: true,
   },
 }
 
@@ -33,6 +34,7 @@ const pascalCaseConfig: Config = {
   },
   typeOptions: {
     namingCase: 'PascalCase',
+    exportEnabled: true,
   },
 }
 
@@ -130,9 +132,6 @@ describe('generateZodInfer', () => {
     'generateZodInfer($schema, $config) -> $expected',
     async ({ schema, config, expected }) => {
       const result = generateZodInfer(schema, config)
-      console.log('--------------------------------')
-      console.log(result)
-      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )

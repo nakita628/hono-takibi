@@ -17,6 +17,7 @@ const camelCaseConfig: Config = {
   },
   typeOptions: {
     namingCase: 'camelCase',
+    exportEnabled: true,
   },
 }
 
@@ -34,6 +35,7 @@ const pascalCaseConfig: Config = {
   },
   typeOptions: {
     namingCase: 'PascalCase',
+    exportEnabled: true,
   },
 }
 

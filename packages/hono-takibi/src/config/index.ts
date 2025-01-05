@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-type Config = {
+export type Config = {
   openapiInput: {
     file: string
   }
@@ -14,6 +14,7 @@ type Config = {
   }
   typeOptions: {
     namingCase: 'camelCase' | 'PascalCase'
+    exportEnabled: boolean
   }
 }
 
@@ -31,6 +32,7 @@ export const DEFAULT_CONFIG: Config = {
   },
   typeOptions: {
     namingCase: 'camelCase',
+    exportEnabled: false,
   },
 } as const
 
