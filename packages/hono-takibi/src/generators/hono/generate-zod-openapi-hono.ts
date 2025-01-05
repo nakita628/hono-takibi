@@ -18,7 +18,7 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
 export function generateZodOpenAPIHono(
   openAPISpec: OpenAPISpec,
   namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
-  exportEnabled: boolean = true,
+  exportEnabled = true,
 ): string {
   // 1. get components
   const components = openAPISpec.components

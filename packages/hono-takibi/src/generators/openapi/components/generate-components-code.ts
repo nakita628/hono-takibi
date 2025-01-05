@@ -25,7 +25,7 @@ import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pas
 export function generateComponentsCode(
   components: Components,
   namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
-  exportEnabled: boolean = true,
+  exportEnabled = true,
 ): string {
   // 1. schema extraction
   const { schemas } = components
