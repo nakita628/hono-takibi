@@ -31,7 +31,7 @@ export const DEFAULT_CONFIG: Config = {
     exportEnabled: false,
   },
   typeOptions: {
-    namingCase: 'camelCase',
+    namingCase: 'PascalCase',
     exportEnabled: false,
   },
 } as const

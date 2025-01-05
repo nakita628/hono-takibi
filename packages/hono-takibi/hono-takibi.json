@@ -10,11 +10,11 @@
 
   "schemaOptions": {
     "namingCase": "camelCase",
-    "exportEnabled": true
+    "exportEnabled": false
   },
 
   "typeOptions": {
-    "namingCase": "camelCase",
+    "namingCase": "PascalCase",
     "exportEnabled": false
   }
 }

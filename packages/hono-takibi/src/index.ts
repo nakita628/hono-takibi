@@ -28,8 +28,6 @@ import { getConfig } from './config'
  */
 export async function main(dev = false) {
   const config = getConfig()
-  console.log('config', config)
-
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)
