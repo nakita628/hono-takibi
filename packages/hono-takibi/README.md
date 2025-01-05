@@ -8,6 +8,29 @@
 npm add -D hono-takibi
 ```
 
+## Configuration
+
+You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root:
+
+
+### Schema Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `namingCase` | `"camelCase"` \| `"PascalCase"` | `"camelCase"` | Naming convention for generated schema variables |
+| `exportEnabled` | `boolean` | `false` | When true, exports all schema definitions |
+
+### Type Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `namingCase` | `"camelCase"` \| `"PascalCase"` | `"PascalCase"` | Naming convention for generated type definitions |
+| `exportEnabled` | `boolean` | `false` | When true, exports all type definitions |
+
+### Examples
+
+#### Default Behavior (camelCase schemas, PascalCase types)
+
 ## Migrate Legacy APIs to Hono
 
 **Hono Takibi** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.

@@ -5,10 +5,31 @@
 ![img](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/img/hono-takibi.png)
 
 ```bash
-npm install -D hono-takibi
+npm add -D hono-takibi
 ```
 
+## Configuration
 
+You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
+
+
+### Schema Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `namingCase` | `"camelCase"` \| `"PascalCase"` | `"camelCase"` | Naming convention for generated schema variables |
+| `exportEnabled` | `boolean` | `false` | When true, exports all schema definitions |
+
+### Type Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `namingCase` | `"camelCase"` \| `"PascalCase"` | `"PascalCase"` | Naming convention for generated type definitions |
+| `exportEnabled` | `boolean` | `false` | When true, exports all type definitions |
+
+### Examples
+
+#### Default Behavior (camelCase schemas, PascalCase types)
 
 ## Migrate Legacy APIs to Hono
 
@@ -308,6 +329,11 @@ const postSchema = z
     updatedAt: z.string().datetime(),
   })
   .openapi('Post')
+
+export const schemas = {
+  errorSchema,
+  postSchema,
+}
 
 export const getRoute = createRoute({
   tags: ['Hono'],
