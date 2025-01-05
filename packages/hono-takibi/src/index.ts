@@ -8,38 +8,36 @@ import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-h
 import type { OpenAPISpec } from './types'
 
 type TakibiConfig = {
-  input: {
+  openapiInput: {
     file: string
   }
-  output: {
+  generatedOutput: {
     directory: string
     file: string
   }
-  schema: {
-    case: 'camelCase' | 'PascalCase'
-    export: boolean
+  schemaOptions: {
+    namingCase: 'camelCase' | 'PascalCase'
+    exportEnabled: boolean
   }
-  type: {
-    case: 'camelCase' | 'PascalCase'
-    export: boolean
+  typeOptions: {
+    namingCase: 'camelCase' | 'PascalCase'
   }
 }
 
 const defaultConfig: TakibiConfig = {
-  input: {
+  openapiInput: {
     file: 'openapi.yaml',
   },
-  output: {
+  generatedOutput: {
     directory: 'routes',
     file: 'index.ts',
   },
-  schema: {
-    case: 'camelCase',
-    export: false,
+  schemaOptions: {
+    namingCase: 'camelCase',
+    exportEnabled: false,
   },
-  type: {
-    case: 'camelCase',
-    export: false,
+  typeOptions: {
+    namingCase: 'camelCase',
   },
 }
 

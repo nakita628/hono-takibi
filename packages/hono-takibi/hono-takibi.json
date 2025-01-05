@@ -1,17 +1,19 @@
 {
-  "input": {
+  "openapiInput": {
     "file": "openapi.yaml"
   },
-  "output": {
+
+  "generatedOutput": {
     "directory": "routes",
     "file": "index.ts"
   },
-  "schema": {
-    "case": "camelCase",
-    "export": false
+
+  "schemaOptions": {
+    "namingCase": "camelCase",
+    "exportEnabled": false
   },
-  "type": {
-    "case": "camelCase",
-    "export": false
+
+  "typeOptions": {
+    "namingCase": "camelCase"
   }
 }
