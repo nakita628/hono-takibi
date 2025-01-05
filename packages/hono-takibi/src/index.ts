@@ -7,6 +7,42 @@ import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import type { OpenAPISpec } from './types'
 
+type TakibiConfig = {
+  input: {
+    file: string
+  }
+  output: {
+    directory: string
+    file: string
+  }
+  schema: {
+    case: 'camelCase' | 'PascalCase'
+    export: boolean
+  }
+  type: {
+    case: 'camelCase' | 'PascalCase'
+    export: boolean
+  }
+}
+
+const defaultConfig: TakibiConfig = {
+  input: {
+    file: 'openapi.yaml',
+  },
+  output: {
+    directory: 'routes',
+    file: 'index.ts',
+  },
+  schema: {
+    case: 'camelCase',
+    export: false,
+  },
+  type: {
+    case: 'camelCase',
+    export: false,
+  },
+}
+
 /**
  * CLI entry point for hono-takibi
  *
@@ -26,35 +62,40 @@ import type { OpenAPISpec } from './types'
  * ```
  */
 export async function main(dev = false) {
-  // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
+  // 1. load config
+  const config = fs.existsSync('hono-takibi.json')
+    ? { ...defaultConfig, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
+    : defaultConfig
+
+  // 2. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
+  // 3. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)
-  // 3. input = 'example/pet-store.yaml'
+  // 4. input = 'example/pet-store.yaml'
   const input = args[0]
-  // 4. output = 'routes/petstore-index.ts'
+  // 5. output = 'routes/petstore-index.ts'
   const output = args[args.indexOf('-o') + 1]
   try {
-    // 5. parse OpenAPI YAML or JSON
+    // 6. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
-    // 6. generate Hono code
+    // 7. generate Hono code
     const hono = generateZodOpenAPIHono(openAPI)
-    // 7. format code
+    // 8. format code
     const formattedCode = await format(hono, {
       parser: 'typescript',
       printWidth: 100,
       singleQuote: true,
       semi: false,
     })
-    // 8. write to file
+    // 9. write to file
     if (output) {
-      // 8.1 output routes/petstore-index.ts
+      // 9.1 output routes/petstore-index.ts
       const outputDir = path.dirname(output)
-      // 8.2 outputDir routes
+      // 9.2 outputDir routes
       if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true })
       }
     }
-    // 9. write to file
+    // 10. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
     console.log(`Generated code written to ${output}`)
     return true
