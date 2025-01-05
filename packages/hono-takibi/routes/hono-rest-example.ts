@@ -49,15 +49,15 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -82,11 +82,11 @@ export const getPostsRoute = createRoute({
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -108,11 +108,11 @@ export const putPostsIdRoute = createRoute({
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -138,11 +138,11 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })

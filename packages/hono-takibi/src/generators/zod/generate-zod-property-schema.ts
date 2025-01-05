@@ -36,8 +36,11 @@ export function generatePropertySchema(
   if (schema.$ref) {
     const refName = getRefName(schema.$ref)
     if (refName) {
-      const camelCaseRefName = getCamelCaseSchemaName(refName)
-      return getRefName(camelCaseRefName) || 'z.any()'
+      const variableName =
+        namingCase === 'camelCase'
+          ? getCamelCaseSchemaName(refName)
+          : getPascalCaseSchemaName(refName)
+      return getRefName(variableName) || 'z.any()'
     }
   }
   if (schema.type === 'array' && schema.items?.$ref) {
