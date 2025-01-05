@@ -25,7 +25,7 @@ import type { Responses } from '../../../types'
  */
 export function generateResponseSchema(
   responses: Responses,
-  namingCase: 'camelCase' | 'PascalCase',
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
