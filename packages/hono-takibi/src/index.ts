@@ -6,7 +6,8 @@ import path from 'node:path'
 import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import type { OpenAPISpec } from './types'
-import { Config, getConfig } from './config'
+import type { Config } from './config'
+import { getConfig } from './config'
 
 /**
  * CLI entry point for hono-takibi
