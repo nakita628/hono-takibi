@@ -10,7 +10,7 @@
 
   "schemaOptions": {
     "namingCase": "camelCase",
-    "exportEnabled": false
+    "exportEnabled": true
   },
 
   "typeOptions": {
