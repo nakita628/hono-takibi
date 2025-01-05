@@ -7,10 +7,6 @@ const errorResponseSchema = z
   })
   .openapi('ErrorResponse')
 
-export const schemas = {
-  errorResponseSchema,
-}
-
 export const getPublicRoute = createRoute({
   tags: ['Public'],
   method: 'get',
