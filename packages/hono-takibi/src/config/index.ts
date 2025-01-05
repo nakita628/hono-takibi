@@ -17,7 +17,7 @@ type TakibiConfig = {
   }
 }
 
-const defaultConfig: TakibiConfig = {
+export const DEFAULT_CONFIG: TakibiConfig = {
   openapiInput: {
     file: 'openapi.yaml',
   },
@@ -32,9 +32,16 @@ const defaultConfig: TakibiConfig = {
   typeOptions: {
     namingCase: 'camelCase',
   },
-}
+} as const
 
-// 1. load config
-const config = fs.existsSync('hono-takibi.json')
-  ? { ...defaultConfig, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
-  : defaultConfig
+/**
+ * Loads the configuration from the `hono-takibi.json` file or returns the default configuration.
+ *
+ * @returns The configuration object.
+ */
+export function getConfig(): TakibiConfig {
+  const config: TakibiConfig = fs.existsSync('hono-takibi.json')
+    ? { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
+    : DEFAULT_CONFIG
+  return config
+}
