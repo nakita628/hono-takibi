@@ -30,6 +30,7 @@ import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // Early return if no parameters or content
   if (!(parameters || requestBody?.content)) {
@@ -52,7 +53,7 @@ export function generateRequestParameter(
 
     for (const contentType of requestBodyContentTypes) {
       const { schema } = requestBody.content[contentType]
-      const zodSchema = generatePropertySchema(schema)
+      const zodSchema = generatePropertySchema(schema, namingCase)
       uniqueSchemas.set(zodSchema, zodSchema)
     }
 

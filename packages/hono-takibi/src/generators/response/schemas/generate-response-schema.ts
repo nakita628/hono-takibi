@@ -23,7 +23,10 @@ import type { Responses } from '../../../types'
  * - Handles nested schema structures
  * - Automatically resolves schema references
  */
-export function generateResponseSchema(responses: Responses): string {
+export function generateResponseSchema(
+  responses: Responses,
+  namingCase: 'camelCase' | 'PascalCase',
+): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
   // 2. processing for each response code
@@ -40,7 +43,7 @@ export function generateResponseSchema(responses: Responses): string {
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = generatePropertySchema(content.schema)
+        const zodSchema = generatePropertySchema(content.schema, namingCase)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
       return `${code}:{description:'${escapeQuote(response.description)}',content:{${contentParts.join(',')}},},`

@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const errorSchema = z.object({ message: z.string() }).openapi('Error')
+const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const postSchema = z
+const PostSchema = z
   .object({
     id: z.string().uuid(),
     post: z.string().min(1).max(140),
@@ -12,8 +12,8 @@ const postSchema = z
   .openapi('Post')
 
 export const schemas = {
-  errorSchema,
-  postSchema,
+  ErrorSchema,
+  PostSchema,
 }
 
 export const getRoute = createRoute({
@@ -78,7 +78,7 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(postSchema) } },
+      content: { 'application/json': { schema: z.array(PostSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',

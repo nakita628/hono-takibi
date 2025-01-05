@@ -3,6 +3,7 @@ import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'
 import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
+import { getPascalCaseSchemaName } from '../../core/schema/references/get-pascal-case-schema-name'
 // import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
 
 /**
@@ -28,7 +29,10 @@ import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-c
  * generatePropertySchema({ type: 'string' })
  * // Returns: 'z.string()'
  */
-export function generatePropertySchema(schema: Schema): string {
+export function generatePropertySchema(
+  schema: Schema,
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+): string {
   if (schema.$ref) {
     const refName = getRefName(schema.$ref)
     if (refName) {
@@ -39,8 +43,11 @@ export function generatePropertySchema(schema: Schema): string {
   if (schema.type === 'array' && schema.items?.$ref) {
     const refName = getRefName(schema.items.$ref)
     if (refName) {
-      const camelCaseRefName = getCamelCaseSchemaName(refName)
-      return generateZodArray(camelCaseRefName)
+      const variableName =
+        namingCase === 'camelCase'
+          ? getCamelCaseSchemaName(refName)
+          : getPascalCaseSchemaName(refName)
+      return generateZodArray(variableName)
     }
   }
   return generateZodSchema(schema)
