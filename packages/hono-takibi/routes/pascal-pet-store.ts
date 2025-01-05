@@ -1,43 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'node:path'
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { main } from '.'
+import { createRoute, z } from '@hono/zod-openapi'
 
-describe('Hono Takibi', () => {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url))
-  const projectRoot = path.resolve(__dirname, '..')
-  const input = path.join(projectRoot, 'example/pet-store.yaml')
-  const output = path.join(projectRoot, 'routes/petstore.ts')
-
-  beforeEach(() => {
-    // 1. create test directory
-    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
-    // 2. create directory if it does not exist
-    if (!fs.existsSync(`${projectRoot}/routes`)) {
-      fs.mkdirSync(`${projectRoot}/routes`, { recursive: true })
-    }
-    // 3. set as CLI argument
-    process.argv = ['/usr/local/bin/node', `/${projectRoot}/dist/index.js`, input, '-o', output]
-  })
-
-  afterEach(() => {
-    // 1. reset Mock
-    vi.restoreAllMocks()
-    // 2. remove output file if it exists
-    if (fs.existsSync(output)) {
-      fs.rmSync(output, { recursive: true })
-    }
-  })
-
-  // test the normal system
-  it.concurrent('Hono Takibi CLI pet-store.yaml', async () => {
-    await main(true)
-    expect(fs.existsSync('routes/petstore.ts')).toBe(true)
-    const result = fs.readFileSync('routes/petstore.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const orderSchema = z
+const OrderSchema = z
   .object({
     id: z.number().int().openapi({ example: 10 }).optional(),
     petId: z.number().int().openapi({ example: 198772 }).optional(),
@@ -48,7 +11,7 @@ const orderSchema = z
   })
   .openapi('Order')
 
-const addressSchema = z
+const AddressSchema = z
   .object({
     street: z.string().openapi({ example: '437 Lytton' }).optional(),
     city: z.string().openapi({ example: 'Palo Alto' }).optional(),
@@ -57,22 +20,22 @@ const addressSchema = z
   })
   .openapi('Address')
 
-const customerSchema = z
+const CustomerSchema = z
   .object({
     id: z.number().int().openapi({ example: 100000 }).optional(),
     username: z.string().openapi({ example: 'fehguy' }).optional(),
-    address: z.array(addressSchema).optional(),
+    address: z.array(AddressSchema).optional(),
   })
   .openapi('Customer')
 
-const categorySchema = z
+const CategorySchema = z
   .object({
     id: z.number().int().openapi({ example: 1 }).optional(),
     name: z.string().openapi({ example: 'Dogs' }).optional(),
   })
   .openapi('Category')
 
-const userSchema = z
+const UserSchema = z
   .object({
     id: z.number().int().openapi({ example: 10 }).optional(),
     username: z.string().openapi({ example: 'theUser' }).optional(),
@@ -85,22 +48,22 @@ const userSchema = z
   })
   .openapi('User')
 
-const tagSchema = z
+const TagSchema = z
   .object({ id: z.number().int().optional(), name: z.string().optional() })
   .openapi('Tag')
 
-const petSchema = z
+const PetSchema = z
   .object({
     id: z.number().int().openapi({ example: 10 }).optional(),
     name: z.string().openapi({ example: 'doggie' }),
-    category: categorySchema.optional(),
+    category: CategorySchema.optional(),
     photoUrls: z.array(z.string()),
-    tags: z.array(tagSchema).optional(),
+    tags: z.array(TagSchema).optional(),
     status: z.enum(['available', 'pending', 'sold']).optional(),
   })
   .openapi('Pet')
 
-const apiResponseSchema = z
+const ApiResponseSchema = z
   .object({
     code: z.number().int().optional(),
     type: z.string().optional(),
@@ -109,14 +72,14 @@ const apiResponseSchema = z
   .openapi('ApiResponse')
 
 export const schemas = {
-  orderSchema,
-  addressSchema,
-  customerSchema,
-  categorySchema,
-  userSchema,
-  tagSchema,
-  petSchema,
-  apiResponseSchema,
+  OrderSchema,
+  AddressSchema,
+  CustomerSchema,
+  CategorySchema,
+  UserSchema,
+  TagSchema,
+  PetSchema,
+  ApiResponseSchema,
 }
 
 export const putPetRoute = createRoute({
@@ -130,9 +93,9 @@ export const putPetRoute = createRoute({
     body: {
       required: true,
       content: {
-        'application/json': { schema: petSchema },
-        'application/xml': { schema: petSchema },
-        'application/x-www-form-urlencoded': { schema: petSchema },
+        'application/json': { schema: PetSchema },
+        'application/xml': { schema: PetSchema },
+        'application/x-www-form-urlencoded': { schema: PetSchema },
       },
     },
   },
@@ -140,8 +103,8 @@ export const putPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: petSchema },
-        'application/xml': { schema: petSchema },
+        'application/json': { schema: PetSchema },
+        'application/xml': { schema: PetSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -161,9 +124,9 @@ export const postPetRoute = createRoute({
     body: {
       required: true,
       content: {
-        'application/json': { schema: petSchema },
-        'application/xml': { schema: petSchema },
-        'application/x-www-form-urlencoded': { schema: petSchema },
+        'application/json': { schema: PetSchema },
+        'application/xml': { schema: PetSchema },
+        'application/x-www-form-urlencoded': { schema: PetSchema },
       },
     },
   },
@@ -171,8 +134,8 @@ export const postPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: petSchema },
-        'application/xml': { schema: petSchema },
+        'application/json': { schema: PetSchema },
+        'application/xml': { schema: PetSchema },
       },
     },
     400: { description: 'Invalid input' },
@@ -192,8 +155,8 @@ export const getPetFindByStatusRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(petSchema) },
-        'application/xml': { schema: z.array(petSchema) },
+        'application/json': { schema: z.array(PetSchema) },
+        'application/xml': { schema: z.array(PetSchema) },
       },
     },
     400: { description: 'Invalid status value' },
@@ -213,8 +176,8 @@ export const getPetFindByTagsRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(petSchema) },
-        'application/xml': { schema: z.array(petSchema) },
+        'application/json': { schema: z.array(PetSchema) },
+        'application/xml': { schema: z.array(PetSchema) },
       },
     },
     400: { description: 'Invalid tag value' },
@@ -233,8 +196,8 @@ export const getPetPetIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: petSchema },
-        'application/xml': { schema: petSchema },
+        'application/json': { schema: PetSchema },
+        'application/xml': { schema: PetSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -283,7 +246,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: apiResponseSchema } },
+      content: { 'application/json': { schema: ApiResponseSchema } },
     },
   },
 })
@@ -313,16 +276,16 @@ export const postStoreOrderRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: orderSchema },
-        'application/xml': { schema: orderSchema },
-        'application/x-www-form-urlencoded': { schema: orderSchema },
+        'application/json': { schema: OrderSchema },
+        'application/xml': { schema: OrderSchema },
+        'application/x-www-form-urlencoded': { schema: OrderSchema },
       },
     },
   },
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: orderSchema } },
+      content: { 'application/json': { schema: OrderSchema } },
     },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
@@ -341,8 +304,8 @@ export const getStoreOrderOrderIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: orderSchema },
-        'application/xml': { schema: orderSchema },
+        'application/json': { schema: OrderSchema },
+        'application/xml': { schema: OrderSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -374,9 +337,9 @@ export const postUserRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: userSchema },
-        'application/xml': { schema: userSchema },
-        'application/x-www-form-urlencoded': { schema: userSchema },
+        'application/json': { schema: UserSchema },
+        'application/xml': { schema: UserSchema },
+        'application/x-www-form-urlencoded': { schema: UserSchema },
       },
     },
   },
@@ -384,8 +347,8 @@ export const postUserRoute = createRoute({
     default: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: userSchema },
-        'application/xml': { schema: userSchema },
+        'application/json': { schema: UserSchema },
+        'application/xml': { schema: UserSchema },
       },
     },
   },
@@ -398,14 +361,14 @@ export const postUserCreateWithListRoute = createRoute({
   summary: 'Creates list of users with given input array',
   description: 'Creates list of users with given input array',
   request: {
-    body: { required: false, content: { 'application/json': { schema: z.array(userSchema) } } },
+    body: { required: false, content: { 'application/json': { schema: z.array(UserSchema) } } },
   },
   responses: {
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: userSchema },
-        'application/xml': { schema: userSchema },
+        'application/json': { schema: UserSchema },
+        'application/xml': { schema: UserSchema },
       },
     },
     default: { description: 'successful operation' },
@@ -450,8 +413,8 @@ export const getUserUsernameRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: userSchema },
-        'application/xml': { schema: userSchema },
+        'application/json': { schema: UserSchema },
+        'application/xml': { schema: UserSchema },
       },
     },
     400: { description: 'Invalid username supplied' },
@@ -469,9 +432,9 @@ export const putUserUsernameRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: userSchema },
-        'application/xml': { schema: userSchema },
-        'application/x-www-form-urlencoded': { schema: userSchema },
+        'application/json': { schema: UserSchema },
+        'application/xml': { schema: UserSchema },
+        'application/x-www-form-urlencoded': { schema: UserSchema },
       },
     },
     params: z.object({ username: z.string() }),
@@ -490,211 +453,4 @@ export const deleteUserUsernameRoute = createRoute({
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },
   },
-})
-`
-
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('Hono Takibi CLI hoon-rest-example.yaml', async () => {
-    await main(true)
-    expect(fs.existsSync('routes/hono-rest-example.ts')).toBe(true)
-    const result = fs.readFileSync('routes/hono-rest-example.ts', { encoding: 'utf-8' })
-    expect(fs.existsSync(output)).toBe(true)
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const errorSchema = z.object({ message: z.string() }).openapi('Error')
-
-const postSchema = z
-  .object({
-    id: z.string().uuid(),
-    post: z.string().min(1).max(140),
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
-  })
-  .openapi('Post')
-
-export const schemas = {
-  errorSchema,
-  postSchema,
-}
-
-export const getRoute = createRoute({
-  tags: ['Hono'],
-  method: 'get',
-  path: '/',
-  summary: 'Welcome message',
-  description: 'Retrieve a simple welcome message from the Hono API.',
-  responses: {
-    200: {
-      description: 'Successful response with a welcome message.',
-      content: {
-        'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'Hono🔥' }) }),
-        },
-      },
-    },
-  },
-})
-
-export const postPostsRoute = createRoute({
-  tags: ['Post'],
-  method: 'post',
-  path: '/posts',
-  summary: 'Create a new post',
-  description: 'Submit a new post with a maximum length of 140 characters.',
-  request: {
-    body: {
-      required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
-    },
-  },
-  responses: {
-    201: {
-      description: 'Post successfully created.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-    400: {
-      description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-  },
-})
-
-export const getPostsRoute = createRoute({
-  tags: ['Post'],
-  method: 'get',
-  path: '/posts',
-  summary: 'Retrieve a list of posts',
-  description:
-    'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
-  request: {
-    query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
-    }),
-  },
-  responses: {
-    200: {
-      description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(postSchema) } },
-    },
-    400: {
-      description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-  },
-})
-
-export const putPostsIdRoute = createRoute({
-  tags: ['Post'],
-  method: 'put',
-  path: '/posts/{id}',
-  summary: 'Update an existing post',
-  description: 'Update the content of an existing post identified by its unique ID.',
-  request: {
-    body: {
-      required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
-    },
-    params: z.object({ id: z.string().uuid() }),
-  },
-  responses: {
-    204: { description: 'Post successfully updated.' },
-    400: {
-      description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-  },
-})
-
-export const deletePostsIdRoute = createRoute({
-  tags: ['Post'],
-  method: 'delete',
-  path: '/posts/{id}',
-  summary: 'Delete a post',
-  description: 'Delete an existing post identified by its unique ID.',
-  request: {
-    params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: { name: 'id', in: 'path' },
-          example: '123e4567-e89b-12d3-a456-426614174000',
-        }),
-    }),
-  },
-  responses: {
-    204: { description: 'Post successfully deleted.' },
-    400: {
-      description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
-    },
-  },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // test failed yaml
-  it.concurrent('failed yaml', async () => {
-    // 1. set a failed yaml file
-    const failedYaml = path.join(projectRoot, 'example/failed.yaml')
-    // 2. set as CLI argument
-    process.argv[2] = failedYaml
-    // 3. spy on console.error
-    const consoleError = vi.spyOn(console, 'error')
-    try {
-      await main(true)
-    } catch (e) {
-      expect(e.message).toBe(
-        `Cannot destructure property 'schemas' of 'components' as it is undefined.`,
-      )
-      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
-    }
-  })
-
-  // test for missing arguments
-  it('should handle missing arguments', async () => {
-    process.argv = ['/usr/local/bin/node', 'test']
-    const consoleError = vi.spyOn(console, 'error')
-    try {
-      await main(true)
-    } catch (e) {
-      expect(e.message).toBe('Expected a file path, URL, or object. Got undefined')
-      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
-    }
-  })
-
-  // testing for error systems
-  it.concurrent('should handle invalid input file path', async () => {
-    // 1. set a nonexistent file path
-    const nonExistentFile = path.join(projectRoot, 'test.yaml')
-    // 2. set as CLI argument
-    process.argv[2] = nonExistentFile
-    // 3. spy on console.error
-    const consoleError = vi.spyOn(console, 'error')
-    try {
-      await main(true)
-    } catch (e) {
-      expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
-    }
-  })
 })

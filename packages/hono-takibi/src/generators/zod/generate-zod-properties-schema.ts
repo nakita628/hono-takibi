@@ -52,12 +52,14 @@ import { generatePropertySchema } from './generate-zod-property-schema'
 export function generateZodPropertiesSchema(
   properties: Record<string, Schema>,
   required: string[],
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
-    const propertySchema = generatePropertySchema(schema)
+    const propertySchema = generatePropertySchema(schema, namingCase)
     return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
   // Maybe you don't need to use .partial().
   return `z.object({${objectProperties}})${required ? '' : '.partial()'}`
+  // return `z.object({${objectProperties}})${required.length === 0 ? '.partial()' : ''}`
 }

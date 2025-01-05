@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { generatePropertySchema } from './generate-zod-property-schema'
 import type { Schema } from '../../types'
 
-const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = [
+const generatePropertySchemaTestCases: {
+  schema: Schema
+  namingCase?: 'camelCase' | 'PascalCase'
+  expected: string
+}[] = [
   {
     schema: {
       $ref: '#/components/schemas/User',
@@ -103,13 +107,31 @@ const generatePropertySchemaTestCases: { schema: Schema; expected: string }[] = 
     schema: { type: 'string', format: 'uuid', example: '123e4567-e89b-12d3-a456-426614174000' },
     expected: 'z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"})',
   },
+  // PascalCase
+  {
+    schema: {
+      $ref: '#/components/schemas/User',
+    },
+    namingCase: 'PascalCase',
+    expected: 'UserSchema',
+  },
+  {
+    schema: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/Post',
+      },
+    },
+    namingCase: 'PascalCase',
+    expected: 'z.array(PostSchema)',
+  },
 ]
 
 describe('generatePropertySchema', () => {
   it.concurrent.each(generatePropertySchemaTestCases)(
-    'generatePropertySchema($schema) -> $expected',
-    ({ schema, expected }) => {
-      const result = generatePropertySchema(schema)
+    'generatePropertySchema($schema, $namingCase) -> $expected',
+    ({ schema, namingCase, expected }) => {
+      const result = generatePropertySchema(schema, namingCase)
       expect(result).toBe(expected)
     },
   )

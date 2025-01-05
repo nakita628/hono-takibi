@@ -28,11 +28,16 @@ import { escapeQuote } from '../../../core/text/escape-quote'
  * - Integrates with Hono's createRoute function
  */
 
-export function generateRoute(path: string, method: string, operation: Operation): string {
+export function generateRoute(
+  path: string,
+  method: string,
+  operation: Operation,
+  namingCase: 'camelCase' | 'PascalCase',
+): string {
   const { tags, summary, description, security, parameters, requestBody, responses } = operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = generateRequestParameter(parameters, requestBody)
+  const requestParams = generateRequestParameter(parameters, requestBody, namingCase)
 
   const create_args = {
     routeName,
@@ -43,7 +48,7 @@ export function generateRoute(path: string, method: string, operation: Operation
     descriptionCode: description ? `description:'${escapeQuote(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
-    responsesCode: responses ? `responses:{${generateResponseSchema(responses)}}` : '',
+    responsesCode: responses ? `responses:{${generateResponseSchema(responses, namingCase)}}` : '',
   }
   return generateCreateRoute(create_args)
 }

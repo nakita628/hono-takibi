@@ -6,6 +6,7 @@ import path from 'node:path'
 import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import type { OpenAPISpec } from './types'
+import { getConfig } from './config'
 
 /**
  * CLI entry point for hono-takibi
@@ -26,6 +27,9 @@ import type { OpenAPISpec } from './types'
  * ```
  */
 export async function main(dev = false) {
+  const config = getConfig()
+  console.log('config', config)
+
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)
@@ -37,7 +41,7 @@ export async function main(dev = false) {
     // 5. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
     // 6. generate Hono code
-    const hono = generateZodOpenAPIHono(openAPI)
+    const hono = generateZodOpenAPIHono(openAPI, config.schemaOptions.namingCase)
     // 7. format code
     const formattedCode = await format(hono, {
       parser: 'typescript',

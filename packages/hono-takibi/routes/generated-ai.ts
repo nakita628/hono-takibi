@@ -1,9 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const errorResponseSchema = z.object({
-  code: z.number().int().openapi({ example: 401 }),
-  message: z.string().openapi({ example: 'Invalid or missing token.' }),
-})
+const errorResponseSchema = z
+  .object({
+    code: z.number().int().openapi({ example: 401 }),
+    message: z.string().openapi({ example: 'Invalid or missing token.' }),
+  })
+  .openapi('ErrorResponse')
 
 export const schemas = {
   errorResponseSchema,
