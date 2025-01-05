@@ -108,17 +108,6 @@ const apiResponseSchema = z
   })
   .openapi('ApiResponse')
 
-export const schemas = {
-  orderSchema,
-  addressSchema,
-  customerSchema,
-  categorySchema,
-  userSchema,
-  tagSchema,
-  petSchema,
-  apiResponseSchema,
-}
-
 export const putPetRoute = createRoute({
   tags: ['pet'],
   method: 'put',
@@ -514,11 +503,6 @@ const postSchema = z
   })
   .openapi('Post')
 
-export const schemas = {
-  errorSchema,
-  postSchema,
-}
-
 export const getRoute = createRoute({
   tags: ['Hono'],
   method: 'get',
@@ -652,6 +636,13 @@ export const deletePostsIdRoute = createRoute({
 `
     expect(result).toBe(expected)
   })
+
+  // it.concurrent('Hono Takibi CLI hoon-rest-example.yaml', async () => {
+  //   await main(true)
+  //   expect(fs.existsSync('routes/type-hono-rest-example.ts')).toBe(true)
+  //   const result = fs.readFileSync('routes/type-hono-rest-example.ts', { encoding: 'utf-8' })
+  //   expect(fs.existsSync(output)).toBe(true)
+  // })
 
   // test failed yaml
   it.concurrent('failed yaml', async () => {

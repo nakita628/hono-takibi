@@ -6,7 +6,7 @@ import path from 'node:path'
 import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import type { OpenAPISpec } from './types'
-import { getConfig } from './config'
+import { Config, getConfig } from './config'
 
 /**
  * CLI entry point for hono-takibi
@@ -26,8 +26,7 @@ import { getConfig } from './config'
  * npx hono-takibi openapi.yaml -o routes.ts
  * ```
  */
-export async function main(dev = false) {
-  const config = getConfig()
+export async function main(dev = false, config: Config = getConfig()) {
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)
