@@ -2,15 +2,38 @@ import { describe, expect, it } from 'vitest'
 import { petStoreOpenAPI } from '../../data/pet-store-openapi'
 import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
 import type { OpenAPISpec } from '../../types'
+import type { Config } from '../../config'
+
+const camelCaseConfig: Config = {
+  schemaOptions: {
+    namingCase: 'camelCase',
+    exportEnabled: true,
+  },
+  typeOptions: {
+    namingCase: 'camelCase',
+    exportEnabled: false,
+  },
+}
+
+const pascalCaseConfig: Config = {
+  schemaOptions: {
+    namingCase: 'PascalCase',
+    exportEnabled: false,
+  },
+  typeOptions: {
+    namingCase: 'PascalCase',
+    exportEnabled: false,
+  },
+}
 
 const generateZodOpenAPIHonoTestCases: {
   openAPISpec: OpenAPISpec
-  namingCase: 'camelCase' | 'PascalCase'
+  config: Config
   expected: string
 }[] = [
   {
     openAPISpec: petStoreOpenAPI,
-    namingCase: 'camelCase',
+    config: camelCaseConfig,
     expected: `import { createRoute, z } from '@hono/zod-openapi';
 
 const orderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()}).openapi('Order')
@@ -81,7 +104,7 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   // PascalCase
   {
     openAPISpec: petStoreOpenAPI,
-    namingCase: 'PascalCase',
+    config: pascalCaseConfig,
     expected: `import { createRoute, z } from '@hono/zod-openapi';
 
 const OrderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()}).openapi('Order')
@@ -99,17 +122,6 @@ const TagSchema = z.object({id:z.number().int().optional(),name:z.string().optio
 const PetSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:CategorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
 const ApiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
-
-export const schemas = {
-OrderSchema,
-AddressSchema,
-CustomerSchema,
-CategorySchema,
-UserSchema,
-TagSchema,
-PetSchema,
-ApiResponseSchema
-}
 
 export const putPetRoute=createRoute({tags:["pet"],method:'put',path:'/pet',summary:'Update an existing pet',description:'Update an existing pet by Id',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema},'application/x-www-form-urlencoded':{schema:PetSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Pet not found',},422:{description:'Validation exception',},}})
 
@@ -153,9 +165,9 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
 
 describe('generateZodOpenAPIHono', () => {
   it.concurrent.each(generateZodOpenAPIHonoTestCases)(
-    'generateZodOpenAPIHono($openAPISpec, $namingCase) -> $expected',
-    async ({ openAPISpec, namingCase, expected }) => {
-      const result = generateZodOpenAPIHono(openAPISpec, namingCase)
+    'generateZodOpenAPIHono($openAPISpec, $config) -> $expected',
+    async ({ openAPISpec, config, expected }) => {
+      const result = generateZodOpenAPIHono(openAPISpec, config)
       expect(result).toBe(expected)
     },
   )

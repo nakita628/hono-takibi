@@ -16,10 +16,6 @@ const dataSetListSchema = z
   })
   .openapi('dataSetList')
 
-export const schemas = {
-  dataSetListSchema,
-}
-
 export const getRoute = createRoute({
   tags: ['metadata'],
   method: 'get',

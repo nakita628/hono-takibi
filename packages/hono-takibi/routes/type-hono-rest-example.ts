@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const errorSchema = z.object({ message: z.string() }).openapi('Error')
+const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const postSchema = z
+const PostSchema = z
   .object({
     id: z.string().uuid(),
     post: z.string().min(1).max(140),
@@ -10,6 +10,15 @@ const postSchema = z
     updatedAt: z.string().datetime(),
   })
   .openapi('Post')
+
+export const schemas = {
+  ErrorSchema,
+  PostSchema,
+}
+
+export type Error = z.infer<typeof ErrorSchema>
+
+export type Post = z.infer<typeof PostSchema>
 
 export const getRoute = createRoute({
   tags: ['Hono'],
@@ -44,15 +53,15 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -73,15 +82,15 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(postSchema) } },
+      content: { 'application/json': { schema: z.array(PostSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -103,11 +112,11 @@ export const putPostsIdRoute = createRoute({
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -133,11 +142,11 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
