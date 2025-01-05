@@ -76,7 +76,7 @@ export async function main(dev = false) {
     // 6. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
     // 7. generate Hono code
-    const hono = generateZodOpenAPIHono(openAPI)
+    const hono = generateZodOpenAPIHono(openAPI, config.schemaOptions.namingCase)
     // 8. format code
     const formattedCode = await format(hono, {
       parser: 'typescript',
