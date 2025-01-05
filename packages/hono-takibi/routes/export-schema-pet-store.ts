@@ -71,6 +71,17 @@ const ApiResponseSchema = z
   })
   .openapi('ApiResponse')
 
+export const schemas = {
+  OrderSchema,
+  AddressSchema,
+  CustomerSchema,
+  CategorySchema,
+  UserSchema,
+  TagSchema,
+  PetSchema,
+  ApiResponseSchema,
+}
+
 export const putPetRoute = createRoute({
   tags: ['pet'],
   method: 'put',

@@ -71,6 +71,33 @@ const ApiResponseSchema = z
   })
   .openapi('ApiResponse')
 
+export const schemas = {
+  OrderSchema,
+  AddressSchema,
+  CustomerSchema,
+  CategorySchema,
+  UserSchema,
+  TagSchema,
+  PetSchema,
+  ApiResponseSchema,
+}
+
+export type Order = z.infer<typeof OrderSchema>
+
+export type Address = z.infer<typeof AddressSchema>
+
+export type Customer = z.infer<typeof CustomerSchema>
+
+export type Category = z.infer<typeof CategorySchema>
+
+export type User = z.infer<typeof UserSchema>
+
+export type Tag = z.infer<typeof TagSchema>
+
+export type Pet = z.infer<typeof PetSchema>
+
+export type ApiResponse = z.infer<typeof ApiResponseSchema>
+
 export const putPetRoute = createRoute({
   tags: ['pet'],
   method: 'put',
