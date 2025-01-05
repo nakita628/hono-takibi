@@ -40,6 +40,7 @@ export function generatePropertySchema(
         namingCase === 'camelCase'
           ? getCamelCaseSchemaName(refName)
           : getPascalCaseSchemaName(refName)
+      // return getRefName(variableName) || 'z.any()'
       return variableName || 'z.any()'
     }
   }
@@ -53,5 +54,5 @@ export function generatePropertySchema(
       return generateZodArray(variableName)
     }
   }
-  return generateZodSchema(schema)
+  return generateZodSchema(schema, undefined, undefined, namingCase)
 }

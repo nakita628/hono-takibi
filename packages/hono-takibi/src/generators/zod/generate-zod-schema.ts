@@ -86,87 +86,76 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function generateZodSchema(schema: Schema, paramName?: string, isPath?: boolean): string {
-  const {
-    type,
-    format,
-    pattern,
-    minLength,
-    maxLength,
-    minimum,
-    maximum,
-    default: defaultValue, // reserved word
-    example,
-    properties,
-    required = [],
-    items,
-    enum: enumValues,
-    additionalProperties,
-  } = schema
-
+export function generateZodSchema(
+  schema: Schema,
+  paramName?: string,
+  isPath?: boolean,
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+): string {
   // enum
-  if (enumValues) {
-    if (example) {
-      return `z.enum(${JSON.stringify(enumValues)}).openapi({example:${JSON.stringify(example)}})`
+  if (schema.enum) {
+    if (schema.example) {
+      return `z.enum(${JSON.stringify(schema.enum)}).openapi({example:${JSON.stringify(schema.example)}})`
     }
-    return `z.enum(${JSON.stringify(enumValues)})`
+    return `z.enum(${JSON.stringify(schema.enum)})`
   }
 
   // object
-  if (type === 'object') {
-    if (additionalProperties) return generateZodRecordSchema(additionalProperties)
-    if (!properties) return 'z.object({})'
-    return generateZodPropertiesSchema(properties, required)
+  if (schema.type === 'object') {
+    if (schema.additionalProperties) return generateZodRecordSchema(schema.additionalProperties)
+    if (!schema.properties) return 'z.object({})'
+    return generateZodPropertiesSchema(schema.properties, schema.required || [], namingCase)
   }
 
   // string
-  if (type === 'string') {
+  if (schema.type === 'string') {
     return generateZodStringSchema({
-      pattern,
-      minLength,
-      maxLength,
-      format: format && isFormatString(format) ? format : undefined,
-      default: defaultValue,
-      example,
+      pattern: schema.pattern,
+      minLength: schema.minLength,
+      maxLength: schema.maxLength,
+      format: schema.format && isFormatString(schema.format) ? schema.format : undefined,
+      default: schema.default,
+      example: schema.example,
       paramName,
       isPath,
     })
   }
 
   // number
-  if (type === 'number') {
+  if (schema.type === 'number') {
     return generateZodNumberSchema({
-      pattern,
-      minLength,
-      maxLength,
-      minimum,
-      maximum,
-      default: defaultValue,
-      example,
+      pattern: schema.pattern,
+      minLength: schema.minLength,
+      maxLength: schema.maxLength,
+      minimum: schema.minimum,
+      maximum: schema.maximum,
+      default: schema.default,
+      example: schema.example,
       paramName,
       isPath,
     })
   }
 
   // integer
-  if (type === 'integer') {
+  if (schema.type === 'integer') {
     return generateZodIntegerSchema({
-      minLength,
-      maxLength,
-      minimum,
-      maximum,
-      default: defaultValue,
-      example,
+      minLength: schema.minLength,
+      maxLength: schema.maxLength,
+      minimum: schema.minimum,
+      maximum: schema.maximum,
+      default: schema.default,
+      example: schema.example,
       paramName,
       isPath,
     })
   }
 
   // array
-  if (type === 'array' && items) return generateZodArray(generateZodSchema(items))
+  if (schema.type === 'array' && schema.items)
+    return generateZodArray(generateZodSchema(schema.items, undefined, undefined, namingCase))
 
   // fallback
-  if (type) return TYPE_TO_ZOD_SCHEMA[type]
-  console.warn(`Unknown type: ${type}, falling back to z.any()`)
+  if (schema.type) return TYPE_TO_ZOD_SCHEMA[schema.type]
+  console.warn(`Unknown type: ${schema.type}, falling back to z.any()`)
   return 'z.any()'
 }

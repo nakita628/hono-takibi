@@ -46,7 +46,7 @@ export function generateComponentsCode(
           : getPascalCaseSchemaName(schemaName)
 
       // 4.3 generate zod schema
-      const zodSchema = generateZodSchema(schema)
+      const zodSchema = generateZodSchema(schema, undefined, undefined, namingCase)
       // 4.4 generate zod schema definition
       return generateZodSchemaDefinition(variableName, zodSchema, schemaName)
     })

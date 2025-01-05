@@ -15,14 +15,17 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
  */
-export function generateParamsObject(parameters: Parameters[]): ParamsObject {
+export function generateParamsObject(
+  parameters: Parameters[],
+  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     // path params are generated with the param name
     const baseSchema =
       param.in === 'path'
-        ? generateZodSchema(param.schema, param.name, true)
-        : generateZodSchema(param.schema)
+        ? generateZodSchema(param.schema, param.name, true, namingCase)
+        : generateZodSchema(param.schema, namingCase)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {

@@ -290,7 +290,7 @@ const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(
 
 const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
 
-const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
+const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
 const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
 

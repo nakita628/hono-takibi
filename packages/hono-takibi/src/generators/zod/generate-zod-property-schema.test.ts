@@ -132,6 +132,15 @@ describe('generatePropertySchema', () => {
     'generatePropertySchema($schema, $namingCase) -> $expected',
     ({ schema, namingCase, expected }) => {
       const result = generatePropertySchema(schema, namingCase)
+
+      console.log('--------------------------------')
+      console.log('schema')
+      console.log(schema)
+      console.log('result')
+      console.log(result)
+      console.log('expected')
+      console.log(expected)
+      console.log('--------------------------------')
       expect(result).toBe(expected)
     },
   )

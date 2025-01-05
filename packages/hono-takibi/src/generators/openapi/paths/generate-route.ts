@@ -37,7 +37,7 @@ export function generateRoute(
   const { tags, summary, description, security, parameters, requestBody, responses } = operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = generateRequestParameter(parameters, requestBody)
+  const requestParams = generateRequestParameter(parameters, requestBody, namingCase)
 
   const create_args = {
     routeName,
