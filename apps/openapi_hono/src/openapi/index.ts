@@ -11,11 +11,6 @@ const postSchema = z
   })
   .openapi('Post')
 
-export const schemas = {
-  errorSchema,
-  postSchema,
-}
-
 export const getRoute = createRoute({
   tags: ['Hono'],
   method: 'get',
