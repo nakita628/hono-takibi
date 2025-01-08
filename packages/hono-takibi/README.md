@@ -10,7 +10,7 @@ npm add -D hono-takibi
 
 ## Configuration
 
-You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root:
+You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
 
 
 ### Schema Options
@@ -488,12 +488,7 @@ We welcome feedback and contributions to improve the tool!
 
 ### Current Limitations
 
-1. **Schema Naming Convention**
-   - Only generates camelCase schema names
-   - Example: `Post` in OpenAPI becomes `postSchema` in generated code
-   - No support for custom naming conventions yet
-
-2. **OpenAPI Support**
+  **OpenAPI Support**
    - Not all OpenAPI features are supported
    - Complex schemas might not convert correctly
    - Limited support for certain response types
