@@ -279,21 +279,21 @@ const generateComponentsCodeTestCases: {
       },
       // memo securitySchemes need?
     },
-    expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()}).openapi('Order')
+    expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
-const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()}).openapi('Address')
+const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
 
-const customerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()}).openapi('Customer')
+const customerSchema = z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial().openapi('Customer')
 
-const categorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()}).openapi('Category')
+const categorySchema = z.object({id:z.number().int().openapi({example:1}),name:z.string().openapi({example:"Dogs"})}).partial().openapi('Category')
 
-const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()}).openapi('User')
+const userSchema = z.object({id:z.number().int().openapi({example:10}),username:z.string().openapi({example:"theUser"}),firstName:z.string().openapi({example:"John"}),lastName:z.string().openapi({example:"James"}),email:z.string().openapi({example:"john@email.com"}),password:z.string().openapi({example:"12345"}),phone:z.string().openapi({example:"12345"}),userStatus:z.number().int().openapi({example:1})}).partial().openapi('User')
 
-const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
+const tagSchema = z.object({id:z.number().int(),name:z.string()}).partial().openapi('Tag')
 
 const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
-const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
+const apiResponseSchema = z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial().openapi('ApiResponse')
 
 export const schemas = {
 orderSchema,
@@ -784,21 +784,21 @@ userSchema
       // memo securitySchemes need?
     },
     namingCase: 'PascalCase',
-    expected: `const OrderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()}).openapi('Order')
+    expected: `const OrderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
-const AddressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()}).openapi('Address')
+const AddressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
 
-const CustomerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(AddressSchema).optional()}).openapi('Customer')
+const CustomerSchema = z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(AddressSchema)}).partial().openapi('Customer')
 
-const CategorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()}).openapi('Category')
+const CategorySchema = z.object({id:z.number().int().openapi({example:1}),name:z.string().openapi({example:"Dogs"})}).partial().openapi('Category')
 
-const UserSchema = z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()}).openapi('User')
+const UserSchema = z.object({id:z.number().int().openapi({example:10}),username:z.string().openapi({example:"theUser"}),firstName:z.string().openapi({example:"John"}),lastName:z.string().openapi({example:"James"}),email:z.string().openapi({example:"john@email.com"}),password:z.string().openapi({example:"12345"}),phone:z.string().openapi({example:"12345"}),userStatus:z.number().int().openapi({example:1})}).partial().openapi('User')
 
-const TagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
+const TagSchema = z.object({id:z.number().int(),name:z.string()}).partial().openapi('Tag')
 
 const PetSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:CategorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
-const ApiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')
+const ApiResponseSchema = z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial().openapi('ApiResponse')
 
 export const schemas = {
 OrderSchema,
@@ -1261,21 +1261,21 @@ UserSchema
       // memo securitySchemes need?
     },
     exportEnabled: false,
-    expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()}).openapi('Order')
+    expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
-const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()}).openapi('Address')
+const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
 
-const customerSchema = z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()}).openapi('Customer')
+const customerSchema = z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial().openapi('Customer')
 
-const categorySchema = z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()}).openapi('Category')
+const categorySchema = z.object({id:z.number().int().openapi({example:1}),name:z.string().openapi({example:"Dogs"})}).partial().openapi('Category')
 
-const userSchema = z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()}).openapi('User')
+const userSchema = z.object({id:z.number().int().openapi({example:10}),username:z.string().openapi({example:"theUser"}),firstName:z.string().openapi({example:"John"}),lastName:z.string().openapi({example:"James"}),email:z.string().openapi({example:"john@email.com"}),password:z.string().openapi({example:"12345"}),phone:z.string().openapi({example:"12345"}),userStatus:z.number().int().openapi({example:1})}).partial().openapi('User')
 
-const tagSchema = z.object({id:z.number().int().optional(),name:z.string().optional()}).openapi('Tag')
+const tagSchema = z.object({id:z.number().int(),name:z.string()}).partial().openapi('Tag')
 
 const petSchema = z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()}).openapi('Pet')
 
-const apiResponseSchema = z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()}).openapi('ApiResponse')`,
+const apiResponseSchema = z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial().openapi('ApiResponse')`,
   },
 ]
 

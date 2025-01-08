@@ -59,7 +59,14 @@ export function generateZodPropertiesSchema(
     const propertySchema = generatePropertySchema(schema, namingCase)
     return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
-  // Maybe you don't need to use .partial().
-  return `z.object({${objectProperties}})${required ? '' : '.partial()'}`
+
+  const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))
+
+  if (required.length === 0 && allOptional) {
+    const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))
+    return `z.object({${cleanProperties}}).partial()`
+  }
+
+  return `z.object({${objectProperties}})`
   // return `z.object({${objectProperties}})${required.length === 0 ? '.partial()' : ''}`
 }
