@@ -23,7 +23,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()})',
+      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
   {
     properties: {
@@ -41,7 +41,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:10}).optional(),petId:z.number().int().openapi({example:198772}).optional(),quantity:z.number().int().openapi({example:7}).optional(),shipDate:z.string().datetime().optional(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}).optional(),complete:z.boolean().optional()})',
+      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
   {
     properties: {
@@ -52,7 +52,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({street:z.string().openapi({example:"437 Lytton"}).optional(),city:z.string().openapi({example:"Palo Alto"}).optional(),state:z.string().openapi({example:"CA"}).optional(),zip:z.string().openapi({example:"94301"}).optional()})',
+      'z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial()',
   },
 
   {
@@ -67,7 +67,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:100000}).optional(),username:z.string().openapi({example:"fehguy"}).optional(),address:z.array(addressSchema).optional()})',
+      'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial()',
   },
   {
     properties: {
@@ -76,7 +76,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:1}).optional(),name:z.string().openapi({example:"Dogs"}).optional()})',
+      'z.object({id:z.number().int().openapi({example:1}),name:z.string().openapi({example:"Dogs"})}).partial()',
   },
 
   {
@@ -97,7 +97,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:10}).optional(),username:z.string().openapi({example:"theUser"}).optional(),firstName:z.string().openapi({example:"John"}).optional(),lastName:z.string().openapi({example:"James"}).optional(),email:z.string().openapi({example:"john@email.com"}).optional(),password:z.string().openapi({example:"12345"}).optional(),phone:z.string().openapi({example:"12345"}).optional(),userStatus:z.number().int().openapi({example:1}).optional()})',
+      'z.object({id:z.number().int().openapi({example:10}),username:z.string().openapi({example:"theUser"}),firstName:z.string().openapi({example:"John"}),lastName:z.string().openapi({example:"James"}),email:z.string().openapi({example:"john@email.com"}),password:z.string().openapi({example:"12345"}),phone:z.string().openapi({example:"12345"}),userStatus:z.number().int().openapi({example:1})}).partial()',
   },
   {
     properties: {
@@ -136,8 +136,7 @@ const generateZodPropertiesSchemaTestCases: {
       message: { type: 'string' },
     },
     required: [],
-    expected:
-      'z.object({code:z.number().int().optional(),type:z.string().optional(),message:z.string().optional()})',
+    expected: 'z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial()',
   },
 ]
 

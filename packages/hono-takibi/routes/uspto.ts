@@ -2,18 +2,19 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const dataSetListSchema = z
   .object({
-    total: z.number().int().optional(),
-    apis: z
-      .array(
-        z.object({
-          apiKey: z.string().optional(),
-          apiVersionNumber: z.string().optional(),
-          apiUrl: z.string().optional(),
-          apiDocumentationUrl: z.string().optional(),
-        }),
-      )
-      .optional(),
+    total: z.number().int(),
+    apis: z.array(
+      z
+        .object({
+          apiKey: z.string(),
+          apiVersionNumber: z.string(),
+          apiUrl: z.string(),
+          apiDocumentationUrl: z.string(),
+        })
+        .partial(),
+    ),
   })
+  .partial()
   .openapi('dataSetList')
 
 export const getRoute = createRoute({

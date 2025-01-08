@@ -1,74 +1,74 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const OrderSchema = z
+const orderSchema = z
   .object({
-    id: z.number().int().openapi({ example: 10 }).optional(),
-    petId: z.number().int().openapi({ example: 198772 }).optional(),
-    quantity: z.number().int().openapi({ example: 7 }).optional(),
-    shipDate: z.string().datetime().optional(),
-    status: z.enum(['placed', 'approved', 'delivered']).openapi({ example: 'approved' }).optional(),
-    complete: z.boolean().optional(),
+    id: z.number().int().openapi({ example: 10 }),
+    petId: z.number().int().openapi({ example: 198772 }),
+    quantity: z.number().int().openapi({ example: 7 }),
+    shipDate: z.string().datetime(),
+    status: z.enum(['placed', 'approved', 'delivered']).openapi({ example: 'approved' }),
+    complete: z.boolean(),
   })
+  .partial()
   .openapi('Order')
 
-const AddressSchema = z
+const addressSchema = z
   .object({
-    street: z.string().openapi({ example: '437 Lytton' }).optional(),
-    city: z.string().openapi({ example: 'Palo Alto' }).optional(),
-    state: z.string().openapi({ example: 'CA' }).optional(),
-    zip: z.string().openapi({ example: '94301' }).optional(),
+    street: z.string().openapi({ example: '437 Lytton' }),
+    city: z.string().openapi({ example: 'Palo Alto' }),
+    state: z.string().openapi({ example: 'CA' }),
+    zip: z.string().openapi({ example: '94301' }),
   })
+  .partial()
   .openapi('Address')
 
-const CustomerSchema = z
+const customerSchema = z
   .object({
-    id: z.number().int().openapi({ example: 100000 }).optional(),
-    username: z.string().openapi({ example: 'fehguy' }).optional(),
-    address: z.array(AddressSchema).optional(),
+    id: z.number().int().openapi({ example: 100000 }),
+    username: z.string().openapi({ example: 'fehguy' }),
+    address: z.array(addressSchema),
   })
+  .partial()
   .openapi('Customer')
 
-const CategorySchema = z
+const categorySchema = z
   .object({
-    id: z.number().int().openapi({ example: 1 }).optional(),
-    name: z.string().openapi({ example: 'Dogs' }).optional(),
+    id: z.number().int().openapi({ example: 1 }),
+    name: z.string().openapi({ example: 'Dogs' }),
   })
+  .partial()
   .openapi('Category')
 
-const UserSchema = z
+const userSchema = z
   .object({
-    id: z.number().int().openapi({ example: 10 }).optional(),
-    username: z.string().openapi({ example: 'theUser' }).optional(),
-    firstName: z.string().openapi({ example: 'John' }).optional(),
-    lastName: z.string().openapi({ example: 'James' }).optional(),
-    email: z.string().openapi({ example: 'john@email.com' }).optional(),
-    password: z.string().openapi({ example: '12345' }).optional(),
-    phone: z.string().openapi({ example: '12345' }).optional(),
-    userStatus: z.number().int().openapi({ example: 1 }).optional(),
+    id: z.number().int().openapi({ example: 10 }),
+    username: z.string().openapi({ example: 'theUser' }),
+    firstName: z.string().openapi({ example: 'John' }),
+    lastName: z.string().openapi({ example: 'James' }),
+    email: z.string().openapi({ example: 'john@email.com' }),
+    password: z.string().openapi({ example: '12345' }),
+    phone: z.string().openapi({ example: '12345' }),
+    userStatus: z.number().int().openapi({ example: 1 }),
   })
+  .partial()
   .openapi('User')
 
-const TagSchema = z
-  .object({ id: z.number().int().optional(), name: z.string().optional() })
-  .openapi('Tag')
+const tagSchema = z.object({ id: z.number().int(), name: z.string() }).partial().openapi('Tag')
 
-const PetSchema = z
+const petSchema = z
   .object({
     id: z.number().int().openapi({ example: 10 }).optional(),
     name: z.string().openapi({ example: 'doggie' }),
-    category: CategorySchema.optional(),
+    category: categorySchema.optional(),
     photoUrls: z.array(z.string()),
-    tags: z.array(TagSchema).optional(),
+    tags: z.array(tagSchema).optional(),
     status: z.enum(['available', 'pending', 'sold']).optional(),
   })
   .openapi('Pet')
 
-const ApiResponseSchema = z
-  .object({
-    code: z.number().int().optional(),
-    type: z.string().optional(),
-    message: z.string().optional(),
-  })
+const apiResponseSchema = z
+  .object({ code: z.number().int(), type: z.string(), message: z.string() })
+  .partial()
   .openapi('ApiResponse')
 
 export const putPetRoute = createRoute({
@@ -82,9 +82,9 @@ export const putPetRoute = createRoute({
     body: {
       required: true,
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
-        'application/x-www-form-urlencoded': { schema: PetSchema },
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
       },
     },
   },
@@ -92,8 +92,8 @@ export const putPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -113,9 +113,9 @@ export const postPetRoute = createRoute({
     body: {
       required: true,
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
-        'application/x-www-form-urlencoded': { schema: PetSchema },
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
+        'application/x-www-form-urlencoded': { schema: petSchema },
       },
     },
   },
@@ -123,8 +123,8 @@ export const postPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
       },
     },
     400: { description: 'Invalid input' },
@@ -144,8 +144,8 @@ export const getPetFindByStatusRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(PetSchema) },
-        'application/xml': { schema: z.array(PetSchema) },
+        'application/json': { schema: z.array(petSchema) },
+        'application/xml': { schema: z.array(petSchema) },
       },
     },
     400: { description: 'Invalid status value' },
@@ -165,8 +165,8 @@ export const getPetFindByTagsRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(PetSchema) },
-        'application/xml': { schema: z.array(PetSchema) },
+        'application/json': { schema: z.array(petSchema) },
+        'application/xml': { schema: z.array(petSchema) },
       },
     },
     400: { description: 'Invalid tag value' },
@@ -185,8 +185,8 @@ export const getPetPetIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: petSchema },
+        'application/xml': { schema: petSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -235,7 +235,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: ApiResponseSchema } },
+      content: { 'application/json': { schema: apiResponseSchema } },
     },
   },
 })
@@ -265,16 +265,16 @@ export const postStoreOrderRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: OrderSchema },
-        'application/xml': { schema: OrderSchema },
-        'application/x-www-form-urlencoded': { schema: OrderSchema },
+        'application/json': { schema: orderSchema },
+        'application/xml': { schema: orderSchema },
+        'application/x-www-form-urlencoded': { schema: orderSchema },
       },
     },
   },
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: OrderSchema } },
+      content: { 'application/json': { schema: orderSchema } },
     },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
@@ -293,8 +293,8 @@ export const getStoreOrderOrderIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: OrderSchema },
-        'application/xml': { schema: OrderSchema },
+        'application/json': { schema: orderSchema },
+        'application/xml': { schema: orderSchema },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -326,9 +326,9 @@ export const postUserRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
-        'application/x-www-form-urlencoded': { schema: UserSchema },
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
       },
     },
   },
@@ -336,8 +336,8 @@ export const postUserRoute = createRoute({
     default: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
       },
     },
   },
@@ -350,14 +350,14 @@ export const postUserCreateWithListRoute = createRoute({
   summary: 'Creates list of users with given input array',
   description: 'Creates list of users with given input array',
   request: {
-    body: { required: false, content: { 'application/json': { schema: z.array(UserSchema) } } },
+    body: { required: false, content: { 'application/json': { schema: z.array(userSchema) } } },
   },
   responses: {
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
       },
     },
     default: { description: 'successful operation' },
@@ -402,8 +402,8 @@ export const getUserUsernameRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
       },
     },
     400: { description: 'Invalid username supplied' },
@@ -421,9 +421,9 @@ export const putUserUsernameRoute = createRoute({
     body: {
       required: false,
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
-        'application/x-www-form-urlencoded': { schema: UserSchema },
+        'application/json': { schema: userSchema },
+        'application/xml': { schema: userSchema },
+        'application/x-www-form-urlencoded': { schema: userSchema },
       },
     },
     params: z.object({ username: z.string() }),
