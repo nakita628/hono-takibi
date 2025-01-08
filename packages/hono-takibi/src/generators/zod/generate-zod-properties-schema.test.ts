@@ -23,7 +23,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()'
+      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
   {
     properties: {
@@ -41,7 +41,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()'
+      'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
   {
     properties: {
@@ -52,7 +52,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial()'
+      'z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial()',
   },
 
   {
@@ -67,7 +67,7 @@ const generateZodPropertiesSchemaTestCases: {
     },
     required: [],
     expected:
-      'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial()'
+      'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial()',
   },
   {
     properties: {
@@ -136,8 +136,7 @@ const generateZodPropertiesSchemaTestCases: {
       message: { type: 'string' },
     },
     required: [],
-    expected:
-      'z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial()',
+    expected: 'z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial()',
   },
 ]
 
