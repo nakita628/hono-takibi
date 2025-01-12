@@ -1,3 +1,4 @@
+import { isAllOptional } from '../../core/validator/is-all-optional'
 import type { Schema } from '../../types'
 import { generatePropertySchema } from './generate-zod-property-schema'
 
@@ -60,7 +61,8 @@ export function generateZodPropertiesSchema(
     return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
 
-  const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))
+  // Check if all properties are optional
+  const allOptional = isAllOptional(objectProperties)
 
   if (required.length === 0 && allOptional) {
     const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))
