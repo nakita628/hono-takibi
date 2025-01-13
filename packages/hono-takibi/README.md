@@ -12,7 +12,6 @@ npm add -D hono-takibi
 
 You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
 
-
 ### Schema Options
 
 | Option | Type | Default | Description |
@@ -28,7 +27,6 @@ You can customize the code generation behavior by creating a `hono-takibi.json` 
 | `exportEnabled` | `boolean` | `false` | When true, exports all type definitions |
 
 ## Input and Output
-
 
 You can specify input and output paths in two ways:
 
@@ -502,7 +500,6 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 ```
-
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
