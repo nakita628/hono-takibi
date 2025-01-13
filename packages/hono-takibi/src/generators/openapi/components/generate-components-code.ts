@@ -1,10 +1,10 @@
 import type { Components } from '../../../types'
+import type { Config } from '../../../config'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
-import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
 import { generateSchemasExport } from '../paths/generate-schemas-export'
-import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pascal-case-schema-name'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -24,8 +24,8 @@ import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pas
  */
 export function generateComponentsCode(
   components: Components,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
-  exportEnabled = true,
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ): string {
   // 1. schema extraction
   const { schemas } = components
@@ -41,21 +41,17 @@ export function generateComponentsCode(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 get variable name
-      const variableName =
-        namingCase === 'camelCase'
-          ? getCamelCaseSchemaName(schemaName)
-          : getPascalCaseSchemaName(schemaName)
-
+      const variableName = getVariableSchemaNameHelper(schemaName, config)
       // 4.3 generate zod schema
-      const zodSchema = generateZodSchema(schema, undefined, undefined, namingCase)
+      const zodSchema = generateZodSchema(config, schema, undefined, undefined)
       // 4.4 generate zod schema definition
       return generateZodSchemaDefinition(variableName, zodSchema, schemaName)
     })
     .join('\n\n')
   // 5. generate export statement
-  const exports = generateSchemasExport(orderedSchemas, namingCase)
+  const exports = generateSchemasExport(orderedSchemas, config)
   // 6. final code assembly
-  if (exportEnabled) {
+  if (config.schemaOptions.exportEnabled) {
     return `${schemaDefinitions}\n\n${exports}`
   }
   return schemaDefinitions

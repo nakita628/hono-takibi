@@ -1,7 +1,8 @@
+import type { Responses } from '../../../types'
+import type { Config } from '../../../config'
 import { escapeQuote } from '../../../core/text/escape-quote'
 import { isUniqueContentSchema } from '../../../core/validator/is-unique-content-schema'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
-import type { Responses } from '../../../types'
 
 /**
  * Generates a response schema for different status codes
@@ -25,7 +26,8 @@ import type { Responses } from '../../../types'
  */
 export function generateResponseSchema(
   responses: Responses,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
@@ -43,7 +45,7 @@ export function generateResponseSchema(
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = generatePropertySchema(content.schema, namingCase)
+        const zodSchema = generatePropertySchema(content.schema, config)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
       return `${code}:{description:'${escapeQuote(response.description)}',content:{${contentParts.join(',')}},},`

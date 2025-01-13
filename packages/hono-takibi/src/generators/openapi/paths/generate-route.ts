@@ -1,4 +1,5 @@
 import type { Operation } from '../../../types'
+import type { Config } from '../../../config'
 import { generateCreateRoute } from './generate-create-route'
 import { generateRequestParameter } from '../../request/params/generate-request-parameter'
 import { generateResponseSchema } from '../../response/schemas/generate-response-schema'
@@ -32,12 +33,13 @@ export function generateRoute(
   path: string,
   method: string,
   operation: Operation,
-  namingCase: 'camelCase' | 'PascalCase',
+  // namingCase: 'camelCase' | 'PascalCase',
+  config: Config,
 ): string {
   const { tags, summary, description, security, parameters, requestBody, responses } = operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = generateRequestParameter(parameters, requestBody, namingCase)
+  const requestParams = generateRequestParameter(parameters, requestBody, config)
 
   const create_args = {
     routeName,
@@ -48,7 +50,7 @@ export function generateRoute(
     descriptionCode: description ? `description:'${escapeQuote(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
-    responsesCode: responses ? `responses:{${generateResponseSchema(responses, namingCase)}}` : '',
+    responsesCode: responses ? `responses:{${generateResponseSchema(responses, config)}}` : '',
   }
   return generateCreateRoute(create_args)
 }

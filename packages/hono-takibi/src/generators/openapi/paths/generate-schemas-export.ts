@@ -1,5 +1,5 @@
-import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
-import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pascal-case-schema-name'
+import type { Config } from '../../../config'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates a TypeScript export for a list of schema names
@@ -11,18 +11,9 @@ import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pas
  * @example
  * // Returns: 'export const schemas = { userSchema, postSchema }'
  */
-export function generateSchemasExport(
-  orderedSchemas: string[],
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
-) {
-  if (namingCase === 'camelCase') {
-    const camelCaseSchemas = orderedSchemas.map((schemaName) => getCamelCaseSchemaName(schemaName))
-    return `export const schemas = {\n${camelCaseSchemas.join(',\n')}\n}`
-  }
-  if (namingCase === 'PascalCase') {
-    const pascalCaseSchemas = orderedSchemas.map((schemaName) =>
-      getPascalCaseSchemaName(schemaName),
-    )
-    return `export const schemas = {\n${pascalCaseSchemas.join(',\n')}\n}`
-  }
+export function generateSchemasExport(orderedSchemas: string[], config: Config) {
+  const variableNames = orderedSchemas.map((schemaName) =>
+    getVariableSchemaNameHelper(schemaName, config),
+  )
+  return `export const schemas = {\n${variableNames.join(',\n')}\n}`
 }

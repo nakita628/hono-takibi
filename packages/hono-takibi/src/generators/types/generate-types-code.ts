@@ -16,8 +16,6 @@
 
 import { resolveSchemasDependencies } from '../../core/schema/references/resolve-schemas-dependencies'
 import type { Components } from '../../types'
-// import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
-// import { getPascalCaseSchemaName } from '../../core/schema/references/get-pascal-case-schema-name'
 import { generateZodInfer } from '../zod/generate-zod-infer'
 import type { Config } from '../../config'
 

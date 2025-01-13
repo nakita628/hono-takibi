@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
 import type { Parameters, RequestBody } from '../../../types'
+import type { Config } from '../../../config'
+import { DEFAULT_CONFIG } from '../../../data/test-data'
 
 const generateRequestParameterTestCases: {
   parameters: Parameters[] | undefined
   requestBody: RequestBody | undefined
+  config: Config
   expected: string
 }[] = [
   {
@@ -27,6 +30,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`,
   },
   {
@@ -45,6 +49,7 @@ const generateRequestParameterTestCases: {
       },
     ],
     requestBody: undefined,
+    config: DEFAULT_CONFIG,
     expected: 'request:{query:z.object({page:z.string(),rows:z.string()})},',
   },
   {
@@ -74,6 +79,7 @@ const generateRequestParameterTestCases: {
         },
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
   },
   {
@@ -108,15 +114,16 @@ const generateRequestParameterTestCases: {
         },
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
   },
 ]
 
 describe('generateRequestParameters', () => {
   it.concurrent.each(generateRequestParameterTestCases)(
-    'generateRequestParameters($parameters, $requestBody) -> $expected',
-    async ({ parameters, requestBody, expected }) => {
-      const result = generateRequestParameter(parameters, requestBody)
+    'generateRequestParameter($parameters, $requestBody, $config) -> $expected',
+    async ({ parameters, requestBody, config, expected }) => {
+      const result = generateRequestParameter(parameters, requestBody, config)
       expect(result).toBe(expected)
     },
   )

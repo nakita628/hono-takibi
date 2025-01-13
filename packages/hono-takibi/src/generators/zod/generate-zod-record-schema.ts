@@ -1,3 +1,4 @@
+import type { Config } from '../../config'
 import type { Format, Type } from '../../types'
 import { generateZodSchema } from './generate-zod-schema'
 
@@ -30,10 +31,13 @@ import { generateZodSchema } from './generate-zod-schema'
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
  */
-export function generateZodRecordSchema(additionalProperties: {
-  type: Type
-  format: Format
-}): string {
-  const schema = generateZodSchema(additionalProperties)
+export function generateZodRecordSchema(
+  additionalProperties: {
+    type: Type
+    format: Format
+  },
+  config: Config,
+): string {
+  const schema = generateZodSchema(config, additionalProperties)
   return `z.record(z.string(),${schema})`
 }

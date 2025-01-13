@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { Schema } from '../../types'
+import type { Config } from '../../config'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
+import { DEFAULT_CONFIG } from '../../data/test-data'
 
 const generateZodPropertiesSchemaTestCases: {
   properties: Record<string, Schema>
   required: string[]
+  config: Config
   expected: string
 }[] = [
   {
@@ -22,6 +25,7 @@ const generateZodPropertiesSchemaTestCases: {
       complete: { type: 'boolean' },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
@@ -40,6 +44,7 @@ const generateZodPropertiesSchemaTestCases: {
       complete: { type: 'boolean' },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial()',
   },
@@ -51,6 +56,7 @@ const generateZodPropertiesSchemaTestCases: {
       zip: { type: 'string', example: '94301' },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial()',
   },
@@ -66,6 +72,7 @@ const generateZodPropertiesSchemaTestCases: {
       },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial()',
   },
@@ -75,6 +82,7 @@ const generateZodPropertiesSchemaTestCases: {
       name: { type: 'string', example: 'Dogs' },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:1}),name:z.string().openapi({example:"Dogs"})}).partial()',
   },
@@ -96,6 +104,7 @@ const generateZodPropertiesSchemaTestCases: {
       },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:10}),username:z.string().openapi({example:"theUser"}),firstName:z.string().openapi({example:"John"}),lastName:z.string().openapi({example:"James"}),email:z.string().openapi({example:"john@email.com"}),password:z.string().openapi({example:"12345"}),phone:z.string().openapi({example:"12345"}),userStatus:z.number().int().openapi({example:1})}).partial()',
   },
@@ -126,6 +135,7 @@ const generateZodPropertiesSchemaTestCases: {
       },
     },
     required: ['name', 'photoUrls'],
+    config: DEFAULT_CONFIG,
     expected:
       'z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})',
   },
@@ -136,15 +146,16 @@ const generateZodPropertiesSchemaTestCases: {
       message: { type: 'string' },
     },
     required: [],
+    config: DEFAULT_CONFIG,
     expected: 'z.object({code:z.number().int(),type:z.string(),message:z.string()}).partial()',
   },
 ]
 
 describe('generateZodPropertiesSchema', () => {
   it.concurrent.each(generateZodPropertiesSchemaTestCases)(
-    'generateZodPropertiesSchema($properties, $required) -> $expected',
-    async ({ properties, required, expected }) => {
-      const result = generateZodPropertiesSchema(properties, required)
+    'generateZodPropertiesSchema($properties, $required, $config) -> $expected',
+    async ({ properties, required, config, expected }) => {
+      const result = generateZodPropertiesSchema(properties, required, config)
       expect(result).toBe(expected)
     },
   )

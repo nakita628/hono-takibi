@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Components } from '../../../types'
 import { generateComponentsCode } from './generate-components-code'
+import type { Components } from '../../../types'
+import { DEFAULT_CONFIG, type Config } from '../../../config'
+import { PASCAL_CASE_CONFIG } from '../../../data/test-data'
 
 const generateComponentsCodeTestCases: {
   components: Components
-  namingCase?: 'camelCase' | 'PascalCase'
-  exportEnabled?: boolean
+  config: Config
   expected: string
 }[] = [
   // empty
@@ -13,6 +14,7 @@ const generateComponentsCodeTestCases: {
     components: {
       schemas: {},
     },
+    config: DEFAULT_CONFIG,
     expected: '',
   },
   // pet store
@@ -279,6 +281,16 @@ const generateComponentsCodeTestCases: {
       },
       // memo securitySchemes need?
     },
+    config: {
+      schemaOptions: {
+        namingCase: 'camelCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
 const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
@@ -473,6 +485,16 @@ apiResponseSchema
         },
       },
     },
+    config: {
+      schemaOptions: {
+        namingCase: 'camelCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `const productSchema = z.object({id:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name:z.string().openapi({example:"Wireless Mouse"}),description:z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price:z.number().openapi({example:29.99}),category:z.string().openapi({example:"Electronics"}),stock:z.number().int().openapi({example:150}).optional(),tags:z.array(z.string()).optional()}).openapi('Product')
 
 const orderItemSchema = z.object({productId:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity:z.number().int().openapi({example:2}),price:z.number().openapi({example:29.99}).optional()}).openapi('OrderItem')
@@ -510,6 +532,16 @@ userSchema
           },
           required: ['id', 'name', 'age'],
         },
+      },
+    },
+    config: {
+      schemaOptions: {
+        namingCase: 'camelCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
       },
     },
     expected: `const userSchema = z.object({id:z.string().openapi({example:"1212121"}),name:z.string().openapi({example:"John Doe"}),age:z.number().openapi({example:42})}).openapi('User')
@@ -783,7 +815,16 @@ userSchema
       },
       // memo securitySchemes need?
     },
-    namingCase: 'PascalCase',
+    config: {
+      schemaOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `const OrderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
 const AddressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
@@ -811,7 +852,6 @@ PetSchema,
 ApiResponseSchema
 }`,
   },
-
   // PascalCase
   // sample
   {
@@ -979,7 +1019,16 @@ ApiResponseSchema
         },
       },
     },
-    namingCase: 'PascalCase',
+    config: {
+      schemaOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `const ProductSchema = z.object({id:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name:z.string().openapi({example:"Wireless Mouse"}),description:z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price:z.number().openapi({example:29.99}),category:z.string().openapi({example:"Electronics"}),stock:z.number().int().openapi({example:150}).optional(),tags:z.array(z.string()).optional()}).openapi('Product')
 
 const OrderItemSchema = z.object({productId:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}),quantity:z.number().int().openapi({example:2}),price:z.number().openapi({example:29.99}).optional()}).openapi('OrderItem')
@@ -995,7 +1044,6 @@ OrderSchema,
 UserSchema
 }`,
   },
-  // exportEnabled: false
   // pet store
   {
     components: {
@@ -1260,7 +1308,16 @@ UserSchema
       },
       // memo securitySchemes need?
     },
-    exportEnabled: false,
+    config: {
+      schemaOptions: {
+        namingCase: 'camelCase',
+        exportEnabled: false,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
 
 const addressSchema = z.object({street:z.string().openapi({example:"437 Lytton"}),city:z.string().openapi({example:"Palo Alto"}),state:z.string().openapi({example:"CA"}),zip:z.string().openapi({example:"94301"})}).partial().openapi('Address')
@@ -1281,9 +1338,9 @@ const apiResponseSchema = z.object({code:z.number().int(),type:z.string(),messag
 
 describe('generateComponentsCode', () => {
   it.concurrent.each(generateComponentsCodeTestCases)(
-    'generateComponentsCode($components, $namingCase) -> $expected',
-    async ({ components, namingCase, exportEnabled, expected }) => {
-      const result = generateComponentsCode(components, namingCase, exportEnabled)
+    'generateComponentsCode($components, $config) -> $expected',
+    async ({ components, config, expected }) => {
+      const result = generateComponentsCode(components, config)
       expect(result).toBe(expected)
     },
   )
