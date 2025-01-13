@@ -12,7 +12,6 @@ npm add -D hono-takibi
 
 You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
 
-
 ### Schema Options
 
 | Option | Type | Default | Description |
@@ -27,9 +26,44 @@ You can customize the code generation behavior by creating a `hono-takibi.json` 
 | `namingCase` | `"camelCase"` \| `"PascalCase"` | `"PascalCase"` | Naming convention for generated type definitions |
 | `exportEnabled` | `boolean` | `false` | When true, exports all type definitions |
 
+## Input and Output
+
+You can specify input and output paths in two ways:
+
+1. Command line arguments:
+
+2. Configuration file (`hono-takibi.json`):
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `input` | `string` | `""` | Input file path |
+| `output` | `string` | `""` | Output file path |
+
+> **⚠️** When using a configuration file, command line arguments are not required. The configuration file settings take precedence over command line arguments.
+>
+> **🔥** When you have configured `hono-takibi.json`, you can simply run:
+> ```bash
+> npx hono-takibi
+> ```
+
 ### Examples
 
-#### Default Behavior (camelCase schemas, PascalCase types)
+* Default Behavior (camelCase schemas, PascalCase types)
+
+```json
+{
+  "input": "src/openapi/openapi.yaml",
+  "output": "src/openapi/index.ts",
+  "schemaOptions": {
+    "namingCase": "camelCase",
+    "exportEnabled": false
+  },
+  "typeOptions": {
+    "namingCase": "PascalCase",
+    "exportEnabled": false
+  }
+}
+```
 
 ## Migrate Legacy APIs to Hono
 
@@ -466,7 +500,6 @@ export const deletePostsIdRoute = createRoute({
   },
 })
 ```
-
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
