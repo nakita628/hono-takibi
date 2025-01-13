@@ -11,10 +11,7 @@ import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-s
  * @example
  * // Returns: 'export const schemas = { userSchema, postSchema }'
  */
-export function generateSchemasExport(
-  orderedSchemas: string[],
-  config: Config,
-) {
+export function generateSchemasExport(orderedSchemas: string[], config: Config) {
   const variableNames = orderedSchemas.map((schemaName) =>
     getVariableSchemaNameHelper(schemaName, config),
   )
