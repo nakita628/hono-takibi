@@ -2,6 +2,7 @@ import type { OpenAPIPaths } from '../../../types'
 import { isHttpMethod } from '../../../core/validator/is-http-method'
 import { generateRoute } from './generate-route'
 import { isOperation } from '../../../core/validator/is-operation'
+import type { Config } from '../../../config'
 
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
@@ -24,7 +25,8 @@ import { isOperation } from '../../../core/validator/is-operation'
  */
 export function generateRouteCode(
   openAPIPaths: OpenAPIPaths,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ) {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
@@ -42,7 +44,7 @@ export function generateRouteCode(
       // 3.4 at this point, pathItemValue is only a possibility for Operation
       if (!isOperation(pathItemValue)) continue
       // 3.5 generating the root code and adding it to the array
-      routes.push(generateRoute(path, method, pathItemValue, namingCase))
+      routes.push(generateRoute(path, method, pathItemValue, config))
     }
   }
   // 4. exclude invalid routes and join them with a newline

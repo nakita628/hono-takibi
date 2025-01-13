@@ -1,10 +1,11 @@
+import type { Parameters, RequestBody } from '../../../types'
+import type { Config } from '../../../config'
 import { generateFormatRequestObject } from '../object/generate-format-request-object'
 import { generateParamsObject } from './generate-params-object'
 import { generateRequestBody } from '../body/generate-request-body'
 import { generateRequestParamsArray } from './generate-request-params-array'
 import { generateInsertRequestBody } from '../body/generate-insert-request-body'
 import { generateRequestParams } from './generate-request-params'
-import type { Parameters, RequestBody } from '../../../types'
 import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 
 /**
@@ -30,7 +31,8 @@ import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
 export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // Early return if no parameters or content
   if (!(parameters || requestBody?.content)) {
@@ -41,7 +43,7 @@ export function generateRequestParameter(
 
   const params = parameters
     ? (() => {
-        const paramsObj = generateParamsObject(parameters, namingCase)
+        const paramsObj = generateParamsObject(parameters, config)
         const requestParamsArr = generateRequestParamsArray(paramsObj)
         return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
       })()
@@ -53,7 +55,7 @@ export function generateRequestParameter(
 
     for (const contentType of requestBodyContentTypes) {
       const { schema } = requestBody.content[contentType]
-      const zodSchema = generatePropertySchema(schema, namingCase)
+      const zodSchema = generatePropertySchema(schema, config)
 
       uniqueSchemas.set(zodSchema, zodSchema)
     }

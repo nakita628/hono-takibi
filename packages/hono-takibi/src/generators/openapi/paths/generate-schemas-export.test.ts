@@ -1,9 +1,10 @@
+import type { Config } from '../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateSchemasExport } from './generate-schemas-export'
-
+import { DEFAULT_CONFIG, PASCAL_CASE_CONFIG } from '../../../data/test-data'
 const generateSchemasExportTestCases: {
   orderedSchemas: string[]
-  namingCase?: 'camelCase' | 'PascalCase'
+  config: Config
   expected: string
 }[] = [
   {
@@ -27,6 +28,7 @@ tagSchema,
 petSchema,
 apiResponseSchema
 }`,
+    config: DEFAULT_CONFIG,
   },
   {
     orderedSchemas: [
@@ -39,7 +41,7 @@ apiResponseSchema
       'Pet',
       'ApiResponse',
     ],
-    namingCase: 'PascalCase',
+    config: PASCAL_CASE_CONFIG,
     expected: `export const schemas = {
 OrderSchema,
 AddressSchema,
@@ -55,9 +57,9 @@ ApiResponseSchema
 
 describe('generateSchemasExport', () => {
   it.concurrent.each(generateSchemasExportTestCases)(
-    'generateSchemasExport($orderedSchemas, $namingCase) -> $expected',
-    ({ orderedSchemas, namingCase, expected }) => {
-      const result = generateSchemasExport(orderedSchemas, namingCase)
+    'generateSchemasExport($orderedSchemas, $config) -> $expected',
+    ({ orderedSchemas, config, expected }) => {
+      const result = generateSchemasExport(orderedSchemas, config)
       expect(result).toBe(expected)
     },
   )

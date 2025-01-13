@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateResponseSchema } from './generate-response-schema'
 import type { Responses } from '../../../types'
+import { DEFAULT_CONFIG, type Config } from '../../../config';
 
-const generateResponseSchemaTestCases: { responses: Responses; expected: string }[] = [
+const generateResponseSchemaTestCases: { responses: Responses; config:Config, expected: string }[] = [
   // hono-example
   {
     responses: {
@@ -24,6 +25,7 @@ const generateResponseSchemaTestCases: { responses: Responses; expected: string 
         },
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},`,
   },
   // pet-store-example
@@ -64,6 +66,7 @@ const generateResponseSchemaTestCases: { responses: Responses; expected: string 
         description: 'Invalid username/password supplied',
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `200:{description:'successful operation',content:{'application/xml':{schema:z.string()},'application/json':{schema:z.string()}},},400:{description:'Invalid username/password supplied',},`,
   },
   // pet-store-example
@@ -91,15 +94,16 @@ const generateResponseSchemaTestCases: { responses: Responses; expected: string 
         description: 'Order not found',
       },
     },
+    config: DEFAULT_CONFIG,
     expected: `200:{description:'successful operation',content:{'application/json':{schema:orderSchema},'application/xml':{schema:orderSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Order not found',},`,
   },
 ]
 
 describe('generateResponseSchema', () => {
   it.concurrent.each(generateResponseSchemaTestCases)(
-    'generateResponseSchema(%responses) -> %expected',
-    ({ responses, expected }) => {
-      const result = generateResponseSchema(responses)
+    'generateResponseSchema(%responses, %config) -> %expected',
+    ({ responses, config, expected }) => {
+      const result = generateResponseSchema(responses, config)
       expect(result).toBe(expected)
     },
   )

@@ -1,4 +1,5 @@
 import type { Schema, Type } from '../../types'
+import type { Config } from '../../config'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodStringSchema } from './generate-zod-string-schema'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
@@ -87,10 +88,11 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Returns z.any() for unknown types with a warning
  */
 export function generateZodSchema(
+  config: Config,
   schema: Schema,
   paramName?: string,
   isPath?: boolean,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // enum
   if (schema.enum) {
@@ -102,9 +104,10 @@ export function generateZodSchema(
 
   // object
   if (schema.type === 'object') {
-    if (schema.additionalProperties) return generateZodRecordSchema(schema.additionalProperties)
+    if (schema.additionalProperties)
+      return generateZodRecordSchema(schema.additionalProperties, config)
     if (!schema.properties) return 'z.object({})'
-    return generateZodPropertiesSchema(schema.properties, schema.required || [], namingCase)
+    return generateZodPropertiesSchema(schema.properties, schema.required || [], config)
   }
 
   // string
@@ -152,7 +155,7 @@ export function generateZodSchema(
 
   // array
   if (schema.type === 'array' && schema.items)
-    return generateZodArray(generateZodSchema(schema.items, undefined, undefined, namingCase))
+    return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
 
   // fallback
   if (schema.type) return TYPE_TO_ZOD_SCHEMA[schema.type]

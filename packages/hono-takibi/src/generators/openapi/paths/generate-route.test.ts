@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Operation } from '../../../types'
 import { generateRoute } from './generate-route'
-
+import { DEFAULT_CONFIG } from '../../../data/test-data'
 describe('generateRoute', () => {
   it.concurrent(
     'generateRoute("/posts", "post", { operationId: "getRoot", tags: ["Hono"], responses: { "200": { ... } } })',
@@ -37,7 +37,7 @@ describe('generateRoute', () => {
         },
       }
 
-      const result = generateRoute(path, method, operation)
+      const result = generateRoute(path, method, operation, DEFAULT_CONFIG)
       const expected = `export const postPostsRoute=createRoute({tags:["Hono"],method:'post',path:'/posts',responses:{200:{description:'Hono🔥',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})`
       expect(result).toBe(expected)
     },

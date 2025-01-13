@@ -1,16 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
 import type { OpenAPIPaths } from '../../../types'
+import type { Config } from '../../../config'
 import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
 import { honoRestOpenAPI } from '../../../data/hono-rest-openapi'
+import { DEFAULT_CONFIG } from '../../../data/test-data'
 
 const generateRouteCodeTestCases: {
   openAPIPaths: OpenAPIPaths
-  namingCase?: 'camelCase' | 'PascalCase'
+  config: Config
   expected: string
 }[] = [
   {
     openAPIPaths: petStoreOpenAPI.paths,
+    config: DEFAULT_CONFIG,
     expected: `export const putPetRoute=createRoute({tags:["pet"],method:'put',path:'/pet',summary:'Update an existing pet',description:'Update an existing pet by Id',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Pet not found',},422:{description:'Validation exception',},}})
 
 export const postPetRoute=createRoute({tags:["pet"],method:'post',path:'/pet',summary:'Add a new pet to the store',description:'Add a new pet to the store',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema}},},400:{description:'Invalid input',},422:{description:'Validation exception',},}})
@@ -51,6 +54,7 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   },
   {
     openAPIPaths: honoRestOpenAPI.paths,
+    config: DEFAULT_CONFIG,
     expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',summary:'Welcome message',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})
 
 export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',summary:'Create a new post',description:'Submit a new post with a maximum length of 140 characters.',request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},responses:{201:{description:'Post successfully created.',content:{'application/json':{schema:errorSchema}},},400:{description:'Invalid request due to bad input.',content:{'application/json':{schema:errorSchema}},},500:{description:'Internal server error.',content:{'application/json':{schema:errorSchema}},},}})
@@ -64,7 +68,16 @@ export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:
   // PascalCase
   {
     openAPIPaths: petStoreOpenAPI.paths,
-    namingCase: 'PascalCase',
+    config: {
+      schemaOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `export const putPetRoute=createRoute({tags:["pet"],method:'put',path:'/pet',summary:'Update an existing pet',description:'Update an existing pet by Id',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema},'application/x-www-form-urlencoded':{schema:PetSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Pet not found',},422:{description:'Validation exception',},}})
 
 export const postPetRoute=createRoute({tags:["pet"],method:'post',path:'/pet',summary:'Add a new pet to the store',description:'Add a new pet to the store',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema},'application/x-www-form-urlencoded':{schema:PetSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema}},},400:{description:'Invalid input',},422:{description:'Validation exception',},}})
@@ -105,7 +118,16 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   },
   {
     openAPIPaths: honoRestOpenAPI.paths,
-    namingCase: 'PascalCase',
+    config: {
+      schemaOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',summary:'Welcome message',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})
 
 export const postPostsRoute=createRoute({tags:["Post"],method:'post',path:'/posts',summary:'Create a new post',description:'Submit a new post with a maximum length of 140 characters.',request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},responses:{201:{description:'Post successfully created.',content:{'application/json':{schema:ErrorSchema}},},400:{description:'Invalid request due to bad input.',content:{'application/json':{schema:ErrorSchema}},},500:{description:'Internal server error.',content:{'application/json':{schema:ErrorSchema}},},}})
@@ -120,9 +142,9 @@ export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:
 
 describe('generateRouteCode', () => {
   it.concurrent.each(generateRouteCodeTestCases)(
-    'generateRouteCode($openAPIPaths, $namingCase) -> $expected',
-    async ({ openAPIPaths, namingCase, expected }) => {
-      const result = generateRouteCode(openAPIPaths, namingCase)
+    'generateRouteCode($openAPIPaths, $config) -> $expected',
+    async ({ openAPIPaths, config, expected }) => {
+      const result = generateRouteCode(openAPIPaths, config)
       expect(result).toBe(expected)
     },
   )

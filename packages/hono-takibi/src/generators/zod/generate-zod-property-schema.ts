@@ -1,4 +1,5 @@
 import type { Schema } from '../../types'
+import type { Config } from '../../config'
 import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'
@@ -31,13 +32,14 @@ import { getPascalCaseSchemaName } from '../../core/schema/references/get-pascal
  */
 export function generatePropertySchema(
   schema: Schema,
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ): string {
   if (schema.$ref) {
     const refName = getRefName(schema.$ref)
     if (refName) {
       const variableName =
-        namingCase === 'camelCase'
+        config.schemaOptions.namingCase === 'camelCase'
           ? getCamelCaseSchemaName(refName)
           : getPascalCaseSchemaName(refName)
       // return getRefName(variableName) || 'z.any()'
@@ -48,11 +50,11 @@ export function generatePropertySchema(
     const refName = getRefName(schema.items.$ref)
     if (refName) {
       const variableName =
-        namingCase === 'camelCase'
+        config.schemaOptions.namingCase === 'camelCase'
           ? getCamelCaseSchemaName(refName)
           : getPascalCaseSchemaName(refName)
       return generateZodArray(variableName)
     }
   }
-  return generateZodSchema(schema, undefined, undefined, namingCase)
+  return generateZodSchema(config, schema, undefined, undefined)
 }

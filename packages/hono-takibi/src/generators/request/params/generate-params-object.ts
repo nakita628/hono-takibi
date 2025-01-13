@@ -1,4 +1,5 @@
 import type { ParamsObject, Parameters } from '../../../types'
+import type { Config } from '../../../config'
 import { generateZodCoerce } from '../../zod/generate-zod-coerce'
 import { generateZodSchema } from '../../zod/generate-zod-schema'
 
@@ -17,15 +18,16 @@ import { generateZodSchema } from '../../zod/generate-zod-schema'
  */
 export function generateParamsObject(
   parameters: Parameters[],
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     // path params are generated with the param name
     const baseSchema =
       param.in === 'path'
-        ? generateZodSchema(param.schema, param.name, true, namingCase)
-        : generateZodSchema(param.schema, namingCase)
+        ? generateZodSchema(config, param.schema, param.name, true)
+        : generateZodSchema(config, param.schema, param.name, false)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {

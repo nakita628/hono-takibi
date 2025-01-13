@@ -4,28 +4,6 @@ import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
 import type { OpenAPISpec } from '../../types'
 import type { Config } from '../../config'
 
-const camelCaseConfig: Config = {
-  schemaOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: true,
-  },
-  typeOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: false,
-  },
-}
-
-const pascalCaseConfig: Config = {
-  schemaOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
-  },
-  typeOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
-  },
-}
-
 const generateZodOpenAPIHonoTestCases: {
   openAPISpec: OpenAPISpec
   config: Config
@@ -33,7 +11,16 @@ const generateZodOpenAPIHonoTestCases: {
 }[] = [
   {
     openAPISpec: petStoreOpenAPI,
-    config: camelCaseConfig,
+    config: {
+      schemaOptions: {
+        namingCase: 'camelCase',
+        exportEnabled: true,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `import { createRoute, z } from '@hono/zod-openapi';
 
 const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
@@ -104,7 +91,16 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   // PascalCase
   {
     openAPISpec: petStoreOpenAPI,
-    config: pascalCaseConfig,
+    config: {
+      schemaOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+      typeOptions: {
+        namingCase: 'PascalCase',
+        exportEnabled: false,
+      },
+    },
     expected: `import { createRoute, z } from '@hono/zod-openapi';
 
 const OrderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')

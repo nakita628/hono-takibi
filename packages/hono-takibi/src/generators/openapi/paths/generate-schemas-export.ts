@@ -1,3 +1,4 @@
+import type { Config } from '../../../config'
 import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
 import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pascal-case-schema-name'
 
@@ -13,13 +14,14 @@ import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pas
  */
 export function generateSchemasExport(
   orderedSchemas: string[],
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ) {
-  if (namingCase === 'camelCase') {
+  if (config.schemaOptions.namingCase === 'camelCase') {
     const camelCaseSchemas = orderedSchemas.map((schemaName) => getCamelCaseSchemaName(schemaName))
     return `export const schemas = {\n${camelCaseSchemas.join(',\n')}\n}`
   }
-  if (namingCase === 'PascalCase') {
+  if (config.schemaOptions.namingCase === 'PascalCase') {
     const pascalCaseSchemas = orderedSchemas.map((schemaName) =>
       getPascalCaseSchemaName(schemaName),
     )

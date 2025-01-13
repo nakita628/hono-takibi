@@ -1,5 +1,6 @@
-import { isAllOptional } from '../../core/validator/is-all-optional'
 import type { Schema } from '../../types'
+import type { Config } from '../../config'
+import { isAllOptional } from '../../core/validator/is-all-optional'
 import { generatePartialSchema } from './generate-partial-schema'
 import { generatePropertySchema } from './generate-zod-property-schema'
 
@@ -54,11 +55,12 @@ import { generatePropertySchema } from './generate-zod-property-schema'
 export function generateZodPropertiesSchema(
   properties: Record<string, Schema>,
   required: string[],
-  namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
+  config: Config,
 ): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
-    const propertySchema = generatePropertySchema(schema, namingCase)
+    const propertySchema = generatePropertySchema(schema, config)
     return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
 
