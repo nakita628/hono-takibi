@@ -3,9 +3,8 @@ import type { Config } from '../../../config'
 import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
 import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
-import { getCamelCaseSchemaName } from '../../../core/schema/references/get-camel-case-schema-name'
 import { generateSchemasExport } from '../paths/generate-schemas-export'
-import { getPascalCaseSchemaName } from '../../../core/schema/references/get-pascal-case-schema-name'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -42,11 +41,7 @@ export function generateComponentsCode(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 get variable name
-      const variableName =
-        config.schemaOptions.namingCase === 'camelCase'
-          ? getCamelCaseSchemaName(schemaName)
-          : getPascalCaseSchemaName(schemaName)
-
+      const variableName = getVariableSchemaNameHelper(schemaName, config)
       // 4.3 generate zod schema
       const zodSchema = generateZodSchema(config, schema, undefined, undefined)
       // 4.4 generate zod schema definition

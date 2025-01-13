@@ -3,8 +3,7 @@ import type { Config } from '../../config'
 import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodSchema } from './generate-zod-schema'
-import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
-import { getPascalCaseSchemaName } from '../../core/schema/references/get-pascal-case-schema-name'
+import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
 // import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
 
 /**
@@ -38,10 +37,7 @@ export function generatePropertySchema(
   if (schema.$ref) {
     const refName = getRefName(schema.$ref)
     if (refName) {
-      const variableName =
-        config.schemaOptions.namingCase === 'camelCase'
-          ? getCamelCaseSchemaName(refName)
-          : getPascalCaseSchemaName(refName)
+      const variableName = getVariableSchemaNameHelper(refName, config)
       // return getRefName(variableName) || 'z.any()'
       return variableName || 'z.any()'
     }
@@ -49,10 +45,7 @@ export function generatePropertySchema(
   if (schema.type === 'array' && schema.items?.$ref) {
     const refName = getRefName(schema.items.$ref)
     if (refName) {
-      const variableName =
-        config.schemaOptions.namingCase === 'camelCase'
-          ? getCamelCaseSchemaName(refName)
-          : getPascalCaseSchemaName(refName)
+      const variableName = getVariableSchemaNameHelper(refName, config)
       return generateZodArray(variableName)
     }
   }
