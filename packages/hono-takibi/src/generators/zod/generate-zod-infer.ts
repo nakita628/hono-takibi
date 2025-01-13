@@ -1,8 +1,6 @@
 import type { Config } from '../../config'
-import { getCamelCaseSchemaName } from '../../core/schema/references/get-camel-case-schema-name'
-import { getPascalCaseSchemaName } from '../../core/schema/references/get-pascal-case-schema-name'
-import { capitalize } from '../../core/text/capitalize'
-import { decapitalize } from '../../core/text/decapitalize'
+import { getVariableNameHelper } from '../../core/helper/get-variable-name-helper'
+import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates a TypeScript type definition for an inferred Zod schema.
@@ -11,11 +9,7 @@ import { decapitalize } from '../../core/text/decapitalize'
  * @returns A string containing the inferred type definition.
  */
 export function generateZodInfer(schema: string, config: Config) {
-  const schemaName =
-    config?.schemaOptions?.namingCase === 'camelCase'
-      ? getCamelCaseSchemaName(schema)
-      : getPascalCaseSchemaName(schema)
-  const variableName =
-    config?.typeOptions?.namingCase === 'camelCase' ? decapitalize(schema) : capitalize(schema)
+  const schemaName = getVariableSchemaNameHelper(schema, config)
+  const variableName = getVariableNameHelper(schema, config)
   return `export type ${variableName} = z.infer<typeof ${schemaName}>`
 }
