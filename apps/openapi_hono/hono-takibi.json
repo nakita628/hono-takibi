@@ -1,6 +1,6 @@
 {
   "input": "src/openapi/openapi.yaml",
-  "output": "src/routes/index.ts",
+  "output": "src/openapi/index.ts",
   "schemaOptions": {
     "namingCase": "camelCase",
     "exportEnabled": false
