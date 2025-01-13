@@ -32,9 +32,10 @@ export async function main(dev = false, config: Config = getConfig()) {
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
-  const input = args[0]
+  const input = config.inputFile ?? args[0]
+  // const input = args[0]
   // 4. output = 'routes/petstore-index.ts'
-  const output = args[args.indexOf('-o') + 1]
+  const output = config.outputFile ?? args[args.indexOf('-o') + 1]
   try {
     // 5. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec

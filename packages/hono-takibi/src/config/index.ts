@@ -9,6 +9,8 @@ export type Config = {
     namingCase: 'camelCase' | 'PascalCase'
     exportEnabled: boolean
   }
+  inputFile?: string
+  outputFile?: string
 }
 
 export const DEFAULT_CONFIG: Config = {
