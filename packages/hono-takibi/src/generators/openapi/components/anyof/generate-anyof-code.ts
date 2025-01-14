@@ -3,7 +3,6 @@ import type { Config } from '../../../../config'
 import { generateZodSchema } from '../../../zod/generate-zod-schema'
 import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variable-schema-name-helper'
 
-
 export function generateAnyOfCode(schema: Schema, config: Config): string {
   if (!schema.anyOf || schema.anyOf.length === 0) {
     console.warn('not exists anyOf')

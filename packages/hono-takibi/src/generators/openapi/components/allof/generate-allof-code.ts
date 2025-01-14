@@ -8,17 +8,16 @@ export function generateAllOfCode(schema: Schema, config: Config): string {
     console.warn('not exists allOf')
     return 'z.any()'
   }
-    const zodSchemas = schema.allOf.map((subSchema) => {
-      if (subSchema.$ref) {
-        const refParts = subSchema.$ref.split('/')
-        const refName = refParts[refParts.length - 1]
-        const schemaName = getVariableSchemaNameHelper(refName, config)
-        return schemaName
-      } else {
-        return generateZodSchema(config, subSchema)
-      }
-    })
-  
-    return `z.intersection(${zodSchemas.join(', ')})`
-  }
-  
+  const zodSchemas = schema.allOf.map((subSchema) => {
+    if (subSchema.$ref) {
+      const refParts = subSchema.$ref.split('/')
+      const refName = refParts[refParts.length - 1]
+      const schemaName = getVariableSchemaNameHelper(refName, config)
+      return schemaName
+    } else {
+      return generateZodSchema(config, subSchema)
+    }
+  })
+
+  return `z.intersection(${zodSchemas.join(', ')})`
+}

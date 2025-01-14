@@ -7,18 +7,18 @@ export function generateOneOfCode(schema: Schema, config: Config): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
     console.warn('not exists oneOf')
     return 'z.any()'
-    }
-  
-    const zodSchemas = schema.oneOf.map((subSchema) => {
-      if (subSchema.$ref) {
-        const refParts = subSchema.$ref.split('/')
-        const refName = refParts[refParts.length - 1]
-        const schemaName = getVariableSchemaNameHelper(refName, config)
-        return schemaName
-      } else {
-        return generateZodSchema(config, subSchema)
-      }
-    })
-  
-    return `z.union([${zodSchemas.join(', ')}])`
   }
+
+  const zodSchemas = schema.oneOf.map((subSchema) => {
+    if (subSchema.$ref) {
+      const refParts = subSchema.$ref.split('/')
+      const refName = refParts[refParts.length - 1]
+      const schemaName = getVariableSchemaNameHelper(refName, config)
+      return schemaName
+    } else {
+      return generateZodSchema(config, subSchema)
+    }
+  })
+
+  return `z.union([${zodSchemas.join(', ')}])`
+}
