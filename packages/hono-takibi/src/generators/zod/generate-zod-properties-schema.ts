@@ -1,7 +1,7 @@
 import type { Schema } from '../../types'
 import type { Config } from '../../config'
 import { isAllOptional } from '../../core/validator/is-all-optional'
-import { generatePartialSchema } from './generate-partial-schema'
+import { generateZodPartialSchema } from './generate-zod-partial-schema'
 import { generatePropertySchema } from './generate-zod-property-schema'
 
 /**
@@ -69,7 +69,7 @@ export function generateZodPropertiesSchema(
 
   // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
-    return generatePartialSchema(objectProperties)
+    return generateZodPartialSchema(objectProperties)
   }
 
   return `z.object({${objectProperties}})`
