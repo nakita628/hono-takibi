@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isNullableSchema } from './is-nullable-schema'
-import { Schema } from '../../types'
+import type { Schema } from '../../types'
 
 const isNullableSchemaTestCases: { schema: Schema; expected: boolean }[] = [
   {
