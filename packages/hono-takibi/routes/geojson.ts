@@ -54,7 +54,7 @@ const featureSchema = z
   .intersection(
     geoJsonObjectSchema,
     z.object({
-      geometry: z.intersection(z.any(), geometrySchema),
+      geometry: geometrySchema.nullable(),
       properties: z.object({}),
       id: z.union([z.number(), z.string()]).optional(),
     }),
@@ -116,9 +116,9 @@ export const getGeometryRoute = createRoute({
       description: 'Successful response',
       content: { 'application/json': { schema: z.array(geometryCollectionSchema) } },
     },
-    400: { description: 'undefined' },
-    401: { description: 'undefined' },
-    500: { description: 'undefined' },
+    400: { description: '' },
+    401: { description: '' },
+    500: { description: '' },
   },
 })
 
@@ -132,9 +132,9 @@ export const postGeometryRoute = createRoute({
   },
   responses: {
     201: { description: 'New GeoJSON Geometry object created' },
-    400: { description: 'undefined' },
-    401: { description: 'undefined' },
-    403: { description: 'undefined' },
-    500: { description: 'undefined' },
+    400: { description: '' },
+    401: { description: '' },
+    403: { description: '' },
+    500: { description: '' },
   },
 })
