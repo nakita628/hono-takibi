@@ -4,24 +4,24 @@ import type { Config } from '../../config'
 import { generateTypesCode } from './generate-types-code'
 
 const camelCaseConfig: Config = {
-  schemaOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: false,
+  schema: {
+    name: 'camelCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: true,
+  type: {
+    name: 'camelCase',
+    export: true,
   },
 }
 
 const pascalCaseConfig: Config = {
-  schemaOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
+  schema: {
+    name: 'PascalCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: true,
+  type: {
+    name: 'PascalCase',
+    export: true,
   },
 }
 

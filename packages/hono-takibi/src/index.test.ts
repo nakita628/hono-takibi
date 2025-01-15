@@ -687,13 +687,13 @@ export const deletePostsIdRoute = createRoute({
   it('Hono Takibi CLI type-hono-rest-example.ts', async () => {
     // config
     const config: Config = {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: true,
+      schema: {
+        name: 'camelCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: true,
+      type: {
+        name: 'PascalCase',
+        export: true,
       },
     }
     await main(true, config)

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { generateComponentsCode } from './generate-components-code'
 import type { Components } from '../../../types'
 import { DEFAULT_CONFIG, type Config } from '../../../config'
-import { PASCAL_CASE_CONFIG } from '../../../data/test-data'
 
 const generateComponentsCodeTestCases: {
   components: Components
@@ -282,13 +281,13 @@ const generateComponentsCodeTestCases: {
       // memo securitySchemes need?
     },
     config: {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: true,
+      schema: {
+        name: 'camelCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
@@ -486,13 +485,13 @@ apiResponseSchema
       },
     },
     config: {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: true,
+      schema: {
+        name: 'camelCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const productSchema = z.object({id:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name:z.string().openapi({example:"Wireless Mouse"}),description:z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price:z.number().openapi({example:29.99}),category:z.string().openapi({example:"Electronics"}),stock:z.number().int().openapi({example:150}).optional(),tags:z.array(z.string()).optional()}).openapi('Product')
@@ -535,13 +534,13 @@ userSchema
       },
     },
     config: {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: true,
+      schema: {
+        name: 'camelCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const userSchema = z.object({id:z.string().openapi({example:"1212121"}),name:z.string().openapi({example:"John Doe"}),age:z.number().openapi({example:42})}).openapi('User')
@@ -816,13 +815,13 @@ userSchema
       // memo securitySchemes need?
     },
     config: {
-      schemaOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: true,
+      schema: {
+        name: 'PascalCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const OrderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')
@@ -1020,13 +1019,13 @@ ApiResponseSchema
       },
     },
     config: {
-      schemaOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: true,
+      schema: {
+        name: 'PascalCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const ProductSchema = z.object({id:z.string().uuid().openapi({example:"123e4567-e89b-12d3-a456-426614174000"}).optional(),name:z.string().openapi({example:"Wireless Mouse"}),description:z.string().openapi({example:"A high-precision wireless mouse."}).optional(),price:z.number().openapi({example:29.99}),category:z.string().openapi({example:"Electronics"}),stock:z.number().int().openapi({example:150}).optional(),tags:z.array(z.string()).optional()}).openapi('Product')
@@ -1309,13 +1308,13 @@ UserSchema
       // memo securitySchemes need?
     },
     config: {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: false,
+      schema: {
+        name: 'camelCase',
+        export: false,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `const orderSchema = z.object({id:z.number().int().openapi({example:10}),petId:z.number().int().openapi({example:198772}),quantity:z.number().int().openapi({example:7}),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]).openapi({example:"approved"}),complete:z.boolean()}).partial().openapi('Order')

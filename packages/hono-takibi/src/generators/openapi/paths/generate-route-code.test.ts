@@ -69,13 +69,13 @@ export const deletePostsIdRoute=createRoute({tags:["Post"],method:'delete',path:
   {
     openAPIPaths: petStoreOpenAPI.paths,
     config: {
-      schemaOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      schema: {
+        name: 'PascalCase',
+        export: false,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `export const putPetRoute=createRoute({tags:["pet"],method:'put',path:'/pet',summary:'Update an existing pet',description:'Update an existing pet by Id',security:[{"petstore_auth":["write:pets","read:pets"]}],request:{body:{required:true,content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema},'application/x-www-form-urlencoded':{schema:PetSchema}},},},responses:{200:{description:'Successful operation',content:{'application/json':{schema:PetSchema},'application/xml':{schema:PetSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Pet not found',},422:{description:'Validation exception',},}})
@@ -119,13 +119,13 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   {
     openAPIPaths: honoRestOpenAPI.paths,
     config: {
-      schemaOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      schema: {
+        name: 'PascalCase',
+        export: false,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `export const getRoute=createRoute({tags:["Hono"],method:'get',path:'/',summary:'Welcome message',description:'Retrieve a simple welcome message from the Hono API.',responses:{200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})

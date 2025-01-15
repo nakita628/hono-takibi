@@ -29,7 +29,7 @@ export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config)
   // 5. generate types code
   const typesCode = generateTypesCode(components, config)
   // 6. generate hono code
-  if (config.typeOptions.exportEnabled) {
+  if (config.type.export) {
     return `${IMPORT_CODE}\n\n${componentsCode}\n\n${typesCode}\n\n${routeCode}`.trimEnd()
   }
   return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
