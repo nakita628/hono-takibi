@@ -51,7 +51,7 @@ export function generateComponentsCode(
   // 5. generate export statement
   const exports = generateSchemasExport(orderedSchemas, config)
   // 6. final code assembly
-  if (config.schemaOptions.exportEnabled) {
+  if (config.schema.export) {
     return `${schemaDefinitions}\n\n${exports}`
   }
   return schemaDefinitions

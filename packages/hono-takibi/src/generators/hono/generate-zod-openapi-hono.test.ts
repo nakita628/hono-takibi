@@ -12,13 +12,13 @@ const generateZodOpenAPIHonoTestCases: {
   {
     openAPISpec: petStoreOpenAPI,
     config: {
-      schemaOptions: {
-        namingCase: 'camelCase',
-        exportEnabled: true,
+      schema: {
+        name: 'camelCase',
+        export: true,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `import { createRoute, z } from '@hono/zod-openapi';
@@ -92,13 +92,13 @@ export const deleteUserUsernameRoute=createRoute({tags:["user"],method:'delete',
   {
     openAPISpec: petStoreOpenAPI,
     config: {
-      schemaOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      schema: {
+        name: 'PascalCase',
+        export: false,
       },
-      typeOptions: {
-        namingCase: 'PascalCase',
-        exportEnabled: false,
+      type: {
+        name: 'PascalCase',
+        export: false,
       },
     },
     expected: `import { createRoute, z } from '@hono/zod-openapi';

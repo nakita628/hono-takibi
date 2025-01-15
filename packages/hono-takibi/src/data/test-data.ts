@@ -1,34 +1,34 @@
 import type { Config } from '../config'
 
 export const DEFAULT_CONFIG: Config = {
-  schemaOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: false,
+  schema: {
+    name: 'camelCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
+  type: {
+    name: 'PascalCase',
+    export: false,
   },
 } as const
 
 export const CAMEL_CASE_CONFIG: Config = {
-  schemaOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: false,
+  schema: {
+    name: 'camelCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: true,
+  type: {
+    name: 'camelCase',
+    export: true,
   },
 } as const
 
 export const PASCAL_CASE_CONFIG: Config = {
-  schemaOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
+  schema: {
+    name: 'PascalCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: true,
+  type: {
+    name: 'PascalCase',
+    export: true,
   },
 } as const

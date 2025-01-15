@@ -1,26 +1,26 @@
 import fs from 'node:fs'
 
 export type Config = {
-  schemaOptions: {
-    namingCase: 'camelCase' | 'PascalCase'
-    exportEnabled: boolean
+  schema: {
+    name: 'camelCase' | 'PascalCase'
+    export: boolean
   }
-  typeOptions: {
-    namingCase: 'camelCase' | 'PascalCase'
-    exportEnabled: boolean
+  type: {
+    name: 'camelCase' | 'PascalCase'
+    export: boolean
   }
   input?: string
   output?: string
 }
 
 export const DEFAULT_CONFIG: Config = {
-  schemaOptions: {
-    namingCase: 'camelCase',
-    exportEnabled: false,
+  schema: {
+    name: 'camelCase',
+    export: false,
   },
-  typeOptions: {
-    namingCase: 'PascalCase',
-    exportEnabled: false,
+  type: {
+    name: 'PascalCase',
+    export: false,
   },
 } as const
 

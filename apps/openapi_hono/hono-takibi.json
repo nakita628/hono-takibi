@@ -1,12 +1,12 @@
 {
   "input": "src/openapi/openapi.yaml",
   "output": "src/openapi/index.ts",
-  "schemaOptions": {
-    "namingCase": "camelCase",
-    "exportEnabled": false
+  "schema": {
+    "name": "camelCase",
+    "export": false
   },
-  "typeOptions": {
-    "namingCase": "PascalCase",
-    "exportEnabled": false
+  "type": {
+    "name": "PascalCase",
+    "export": false
   }
 }

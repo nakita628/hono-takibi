@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { generatePartialSchema } from './generate-partial-schema'
+import { generateZodPartialSchema } from './generate-zod-partial-schema'
 
-const generatePartialSchemaTestCases = [
+const generateZodPartialSchemaTestCases = [
   {
     properties: [
       'id:z.number().int().openapi({example:10}).optional()',
@@ -16,11 +16,11 @@ const generatePartialSchemaTestCases = [
   },
 ]
 
-describe('generatePartialSchema', () => {
-  it.concurrent.each(generatePartialSchemaTestCases)(
-    'generatePartialSchema($properties) -> $expected',
+describe('generateZodPartialSchema', () => {
+  it.concurrent.each(generateZodPartialSchemaTestCases)(
+    'generateZodPartialSchema($properties) -> $expected',
     async ({ properties, expected }) => {
-      const result = generatePartialSchema(properties)
+      const result = generateZodPartialSchema(properties)
       expect(result).toBe(expected)
     },
   )

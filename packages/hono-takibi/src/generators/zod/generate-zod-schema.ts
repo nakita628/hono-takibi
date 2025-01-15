@@ -7,6 +7,10 @@ import { generateZodRecordSchema } from './generate-zod-record-schema'
 import { isFormatString } from '../../core/validator/is-format-string'
 import { generateZodNumberSchema } from './generate-zod-number-schema'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema'
+import { generateAllOfCode } from '../openapi/components/allof/generate-allof-code'
+import { generateAnyOfCode } from '../openapi/components/anyof/generate-anyof-code'
+import { generateOneOfCode } from '../openapi/components/oneof/generate-oneof-code'
+import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -106,7 +110,19 @@ export function generateZodSchema(
   if (schema.type === 'object') {
     if (schema.additionalProperties)
       return generateZodRecordSchema(schema.additionalProperties, config)
-    if (!schema.properties) return 'z.object({})'
+    if (schema.allOf) {
+      return generateAllOfCode(schema, config)
+    }
+    if (schema.oneOf) {
+      return generateOneOfCode(schema, config)
+    }
+    if (schema.anyOf) {
+      return generateAnyOfCode(schema, config)
+    }
+    if (!schema.properties) {
+      // console.log(schema)
+      return 'z.object({})'
+    }
     return generateZodPropertiesSchema(schema.properties, schema.required || [], config)
   }
 
@@ -157,8 +173,29 @@ export function generateZodSchema(
   if (schema.type === 'array' && schema.items)
     return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
 
+  if (schema.allOf) {
+    return generateAllOfCode(schema, config)
+  }
+
+  if (schema.anyOf) {
+    return generateAnyOfCode(schema, config)
+  }
+
+  if (schema.oneOf) {
+    return generateOneOfCode(schema, config)
+  }
+
+  if (schema.$ref) {
+    const refParts = schema.$ref.split('/')
+    const refName = refParts[refParts.length - 1]
+    const schemaName = getVariableSchemaNameHelper(refName, config)
+    return schemaName
+  }
+
   // fallback
-  if (schema.type) return TYPE_TO_ZOD_SCHEMA[schema.type]
-  console.warn(`Unknown type: ${schema.type}, falling back to z.any()`)
+  if (schema.type) {
+    return TYPE_TO_ZOD_SCHEMA[schema.type]
+  }
+  console.warn(`Unknown type: ${schema.type}, ${JSON.stringify(schema)} falling back to z.any()`)
   return 'z.any()'
 }
