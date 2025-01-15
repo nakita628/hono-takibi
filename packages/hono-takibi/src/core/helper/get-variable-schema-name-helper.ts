@@ -7,4 +7,3 @@ export const getVariableSchemaNameHelper = (name: string, config: Config) => {
     ? getCamelCaseSchemaName(name)
     : getPascalCaseSchemaName(name)
 }
-
