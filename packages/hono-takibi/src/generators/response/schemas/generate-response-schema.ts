@@ -35,7 +35,8 @@ export function generateResponseSchema(
   const responseEntries = responseCodes.map((code) => {
     const response = responses[code]
     // 2.1 no content (description only response)
-    if (!response.content) return `${code}:{description:'${escapeQuote(response.description)}',},`
+    if (!response.content)
+      return `${code}:{description:'${escapeQuote(response.description ?? '')}',},`
     // check duplication
     const contentTypes = Object.keys(response.content)
     const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
@@ -48,7 +49,7 @@ export function generateResponseSchema(
         const zodSchema = generatePropertySchema(content.schema, config)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
-      return `${code}:{description:'${escapeQuote(response.description)}',content:{${contentParts.join(',')}},},`
+      return `${code}:{description:'${escapeQuote(response.description ?? '')}',content:{${contentParts.join(',')}},},`
     }
   })
   // 3.combine all response definitions
