@@ -137,7 +137,7 @@ type SecurityRequirementObject = {
  * Operation definition
  */
 export type Operation = {
-  tags: string[]
+  tags?: string[]
   summary?: string
   description?: string
   operationId?: string
@@ -151,8 +151,9 @@ export type Operation = {
  * Response definition with description and content
  */
 export type ResponseDefinition = {
-  description: string
+  description?: string
   content?: Content
+  $ref?: string
   headers?: {
     [key: string]: {
       description?: string
@@ -187,6 +188,8 @@ export type Schema = {
   required?: string[]
   items?: Schema
   enum?: string[]
+  object?: {}
+  nullable?: boolean
   additionalProperties?: {
     type: Type
     format: Format
@@ -197,6 +200,9 @@ export type Schema = {
     wrapped?: boolean
   }
   security?: SecurityRequirementObject[]
+  oneOf?: Schema[]
+  allOf?: Schema[]
+  anyOf?: Schema[]
 }
 
 /**
