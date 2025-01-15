@@ -1,4 +1,5 @@
 import type { Schema } from '../../../types'
+import { extractRefs } from './extract-refs'
 import { resolveSchemaOrder } from './resolve-schema-order'
 import { resolveSchemaReferences } from './resolve-schema-references'
 
@@ -49,16 +50,54 @@ import { resolveSchemaReferences } from './resolve-schema-references'
  * - Uses depth-first search for dependency resolution
  * - Automatically handles circular dependencies by preventing infinite recursion
  */
+// export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
+//   // 1. get schema reference relations as a map
+//   const dependencies = resolveSchemaReferences(schemas)
+//   // 2. initialize ordered list and visited set
+//   const ordered: string[] = []
+//   const visited = new Set<string>()
+//   // 3. resolve schema order
+//   for (const name of Object.keys(schemas)) {
+//     resolveSchemaOrder(name, dependencies, visited, ordered)
+//   }
+//   // 4. return ordered list
+//   return ordered
+// }
+
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
-  // 1. get schema reference relations as a map
-  const dependencies = resolveSchemaReferences(schemas)
-  // 2. initialize ordered list and visited set
-  const ordered: string[] = []
-  const visited = new Set<string>()
-  // 3. resolve schema order
-  for (const name of Object.keys(schemas)) {
-    resolveSchemaOrder(name, dependencies, visited, ordered)
+  const visited: Record<string, boolean> = {}
+  const temp: Record<string, boolean> = {}
+  const result: string[] = []
+
+  const visit = (schemaName: string) => {
+    if (temp[schemaName]) {
+      throw new Error(`bad schema: ${schemaName}`)
+    }
+
+    if (!visited[schemaName]) {
+      temp[schemaName] = true
+      const schema = schemas[schemaName]
+      if (schema) {
+        const refs = extractRefs(schema)
+        for (const ref of refs) {
+          if (schemas[ref]) {
+            visit(ref)
+          } else {
+            console.warn(`not found schema: ${ref}`)
+          }
+        }
+      }
+      visited[schemaName] = true
+      temp[schemaName] = false
+      result.push(schemaName)
+    }
   }
-  // 4. return ordered list
-  return ordered
+
+  for (const schemaName of Object.keys(schemas)) {
+    if (!visited[schemaName]) {
+      visit(schemaName)
+    }
+  }
+
+  return result
 }

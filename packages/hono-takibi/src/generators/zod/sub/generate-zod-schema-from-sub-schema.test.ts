@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodSchemaFromSubSchema } from './generate-zod-schema-from-sub-schema'
-import { Config, DEFAULT_CONFIG } from '../../../config'
-import { Schema } from '../../../types'
-
+import { DEFAULT_CONFIG } from '../../../config'
+import type { Schema } from '../../../types'
+import type { Config } from '../../../config'
 const generateZodSchemaFromSubSchemaTestCases: {
   subSchema: Schema
   config: Config

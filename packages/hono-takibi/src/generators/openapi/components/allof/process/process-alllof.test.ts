@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { processAllOf } from './process-alllof'
-import { Schema } from '../../../../../types'
-import { Config, DEFAULT_CONFIG } from '../../../../../config'
+import type { Schema } from '../../../../../types'
+import type { Config } from '../../../../../config'
+import { DEFAULT_CONFIG } from '../../../../../config'
 
 const processAllOfTestCases: {
   allOf: Schema[]
@@ -98,7 +99,7 @@ const processAllOfTestCases: {
 
 describe('processAllOf', () => {
   it.concurrent.each(processAllOfTestCases)(
-    `processAllOf($args.allOf, $args.config) -> $expected`,
+    'processAllOf($args.allOf, $args.config) -> $expected',
     async ({ allOf, config, expected }) => {
       const result = processAllOf(allOf, config)
       expect(result).toEqual(expected)

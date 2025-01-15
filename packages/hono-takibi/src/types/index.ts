@@ -202,6 +202,12 @@ export type Schema = {
   oneOf?: Schema[]
   allOf?: Schema[]
   anyOf?: Schema[]
+  discriminator?: {
+    propertyName?: string
+  }
+  externalDocs?: {
+    url?: string
+  }
 }
 
 /**

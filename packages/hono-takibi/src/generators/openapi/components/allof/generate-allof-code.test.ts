@@ -95,7 +95,7 @@ const generateAnyOfCodeTestCases: {
 
 describe('generateAnyOfCode', () => {
   it.concurrent.each(generateAnyOfCodeTestCases)(
-    `generateAnyOfCode($args.schema, $args.config) -> $expected`,
+    'generateAnyOfCode($args.schema, $args.config) -> $expected',
     async ({ schema, config, expected }) => {
       const result = generateAllOfCode(schema, config)
       expect(result).toBe(expected)

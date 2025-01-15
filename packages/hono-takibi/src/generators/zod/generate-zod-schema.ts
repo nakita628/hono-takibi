@@ -120,7 +120,7 @@ export function generateZodSchema(
       return generateAnyOfCode(schema, config)
     }
     if (!schema.properties) {
-      console.log(schema)
+      // console.log(schema)
       return 'z.object({})'
     }
     return generateZodPropertiesSchema(schema.properties, schema.required || [], config)
