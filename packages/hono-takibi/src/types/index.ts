@@ -188,7 +188,6 @@ export type Schema = {
   required?: string[]
   items?: Schema
   enum?: string[]
-  object?: {}
   nullable?: boolean
   additionalProperties?: {
     type: Type
