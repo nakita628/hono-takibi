@@ -15,9 +15,9 @@ export function generateAnyOfCode(schema: Schema, config: Config): string {
       const refName = refParts[refParts.length - 1]
       const schemaName = getVariableSchemaNameHelper(refName, config)
       return schemaName
-    } else {
-      return generateZodSchema(config, subSchema)
     }
+
+    return generateZodSchema(config, subSchema)
   })
 
   return `z.union([${zodSchemas.join(', ')}])`
