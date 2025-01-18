@@ -6,8 +6,6 @@ import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-i
 export default defineConfig({
   title: "Hono Takibi",
   description: "Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.",
-  base: '/hono-takibi',
-
   // dark mode
   appearance: 'force-dark',
 
@@ -33,6 +31,12 @@ export default defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Hono Takibi', link: '/docs' },
+        ]
+      },
+      {
+        text: 'Settings',
+        items: [
+          { text: 'hono-takibi.json', link: '/docs/settings' },
         ]
       },
       {
