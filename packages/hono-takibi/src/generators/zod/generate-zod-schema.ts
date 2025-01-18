@@ -11,6 +11,8 @@ import { generateAllOfCode } from '../openapi/components/allof/generate-allof-co
 import { generateAnyOfCode } from '../openapi/components/anyof/generate-anyof-code'
 import { generateOneOfCode } from '../openapi/components/oneof/generate-oneof-code'
 import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
+import { generateZodObject } from './generate-zod-object'
+import { generateZodEnum } from './generate-zod-enum'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -100,29 +102,12 @@ export function generateZodSchema(
 ): string {
   // enum
   if (schema.enum) {
-    if (schema.example) {
-      return `z.enum(${JSON.stringify(schema.enum)}).openapi({example:${JSON.stringify(schema.example)}})`
-    }
-    return `z.enum(${JSON.stringify(schema.enum)})`
+    return generateZodEnum(schema)
   }
 
   // object
   if (schema.type === 'object') {
-    if (schema.additionalProperties)
-      return generateZodRecordSchema(schema.additionalProperties, config)
-    if (schema.allOf) {
-      return generateAllOfCode(schema, config)
-    }
-    if (schema.oneOf) {
-      return generateOneOfCode(schema, config)
-    }
-    if (schema.anyOf) {
-      return generateAnyOfCode(schema, config)
-    }
-    if (!schema.properties) {
-      return 'z.object({})'
-    }
-    return generateZodPropertiesSchema(schema.properties, schema.required || [], config)
+    return generateZodObject(schema, config)
   }
 
   // string
