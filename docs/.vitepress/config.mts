@@ -46,11 +46,11 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Other',
+        text: 'Zod to OpenAPI',
         items: [
-          { text: 'Query Parameters', link: '/docs/other/query-parameters' },
+          { text: 'Zod to OpenAPI', link: '/docs/zod-to-openapi' },
         ]
-      }
+      },
     ],
 
     socialLinks: [

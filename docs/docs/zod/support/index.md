@@ -267,207 +267,243 @@ const orderSchema = z
   .openapi('Order') ✅
 ```
 
-## .shape
+- `.shape` ❌
+- `.keyof` ❌
+- `.extend` ❌
+- `.merge` ❌
+- `pick` ❌
+- `omit` ❌
+- `.partial` ✅
+- `.deepPartial` ❌
+- `.required` ❌
+- `.passthrough` ❌
+- `.strict` ❌
+- `.strip` ❌
+- `.catchall` ❌
 
-* [.shape](https://zod.dev/?id=shape)
 
-```ts
-Dog.shape.name // => string schema
-Dog.shape.age // => number schema ❌
-```
+## Arrays
 
-## .keyof
-
-* [.keyof](https://zod.dev/?id=keyof)
-
-```ts
-const keySchema = Dog.keyof()
-keySchema // ZodEnum<["name", "age"]> ❌
-```
-
-## .extend
-
-* [.extend](https://zod.dev/?id=extend)
+* [Arrays](https://zod.dev/?id=arrays)
 
 ```ts
-const DogWithBreed = Dog.extend({
-  breed: z.string(),
-}) ❌
+const lineStringCoordinatesSchema = z.array(positionSchema).openapi('LineStringCoordinates') ✅
 ```
 
-## .merge
+- `.element` ❌
+- `.nonempty` ❌
+- `.min` ❌
+- `.max` ❌
 
-* [.merge](https://zod.dev/?id=merge)
+## Tuples
 
-```ts
-const BaseTeacher = z.object({ students: z.array(z.string()) });
-const HasID = z.object({ id: z.string() });
-
-const Teacher = BaseTeacher.merge(HasID);
-type Teacher = z.infer<typeof Teacher>; // => { students: string[], id: string } ❌
-```
-
-## .pick/.omit
-
-* [.pick/.omit](https://zod.dev/?id=pickomit)
-
-```ts
-const Recipe = z.object({
-  id: z.string(),
-  name: z.string(),
-  ingredients: z.array(z.string()),
-})
-```
-
-&emsp;pick
-
-```ts
-const JustTheName = Recipe.pick({ name: true });
-type JustTheName = z.infer<typeof JustTheName>;
-// => { name: string } ❌
-```
-
-&emsp;omit
-
-```ts
-const NoIDRecipe = Recipe.omit({ id: true });
-
-type NoIDRecipe = z.infer<typeof NoIDRecipe>;
-// => { name: string, ingredients: string[] } ❌
-```
-
-
-## .partial
-
-* [.partial](https://zod.dev/?id=partial)
-
-```ts
-const addressSchema = z
-  .object({
-    street: z.string().openapi({ example: '437 Lytton' }),
-    city: z.string().openapi({ example: 'Palo Alto' }),
-    state: z.string().openapi({ example: 'CA' }),
-    zip: z.string().openapi({ example: '94301' }),
-  })
-  .partial()
-  .openapi('Address') ✅
-```
-
-## .deepPartial
-
-* [.deepPartial](https://zod.dev/?id=deeppartial)
-
-```ts
-const user = z.object({
-  username: z.string(),
-  location: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  strings: z.array(z.object({ value: z.string() })),
-});
-
-const deepPartialUser = user.deepPartial()
-
-/*
-{
-  username?: string | undefined,
-  location?: {
-    latitude?: number | undefined;
-    longitude?: number | undefined;
-  } | undefined,
-  strings?: { value?: string}[]
-}
-*/ ❌
-```
-
-## .required
-
-* [.required](https://zod.dev/?id=required)
-
-```ts
-const user = z
-  .object({
-    email: z.string(),
-    username: z.string(),
-  })
-  .partial();
-// { email?: string | undefined; username?: string | undefined }
-```
-
-```ts
-const requiredUser = user.required();
-// { email: string; username: string } ❌
-```
-
-## .passthrough
-
-* [.passthrough](https://zod.dev/?id=passthrough)
-
-```ts
-const person = z.object({
-  name: z.string(),
-});
-
-person.parse({
-  name: "bob dylan",
-  extraKey: 61,
-})
-// => { name: "bob dylan" }
-// extraKey has been stripped
-```
-
-```ts
-person.passthrough().parse({
-  name: "bob dylan",
-  extraKey: 61,
-})
-// => { name: "bob dylan", extraKey: 61 } ❌
-```
-
-## .strict
-
-* [.strict](https://zod.dev/?id=strict)
-
-```ts
-const person = z
-  .object({
-    name: z.string(),
-  })
-  .strict();
-
-person.parse({
-  name: "bob dylan",
-  extraKey: 61,
-});
-// => throws ZodError ❌
-```
-
-## .strip
-
-* [.strip](https://zod.dev/?id=strip)
+* [Tuples](https://zod.dev/?id=tuples)
 
 ❌
 
-## .catchall
+## Unions
 
-* [.catchall](https://zod.dev/?id=catchall)
+* [Unions](https://zod.dev/?id=unions)
 
 ```ts
-const person = z
+const projectSchema = z
   .object({
-    name: z.string(),
+    id: z.string().uuid(),
+    polygon: z.union([multiPolygonSchema, polygonSchema]).optional(),
+    centre: pointSchema.optional(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
   })
-  .catchall(z.number());
+  .openapi('Project') ✅
+```
 
-person.parse({
-  name: "bob dylan",
-  validExtraKey: 61, // works fine
-});
+## Discriminated unions
 
-person.parse({
-  name: "bob dylan",
-  validExtraKey: false, // fails
-});
-// => throws ZodError ❌
+* [Discriminated unions](https://zod.dev/?id=discriminated-unions)
+
+❌
+
+## Records
+
+* [Records](https://zod.dev/?id=records)
+
+```ts
+export const getStoreInventoryRoute = createRoute({
+  tags: ['store'],
+  method: 'get',
+  path: '/store/inventory',
+  summary: 'Returns pet inventories by status',
+  description: 'Returns a map of status codes to quantities',
+  security: [{ api_key: [] }],
+  responses: {
+    200: {
+      description: 'successful operation',
+      content: { 'application/json': { schema: z.record(z.string(), z.number().int()) } },
+    },
+  },
+}) ✅
+```
+
+## Maps
+
+* [Maps](https://zod.dev/?id=maps)
+
+❌
+
+## Sets
+
+* [Sets](https://zod.dev/?id=sets)
+
+❌
+
+## Intersections
+
+* [Intersections](https://zod.dev/?id=intersections)
+
+```ts
+const pointSchema = z
+  .intersection(
+    geometryElementSchema,
+    z.object({ type: z.enum(['Point']), coordinates: positionSchema }),
+  )
+  .openapi('Point') ✅
+```
+
+## Recursive types
+
+* [Recursive types](https://zod.dev/?id=recursive-types)
+
+❌
+
+## ZodType with ZodEffects
+
+* [ZodType with ZodEffects](https://zod.dev/?id=zodtype-with-zodeffects)
+
+❌
+
+## JSON type
+
+* [JSON type](https://zod.dev/?id=json-type)
+
+❌
+
+## Promises
+
+* [Promises](https://zod.dev/?id=promises)
+
+❌
+
+## Instanceof
+
+* [Instanceof](https://zod.dev/?id=instanceof)
+
+❌
+
+## Functions
+
+* [Functions](https://zod.dev/?id=functions)
+
+❌
+
+
+## Preprocess
+
+* [Preprocess](https://zod.dev/?id=preprocess)
+
+❌
+
+
+## Custom schemas
+
+* [Custom schemas](https://zod.dev/?id=custom-schemas)
+
+❌
+
+## Schema methods
+
+* [Schema methods](https://zod.dev/?id=schema-methods)
+
+- `.parse` ❌
+- `.parseAsync` ❌
+- `.safeParse` ❌
+- `.safeParseAsync` ❌
+- `.refine` ❌
+- `.superRefine` ❌
+- `.transform` ❌
+
+- `.default` ✅
+
+```ts
+z.number().default(1) ✅
+```
+
+- `.describe` ❌
+- `.catch` ❌
+
+- `.optional` ✅
+
+```ts
+z.array(z.number()).optional() ✅
+```
+
+- `.nullable` ✅
+
+```ts
+const featureSchema = z
+  .intersection(
+    geoJsonObjectSchema,
+    z.object({
+      geometry: geometrySchema.nullable(),
+      properties: z.object({}),
+      id: z.union([z.number(), z.string()]).optional(),
+    }),
+  )
+  .openapi('Feature') ✅
+```
+
+- `.nullish` ❌
+
+- `.array` ✅
+
+```ts
+z.array(positionSchema).openapi('LinearRing') ✅
+```
+
+- `.promise` ❌
+- `.or` ❌
+- `.and` ❌
+- `.brand` ❌
+- `.readonly` ❌
+
+- `.pipe` ✅
+
+```ts
+export const getPostsRoute = createRoute({
+  tags: ['Post'],
+  method: 'get',
+  path: '/posts',
+  summary: 'Retrieve a list of posts',
+  description:
+    'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
+  request: {
+    query: z.object({
+      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
+      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Successfully retrieved a list of posts.',
+      content: { 'application/json': { schema: z.array(postSchema) } },
+    },
+    400: {
+      description: 'Invalid request due to bad input.',
+      content: { 'application/json': { schema: errorSchema } },
+    },
+    500: {
+      description: 'Internal server error.',
+      content: { 'application/json': { schema: errorSchema } },
+    },
+  },
+}) ✅
 ```
