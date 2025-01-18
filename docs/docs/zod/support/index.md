@@ -1,6 +1,13 @@
 ---
-prev: false
-next: false
+date: 2024-01-18
+title: Zod Support List
+description: Zod Support List
+prev: 
+  text: Settings
+  link: /docs/settings
+next: 
+  text: Zod to OpenAPI
+  link: /docs/zod-to-openapi
 ---
 
 # Zod Support List

@@ -1,6 +1,13 @@
 ---
-prev: false
-next: false
+date: 2024-01-18
+title: Settings
+description: Settings
+prev: 
+  text: Hono Takibi
+  link: /docs
+next: 
+  text: Zod Support List
+  link: /docs/zod/support
 ---
 
 # Settings

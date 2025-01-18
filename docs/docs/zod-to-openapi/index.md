@@ -1,6 +1,13 @@
 ---
-prev: false
-next: false
+date: 2024-01-18
+title: Zod to OpenAPI
+description: Zod to OpenAPI
+prev: 
+  text: Settings
+  link: /docs/settings
+next: 
+  text: Hono Takibi
+  link: /docs
 ---
 
 # Zod to OpenAPI
