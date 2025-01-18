@@ -1,5 +1,5 @@
 import type { Schema } from '../../types'
-import { Config } from '../../config'
+import type { Config } from '../../config'
 import { generateZodRecordSchema } from './generate-zod-record-schema'
 import { generateAllOfCode } from '../openapi/components/allof/generate-allof-code'
 import { generateOneOfCode } from '../openapi/components/oneof/generate-oneof-code'
