@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getPascalCaseSchemaName } from './get-pascal-case-schema-name'
+import { getPascalCaseSchemaName } from './get-pascal-case-schema-name-helper'
 
 const getPascalCaseSchemaNameTestCases = [
   {
