@@ -2,6 +2,7 @@ import type { Schema } from '../../../../types'
 import type { Config } from '../../../../config'
 import { generateZodSchema } from '../../../zod/generate-zod-schema'
 import { getRefSchemaName } from '../../../../core/schema/references/get-ref-schema-name'
+import { generateZodUnion } from '../../../zod/generate-zod-union'
 
 export function generateOneOfCode(schema: Schema, config: Config): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
@@ -14,5 +15,5 @@ export function generateOneOfCode(schema: Schema, config: Config): string {
     return generateZodSchema(config, subSchema)
   })
 
-  return `z.union([${zodSchemas.join(',')}])`
+  return generateZodUnion(zodSchemas)
 }
