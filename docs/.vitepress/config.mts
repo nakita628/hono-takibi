@@ -6,8 +6,6 @@ import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-i
 export default defineConfig({
   title: "Hono Takibi",
   description: "Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.",
-  base: '/hono-takibi',
-
   // dark mode
   appearance: 'force-dark',
 
@@ -36,22 +34,23 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Zod',
+        text: 'Settings',
         items: [
-          { text: 'Primitives', link: '/docs/zod/primitives' },
-          { text: 'Strings', link: '/docs/zod/strings' },
-          { text: 'Numbers', link: '/docs/zod/numbers' },
-          { text: 'BigInts', link: '/docs/zod/bigints' },
-          { text: 'Arrays', link: '/docs/zod/arrays' },
-          { text: 'Schema methods', link: '/docs/zod/schema-methods' },
+          { text: 'hono-takibi.json', link: '/docs/settings' },
         ]
       },
       {
-        text: 'Other',
+        text: 'Zod',
         items: [
-          { text: 'Query Parameters', link: '/docs/other/query-parameters' },
+          { text: 'Support', link: '/docs/zod/support' },
         ]
-      }
+      },
+      {
+        text: 'Zod to OpenAPI',
+        items: [
+          { text: 'Zod to OpenAPI', link: '/docs/zod-to-openapi' },
+        ]
+      },
     ],
 
     socialLinks: [

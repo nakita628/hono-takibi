@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCamelCaseSchemaName } from './get-camel-case-schema-name'
+import { getCamelCaseSchemaName } from './get-camel-case-schema-name-helper'
 
 const getCamelCaseSchemaNameTestCases = [
   {
