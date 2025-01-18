@@ -42,12 +42,7 @@ export default defineConfig({
       {
         text: 'Zod',
         items: [
-          { text: 'Primitives', link: '/docs/zod/primitives' },
-          { text: 'Strings', link: '/docs/zod/strings' },
-          { text: 'Numbers', link: '/docs/zod/numbers' },
-          { text: 'BigInts', link: '/docs/zod/bigints' },
-          { text: 'Arrays', link: '/docs/zod/arrays' },
-          { text: 'Schema methods', link: '/docs/zod/schema-methods' },
+          { text: 'Support', link: '/docs/zod/support' },
         ]
       },
       {
