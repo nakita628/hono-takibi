@@ -19,7 +19,7 @@
  * - Part of OpenAPI to Zod schema conversion process
  * - Creates reusable schema definitions
  */
-export function generateZodSchemaDefinition(
+export function generateZodToOpenAPISchemaDefinition(
   name: string,
   zodSchema: string,
   schemaName: string,
