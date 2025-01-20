@@ -1,6 +1,6 @@
 import type { Config } from '../../config'
 import type { Format, Type } from '../../types'
-import { generateZodSchema } from './generate-zod-schema'
+import { generateZodSchema } from './schema/generate-zod-schema'
 
 /**
  * Generates a Zod record schema for objects with additional properties

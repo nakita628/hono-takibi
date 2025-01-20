@@ -5,7 +5,7 @@ import { generateZodDefault } from './generate-zod-default'
 import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
 import { generateZodRegex } from './generate-zod-regex'
-import { generateZodToOpenAPI } from './generate-zod-to-openapi'
+import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
 type GenerateZodStringSchemaParams = {
   pattern?: string
