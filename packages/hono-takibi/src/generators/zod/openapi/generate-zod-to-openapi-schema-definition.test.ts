@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateZodSchemaDefinition } from './generate-zod-schema-definition'
+import { generateZodToOpenAPISchemaDefinition } from './generate-zod-to-openapi-schema-definition'
 
 const generateSchemaDefinitionTestCases = [
   {
@@ -28,7 +28,7 @@ describe('generateSchemaDefinition', () => {
   it.concurrent.each(generateSchemaDefinitionTestCases)(
     'generateSchemaDefinition($name, $schema, $schemaName) -> $expected',
     async ({ name, schema, schemaName, expected }) => {
-      const result = generateZodSchemaDefinition(name, schema, schemaName)
+      const result = generateZodToOpenAPISchemaDefinition(name, schema, schemaName)
       expect(result).toEqual(expected)
     },
   )

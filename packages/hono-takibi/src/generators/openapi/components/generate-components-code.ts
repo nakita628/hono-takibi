@@ -1,7 +1,7 @@
 import type { Components } from '../../../types'
 import type { Config } from '../../../config'
-import { generateZodSchemaDefinition } from '../../zod/generate-zod-schema-definition'
-import { generateZodSchema } from '../../../generators/zod/generate-zod-schema'
+import { generateZodToOpenAPISchemaDefinition } from '../../zod/openapi/generate-zod-to-openapi-schema-definition'
+import { generateZodSchema } from '../../zod/schema/generate-zod-schema'
 import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
 import { generateSchemasExport } from '../paths/generate-schemas-export'
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
@@ -45,7 +45,7 @@ export function generateComponentsCode(
       // 4.3 generate zod schema
       const zodSchema = generateZodSchema(config, schema, undefined, undefined)
       // 4.4 generate zod schema definition
-      return generateZodSchemaDefinition(variableName, zodSchema, schemaName)
+      return generateZodToOpenAPISchemaDefinition(variableName, zodSchema, schemaName)
     })
     .join('\n\n')
   // 5. generate export statement

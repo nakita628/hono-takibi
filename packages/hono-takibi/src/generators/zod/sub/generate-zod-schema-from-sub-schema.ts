@@ -1,7 +1,7 @@
 import type { Config } from '../../../config'
 import type { Schema } from '../../../types'
 import { getRefSchemaName } from '../../../core/schema/references/get-ref-schema-name'
-import { generateZodSchema } from '../generate-zod-schema'
+import { generateZodSchema } from '../schema/generate-zod-schema'
 
 /**
  * Generates a Zod schema from a sub-schema.

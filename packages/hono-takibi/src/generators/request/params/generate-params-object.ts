@@ -1,7 +1,7 @@
 import type { ParamsObject, Parameters } from '../../../types'
 import type { Config } from '../../../config'
 import { generateZodCoerce } from '../../zod/generate-zod-coerce'
-import { generateZodSchema } from '../../zod/generate-zod-schema'
+import { generateZodSchema } from '../../zod/schema/generate-zod-schema'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations

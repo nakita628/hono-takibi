@@ -2,7 +2,7 @@ import type { Schema } from '../../types'
 import type { Config } from '../../config'
 import { getRefName } from '../../core/schema/references/get-ref-name'
 import { generateZodArray } from './generate-zod-array'
-import { generateZodSchema } from './generate-zod-schema'
+import { generateZodSchema } from './schema/generate-zod-schema'
 import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
 // import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
 
