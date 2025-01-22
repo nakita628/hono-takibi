@@ -9,6 +9,7 @@ import { generateZodOpenapiHonoHandler } from './generators/hono/handler/generat
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { getConfig } from './config'
+import { formatCode } from './format'
 
 /**
  * CLI entry point for hono-takibi
@@ -43,12 +44,7 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 6. generate Hono code
     const hono = generateZodOpenAPIHono(openAPI, config)
     // 7. format code
-    const formattedCode = await format(hono, {
-      parser: 'typescript',
-      printWidth: 100,
-      singleQuote: true,
-      semi: false,
-    })
+    const formattedCode = await formatCode(hono)
     // 8. write to file
     if (output) {
       // 8.1 output routes/petstore-index.ts
