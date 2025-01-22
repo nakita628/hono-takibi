@@ -14,6 +14,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const getRouteHandler:RouteHandler<typeof getRoute>=async(c)=>{}',
         ],
+        routeNames: ['getRoute'],
       },
       {
         fileName: 'posts_handler.ts',
@@ -21,6 +22,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const postPostsRouteHandler:RouteHandler<typeof postPostsRoute>=async(c)=>{}',
         ],
+        routeNames: ['postPostsRoute'],
       },
       {
         fileName: 'posts_handler.ts',
@@ -28,6 +30,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const getPostsRouteHandler:RouteHandler<typeof getPostsRoute>=async(c)=>{}',
         ],
+        routeNames: ['getPostsRoute'],
       },
       {
         fileName: 'posts_handler.ts',
@@ -35,6 +38,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const putPostsIdRouteHandler:RouteHandler<typeof putPostsIdRoute>=async(c)=>{}',
         ],
+        routeNames: ['putPostsIdRoute'],
       },
       {
         fileName: 'posts_handler.ts',
@@ -42,6 +46,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const deletePostsIdRouteHandler:RouteHandler<typeof deletePostsIdRoute>=async(c)=>{}',
         ],
+        routeNames: ['deletePostsIdRoute'],
       },
     ],
     expected: [
@@ -51,6 +56,7 @@ const groupHandlersByFileNameHelperTestCases: {
         routeHandlerContents: [
           'export const getRouteHandler:RouteHandler<typeof getRoute>=async(c)=>{}',
         ],
+        routeNames: ['getRoute'],
       },
       {
         fileName: 'posts_handler.ts',
@@ -61,6 +67,7 @@ const groupHandlersByFileNameHelperTestCases: {
           'export const putPostsIdRouteHandler:RouteHandler<typeof putPostsIdRoute>=async(c)=>{}',
           'export const deletePostsIdRouteHandler:RouteHandler<typeof deletePostsIdRoute>=async(c)=>{}',
         ],
+        routeNames: ['postPostsRoute', 'getPostsRoute', 'putPostsIdRoute', 'deletePostsIdRoute'],
       },
     ],
   },
@@ -71,7 +78,7 @@ describe('groupHandlersByFileNameHelper', () => {
     'groupHandlersByFileNameHelper($handlers) should return $expected',
     ({ handlers, expected }) => {
       const result = groupHandlersByFileNameHelper(handlers)
-      expect(result).toBe(expected)
+      expect(result).toEqual(expected)
     },
   )
 })

@@ -7,11 +7,13 @@ export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): Handle
     if (mergedMap.has(handler.fileName)) {
       const existing = mergedMap.get(handler.fileName)!
       existing.routeHandlerContents.push(...handler.routeHandlerContents)
+      existing.routeNames.push(...handler.routeNames)
     } else {
       mergedMap.set(handler.fileName, {
         fileName: handler.fileName,
         testFileName: handler.testFileName,
         routeHandlerContents: [...handler.routeHandlerContents],
+        routeNames: [...handler.routeNames],
       })
     }
   }
