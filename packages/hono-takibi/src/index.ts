@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
+import { generateZodOpenapiHonoHandler } from './generators/hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { getConfig } from './config'
@@ -59,6 +60,9 @@ export async function main(dev = false, config: Config = getConfig()) {
     }
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
+
+    // 10. generate handler code
+    generateZodOpenapiHonoHandler(openAPI, config)
     console.log(`Generated code written to ${output}`)
     return true
   } catch (e) {
