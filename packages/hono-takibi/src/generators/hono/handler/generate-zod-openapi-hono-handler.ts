@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-import path from 'node:path'
 import type { OpenAPIPaths, OpenAPISpec } from '../../../types'
 import { generateHandler } from '../../handler/generate-handler'
 import { generateRouteName } from '../../openapi/paths/generate-route-name'
@@ -13,6 +12,7 @@ export type HandlerOutput = {
   fileName: string
   testFileName: string
   routeHandlerContents: string[]
+  routeNames: string[]
 }
 
 export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Config) {
@@ -39,6 +39,7 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
         fileName,
         testFileName,
         routeHandlerContents: [routeHandlerContent],
+        routeNames: [routeName],
       })
     }
   }
@@ -51,9 +52,19 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
         fs.mkdirSync(config.handler.output, { recursive: true })
       }
 
+      const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
+
+      const importRouteTypes = routeTypes
+        ? `import type { ${routeTypes} } from '../src/openapi';`
+        : ''
+
+      const importStatements = `${ROUTE_HANDLER}\n${importRouteTypes}`
+
+      const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
+
       fs.writeFileSync(
         `${config.handler.output}/${handler.fileName}`,
-        await formatCode(`${ROUTE_HANDLER}\n\n${handler.routeHandlerContents.join('\n\n')}`),
+        await formatCode(fileContent),
         { encoding: 'utf-8' },
       )
       if (config.handler.test) {
