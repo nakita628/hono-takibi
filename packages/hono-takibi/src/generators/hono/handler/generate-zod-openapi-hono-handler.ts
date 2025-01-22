@@ -42,9 +42,6 @@ export function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Conf
     }
   }
 
-  console.log('--------------------------------')
-  console.log(handlers)
-  console.log('--------------------------------')
   const mergedHandlers = groupHandlersByFileNameHelper(handlers)
 
   for (const handler of mergedHandlers) {
