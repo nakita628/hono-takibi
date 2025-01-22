@@ -58,7 +58,7 @@ export async function main(dev = false, config: Config = getConfig()) {
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
     // 10. generate handler code
-    generateZodOpenapiHonoHandler(openAPI, config)
+    await generateZodOpenapiHonoHandler(openAPI, config)
     console.log(`Generated code written to ${output}`)
     return true
   } catch (e) {

@@ -5,6 +5,7 @@ import { generateHandler } from '../../handler/generate-handler'
 import { generateRouteName } from '../../openapi/paths/generate-route-name'
 import type { Config } from '../../../config'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper'
+import { formatCode } from '../../../format'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
@@ -14,7 +15,7 @@ export type HandlerOutput = {
   routeHandlerContents: string[]
 }
 
-export function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Config) {
+export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Config) {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
@@ -49,9 +50,10 @@ export function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Conf
       if (!fs.existsSync(config.handler.output)) {
         fs.mkdirSync(config.handler.output, { recursive: true })
       }
+
       fs.writeFileSync(
         `${config.handler.output}/${handler.fileName}`,
-        `${ROUTE_HANDLER}\n\n${handler.routeHandlerContents.join('\n\n')}`,
+        await formatCode(`${ROUTE_HANDLER}\n\n${handler.routeHandlerContents.join('\n\n')}`),
         { encoding: 'utf-8' },
       )
       if (config.handler.test) {
