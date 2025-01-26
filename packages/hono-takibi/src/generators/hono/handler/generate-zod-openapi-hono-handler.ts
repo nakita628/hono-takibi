@@ -5,6 +5,7 @@ import { generateRouteName } from '../../openapi/paths/generate-route-name'
 import type { Config } from '../../../config'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper'
 import { formatCode } from '../../../format'
+import { generateHandlerName } from '../../handler/generate-handler-name'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
@@ -21,7 +22,7 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
       const routeName = generateRouteName(method, path)
-      const handlerName = `${generateRouteName(method, path)}Handler`
+      const handlerName = generateHandlerName(method, path)
 
       const routeHandlerContent = generateHandler(handlerName, routeName)
 
