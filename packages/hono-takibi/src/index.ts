@@ -3,13 +3,13 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
-import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
 import { generateZodOpenapiHonoHandler } from './generators/hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { getConfig } from './config'
 import { formatCode } from './format'
+import { generateApp } from './generators/hono/app'
 
 /**
  * CLI entry point for hono-takibi
@@ -63,6 +63,14 @@ export async function main(dev = false, config: Config = getConfig()) {
     if (config.handler) {
       await generateZodOpenapiHonoHandler(openAPI, config)
     }
+
+    // 11. generate app code
+    const appCode = generateApp(openAPI, config)
+    if (config.app?.output) {
+      const formattedAppCode = await formatCode(appCode)
+      fs.writeFileSync(config.app.output, formattedAppCode, { encoding: 'utf-8' })
+    }
+
     console.log(`Generated code written to ${output}`)
     return true
   } catch (e) {
