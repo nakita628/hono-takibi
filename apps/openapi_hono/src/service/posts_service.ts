@@ -1,5 +1,5 @@
 import type { Post } from '@prisma/client'
-import prisma from '../infra/index.js'
+import prisma from '../infra'
 
 export async function postPosts(post: string): Promise<Post> {
   return await prisma.post.create({

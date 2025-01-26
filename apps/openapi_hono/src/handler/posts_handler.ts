@@ -1,11 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type {
-  deletePostsIdRoute,
-  getPostsRoute,
-  postPostsRoute,
-  putPostsIdRoute,
-} from '../openapi/index.js'
-import { deletePostsId, getPosts, postPosts, putPostsId } from '../service/posts_service.js'
+import type { postPostsRoute, getPostsRoute, putPostsIdRoute, deletePostsIdRoute } from '../openapi'
+import { deletePostsId, getPosts, postPosts, putPostsId } from '../service/posts_service'
 import type { Post } from '@prisma/client'
 
 export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
