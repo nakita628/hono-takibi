@@ -5,9 +5,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { format } from 'prettier'
 import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
+import { generateZodOpenapiHonoHandler } from './generators/hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { getConfig } from './config'
+import { formatCode } from './format'
 
 /**
  * CLI entry point for hono-takibi
@@ -33,23 +35,20 @@ export async function main(dev = false, config: Config = getConfig()) {
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
   const input = config.input ?? args[0]
-  // const input = args[0]
+  config.input = input
   // 4. output = 'routes/petstore-index.ts'
   const output = config.output ?? args[args.indexOf('-o') + 1]
+  config.output = output
+
   try {
     // 5. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
     // 6. generate Hono code
     const hono = generateZodOpenAPIHono(openAPI, config)
     // 7. format code
-    const formattedCode = await format(hono, {
-      parser: 'typescript',
-      printWidth: 100,
-      singleQuote: true,
-      semi: false,
-    })
+    const formattedCode = await formatCode(hono)
     // 8. write to file
-    if (output) {
+    if (config.output) {
       // 8.1 output routes/petstore-index.ts
       const outputDir = path.dirname(output)
       // 8.2 outputDir routes
@@ -59,6 +58,11 @@ export async function main(dev = false, config: Config = getConfig()) {
     }
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
+
+    // 10. generate handler code
+    if (config.handler) {
+      await generateZodOpenapiHonoHandler(openAPI, config)
+    }
     console.log(`Generated code written to ${output}`)
     return true
   } catch (e) {

@@ -8,4 +8,5 @@ migrations
 dev.db
 dev.db-journal
 cache
+handlers
 .DS_Store
