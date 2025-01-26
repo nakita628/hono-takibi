@@ -37,11 +37,11 @@ api.use('*', async (c, next) => {
 // swagger
 app
   .doc('/doc', {
+    openapi: '3.0.0',
     info: {
       title: 'Hono Sample API',
       version: 'v1',
     },
-    openapi: '3.0.0',
     tags: [
       {
         name: 'Hono',
