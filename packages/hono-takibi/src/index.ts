@@ -35,9 +35,11 @@ export async function main(dev = false, config: Config = getConfig()) {
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
   const input = config.input ?? args[0]
-  // const input = args[0]
+  config.input = input
   // 4. output = 'routes/petstore-index.ts'
   const output = config.output ?? args[args.indexOf('-o') + 1]
+  config.output = output
+
   try {
     // 5. parse OpenAPI YAML or JSON
     const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
@@ -46,7 +48,7 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 7. format code
     const formattedCode = await formatCode(hono)
     // 8. write to file
-    if (output) {
+    if (config.output) {
       // 8.1 output routes/petstore-index.ts
       const outputDir = path.dirname(output)
       // 8.2 outputDir routes
