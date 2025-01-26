@@ -1,7 +1,7 @@
 import type { OpenAPISpec } from '../../../types'
 
 export function generateDocs(openAPISpec: OpenAPISpec): {
-  openapi: string
+  openapi: string | undefined
   info: OpenAPISpec['info']
   servers: OpenAPISpec['servers']
   externalDocs: OpenAPISpec['externalDocs']
