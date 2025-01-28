@@ -30,10 +30,10 @@ export const DEFAULT_CONFIG: Config = {
     export: false,
   },
   app: {
-    output: 'index.ts',
+    output: 'pet-store/index.ts',
   },
   handler: {
-    output: 'handlers',
+    output: 'pet-store/handler',
     test: true,
   },
 } as const
