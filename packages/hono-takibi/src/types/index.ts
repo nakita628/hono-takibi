@@ -9,9 +9,9 @@ export type OpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
  * Extended OpenAPI specification with required components and paths
  */
 export type OpenAPISpec = OpenAPI & {
-  openapi: string
-  servers: string
-  components: Components
+  openapi?: string
+  servers?: string
+  components?: Components
 } & {
   paths: OpenAPIPaths
 }
