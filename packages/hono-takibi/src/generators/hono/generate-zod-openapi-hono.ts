@@ -21,7 +21,7 @@ export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config)
   // 1. get components
   const components = openAPISpec.components ? openAPISpec.components : undefined
   if (!components) {
-    throw new Error('Components are required')
+    throw new Error(`Cannot destructure property 'schemas' of 'components' as it is undefined.`)
   }
   // 2. get paths
   const { paths } = openAPISpec
