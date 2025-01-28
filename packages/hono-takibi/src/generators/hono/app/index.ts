@@ -17,6 +17,8 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   for (const { routeName } of routeMappings) {
     const importPath = config.output
+
+    console.log(importPath)
     if (!importPath) {
       throw new Error('Output path is required')
     }
@@ -29,7 +31,12 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
   const importRoutes: string[] = []
   for (const [importPath, names] of Object.entries(importsMap)) {
     const uniqueNames = Array.from(new Set(names))
-    importRoutes.push(`import { ${uniqueNames.join(',')} } from './${importPath}';`)
+    if (importPath.includes('/index.ts')) {
+      const normalizedPath = importPath.replace(/\/index\.ts$/, '')
+      importRoutes.push(`import { ${uniqueNames.join(', ')} } from './${normalizedPath}';`)
+    } else {
+      importRoutes.push(`import { ${uniqueNames.join(',')} } from './${importPath}';`)
+    }
   }
 
   const handlerImportsMap: { [fileName: string]: string[] } = getHandlerImports(routeMappings)
