@@ -28,7 +28,6 @@ describe('generateAppRouteHandler', () => {
     'generateAppRouteHandler($routeName, $handlerName) -> $expected',
     ({ routeName, handlerName, expected }) => {
       const result = generateAppRouteHandler(routeName, handlerName)
-      console.log(result)
       expect(result).toBe(expected)
     },
   )

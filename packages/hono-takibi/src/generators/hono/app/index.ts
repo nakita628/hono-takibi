@@ -17,8 +17,6 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   for (const { routeName } of routeMappings) {
     const importPath = config.output
-
-    console.log(importPath)
     if (!importPath) {
       throw new Error('Output path is required')
     }
@@ -35,6 +33,8 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
       const normalizedPath = importPath.replace(/\/index\.ts$/, '')
       importRoutes.push(`import { ${uniqueNames.join(', ')} } from './${normalizedPath}';`)
     } else {
+      // const isIndexTs = importPath === 'index.ts'
+      // importRoutes.push(`import { ${uniqueNames.join(',')} } from './${isIndexTs ? '' : importPath}';`)
       importRoutes.push(`import { ${uniqueNames.join(',')} } from './${importPath}';`)
     }
   }
