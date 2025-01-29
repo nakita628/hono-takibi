@@ -10,10 +10,10 @@ export type Config = {
     export: boolean
   }
   app?: {
-    output?: string
+    output?: boolean
   }
   handler?: {
-    output?: string
+    output?: boolean
     test?: boolean
   }
   input?: string
@@ -30,10 +30,10 @@ export const DEFAULT_CONFIG: Config = {
     export: false,
   },
   app: {
-    output: 'pet-store/index.ts',
+    output: true,
   },
   handler: {
-    output: 'pet-store/handler',
+    output: true,
     test: true,
   },
 } as const
