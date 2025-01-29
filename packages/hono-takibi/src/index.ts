@@ -68,7 +68,14 @@ export async function main(dev = false, config: Config = getConfig()) {
     const appCode = generateApp(openAPI, config)
     if (config.app?.output) {
       const formattedAppCode = await formatCode(appCode)
-      fs.writeFileSync(config.app.output, formattedAppCode, { encoding: 'utf-8' })
+      if (config.app.output === true) {
+        const defaultFileName = 'index.ts'
+        const alternativeFileName = 'app.ts'
+        const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
+
+        fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
+      }
+      // fs.writeFileSync(config.app.output, formattedAppCode, { encoding: 'utf-8' })
     }
 
     console.log(`Generated code written to ${output}`)
