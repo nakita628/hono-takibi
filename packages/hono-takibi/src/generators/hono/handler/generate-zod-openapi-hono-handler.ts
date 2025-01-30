@@ -58,8 +58,12 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
 
       const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
 
+      const match = config.output?.match(/[^/]+\.ts$/)
+
+      const matchPath = match ? match[0] : ''
+
       const path =
-        config.output === '.' || config.output === './' ? 'config.output' : `../${config.output}`
+        config.output === '.' || config.output === './' ? config.output : `../${matchPath}`
 
       const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
 
