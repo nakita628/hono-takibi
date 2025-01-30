@@ -31,7 +31,7 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
     const uniqueNames = Array.from(new Set(names))
     if (importPath.includes('/index.ts')) {
       const normalizedPath = importPath.replace(/\/index\.ts$/, '')
-      importRoutes.push(`import { ${uniqueNames.join(', ')} } from './${normalizedPath}';`)
+      importRoutes.push(`import { ${uniqueNames.join(',')} } from './${normalizedPath}';`)
     } else {
       // const isIndexTs = importPath === 'index.ts'
       // importRoutes.push(`import { ${uniqueNames.join(',')} } from './${isIndexTs ? '' : importPath}';`)
