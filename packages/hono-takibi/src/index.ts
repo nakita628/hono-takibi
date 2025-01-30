@@ -70,7 +70,7 @@ export async function main(dev = false, config: Config = getConfig()) {
       const formattedAppCode = await formatCode(appCode)
       if (config.app.output === true) {
         const defaultFileName = 'index.ts'
-        const alternativeFileName = 'app.ts'
+        const alternativeFileName = 'main.ts'
         const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
 
         fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
