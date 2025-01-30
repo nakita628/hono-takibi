@@ -11,9 +11,15 @@ export function generateImportHandlers(
       const replacePath = config?.output?.replace(/\/[^/]+\.ts$/, '')
       const dirPath = replacePath === undefined ? '.' : replacePath
       const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
-      importHandlers.push(
-        `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}';`,
-      )
+      if (dirPath === '.') {
+        importHandlers.push(
+          `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}';`,
+        )
+      } else {
+        importHandlers.push(
+          `import { ${uniqueHandlers.join(',')} } from './${handlerPath}/${fileName}';`,
+        )
+      }
     }
   }
   return importHandlers
