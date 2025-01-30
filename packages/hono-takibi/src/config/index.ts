@@ -30,11 +30,11 @@ export const DEFAULT_CONFIG: Config = {
     export: false,
   },
   app: {
-    output: true,
+    output: false,
   },
   handler: {
-    output: true,
-    test: true,
+    output: false,
+    test: false,
   },
 } as const
 
