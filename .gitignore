@@ -8,5 +8,5 @@ migrations
 dev.db
 dev.db-journal
 cache
-handlers
+pet-store
 .DS_Store

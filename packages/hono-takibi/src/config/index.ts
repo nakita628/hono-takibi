@@ -9,8 +9,11 @@ export type Config = {
     name: 'camelCase' | 'PascalCase'
     export: boolean
   }
+  app?: {
+    output?: boolean
+  }
   handler?: {
-    output?: string
+    output?: boolean
     test?: boolean
   }
   input?: string
@@ -26,9 +29,12 @@ export const DEFAULT_CONFIG: Config = {
     name: 'PascalCase',
     export: false,
   },
+  app: {
+    output: false,
+  },
   handler: {
-    output: 'handlers',
-    test: true,
+    output: false,
+    test: false,
   },
 } as const
 
