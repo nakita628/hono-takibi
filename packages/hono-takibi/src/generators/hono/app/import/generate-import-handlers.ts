@@ -8,10 +8,11 @@ export function generateImportHandlers(
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))
     if (config?.handler?.output === true) {
-      const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
+      const replacePath = config?.output?.replace(/\/[^/]+\.ts$/, '')
+      const dirPath = replacePath === undefined ? '.' : replacePath
       const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
       importHandlers.push(
-        `import { ${uniqueHandlers.join(',')} } from './${handlerPath}/${fileName}';`,
+        `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}';`,
       )
     }
   }
