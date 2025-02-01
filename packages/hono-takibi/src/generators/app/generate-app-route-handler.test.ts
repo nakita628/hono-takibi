@@ -9,17 +9,17 @@ const generateAppRouteHandlerTestCases: {
   {
     routeName: 'putPetRoute',
     handlerName: 'putPetRouteHandler',
-    expected: '.openapi(putPetRoute, putPetRouteHandler)',
+    expected: '.openapi(putPetRoute,putPetRouteHandler)',
   },
   {
     routeName: 'postPetRoute',
     handlerName: 'postPetRouteHandler',
-    expected: '.openapi(postPetRoute, postPetRouteHandler)',
+    expected: '.openapi(postPetRoute,postPetRouteHandler)',
   },
   {
     routeName: 'getPetFindByStatusRoute',
     handlerName: 'getPetFindByStatusRouteHandler',
-    expected: '.openapi(getPetFindByStatusRoute, getPetFindByStatusRouteHandler)',
+    expected: '.openapi(getPetFindByStatusRoute,getPetFindByStatusRouteHandler)',
   },
 ]
 

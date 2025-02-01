@@ -1,3 +1,3 @@
 export function generateAppRouteHandler(routeName: string, handlerName: string) {
-  return `.openapi(${routeName}, ${handlerName})`
+  return `.openapi(${routeName},${handlerName})`
 }
