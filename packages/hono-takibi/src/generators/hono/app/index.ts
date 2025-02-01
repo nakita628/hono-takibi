@@ -56,7 +56,7 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
   console.log(openapiRoutes)
 
   const api = `const api = ${app}`
-  
+
   const docs = generateDocs(openAPISpec)
 
   const basePath = 'api'
