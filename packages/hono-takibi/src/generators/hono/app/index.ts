@@ -2,9 +2,9 @@ import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 import { generateAppRouteHandler } from '../../app/generate-app-route-handler'
 import { generateDocs } from '../../openapi/docs/generate-docs'
-import { getHandlerImports } from './import/get-handler-imports'
-import { getRouteMaps } from './import/get-route-maps'
-import { generateImportHandlers } from './import/generate-import-handlers'
+import { getHandlerImports } from '../handler/import/get-handler-imports'
+import { getRouteMaps } from './helper/get-route-maps'
+import { generateImportHandlers } from '../handler/import/generate-import-handlers'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
