@@ -11,6 +11,7 @@ export type Config = {
   }
   app?: {
     output?: boolean
+    basePath?: string
   }
   handler?: {
     output?: boolean
@@ -31,6 +32,7 @@ export const DEFAULT_CONFIG: Config = {
   },
   app: {
     output: true,
+    basePath: 'api',
   },
   handler: {
     output: true,
