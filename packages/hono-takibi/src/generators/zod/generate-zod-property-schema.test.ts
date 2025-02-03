@@ -14,7 +14,7 @@ const generatePropertySchemaTestCases: {
       $ref: '#/components/schemas/User',
     },
     config: DEFAULT_CONFIG,
-    expected: 'userSchema',
+    expected: 'UserSchema',
   },
   {
     schema: {
@@ -24,7 +24,7 @@ const generatePropertySchemaTestCases: {
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.array(postSchema)',
+    expected: 'z.array(PostSchema)',
   },
   {
     schema: {

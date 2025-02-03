@@ -7,23 +7,23 @@ const getRefSchemaNameTestCases: { schema: Schema; config: Config; expected: str
   {
     schema: { $ref: '#/components/schemas/GeoJsonObject' },
     config: DEFAULT_CONFIG,
-    expected: 'geoJsonObjectSchema',
+    expected: 'GeoJsonObjectSchema',
   },
   {
     schema: { $ref: '#/components/schemas/Geometry' },
     config: DEFAULT_CONFIG,
-    expected: 'geometrySchema',
+    expected: 'GeometrySchema',
   },
   {
     schema: { $ref: '#/components/schemas/GeometryElement' },
     config: DEFAULT_CONFIG,
-    expected: 'geometryElementSchema',
+    expected: 'GeometryElementSchema',
   },
 ]
 
 describe('getRefSchemaName', () => {
   it.concurrent.each(getRefSchemaNameTestCases)(
-    'getRefSchemaName($schema, $config) should return $expected',
+    'getRefSchemaName($schema, $config) -> $expected',
     ({ schema, config, expected }) => {
       const result = getRefSchemaName(schema, config)
       expect(result).toBe(expected)

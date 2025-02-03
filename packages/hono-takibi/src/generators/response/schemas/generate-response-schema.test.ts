@@ -99,13 +99,13 @@ const generateResponseSchemaTestCases: {
       },
     },
     config: DEFAULT_CONFIG,
-    expected: `200:{description:'successful operation',content:{'application/json':{schema:orderSchema},'application/xml':{schema:orderSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Order not found',},`,
+    expected: `200:{description:'successful operation',content:{'application/json':{schema:OrderSchema},'application/xml':{schema:OrderSchema}},},400:{description:'Invalid ID supplied',},404:{description:'Order not found',},`,
   },
 ]
 
 describe('generateResponseSchema', () => {
   it.concurrent.each(generateResponseSchemaTestCases)(
-    'generateResponseSchema(%responses, %config) -> %expected',
+    'generateResponseSchema($responses, $config) -> $expected',
     ({ responses, config, expected }) => {
       const result = generateResponseSchema(responses, config)
       expect(result).toBe(expected)

@@ -53,16 +53,20 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const app = `app${openapiRoutes}`
 
-  console.log(openapiRoutes)
-
   const api = `const api = ${app}`
 
   const docs = generateDocs(openAPISpec)
 
-  const basePath = 'api'
-  const swagger = `app.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui', swaggerUI({ url: '${basePath}/doc' }))`
+  const isDev = `const isDev = process.env.NODE_ENV === 'development'`
 
-  const appCode = `${OPENAPI_HONO_IMPORT}\n${SWAGGER_UI_IMPORT}\n${importRoutes.join('\n')}\n${importHandlersCode}\n\n${APP}\n\n${api}\n\n${swagger}`
+  const basePath = 'api'
+  const swagger = `if(isDev){app.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${basePath}/doc'}))}`
+
+  const addType = `export type AddType = typeof api`
+
+  const exportApp = `export default api`
+
+  const appCode = `${OPENAPI_HONO_IMPORT}\n${SWAGGER_UI_IMPORT}\n${importRoutes.join('\n')}\n${importHandlersCode}\n\n${APP}\n\n${api}\n\n${isDev}\n\n${swagger}\n\n${addType}\n\n${exportApp}`
 
   return appCode
 }

@@ -2,11 +2,11 @@ import fs from 'node:fs'
 
 export type Config = {
   schema: {
-    name: 'camelCase' | 'PascalCase'
+    name: 'PascalCase' | 'camelCase'
     export: boolean
   }
   type: {
-    name: 'camelCase' | 'PascalCase'
+    name: 'PascalCase' | 'camelCase'
     export: boolean
   }
   app?: {
@@ -22,7 +22,7 @@ export type Config = {
 
 export const DEFAULT_CONFIG: Config = {
   schema: {
-    name: 'camelCase',
+    name: 'PascalCase',
     export: false,
   },
   type: {
@@ -30,10 +30,10 @@ export const DEFAULT_CONFIG: Config = {
     export: false,
   },
   app: {
-    output: false,
+    output: true,
   },
   handler: {
-    output: false,
+    output: true,
     test: false,
   },
 } as const
