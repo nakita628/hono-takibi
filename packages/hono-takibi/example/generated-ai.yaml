@@ -1,16 +1,17 @@
 openapi: 3.0.3
 info:
-  title: JWT Two-Factor Authentication API
+  title: JWT 2段階認証 API
   version: "1.0.0"
 servers:
-  - url: https://api.example.com
+  - url: http://localhost:8080/api
 paths:
   /auth/login:
     post:
-      summary: "Primary Authentication"
+      summary: ユーザー認証（ログイン）と2段階認証開始
       description: >
-        Authenticate using your username and password to receive a temporary token for two-factor authentication.
+        ユーザー名とパスワードによる認証を行い、認証成功の場合は2段階認証用の一時トークンを返却します。
       requestBody:
+        description: ユーザー認証情報
         required: true
         content:
           application/json:
@@ -19,85 +20,85 @@ paths:
               properties:
                 username:
                   type: string
-                  example: user@example.com
+                  example: "user@example.com"
                 password:
                   type: string
-                  example: yourpassword
+                  example: "password123"
               required:
                 - username
                 - password
       responses:
         '200':
-          description: "Successful authentication. A temporary token for two-factor authentication is returned."
+          description: 認証成功、2段階認証コードの入力が必要
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  tempToken:
+                  temp_token:
                     type: string
-                    description: "Temporary token for two-factor authentication"
-                    example: temporary-token-string
+                    description: 2段階認証用の一時トークン
+                  message:
+                    type: string
+                    example: "2段階認証コードの入力が必要です。"
         '401':
-          description: "Authentication failed."
-  /auth/verify:
+          description: 認証失敗（無効なユーザー名またはパスワード）
+  /auth/verify-2fa:
     post:
-      summary: "Two-Factor Authentication Verification"
+      summary: 2段階認証コードの検証とJWT発行
       description: >
-        Validate the temporary token obtained during primary authentication and the one-time password (OTP) to receive a JWT.
+        一時トークンと2段階認証コードを受け取り、コードが正しければJWT形式のアクセストークンを返却します。
       requestBody:
+        description: 2段階認証情報
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                tempToken:
+                temp_token:
                   type: string
-                  description: "Temporary token from the primary authentication step"
-                  example: temporary-token-string
-                otp:
+                  description: ログイン時に発行された一時トークン
+                code:
                   type: string
-                  description: "One-Time Password"
-                  example: "123456"
+                  description: ユーザーが入力した2段階認証コード
               required:
-                - tempToken
-                - otp
+                - temp_token
+                - code
       responses:
         '200':
-          description: "Two-factor authentication successful. A JWT is returned."
+          description: 2段階認証成功、JWTアクセストークン発行
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  access_token:
                     type: string
-                    description: "JWT token"
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                    description: JWT形式のアクセストークン
+                  token_type:
+                    type: string
+                    example: "Bearer"
         '401':
-          description: "Two-factor authentication failed."
+          description: 2段階認証失敗（無効なコードまたは一時トークン）
   /protected:
     get:
-      summary: "Access Protected Resource"
-      description: >
-        This endpoint is accessible only to users with a valid JWT.
-        Include the header `Authorization: Bearer {token}` in your request.
+      summary: JWT認証が必要な保護されたエンドポイント
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: "Resource accessible by authenticated users."
+          description: アクセストークンが有効な場合の正常なレスポンス
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
+                  data:
                     type: string
-                    example: "This is a protected resource."
+                    example: "保護されたデータへのアクセスに成功しました。"
         '401':
-          description: "Unauthorized access."
+          description: アクセストークンが無効または存在しない場合
 components:
   securitySchemes:
     bearerAuth:

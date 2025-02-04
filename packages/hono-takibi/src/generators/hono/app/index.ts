@@ -9,8 +9,8 @@ import { generateImportHandlers } from '../handler/import/generate-import-handle
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
 const APP = 'const app = new OpenAPIHono()' as const
-const ADD_TYPE = `export type AddType = typeof api` as const
-const EXPORT_APP = `export default api` as const
+const ADD_TYPE = 'export type AddType = typeof api' as const
+const EXPORT_APP = 'export default app' as const
 
 export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
   const routeMappings = getRouteMaps(openAPISpec)
