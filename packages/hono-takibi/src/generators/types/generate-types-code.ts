@@ -22,6 +22,9 @@ import type { Config } from '../../config'
 export function generateTypesCode(components: Components, config: Config): string {
   // 1. schema extraction
   const { schemas } = components
+  if (!schemas) {
+    return ''
+  }
   // 2. resolve schema dependencies to obtain proper ordering
   const orderedSchemas = resolveSchemasDependencies(schemas)
   // 3. if there are no schemas, return an empty string
