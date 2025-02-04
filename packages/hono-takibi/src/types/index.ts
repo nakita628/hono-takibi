@@ -10,7 +10,7 @@ export type OpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
  */
 export type OpenAPISpec = OpenAPI & {
   openapi?: string
-  servers?: string
+  servers?: string | { url: string }[]
   components: Components
 } & {
   paths: OpenAPIPaths
@@ -216,9 +216,18 @@ export type Schema = {
  * Components section of OpenAPI spec
  */
 export type Components = {
-  schemas: Record<string, Schema>
+  schemas?: Record<string, Schema>
   parameters?: Record<string, Parameters>
   requestBodies?: Record<string, RequestBody>
+  securitySchemes?: SecuritySchemes
+}
+
+export type SecuritySchemes = {
+  [key: string]: {
+    type?: string
+    scheme?: string
+    bearerFormat?: string
+  }
 }
 
 /**
