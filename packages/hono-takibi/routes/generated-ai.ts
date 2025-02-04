@@ -4,9 +4,9 @@ export const postAuthLoginRoute = createRoute({
   tags: [],
   method: 'post',
   path: '/auth/login',
-  summary: 'ユーザー認証（ログイン）と2段階認証開始',
+  summary: 'User Login to Retrieve JWT',
   description:
-    'ユーザー名とパスワードによる認証を行い、認証成功の場合は2段階認証用の一時トークンを返却します。',
+    'Authenticate the user by providing a username and password. On success, a JWT is returned.',
   request: {
     body: {
       required: true,
@@ -22,52 +22,18 @@ export const postAuthLoginRoute = createRoute({
   },
   responses: {
     200: {
-      description: '認証成功、2段階認証コードの入力が必要',
+      description: 'Successful login, JWT token issued',
       content: {
         'application/json': {
           schema: z
             .object({
-              temp_token: z.string(),
-              message: z.string().openapi({ example: '2段階認証コードの入力が必要です。' }),
+              token: z.string().openapi({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }),
             })
             .partial(),
         },
       },
     },
-    401: { description: '認証失敗（無効なユーザー名またはパスワード）' },
-  },
-})
-
-export const postAuthVerify2faRoute = createRoute({
-  tags: [],
-  method: 'post',
-  path: '/auth/verify-2fa',
-  summary: '2段階認証コードの検証とJWT発行',
-  description:
-    '一時トークンと2段階認証コードを受け取り、コードが正しければJWT形式のアクセストークンを返却します。',
-  request: {
-    body: {
-      required: true,
-      content: {
-        'application/json': { schema: z.object({ temp_token: z.string(), code: z.string() }) },
-      },
-    },
-  },
-  responses: {
-    200: {
-      description: '2段階認証成功、JWTアクセストークン発行',
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              access_token: z.string(),
-              token_type: z.string().openapi({ example: 'Bearer' }),
-            })
-            .partial(),
-        },
-      },
-    },
-    401: { description: '2段階認証失敗（無効なコードまたは一時トークン）' },
+    401: { description: 'Login failed (invalid credentials)' },
   },
 })
 
@@ -75,21 +41,22 @@ export const getProtectedRoute = createRoute({
   tags: [],
   method: 'get',
   path: '/protected',
-  summary: 'JWT認証が必要な保護されたエンドポイント',
-  security: [{ bearerAuth: [] }],
+  summary: 'Protected Endpoint',
+  description: 'Access a resource that requires a valid JWT.',
+  security: [{ jwt: [] }],
   responses: {
     200: {
-      description: 'アクセストークンが有効な場合の正常なレスポンス',
+      description: 'Access granted to the protected resource',
       content: {
         'application/json': {
           schema: z
             .object({
-              data: z.string().openapi({ example: '保護されたデータへのアクセスに成功しました。' }),
+              message: z.string().openapi({ example: 'Access to protected data granted.' }),
             })
             .partial(),
         },
       },
     },
-    401: { description: 'アクセストークンが無効または存在しない場合' },
+    401: { description: 'Access denied (invalid or missing JWT)' },
   },
 })

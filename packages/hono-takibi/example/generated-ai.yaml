@@ -1,17 +1,18 @@
 openapi: 3.0.3
 info:
-  title: JWT 2段階認証 API
+  title: JWT Authentication API
   version: "1.0.0"
 servers:
   - url: http://localhost:8080/api
 paths:
   /auth/login:
     post:
-      summary: ユーザー認証（ログイン）と2段階認証開始
+      summary: User Login to Retrieve JWT
       description: >
-        ユーザー名とパスワードによる認証を行い、認証成功の場合は2段階認証用の一時トークンを返却します。
+        Authenticate the user by providing a username and password. On success,
+        a JWT is returned.
       requestBody:
-        description: ユーザー認証情報
+        description: User credentials for login
         required: true
         content:
           application/json:
@@ -29,79 +30,40 @@ paths:
                 - password
       responses:
         '200':
-          description: 認証成功、2段階認証コードの入力が必要
+          description: Successful login, JWT token issued
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  temp_token:
+                  token:
                     type: string
-                    description: 2段階認証用の一時トークン
-                  message:
-                    type: string
-                    example: "2段階認証コードの入力が必要です。"
+                    description: JWT token
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         '401':
-          description: 認証失敗（無効なユーザー名またはパスワード）
-  /auth/verify-2fa:
-    post:
-      summary: 2段階認証コードの検証とJWT発行
-      description: >
-        一時トークンと2段階認証コードを受け取り、コードが正しければJWT形式のアクセストークンを返却します。
-      requestBody:
-        description: 2段階認証情報
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                temp_token:
-                  type: string
-                  description: ログイン時に発行された一時トークン
-                code:
-                  type: string
-                  description: ユーザーが入力した2段階認証コード
-              required:
-                - temp_token
-                - code
-      responses:
-        '200':
-          description: 2段階認証成功、JWTアクセストークン発行
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                    description: JWT形式のアクセストークン
-                  token_type:
-                    type: string
-                    example: "Bearer"
-        '401':
-          description: 2段階認証失敗（無効なコードまたは一時トークン）
+          description: Login failed (invalid credentials)
   /protected:
     get:
-      summary: JWT認証が必要な保護されたエンドポイント
+      summary: Protected Endpoint
+      description: Access a resource that requires a valid JWT.
       security:
-        - bearerAuth: []
+        - jwt: []
       responses:
         '200':
-          description: アクセストークンが有効な場合の正常なレスポンス
+          description: Access granted to the protected resource
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  data:
+                  message:
                     type: string
-                    example: "保護されたデータへのアクセスに成功しました。"
+                    example: "Access to protected data granted."
         '401':
-          description: アクセストークンが無効または存在しない場合
+          description: Access denied (invalid or missing JWT)
 components:
   securitySchemes:
-    bearerAuth:
+    jwt:
       type: http
       scheme: bearer
       bearerFormat: JWT
