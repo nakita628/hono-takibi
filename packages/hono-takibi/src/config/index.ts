@@ -31,11 +31,11 @@ export const DEFAULT_CONFIG: Config = {
     export: false,
   },
   app: {
-    output: true,
+    output: false,
     basePath: 'api',
   },
   handler: {
-    output: true,
+    output: false,
     test: false,
   },
 } as const

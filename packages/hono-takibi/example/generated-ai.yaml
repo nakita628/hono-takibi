@@ -1,98 +1,106 @@
 openapi: 3.0.3
 info:
-  title: Mixed Auth API (No Global Security)
-  description: 全体にはsecurityを記載せず、エンドポイント単位でJWT認証を設定する例
-  version: 1.0.0
-
+  title: JWT Two-Factor Authentication API
+  version: "1.0.0"
 servers:
-  - url: https://api.example.com/v1
-    description: 本番サーバー
-
-tags:
-  - name: Public
-    description: 認証不要のエンドポイント
-  - name: Private
-    description: JWT認証が必要なエンドポイント
-
+  - url: https://api.example.com
 paths:
-  /public:
-    get:
-      tags:
-        - Public
-      summary: Public endpoint
-      description: このエンドポイントには JWT は不要です
-      operationId: getPublic
-      # ★ securityフィールドを空の配列にする ⇒ 「認証不要」
-      security: []
+  /auth/login:
+    post:
+      summary: "Primary Authentication"
+      description: >
+        Authenticate using your username and password to receive a temporary token for two-factor authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: yourpassword
+              required:
+                - username
+                - password
       responses:
         '200':
-          description: OK (認証不要)
+          description: "Successful authentication. A temporary token for two-factor authentication is returned."
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
+                  tempToken:
                     type: string
-                    example: "This endpoint is public."
-        '500':
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /private:
-    get:
-      tags:
-        - Private
-      summary: Private endpoint
-      description: このエンドポイントには有効な JWT (Bearer Token) が必要です
-      operationId: getPrivate
-      # ★ securityフィールドでJWTAuthを指定 ⇒ 「認証必須」
-      security:
-        - JWTAuth: []
-      responses:
-        '200':
-          description: OK (JWT 認証必須)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Private endpoint, token required."
+                    description: "Temporary token for two-factor authentication"
+                    example: temporary-token-string
         '401':
-          description: 認証エラー（トークンなし/不正）
+          description: "Authentication failed."
+  /auth/verify:
+    post:
+      summary: "Two-Factor Authentication Verification"
+      description: >
+        Validate the temporary token obtained during primary authentication and the one-time password (OTP) to receive a JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tempToken:
+                  type: string
+                  description: "Temporary token from the primary authentication step"
+                  example: temporary-token-string
+                otp:
+                  type: string
+                  description: "One-Time Password"
+                  example: "123456"
+              required:
+                - tempToken
+                - otp
+      responses:
+        '200':
+          description: "Two-factor authentication successful. A JWT is returned."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: サーバーエラー
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: "JWT token"
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: "Two-factor authentication failed."
+  /protected:
+    get:
+      summary: "Access Protected Resource"
+      description: >
+        This endpoint is accessible only to users with a valid JWT.
+        Include the header `Authorization: Bearer {token}` in your request.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "Resource accessible by authenticated users."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "This is a protected resource."
+        '401':
+          description: "Unauthorized access."
 components:
-  schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          example: 401
-        message:
-          type: string
-          example: "Invalid or missing token."
-      required:
-        - code
-        - message
-
   securitySchemes:
-    JWTAuth:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
