@@ -10,7 +10,7 @@ const generateRegisterComponentTestCases = [
         bearerFormat: 'JWT',
       },
     },
-    expected: `api.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify({
+    expected: `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify({
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',

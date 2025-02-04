@@ -63,15 +63,16 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
   const isDev = `const isDev = process.env.NODE_ENV === 'development'`
 
   const basePath = config?.app?.basePath ? `/${config.app.basePath}/doc` : '/doc'
-  const swagger = `if(isDev){app.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${basePath}'}))}`
+
 
   const { components } = openAPISpec
   const registerComponent = components?.securitySchemes
     ? generateRegisterComponent(components.securitySchemes)
     : ''
-  console.log(registerComponent)
 
-  const appCode = `${OPENAPI_HONO_IMPORT}\n${SWAGGER_UI_IMPORT}\n${importRoutes.join('\n')}\n${importHandlersCode}\n\n${APP}\n\n${api}\n\n${isDev}\n\n${swagger}\n\n${registerComponent}\n\n${ADD_TYPE}\n\n${EXPORT_APP}`
+  const swagger = `if(isDev){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${basePath}'}))}`
+
+  const appCode = `${OPENAPI_HONO_IMPORT}\n${SWAGGER_UI_IMPORT}\n${importRoutes.join('\n')}\n${importHandlersCode}\n\n${APP}\n\n${api}\n\n${isDev}\n\n${swagger}\n\n${ADD_TYPE}\n\n${EXPORT_APP}`
 
   return appCode
 }
