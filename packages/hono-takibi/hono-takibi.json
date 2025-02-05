@@ -1,6 +1,6 @@
 {
   "schema": {
-    "name": "camelCase",
+    "name": "PascalCase",
     "export": false
   },
   "type": {

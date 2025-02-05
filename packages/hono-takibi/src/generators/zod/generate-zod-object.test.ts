@@ -123,7 +123,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
     },
     config: DEFAULT_CONFIG,
     expected:
-      'z.object({geometry:geometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()})',
+      'z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()})',
   },
   {
     schema: {
@@ -147,7 +147,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.object({features:z.array(featureSchema)})',
+    expected: 'z.object({features:z.array(FeatureSchema)})',
   },
   {
     schema: {
@@ -164,7 +164,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.object({type:z.enum(["Point"]),coordinates:positionSchema})',
+    expected: 'z.object({type:z.enum(["Point"]),coordinates:PositionSchema})',
   },
   {
     schema: {
@@ -177,7 +177,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.object({coordinates:lineStringCoordinatesSchema})',
+    expected: 'z.object({coordinates:LineStringCoordinatesSchema})',
   },
 ]
 

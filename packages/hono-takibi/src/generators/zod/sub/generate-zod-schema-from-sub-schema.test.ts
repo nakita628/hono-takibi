@@ -11,7 +11,7 @@ const generateZodSchemaFromSubSchemaTestCases: {
   {
     subSchema: { $ref: '#/components/schemas/GeoJsonObject' },
     config: DEFAULT_CONFIG,
-    expected: 'geoJsonObjectSchema',
+    expected: 'GeoJsonObjectSchema',
   },
   {
     subSchema: {

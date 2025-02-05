@@ -21,7 +21,7 @@ const generateAnyOfCodeTestCases: {
       description: 'Center coordinates',
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.union([multiPolygonSchema,polygonSchema])',
+    expected: 'z.union([MultiPolygonSchema,PolygonSchema])',
   },
 ]
 

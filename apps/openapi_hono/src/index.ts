@@ -34,37 +34,41 @@ api.use('*', async (c, next) => {
   }
 })
 
-// swagger
-app
-  .doc('/doc', {
-    openapi: '3.0.0',
-    info: {
-      title: 'Hono Sample API',
-      version: 'v1',
-    },
-    tags: [
-      {
-        name: 'Hono',
-        description: 'Hono API',
-      },
-      {
-        name: 'Post',
-        description: 'Post API',
-      },
-    ],
-  })
-  .get('/ui', swaggerUI({ url: '/doc' }))
+const isDev = process.env.NODE_ENV === 'development'
 
-// scalar
-app.get(
-  '/docs',
-  apiReference({
-    theme: 'saturn',
-    spec: {
-      url: '/doc',
-    },
-  }),
-)
+if (isDev) {
+  // swagger
+  app
+    .doc('/doc', {
+      openapi: '3.0.0',
+      info: {
+        title: 'Hono Sample API',
+        version: 'v1',
+      },
+      tags: [
+        {
+          name: 'Hono',
+          description: 'Hono API',
+        },
+        {
+          name: 'Post',
+          description: 'Post API',
+        },
+      ],
+    })
+    .get('/ui', swaggerUI({ url: '/doc' }))
+
+  // scalar
+  app.get(
+    '/docs',
+    apiReference({
+      theme: 'saturn',
+      spec: {
+        url: '/doc',
+      },
+    }),
+  )
+}
 
 const port = 3000
 console.log(`Server is running on http://localhost:${port}`)

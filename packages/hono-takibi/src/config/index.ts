@@ -2,19 +2,18 @@ import fs from 'node:fs'
 
 export type Config = {
   schema: {
-    name: 'camelCase' | 'PascalCase'
+    name: 'PascalCase' | 'camelCase'
     export: boolean
   }
   type: {
-    name: 'camelCase' | 'PascalCase'
+    name: 'PascalCase' | 'camelCase'
     export: boolean
   }
   app?: {
     output?: boolean
-  }
-  handler?: {
-    output?: boolean
     test?: boolean
+    basePath?: string
+    isDev?: string
   }
   input?: string
   output?: string
@@ -22,7 +21,7 @@ export type Config = {
 
 export const DEFAULT_CONFIG: Config = {
   schema: {
-    name: 'camelCase',
+    name: 'PascalCase',
     export: false,
   },
   type: {
@@ -31,10 +30,9 @@ export const DEFAULT_CONFIG: Config = {
   },
   app: {
     output: false,
-  },
-  handler: {
-    output: false,
     test: false,
+    basePath: 'api',
+    isDev: 'process.env.NODE_ENV',
   },
 } as const
 

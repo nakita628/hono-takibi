@@ -43,7 +43,7 @@ const processAllOfTestCases: {
     expected: {
       nullable: false,
       schemas: [
-        'geoJsonObjectSchema',
+        'GeoJsonObjectSchema',
         'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])})',
       ],
     },
@@ -78,7 +78,7 @@ const processAllOfTestCases: {
     expected: {
       nullable: false,
       schemas: [
-        'geometrySchema',
+        'GeometrySchema',
         'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"])})',
       ],
     },
@@ -93,7 +93,7 @@ const processAllOfTestCases: {
       },
     ],
     config: DEFAULT_CONFIG,
-    expected: { nullable: true, schemas: ['geometrySchema'] },
+    expected: { nullable: true, schemas: ['GeometrySchema'] },
   },
 ]
 

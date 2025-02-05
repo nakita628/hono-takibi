@@ -5,7 +5,7 @@ import { generateRequestParameter } from '../../request/params/generate-request-
 import { generateResponseSchema } from '../../response/schemas/generate-response-schema'
 import { generateRouteName } from './generate-route-name'
 import { escapeQuote } from '../../../core/text/escape-quote'
-
+import { sanitize } from '../../../core/text/sanitize'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
  *
@@ -46,8 +46,8 @@ export function generateRoute(
     tagsCode: `tags:${tagList},`,
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
-    summaryCode: summary ? `summary:'${escapeQuote(summary)}',` : '',
-    descriptionCode: description ? `description:'${escapeQuote(description)}',` : '',
+    summaryCode: summary ? `summary:'${sanitize(summary)}',` : '',
+    descriptionCode: description ? `description:'${sanitize(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
     responsesCode: responses ? `responses:{${generateResponseSchema(responses, config)}}` : '',

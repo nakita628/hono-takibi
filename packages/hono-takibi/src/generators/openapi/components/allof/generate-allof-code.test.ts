@@ -43,7 +43,7 @@ const generateAnyOfCodeTestCases: {
     },
     config: DEFAULT_CONFIG,
     expected:
-      'z.intersection(geoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
+      'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
   },
   {
     schema: {
@@ -89,7 +89,7 @@ const generateAnyOfCodeTestCases: {
     },
     config: DEFAULT_CONFIG,
     expected:
-      'z.intersection(geoJsonObjectSchema,z.object({geometry:geometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))',
+      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))',
   },
 ]
 
