@@ -35,7 +35,7 @@ const generateImportHandlersTestCases: {
         'deleteUserUsernameRouteHandler',
       ],
     },
-    config: { ...DEFAULT_CONFIG, handler: { output: true } },
+    config: { ...DEFAULT_CONFIG, app: { output: true } },
     expected: [
       "import { putPetRouteHandler,postPetRouteHandler,getPetFindByStatusRouteHandler,getPetFindByTagsRouteHandler,getPetPetIdRouteHandler,postPetPetIdRouteHandler,deletePetPetIdRouteHandler,postPetPetIdUploadImageRouteHandler } from './handler/pet_handler.ts';",
       "import { getStoreInventoryRouteHandler,postStoreOrderRouteHandler,getStoreOrderOrderIdRouteHandler,deleteStoreOrderOrderIdRouteHandler } from './handler/store_handler.ts';",

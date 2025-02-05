@@ -49,7 +49,7 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
   const mergedHandlers = groupHandlersByFileNameHelper(handlers)
 
   for (const handler of mergedHandlers) {
-    if (config.handler?.output === true) {
+    if (config.app?.output === true) {
       const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
       const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
       if (!fs.existsSync(handlerPath)) {
@@ -74,7 +74,7 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
       fs.writeFileSync(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
         encoding: 'utf-8',
       })
-      if (config.handler.test) {
+      if (config.app.test) {
         fs.writeFileSync(`${handlerPath}/${handler.testFileName}`, '', {
           encoding: 'utf-8',
         })

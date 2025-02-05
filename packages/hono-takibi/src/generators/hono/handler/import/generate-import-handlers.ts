@@ -7,7 +7,7 @@ export function generateImportHandlers(
   const importHandlers: string[] = []
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))
-    if (config?.handler?.output === true) {
+    if (config?.app?.output === true) {
       const replacePath = config?.output?.replace(/\/[^/]+\.ts$/, '')
       const dirPath = replacePath === undefined ? '.' : replacePath
       const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
