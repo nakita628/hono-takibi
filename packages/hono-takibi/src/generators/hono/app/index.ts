@@ -7,6 +7,8 @@ import { getRouteMaps } from './helper/get-route-maps'
 import { generateImportHandlers } from '../handler/import/generate-import-handlers'
 import { generateRegisterComponent } from '../../openapi/components/generate-register-component'
 import { generateImportRoutes } from './generators/generate-import-routes'
+import { generateApplyOpenapiRoutes } from './generators/generate-apply-openapi-routes'
+import { processImportMap } from './helper/process-import-map'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
@@ -17,18 +19,7 @@ const EXPORT_APP = 'export default app' as const
 export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
   const routeMappings = getRouteMaps(openAPISpec)
 
-  const importsMap: { [importPath: string]: string[] } = {}
-
-  for (const { routeName } of routeMappings) {
-    const importPath = config.output
-    if (!importPath) {
-      throw new Error('Output path is required')
-    }
-    if (!importsMap[importPath]) {
-      importsMap[importPath] = []
-    }
-    importsMap[importPath].push(routeName)
-  }
+  const importsMap = processImportMap(routeMappings, config)
 
   const importRoutes = generateImportRoutes(importsMap)
 
@@ -38,13 +29,9 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const importHandlersCode = importHandlers.join('\n')
 
-  const openapiRoutes = routeMappings
-    .map(({ routeName, handlerName }) => {
-      return generateAppRouteHandler(routeName, handlerName)
-    })
-    .join('\n')
+  const applyOpenapiRoutes = generateApplyOpenapiRoutes(routeMappings)
 
-  const app = `app${openapiRoutes}`
+  const app = `app${applyOpenapiRoutes}`
 
   const api = `const api = ${app}`
 
@@ -63,8 +50,6 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
     : ''
 
   const swagger = `if(isDev){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${basePath}'}))}`
-
-  console.log(importRoutes.join(''))
 
   const sections = [
     // 1. imports
