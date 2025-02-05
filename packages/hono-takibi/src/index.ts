@@ -59,22 +59,18 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
-    // 10. generate handler code
-    if (config.handler) {
-      await generateZodOpenapiHonoHandler(openAPI, config)
-    }
-
-    // 11. generate app code
+    // 10. generate app code
     const appCode = generateApp(openAPI, config)
-    if (config.app?.output) {
-      if (config.app.output === true) {
-        const formattedAppCode = await formatCode(appCode)
-        const defaultFileName = 'index.ts'
-        const alternativeFileName = 'main.ts'
-        const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
-        fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
-      }
-      // fs.writeFileSync(config.app.output, formattedAppCode, { encoding: 'utf-8' })
+    if (config.app?.output === true) {
+      // 10.1 generate handler code
+      await generateZodOpenapiHonoHandler(openAPI, config)
+      // 10.2 format app code
+      const formattedAppCode = await formatCode(appCode)
+      // 10.3 write to file
+      const defaultFileName = 'index.ts'
+      const alternativeFileName = 'main.ts'
+      const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
+      fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
     }
 
     console.log(`Generated code written to ${output}`)
