@@ -11,11 +11,9 @@ export type Config = {
   }
   app?: {
     output?: boolean
-    basePath?: string
-  }
-  handler?: {
-    output?: boolean
     test?: boolean
+    basePath?: string
+    isDev?: string
   }
   input?: string
   output?: string
@@ -32,11 +30,9 @@ export const DEFAULT_CONFIG: Config = {
   },
   app: {
     output: false,
-    basePath: 'api',
-  },
-  handler: {
-    output: false,
     test: false,
+    basePath: 'api',
+    isDev: 'process.env.NODE_ENV',
   },
 } as const
 
