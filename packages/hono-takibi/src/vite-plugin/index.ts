@@ -18,7 +18,7 @@ export default function honoTakibiPlugin(options: HonoTakibiPluginOptions) {
           npm: 'npx',
           pnpm: 'pnpm',
           yarn: 'yarn',
-          bun: 'bun run',
+          bun: 'bun',
         }
 
         const commandPrefix = commandPrefixMap[options.packageManager]
