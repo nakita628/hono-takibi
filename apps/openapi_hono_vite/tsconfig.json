@@ -2,9 +2,12 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "strict": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "bundler",
-    "types": ["vite/client"]
+    "skipLibCheck": true,
+    "types": ["node"]
   }
 }

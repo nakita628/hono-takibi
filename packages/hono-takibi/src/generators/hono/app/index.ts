@@ -34,7 +34,7 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const app = `app${applyOpenapiRoutes}`
 
-  const api = `const api = ${app}`
+  const api = `export const api = ${app}`
 
   const docs = generateDocs(openAPISpec)
 

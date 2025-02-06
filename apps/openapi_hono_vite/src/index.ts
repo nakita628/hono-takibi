@@ -1,32 +1,5 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
-import type { RouteHandler } from '@hono/zod-openapi'
-
-const app = new OpenAPIHono()
-
-const get = createRoute({
-  tags: ['Hono'],
-  method: 'get',
-  path: '/',
-  description: 'Hono🔥 Vite',
-  responses: {
-    200: {
-      description: 'Hono🔥 Vite',
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string(),
-          }),
-        },
-      },
-    },
-  },
-})
-
-export const getHandler: RouteHandler<typeof get> = async (c) => {
-  return c.json({ message: 'Hono🔥 Vite' })
-}
-
-const api = app.openapi(get, getHandler)
+import { serve } from '@hono/node-server'
+import app, { api } from '..'
 
 api.use('*', async (c, next) => {
   try {
@@ -36,4 +9,10 @@ api.use('*', async (c, next) => {
   }
 })
 
-export default app
+const port = 3000
+console.log(`Server is running on http://localhost:${port}`)
+
+serve({
+  fetch: app.fetch,
+  port,
+})
