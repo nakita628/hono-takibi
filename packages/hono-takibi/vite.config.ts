@@ -1,4 +1,3 @@
-// vite.config.ts
 import { defineConfig } from 'vite'
 import honoTakibiPlugin from './src/vite-plugin'
 
