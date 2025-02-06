@@ -17,7 +17,7 @@ import {
 
 const app = new OpenAPIHono()
 
-const api = app
+export const api = app
   .openapi(getRoute, getRouteHandler)
   .openapi(postPostsRoute, postPostsRouteHandler)
   .openapi(getPostsRoute, getPostsRouteHandler)

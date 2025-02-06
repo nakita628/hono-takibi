@@ -22,7 +22,7 @@ import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRout
 
 const app = new OpenAPIHono()
 
-const api = app.openapi(getRoute,getRouteHandler)
+export const api = app.openapi(getRoute,getRouteHandler)
 .openapi(postPostsRoute,postPostsRouteHandler)
 .openapi(getPostsRoute,getPostsRouteHandler)
 .openapi(putPostsIdRoute,putPostsIdRouteHandler)

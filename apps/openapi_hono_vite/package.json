@@ -1,12 +1,15 @@
 {
   "name": "@apps/openapi_hono_vite",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "tsx watch src/index.ts",
+    "takibi_vite": "vite --host",
     "takibi": "hono-takibi"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.13.7",
     "@hono/swagger-ui": "^0.5.0",
     "hono-takibi": "^0.3.5",
+    "tsx": "^4.7.1",
     "vite": "^6.1.0"
   },
   "dependencies": {
