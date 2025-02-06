@@ -15,14 +15,14 @@ export default function honoTakibiPlugin(options: HonoTakibiPluginOptions) {
       server.watcher.add(options.input)
       server.watcher.on('change', () => {
         const commandPrefixMap: Record<'pnpm' | 'npm' | 'yarn' | 'bun', string> = {
-          npm: 'npx',
           pnpm: 'pnpm',
+          npm: 'npx',
           yarn: 'yarn',
-          bun: 'bun',
+          bun: 'bun run',
         }
 
         const commandPrefix = commandPrefixMap[options.packageManager]
-        const command = `${commandPrefix} hono-takibi ${options.input} -o ${options.output} --mode vite`
+        const command = `${commandPrefix} hono-takibi ${options.input} -o ${options.output}`
 
         exec(command, (error) => {
           if (error) {
