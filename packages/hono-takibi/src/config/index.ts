@@ -31,8 +31,6 @@ export const DEFAULT_CONFIG: Config = {
   app: {
     output: false,
     test: false,
-    basePath: 'api',
-    isDev: 'process.env.NODE_ENV',
   },
 } as const
 

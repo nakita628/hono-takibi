@@ -59,6 +59,15 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
+    // Vite Plugin Mode
+    const mode = process.argv[5]
+    const vite = process.argv[6]
+    if (mode === '--mode' && vite === 'vite') {
+      fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
+      console.log(`Generated code written to ${output}`)
+      return true
+    }
+
     // 10. generate app code
     const appCode = generateApp(openAPI, config)
     if (config.app?.output === true) {

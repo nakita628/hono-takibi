@@ -452,15 +452,24 @@ You can customize the code generation behavior by creating a `hono-takibi.json` 
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `name` | `"camelCase"` \| `"PascalCase"` | `"camelCase"` | Naming convention for generated schema variables |
+| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated schema variables |
 | `export` | `boolean` | `false` | When true, exports all schema definitions |
 
 ### Type Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `name` | `"camelCase"` \| `"PascalCase"` | `"PascalCase"` | Naming convention for generated type definitions |
+| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated type definitions |
 | `export` | `boolean` | `false` | When true, exports all type definitions |
+
+### App Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| output | boolean | false | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
+| test | boolean | false | Enables automatic generation of test files for your API endpoints. |
+| basePath | string | "" | Specifies the base URL path for your API endpoints. |
+| isDev | string | "process.env.NODE_ENV" | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
 
 ## Input and Output
 
@@ -484,19 +493,23 @@ You can specify input and output paths in two ways:
 
 ### Examples
 
-* Default Behavior (camelCase schemas, PascalCase types)
+* Default Behavior (PascalCase schemas, PascalCase types)
 
 ```json
 {
-  "input": "src/openapi/openapi.yaml",
-  "output": "src/openapi/index.ts",
   "schema": {
-    "name": "camelCase",
+    "name": "PascalCase",
     "export": false
   },
   "type": {
     "name": "PascalCase",
     "export": false
+  },
+  "app": {
+    "output": true,
+    "test": true,
+    "basePath": "api",
+    "isDev": "process.env.NODE_ENV"
   }
 }
 ```
