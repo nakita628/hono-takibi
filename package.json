@@ -4,11 +4,13 @@
   "license": "MIT",
   "scripts": {
     "dev": "cp apps/openapi_hono/.env.example apps/openapi_hono/.env && pnpm -F openapi_hono migrate && pnpm -F openapi_hono dev",
+    "vite:dev": "pnpm -F openapi_hono_vite dev",
     "docs:dev": "pnpm -F hono-takibi-docs docs:dev",
     "docs:preview": "pnpm -F hono-takibi-docs docs:preview",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "docs:deps": "pnpm -F hono-takibi-docs docs:deps",
     "openapi_hono_deps": "pnpm -F openapi_hono deps",
+    "openapi_hono_vite_deps": "pnpm -F openapi_hono_vite deps",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
     "fmt": "pnpm biome format --write ./",
     "lint": "pnpm biome lint",
