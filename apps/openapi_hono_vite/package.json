@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@hono/vite-dev-server": "^0.18.1",
+    "hono-takibi": "^0.3.1",
     "vite": "^6.1.0"
   }
 }
