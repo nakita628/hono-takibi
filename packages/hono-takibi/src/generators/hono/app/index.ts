@@ -1,6 +1,5 @@
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
-import { generateAppRouteHandler } from '../../app/generate-app-route-handler'
 import { generateDocs } from '../../openapi/docs/generate-docs'
 import { getHandlerImports } from '../handler/import/get-handler-imports'
 import { getRouteMaps } from './helper/get-route-maps'
@@ -31,6 +30,8 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const applyOpenapiRoutes = generateApplyOpenapiRoutes(routeMappings)
 
+  const openAPIHono = config.app?.basePath ? `${APP}.basePath('${config.app.basePath}')` : APP
+
   const app = `app${applyOpenapiRoutes}`
 
   const api = `const api = ${app}`
@@ -55,7 +56,7 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
     // 1. imports
     [OPENAPI_HONO_IMPORT, SWAGGER_UI_IMPORT, importRoutes.join(''), importHandlersCode].join('\n'),
     // 2. app initialization
-    APP,
+    openAPIHono,
     // 3. api setup
     api,
     // 4. development settings
