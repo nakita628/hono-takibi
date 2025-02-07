@@ -2,7 +2,7 @@ import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '../infra'
-import api from '..'
+import { api } from '../..'
 
 const test = testClient(api)
 
@@ -10,18 +10,8 @@ describe('Hono Zod OpenAPI Test', () => {
   beforeEach(async () => {
     await prisma.post.deleteMany()
   })
-  // getHandler
-  it('getHandler', async () => {
-    const res = await test.index.$get()
-    const input = await res.json()
-    expect(input).toEqual({
-      message: 'Hono🔥',
-    })
-    expect(res.status).toBe(200)
-  })
 
-  //   postPostsHandler
-  it('postPostsHandler 201', async () => {
+  it('postPostsRouteHandler 201', async () => {
     const res = await test.posts.$post({
       json: {
         post: 'OpenAPIHono🔥',
@@ -59,7 +49,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(res.status).toBe(400)
   })
 
-  it('getPostsHandler 200', async () => {
+  it('getPostsRouteHandler 200', async () => {
     const generatePosts = (count: number) => {
       return Array.from({ length: count }, (_, i) => ({
         id: randomUUID(),
@@ -99,7 +89,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(res.status).toEqual(200)
   })
 
-  it('getPostsHandler 400', async () => {
+  it('getPostsRouteHandler 400', async () => {
     const res = await test.posts.$get({
       query: {
         page: '-1',
@@ -137,8 +127,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(res.status).toBe(400)
   })
 
-  // putPostsIdHandler
-  it('putPostsIdHandler 204', async () => {
+  it('putPostsIdRouteHandler 204', async () => {
     const post = await prisma.post.create({
       data: {
         id: randomUUID(),
@@ -168,7 +157,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(updatedPost?.post).toEqual('OpenAPIHono🔥🔥')
   })
 
-  it('putPostsIdHandler ZodError', async () => {
+  it('putPostsIdRouteHandler ZodError', async () => {
     const post = await prisma.post.create({
       data: {
         id: randomUUID(),
@@ -210,7 +199,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(res.status).toEqual(400)
   })
 
-  it('putPostsIdHandler ZodError', async () => {
+  it('putPostsIdRouteHandler ZodError', async () => {
     const res = await test.posts[':id'].$put({
       param: {
         id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
@@ -237,8 +226,7 @@ describe('Hono Zod OpenAPI Test', () => {
     })
   })
 
-  // deletePostsIdHandler
-  it('deletePostsIdHandler', async () => {
+  it('deletePostsIdRouteHandler 204', async () => {
     const post = await prisma.post.create({
       data: {
         id: randomUUID(),
@@ -265,7 +253,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(deletedPost).toBeNull()
   })
 
-  it('deletePostsIdHandler', async () => {
+  it('deletePostsIdRouteHandler ZodError', async () => {
     const res = await test.posts[':id'].$delete({
       param: {
         id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',

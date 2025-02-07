@@ -1,4 +1,3 @@
-import { serve } from '@hono/node-server'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { apiReference } from '@scalar/hono-api-reference'
@@ -63,13 +62,5 @@ if (isDev) {
     }),
   )
 }
-
-const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
-
-serve({
-  fetch: app.fetch,
-  port,
-})
 
 export default app
