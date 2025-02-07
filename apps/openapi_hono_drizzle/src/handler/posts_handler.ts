@@ -4,9 +4,9 @@ import type {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from '../index.ts'
-import db from '../../../db/index.ts'
-import { Post } from '../../../db/schema.ts'
+} from '../routes.ts'
+import db from '../../db'
+import { Post } from '../../db/schema'
 import { eq, desc } from 'drizzle-orm'
 export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
   const { post } = c.req.valid('json')

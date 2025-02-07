@@ -1,6 +1,6 @@
 {
-  "input": "src/openapi/openapi.yaml",
-  "output": "src/openapi/index.ts",
+  "input": "src/openapi.yaml",
+  "output": "src/routes.ts",
   "schema": {
     "name": "PascalCase",
     "export": false

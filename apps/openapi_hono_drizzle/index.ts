@@ -6,14 +6,14 @@ import {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from './src/openapi'
-import { getRouteHandler } from './src/openapi/handler/index_handler.ts'
+} from './src/routes.ts'
+import { getRouteHandler } from './src/handler/index_handler.ts'
 import {
   postPostsRouteHandler,
   getPostsRouteHandler,
   putPostsIdRouteHandler,
   deletePostsIdRouteHandler,
-} from './src/openapi/handler/posts_handler.ts'
+} from './src/handler/posts_handler.ts'
 
 const app = new OpenAPIHono()
 
