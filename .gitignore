@@ -10,3 +10,4 @@ dev.db-journal
 cache
 pet-store
 .DS_Store
+local.db

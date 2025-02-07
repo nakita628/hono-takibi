@@ -10,6 +10,7 @@
     "export": false
   },
   "app": {
-    "output": true
+    "output": true,
+    "test": true
   }
 }

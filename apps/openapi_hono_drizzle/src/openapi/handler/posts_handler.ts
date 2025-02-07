@@ -1,11 +1,16 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type { postPostsRoute, getPostsRoute, putPostsIdRoute, deletePostsIdRoute } from '../openapi'
-import { deletePostsId, getPosts, postPosts, putPostsId } from '../service/posts_service'
-import type { Post } from '@prisma/client'
-
+import type {
+  postPostsRoute,
+  getPostsRoute,
+  putPostsIdRoute,
+  deletePostsIdRoute,
+} from '../index.ts'
+import db from '../../../db/index.ts'
+import { Post } from '../../../db/schema.ts'
+import { eq, desc } from 'drizzle-orm'
 export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
   const { post } = c.req.valid('json')
-  await postPosts(post)
+  await db.insert(Post).values({ post })
   return c.json({ message: 'Created' }, 201)
 }
 
@@ -13,19 +18,24 @@ export const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c
   const { page, rows } = c.req.valid('query')
   const limit = rows
   const offset = (page - 1) * rows
-  const posts: Post[] = await getPosts(limit, offset)
+  const posts = await db
+    .select()
+    .from(Post)
+    .orderBy(desc(Post.createdAt))
+    .limit(limit)
+    .offset(offset)
   return c.json(posts, 200)
 }
 
 export const putPostsIdRouteHandler: RouteHandler<typeof putPostsIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
   const { post } = c.req.valid('json')
-  await putPostsId(id, post)
+  await db.update(Post).set({ post }).where(eq(Post.id, id))
   return new Response(null, { status: 204 })
 }
 
 export const deletePostsIdRouteHandler: RouteHandler<typeof deletePostsIdRoute> = async (c) => {
   const { id } = c.req.valid('param')
-  await deletePostsId(id)
+  await db.delete(Post).where(eq(Post.id, id))
   return new Response(null, { status: 204 })
 }
