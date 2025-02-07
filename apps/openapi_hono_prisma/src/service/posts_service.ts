@@ -1,7 +1,6 @@
-import type { Post } from '@prisma/client'
 import prisma from '../infra'
 
-export async function postPosts(post: string): Promise<Post> {
+export async function postPosts(post: string) {
   return await prisma.post.create({
     data: {
       post,
@@ -9,7 +8,7 @@ export async function postPosts(post: string): Promise<Post> {
   })
 }
 
-export async function getPosts(limit: number, offset: number): Promise<Post[]> {
+export async function getPosts(limit: number, offset: number) {
   return await prisma.post.findMany({
     take: limit,
     skip: offset,
@@ -19,14 +18,14 @@ export async function getPosts(limit: number, offset: number): Promise<Post[]> {
   })
 }
 
-export async function putPostsId(id: string, post: string): Promise<Post> {
+export async function putPostsId(id: string, post: string) {
   return await prisma.post.update({
     where: { id },
     data: { post },
   })
 }
 
-export async function deletePostsId(id: string): Promise<Post> {
+export async function deletePostsId(id: string) {
   return await prisma.post.delete({
     where: { id },
   })
