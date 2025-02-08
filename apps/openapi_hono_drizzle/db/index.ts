@@ -5,9 +5,15 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const client = createClient({
-  url: process.env['DB_FILE_NAME']!,
-})
+const client = process.env.DB_FILE_NAME
+  ? createClient({
+      url: process.env.DB_FILE_NAME,
+    })
+  : undefined
+
+if (!client) {
+  throw new Error('DB_FILE_NAME is not set')
+}
 
 const db = drizzle(client)
 
