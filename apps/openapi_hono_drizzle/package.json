@@ -1,0 +1,30 @@
+{
+  "name": "@apps/openapi_hono_vite",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "takibi_vite": "vite --host",
+    "takibi": "hono-takibi",
+    "push": "drizzle-kit push",
+    "generate": "drizzle-kit generate",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/swagger-ui": "^0.5.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "drizzle-kit": "^0.30.4",
+    "hono-takibi": "^0.4.0",
+    "tsx": "^4.7.1",
+    "vite": "^6.1.0",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^0.18.3",
+    "@libsql/client": "^0.14.0",
+    "@types/node": "^22.13.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.2",
+    "hono": "^4.6.14"
+  }
+}

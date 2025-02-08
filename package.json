@@ -3,8 +3,8 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "dev": "cp apps/openapi_hono/.env.example apps/openapi_hono/.env && pnpm -F openapi_hono migrate && pnpm -F openapi_hono dev",
-    "vite:dev": "pnpm -F openapi_hono_vite dev",
+    "openapi_hono_prisma:dev": "cp apps/openapi_hono_prisma/.env.example apps/openapi_hono_prisma/.env && pnpm -F openapi_hono_prisma migrate && pnpm -F openapi_hono_prisma dev",
+    "openapi_hono_drizzle:dev": "cp apps/openapi_hono_drizzle/.env.example apps/openapi_hono_drizzle/.env && pnpm -F openapi_hono_drizzle dev",
     "docs:dev": "pnpm -F hono-takibi-docs docs:dev",
     "docs:preview": "pnpm -F hono-takibi-docs docs:preview",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
