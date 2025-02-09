@@ -1,6 +1,4 @@
 {
-  "input": "example/hono-rest-example.yaml",
-  "output": "routes/hono-rest-example.ts",
   "schema": {
     "name": "PascalCase",
     "export": false
