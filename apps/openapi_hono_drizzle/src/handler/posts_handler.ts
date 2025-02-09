@@ -4,7 +4,7 @@ import type {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from '../routes.ts'
+} from '../route.ts'
 import db from '../../db'
 import { Post } from '../../db/schema'
 import { eq, desc } from 'drizzle-orm'

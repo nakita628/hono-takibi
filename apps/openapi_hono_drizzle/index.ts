@@ -6,7 +6,7 @@ import {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from './src/routes.ts'
+} from './src/route.ts'
 import { getRouteHandler } from './src/handler/index_handler.ts'
 import {
   postPostsRouteHandler,
