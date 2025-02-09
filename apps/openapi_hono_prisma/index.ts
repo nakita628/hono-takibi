@@ -7,7 +7,7 @@ import {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from './src/openapi'
+} from './src/route.ts'
 import { getRouteHandler } from './src/handler/index_handler.ts'
 import {
   postPostsRouteHandler,
