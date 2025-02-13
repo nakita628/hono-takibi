@@ -14,8 +14,23 @@ import {
   putPostsIdRouteHandler,
   deletePostsIdRouteHandler,
 } from './src/handler/posts_handler.ts'
+import { logger } from 'hono/logger'
 
 const app = new OpenAPIHono()
+
+app.use('*', logger())
+app.use('*', (c, next) => {
+  console.log(`${c.req.method} ${c.req.url}`)
+  return next()
+})
+
+app.use('*', async (c, next) => {
+  try {
+    await next()
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 500)
+  }
+})
 
 export const api = app
   .openapi(getRoute, getRouteHandler)
