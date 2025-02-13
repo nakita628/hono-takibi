@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
-import app, { api } from '..'
+import app from '..'
 
-api.use('*', async (c, next) => {
+app.use('*', async (c, next) => {
   try {
     await next()
   } catch (e) {
