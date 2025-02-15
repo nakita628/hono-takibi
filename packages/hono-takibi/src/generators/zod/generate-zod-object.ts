@@ -3,7 +3,7 @@ import type { Config } from '../../config'
 import { generateZodRecordSchema } from './generate-zod-record-schema'
 import { generateAllOfCode } from '../hono/openapi/component/allof/generate-allof-code'
 import { generateOneOfCode } from '../openapi/components/oneof/generate-oneof-code'
-import { generateAnyOfCode } from '../openapi/components/anyof/generate-anyof-code'
+import { generateAnyOfCode } from '../hono/openapi/component/anyof/generate-anyof-code'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
 
 export function generateZodObject(schema: Schema, config: Config) {

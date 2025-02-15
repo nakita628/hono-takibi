@@ -1,8 +1,8 @@
-import type { Schema } from '../../../../types'
-import type { Config } from '../../../../config'
-import { generateZodSchema } from '../../../zod/schema/generate-zod-schema'
-import { getRefSchemaName } from '../../../../core/schema/references/get-ref-schema-name'
-import { generateZodUnion } from '../../../zod/generate-zod-union'
+import type { Schema } from '../../../../../types'
+import type { Config } from '../../../../../config'
+import { generateZodSchema } from '../../../../zod/schema/generate-zod-schema'
+import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name'
+import { generateZodUnion } from '../../../../zod/generate-zod-union'
 
 export function generateAnyOfCode(schema: Schema, config: Config): string {
   if (!schema.anyOf || schema.anyOf.length === 0) {
