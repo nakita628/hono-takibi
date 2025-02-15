@@ -2,7 +2,7 @@ import fs from 'node:fs'
 
 import type { OpenAPIPaths, OpenAPISpec } from '../../../types'
 import { generateHandler } from '../../handler/generate-handler'
-import { generateRouteName } from '../../openapi/paths/generate-route-name'
+import { generateRouteName } from '../openapi/route/generate-route-name'
 import type { Config } from '../../../config'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper'
 import { formatCode } from '../../../format'

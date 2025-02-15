@@ -1,11 +1,11 @@
-import type { Operation } from '../../../types'
-import type { Config } from '../../../config'
+import type { Operation } from '../../../../types'
+import type { Config } from '../../../../config'
 import { generateCreateRoute } from './generate-create-route'
-import { generateRequestParameter } from '../../request/params/generate-request-parameter'
-import { generateResponseSchema } from '../../response/schemas/generate-response-schema'
+import { generateRequestParameter } from '../../../request/params/generate-request-parameter'
+import { generateResponseSchema } from '../../../response/schemas/generate-response-schema'
 import { generateRouteName } from './generate-route-name'
-import { escapeQuote } from '../../../core/text/escape-quote'
-import { sanitize } from '../../../core/text/sanitize'
+import { escapeQuote } from '../../../../core/text/escape-quote'
+import { sanitize } from '../../../../core/text/sanitize'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
  *
