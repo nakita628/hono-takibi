@@ -1,5 +1,5 @@
-import type { ParamsObject } from '../../../types'
-import { generateZodObjectSchema } from '../../zod/generate-zod-object-schema'
+import type { ParamsObject } from '../../../../../types'
+import { generateZodObjectSchema } from '../../../../zod/generate-zod-object-schema'
 
 /**
  * Generates an array of Zod schema strings for non-empty parameter sections

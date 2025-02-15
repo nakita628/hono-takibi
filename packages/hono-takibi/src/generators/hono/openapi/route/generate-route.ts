@@ -1,7 +1,7 @@
 import type { Operation } from '../../../../types'
 import type { Config } from '../../../../config'
 import { generateCreateRoute } from './generate-create-route'
-import { generateRequestParameter } from '../../../request/params/generate-request-parameter'
+import { generateRequestParameter } from './params/generate-request-parameter'
 import { generateResponseSchema } from './response/generate-response-schema'
 import { generateRouteName } from './generate-route-name'
 import { escapeQuote } from '../../../../core/text/escape-quote'

@@ -1,12 +1,12 @@
-import type { Parameters, RequestBody } from '../../../types'
-import type { Config } from '../../../config'
-import { generateFormatRequestObject } from '../object/generate-format-request-object'
+import type { Parameters, RequestBody } from '../../../../../types'
+import type { Config } from '../../../../../config'
 import { generateParamsObject } from './generate-params-object'
-import { generateRequestBody } from '../body/generate-request-body'
 import { generateRequestParamsArray } from './generate-request-params-array'
-import { generateInsertRequestBody } from '../body/generate-insert-request-body'
 import { generateRequestParams } from './generate-request-params'
-import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
+import { generatePropertySchema } from '../../../../zod/generate-zod-property-schema'
+import { generateFormatRequestObject } from '../request/object/generate-format-request-object'
+import { generateRequestBody } from '../request/body/generate-request-body'
+import { generateInsertRequestBody } from '../request/body/generate-insert-request-body'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
