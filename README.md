@@ -33,6 +33,10 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```
 
+## Demo 
+
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
+
 input:
 
 ```yaml
