@@ -1,10 +1,10 @@
-import type { Components } from '../../../types'
-import type { Config } from '../../../config'
-import { generateZodToOpenAPISchemaDefinition } from '../../zod/openapi/generate-zod-to-openapi-schema-definition'
-import { generateZodSchema } from '../../zod/schema/generate-zod-schema'
-import { resolveSchemasDependencies } from '../../../core/schema/references/resolve-schemas-dependencies'
-import { generateSchemasExport } from '../paths/generate-schemas-export'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
+import type { Components } from '../../../../types'
+import type { Config } from '../../../../config'
+import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition'
+import { generateZodSchema } from '../../../zod/schema/generate-zod-schema'
+import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
+import { generateSchemasExport } from '../../../openapi/paths/generate-schemas-export'
+import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.

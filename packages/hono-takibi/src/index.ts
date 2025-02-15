@@ -3,7 +3,7 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
-import { generateZodOpenAPIHono } from './generators/hono/generate-zod-openapi-hono'
+import { generateZodOpenAPIHono } from './generators/hono/openapi/generate-zod-openapi-hono'
 import { generateZodOpenapiHonoHandler } from './generators/hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'

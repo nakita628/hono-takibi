@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { petStoreOpenAPI } from '../../data/pet-store-openapi'
+import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
 import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
-import type { OpenAPISpec } from '../../types'
-import type { Config } from '../../config'
+import type { OpenAPISpec } from '../../../types'
+import type { Config } from '../../../config'
 
 const generateZodOpenAPIHonoTestCases: {
   openAPISpec: OpenAPISpec
