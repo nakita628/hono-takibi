@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Components } from '../../types'
-import type { Config } from '../../config'
+import type { Components } from '../../../../types'
+import type { Config } from '../../../../config'
 import { generateTypesCode } from './generate-types-code'
 
 const camelCaseConfig: Config = {

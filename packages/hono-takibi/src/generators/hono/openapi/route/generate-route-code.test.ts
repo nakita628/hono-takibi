@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
-import type { OpenAPIPaths } from '../../../types'
-import type { Config } from '../../../config'
-import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
-import { honoRestOpenAPI } from '../../../data/hono-rest-openapi'
-import { DEFAULT_CONFIG } from '../../../data/test-data'
+import type { OpenAPIPaths } from '../../../../types'
+import type { Config } from '../../../../config'
+import { petStoreOpenAPI } from '../../../../data/pet-store-openapi'
+import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
+import { DEFAULT_CONFIG } from '../../../../data/test-data'
 
 const generateRouteCodeTestCases: {
   openAPIPaths: OpenAPIPaths

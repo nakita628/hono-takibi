@@ -14,10 +14,10 @@
 
 // }
 
-import { resolveSchemasDependencies } from '../../core/schema/references/resolve-schemas-dependencies'
-import type { Components } from '../../types'
-import { generateZodInfer } from '../zod/generate-zod-infer'
-import type { Config } from '../../config'
+import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
+import type { Components } from '../../../../types'
+import { generateZodInfer } from '../../../zod/generate-zod-infer'
+import type { Config } from '../../../../config'
 
 export function generateTypesCode(components: Components, config: Config): string {
   // 1. schema extraction
