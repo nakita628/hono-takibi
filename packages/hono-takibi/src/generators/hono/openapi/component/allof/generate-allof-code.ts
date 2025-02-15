@@ -1,7 +1,7 @@
-import type { Schema } from '../../../../types'
-import type { Config } from '../../../../config'
-import { processAllOf } from '../../../hono/openapi/component/allof/process/process-alllof'
-import { generateZodIntersection } from '../../../zod/generate-zod-intersection'
+import type { Schema } from '../../../../../types'
+import type { Config } from '../../../../../config'
+import { processAllOf } from './process/process-alllof'
+import { generateZodIntersection } from '../../../../zod/generate-zod-intersection'
 
 /**
  * Converts an `allOf` schema into a Zod schema.
