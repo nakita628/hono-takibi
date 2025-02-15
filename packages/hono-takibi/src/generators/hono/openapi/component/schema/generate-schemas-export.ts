@@ -1,5 +1,5 @@
-import type { Config } from '../../../config'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
+import type { Config } from '../../../../../config'
+import { getVariableSchemaNameHelper } from '../../../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates a TypeScript export for a list of schema names

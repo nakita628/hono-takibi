@@ -1,8 +1,8 @@
-import type { Responses } from '../../../types'
-import type { Config } from '../../../config'
-import { escapeQuote } from '../../../core/text/escape-quote'
-import { isUniqueContentSchema } from '../../../core/validator/is-unique-content-schema'
-import { generatePropertySchema } from '../../zod/generate-zod-property-schema'
+import type { Responses } from '../../../../../types'
+import type { Config } from '../../../../../config'
+import { escapeQuote } from '../../../../../core/text/escape-quote'
+import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema'
+import { generatePropertySchema } from '../../../../zod/generate-zod-property-schema'
 
 /**
  * Generates a response schema for different status codes
