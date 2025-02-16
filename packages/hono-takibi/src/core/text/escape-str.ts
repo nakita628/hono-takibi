@@ -4,7 +4,7 @@
  * @param text - The text to escape
  * @returns The escaped text
  */
-export function escape(text: string): string {
+export function escapeStr(text: string): string {
   return (
     text
       // Basic text cleaning
