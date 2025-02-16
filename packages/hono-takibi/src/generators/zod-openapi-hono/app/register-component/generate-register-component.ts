@@ -1,4 +1,4 @@
-import type { SecuritySchemes } from '../../../types'
+import type { SecuritySchemes } from '../../../../types'
 
 export function generateRegisterComponent(securitySchemes: SecuritySchemes) {
   return Object.entries(securitySchemes)
