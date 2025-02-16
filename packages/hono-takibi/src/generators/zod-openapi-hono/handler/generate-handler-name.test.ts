@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateHandlerName } from '../../handler/generate-handler-name'
+import { generateHandlerName } from './generate-handler-name'
 
 const generateHandlerNameTestCases: {
   method: string
