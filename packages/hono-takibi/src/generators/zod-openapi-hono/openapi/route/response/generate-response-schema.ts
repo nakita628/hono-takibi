@@ -24,10 +24,7 @@ import { generatePropertySchema } from '../../../../zod/generate-zod-property-sc
  * - Handles nested schema structures
  * - Automatically resolves schema references
  */
-export function generateResponseSchema(
-  responses: Responses,
-  config: Config,
-): string {
+export function generateResponseSchema(responses: Responses, config: Config): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
   // 2. processing for each response code

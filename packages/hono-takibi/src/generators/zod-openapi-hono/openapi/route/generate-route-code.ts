@@ -23,10 +23,7 @@ import type { Config } from '../../../../config'
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
  */
-export function generateRouteCode(
-  openAPIPaths: OpenAPIPaths,
-  config: Config,
-) {
+export function generateRouteCode(openAPIPaths: OpenAPIPaths, config: Config) {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
   for (const [path, pathItem] of Object.entries(openAPIPaths)) {

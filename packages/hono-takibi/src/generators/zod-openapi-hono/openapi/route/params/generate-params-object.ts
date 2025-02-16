@@ -16,10 +16,7 @@ import { generateZodSchema } from '../../../../zod/schema/generate-zod-schema'
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
  */
-export function generateParamsObject(
-  parameters: Parameters[],
-  config: Config,
-): ParamsObject {
+export function generateParamsObject(parameters: Parameters[], config: Config): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     // path params are generated with the param name
