@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { OpenAPISpec } from '../../../types'
-import { petStoreOpenAPI } from '../../../data/pet-store-openapi'
-import { honoRestOpenAPI } from '../../../data/hono-rest-openapi'
+import type { OpenAPISpec } from '../../../../types'
+import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
 import { generateDocs } from './generate-docs'
 
 const generateDocsTestCases: {

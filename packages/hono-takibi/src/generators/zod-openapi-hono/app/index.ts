@@ -1,6 +1,6 @@
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
-import { generateDocs } from '../../app/docs/generate-docs'
+import { generateDocs } from './docs/generate-docs'
 import { getHandlerImports } from '../handler/import/get-handler-imports'
 import { getRouteMaps } from './helper/get-route-maps'
 import { generateImportHandlers } from '../handler/import/generate-import-handlers'
