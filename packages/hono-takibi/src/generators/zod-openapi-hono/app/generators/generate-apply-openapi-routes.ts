@@ -1,4 +1,4 @@
-import { generateAppRouteHandler } from '../../../app/generate-app-route-handler'
+import { generateAppRouteHandler } from '../generate-app-route-handler'
 
 export function generateApplyOpenapiRoutes(
   routeMappings: {
