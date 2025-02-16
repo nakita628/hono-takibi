@@ -11,13 +11,13 @@ import { getRefName } from '../../../core/schema/references/get-ref-name'
  * @param config
  */
 export function generateReferenceSchema(schema: Schema, config: Config) {
-    if (!schema.$ref) {
-      return 'z.any()'
-    }
-    const refName = getRefName(schema.$ref)
-    if (!refName) {
-      return 'z.any()'
-    }
-  
-    return getVariableSchemaNameHelper(refName, config) || 'z.any()'
+  if (!schema.$ref) {
+    return 'z.any()'
   }
+  const refName = getRefName(schema.$ref)
+  if (!refName) {
+    return 'z.any()'
+  }
+
+  return getVariableSchemaNameHelper(refName, config) || 'z.any()'
+}
