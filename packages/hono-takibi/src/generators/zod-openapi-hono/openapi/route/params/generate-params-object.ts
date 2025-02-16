@@ -18,7 +18,6 @@ import { generateZodSchema } from '../../../../zod/schema/generate-zod-schema'
  */
 export function generateParamsObject(
   parameters: Parameters[],
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
   config: Config,
 ): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {

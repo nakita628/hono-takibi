@@ -32,7 +32,6 @@ export function generateRequestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
   config: Config,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // Early return if no parameters or content
   if (!(parameters || requestBody?.content)) {

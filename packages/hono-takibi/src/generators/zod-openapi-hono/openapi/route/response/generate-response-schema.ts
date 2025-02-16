@@ -26,7 +26,6 @@ import { generatePropertySchema } from '../../../../zod/generate-zod-property-sc
  */
 export function generateResponseSchema(
   responses: Responses,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
   config: Config,
 ): string {
   // 1. get response codes (200, 404, etc.)

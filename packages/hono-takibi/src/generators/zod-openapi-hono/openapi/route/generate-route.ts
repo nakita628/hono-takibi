@@ -33,7 +33,6 @@ export function generateRoute(
   path: string,
   method: string,
   operation: Operation,
-  // namingCase: 'camelCase' | 'PascalCase',
   config: Config,
 ): string {
   const { tags, summary, description, security, parameters, requestBody, responses } = operation
@@ -46,8 +45,8 @@ export function generateRoute(
     tagsCode: `tags:${tagList},`,
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
-    summaryCode: summary ? `summary:'${sanitize(summary)}',` : '',
-    descriptionCode: description ? `description:'${sanitize(description)}',` : '',
+    summaryCode: summary ? `summary:'${sanitize(escapeQuote(summary))}',` : '',
+    descriptionCode: description ? `description:'${sanitize(escapeQuote(description))}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
     responsesCode: responses ? `responses:{${generateResponseSchema(responses, config)}}` : '',

@@ -25,7 +25,6 @@ import type { Config } from '../../../../config'
  */
 export function generateRouteCode(
   openAPIPaths: OpenAPIPaths,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
   config: Config,
 ) {
   const routes: string[] = []
