@@ -1,11 +1,3 @@
-import type { Schema } from '../../types'
-import type { Config } from '../../config'
-import { getRefName } from '../../core/schema/references/get-ref-name'
-import { generateZodArray } from './generate-zod-array'
-import { generateZodSchema } from './schema/generate-zod-schema'
-import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
-// import { generateZodOpenAPIExample } from './generate-zod-openapi-example'
-
 /**
  * Generates a Zod schema string for a given OpenAPI schema definition
  *
@@ -29,25 +21,30 @@ import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-sche
  * generatePropertySchema({ type: 'string' })
  * // Returns: 'z.string()'
  */
-export function generatePropertySchema(
-  schema: Schema,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
-  config: Config,
-): string {
-  if (schema.$ref) {
-    const refName = getRefName(schema.$ref)
-    if (refName) {
-      const variableName = getVariableSchemaNameHelper(refName, config)
-      // return getRefName(variableName) || 'z.any()'
-      return variableName || 'z.any()'
-    }
+
+import type { Schema } from '../../types'
+import type { Config } from '../../config'
+import { generateZodSchema } from './schema/generate-zod-schema'
+import { isSchemaReference } from '../../core/validator/is-schema-reference'
+import { isArrayWithSchemaReference } from '../../core/validator/is-array-with-schema-reference'
+import { generateReferenceSchema } from './reference/generate-reference-schema'
+import { generateArrayReferenceSchema } from './reference/generate-array-reference-schema'
+
+/**
+ * generatePropertySchema
+ * generate property schema
+ *
+ * @param schema
+ * @param config
+ */
+export function generatePropertySchema(schema: Schema, config: Config) {
+  if (isSchemaReference(schema)) {
+    return generateReferenceSchema(schema, config)
   }
-  if (schema.type === 'array' && schema.items?.$ref) {
-    const refName = getRefName(schema.items.$ref)
-    if (refName) {
-      const variableName = getVariableSchemaNameHelper(refName, config)
-      return generateZodArray(variableName)
-    }
+
+  if (isArrayWithSchemaReference(schema)) {
+    return generateArrayReferenceSchema(schema, config)
   }
+
   return generateZodSchema(config, schema, undefined, undefined)
 }

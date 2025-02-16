@@ -1,5 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
+
 const GeoJsonObjectSchema = z
   .object({
     type: z.enum([
@@ -50,6 +52,38 @@ const GeometryElementSchema = z
   )
   .openapi('GeometryElement')
 
+const PositionSchema = z.array(z.number()).openapi('Position')
+
+const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
+
+const MultiPolygonSchema = z
+  .intersection(
+    GeometryElementSchema,
+    z.object({ coordinates: z.array(z.array(LinearRingSchema)) }),
+  )
+  .openapi('MultiPolygon')
+
+const PolygonSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(LinearRingSchema) }))
+  .openapi('Polygon')
+
+const PointSchema = z
+  .intersection(
+    GeometryElementSchema,
+    z.object({ type: z.enum(['Point']), coordinates: PositionSchema }),
+  )
+  .openapi('Point')
+
+const ProjectSchema = z
+  .object({
+    id: z.string().uuid(),
+    polygon: z.union([MultiPolygonSchema, PolygonSchema]).optional(),
+    centre: PointSchema.optional(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+  })
+  .openapi('Project')
+
 const FeatureSchema = z
   .intersection(
     GeoJsonObjectSchema,
@@ -65,18 +99,7 @@ const FeatureCollectionSchema = z
   .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
   .openapi('FeatureCollection')
 
-const PositionSchema = z.array(z.number()).openapi('Position')
-
 const LineStringCoordinatesSchema = z.array(PositionSchema).openapi('LineStringCoordinates')
-
-const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
-
-const PointSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z.object({ type: z.enum(['Point']), coordinates: PositionSchema }),
-  )
-  .openapi('Point')
 
 const MultiPointSchema = z
   .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
@@ -93,50 +116,44 @@ const MultiLineStringSchema = z
   )
   .openapi('MultiLineString')
 
-const PolygonSchema = z
-  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(LinearRingSchema) }))
-  .openapi('Polygon')
-
-const MultiPolygonSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z.object({ coordinates: z.array(z.array(LinearRingSchema)) }),
-  )
-  .openapi('MultiPolygon')
-
 const GeometryCollectionSchema = z
   .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema) }))
   .openapi('GeometryCollection')
 
-export const getGeometryRoute = createRoute({
-  tags: [],
+export const getRoute = createRoute({
+  tags: ['Utility'],
   method: 'get',
-  path: '/geometry',
-  summary: 'Get an array of GeoJSON Geometry objects',
+  path: '/',
+  summary: 'Ping endpoint',
+  description: 'This endpoint is used to check if the server is working properly.',
   responses: {
     200: {
-      description: 'Successful response',
-      content: { 'application/json': { schema: z.array(GeometryCollectionSchema) } },
+      description: 'If successful, returns a message',
+      content: {
+        'application/json': {
+          schema: z.object({ message: z.string().openapi({ example: 'Pong' }) }),
+        },
+      },
     },
-    400: { description: '' },
-    401: { description: '' },
-    500: { description: '' },
   },
 })
 
-export const postGeometryRoute = createRoute({
-  tags: [],
-  method: 'post',
-  path: '/geometry',
-  summary: 'Create new GeoJSON Geometry object',
-  request: {
-    body: { required: true, content: { 'application/json': { schema: GeometrySchema } } },
-  },
+export const getProjectsRoute = createRoute({
+  tags: ['Projects'],
+  method: 'get',
+  path: '/projects',
+  summary: 'Get projects related to a given chiban',
+  description: 'Get projects related to a given chiban',
+  request: { query: z.object({ chiban: z.string() }) },
   responses: {
-    201: { description: 'New GeoJSON Geometry object created' },
-    400: { description: '' },
-    401: { description: '' },
-    403: { description: '' },
-    500: { description: '' },
+    200: {
+      description: 'If successful, returns a list of project information',
+      content: { 'application/json': { schema: z.array(ProjectSchema) } },
+    },
+    400: {
+      description: 'Invalid request',
+      content: { 'application/json': { schema: ErrorSchema } },
+    },
+    500: { description: 'Server error', content: { 'application/json': { schema: ErrorSchema } } },
   },
 })
