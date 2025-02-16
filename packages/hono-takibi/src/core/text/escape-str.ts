@@ -15,16 +15,12 @@ export function escapeStr(text: string): string {
       // Escaping special characters
       .replace(/\\/g, '\\\\') // Escaping backslash
       .replace(/'/g, "\\'") // Escaping single quote
-      // Removing control characters
-      .replace(/[\x00-\x1F\x7F]/g, '') // Removing control characters
 
       // Convert full-width spaces to half-width
-      .replace(/　/g, ' ') // Convert full-width spaces to half-width
+      .replace(/　/g, ' ')
 
       // Removing zero-width characters
-      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Removing zero-width characters
-
-      // Remove leading and trailing spaces
+      .replace(/\u200B|\u200C|\u200D|\uFEFF/g, '')
       .trim()
   )
 }

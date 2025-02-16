@@ -31,7 +31,8 @@ export function generateResponseSchema(responses: Responses, config: Config): st
   const responseEntries = responseCodes.map((code) => {
     const response = responses[code]
     // 2.1 no content (description only response)
-    if (!response.content) return `${code}:{description:'${escapeStr(response.description ?? '')}',},`
+    if (!response.content)
+      return `${code}:{description:'${escapeStr(response.description ?? '')}',},`
     // check duplication
     const contentTypes = Object.keys(response.content)
     const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
