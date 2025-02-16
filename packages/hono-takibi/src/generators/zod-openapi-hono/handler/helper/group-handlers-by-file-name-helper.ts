@@ -1,24 +1,23 @@
 import type { HandlerOutput } from '../generate-zod-openapi-hono-handler'
 
-export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): HandlerOutput[] {
-  const mergedMap = new Map<string, HandlerOutput>()
+type HandlerMap = Map<string, HandlerOutput>
 
-  for (const handler of handlers) {
-    if (mergedMap.has(handler.fileName)) {
-      const existing = mergedMap.get(handler.fileName)
-      if (existing) {
-        existing.routeHandlerContents.push(...handler.routeHandlerContents)
-        existing.routeNames.push(...handler.routeNames)
-      }
-    } else {
-      mergedMap.set(handler.fileName, {
+export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): HandlerOutput[] {
+  return Array.from(
+    handlers.reduce<HandlerMap>((acc, handler) => {
+      const existing = acc.get(handler.fileName)
+      const mergedHandler: HandlerOutput = {
         fileName: handler.fileName,
         testFileName: handler.testFileName,
-        routeHandlerContents: [...handler.routeHandlerContents],
-        routeNames: [...handler.routeNames],
-      })
-    }
-  }
-
-  return Array.from(mergedMap.values())
+        routeHandlerContents: existing 
+          ? [...existing.routeHandlerContents, ...handler.routeHandlerContents]
+          : [...handler.routeHandlerContents],
+        routeNames: existing 
+          ? [...existing.routeNames, ...handler.routeNames]
+          : [...handler.routeNames],
+      }
+      return acc.set(handler.fileName, mergedHandler)
+    }, new Map())
+    .values()
+  )
 }
