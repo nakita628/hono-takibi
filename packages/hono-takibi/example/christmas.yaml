@@ -1,0 +1,216 @@
+openapi: "3.0.3"
+info:
+  title: "Santa Claus Christmas Delivery API"
+  version: "1.0.0"
+  description: >
+    This API simulates Santa Claus delivering Christmas presents.
+    It allows scheduling of gift deliveries, checking delivery statuses,
+    and retrieving Santa's current journey status.
+servers:
+  - url: https://api.santa-claus.com/v1
+paths:
+  /santa/status:
+    get:
+      summary: "Get Santa's Current Status"
+      description: >
+        Retrieve Santa's current location and status during his Christmas journey.
+      responses:
+        '200':
+          description: Santa's current status information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SantaStatus"
+  /santa/deliveries:
+    get:
+      summary: "List Scheduled Deliveries"
+      description: >
+        Retrieve a list of all scheduled Christmas present deliveries.
+      responses:
+        '200':
+          description: A list of scheduled deliveries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Delivery"
+    post:
+      summary: "Schedule a New Delivery"
+      description: >
+        Request Santa to deliver a Christmas present by scheduling a delivery.
+      requestBody:
+        description: Details required to schedule a delivery.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliveryRequest"
+      responses:
+        '201':
+          description: Delivery scheduled successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+  /santa/deliveries/{deliveryId}:
+    get:
+      summary: "Get Delivery Details"
+      description: >
+        Retrieve detailed information about a specific delivery using its ID.
+      parameters:
+        - name: deliveryId
+          in: path
+          description: Unique identifier for the delivery.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+        '404':
+          description: Delivery not found.
+    put:
+      summary: "Update Delivery Information"
+      description: >
+        Update details of an existing delivery (e.g., change address or scheduled time).
+      parameters:
+        - name: deliveryId
+          in: path
+          description: Unique identifier for the delivery.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated delivery information.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliveryUpdate"
+      responses:
+        '200':
+          description: Delivery updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+        '404':
+          description: Delivery not found.
+    delete:
+      summary: "Cancel a Delivery"
+      description: >
+        Cancel an existing delivery request.
+      parameters:
+        - name: deliveryId
+          in: path
+          description: Unique identifier for the delivery.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Delivery canceled successfully. No content returned.
+        '404':
+          description: Delivery not found.
+components:
+  schemas:
+    SantaStatus:
+      type: object
+      properties:
+        location:
+          type: string
+          description: Current location of Santa (e.g., "North Pole", "En route to Chicago").
+          example: "En route to Chicago"
+        status:
+          type: string
+          description: Current status (e.g., "delivering", "resting", "in transit").
+          example: "delivering"
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Timestamp of the last status update.
+          example: "2025-12-24T22:00:00Z"
+      required:
+        - location
+        - status
+        - lastUpdate
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the delivery.
+          example: "delivery-001"
+        recipient:
+          type: string
+          description: Name of the recipient.
+          example: "John Doe"
+        address:
+          type: string
+          description: Delivery address.
+          example: "123 Candy Cane Lane, North Pole"
+        present:
+          type: string
+          description: Description of the Christmas present.
+          example: "Toy Train Set"
+        status:
+          type: string
+          description: Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").
+          example: "scheduled"
+        scheduledTime:
+          type: string
+          format: date-time
+          description: Scheduled time for the delivery.
+          example: "2025-12-25T08:00:00Z"
+      required:
+        - id
+        - recipient
+        - address
+        - present
+        - status
+        - scheduledTime
+    DeliveryRequest:
+      type: object
+      properties:
+        recipient:
+          type: string
+          description: Name of the recipient.
+          example: "John Doe"
+        address:
+          type: string
+          description: Delivery address.
+          example: "123 Candy Cane Lane, North Pole"
+        present:
+          type: string
+          description: Description of the Christmas present.
+          example: "Toy Train Set"
+        scheduledTime:
+          type: string
+          format: date-time
+          description: Requested delivery time.
+          example: "2025-12-25T08:00:00Z"
+      required:
+        - recipient
+        - address
+        - present
+        - scheduledTime
+    DeliveryUpdate:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Updated delivery address.
+          example: "456 Reindeer Road, North Pole"
+        scheduledTime:
+          type: string
+          format: date-time
+          description: Updated scheduled delivery time.
+          example: "2025-12-25T09:00:00Z"
+      required:
+        - address
+        - scheduledTime

@@ -145,7 +145,7 @@ describe('generateRouteCode', () => {
     'generateRouteCode($openAPIPaths, $config) -> $expected',
     async ({ openAPIPaths, config, expected }) => {
       const result = generateRouteCode(openAPIPaths, config)
-      expect(result).toBe(expected)
+      expect(result).toEqual(expected)
     },
   )
 })
