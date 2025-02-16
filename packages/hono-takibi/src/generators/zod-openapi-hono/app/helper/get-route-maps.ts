@@ -1,5 +1,5 @@
 import type { OpenAPISpec } from '../../../../types'
-import { generateHandlerName } from '../../../handler/generate-handler-name'
+import { generateHandlerName } from '../../handler/generate-handler-name'
 import { generateRouteName } from '../../openapi/route/generate-route-name'
 
 export function getRouteMaps(openAPISpec: OpenAPISpec) {

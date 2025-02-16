@@ -1,12 +1,12 @@
 import fs from 'node:fs'
 
 import type { OpenAPIPaths, OpenAPISpec } from '../../../types'
-import { generateHandler } from '../../handler/generate-handler'
+import { generateHandler } from './generate-handler'
 import { generateRouteName } from '../openapi/route/generate-route-name'
 import type { Config } from '../../../config'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper'
 import { formatCode } from '../../../format'
-import { generateHandlerName } from '../../handler/generate-handler-name'
+import { generateHandlerName } from '../handler/generate-handler-name'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
