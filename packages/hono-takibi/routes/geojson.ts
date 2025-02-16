@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const geoJsonObjectSchema = z
+const GeoJsonObjectSchema = z
   .object({
     type: z.enum([
       'Feature',
@@ -17,9 +17,9 @@ const geoJsonObjectSchema = z
   })
   .openapi('GeoJsonObject')
 
-const geometrySchema = z
+const GeometrySchema = z
   .intersection(
-    geoJsonObjectSchema,
+    GeoJsonObjectSchema,
     z.object({
       type: z.enum([
         'Point',
@@ -34,9 +34,9 @@ const geometrySchema = z
   )
   .openapi('Geometry')
 
-const geometryElementSchema = z
+const GeometryElementSchema = z
   .intersection(
-    geometrySchema,
+    GeometrySchema,
     z.object({
       type: z.enum([
         'Point',
@@ -50,62 +50,62 @@ const geometryElementSchema = z
   )
   .openapi('GeometryElement')
 
-const featureSchema = z
+const FeatureSchema = z
   .intersection(
-    geoJsonObjectSchema,
+    GeoJsonObjectSchema,
     z.object({
-      geometry: geometrySchema.nullable(),
+      geometry: GeometrySchema.nullable(),
       properties: z.object({}),
       id: z.union([z.number(), z.string()]).optional(),
     }),
   )
   .openapi('Feature')
 
-const featureCollectionSchema = z
-  .intersection(geoJsonObjectSchema, z.object({ features: z.array(featureSchema) }))
+const FeatureCollectionSchema = z
+  .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
   .openapi('FeatureCollection')
 
-const positionSchema = z.array(z.number()).openapi('Position')
+const PositionSchema = z.array(z.number()).openapi('Position')
 
-const lineStringCoordinatesSchema = z.array(positionSchema).openapi('LineStringCoordinates')
+const LineStringCoordinatesSchema = z.array(PositionSchema).openapi('LineStringCoordinates')
 
-const linearRingSchema = z.array(positionSchema).openapi('LinearRing')
+const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
 
-const pointSchema = z
+const PointSchema = z
   .intersection(
-    geometryElementSchema,
-    z.object({ type: z.enum(['Point']), coordinates: positionSchema }),
+    GeometryElementSchema,
+    z.object({ type: z.enum(['Point']), coordinates: PositionSchema }),
   )
   .openapi('Point')
 
-const multiPointSchema = z
-  .intersection(geometryElementSchema, z.object({ coordinates: z.array(positionSchema) }))
+const MultiPointSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
   .openapi('MultiPoint')
 
-const lineStringSchema = z
-  .intersection(geometryElementSchema, z.object({ coordinates: lineStringCoordinatesSchema }))
+const LineStringSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: LineStringCoordinatesSchema }))
   .openapi('LineString')
 
-const multiLineStringSchema = z
+const MultiLineStringSchema = z
   .intersection(
-    geometryElementSchema,
-    z.object({ coordinates: z.array(lineStringCoordinatesSchema) }),
+    GeometryElementSchema,
+    z.object({ coordinates: z.array(LineStringCoordinatesSchema) }),
   )
   .openapi('MultiLineString')
 
-const polygonSchema = z
-  .intersection(geometryElementSchema, z.object({ coordinates: z.array(linearRingSchema) }))
+const PolygonSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(LinearRingSchema) }))
   .openapi('Polygon')
 
-const multiPolygonSchema = z
+const MultiPolygonSchema = z
   .intersection(
-    geometryElementSchema,
-    z.object({ coordinates: z.array(z.array(linearRingSchema)) }),
+    GeometryElementSchema,
+    z.object({ coordinates: z.array(z.array(LinearRingSchema)) }),
   )
   .openapi('MultiPolygon')
 
-const geometryCollectionSchema = z
-  .intersection(geometrySchema, z.object({ geometries: z.array(geometryElementSchema) }))
+const GeometryCollectionSchema = z
+  .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema) }))
   .openapi('GeometryCollection')
 
 export const getGeometryRoute = createRoute({
@@ -116,7 +116,7 @@ export const getGeometryRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response',
-      content: { 'application/json': { schema: z.array(geometryCollectionSchema) } },
+      content: { 'application/json': { schema: z.array(GeometryCollectionSchema) } },
     },
     400: { description: '' },
     401: { description: '' },
@@ -130,7 +130,7 @@ export const postGeometryRoute = createRoute({
   path: '/geometry',
   summary: 'Create new GeoJSON Geometry object',
   request: {
-    body: { required: true, content: { 'application/json': { schema: geometrySchema } } },
+    body: { required: true, content: { 'application/json': { schema: GeometrySchema } } },
   },
   responses: {
     201: { description: 'New GeoJSON Geometry object created' },
