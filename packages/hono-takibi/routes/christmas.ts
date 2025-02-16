@@ -40,7 +40,7 @@ export const getSantaStatusRoute = createRoute({
   method: 'get',
   path: '/santa/status',
   summary: "Get Santa's Current Status",
-  description: "Retrieve Santa's current location and status during his Christmas journey.\n",
+  description: "Retrieve Santa's current location and status during his Christmas journey.",
   responses: {
     200: {
       description: "Santa's current status information.",
@@ -54,7 +54,7 @@ export const getSantaDeliveriesRoute = createRoute({
   method: 'get',
   path: '/santa/deliveries',
   summary: 'List Scheduled Deliveries',
-  description: 'Retrieve a list of all scheduled Christmas present deliveries.\n',
+  description: 'Retrieve a list of all scheduled Christmas present deliveries.',
   responses: {
     200: {
       description: 'A list of scheduled deliveries.',
@@ -68,7 +68,7 @@ export const postSantaDeliveriesRoute = createRoute({
   method: 'post',
   path: '/santa/deliveries',
   summary: 'Schedule a New Delivery',
-  description: 'Request Santa to deliver a Christmas present by scheduling a delivery.\n',
+  description: 'Request Santa to deliver a Christmas present by scheduling a delivery.',
   request: {
     body: { required: true, content: { 'application/json': { schema: DeliveryRequestSchema } } },
   },
@@ -85,7 +85,7 @@ export const getSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'get',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Get Delivery Details',
-  description: 'Retrieve detailed information about a specific delivery using its ID.\n',
+  description: 'Retrieve detailed information about a specific delivery using its ID.',
   request: { params: z.object({ deliveryId: z.string() }) },
   responses: {
     200: {
@@ -101,7 +101,7 @@ export const putSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'put',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Update Delivery Information',
-  description: 'Update details of an existing delivery (e.g., change address or scheduled time).\n',
+  description: 'Update details of an existing delivery (e.g., change address or scheduled time).',
   request: {
     body: { required: true, content: { 'application/json': { schema: DeliveryUpdateSchema } } },
     params: z.object({ deliveryId: z.string() }),
@@ -120,7 +120,7 @@ export const deleteSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'delete',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Cancel a Delivery',
-  description: 'Cancel an existing delivery request.\n',
+  description: 'Cancel an existing delivery request.',
   request: { params: z.object({ deliveryId: z.string() }) },
   responses: {
     204: { description: 'Delivery canceled successfully. No content returned.' },

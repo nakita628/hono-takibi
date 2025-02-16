@@ -1,6 +1,6 @@
 import type { Responses } from '../../../../../types'
 import type { Config } from '../../../../../config'
-import { escapeQuote } from '../../../../../core/text/escape-quote'
+import { escape } from '../../../../../core/text/escape'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema'
 import { generatePropertySchema } from '../../../../zod/generate-zod-property-schema'
 
@@ -31,8 +31,7 @@ export function generateResponseSchema(responses: Responses, config: Config): st
   const responseEntries = responseCodes.map((code) => {
     const response = responses[code]
     // 2.1 no content (description only response)
-    if (!response.content)
-      return `${code}:{description:'${escapeQuote(response.description ?? '')}',},`
+    if (!response.content) return `${code}:{description:'${escape(response.description ?? '')}',},`
     // check duplication
     const contentTypes = Object.keys(response.content)
     const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
@@ -45,7 +44,7 @@ export function generateResponseSchema(responses: Responses, config: Config): st
         const zodSchema = generatePropertySchema(content.schema, config)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
-      return `${code}:{description:'${escapeQuote(response.description ?? '')}',content:{${contentParts.join(',')}},},`
+      return `${code}:{description:'${escape(response.description ?? '')}',content:{${contentParts.join(',')}},},`
     }
   })
   // 3.combine all response definitions

@@ -45,7 +45,7 @@ export const postAuthLoginRoute = createRoute({
   method: 'post',
   path: '/auth/login',
   summary: 'User Login',
-  description: 'Authenticate user credentials and initiate two-factor authentication if enabled.\n',
+  description: 'Authenticate user credentials and initiate two-factor authentication if enabled.',
   request: {
     body: { required: true, content: { 'application/json': { schema: LoginInputSchema } } },
   },
@@ -65,7 +65,7 @@ export const postAuthVerifyRoute = createRoute({
   path: '/auth/verify',
   summary: 'Verify Two-Factor Authentication Code',
   description:
-    'Verify the 2FA code using the temporary token obtained from the login endpoint. Upon successful verification, a JWT token is issued.\n',
+    'Verify the 2FA code using the temporary token obtained from the login endpoint. Upon successful verification, a JWT token is issued.',
   request: {
     body: { required: true, content: { 'application/json': { schema: VerifyInputSchema } } },
   },
