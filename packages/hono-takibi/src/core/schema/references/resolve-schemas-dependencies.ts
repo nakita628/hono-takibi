@@ -1,7 +1,5 @@
 import type { Schema } from '../../../types'
 import { extractRefs } from './extract-refs'
-import { resolveSchemaOrder } from './resolve-schema-order'
-import { resolveSchemaReferences } from './resolve-schema-references'
 
 /**
  * Resolves dependencies between schemas and returns them in topological order for safe processing
@@ -50,54 +48,51 @@ import { resolveSchemaReferences } from './resolve-schema-references'
  * - Uses depth-first search for dependency resolution
  * - Automatically handles circular dependencies by preventing infinite recursion
  */
-// export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
-//   // 1. get schema reference relations as a map
-//   const dependencies = resolveSchemaReferences(schemas)
-//   // 2. initialize ordered list and visited set
-//   const ordered: string[] = []
-//   const visited = new Set<string>()
-//   // 3. resolve schema order
-//   for (const name of Object.keys(schemas)) {
-//     resolveSchemaOrder(name, dependencies, visited, ordered)
-//   }
-//   // 4. return ordered list
-//   return ordered
-// }
 
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
-  const visited: Record<string, boolean> = {}
-  const temp: Record<string, boolean> = {}
-  const result: string[] = []
+  const visited = new Set<string>()
+  const recursionStack = new Set<string>()
+  const orderedSchemas: string[] = []
 
-  const visit = (schemaName: string) => {
-    if (temp[schemaName]) {
-      throw new Error(`bad schema: ${schemaName}`)
+  // Conduct visits for each schema
+  for (const schemaName of Object.keys(schemas)) {
+    if (!visited.has(schemaName)) {
+      traverseSchemaDependencies(schemaName, schemas, visited, recursionStack, orderedSchemas)
     }
+  }
 
-    if (!visited[schemaName]) {
-      temp[schemaName] = true
-      const schema = schemas[schemaName]
-      if (schema) {
-        const refs = extractRefs(schema)
-        for (const ref of refs) {
-          if (schemas[ref]) {
-            visit(ref)
-          } else {
-            console.warn(`not found schema: ${ref}`)
-          }
+  return orderedSchemas
+}
+
+function traverseSchemaDependencies(
+  schemaName: string,
+  schemas: Record<string, Schema>,
+  visited: Set<string>,
+  recursionStack: Set<string>,
+  orderedSchemas: string[],
+): void {
+  // Circular dependencies occur if they already exist on the recursing stack
+  if (recursionStack.has(schemaName)) {
+    throw new Error(`Circular dependency detected in schema: ${schemaName}`)
+  }
+
+  // Processed only if not visited
+  if (!visited.has(schemaName)) {
+    recursionStack.add(schemaName)
+    const schema = schemas[schemaName]
+    if (schema) {
+      // Get other schemas referenced by the current schema
+      const references = extractRefs(schema)
+      for (const ref of references) {
+        if (ref in schemas) {
+          traverseSchemaDependencies(ref, schemas, visited, recursionStack, orderedSchemas)
+        } else {
+          console.warn(`Schema reference not found: ${ref}`)
         }
       }
-      visited[schemaName] = true
-      temp[schemaName] = false
-      result.push(schemaName)
     }
+    recursionStack.delete(schemaName)
+    visited.add(schemaName)
+    orderedSchemas.push(schemaName)
   }
-
-  for (const schemaName of Object.keys(schemas)) {
-    if (!visited[schemaName]) {
-      visit(schemaName)
-    }
-  }
-
-  return result
 }
