@@ -1,0 +1,27 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: zod boolean
+  description: zod boolean
+servers:
+  - url: v1
+components:
+  schemas: {}
+  parameters: {}
+paths:
+  /boolean:
+    get:
+      description: zod boolean
+      summary: zod boolean
+      responses:
+        "200":
+          description: zod boolean
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isActive:
+                    type: boolean
+                required:
+                  - isActive
