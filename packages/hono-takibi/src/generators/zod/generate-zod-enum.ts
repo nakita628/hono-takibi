@@ -6,5 +6,17 @@ export function generateZodEnum(schema: Schema) {
     const openapi_example = generateZodToOpenAPI(schema.example)
     return `z.enum(${JSON.stringify(schema.enum)})${openapi_example}`
   }
+  // number
+  if (schema.type === 'number' && schema.enum) {
+    return `z.literal(${schema.enum})`
+  }
+  // bigint
+  if (schema.type === 'bigint' && schema.enum) {
+    return `z.literal(${schema.enum}n)`
+  }
+  // boolean
+  if (schema.type === 'boolean' && schema.enum) {
+    return `z.literal(${schema.enum})`
+  }
   return `z.enum(${JSON.stringify(schema.enum)})`
 }
