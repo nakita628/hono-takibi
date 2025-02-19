@@ -184,6 +184,8 @@ export type Schema = {
   maxLength?: number
   minimum?: number
   maximum?: number
+  minItems?: number
+  maxItems?: number
   default?: DefaultValue
   example?: ExampleValue
   properties?: Record<string, Schema>
