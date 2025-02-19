@@ -11,6 +11,8 @@ import { generateOneOfCode } from '../../zod-openapi-hono/openapi/component/oneo
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { generateZodObject } from '../generate-zod-object'
 import { generateZodEnum } from '../generate-zod-enum'
+import { generateZodMax } from '../generate-zod-max'
+import { generateZodMin } from '../generate-zod-min'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -152,8 +154,26 @@ export function generateZodSchema(
   }
 
   // array
-  if (schema.type === 'array' && schema.items)
+  if (schema.type === 'array' && schema.items) {
+    if (schema.maxItems) {
+      const maxItemsSchema = generateZodMax(schema.maxItems)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${maxItemsSchema}`
+      return res
+    }
+    if (schema.minItems) {
+      const minItemsSchema = generateZodMin(schema.minItems)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${minItemsSchema}`
+      return res
+    }
+
     return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
+  }
 
   if (schema.allOf) {
     return generateAllOfCode(schema, config)
