@@ -11,6 +11,8 @@ import { generateOneOfCode } from '../../zod-openapi-hono/openapi/component/oneo
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { generateZodObject } from '../generate-zod-object'
 import { generateZodEnum } from '../generate-zod-enum'
+import { generateZodMax } from '../generate-zod-max'
+import { generateZodMin } from '../generate-zod-min'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -115,6 +117,7 @@ export function generateZodSchema(
       minLength: schema.minLength,
       maxLength: schema.maxLength,
       format: schema.format && isFormatString(schema.format) ? schema.format : undefined,
+      nullable: schema.nullable,
       default: schema.default,
       example: schema.example,
       paramName,
@@ -124,7 +127,7 @@ export function generateZodSchema(
 
   // number
   if (schema.type === 'number') {
-    return generateZodNumberSchema({
+    const res = generateZodNumberSchema({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -134,7 +137,19 @@ export function generateZodSchema(
       example: schema.example,
       paramName,
       isPath,
+      exclusiveMinimum: schema.exclusiveMinimum,
+      exclusiveMaximum: schema.exclusiveMaximum,
     })
+    // gt
+    if (res.includes(`min(${schema.minimum})`) && res.includes(`gt(${schema.minimum})`)) {
+      return res.replace(`.min(${schema.minimum})`, '')
+    }
+    // lt
+    if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
+      return res.replace(`.max(${schema.maximum})`, '')
+    }
+
+    return res
   }
 
   // integer
@@ -152,8 +167,36 @@ export function generateZodSchema(
   }
 
   // array
-  if (schema.type === 'array' && schema.items)
+  if (schema.type === 'array' && schema.items) {
+    if (schema.minItems && schema.maxItems) {
+      const minItemsSchema = generateZodMin(schema.minItems)
+      const maxItemsSchema = generateZodMax(schema.maxItems)
+
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
+      return res
+    }
+    if (schema.minItems) {
+      const minItemsSchema = generateZodMin(schema.minItems)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${minItemsSchema}`
+      return res
+    }
+    if (schema.maxItems) {
+      const maxItemsSchema = generateZodMax(schema.maxItems)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${maxItemsSchema}`
+      return res
+    }
+
     return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
+  }
 
   if (schema.allOf) {
     return generateAllOfCode(schema, config)

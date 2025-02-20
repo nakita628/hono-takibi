@@ -1,0 +1,66 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: zod array
+  description: zod array
+servers:
+  - url: v1
+components:
+  schemas: {}
+  parameters: {}
+paths:
+  /array:
+    get:
+      description: zod array
+      summary: zod array
+      responses:
+        "200":
+          description: zod array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  string_array:
+                    type: array
+                    items:
+                      type: string
+                  equivalent:
+                    type: array
+                    items:
+                      type: string
+                  string_optional_array:
+                    type: array
+                    items:
+                      type: string
+                  string_array_optional:
+                    type: array
+                    items:
+                      type: string
+                  nonempty:
+                    type: array
+                    items:
+                      type: string
+                    minItems: 1
+                  min5:
+                    type: array
+                    items:
+                      type: string
+                    minItems: 5
+                  max5:
+                    type: array
+                    items:
+                      type: string
+                    maxItems: 5
+                  length5:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - string_array
+                  - equivalent
+                  - string_optional_array
+                  - nonempty
+                  - min5
+                  - max5
+                  - length5

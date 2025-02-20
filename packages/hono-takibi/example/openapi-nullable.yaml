@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: zod nullable
+  description: zod nullable
+servers:
+  - url: v1
+components:
+  schemas: {}
+  parameters: {}
+paths:
+  /nullable:
+    get:
+      description: zod nullable
+      summary: zod nullable
+      responses:
+        "200":
+          description: zod nullable
+          content:
+            application/json:
+              schema:
+                type: string
+                nullable: true

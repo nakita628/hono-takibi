@@ -19,7 +19,7 @@ const generateZodNumberSchemaTestCases: {
   },
   {
     args: { minimum: 0 },
-    expected: 'z.number().min(0)',
+    expected: 'z.number().nonpositive()',
   },
   {
     args: { minLength: 1 },
