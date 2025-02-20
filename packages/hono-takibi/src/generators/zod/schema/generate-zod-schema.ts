@@ -126,7 +126,7 @@ export function generateZodSchema(
 
   // number
   if (schema.type === 'number') {
-    return generateZodNumberSchema({
+    const res = generateZodNumberSchema({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -136,7 +136,19 @@ export function generateZodSchema(
       example: schema.example,
       paramName,
       isPath,
+      exclusiveMinimum: schema.exclusiveMinimum,
+      exclusiveMaximum: schema.exclusiveMaximum,
     })
+    // gt
+    if (res.includes(`min(${schema.minimum})`) && res.includes(`gt(${schema.minimum})`)) {
+      return res.replace(`.min(${schema.minimum})`, '')
+    }
+    // lt
+    if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
+      return res.replace(`.max(${schema.maximum})`, '')
+    }
+
+    return res
   }
 
   // integer
