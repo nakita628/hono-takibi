@@ -90,8 +90,8 @@ const generateParamsObjectTestCases: {
     config: DEFAULT_CONFIG,
     expected: {
       query: {
-        page: 'z.string().pipe(z.coerce.number().min(0))',
-        rows: 'z.string().pipe(z.coerce.number().min(0))',
+        page: 'z.string().pipe(z.coerce.number().nonpositive())',
+        rows: 'z.string().pipe(z.coerce.number().nonpositive())',
       },
     },
   },
