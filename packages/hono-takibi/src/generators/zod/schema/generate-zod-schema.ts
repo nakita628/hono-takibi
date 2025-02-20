@@ -167,12 +167,14 @@ export function generateZodSchema(
 
   // array
   if (schema.type === 'array' && schema.items) {
-    if (schema.maxItems) {
+    if (schema.minItems && schema.maxItems) {
+      const minItemsSchema = generateZodMin(schema.minItems)
       const maxItemsSchema = generateZodMax(schema.maxItems)
+
       const zodArray = generateZodArray(
         generateZodSchema(config, schema.items, undefined, undefined),
       )
-      const res = `${zodArray}${maxItemsSchema}`
+      const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
       return res
     }
     if (schema.minItems) {
@@ -181,6 +183,14 @@ export function generateZodSchema(
         generateZodSchema(config, schema.items, undefined, undefined),
       )
       const res = `${zodArray}${minItemsSchema}`
+      return res
+    }
+    if (schema.maxItems) {
+      const maxItemsSchema = generateZodMax(schema.maxItems)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${maxItemsSchema}`
       return res
     }
 
