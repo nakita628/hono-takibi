@@ -184,6 +184,8 @@ export type Schema = {
   maxLength?: number
   minimum?: number
   maximum?: number
+  exclusiveMinimum?: boolean
+  exclusiveMaximum?: boolean
   minItems?: number
   maxItems?: number
   default?: DefaultValue
