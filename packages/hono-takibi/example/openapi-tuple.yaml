@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: My API
+  description: This is the API
+servers:
+  - url: v1
+components:
+  schemas: {}
+  parameters: {}
+paths:
+  /tuple:
+    get:
+      description: zod tuple
+      summary: zod tuple
+      responses:
+        "200":
+          description: Object with user data.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - type: string
+                    - type: number
+                    - type: object
+                      properties:
+                        pointsScored:
+                          type: number
+                      required:
+                        - pointsScored
+                minItems: 3
+                maxItems: 3
+        "204":
+          description: No content - successful operation
