@@ -117,6 +117,7 @@ export function generateZodSchema(
       minLength: schema.minLength,
       maxLength: schema.maxLength,
       format: schema.format && isFormatString(schema.format) ? schema.format : undefined,
+      nullable: schema.nullable,
       default: schema.default,
       example: schema.example,
       paramName,

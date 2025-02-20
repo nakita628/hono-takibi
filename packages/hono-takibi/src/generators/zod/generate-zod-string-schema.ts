@@ -12,6 +12,7 @@ type GenerateZodStringSchemaParams = {
   minLength?: number
   maxLength?: number
   format?: FormatString
+  nullable?: boolean
   default?: DefaultValue
   example?: ExampleValue
   paramName?: string
@@ -67,6 +68,8 @@ export function generateZodStringSchema(args: GenerateZodStringSchemaParams): st
   if (args.format) validations.push(getZodFormatString(args.format))
   // default
   if (args.default) validations.push(generateZodDefault(args.default))
+  // nullable
+  if (args.nullable) validations.push('.nullable()')
   // example
   if (args.example)
     validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
