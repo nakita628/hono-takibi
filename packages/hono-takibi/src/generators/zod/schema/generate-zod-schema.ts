@@ -16,6 +16,7 @@ import { generateZodMin } from '../generate-zod-min'
 import { stripMinIfgTExistHelper } from '../helper/strip-min-if-gt-exist-helper'
 import { stripMaxIfLtExistHelper } from '../helper/strip-max-if-lt-exist-helper'
 import { generateZodLength } from '../generate-zod-length'
+import { stripMinMaxExistHelper } from '../helper/strip-min-max-exist-helper'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -125,6 +126,7 @@ export function generateZodSchema(
       paramName,
       isPath,
     })
+    // length
     if (
       schema.minLength &&
       schema.maxLength &&
@@ -133,9 +135,7 @@ export function generateZodSchema(
       res.includes(`min(${schema.minLength})`) &&
       res.includes(`max(${schema.maxLength})`)
     ) {
-      const property = res
-        .replace(`.min(${schema.minLength})`, '')
-        .replace(`.max(${schema.maxLength})`, '')
+      const property = stripMinMaxExistHelper(res, schema.minLength, schema.maxLength)
       return `${property}${generateZodLength(schema.minLength)}`
     }
     return res

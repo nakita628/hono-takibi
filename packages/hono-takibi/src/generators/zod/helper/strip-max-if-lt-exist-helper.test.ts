@@ -3,7 +3,7 @@ import { stripMaxIfLtExistHelper } from './strip-max-if-lt-exist-helper'
 
 const stripMaxIfLtExistHelperTestCases = [
   {
-    input: 'z.number().max(1).lt(1)',
+    str: 'z.number().max(1).lt(1)',
     maximum: 1,
     expected: 'z.number().lt(1)',
   },
@@ -12,8 +12,8 @@ const stripMaxIfLtExistHelperTestCases = [
 describe('stripMaxIfLtExistHelper', () => {
   it.concurrent.each(stripMaxIfLtExistHelperTestCases)(
     'stripMaxIfLtExistHelper(%s, %s) -> %s',
-    ({ input, maximum, expected }) => {
-      expect(stripMaxIfLtExistHelper(input, maximum)).toBe(expected)
+    ({ str, maximum, expected }) => {
+      expect(stripMaxIfLtExistHelper(str, maximum)).toBe(expected)
     },
   )
 })
