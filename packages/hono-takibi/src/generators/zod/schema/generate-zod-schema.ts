@@ -142,16 +142,20 @@ export function generateZodSchema(
       exclusiveMaximum: schema.exclusiveMaximum,
     })
     // gt
-    if (res.includes(`min(${schema.minimum})`) && res.includes(`gt(${schema.minimum})`)) {
-      if (schema.minimum) {
-        return stripMinIfgTExistHelper(res, schema.minimum)
-      }
+    if (
+      res.includes(`min(${schema.minimum})`) &&
+      res.includes(`gt(${schema.minimum})`) &&
+      schema.minimum
+    ) {
+      return stripMinIfgTExistHelper(res, schema.minimum)
     }
     // lt
-    if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
-      if (schema.maximum) {
-        return stripMaxIfLtExistHelper(res, schema.maximum)
-      }
+    if (
+      res.includes(`max(${schema.maximum})`) &&
+      res.includes(`lt(${schema.maximum})`) &&
+      schema.maximum
+    ) {
+      return stripMaxIfLtExistHelper(res, schema.maximum)
     }
     return res
   }
