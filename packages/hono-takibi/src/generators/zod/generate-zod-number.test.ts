@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateZodNumberSchema } from './generate-zod-number-schema'
+import { generateZodNumber } from './generate-zod-number'
 import type { DefaultValue, ExampleValue } from '../../types'
 const generateZodNumberSchemaTestCases: {
   args: {
@@ -43,7 +43,7 @@ describe('generateZodNumberSchema', () => {
   it.concurrent.each(generateZodNumberSchemaTestCases)(
     'generateZodNumberSchema($args) -> $expected',
     ({ args, expected }) => {
-      const result = generateZodNumberSchema(args)
+      const result = generateZodNumber(args)
       expect(result).toBe(expected)
     },
   )

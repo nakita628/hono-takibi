@@ -5,7 +5,7 @@ import { generateZodMin } from './generate-zod-min'
 import { generateZodRegex } from './generate-zod-regex'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
-type GenerateZodNumberSchemaParams = {
+type GenerateZodNumberParams = {
   pattern?: string
   minLength?: number
   maxLength?: number
@@ -20,13 +20,13 @@ type GenerateZodNumberSchemaParams = {
 }
 
 /**
- * Generates a zod schema for a number.
+ * Generates zod  number
  *
- * @function generateZodNumberSchema
- * @param args - The parameters to generate the zod schema.
- * @returns A zod schema for a number.
+ * @function generateZodNumber
+ * @param args - zod number params
+ * @returns zod number
  */
-export function generateZodNumberSchema(args: GenerateZodNumberSchemaParams): string {
+export function generateZodNumber(args: GenerateZodNumberParams): string {
   const validations = ['z.number()']
   // pattern
   if (args.pattern) validations.push(generateZodRegex(args.pattern))

@@ -1,13 +1,13 @@
-import { main } from '../..'
-import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import type { FormatString, ExampleValue, DefaultValue } from '../../types'
+import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import { generateZodDefault } from './generate-zod-default'
 import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
+import { generateZodNullable } from './generate-zod-nullable'
 import { generateZodRegex } from './generate-zod-regex'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
-type GenerateZodStringSchemaParams = {
+type GenerateZodStringParams = {
   pattern?: string
   minLength?: number
   maxLength?: number
@@ -20,35 +20,35 @@ type GenerateZodStringSchemaParams = {
 }
 
 /**
- * Generates a Zod schema string for string validation
+ * Generates zod string schema
  *
- * @function generateZodStringSchema
- * @param args - Parameters for string schema generation
- * @returns Generated Zod schema string with chained validations
+ * @function generateZodString
+ * @param args - zod string params
+ * @returns zod string
  *
  * @example
  * // Basic string validation
- * generateZodStringSchema({})
+ * generateZodString({})
  * // Returns: 'z.string()'
  *
  * @example
  * // With regex pattern
- * generateZodStringSchema({ pattern: '^[A-Z]+$' })
+ * generateZodString({ pattern: '^[A-Z]+$' })
  * // Returns: 'z.string().regex(/^[A-Z]+$/)'
  *
  * @example
  * // With length constraints
- * generateZodStringSchema({ minLength: 3, maxLength: 10 })
+ * generateZodString({ minLength: 3, maxLength: 10 })
  * // Returns: 'z.string().min(3).max(10)'
  *
  * @example
  * // With format
- * generateZodStringSchema({ format: 'email' })
+ * generateZodString({ format: 'email' })
  * // Returns: 'z.string().email()'
  *
  * @example
  * // Combined validations
- * generateZodStringSchema({
+ * generateZodString({
  *   pattern: '^[a-z]+$',
  *   minLength: 3,
  *   maxLength: 10,
@@ -56,7 +56,7 @@ type GenerateZodStringSchemaParams = {
  * })
  * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
  */
-export function generateZodStringSchema(args: GenerateZodStringSchemaParams): string {
+export function generateZodString(args: GenerateZodStringParams): string {
   const validations = ['z.string()']
   // pattern
   if (args.pattern) validations.push(generateZodRegex(args.pattern))
@@ -69,7 +69,7 @@ export function generateZodStringSchema(args: GenerateZodStringSchemaParams): st
   // default
   if (args.default) validations.push(generateZodDefault(args.default))
   // nullable
-  if (args.nullable) validations.push('.nullable()')
+  if (args.nullable) validations.push(generateZodNullable())
   // example
   if (args.example)
     validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))

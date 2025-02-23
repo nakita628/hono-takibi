@@ -1,9 +1,9 @@
 import type { Schema, Type } from '../../../types'
 import type { Config } from '../../../config'
 import { generateZodArray } from '../generate-zod-array'
-import { generateZodStringSchema } from '../generate-zod-string-schema'
+import { generateZodString } from '../generate-zod-string'
 import { isFormatString } from '../../../core/validator/is-format-string'
-import { generateZodNumberSchema } from '../generate-zod-number-schema'
+import { generateZodNumber } from '../generate-zod-number'
 import { generateZodIntegerSchema } from '../generate-zod-integer-schema'
 import { generateAllOfCode } from '../../zod-openapi-hono/openapi/component/allof/generate-allof-code'
 import { generateAnyOfCode } from '../../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
@@ -98,7 +98,6 @@ export function generateZodSchema(
   schema: Schema,
   paramName?: string,
   isPath?: boolean,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // enum
   if (schema.enum) {
@@ -112,7 +111,7 @@ export function generateZodSchema(
 
   // string
   if (schema.type === 'string') {
-    return generateZodStringSchema({
+    return generateZodString({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -127,7 +126,7 @@ export function generateZodSchema(
 
   // number
   if (schema.type === 'number') {
-    const res = generateZodNumberSchema({
+    const res = generateZodNumber({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -148,6 +147,7 @@ export function generateZodSchema(
     if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
       return res.replace(`.max(${schema.maximum})`, '')
     }
+    console.log(res)
 
     return res
   }

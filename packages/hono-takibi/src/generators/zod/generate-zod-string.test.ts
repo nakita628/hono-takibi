@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateZodStringSchema } from './generate-zod-string-schema'
+import { generateZodString } from './generate-zod-string'
 import type { DefaultValue, ExampleValue, FormatString } from '../../types'
 
 const generateZodStringSchemaTestCases: {
@@ -83,7 +83,7 @@ describe('generateZodStringSchema', () => {
   it.concurrent.each(generateZodStringSchemaTestCases)(
     'generateZodStringSchema($args) -> $expected',
     async ({ args, expected }) => {
-      const result = generateZodStringSchema(args)
+      const result = generateZodString(args)
       expect(result).toBe(expected)
     },
   )
