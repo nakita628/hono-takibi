@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { stripMinIfgTExistHelper } from './strip-min-ifg-t-exist-helper'
+import { stripMinIfgTExistHelper } from './strip-min-if-gt-exist-helper'
 
 const stripMinIfgTExistHelperTestCases = [
   {

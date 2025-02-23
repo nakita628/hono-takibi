@@ -13,7 +13,7 @@ import { generateZodObject } from '../generate-zod-object'
 import { generateZodEnum } from '../generate-zod-enum'
 import { generateZodMax } from '../generate-zod-max'
 import { generateZodMin } from '../generate-zod-min'
-import { stripMinIfgTExistHelper } from '../helper/strip-min-ifg-t-exist-helper'
+import { stripMinIfgTExistHelper } from '../helper/strip-min-if-gt-exist-helper'
 import { stripMaxIfLtExistHelper } from '../helper/strip-max-if-lt-exist-helper'
 
 /**
