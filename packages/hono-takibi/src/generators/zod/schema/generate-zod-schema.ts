@@ -14,6 +14,7 @@ import { generateZodEnum } from '../generate-zod-enum'
 import { generateZodMax } from '../generate-zod-max'
 import { generateZodMin } from '../generate-zod-min'
 import { stripMinIfgTExistHelper } from '../helper/strip-min-ifg-t-exist-helper'
+import { stripMaxIfLtExistHelper } from '../helper/strip-max-if-lt-exist-helper'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -148,10 +149,10 @@ export function generateZodSchema(
     }
     // lt
     if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
-      return res.replace(`.max(${schema.maximum})`, '')
+      if (schema.maximum) {
+        return stripMaxIfLtExistHelper(res, schema.maximum)
+      }
     }
-    console.log(res)
-
     return res
   }
 
