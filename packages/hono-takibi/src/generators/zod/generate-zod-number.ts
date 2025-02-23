@@ -1,6 +1,7 @@
 import type { DefaultValue, ExampleValue } from '../../types'
 import { generateZodDefault } from './generate-zod-default'
 import { generateZodGt } from './generate-zod-gt'
+import { generateZodLt } from './generate-zod-lt'
 import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
 import { generateZodRegex } from './generate-zod-regex'
@@ -78,12 +79,10 @@ export function generateZodNumber(args: GenerateZodNumberParams): string {
       validations.push(generateZodGt(args.minimum))
     }
   }
-
   // lt
   if (args.maximum) {
     if (args.maximum > 0 && args.exclusiveMaximum) {
-      const res = `.lt(${args.maximum})`
-      validations.push(res)
+      validations.push(generateZodLt(args.maximum))
     }
   }
   return validations.join('')
