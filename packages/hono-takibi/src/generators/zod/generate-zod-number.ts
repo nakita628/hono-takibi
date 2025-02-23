@@ -1,5 +1,6 @@
 import type { DefaultValue, ExampleValue } from '../../types'
 import { generateZodDefault } from './generate-zod-default'
+import { generateZodGt } from './generate-zod-gt'
 import { generateZodMax } from './generate-zod-max'
 import { generateZodMin } from './generate-zod-min'
 import { generateZodRegex } from './generate-zod-regex'
@@ -29,20 +30,33 @@ type GenerateZodNumberParams = {
 export function generateZodNumber(args: GenerateZodNumberParams): string {
   const validations = ['z.number()']
   // pattern
-  if (args.pattern) validations.push(generateZodRegex(args.pattern))
+  if (args.pattern) {
+    validations.push(generateZodRegex(args.pattern))
+  }
   // minLength
-  if (args.minLength) validations.push(generateZodMin(args.minLength))
+  if (args.minLength) {
+    validations.push(generateZodMin(args.minLength))
+  }
   // maxLength
-  if (args.maxLength) validations.push(generateZodMax(args.maxLength))
+  if (args.maxLength) {
+    validations.push(generateZodMax(args.maxLength))
+  }
   // minimum
-  if (args.minimum) validations.push(generateZodMin(args.minimum))
+  if (args.minimum) {
+    validations.push(generateZodMin(args.minimum))
+  }
   // maximum
-  if (args.maximum) validations.push(generateZodMax(args.maximum))
+  if (args.maximum) {
+    validations.push(generateZodMax(args.maximum))
+  }
   // default
-  if (args.default) validations.push(generateZodDefault(args.default))
+  if (args.default) {
+    validations.push(generateZodDefault(args.default))
+  }
   // example
-  if (args.example)
+  if (args.example) {
     validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
+  }
 
   // 0 falsy value
   // minimum === 0
@@ -61,8 +75,7 @@ export function generateZodNumber(args: GenerateZodNumberParams): string {
   // gt
   if (args.minimum) {
     if (args.minimum > 0 && args.exclusiveMinimum) {
-      const res = `.gt(${args.minimum})`
-      validations.push(res)
+      validations.push(generateZodGt(args.minimum))
     }
   }
 
