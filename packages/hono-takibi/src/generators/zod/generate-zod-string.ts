@@ -59,19 +59,32 @@ type GenerateZodStringParams = {
 export function generateZodString(args: GenerateZodStringParams): string {
   const validations = ['z.string()']
   // pattern
-  if (args.pattern) validations.push(generateZodRegex(args.pattern))
+  if (args.pattern) {
+    validations.push(generateZodRegex(args.pattern))
+  }
   // minLength
-  if (args.minLength) validations.push(generateZodMin(args.minLength))
+  if (args.minLength) {
+    validations.push(generateZodMin(args.minLength))
+  }
   // maxLength
-  if (args.maxLength) validations.push(generateZodMax(args.maxLength))
+  if (args.maxLength) {
+    validations.push(generateZodMax(args.maxLength))
+  }
   // format
-  if (args.format) validations.push(getZodFormatString(args.format))
+  if (args.format) {
+    validations.push(getZodFormatString(args.format))
+  }
   // default
-  if (args.default) validations.push(generateZodDefault(args.default))
+  if (args.default) {
+    validations.push(generateZodDefault(args.default))
+  }
   // nullable
-  if (args.nullable) validations.push(generateZodNullable())
+  if (args.nullable) {
+    validations.push(generateZodNullable())
+  }
   // example
-  if (args.example)
+  if (args.example) {
     validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
+  }
   return validations.join('')
 }
