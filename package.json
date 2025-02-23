@@ -19,7 +19,8 @@
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",
     "coverage": "pnpm -F hono-takibi coverage",
-    "release": "pnpm build && pnpm -F hono-takibi release"
+    "release": "pnpm build && pnpm -F hono-takibi release",
+    "takibis": "pnpm -F hono-takibi takibis"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"

@@ -14,7 +14,7 @@ export const getStringRoute = createRoute({
           schema: z.object({
             max_string: z.string().max(5),
             min_string: z.string().min(5),
-            length_string: z.string().min(5).max(5),
+            length_string: z.string().length(5),
             email_string: z.string().email(),
             url_string: z.string().url(),
             uuid_string: z.string().uuid(),

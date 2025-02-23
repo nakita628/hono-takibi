@@ -29,6 +29,7 @@
     }
   },
   "scripts": {
+    "takibis": "pnpm build && tsx index.ts",
     "dev": "vite --host",
     "deps": "rm -rf node_modules && pnpm install",
     "build": "tsc",
@@ -45,6 +46,7 @@
     "@hono/zod-openapi": "^0.18.3",
     "@types/node": "^22.10.2",
     "@vitest/coverage-v8": "^2.1.8",
+    "tsx": "^4.7.1",
     "typescript": "^5.7.2",
     "vite": "^6.1.0",
     "vitest": "^2.1.8"

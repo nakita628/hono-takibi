@@ -65,11 +65,11 @@ const FeatureCollectionSchema = z
   .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
   .openapi('FeatureCollection')
 
-const PositionSchema = z.array(z.number()).openapi('Position')
+const PositionSchema = z.array(z.number()).min(2).max(3).openapi('Position')
 
-const LineStringCoordinatesSchema = z.array(PositionSchema).openapi('LineStringCoordinates')
+const LineStringCoordinatesSchema = z.array(PositionSchema).min(2).openapi('LineStringCoordinates')
 
-const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
+const LinearRingSchema = z.array(PositionSchema).min(4).openapi('LinearRing')
 
 const PointSchema = z
   .intersection(

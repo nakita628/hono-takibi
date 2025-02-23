@@ -1,9 +1,9 @@
 import type { Schema, Type } from '../../../types'
 import type { Config } from '../../../config'
 import { generateZodArray } from '../generate-zod-array'
-import { generateZodStringSchema } from '../generate-zod-string-schema'
+import { generateZodString } from '../generate-zod-string'
 import { isFormatString } from '../../../core/validator/is-format-string'
-import { generateZodNumberSchema } from '../generate-zod-number-schema'
+import { generateZodNumber } from '../generate-zod-number'
 import { generateZodIntegerSchema } from '../generate-zod-integer-schema'
 import { generateAllOfCode } from '../../zod-openapi-hono/openapi/component/allof/generate-allof-code'
 import { generateAnyOfCode } from '../../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
@@ -13,6 +13,10 @@ import { generateZodObject } from '../generate-zod-object'
 import { generateZodEnum } from '../generate-zod-enum'
 import { generateZodMax } from '../generate-zod-max'
 import { generateZodMin } from '../generate-zod-min'
+import { stripMinIfgTExistHelper } from '../helper/strip-min-if-gt-exist-helper'
+import { stripMaxIfLtExistHelper } from '../helper/strip-max-if-lt-exist-helper'
+import { generateZodLength } from '../generate-zod-length'
+import { stripMinMaxExistHelper } from '../helper/strip-min-max-exist-helper'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -98,7 +102,6 @@ export function generateZodSchema(
   schema: Schema,
   paramName?: string,
   isPath?: boolean,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
 ): string {
   // enum
   if (schema.enum) {
@@ -112,7 +115,7 @@ export function generateZodSchema(
 
   // string
   if (schema.type === 'string') {
-    return generateZodStringSchema({
+    const res = generateZodString({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -123,11 +126,24 @@ export function generateZodSchema(
       paramName,
       isPath,
     })
+    // length
+    if (
+      schema.minLength &&
+      schema.maxLength &&
+      schema.maxLength &&
+      schema.minLength === schema.maxLength &&
+      res.includes(`min(${schema.minLength})`) &&
+      res.includes(`max(${schema.maxLength})`)
+    ) {
+      const property = stripMinMaxExistHelper(res, schema.minLength, schema.maxLength)
+      return `${property}${generateZodLength(schema.minLength)}`
+    }
+    return res
   }
 
   // number
   if (schema.type === 'number') {
-    const res = generateZodNumberSchema({
+    const res = generateZodNumber({
       pattern: schema.pattern,
       minLength: schema.minLength,
       maxLength: schema.maxLength,
@@ -141,14 +157,21 @@ export function generateZodSchema(
       exclusiveMaximum: schema.exclusiveMaximum,
     })
     // gt
-    if (res.includes(`min(${schema.minimum})`) && res.includes(`gt(${schema.minimum})`)) {
-      return res.replace(`.min(${schema.minimum})`, '')
+    if (
+      res.includes(`min(${schema.minimum})`) &&
+      res.includes(`gt(${schema.minimum})`) &&
+      schema.minimum
+    ) {
+      return stripMinIfgTExistHelper(res, schema.minimum)
     }
     // lt
-    if (res.includes(`max(${schema.maximum})`) && res.includes(`lt(${schema.maximum})`)) {
-      return res.replace(`.max(${schema.maximum})`, '')
+    if (
+      res.includes(`max(${schema.maximum})`) &&
+      res.includes(`lt(${schema.maximum})`) &&
+      schema.maximum
+    ) {
+      return stripMaxIfLtExistHelper(res, schema.maximum)
     }
-
     return res
   }
 

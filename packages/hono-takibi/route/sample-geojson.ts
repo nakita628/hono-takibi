@@ -52,9 +52,9 @@ const GeometryElementSchema = z
   )
   .openapi('GeometryElement')
 
-const PositionSchema = z.array(z.number()).openapi('Position')
+const PositionSchema = z.array(z.number()).min(2).max(3).openapi('Position')
 
-const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
+const LinearRingSchema = z.array(PositionSchema).min(4).openapi('LinearRing')
 
 const MultiPolygonSchema = z
   .intersection(
@@ -99,7 +99,7 @@ const FeatureCollectionSchema = z
   .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
   .openapi('FeatureCollection')
 
-const LineStringCoordinatesSchema = z.array(PositionSchema).openapi('LineStringCoordinates')
+const LineStringCoordinatesSchema = z.array(PositionSchema).min(2).openapi('LineStringCoordinates')
 
 const MultiPointSchema = z
   .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
@@ -125,10 +125,10 @@ export const getRoute = createRoute({
   method: 'get',
   path: '/',
   summary: 'Ping endpoint',
-  description: 'This endpoint is used to check if the server is working.',
+  description: 'This endpoint is used to check if the server is working properly.',
   responses: {
     200: {
-      description: 'Success, return message',
+      description: 'If successful, returns a message',
       content: {
         'application/json': {
           schema: z.object({ message: z.string().openapi({ example: 'Pong' }) }),
@@ -142,12 +142,12 @@ export const getProjectsRoute = createRoute({
   tags: ['Projects'],
   method: 'get',
   path: '/projects',
-  summary: 'Get the site associated with a given lot number',
-  description: 'Update the content of an existing post identified by its unique ID.',
+  summary: 'Get projects related to a given chiban',
+  description: 'Get projects related to a given chiban',
   request: { query: z.object({ chiban: z.string() }) },
   responses: {
     200: {
-      description: 'Success, return list of projects',
+      description: 'If successful, returns a list of project information',
       content: { 'application/json': { schema: z.array(ProjectSchema) } },
     },
     400: {
