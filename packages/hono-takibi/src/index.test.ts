@@ -8,8 +8,8 @@ import type { Config } from './config'
 describe('Hono Takibi', () => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))
   const projectRoot = path.resolve(__dirname, '..')
-  const input = path.join(projectRoot, 'example/pet-store.yaml')
-  const output = path.join(projectRoot, 'routes/petstore.ts')
+  const input = path.join(projectRoot, 'openapi/pet-store.yaml')
+  const output = path.join(projectRoot, 'route/petstore.ts')
 
   beforeEach(() => {
     // 1. create test directory
@@ -34,7 +34,7 @@ describe('Hono Takibi', () => {
   // test failed yaml
   it('failed yaml', async () => {
     // 1. set a failed yaml file
-    const failedYaml = path.join(projectRoot, 'example/failed.yaml')
+    const failedYaml = path.join(projectRoot, 'openapi/failed.yaml')
     // 2. set as CLI argument
     process.argv[2] = failedYaml
     // 3. spy on console.error
@@ -79,8 +79,8 @@ describe('Hono Takibi', () => {
   // test the normal system
   it('Hono Takibi CLI pet-store.yaml', async () => {
     await main(true)
-    expect(fs.existsSync('routes/petstore.ts')).toBe(true)
-    const result = fs.readFileSync('routes/petstore.ts', { encoding: 'utf-8' })
+    expect(fs.existsSync('route/petstore.ts')).toBe(true)
+    const result = fs.readFileSync('route/petstore.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
@@ -533,8 +533,8 @@ export const deleteUserUsernameRoute = createRoute({
 
   it('Hono Takibi CLI hoon-rest-example.yaml', async () => {
     await main(true)
-    expect(fs.existsSync('routes/hono-rest-example.ts')).toBe(true)
-    const result = fs.readFileSync('routes/hono-rest-example.ts', { encoding: 'utf-8' })
+    expect(fs.existsSync('route/hono-rest-example.ts')).toBe(true)
+    const result = fs.readFileSync('route/hono-rest-example.ts', { encoding: 'utf-8' })
     expect(fs.existsSync(output)).toBe(true)
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
@@ -697,8 +697,8 @@ export const deletePostsIdRoute = createRoute({
       },
     }
     await main(true, config)
-    expect(fs.existsSync('routes/type-hono-rest-example.ts')).toBe(true)
-    const result = fs.readFileSync('routes/type-hono-rest-example.ts', { encoding: 'utf-8' })
+    expect(fs.existsSync('route/type-hono-rest-example.ts')).toBe(true)
+    const result = fs.readFileSync('route/type-hono-rest-example.ts', { encoding: 'utf-8' })
     expect(fs.existsSync(output)).toBe(true)
 
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
