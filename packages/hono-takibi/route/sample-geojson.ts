@@ -52,9 +52,9 @@ const GeometryElementSchema = z
   )
   .openapi('GeometryElement')
 
-const PositionSchema = z.array(z.number()).openapi('Position')
+const PositionSchema = z.array(z.number()).min(2).max(3).openapi('Position')
 
-const LinearRingSchema = z.array(PositionSchema).openapi('LinearRing')
+const LinearRingSchema = z.array(PositionSchema).min(4).openapi('LinearRing')
 
 const MultiPolygonSchema = z
   .intersection(
@@ -99,7 +99,7 @@ const FeatureCollectionSchema = z
   .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
   .openapi('FeatureCollection')
 
-const LineStringCoordinatesSchema = z.array(PositionSchema).openapi('LineStringCoordinates')
+const LineStringCoordinatesSchema = z.array(PositionSchema).min(2).openapi('LineStringCoordinates')
 
 const MultiPointSchema = z
   .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
