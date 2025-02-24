@@ -9,12 +9,6 @@ export type Config = {
     name: 'PascalCase' | 'camelCase'
     export: boolean
   }
-  app?: {
-    output?: boolean
-    test?: boolean
-    basePath?: string
-    isDev?: string
-  }
   input?: string
   output?: string
 }
@@ -27,10 +21,6 @@ export const DEFAULT_CONFIG: Config = {
   type: {
     name: 'PascalCase',
     export: false,
-  },
-  app: {
-    output: false,
-    test: false,
   },
 } as const
 

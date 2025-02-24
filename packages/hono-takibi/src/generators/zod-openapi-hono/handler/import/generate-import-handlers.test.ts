@@ -35,11 +35,11 @@ const generateImportHandlersTestCases: {
         'deleteUserUsernameRouteHandler',
       ],
     },
-    config: { ...DEFAULT_CONFIG, app: { output: true } },
+    config: { ...DEFAULT_CONFIG },
     expected: [
-      "import { putPetRouteHandler,postPetRouteHandler,getPetFindByStatusRouteHandler,getPetFindByTagsRouteHandler,getPetPetIdRouteHandler,postPetPetIdRouteHandler,deletePetPetIdRouteHandler,postPetPetIdUploadImageRouteHandler } from './handler/pet_handler.ts';",
-      "import { getStoreInventoryRouteHandler,postStoreOrderRouteHandler,getStoreOrderOrderIdRouteHandler,deleteStoreOrderOrderIdRouteHandler } from './handler/store_handler.ts';",
-      "import { postUserRouteHandler,postUserCreateWithListRouteHandler,getUserLoginRouteHandler,getUserLogoutRouteHandler,getUserUsernameRouteHandler,putUserUsernameRouteHandler,deleteUserUsernameRouteHandler } from './handler/user_handler.ts';",
+      "import { putPetRouteHandler,postPetRouteHandler,getPetFindByStatusRouteHandler,getPetFindByTagsRouteHandler,getPetPetIdRouteHandler,postPetPetIdRouteHandler,deletePetPetIdRouteHandler,postPetPetIdUploadImageRouteHandler } from 'handler/pet_handler.ts';",
+      "import { getStoreInventoryRouteHandler,postStoreOrderRouteHandler,getStoreOrderOrderIdRouteHandler,deleteStoreOrderOrderIdRouteHandler } from 'handler/store_handler.ts';",
+      "import { postUserRouteHandler,postUserCreateWithListRouteHandler,getUserLoginRouteHandler,getUserLogoutRouteHandler,getUserUsernameRouteHandler,putUserUsernameRouteHandler,deleteUserUsernameRouteHandler } from 'handler/user_handler.ts';",
     ],
   },
 ]

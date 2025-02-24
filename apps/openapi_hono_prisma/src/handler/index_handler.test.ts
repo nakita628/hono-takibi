@@ -1,6 +1,6 @@
 import { testClient } from 'hono/testing'
 import { describe, expect, it } from 'vitest'
-import { api } from '../..'
+import { api } from '../index.ts'
 
 const test = testClient(api)
 

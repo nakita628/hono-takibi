@@ -31,7 +31,7 @@ import { generateApp } from './generators/zod-openapi-hono/app'
  */
 export async function main(dev = false, config: Config = getConfig()) {
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
+  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
   const input = config.input ?? args[0]
@@ -59,18 +59,33 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
-    // 10. generate app code
-    const appCode = generateApp(openAPI, config)
-    if (config.app?.output === true) {
-      // 10.1 generate handler code
-      await generateZodOpenapiHonoHandler(openAPI, config)
-      // 10.2 format app code
+    // 10. generate template code
+    const template = args.includes('-template')
+    // Test
+    const test = args.includes('-test')
+    // Environment file path
+    const envIndex = args.indexOf('--env')
+    const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
+    const env = hasEnvEquals ? args[envIndex + 2] : undefined
+    // Base path
+    const basePathIndex = args.indexOf('--base-path')
+    const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
+    const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
+
+    if (template === true) {
+      // 10.1 generate app code
+      const appCode = generateApp(openAPI, config, env, basePath)
+      // 10.2 generate handler code
+      await generateZodOpenapiHonoHandler(openAPI, config, test)
+      // 10.3 format app code
       const formattedAppCode = await formatCode(appCode)
-      // 10.3 write to file
+
+      const outputDir = path.dirname(output)
+      // 10.4 write to file
       const defaultFileName = 'index.ts'
       const alternativeFileName = 'main.ts'
       const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
-      fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
+      fs.writeFileSync(path.join(outputDir, outputFile), formattedAppCode, { encoding: 'utf-8' })
     }
 
     console.log(`Generated code written to ${output}`)

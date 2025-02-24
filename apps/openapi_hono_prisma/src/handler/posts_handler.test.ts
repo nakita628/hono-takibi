@@ -2,7 +2,7 @@ import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '../infra'
-import { api } from '../..'
+import { api } from '../index.ts'
 
 const test = testClient(api)
 

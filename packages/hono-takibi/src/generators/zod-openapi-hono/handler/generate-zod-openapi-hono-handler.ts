@@ -17,7 +17,11 @@ export type HandlerOutput = {
   routeNames: string[]
 }
 
-export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Config) {
+export async function generateZodOpenapiHonoHandler(
+  openapi: OpenAPISpec,
+  config: Config,
+  test: boolean,
+) {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
@@ -49,36 +53,33 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
   const mergedHandlers = groupHandlersByFileNameHelper(handlers)
 
   for (const handler of mergedHandlers) {
-    if (config.app?.output === true) {
-      const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
-      const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
-      if (!fs.existsSync(handlerPath)) {
-        fs.mkdirSync(handlerPath, { recursive: true })
-      }
+    const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
+    const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
+    if (!fs.existsSync(handlerPath)) {
+      fs.mkdirSync(handlerPath, { recursive: true })
+    }
 
-      const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
+    const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
 
-      const match = config.output?.match(/[^/]+\.ts$/)
+    const match = config.output?.match(/[^/]+\.ts$/)
 
-      const matchPath = match ? match[0] : ''
+    const matchPath = match ? match[0] : ''
 
-      const path =
-        config.output === '.' || config.output === './' ? config.output : `../${matchPath}`
+    const path = config.output === '.' || config.output === './' ? config.output : `../${matchPath}`
 
-      const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
+    const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
 
-      const importStatements = `${ROUTE_HANDLER}\n${importRouteTypes}`
+    const importStatements = `${ROUTE_HANDLER}\n${importRouteTypes}`
 
-      const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
+    const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 
-      fs.writeFileSync(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
+    fs.writeFileSync(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
+      encoding: 'utf-8',
+    })
+    if (test) {
+      fs.writeFileSync(`${handlerPath}/${handler.testFileName}`, '', {
         encoding: 'utf-8',
       })
-      if (config.app.test) {
-        fs.writeFileSync(`${handlerPath}/${handler.testFileName}`, '', {
-          encoding: 'utf-8',
-        })
-      }
     }
   }
 }

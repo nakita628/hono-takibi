@@ -33,6 +33,21 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```
 
+## Options
+
+| Option     | Description |
+|------------|-------------|
+| -template  | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
+| -test      | Enables automatic generation of test files for your API endpoints. |
+| --basePath | Specifies the base URL path for your API endpoints. |
+| --isDev    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
+
+### Example
+
+```bash
+npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath /api --isDev process.env.NODE_ENV
+```
+
 ## Demo 
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
@@ -461,15 +476,6 @@ You can customize the code generation behavior by creating a `hono-takibi.json` 
 | `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated type definitions |
 | `export` | `boolean` | `false` | When true, exports all type definitions |
 
-### App Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| output | boolean | false | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
-| test | boolean | false | Enables automatic generation of test files for your API endpoints. |
-| basePath | string | "" | Specifies the base URL path for your API endpoints. |
-| isDev | string | "process.env.NODE_ENV" | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
-
 ## Input and Output
 
 You can specify input and output paths in two ways:
@@ -503,12 +509,6 @@ You can specify input and output paths in two ways:
   "type": {
     "name": "PascalCase",
     "export": false
-  },
-  "app": {
-    "output": true,
-    "test": true,
-    "basePath": "api",
-    "isDev": "process.env.NODE_ENV"
   }
 }
 ```
