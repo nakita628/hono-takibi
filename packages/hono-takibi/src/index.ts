@@ -60,9 +60,9 @@ export async function main(dev = false, config: Config = getConfig()) {
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
     // 10. generate template code
-    const template = args.includes('-t')
+    const template = args.includes('-template')
     // Test
-    const test = args.includes('--test')
+    const test = args.includes('-test')
     // Environment file path
     const envIndex = args.indexOf('--env')
     const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
@@ -81,7 +81,6 @@ export async function main(dev = false, config: Config = getConfig()) {
       const formattedAppCode = await formatCode(appCode)
 
       const outputDir = path.dirname(output)
-
       // 10.4 write to file
       const defaultFileName = 'index.ts'
       const alternativeFileName = 'main.ts'
