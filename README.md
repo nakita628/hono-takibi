@@ -10,7 +10,7 @@ npm install -D hono-takibi
 
 ## Migrate Legacy APIs to Hono
 
-**Hono Takibi** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.
+**[Hono Takibi](https://www.npmjs.com/package/hono-takibi)** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.
 
 ## What Problem Does It Solve?
 
@@ -41,6 +41,8 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 | -test      | Enables automatic generation of test files for your API endpoints. |
 | --basePath | Specifies the base URL path for your API endpoints. |
 | --env    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
+
+> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the command.
 
 ### Example
 
