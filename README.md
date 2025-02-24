@@ -39,7 +39,7 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 |------------|-------------|
 | -template  | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
 | -test      | Enables automatic generation of test files for your API endpoints. |
-| --basePath | Specifies the base URL path for your API endpoints. |
+| --base-path | Specifies the base URL path for your API endpoints. |
 | --env    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
 
 > **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the command.
