@@ -11,9 +11,6 @@ import { getConfig } from './config'
 import { formatCode } from './format'
 import { generateApp } from './generators/zod-openapi-hono/app'
 
-// args index of -t
-const TEMPLATE_CODE = 3 as const
-
 /**
  * CLI entry point for hono-takibi
  *
@@ -33,8 +30,8 @@ const TEMPLATE_CODE = 3 as const
  * ```
  */
 export async function main(dev = false, config: Config = getConfig()) {
-  // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts', '-t']
-  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts', '-t']
+  // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
+  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
   const input = config.input ?? args[0]
@@ -62,14 +59,24 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
-    const t = args.indexOf('-t')
-
     // 10. generate template code
-    if (t === TEMPLATE_CODE) {
+    const template = args.includes('-t')
+    // Test
+    const test = args.includes('--test')
+    // Environment file path
+    const envIndex = args.indexOf('--env')
+    const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
+    const env = hasEnvEquals ? args[envIndex + 2] : undefined
+    // Base path
+    const basePathIndex = args.indexOf('--base-path')
+    const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
+    const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
+
+    if (template === true) {
       // 10.1 generate app code
-      const appCode = generateApp(openAPI, config)
+      const appCode = generateApp(openAPI, config, env, basePath)
       // 10.2 generate handler code
-      await generateZodOpenapiHonoHandler(openAPI, config)
+      await generateZodOpenapiHonoHandler(openAPI, config, test)
       // 10.3 format app code
       const formattedAppCode = await formatCode(appCode)
       // 10.4 write to file
