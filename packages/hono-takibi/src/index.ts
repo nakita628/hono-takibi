@@ -66,7 +66,7 @@ export async function main(dev = false, config: Config = getConfig()) {
 
     if (!isSlash && template === true) {
       console.warn(
-        "To use the '--template' option, you must specify a valid directory path. Ensure the directory exists before executing the command.",
+        "To use the '-template' option, you must specify a valid directory path. Ensure the directory exists before executing the command.",
       )
       return false
     }
