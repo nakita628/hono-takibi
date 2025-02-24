@@ -217,7 +217,15 @@ export function generateZodSchema(
       const res = `${zodArray}${maxItemsSchema}`
       return res
     }
-
+    // length
+    if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
+      const minLengthSchema = generateZodLength(schema.minLength)
+      const zodArray = generateZodArray(
+        generateZodSchema(config, schema.items, undefined, undefined),
+      )
+      const res = `${zodArray}${minLengthSchema}`
+      return res
+    }
     return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
   }
 

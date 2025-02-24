@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: zod array
+  description: zod array
+servers:
+  - url: v1
+components:
+  schemas: {}
+  parameters: {}
+paths:
+  /array:
+    get:
+      description: zod array
+      summary: zod array
+      responses:
+        "200":
+          description: zod array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  string_array:
+                    type: array
+                    items:
+                      type: string
+                  number_array:
+                    type: array
+                    items:
+                      type: number
+                  boolean_array:
+                    type: array
+                    items:
+                      type: boolean
+                  nested_array:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                  deep_nested_array:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: array
+                        items:
+                          type: number
+                  first_element_fixed:
+                    type: array
+                    items:
+                      type: string
+                    minItems: 1
+                  optional_array:
+                    type: array
+                    items:
+                      type: string
+                  optional_elements_array:
+                    type: array
+                    items:
+                      type: string
+                  min5_array:
+                    type: array
+                    items:
+                      type: string
+                    minItems: 5
+                  max5_array:
+                    type: array
+                    items:
+                      type: string
+                    maxItems: 5
+                  length5_array:
+                    type: array
+                    items:
+                      type: string
+                    minLength: 5
+                    maxLength: 5
+                  nonempty_array:
+                    type: array
+                    items:
+                      type: string
+                    minItems: 1
+                  unique_array:
+                    type: array
+                    items:
+                      type: string
+                  mixed_array:
+                    type: array
+                    items:
+                      anyOf:
+                        - type: string
+                        - type: number
+                        - type: boolean
+                  object_array:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          minimum: 0
+                          exclusiveMinimum: true
+                        name:
+                          type: string
+                        active:
+                          type: boolean
+                      required:
+                        - id
+                        - name
+                  fixed_values_array:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - small
+                        - medium
+                        - large
+                  email_array:
+                    type: array
+                    items:
+                      type: string
+                      format: email
+                  sorted_number_array:
+                    type: array
+                    items:
+                      type: number
+                  at_least_one_even_number:
+                    type: array
+                    items:
+                      type: number
+                required:
+                  - string_array
+                  - number_array
+                  - boolean_array
+                  - nested_array
+                  - deep_nested_array
+                  - first_element_fixed
+                  - optional_elements_array
+                  - min5_array
+                  - max5_array
+                  - length5_array
+                  - nonempty_array
+                  - unique_array
+                  - mixed_array
+                  - object_array
+                  - fixed_values_array
+                  - email_array
+                  - sorted_number_array
+                  - at_least_one_even_number
