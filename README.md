@@ -38,9 +38,15 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 | Option     | Description |
 |------------|-------------|
 | -template  | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
-| -test      | boolean | false | Enables automatic generation of test files for your API endpoints. |
+| -test      | Enables automatic generation of test files for your API endpoints. |
 | --basePath | Specifies the base URL path for your API endpoints. |
 | --isDev    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
+
+### Example
+
+```bash
+npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath /api --isDev process.env.NODE_ENV
+```
 
 ## Demo 
 
@@ -503,12 +509,6 @@ You can specify input and output paths in two ways:
   "type": {
     "name": "PascalCase",
     "export": false
-  },
-  "app": {
-    "output": true,
-    "test": true,
-    "basePath": "api",
-    "isDev": "process.env.NODE_ENV"
   }
 }
 ```
