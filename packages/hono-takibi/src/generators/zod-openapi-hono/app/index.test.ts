@@ -21,9 +21,9 @@ const generateAppTestCases: {
     basePath: 'api',
     expected: `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
-import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRoute } from '././hono-rest/openapi/hono_rest.ts';
-import { getRouteHandler } from '././hono-rest/openapi/handler/index_handler.ts';
-import { postPostsRouteHandler,getPostsRouteHandler,putPostsIdRouteHandler,deletePostsIdRouteHandler } from '././hono-rest/openapi/handler/posts_handler.ts';
+import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRoute } from './hono_rest.ts';
+import { getRouteHandler } from './handler/index_handler.ts';
+import { postPostsRouteHandler,getPostsRouteHandler,putPostsIdRouteHandler,deletePostsIdRouteHandler } from './handler/posts_handler.ts';
 
 const app = new OpenAPIHono().basePath('api')
 

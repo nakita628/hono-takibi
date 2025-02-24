@@ -114,7 +114,7 @@ const processImportMapTestCases: {
       output: './pet-store/openapi/pet_store.ts',
     },
     expected: {
-      './pet-store/openapi/pet_store.ts': [
+      'pet_store.ts': [
         'putPetRoute',
         'postPetRoute',
         'getPetFindByStatusRoute',
