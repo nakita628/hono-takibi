@@ -61,18 +61,27 @@ export async function main(dev = false, config: Config = getConfig()) {
 
     // 10. generate template code
     const template = args.includes('-template')
-    // Test
-    const test = args.includes('-test')
-    // Environment file path
-    const envIndex = args.indexOf('--env')
-    const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
-    const env = hasEnvEquals ? args[envIndex + 2] : undefined
-    // Base path
-    const basePathIndex = args.indexOf('--base-path')
-    const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
-    const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
 
-    if (template === true) {
+    const isSlash = output.includes('/')
+
+    if (!isSlash && template === true) {
+      console.warn(
+        "To use the '--template' option, you must specify a valid directory path. Ensure the directory exists before executing the command.",
+      )
+      return false
+    }
+
+    if (template === true && isSlash) {
+      // Test
+      const test = args.includes('-test')
+      // Environment file path
+      const envIndex = args.indexOf('--env')
+      const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
+      const env = hasEnvEquals ? args[envIndex + 2] : undefined
+      // Base path
+      const basePathIndex = args.indexOf('--base-path')
+      const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
+      const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
       // 10.1 generate app code
       const appCode = generateApp(openAPI, config, env, basePath)
       // 10.2 generate handler code
