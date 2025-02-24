@@ -11,6 +11,9 @@ import { getConfig } from './config'
 import { formatCode } from './format'
 import { generateApp } from './generators/zod-openapi-hono/app'
 
+// args index of -t
+const TEMPLATE_CODE = 3 as const
+
 /**
  * CLI entry point for hono-takibi
  *
@@ -30,8 +33,8 @@ import { generateApp } from './generators/zod-openapi-hono/app'
  * ```
  */
 export async function main(dev = false, config: Config = getConfig()) {
-  // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts' ]
+  // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts', '-t']
+  // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts', '-t']
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
   const input = config.input ?? args[0]
@@ -59,14 +62,17 @@ export async function main(dev = false, config: Config = getConfig()) {
     // 9. write to file
     fs.writeFileSync(output, formattedCode, { encoding: 'utf-8' })
 
-    // 10. generate app code
-    const appCode = generateApp(openAPI, config)
-    if (config.app?.output === true) {
-      // 10.1 generate handler code
+    const t = args.indexOf('-t')
+
+    // 10. generate template code
+    if (t === TEMPLATE_CODE) {
+      // 10.1 generate app code
+      const appCode = generateApp(openAPI, config)
+      // 10.2 generate handler code
       await generateZodOpenapiHonoHandler(openAPI, config)
-      // 10.2 format app code
+      // 10.3 format app code
       const formattedAppCode = await formatCode(appCode)
-      // 10.3 write to file
+      // 10.4 write to file
       const defaultFileName = 'index.ts'
       const alternativeFileName = 'main.ts'
       const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
