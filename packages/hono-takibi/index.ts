@@ -9,7 +9,6 @@ const __dirname = dirname(__filename)
 async function getOpenAPIFiles() {
   try {
     const dir = join(__dirname, 'openapi')
-
     const dirents = await readdir(dir, { withFileTypes: true })
     return dirents.map((dirent) => dirent.name)
   } catch (error) {

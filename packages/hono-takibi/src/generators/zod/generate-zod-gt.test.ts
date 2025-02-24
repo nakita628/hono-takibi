@@ -6,6 +6,14 @@ const generateZodGtTestCases = [
     minimum: 0,
     expected: '.gt(0)',
   },
+  {
+    minimum: 10,
+    expected: '.gt(10)',
+  },
+  {
+    minimum: 100,
+    expected: '.gt(100)',
+  },
 ]
 
 describe('generateZodGt', () => {

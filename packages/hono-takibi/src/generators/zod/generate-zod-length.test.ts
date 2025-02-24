@@ -6,6 +6,10 @@ const generateZodLengthTestCases = [
     length: 10,
     expected: '.length(10)',
   },
+  {
+    length: 100,
+    expected: '.length(100)',
+  },
 ]
 
 describe('generateZodLength', () => {
