@@ -17,7 +17,11 @@ export type HandlerOutput = {
   routeNames: string[]
 }
 
-export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config: Config) {
+export async function generateZodOpenapiHonoHandler(
+  openapi: OpenAPISpec,
+  config: Config,
+  test: boolean,
+) {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
@@ -72,7 +76,7 @@ export async function generateZodOpenapiHonoHandler(openapi: OpenAPISpec, config
     fs.writeFileSync(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
       encoding: 'utf-8',
     })
-    if (config.app?.test) {
+    if (test) {
       fs.writeFileSync(`${handlerPath}/${handler.testFileName}`, '', {
         encoding: 'utf-8',
       })
