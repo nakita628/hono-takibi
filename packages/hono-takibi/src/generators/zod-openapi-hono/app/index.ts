@@ -15,7 +15,12 @@ const APP = 'const app = new OpenAPIHono()' as const
 const ADD_TYPE = 'export type AddType = typeof api' as const
 const EXPORT_APP = 'export default app' as const
 
-export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
+export function generateApp(
+  openAPISpec: OpenAPISpec,
+  config: Config,
+  env: string | undefined,
+  basePath: string | undefined,
+) {
   const routeMappings = getRouteMaps(openAPISpec)
 
   const importsMap = processImportMap(routeMappings, config)
@@ -30,7 +35,9 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const applyOpenapiRoutes = generateApplyOpenapiRoutes(routeMappings)
 
-  const openAPIHono = config.app?.basePath ? `${APP}.basePath('${config.app.basePath}')` : APP
+  const openAPIHono = basePath ? `${APP}.basePath('${basePath}')` : APP
+
+  console.log(openAPIHono)
 
   const app = `app${applyOpenapiRoutes}`
 
@@ -38,11 +45,12 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
 
   const docs = generateDocs(openAPISpec)
 
-  const isDev = config?.app?.isDev
-    ? `const isDev = ${config.app.isDev} === 'development'`
-    : `const isDev = process.env.NODE_ENV === 'development'`
+  const isDev =
+    env !== undefined
+      ? `const isDev = ${env} === 'development'`
+      : `const isDev = process.env.NODE_ENV === 'development'`
 
-  const basePath = config?.app?.basePath ? `/${config.app.basePath}/doc` : '/doc'
+  const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
   const { components } = openAPISpec
 
@@ -50,7 +58,7 @@ export function generateApp(openAPISpec: OpenAPISpec, config: Config) {
     ? generateRegisterComponent(components.securitySchemes)
     : ''
 
-  const swagger = `if(isDev){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${basePath}'}))}`
+  const swagger = `if(isDev){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${path}'}))}`
 
   const sections = [
     // 1. imports
