@@ -10,7 +10,7 @@ npm install -D hono-takibi
 
 ## Migrate Legacy APIs to Hono
 
-**Hono Takibi** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.
+**[Hono Takibi](https://www.npmjs.com/package/hono-takibi)** is an OpenAPI-to-Hono code generator, specifically developed to assist in migrating APIs from various programming languages to Hono. This tool automates the creation of type-safe Hono routes from your existing OpenAPI specifications, making it easier to transition from legacy systems (Ruby, Perl, PHP, etc.) to a modern Hono architecture.
 
 ## What Problem Does It Solve?
 
@@ -40,12 +40,14 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 | -template  | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
 | -test      | Enables automatic generation of test files for your API endpoints. |
 | --basePath | Specifies the base URL path for your API endpoints. |
-| --isDev    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
+| --env    | Defines the environment variable used to determine development mode. Controls features like Swagger UI availability |
+
+> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the command.
 
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath /api --isDev process.env.NODE_ENV
+npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath api --env process.env.NODE_ENV
 ```
 
 ## Demo 
@@ -562,4 +564,4 @@ Let's make this tool better together! 🔥
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/nakita-Ypm/hono-takibi?tab=MIT-1-ov-file) for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/nakita-Ypm/hono-takibi?tab=MIT-1-ov-file) for more information.z
