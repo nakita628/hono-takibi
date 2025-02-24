@@ -1,7 +1,7 @@
 import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import { api } from '../..'
+import { api } from '../index.ts'
 import db from '../../db'
 import { Post } from '../../db/schema'
 import { eq } from 'drizzle-orm'
