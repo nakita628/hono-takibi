@@ -107,7 +107,7 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
+      type: 'array',
       items: {
         type: 'string',
       },
@@ -117,7 +117,7 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
+      type: 'array',
       items: {
         type: 'number',
       },
@@ -127,7 +127,7 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
+      type: 'array',
       items: {
         type: 'boolean',
       },
@@ -137,15 +137,15 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
-      "items": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        }
+      type: 'array',
+      items: {
+        type: 'array',
+        items: {
+          type: 'array',
+          items: {
+            type: 'number',
+          },
+        },
       },
     },
     config: DEFAULT_CONFIG,
@@ -153,19 +153,19 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
-      "items": {
-        "anyOf": [
+      type: 'array',
+      items: {
+        anyOf: [
           {
-            "type": "string"
+            type: 'string',
           },
           {
-            "type": "number"
+            type: 'number',
           },
           {
-            "type": "boolean"
-          }
-        ]
+            type: 'boolean',
+          },
+        ],
       },
     },
     config: DEFAULT_CONFIG,
@@ -173,36 +173,34 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
   {
     schema: {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "minimum": 0,
-            "exclusiveMinimum": true
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            minimum: 0,
+            exclusiveMinimum: true,
           },
-          "name": {
-            "type": "string"
+          name: {
+            type: 'string',
           },
-          "active": {
-            "type": "boolean"
-          }
+          active: {
+            type: 'boolean',
+          },
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        required: ['id', 'name'],
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.array(z.object({id:z.number().int().min(0),name:z.string(),active:z.boolean().optional()}))',
+    expected:
+      'z.array(z.object({id:z.number().int().min(0),name:z.string(),active:z.boolean().optional()}))',
   },
   {
     schema: {
-      "type": "array",
-      "items": {
-        "type": "string"
+      type: 'array',
+      items: {
+        type: 'string',
       },
       minLength: 5,
       maxLength: 5,

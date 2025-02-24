@@ -6,6 +6,10 @@ const generateZodLtTestCases = [
     maximum: 5,
     expected: '.lt(5)',
   },
+  {
+    maximum: 10,
+    expected: '.lt(10)',
+  },
 ]
 
 describe('generateZodLt', () => {
