@@ -37,8 +37,6 @@ export function generateApp(
 
   const openAPIHono = basePath ? `${APP}.basePath('${basePath}')` : APP
 
-  console.log(openAPIHono)
-
   const app = `app${applyOpenapiRoutes}`
 
   const api = `export const api = ${app}`

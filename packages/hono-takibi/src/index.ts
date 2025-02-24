@@ -79,11 +79,14 @@ export async function main(dev = false, config: Config = getConfig()) {
       await generateZodOpenapiHonoHandler(openAPI, config, test)
       // 10.3 format app code
       const formattedAppCode = await formatCode(appCode)
+
+      const outputDir = path.dirname(output)
+
       // 10.4 write to file
       const defaultFileName = 'index.ts'
       const alternativeFileName = 'main.ts'
       const outputFile = fs.existsSync(defaultFileName) ? alternativeFileName : defaultFileName
-      fs.writeFileSync(outputFile, formattedAppCode, { encoding: 'utf-8' })
+      fs.writeFileSync(path.join(outputDir, outputFile), formattedAppCode, { encoding: 'utf-8' })
     }
 
     console.log(`Generated code written to ${output}`)

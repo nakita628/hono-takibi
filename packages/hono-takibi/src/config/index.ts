@@ -8,7 +8,7 @@ export type Config = {
   type: {
     name: 'PascalCase' | 'camelCase'
     export: boolean
-  },
+  }
   input?: string
   output?: string
 }
@@ -21,7 +21,7 @@ export const DEFAULT_CONFIG: Config = {
   type: {
     name: 'PascalCase',
     export: false,
-  }
+  },
 } as const
 
 /**
