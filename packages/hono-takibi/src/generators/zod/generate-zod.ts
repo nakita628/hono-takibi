@@ -1,22 +1,22 @@
-import type { Schema, Type } from '../../../types'
-import type { Config } from '../../../config'
-import { generateZodArray } from '../generate-zod-array'
-import { generateZodString } from '../generate-zod-string'
-import { isFormatString } from '../../../core/validator/is-format-string'
-import { generateZodNumber } from '../generate-zod-number'
-import { generateZodIntegerSchema } from '../generate-zod-integer-schema'
-import { generateAllOfCode } from '../../zod-openapi-hono/openapi/component/allof/generate-allof-code'
-import { generateAnyOfCode } from '../../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
-import { generateOneOfCode } from '../../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
-import { generateZodObject } from '../generate-zod-object'
-import { generateZodEnum } from '../generate-zod-enum'
-import { generateZodMax } from '../generate-zod-max'
-import { generateZodMin } from '../generate-zod-min'
-import { stripMinIfgTExistHelper } from '../helper/strip-min-if-gt-exist-helper'
-import { stripMaxIfLtExistHelper } from '../helper/strip-max-if-lt-exist-helper'
-import { generateZodLength } from '../generate-zod-length'
-import { stripMinMaxExistHelper } from '../helper/strip-min-max-exist-helper'
+import type { Schema, Type } from '../../types'
+import type { Config } from '../../config'
+import { generateZodArray } from './generate-zod-array'
+import { generateZodString } from './generate-zod-string'
+import { isFormatString } from '../../core/validator/is-format-string'
+import { generateZodNumber } from './generate-zod-number'
+import { generateZodIntegerSchema } from './generate-zod-integer-schema'
+import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
+import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
+import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
+import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
+import { generateZodObject } from './generate-zod-object'
+import { generateZodEnum } from './generate-zod-enum'
+import { generateZodMax } from './generate-zod-max'
+import { generateZodMin } from './generate-zod-min'
+import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper'
+import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper'
+import { generateZodLength } from './generate-zod-length'
+import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -43,7 +43,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
 /**
  * Generates a Zod schema string from an OpenAPI/JSON Schema definition
  *
- * @function generateZodSchema
+ * @function generateZod
  * @param schema - The schema definition object
  * @param schema.type - The type of the schema (e.g., 'string', 'object', 'array')
  * @param schema.format - Optional format specification (e.g., 'date-time', 'email')
@@ -59,12 +59,12 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  *
  * @example
  * // Enum type
- * generateZodSchema({ enum: ['active', 'inactive'] })
+ * generateZod({ enum: ['active', 'inactive'] })
  * // Returns: 'z.enum(["active","inactive"])'
  *
  * @example
  * // Object with properties
- * generateZodSchema({
+ * generateZod({
  *   type: 'object',
  *   properties: {
  *     name: { type: 'string' },
@@ -76,7 +76,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  *
  * @example
  * // String with validation
- * generateZodSchema({
+ * generateZod({
  *   type: 'string',
  *   minLength: 3,
  *   maxLength: 10,
@@ -86,7 +86,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  *
  * @example
  * // Array with items
- * generateZodSchema({
+ * generateZod({
  *   type: 'array',
  *   items: { type: 'string' }
  * })
@@ -97,7 +97,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function generateZodSchema(
+export function generateZod(
   config: Config,
   schema: Schema,
   paramName?: string,
@@ -196,7 +196,7 @@ export function generateZodSchema(
       const maxItemsSchema = generateZodMax(schema.maxItems)
 
       const zodArray = generateZodArray(
-        generateZodSchema(config, schema.items, undefined, undefined),
+        generateZod(config, schema.items, undefined, undefined),
       )
       const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
       return res
@@ -204,7 +204,7 @@ export function generateZodSchema(
     if (schema.minItems) {
       const minItemsSchema = generateZodMin(schema.minItems)
       const zodArray = generateZodArray(
-        generateZodSchema(config, schema.items, undefined, undefined),
+        generateZod(config, schema.items, undefined, undefined),
       )
       const res = `${zodArray}${minItemsSchema}`
       return res
@@ -212,7 +212,7 @@ export function generateZodSchema(
     if (schema.maxItems) {
       const maxItemsSchema = generateZodMax(schema.maxItems)
       const zodArray = generateZodArray(
-        generateZodSchema(config, schema.items, undefined, undefined),
+        generateZod(config, schema.items, undefined, undefined),
       )
       const res = `${zodArray}${maxItemsSchema}`
       return res
@@ -221,12 +221,12 @@ export function generateZodSchema(
     if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
       const minLengthSchema = generateZodLength(schema.minLength)
       const zodArray = generateZodArray(
-        generateZodSchema(config, schema.items, undefined, undefined),
+        generateZod(config, schema.items, undefined, undefined),
       )
       const res = `${zodArray}${minLengthSchema}`
       return res
     }
-    return generateZodArray(generateZodSchema(config, schema.items, undefined, undefined))
+    return generateZodArray(generateZod(config, schema.items, undefined, undefined))
   }
 
   if (schema.allOf) {

@@ -1,10 +1,10 @@
-import type { Schema } from '../../../types'
-import type { Config } from '../../../config'
+import type { Schema } from '../../types'
+import type { Config } from '../../config'
 import { describe, expect, it } from 'vitest'
-import { generateZodSchema } from './generate-zod-schema'
-import { DEFAULT_CONFIG } from '../../../data/test-data'
+import { generateZod } from './generate-zod'
+import { DEFAULT_CONFIG } from '../../data/test-data'
 
-const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: string }[] = [
+const generateZodTestCases: { config: Config; schema: Schema; expected: string }[] = [
   {
     schema: { type: 'string' },
     config: DEFAULT_CONFIG,
@@ -210,11 +210,11 @@ const generateZodSchemaTestCases: { config: Config; schema: Schema; expected: st
   },
 ]
 
-describe('generateZodSchema', () => {
-  it.concurrent.each(generateZodSchemaTestCases)(
-    'generateZodSchema($schema) -> $expected',
+describe('generateZod', () => {
+  it.concurrent.each(generateZodTestCases)(
+    'generateZod($schema) -> $expected',
     async ({ schema, config, expected }) => {
-      const result = generateZodSchema(config, schema)
+      const result = generateZod(config, schema)
       expect(result).toBe(expected)
     },
   )

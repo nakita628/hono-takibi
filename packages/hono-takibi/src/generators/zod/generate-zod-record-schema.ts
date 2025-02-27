@@ -1,6 +1,6 @@
 import type { Config } from '../../config'
 import type { Format, Type } from '../../types'
-import { generateZodSchema } from './schema/generate-zod-schema'
+import { generateZod } from './generate-zod'
 
 /**
  * Generates a Zod record schema for objects with additional properties
@@ -38,6 +38,6 @@ export function generateZodRecordSchema(
   },
   config: Config,
 ): string {
-  const schema = generateZodSchema(config, additionalProperties)
+  const schema = generateZod(config, additionalProperties)
   return `z.record(z.string(),${schema})`
 }

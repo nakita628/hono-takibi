@@ -31,7 +31,7 @@
  * - Commonly used for generating simple object schemas
  * - Does not support nested objects directly (use full schema generator for complex objects)
  *
- * @see generateZodSchema for complex object schema generation
+ * @see generateZod for complex object schema generation
  */
 export function generateZodObjectSchema(object: Record<string, string>): string {
   return `z.object({${Object.entries(object)

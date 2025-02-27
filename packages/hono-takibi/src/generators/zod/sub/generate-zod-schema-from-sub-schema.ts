@@ -1,7 +1,7 @@
 import type { Config } from '../../../config'
 import type { Schema } from '../../../types'
 import { getRefSchemaName } from '../../../core/schema/references/get-ref-schema-name'
-import { generateZodSchema } from '../schema/generate-zod-schema'
+import { generateZod } from '../generate-zod'
 
 /**
  * Generates a Zod schema from a sub-schema.
@@ -11,5 +11,5 @@ import { generateZodSchema } from '../schema/generate-zod-schema'
  * @returns The generated Zod schema as a string.
  */
 export function generateZodSchemaFromSubSchema(subSchema: Schema, config: Config): string {
-  return subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZodSchema(config, subSchema)
+  return subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZod(config, subSchema)
 }

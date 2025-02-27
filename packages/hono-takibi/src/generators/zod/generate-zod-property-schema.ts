@@ -24,11 +24,11 @@
 
 import type { Schema } from '../../types'
 import type { Config } from '../../config'
-import { generateZodSchema } from './schema/generate-zod-schema'
 import { isSchemaReference } from '../../core/validator/is-schema-reference'
 import { isArrayWithSchemaReference } from '../../core/validator/is-array-with-schema-reference'
 import { generateReferenceSchema } from './reference/generate-reference-schema'
 import { generateArrayReferenceSchema } from './reference/generate-array-reference-schema'
+import { generateZod } from './generate-zod'
 
 /**
  * generatePropertySchema
@@ -46,5 +46,5 @@ export function generatePropertySchema(schema: Schema, config: Config) {
     return generateArrayReferenceSchema(schema, config)
   }
 
-  return generateZodSchema(config, schema, undefined, undefined)
+  return generateZod(config, schema, undefined, undefined)
 }
