@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { generateZodRecordSchema } from './generate-zod-record-schema'
+import { generateZodRecord } from './generate-zod-record'
 import type { Format, Type } from '../../types'
 import type { Config } from '../../config'
 import { DEFAULT_CONFIG } from '../../data/test-data'
 
-const generateZodRecordSchemaTestCases: {
+const generateZodRecordTestCases: {
   additionalProperties: { type: Type; format: Format }
   config: Config
   expected: string
@@ -21,11 +21,11 @@ const generateZodRecordSchemaTestCases: {
   },
 ]
 
-describe('generateZodRecordSchema', () => {
-  it.concurrent.each(generateZodRecordSchemaTestCases)(
-    'generateZodRecordSchema($additionalProperties, $config) -> $expected',
+describe('generateZodRecord', () => {
+  it.concurrent.each(generateZodRecordTestCases)(
+    'generateZodRecord($additionalProperties, $config) -> $expected',
     async ({ additionalProperties, config, expected }) => {
-      const result = generateZodRecordSchema(additionalProperties, config)
+      const result = generateZodRecord(additionalProperties, config)
       expect(result).toBe(expected)
     },
   )

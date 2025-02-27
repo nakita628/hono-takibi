@@ -5,7 +5,7 @@ import { generateZod } from './generate-zod'
 /**
  * Generates a Zod record schema for objects with additional properties
  *
- * @function generateZodRecordSchema
+ * @function generateZodRecord
  * @param additionalProperties - Schema definition for record values
  * @param additionalProperties.type - Type of the record values (e.g., 'string', 'number')
  * @param additionalProperties.format - Format specification for the value type (e.g., 'date-time', 'email')
@@ -13,17 +13,17 @@ import { generateZod } from './generate-zod'
  *
  * @example
  * // Basic string values
- * generateZodRecordSchema({ type: 'string', format: undefined })
+ * generateZodRecord({ type: 'string', format: undefined })
  * // Returns: 'z.record(z.string(), z.string())'
  *
  * @example
  * // Email format values
- * generateZodRecordSchema({ type: 'string', format: 'email' })
+ * generateZodRecord({ type: 'string', format: 'email' })
  * // Returns: 'z.record(z.string(), z.string().email())'
  *
  * @example
  * // Integer values
- * generateZodRecordSchema({ type: 'integer', format: 'int64' })
+ * generateZodRecord({ type: 'integer', format: 'int64' })
  * // Returns: 'z.record(z.string(), z.number().int())'
  *
  * @remarks
@@ -31,7 +31,7 @@ import { generateZod } from './generate-zod'
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
  */
-export function generateZodRecordSchema(
+export function generateZodRecord(
   additionalProperties: {
     type: Type
     format: Format
