@@ -22,6 +22,10 @@ const generateZodRegexTestCases = [
     pattern: '^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$',
     expected: '.regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)',
   },
+  {
+    pattern: '^\\d{2}/\\d{2}$',
+    expected: '.regex(/^\\d{2}\\/\\d{2}$/)',
+  },
 ]
 
 describe('generateZodRegex', () => {

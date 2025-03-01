@@ -5,5 +5,8 @@
  * @returns Zod regex validation string
  */
 export function generateZodRegex(pattern: string): string {
-  return `.regex(/${pattern}/)`
+  // pattern "^\d{2}/\d{2}$"
+  const escapedPattern = pattern.replace(/(?<!\\)\//g, '\\/')
+  // escapedPattern "^\d{2}\/\d{2}$"
+  return `.regex(/${escapedPattern}/)`
 }
