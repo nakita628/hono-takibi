@@ -50,11 +50,24 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * @param schema.pattern - Optional regex pattern for string validation
  * @param schema.minLength - Optional minimum length for string validation
  * @param schema.maxLength - Optional maximum length for string validation
+ * @param schema.minimum - Optional minimum value for number validation
+ * @param schema.maximum - Optional maximum value for number validation
+ * @param schema.exclusiveMinimum - Whether the minimum value is exclusive for number validation
+ * @param schema.exclusiveMaximum - Whether the maximum value is exclusive for number validation
+ * @param schema.minItems - Optional minimum number of items for array validation
+ * @param schema.maxItems - Optional maximum number of items for array validation
+ * @param schema.default - Optional default value for the schema
+ * @param schema.example - Optional example value for the schema
  * @param schema.properties - Object properties definition
  * @param schema.required - Array of required property names
  * @param schema.items - Schema for array items
  * @param schema.enum - Array of enum values
+ * @param schema.nullable - Whether the schema is nullable
  * @param schema.additionalProperties - Schema for additional properties in objects
+ * @param schema.allOf - Array of allOf schemas
+ * @param schema.anyOf - Array of anyOf schemas
+ * @param schema.oneOf - Array of oneOf schemas
+ * @param schema.$ref - Reference to a schema
  * @returns Generated Zod schema string
  *
  * @example
