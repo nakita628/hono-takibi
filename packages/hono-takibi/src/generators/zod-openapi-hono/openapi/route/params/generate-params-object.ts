@@ -15,6 +15,8 @@ import { generateZod } from '../../../../zod/generate-zod'
  * - Handles optional parameters by adding .optional() suffix
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
+ *
+ * @returns ParamsObject
  */
 export function generateParamsObject(parameters: Parameters[], config: Config): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {

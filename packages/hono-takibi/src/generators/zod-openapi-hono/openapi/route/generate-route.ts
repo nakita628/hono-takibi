@@ -26,6 +26,8 @@ import { escapeStr } from '../../../../core/text/escape-str'
  * - All components are properly escaped and formatted
  * - Handles optional parameters appropriately
  * - Integrates with Hono's createRoute function
+ *
+ * @returns string
  */
 
 export function generateRoute(

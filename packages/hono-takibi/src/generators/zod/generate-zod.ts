@@ -109,6 +109,8 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Handles special cases first (enum, object, string with validation, array with items)
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
+ * 
+ * @returns string
  */
 export function generateZod(
   config: Config,

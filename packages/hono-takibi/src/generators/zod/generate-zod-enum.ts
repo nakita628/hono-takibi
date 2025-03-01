@@ -1,6 +1,13 @@
 import type { Schema } from '../../types'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
+/**
+ * Generate Zod enum
+ *
+ * @function generateZodEnum
+ * @param schema - Schema definition
+ * @returns Zod enum string
+ */
 export function generateZodEnum(schema: Schema) {
   if (schema.example) {
     const openapi_example = generateZodToOpenAPI(schema.example)

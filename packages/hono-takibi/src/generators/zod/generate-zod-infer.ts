@@ -5,7 +5,9 @@ import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-sche
 /**
  * Generates a TypeScript type definition for an inferred Zod schema.
  *
- * @param schemaName - The name of the Zod schema to infer.
+ * @function generateZodInfer
+ * @param schema - The name of the Zod schema to infer.
+ * @param config - Configuration
  * @returns A string containing the inferred type definition.
  */
 export function generateZodInfer(schema: string, config: Config) {

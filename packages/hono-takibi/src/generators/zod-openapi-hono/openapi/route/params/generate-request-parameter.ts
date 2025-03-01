@@ -27,6 +27,8 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  * - Returns empty string if no parameters or body are defined
  * - Properly combines parameters and body when both are present
  * - Handles schema references and inline schemas
+ *
+ * @returns string
  */
 export function generateRequestParameter(
   parameters: Parameters[] | undefined,

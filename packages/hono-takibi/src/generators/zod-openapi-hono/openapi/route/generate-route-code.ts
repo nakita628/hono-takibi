@@ -22,6 +22,8 @@ import type { Config } from '../../../../config'
  *   - Response schemas
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
+ *
+ * @returns string
  */
 export function generateRouteCode(openAPIPaths: OpenAPIPaths, config: Config) {
   const routes: string[] = []
