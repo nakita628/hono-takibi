@@ -4,7 +4,7 @@ import { generateZodRecord } from './generate-zod-record'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
 import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
-import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
+import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema'
 
 export function generateZodObject(schema: Schema, config: Config) {
   if (schema.additionalProperties)

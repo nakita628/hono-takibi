@@ -2,7 +2,7 @@ import type { Responses } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { escapeStr } from '../../../../../core/text/escape-str'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema'
-import { generatePropertySchema } from '../../../../zod/generate-zod-property-schema'
+import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema'
 
 /**
  * Generates a response schema for different status codes

@@ -1,7 +1,7 @@
-import type { Schema } from '../../types'
-import type { Config } from '../../config'
-import { isAllOptional } from '../../core/validator/is-all-optional'
-import { generateZodPartialSchema } from './generate-zod-partial-schema'
+import type { Schema } from '../../../types'
+import type { Config } from '../../../config'
+import { isAllOptional } from '../../../core/validator/is-all-optional'
+import { generateZodPartialSchema } from '../generate-zod-partial-schema'
 import { generatePropertySchema } from './generate-zod-property-schema'
 
 /**
