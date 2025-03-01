@@ -47,7 +47,7 @@ npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath api --env process.env.NODE_ENV
+npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath 'api' --env 'process.env.NODE_ENV'
 ```
 
 ## Demo 

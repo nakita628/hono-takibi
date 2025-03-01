@@ -6,7 +6,8 @@ import { generateZodObjectSchema } from '../../../../zod/generate-zod-object-sch
  *
  * @function generateRequestParamsArray
  * @param paramsObj - Object containing query, path, and header parameter schemas
- * @returns Array of Zod schema strings for non-empty parameter sections
+ *
+ * @returns string[]
  */
 export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
   // 1.  define sections to be processed

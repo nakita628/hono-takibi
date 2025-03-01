@@ -1,6 +1,7 @@
 /**
  * Generate Zod max validation
  *
+ * @function generateZodMax
  * @param max - Maximum value
  * @returns Zod max validation string
  */

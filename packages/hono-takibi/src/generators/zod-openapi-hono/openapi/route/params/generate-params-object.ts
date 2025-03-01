@@ -1,7 +1,7 @@
 import type { Parameters, ParamsObject } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { generateZodCoerce } from '../../../../zod/generate-zod-coerce'
-import { generateZodSchema } from '../../../../zod/schema/generate-zod-schema'
+import { generateZod } from '../../../../zod/generate-zod'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
@@ -15,6 +15,8 @@ import { generateZodSchema } from '../../../../zod/schema/generate-zod-schema'
  * - Handles optional parameters by adding .optional() suffix
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
+ *
+ * @returns ParamsObject
  */
 export function generateParamsObject(parameters: Parameters[], config: Config): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
@@ -22,8 +24,8 @@ export function generateParamsObject(parameters: Parameters[], config: Config): 
     // path params are generated with the param name
     const baseSchema =
       param.in === 'path'
-        ? generateZodSchema(config, param.schema, param.name, true)
-        : generateZodSchema(config, param.schema, param.name, false)
+        ? generateZod(config, param.schema, param.name, true)
+        : generateZod(config, param.schema, param.name, false)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {

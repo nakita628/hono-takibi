@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { generatePropertySchema } from './generate-zod-property-schema'
-import type { Schema } from '../../types'
-import { DEFAULT_CONFIG, type Config } from '../../config'
-import { PASCAL_CASE_CONFIG } from '../../data/test-data'
+import type { Schema } from '../../../types'
+import { DEFAULT_CONFIG, type Config } from '../../../config'
+import { PASCAL_CASE_CONFIG } from '../../../data/test-data'
 
 const generatePropertySchemaTestCases: {
   schema: Schema

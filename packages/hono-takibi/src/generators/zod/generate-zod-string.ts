@@ -55,6 +55,7 @@ type GenerateZodStringParams = {
  *   format: 'email'
  * })
  * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
+ * @returns string
  */
 export function generateZodString(args: GenerateZodStringParams): string {
   const validations = ['z.string()']

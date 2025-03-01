@@ -55,6 +55,8 @@ type GenerateCreateRouteParams = {
  * - Properties are joined without additional spacing
  * - Undefined/empty properties are safely handled
  * - Creates a valid TypeScript export statement
+ *
+ * @returns string
  */
 export function generateCreateRoute(args: GenerateCreateRouteParams): string {
   const properties = [

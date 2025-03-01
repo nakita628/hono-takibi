@@ -15,6 +15,8 @@ import { capitalize } from '../../../../core/text/capitalize'
  * 4. Capitalize each word
  * 5. Join all words together
  * 6. Add HTTP method and Route suffix
+ *
+ * @returns string
  */
 export function generateRouteName(method: string, path: string) {
   // 1. api_path: `/user/createWithList`

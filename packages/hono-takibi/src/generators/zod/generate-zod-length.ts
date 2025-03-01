@@ -1,6 +1,7 @@
 /**
  * Generates a Zod length validation string
  *
+ * @function generateZodLength
  * @param length - The length value to validate against
  * @returns The Zod length validation string
  *

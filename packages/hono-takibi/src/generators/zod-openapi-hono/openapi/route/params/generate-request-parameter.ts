@@ -3,7 +3,7 @@ import type { Config } from '../../../../../config'
 import { generateParamsObject } from './generate-params-object'
 import { generateRequestParamsArray } from './generate-request-params-array'
 import { generateRequestParams } from './generate-request-params'
-import { generatePropertySchema } from '../../../../zod/generate-zod-property-schema'
+import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema'
 import { generateFormatRequestObject } from '../request/object/generate-format-request-object'
 import { generateRequestBody } from '../request/body/generate-request-body'
 import { generateInsertRequestBody } from '../request/body/generate-insert-request-body'
@@ -27,6 +27,8 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  * - Returns empty string if no parameters or body are defined
  * - Properly combines parameters and body when both are present
  * - Handles schema references and inline schemas
+ *
+ * @returns string
  */
 export function generateRequestParameter(
   parameters: Parameters[] | undefined,

@@ -4,7 +4,7 @@
  * @function generateRequestParams
  * @param required - Whether the request body is required
  * @param zodSchema - Zod schema string for request body validation
- * @returns Generated request body configuration string
+ * @returns string
  */
 export function generateRequestParams(requestBodyCode: string): string {
   return `request:{${requestBodyCode}},`
