@@ -3,13 +3,13 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
-import { generateZodOpenAPIHono } from './generators/zod-openapi-hono/openapi/generate-zod-openapi-hono'
-import { generateZodOpenapiHonoHandler } from './generators/zod-openapi-hono/handler/generate-zod-openapi-hono-handler'
+import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
+import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { getConfig } from './config'
 import { formatCode } from './format'
-import { generateApp } from './generators/zod-openapi-hono/app'
+import { generateApp } from './generator/zod-openapi-hono/app'
 
 /**
  * CLI entry point for hono-takibi

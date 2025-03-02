@@ -110,7 +110,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  *
- * @returns string
+ * @returns string - Generated Zod schema string
  */
 export function generateZod(
   config: Config,
