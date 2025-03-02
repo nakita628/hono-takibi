@@ -1,4 +1,4 @@
-import type { Schema } from '../../types'
+import type { Schema } from '../../type'
 
 /**
  * array has $ref

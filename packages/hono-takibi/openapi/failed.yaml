@@ -5,7 +5,7 @@ info:
 
 componnts:
   schemas:
-    Error:
+    
       type: object
       properties:
         message:
