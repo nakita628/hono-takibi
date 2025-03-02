@@ -21,17 +21,14 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
 export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config): string {
   // 1. get components
   const components = openAPISpec.components ? openAPISpec.components : undefined
-  if (!components) {
-    throw new Error(`Cannot destructure property 'schemas' of 'components' as it is undefined.`)
-  }
   // 2. get paths
   const { paths } = openAPISpec
   // 3. generate components code
-  const componentsCode = generateComponentsCode(components, config)
+  const componentsCode = components === undefined ? '' : generateComponentsCode(components, config)
   // 4. generate route code
   const routeCode = generateRouteCode(paths, config)
   // 5. generate types code
-  const typesCode = generateTypesCode(components, config)
+  const typesCode = components === undefined ? '' : generateTypesCode(components, config)
   // 6. generate hono code
   if (config.type.export) {
     return `${IMPORT_CODE}\n\n${componentsCode}\n\n${typesCode}\n\n${routeCode}`.trimEnd()

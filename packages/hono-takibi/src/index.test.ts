@@ -43,7 +43,15 @@ describe('Hono Takibi', () => {
       await main(true)
     } catch (e) {
       expect(e.message).toBe(
-        `Cannot destructure property 'schemas' of 'components' as it is undefined.`,
+        `Error parsing /workspaces/hono-takibi/packages/hono-takibi/openapi/failed.yaml: bad indentation of a mapping entry (15:5)
+
+ 12 |           type: string
+ 13 |       required:
+ 14 |         - message
+ 15 |     Post:
+----------^
+ 16 |       type: object
+ 17 |       properties:`,
       )
       expect(consoleError).toHaveBeenCalledWith('Usage: hono-takibi <input-file> [-o output-file]')
     }
