@@ -30,6 +30,8 @@ import { generateZod } from './generate-zod'
  * - Always uses string keys (z.string())
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
+ *
+ * @returns string - Generated Zod record schema string
  */
 export function generateZodRecord(
   additionalProperties: {

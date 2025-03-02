@@ -26,7 +26,7 @@ type GenerateZodNumberParams = {
  *
  * @function generateZodNumber
  * @param args - zod number params
- * @returns zod number
+ * @returns string - Generated Zod number schema string
  */
 export function generateZodNumber(args: GenerateZodNumberParams): string {
   const validations = ['z.number()']

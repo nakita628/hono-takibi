@@ -32,6 +32,7 @@
  * - Does not support nested objects directly (use full schema generator for complex objects)
  *
  * @see generateZod for complex object schema generation
+ * @returns string - Generated Zod object schema string
  */
 export function generateZodObjectSchema(object: Record<string, string>): string {
   return `z.object({${Object.entries(object)

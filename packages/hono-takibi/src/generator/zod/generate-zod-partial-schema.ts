@@ -3,7 +3,7 @@
  *
  * @function generateZodPartialSchema
  * @param objectProperties - Object properties
- * @returns string
+ * @returns string - Generated Zod partial schema string
  */
 export function generateZodPartialSchema(objectProperties: string[]): string {
   const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))

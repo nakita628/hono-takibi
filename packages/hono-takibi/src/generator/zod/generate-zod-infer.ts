@@ -8,7 +8,7 @@ import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-sche
  * @function generateZodInfer
  * @param schema - The name of the Zod schema to infer.
  * @param config - Configuration
- * @returns A string containing the inferred type definition.
+ * @returns string - Generated TypeScript type definition string
  */
 export function generateZodInfer(schema: string, config: Config) {
   const schemaName = getVariableSchemaNameHelper(schema, config)

@@ -7,7 +7,7 @@ import type { Content } from '../../../../../../types'
  * @function generateRequestBody
  * @param required - Whether the request body is required
  * @param zodSchema - Zod schema string for request body validation
- * @returns Generated request body configuration string
+ * @returns string - Generated request body configuration string
  */
 export function generateRequestBody(
   required: boolean,

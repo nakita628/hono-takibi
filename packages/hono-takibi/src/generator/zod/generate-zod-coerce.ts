@@ -7,7 +7,7 @@ import { removeZodPrefix } from '../../core/text/remove-zod-prefix'
  * @function generateZodCoerce
  * @param z - The zod schema to coerce to.
  * @param zodSchema - The zod schema to coerce.
- * @returns A zod pipe function to coerce a value to a zod schema.
+ * @returns string - Generated zod pipe function to coerce a value to a zod schema.
  */
 export function generateZodCoerce(z: string, zodSchema: string) {
   const zod = removeZodPrefix(zodSchema)

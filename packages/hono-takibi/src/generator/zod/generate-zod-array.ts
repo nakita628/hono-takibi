@@ -27,6 +27,8 @@
  * - Accepts both type references and Zod schema strings
  * - The input schema should be a valid Zod schema or type reference
  * - Used for generating array type validations
+ *
+ * @returns string - Generated Zod array schema string
  */
 export function generateZodArray(zodSchema: string) {
   return `z.array(${zodSchema})`

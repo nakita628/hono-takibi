@@ -3,7 +3,7 @@
  *
  * @function generateZodLength
  * @param length - The length value to validate against
- * @returns The Zod length validation string
+ * @returns string - Generated Zod length validation string
  *
  * @example
  * const lengthValidation = generateZodLength(10)

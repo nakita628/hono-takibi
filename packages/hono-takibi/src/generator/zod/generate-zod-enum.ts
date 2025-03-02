@@ -6,7 +6,7 @@ import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
  *
  * @function generateZodEnum
  * @param schema - Schema definition
- * @returns Zod enum string
+ * @returns string - Generated Zod enum string
  */
 export function generateZodEnum(schema: Schema) {
   if (schema.example) {

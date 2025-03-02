@@ -2,10 +2,11 @@
  * Generates a zod nullable validation
  *
  * @function generateZodNullable
- * @returns string
+ * @returns string - Generated Zod nullable schema string
  *
  * @example
  * generateZodNullable() -> ".nullable()"
+ *
  */
 export function generateZodNullable(): string {
   return '.nullable()'

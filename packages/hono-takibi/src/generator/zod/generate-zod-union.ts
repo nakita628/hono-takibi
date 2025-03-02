@@ -8,6 +8,7 @@
  * @example
  * generateZodUnion(['z.string()', 'z.number()'])
  * // Returns: 'z.union([z.string(), z.number()])'
+ * @returns string - Generated Zod union schema string
  */
 export function generateZodUnion(schemas: string[]): string {
   return `z.union([${schemas.join(',')}])`
