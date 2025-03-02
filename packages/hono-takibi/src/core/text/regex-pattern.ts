@@ -1,4 +1,3 @@
-
 /**
  * Generates a regex pattern from a string
  *
