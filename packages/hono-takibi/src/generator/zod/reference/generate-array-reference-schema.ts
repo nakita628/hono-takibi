@@ -1,7 +1,7 @@
 import type { Config } from '../../../config'
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { getRefName } from '../../../core/schema/references/get-ref-name'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import { generateZodArray } from '../generate-zod-array'
 
 /**

@@ -1,4 +1,4 @@
-import type { Format, FormatString } from '../../types'
+import type { Format, FormatString } from '../../type'
 
 /**
  * Checks if the format is a string type

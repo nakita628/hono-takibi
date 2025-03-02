@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../../types'
+import type { OpenAPISpec } from '../../../../type'
 
 export function generateDocs(openAPISpec: OpenAPISpec): {
   openapi: string | undefined

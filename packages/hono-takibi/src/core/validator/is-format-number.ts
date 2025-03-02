@@ -1,4 +1,4 @@
-import type { Format, FormatNumber } from '../../types'
+import type { Format, FormatNumber } from '../../type'
 
 /**
  * Checks if the format is a number type

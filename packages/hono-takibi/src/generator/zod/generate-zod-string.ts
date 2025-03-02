@@ -1,4 +1,4 @@
-import type { FormatString, ExampleValue, DefaultValue } from '../../types'
+import type { FormatString, ExampleValue, DefaultValue } from '../../type'
 import { getZodFormatString } from '../../core/zod/get-zod-string-format'
 import { generateZodDefault } from './generate-zod-default'
 import { generateZodMax } from './generate-zod-max'

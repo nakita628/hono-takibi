@@ -15,7 +15,7 @@
 // }
 
 import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
-import type { Components } from '../../../../types'
+import type { Components } from '../../../../type'
 import { generateZodInfer } from '../../../zod/generate-zod-infer'
 import type { Config } from '../../../../config'
 

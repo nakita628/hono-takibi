@@ -1,4 +1,4 @@
-import type { Schema, Type } from '../../types'
+import type { Schema, Type } from '../../type'
 import type { Config } from '../../config'
 import { generateZodArray } from './generate-zod-array'
 import { generateZodString } from './generate-zod-string'

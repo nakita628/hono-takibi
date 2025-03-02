@@ -1,5 +1,5 @@
 import type { Config } from '../../../config'
-import type { OpenAPISpec } from '../../../types'
+import type { OpenAPISpec } from '../../../type'
 import { generateComponentsCode } from './component/generate-components-code'
 import { generateRouteCode } from './route/generate-route-code'
 import { generateTypesCode } from './type/generate-types-code'

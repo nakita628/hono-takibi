@@ -1,4 +1,4 @@
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import type { Config } from '../../../config'
 import { isAllOptional } from '../../../core/validator/is-all-optional'
 import { generateZodPartialSchema } from '../generate-zod-partial-schema'

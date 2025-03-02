@@ -1,4 +1,4 @@
-import type { Schema } from '../../../../../types'
+import type { Schema } from '../../../../../type'
 import type { Config } from '../../../../../config'
 import { processAllOf } from './process/process-alllof'
 import { generateZodIntersection } from '../../../../zod/generate-zod-intersection'

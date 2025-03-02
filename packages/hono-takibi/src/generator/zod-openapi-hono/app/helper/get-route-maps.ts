@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../../types'
+import type { OpenAPISpec } from '../../../../type'
 import { generateHandlerName } from '../../handler/generate-handler-name'
 import { generateRouteName } from '../../openapi/route/generate-route-name'
 

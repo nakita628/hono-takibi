@@ -1,4 +1,4 @@
-import type { DefaultValue } from '../../types'
+import type { DefaultValue } from '../../type'
 
 /**
  * Generates a Zod default validation string

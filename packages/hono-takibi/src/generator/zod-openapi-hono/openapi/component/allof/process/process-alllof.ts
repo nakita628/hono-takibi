@@ -1,5 +1,5 @@
 import type { Config } from '../../../../../../config'
-import type { Schema } from '../../../../../../types'
+import type { Schema } from '../../../../../../type'
 import { isNullableSchema } from '../../../../../../core/validator/is-nullable-schema'
 import { generateZodSchemaFromSubSchema } from '../../../../../zod/sub/generate-zod-schema-from-sub-schema'
 

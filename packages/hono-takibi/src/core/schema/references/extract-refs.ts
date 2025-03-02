@@ -1,4 +1,4 @@
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import { isRefObject } from '../../validator/is-ref-object'
 
 export function extractRefs(schema: Schema): string[] {

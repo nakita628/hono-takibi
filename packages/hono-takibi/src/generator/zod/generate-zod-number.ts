@@ -1,4 +1,4 @@
-import type { DefaultValue, ExampleValue } from '../../types'
+import type { DefaultValue, ExampleValue } from '../../type'
 import { generateZodDefault } from './generate-zod-default'
 import { generateZodGt } from './generate-zod-gt'
 import { generateZodLt } from './generate-zod-lt'
