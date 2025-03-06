@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isUniqueContentSchema } from './is-unique-content-schema'
-import type { Content } from '../../types'
+import type { Content } from '../../type'
 
 const isUniqueContentSchemaTestCases: {
   contentTypes: string[]

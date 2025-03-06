@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getPascalCaseSchemaName } from './get-pascal-case-schema-name-helper'
+import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper'
 
 const getPascalCaseSchemaNameTestCases = [
   {
@@ -40,7 +40,7 @@ describe('getPascalCaseSchemaName', () => {
   it.concurrent.each(getPascalCaseSchemaNameTestCases)(
     'getPascalCaseSchemaName($schemaName) -> $expected',
     ({ schemaName, expected }) => {
-      const result = getPascalCaseSchemaName(schemaName)
+      const result = getPascalCaseSchemaNameHelper(schemaName)
       expect(result).toBe(expected)
     },
   )

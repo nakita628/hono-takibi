@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 
 import type { OpenAPIPaths, OpenAPISpec } from '../../../type'
+import type { Config } from '../../../config'
 import { generateHandler } from './generate-handler'
 import { generateRouteName } from '../openapi/route/generate-route-name'
-import type { Config } from '../../../config'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper'
 import { formatCode } from '../../../format'
 import { generateHandlerName } from '../handler/generate-handler-name'
@@ -17,6 +17,13 @@ export type HandlerOutput = {
   routeNames: string[]
 }
 
+/**
+ * Generates the Zod OpenAPI Hono handler.
+ *
+ * @param openapi - The OpenAPI specification.
+ * @param config - The configuration.
+ * @param test - Whether to generate the test file.
+ */
 export async function generateZodOpenapiHonoHandler(
   openapi: OpenAPISpec,
   config: Config,

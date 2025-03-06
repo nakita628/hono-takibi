@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-import SwaggerParser from '@apidevtools/swagger-parser'
-import fs from 'node:fs'
-import path from 'node:path'
-import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
-import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler'
 import type { OpenAPISpec } from './type'
 import type { Config } from './config'
+import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
+import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler'
 import { getConfig } from './config'
 import { formatCode } from './format'
 import { generateApp } from './generator/zod-openapi-hono/app'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import fs from 'node:fs'
+import path from 'node:path'
 
 /**
  * CLI entry point for hono-takibi

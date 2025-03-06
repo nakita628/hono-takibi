@@ -1,6 +1,6 @@
+import type { ExampleValue } from '../../type'
 import { describe, expect, it } from 'vitest'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema'
-import type { ExampleValue } from '../../types'
 
 const generateZodIntegerSchemaTestCases: {
   args: {

@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import type { Operation } from '../../../../types'
-import { generateRoute } from './generate-route'
+import type { Operation } from '../../../../type'
 import { DEFAULT_CONFIG } from '../../../../data/test-data'
+import { describe, expect, it } from 'vitest'
+import { generateRoute } from './generate-route'
+
 describe('generateRoute', () => {
   it.concurrent(
     'generateRoute("/posts", "post", { operationId: "getRoot", tags: ["Hono"], responses: { "200": { ... } } })',

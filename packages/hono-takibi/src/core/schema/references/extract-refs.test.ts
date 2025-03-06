@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { extractRefs } from './extract-refs'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 
 const extractRefsTestCases: { schema: Schema; expected: string[] }[] = [
   {

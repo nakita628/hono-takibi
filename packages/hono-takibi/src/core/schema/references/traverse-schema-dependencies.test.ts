@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
 describe('traverseSchemaDependencies', () => {

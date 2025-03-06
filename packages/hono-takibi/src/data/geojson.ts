@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../types'
+import type { OpenAPISpec } from '../type'
 
 export const geojsonOpenAPI: OpenAPISpec = {
   openapi: '3.0.0',

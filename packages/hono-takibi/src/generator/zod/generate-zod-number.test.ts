@@ -1,6 +1,7 @@
+import type { DefaultValue, ExampleValue } from '../../type'
 import { describe, expect, it } from 'vitest'
 import { generateZodNumber } from './generate-zod-number'
-import type { DefaultValue, ExampleValue } from '../../types'
+
 const generateZodNumberSchemaTestCases: {
   args: {
     pattern?: string

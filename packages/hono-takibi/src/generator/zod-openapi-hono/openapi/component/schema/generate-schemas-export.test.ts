@@ -2,6 +2,7 @@ import type { Config } from '../../../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateSchemasExport } from './generate-schemas-export'
 import { DEFAULT_CONFIG, PASCAL_CASE_CONFIG } from '../../../../../data/test-data'
+
 const generateSchemasExportTestCases: {
   orderedSchemas: string[]
   config: Config

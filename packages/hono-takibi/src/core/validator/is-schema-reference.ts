@@ -3,7 +3,7 @@ import type { Schema } from '../../type'
 /**
  * isSchemaReference
  * is schema reference
- *
+ * @function isSchemaReference
  * @param schema
  * @returns boolean
  */

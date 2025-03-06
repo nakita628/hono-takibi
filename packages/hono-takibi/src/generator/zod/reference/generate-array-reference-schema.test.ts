@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateArrayReferenceSchema } from './generate-array-reference-schema'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../..type'
 import { DEFAULT_CONFIG, type Config } from '../../../config'
 
 const generateArrayReferenceSchemaTestCases: {

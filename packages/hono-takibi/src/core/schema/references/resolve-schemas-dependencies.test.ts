@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import { resolveSchemasDependencies } from './resolve-schemas-dependencies'
 
 describe('resolveSchemasDependencies', () => {

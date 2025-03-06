@@ -1,9 +1,9 @@
+import type { Config } from './config'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'node:path'
-import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { main } from '.'
-import type { Config } from './config'
+import path from 'node:path'
+import fs from 'node:fs'
 
 describe('Hono Takibi', () => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url))

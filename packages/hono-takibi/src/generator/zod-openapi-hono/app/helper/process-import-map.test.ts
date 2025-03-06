@@ -1,6 +1,7 @@
+import type { Config } from '../../../../config'
 import { describe, expect, it } from 'vitest'
 import { processImportMap } from './process-import-map'
-import { DEFAULT_CONFIG, type Config } from '../../../../config'
+import { DEFAULT_CONFIG } from '../../../../config'
 
 const processImportMapTestCases: {
   routeMappings: {

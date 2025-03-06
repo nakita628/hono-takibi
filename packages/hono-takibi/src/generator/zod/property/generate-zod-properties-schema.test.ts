@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../..type'
 import type { Config } from '../../../config'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
 import { DEFAULT_CONFIG } from '../../../data/test-data'

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodCoerce } from './generate-zod-coerce'
+
 const generateZodCoerceTestCases = [
   {
     z: 'z.string()',
