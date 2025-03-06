@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
-import type { Parameters, RequestBody } from '../../../../../types'
+import type { Parameters, RequestBody } from '../../../../..type'
 import type { Config } from '../../../../../config'
 import { DEFAULT_CONFIG } from '../../../../../data/test-data'
 

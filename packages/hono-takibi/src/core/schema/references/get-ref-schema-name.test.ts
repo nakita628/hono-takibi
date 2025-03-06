@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getRefSchemaName } from './get-ref-schema-name'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../../type'
 import type { Config } from '../../../config'
 import { DEFAULT_CONFIG } from '../../../config'
 const getRefSchemaNameTestCases: { schema: Schema; config: Config; expected: string }[] = [

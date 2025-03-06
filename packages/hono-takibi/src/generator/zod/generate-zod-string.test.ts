@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodString } from './generate-zod-string'
-import type { DefaultValue, ExampleValue, FormatString } from '../../types'
+import type { DefaultValue, ExampleValue, FormatString } from '../../type'
 
 const generateZodStringSchemaTestCases: {
   args: {

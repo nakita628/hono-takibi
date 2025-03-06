@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../types'
+import type { OpenAPISpec } from '../type'
 
 export const honoRestOpenAPI: OpenAPISpec = {
   openapi: '3.1.0',

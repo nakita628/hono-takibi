@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodDefault } from './generate-zod-default'
-import type { DefaultValue } from '../../types'
+import type { DefaultValue } from '../../type'
 
 const generateZodDefaultTestCases: { defaultValue: DefaultValue; expected: string }[] = [
   {

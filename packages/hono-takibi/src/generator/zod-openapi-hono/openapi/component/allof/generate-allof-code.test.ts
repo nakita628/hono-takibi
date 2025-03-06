@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateAllOfCode } from '../allof/generate-allof-code'
-import type { Schema } from '../../../../../types'
+import type { Schema } from '../../../../..type'
 import { DEFAULT_CONFIG, type Config } from '../../../../../config'
 
 const generateAnyOfCodeTestCases: {

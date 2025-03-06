@@ -1,9 +1,10 @@
 import type { Schema } from '../../type'
 
 /**
- * array has $ref
+ * Checks if an array has a schema reference.
  *
- * @param schema - schema
+ * @function isArrayWithSchemaReference
+ * @param schema - The schema to check.
  * @returns boolean
  */
 export function isArrayWithSchemaReference(schema: Schema): boolean {

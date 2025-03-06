@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateOneOfCode } from './generate-oneof-code'
 import { DEFAULT_CONFIG } from '../../../../../config'
-import type { Schema } from '../../../../../types'
+import type { Schema } from '../../../../..type'
 import type { Config } from '../../../../../config'
 const generateAnyOfCodeTestCases: {
   schema: Schema

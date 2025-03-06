@@ -1,4 +1,4 @@
-import type { Schema } from '../../types'
+import type { Schema } from '../../type'
 import type { Config } from '../../config'
 import { describe, expect, it } from 'vitest'
 import { generateZod } from './generate-zod'

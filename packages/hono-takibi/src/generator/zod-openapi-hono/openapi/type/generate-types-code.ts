@@ -1,5 +1,5 @@
 // import { resolveSchemasDependencies } from "../../core/schema/references/resolve-schemas-dependencies";
-// import type { Components } from "../../types";
+// import type { Components } from "../../type";
 
 // export function generateTypesCode(components: Components) {
 //   // 1. schema extraction

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { processAllOf } from './process-alllof'
-import type { Schema } from '../../../../../../types'
+import type { Schema } from '../../../../../..type'
 import type { Config } from '../../../../../../config'
 import { DEFAULT_CONFIG } from '../../../../../../config'
 

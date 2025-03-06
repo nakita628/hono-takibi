@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isArrayWithSchemaReference } from './is-array-with-schema-reference'
-import type { Schema } from '../../types'
+import type { Schema } from '../../type'
 
 const isArrayWithSchemaReferenceTestCases: {
   schema: Schema

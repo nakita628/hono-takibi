@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generatePropertySchema } from './generate-zod-property-schema'
-import type { Schema } from '../../../types'
+import type { Schema } from '../../..type'
 import { DEFAULT_CONFIG, type Config } from '../../../config'
 import { PASCAL_CASE_CONFIG } from '../../../data/test-data'
 

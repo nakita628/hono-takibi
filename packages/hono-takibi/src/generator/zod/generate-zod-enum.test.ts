@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodEnum } from './generate-zod-enum'
-import type { Schema } from '../../types'
+import type { Schema } from '../../type'
 
 const generateZodEnumTestCases: { schema: Schema; expected: string }[] = [
   {

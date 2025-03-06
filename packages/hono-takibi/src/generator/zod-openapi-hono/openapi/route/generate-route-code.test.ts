@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
-import type { OpenAPIPaths } from '../../../../types'
+import type { OpenAPIPaths } from '../../../..type'
 import type { Config } from '../../../../config'
 import { petStoreOpenAPI } from '../../../../data/pet-store-openapi'
 import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'

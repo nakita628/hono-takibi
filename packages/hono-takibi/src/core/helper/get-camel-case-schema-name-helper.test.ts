@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCamelCaseSchemaName } from './get-camel-case-schema-name-helper'
+import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper'
 
 const getCamelCaseSchemaNameTestCases = [
   {
@@ -40,7 +40,7 @@ describe('getCamelCaseSchemaName', () => {
   it.concurrent.each(getCamelCaseSchemaNameTestCases)(
     'getCamelCaseSchemaName($schemaName) -> $expected',
     ({ schemaName, expected }) => {
-      const result = getCamelCaseSchemaName(schemaName)
+      const result = getCamelCaseSchemaNameHelper(schemaName)
       expect(result).toBe(expected)
     },
   )

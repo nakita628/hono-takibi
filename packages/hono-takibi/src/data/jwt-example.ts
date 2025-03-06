@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../types'
+import type { OpenAPISpec } from '../type'
 
 export const jwtExample: OpenAPISpec = {
   openapi: '3.0.3',

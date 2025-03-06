@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isFormatNumber } from './is-format-number'
-import type { Format } from '../../types'
+import type { Format } from '../../type'
 
 const isFormatNumberTestCases: { format: Format; expected: boolean }[] = [
   { format: 'int32', expected: true },

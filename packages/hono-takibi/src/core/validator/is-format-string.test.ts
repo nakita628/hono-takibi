@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isFormatString } from './is-format-string'
-import type { FormatString } from '../../types'
+import type { FormatString } from '../../type'
 
 const isFormatStringTestCases: { format: FormatString; expected: boolean }[] = [
   { format: 'email', expected: true },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isSchemaReference } from './is-schema-reference'
-import type { Schema } from '../../types'
+import type { Schema } from '../../type'
 
 const isSchemaReferenceTestCases: {
   schema: Schema

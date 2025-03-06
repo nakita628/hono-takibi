@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getZodFormatString } from './get-zod-string-format'
-import type { FormatString } from '../../types'
+import type { FormatString } from '../../type'
 
 const getZodFormatStringTestCases: [FormatString, string][] = [
   // ['max', '.max()'],
