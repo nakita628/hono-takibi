@@ -1,6 +1,6 @@
+import type { HandlerOutput } from '../generate-zod-openapi-hono-handler'
 import { describe, expect, it } from 'vitest'
 import { groupHandlersByFileNameHelper } from './group-handlers-by-file-name-helper'
-import type { HandlerOutput } from '../generate-zod-openapi-hono-handler'
 
 const groupHandlersByFileNameHelperTestCases: {
   handlers: HandlerOutput[]

@@ -1,11 +1,11 @@
+import type { OpenAPISpec } from '../type'
+import type { Config } from '../config'
+import { generateZodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
+import { getConfig } from '../config'
+import { formatCode } from '../format'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
-import { generateZodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
-import type { OpenAPISpec } from '../type'
-import type { Config } from '../config'
-import { getConfig } from '../config'
-import { formatCode } from '../format'
 
 export async function viteMode(config: Config = getConfig()) {
   try {

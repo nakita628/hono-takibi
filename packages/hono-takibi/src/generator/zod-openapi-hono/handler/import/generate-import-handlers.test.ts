@@ -1,6 +1,7 @@
+import type { Config } from '../../../../config'
+import { DEFAULT_CONFIG } from '../../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateImportHandlers } from './generate-import-handlers'
-import { DEFAULT_CONFIG, type Config } from '../../../../config'
 
 const generateImportHandlersTestCases: {
   handlerImportsMap: { [fileName: string]: string[] }

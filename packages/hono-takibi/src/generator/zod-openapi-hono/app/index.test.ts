@@ -1,8 +1,9 @@
+import type { OpenAPISpec } from '../../../type'
+import type { Config } from '../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateApp } from './'
-import { DEFAULT_CONFIG, type Config } from '../../../config'
+import { DEFAULT_CONFIG } from '../../../config'
 import { honoRestOpenAPI } from '../../../data/hono-rest-openapi'
-import type { OpenAPISpec } from '../../..type'
 
 const generateAppTestCases: {
   openAPISpec: OpenAPISpec

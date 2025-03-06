@@ -1,7 +1,8 @@
+import type { Schema } from '../../../../../type'
+import type { Config } from '../../../../../config'
+import { DEFAULT_CONFIG } from '../../../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateAllOfCode } from '../allof/generate-allof-code'
-import type { Schema } from '../../../../..type'
-import { DEFAULT_CONFIG, type Config } from '../../../../../config'
 
 const generateAnyOfCodeTestCases: {
   schema: Schema

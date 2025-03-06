@@ -1,6 +1,6 @@
+import type { ParamsObject } from '../../../../../type'
 import { describe, expect, it } from 'vitest'
 import { generateRequestParamsArray } from './generate-request-params-array'
-import type { ParamsObject } from '../../../../..type'
 
 const generateRequestParamsArrayTestCases: {
   paramsObject: ParamsObject

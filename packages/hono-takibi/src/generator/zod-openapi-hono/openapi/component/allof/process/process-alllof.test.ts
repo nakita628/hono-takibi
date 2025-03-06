@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { processAllOf } from './process-alllof'
-import type { Schema } from '../../../../../..type'
+import type { Schema } from '../../../../../../type'
 import type { Config } from '../../../../../../config'
 import { DEFAULT_CONFIG } from '../../../../../../config'
+import { describe, expect, it } from 'vitest'
+import { processAllOf } from './process-alllof'
 
 const processAllOfTestCases: {
   allOf: Schema[]

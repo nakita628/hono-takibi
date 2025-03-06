@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodMin } from './generate-zod-min'
+
 const generateZodMinTestCases = [
   { min: 1, expected: '.min(1)' },
   { min: 10, expected: '.min(10)' },
