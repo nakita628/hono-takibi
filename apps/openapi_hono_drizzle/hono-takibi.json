@@ -8,9 +8,5 @@
   "type": {
     "name": "PascalCase",
     "export": false
-  },
-  "app": {
-    "output": false,
-    "test": false
   }
 }
