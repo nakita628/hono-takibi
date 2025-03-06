@@ -4,6 +4,13 @@ import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-
 import { generateZodUnion } from '../../../../zod/generate-zod-union'
 import { generateZod } from '../../../../zod/generate-zod'
 
+/**
+ * Generates the Zod code for a `oneOf` schema.
+ *
+ * @param schema - The OpenAPI schema object.
+ * @param config - The configuration object.
+ * @returns The generated Zod code as a string.
+ */
 export function generateOneOfCode(schema: Schema, config: Config): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
     console.warn('not exists oneOf')

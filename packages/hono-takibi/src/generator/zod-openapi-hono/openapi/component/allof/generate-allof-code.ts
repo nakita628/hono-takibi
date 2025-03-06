@@ -6,6 +6,7 @@ import { generateZodIntersection } from '../../../../zod/generate-zod-intersecti
 /**
  * Converts an `allOf` schema into a Zod schema.
  *
+ * @function generateAllOfCode
  * @param schema - The OpenAPI schema object.
  * @param config - The configuration object.
  * @returns The generated Zod schema as a string.

@@ -17,6 +17,13 @@ export type HandlerOutput = {
   routeNames: string[]
 }
 
+/**
+ * Generates the Zod OpenAPI Hono handler.
+ *
+ * @param openapi - The OpenAPI specification.
+ * @param config - The configuration.
+ * @param test - Whether to generate the test file.
+ */
 export async function generateZodOpenapiHonoHandler(
   openapi: OpenAPISpec,
   config: Config,
