@@ -39,16 +39,16 @@
     "release": "npm pkg fix && npm publish"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
-    "prettier": "^3.4.2"
+    "@apidevtools/swagger-parser": "^10.1.1",
+    "prettier": "^3.5.3"
   },
   "devDependencies": {
-    "@hono/zod-openapi": "^0.18.3",
-    "@types/node": "^22.10.2",
-    "@vitest/coverage-v8": "^2.1.8",
-    "tsx": "^4.7.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.1.0",
-    "vitest": "^2.1.8"
+    "@hono/zod-openapi": "^0.19.2",
+    "@types/node": "^22.13.10",
+    "@vitest/coverage-v8": "^3.0.8",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.1",
+    "vitest": "^3.0.8"
   }
 }
