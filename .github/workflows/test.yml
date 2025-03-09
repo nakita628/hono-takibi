@@ -30,6 +30,9 @@ jobs:
       - name: Typecheck
         run: pnpm -F hono-takibi typecheck
 
+      - name: Build
+        run: pnpm -F hono-takibi build
+
       - name: Run Coverage
         run: pnpm -F hono-takibi coverage
 
