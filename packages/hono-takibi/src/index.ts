@@ -10,6 +10,7 @@ import { generateApp } from './generator/zod-openapi-hono/app'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
+import { argv } from 'node:process'
 
 /**
  * CLI entry point for hono-takibi
@@ -31,6 +32,10 @@ import path from 'node:path'
  */
 export async function main(dev = false, config: Config = getConfig()) {
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
+  if (!argv.includes('-o')) {
+    console.error('Usage: hono-takibi <input-file> [-o output-file]')
+    return false
+  }
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   const args = process.argv.slice(2)
   // 3. input = 'example/pet-store.yaml'
