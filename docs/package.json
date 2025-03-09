@@ -1,0 +1,24 @@
+{
+  "name": "hono-takibi-docs",
+  "type": "module",
+  "scripts": {
+    "deps": "rm -rf node_modules && pnpm install",
+    "dev": "vitepress dev --host",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "fmt": "pnpm biome format --write ./",
+    "lint": "pnpm biome lint"
+  },
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "vitepress": "^1.6.3",
+    "vitepress-plugin-group-icons": "^1.3.5",
+    "@braintree/sanitize-url": "^7.1.0",
+    "dayjs": "^1.11.13",
+    "debug": "^4.3.7",
+    "cytoscape-cose-bilkent": "^4.1.0",
+    "cytoscape": "^3.30.3",
+    "vitepress-plugin-mermaid": "^2.0.17"
+  }
+}

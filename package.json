@@ -1,12 +1,11 @@
 {
   "name": "hono-takibi-monorepo",
+  "type": "module",
   "private": true,
   "license": "MIT",
   "scripts": {
     "openapi_hono_prisma:dev": "cp apps/openapi_hono_prisma/.env.example apps/openapi_hono_prisma/.env && pnpm -F openapi_hono_prisma migrate && pnpm -F openapi_hono_prisma dev",
     "openapi_hono_drizzle:dev": "cp apps/openapi_hono_drizzle/.env.example apps/openapi_hono_drizzle/.env && pnpm -F openapi_hono_drizzle dev",
-    "docs:dev": "pnpm -F hono-takibi-docs docs:dev",
-    "docs:preview": "pnpm -F hono-takibi-docs docs:preview",
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "docs:deps": "pnpm -F hono-takibi-docs docs:deps",
     "openapi_hono_deps": "pnpm -F openapi_hono deps",
@@ -14,13 +13,15 @@
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
     "fmt": "pnpm biome format --write ./",
     "lint": "pnpm biome lint",
-    "docs:build": "pnpm -F hono-takibi-docs docs:build",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",
     "coverage": "pnpm -F hono-takibi coverage",
     "release": "pnpm build && pnpm -F hono-takibi release",
-    "takibis": "pnpm -F hono-takibi takibis"
+    "takibis": "pnpm -F hono-takibi takibis",
+    "docs:dev": "pnpm -F hono-takibi-docs dev",
+    "docs:build": "pnpm -F hono-takibi-docs build",
+    "docs:preview": "pnpm -F hono-takibi-docs preview"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
