@@ -8,7 +8,7 @@
     "preview": "vitepress preview",
     "fmt": "pnpm biome format --write ./",
     "lint": "pnpm biome lint",
-    "deploy": "pnpm build && gh-pages -d website/.vitepress/distz"
+    "deploy": "pnpm build && gh-pages -d ./.vitepress/dist"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -22,4 +22,4 @@
     "vitepress-plugin-group-icons": "^1.3.5",
     "vitepress-plugin-mermaid": "^2.0.17"
   }
-}z
+}
