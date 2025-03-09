@@ -1,5 +1,5 @@
 {
-  "name": "hono-takibi-docs",
+  "name": "hono-takibi-website",
   "type": "module",
   "scripts": {
     "deps": "rm -rf node_modules && pnpm install",

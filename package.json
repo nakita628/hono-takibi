@@ -19,9 +19,9 @@
     "coverage": "pnpm -F hono-takibi coverage",
     "release": "pnpm build && pnpm -F hono-takibi release",
     "takibis": "pnpm -F hono-takibi takibis",
-    "docs:dev": "pnpm -F hono-takibi-docs dev",
-    "docs:build": "pnpm -F hono-takibi-docs build",
-    "docs:preview": "pnpm -F hono-takibi-docs preview"
+    "website:dev": "pnpm -F hono-takibi-website dev",
+    "website:build": "pnpm -F hono-takibi-website build",
+    "website:preview": "pnpm -F hono-takibi-website preview"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
