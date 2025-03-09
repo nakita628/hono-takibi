@@ -1,18 +1,15 @@
 {
-  "name": "hono-takibi-website",
-  "version": "0.0.1",
+  "name": "hono-takibi-docs",
   "type": "module",
   "scripts": {
-    "deps": "rm -rf node_modules && rm -rf .pnpm-store && pnpm install",
+    "deps": "rm -rf node_modules && pnpm install",
     "dev": "vitepress dev --host",
     "build": "vitepress build",
     "preview": "vitepress preview",
     "fmt": "pnpm biome format --write ./",
     "lint": "pnpm biome lint"
   },
-  "repository": "git@github.com/nakita628/hono-takibi-website",
   "private": true,
-  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "vitepress": "^1.6.3",
