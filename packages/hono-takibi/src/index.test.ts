@@ -1,11 +1,24 @@
-import type { Config } from './config'
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { execSync } from 'node:child_process'
-import { main } from '.'
 import path from 'node:path'
 import fs from 'node:fs'
 
 describe('Hono Takibi', () => {
+  beforeAll(() => {
+    if (!fs.existsSync('route')) {
+      fs.mkdirSync('route', { recursive: true })
+    }
+  })
+
+  afterAll(() => {
+    if (fs.existsSync('route/pet-store.ts')) {
+      fs.unlinkSync('route/pet-store.ts')
+    }
+    if (fs.existsSync('route') && fs.readdirSync('route').length === 0) {
+      fs.rmdirSync('route')
+    }
+  })
+
   // test failed yaml
   it('failed yaml', async () => {
     // 1. set a failed yaml file
@@ -54,7 +67,7 @@ describe('Hono Takibi', () => {
     execSync(`node ${path.resolve('dist/index.js')} ${openapiYaml} -o route/pet-store.ts`, {
       stdio: 'pipe',
     })
-    const result = fs.readFileSync('route/petstore.ts', { encoding: 'utf-8' })
+    const result = fs.readFileSync('route/pet-store.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
