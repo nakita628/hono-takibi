@@ -7,6 +7,10 @@ hero:
   text: "Zod OpenAPI Hono Code Generator"
   tagline: Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.
 
+  image:
+    src: https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/img/hono-takibi.png
+    alt: Hono Takibi
+
   actions:
     - theme: brand
       text: Get Started
