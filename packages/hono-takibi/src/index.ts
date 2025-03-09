@@ -34,7 +34,7 @@ export async function main(dev = false, config: Config = getConfig()) {
   // 1. argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   if (!argv.includes('-o')) {
     console.error('Usage: hono-takibi <input-file> [-o output-file]')
-    return false
+    process.exit(1)
   }
   // 2. slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
   const args = process.argv.slice(2)
