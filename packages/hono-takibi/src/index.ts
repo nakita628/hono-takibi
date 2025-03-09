@@ -92,7 +92,7 @@ export async function main(dev = false, config: Config = getConfig()) {
       await generateZodOpenapiHonoHandler(openAPI, config, test)
       // format app code
       const formattedAppCode = await formatCode(appCode)
-      
+
       const outputDir = path.dirname(output)
       // write to file
       const defaultFileName = 'index.ts'
