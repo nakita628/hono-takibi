@@ -2,12 +2,6 @@
 date: 2025-03-09
 title: Hono Takibi
 description: Hono Takibi
-prev: 
-  text: Zod to OpenAPI
-  link: /docs/zod-to-openapi
-next: 
-  text: Settings
-  link: /docs/settings
 ---
 
 # Hono Takibi

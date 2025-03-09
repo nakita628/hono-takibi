@@ -2,12 +2,6 @@
 date: 2025-03-09
 title: Purpose
 description: Purpose
-prev: 
-  text: Zod to OpenAPI
-  link: /docs/zod-to-openapi
-next: 
-  text: Hono Takibi
-  link: /docs/index
 ---
 
 # Purpose
