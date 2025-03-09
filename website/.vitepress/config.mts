@@ -19,7 +19,7 @@ export default withMermaid(
         },
       ],
       ['meta', { property: 'og:type', content: 'website' }],
-      ['meta', { property: 'twitter:domain', content: 'hono-takibi.dev' }],
+      ['meta', { property: 'twitter:domain', content: 'https://github.com/nakita628/hono-takibi' }],
       [
         'meta',
         {
