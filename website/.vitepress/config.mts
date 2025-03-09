@@ -10,7 +10,7 @@ export default withMermaid(
     title: 'Hono Takibi',
     description:
       'Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.',
-    base: '/hono-takibi',
+    base: '/hono-takibi/',
     head: [
       [
         'meta',

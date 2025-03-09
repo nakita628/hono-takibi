@@ -5,10 +5,7 @@
     "deps": "rm -rf node_modules && pnpm install",
     "dev": "vitepress dev --host",
     "build": "vitepress build",
-    "preview": "vitepress preview",
-    "fmt": "pnpm biome format --write ./",
-    "lint": "pnpm biome lint",
-    "deploy": "gh-pages -d .vitepress/dist"
+    "preview": "vitepress preview"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -17,7 +14,6 @@
     "cytoscape-cose-bilkent": "^4.1.0",
     "dayjs": "^1.11.13",
     "debug": "^4.3.7",
-    "gh-pages": "^6.3.0",
     "vitepress": "^1.6.3",
     "vitepress-plugin-group-icons": "^1.3.5",
     "vitepress-plugin-mermaid": "^2.0.17"
