@@ -22,6 +22,10 @@ export default withMermaid(
       }
     },
     head: [
+      ['meta', {
+        name: 'google-site-verification',
+        content: 'bgadtdkyCynHeaWL_k5QowyuuddhzpNaqO-XuMTst3Q'
+      }],
       [
         'meta',
         {
