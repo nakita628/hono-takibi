@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      CONTENT: ${{ secrets.CONTENT }}
     permissions:
       contents: write
       pages: write
@@ -31,8 +29,6 @@ jobs:
 
       - name: Build Website
         run: pnpm -F hono-takibi-website build
-        env:
-          CONTENT: ${{ env.CONTENT }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
