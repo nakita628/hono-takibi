@@ -2,6 +2,9 @@
 date: 2025-03-09
 title: Hono Takibi
 description: Hono Takibi
+next: 
+  text: Settings
+  link: /docs/settings
 ---
 
 # Hono Takibi

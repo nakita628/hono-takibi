@@ -13,7 +13,7 @@ If an **[OpenAPI](https://www.openapis.org/)** definition exists, **[Zod OpenAPI
 If your project is looking to migrate, whether from legacy systems or to **[Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)**, and you already have an OpenAPI definition, **[Hono Takibi](https://github.com/nakita628/hono-takibi)** can help make the transition smooth and effortless.
 
 ```mermaid
-flowchart TD
+flowchart LR
     subgraph "Legacy Frameworks"
         B["Ruby Framework"]
         C["PHP Framework"]
@@ -28,7 +28,7 @@ flowchart TD
     end
 
     A["OpenAPI Definition"]
-    I["Hono"]
+    I["Zod OpenAPI Hono"]
     B --> A
     C --> A
     D --> A

@@ -1,6 +1,5 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-// group icons
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
 // https://vitepress.dev/reference/site-config
@@ -29,7 +28,7 @@ export default withMermaid(
         },
       ],
       ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
-      ['link', { rel: 'icon', href: 'logo.png' }],
+      ['link', { rel: 'icon', href: 'favicon.png' }],
     ],
     // dark mode
     appearance: 'force-dark',
@@ -40,7 +39,7 @@ export default withMermaid(
       },
     },
     vite: {
-      plugins: [groupIconVitePlugin()],
+      plugins: [groupIconVitePlugin() as any],
     },
 
     themeConfig: {
@@ -51,6 +50,10 @@ export default withMermaid(
         {
           text: 'Getting Started',
           items: [{ text: 'Hono Takibi', link: '/docs' }],
+        },
+        {
+          text: 'Settings',
+          items: [{ text: 'hono-takibi.json', link: '/docs/settings' }],
         },
         {
           text: 'Purpose',
