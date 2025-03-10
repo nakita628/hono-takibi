@@ -10,6 +10,17 @@ export default withMermaid(
     description:
       'Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.',
     base: '/hono-takibi/',
+    sitemap: {
+      hostname: 'https://nakita628.github.io/hono-takibi/',
+      lastmodDateOnly: false,
+      transformItems: (items) => {
+        return items.map((item) => ({
+          ...item,
+          changefreq: 'weekly',
+          priority: 0.8
+        }))
+      }
+    },
     head: [
       [
         'meta',
