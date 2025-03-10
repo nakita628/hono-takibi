@@ -1,8 +1,15 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
+import dotenv from 'dotenv'
 
 // https://vitepress.dev/reference/site-config
+
+dotenv.config()
+
+if (!process.env.CONTENT) {
+  throw new Error('CONTENT is not set')
+}
 
 export default withMermaid(
   defineConfig({
@@ -22,6 +29,10 @@ export default withMermaid(
       }
     },
     head: [
+      ['meta', {
+        name: 'google-site-verification',
+        content: process.env.CONTENT
+      }],
       [
         'meta',
         {
