@@ -26,8 +26,7 @@ export type OpenAPIPaths = {
 /**
  * HTTP methods supported in OpenAPI
  */
-
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
+export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace'
 
 /**
  * Data types supported in OpenAPI schemas
