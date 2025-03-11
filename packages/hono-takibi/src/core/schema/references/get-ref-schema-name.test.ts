@@ -3,6 +3,7 @@ import { getRefSchemaName } from './get-ref-schema-name'
 import type { Schema } from '../../../type'
 import type { Config } from '../../../config'
 import { DEFAULT_CONFIG } from '../../../config'
+
 const getRefSchemaNameTestCases: { schema: Schema; config: Config; expected: string }[] = [
   {
     schema: { $ref: '#/components/schemas/GeoJsonObject' },
@@ -29,4 +30,8 @@ describe('getRefSchemaName', () => {
       expect(result).toBe(expected)
     },
   )
+
+  it.concurrent('should throw error when $ref is empty', () => {
+    expect(() => getRefSchemaName({ $ref: '' }, DEFAULT_CONFIG)).toThrow('refName is not found')
+  })
 })
