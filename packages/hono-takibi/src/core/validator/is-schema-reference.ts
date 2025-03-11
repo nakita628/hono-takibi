@@ -1,8 +1,8 @@
 import type { Schema } from '../../type'
 
 /**
- * isSchemaReference
- * is schema reference
+ * Checks if the schema is a reference
+ *
  * @function isSchemaReference
  * @param schema
  * @returns boolean
