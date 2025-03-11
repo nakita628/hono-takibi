@@ -72,7 +72,7 @@ const generateZodEnumTestCases: { schema: Schema; expected: string }[] = [
   },
 ]
 
-describe('generateZodEnum', () => {
+describe('generateZodEnum valid cases', () => {
   it.concurrent.each(generateZodEnumTestCases)(
     'generateZodEnum($schema) -> $expected',
     ({ schema, expected }) => {
@@ -80,4 +80,36 @@ describe('generateZodEnum', () => {
       expect(result).toBe(expected)
     },
   )
+})
+
+describe('generateZodEnum edge cases', () => {
+  it.concurrent('should throw an error when schema is null', () => {
+    // biome-ignore lint/suspicious/noExplicitAny:
+    const schema = null as any
+    expect(() => generateZodEnum(schema)).toThrow('Cannot read properties of null')
+  })
+
+  it.concurrent('should throw an error when enum is not defined', () => {
+    const schema: Schema = {
+      type: 'string',
+    }
+    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
+  })
+
+  it.concurrent('should throw an error when enum is null', () => {
+    const schema: Schema = {
+      type: 'string',
+      // biome-ignore lint/suspicious/noExplicitAny:
+      enum: null as any,
+    } as Schema
+    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
+  })
+
+  it.concurrent('should throw an error when enum is undefined', () => {
+    const schema: Schema = {
+      type: 'string',
+      enum: undefined,
+    }
+    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
+  })
 })

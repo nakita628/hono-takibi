@@ -40,7 +40,7 @@ const generateZodNumberSchemaTestCases: {
   },
 ]
 
-describe('generateZodNumberSchema', () => {
+describe('generateZodNumberSchema valid cases', () => {
   it.concurrent.each(generateZodNumberSchemaTestCases)(
     'generateZodNumberSchema($args) -> $expected',
     ({ args, expected }) => {
@@ -48,4 +48,18 @@ describe('generateZodNumberSchema', () => {
       expect(result).toBe(expected)
     },
   )
+})
+
+describe('generateZodNumberSchema edge cases', () => {
+  it.concurrent('should throw an error when schema is null', () => {
+    // biome-ignore lint/suspicious/noExplicitAny:
+    const schema = null as any
+    expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of null')
+  })
+
+  it.concurrent('should throw an error when schema is undefined', () => {
+    // biome-ignore lint/suspicious/noExplicitAny:
+    const schema = undefined as any
+    expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of undefined')
+  })
 })

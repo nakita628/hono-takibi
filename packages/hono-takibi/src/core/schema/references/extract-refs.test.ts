@@ -1,6 +1,6 @@
+import type { Schema } from '../../../type'
 import { describe, expect, it } from 'vitest'
 import { extractRefs } from './extract-refs'
-import type { Schema } from '../../../type'
 
 const extractRefsTestCases: { schema: Schema; expected: string[] }[] = [
   {
@@ -78,19 +78,19 @@ describe('extractRefs edge cases', () => {
   })
 
   it.concurrent('should return empty array when schema is null', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // biome-ignore lint/suspicious/noExplicitAny:
     const result = extractRefs(null as any)
     expect(result).toEqual([])
   })
 
   it.concurrent('should return empty array when schema is undefined', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // biome-ignore lint/suspicious/noExplicitAny:
     const result = extractRefs(undefined as any)
     expect(result).toEqual([])
   })
 
   it.concurrent('should return empty array when schema is a non-object value', () => {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // biome-ignore lint/suspicious/noExplicitAny:
     const result = extractRefs(1 as any)
     expect(result).toEqual([])
   })
@@ -104,7 +104,7 @@ describe('extractRefs edge cases', () => {
           $ref: '#/components/schemas/AnotherRef',
         },
       },
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      // biome-ignore lint/suspicious/noExplicitAny:
     } as any
     const result = extractRefs(schema)
     expect(result).toEqual(['ValidRef', 'AnotherRef'])
