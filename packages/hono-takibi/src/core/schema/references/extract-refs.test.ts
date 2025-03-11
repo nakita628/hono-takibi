@@ -61,7 +61,7 @@ const extractRefsTestCases: { schema: Schema; expected: string[] }[] = [
   },
 ]
 
-describe('extractRefs', () => {
+describe('extractRefs valid cases', () => {
   it.concurrent.each(extractRefsTestCases)(
     'should extract refs correctly',
     ({ schema, expected }) => {
@@ -69,4 +69,44 @@ describe('extractRefs', () => {
       expect(result).toEqual(expected)
     },
   )
+})
+
+describe('extractRefs edge cases', () => {
+  it.concurrent('should return empty array when no refs are found', () => {
+    const result = extractRefs({})
+    expect(result).toEqual([])
+  })
+
+  it.concurrent('should return empty array when schema is null', () => {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const result = extractRefs(null as any)
+    expect(result).toEqual([])
+  })
+
+  it.concurrent('should return empty array when schema is undefined', () => {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const result = extractRefs(undefined as any)
+    expect(result).toEqual([])
+  })
+
+  it.concurrent('should return empty array when schema is a non-object value', () => {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const result = extractRefs(1 as any)
+    expect(result).toEqual([])
+  })
+
+  it.concurrent('should extract valid refs and ignore invalid ones', () => {
+    const schema: Schema = {
+      $ref: '#/components/schemas/ValidRef',
+      nested: {
+        $ref: 100,
+        deeper: {
+          $ref: '#/components/schemas/AnotherRef',
+        },
+      },
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    } as any
+    const result = extractRefs(schema)
+    expect(result).toEqual(['ValidRef', 'AnotherRef'])
+  })
 })
