@@ -1,3 +1,10 @@
+/**
+ * Get handler imports
+ *
+ * @function getHandlerImports
+ * @param handlerMaps - Handler maps
+ * @returns Handler imports
+ */
 export function getHandlerImports(
   handlerMaps: {
     routeName: string

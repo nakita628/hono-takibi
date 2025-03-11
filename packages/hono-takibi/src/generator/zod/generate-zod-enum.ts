@@ -9,6 +9,10 @@ import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
  * @returns string - Generated Zod enum string
  */
 export function generateZodEnum(schema: Schema) {
+  if (!schema.enum) {
+    throw new Error('enum is not found')
+  }
+  // example
   if (schema.example) {
     const openapi_example = generateZodToOpenAPI(schema.example)
     return `z.enum(${JSON.stringify(schema.enum)})${openapi_example}`

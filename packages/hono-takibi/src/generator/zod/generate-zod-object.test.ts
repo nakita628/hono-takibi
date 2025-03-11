@@ -181,7 +181,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
   },
 ]
 
-describe('generateZodObject', () => {
+describe('generateZodObject valid cases', () => {
   it.concurrent.each(generateZodObjectTestCases)(
     'generateZodObject($schema, $config) -> $expected',
     async ({ schema, config, expected }) => {
@@ -189,4 +189,14 @@ describe('generateZodObject', () => {
       expect(result).toBe(expected)
     },
   )
+})
+
+describe('generateZodObject edge cases', () => {
+  it.concurrent('should throw an error when schema is null', () => {
+    // biome-ignore lint/suspicious/noExplicitAny:
+    const schema = null as any
+    expect(() => generateZodObject(schema, DEFAULT_CONFIG)).toThrow(
+      'Cannot read properties of null',
+    )
+  })
 })
