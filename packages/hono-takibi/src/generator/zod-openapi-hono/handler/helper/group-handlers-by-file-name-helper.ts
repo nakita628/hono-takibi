@@ -2,6 +2,13 @@ import type { HandlerOutput } from '../generate-zod-openapi-hono-handler'
 
 type HandlerMap = Map<string, HandlerOutput>
 
+/**
+ * Group handlers by file name helper
+ *
+ * @function groupHandlersByFileNameHelper
+ * @param handlers - Handlers
+ * @returns Grouped handlers
+ */
 export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): HandlerOutput[] {
   return Array.from(
     handlers

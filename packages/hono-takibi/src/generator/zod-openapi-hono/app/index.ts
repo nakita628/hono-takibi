@@ -15,6 +15,13 @@ const APP = 'const app = new OpenAPIHono()' as const
 const ADD_TYPE = 'export type AddType = typeof api' as const
 const EXPORT_APP = 'export default app' as const
 
+/**
+ * Generate app
+ *
+ * @function generateApp
+ * @param openAPISpec - OpenAPI spec
+ * @param config - Config
+ */
 export function generateApp(
   openAPISpec: OpenAPISpec,
   config: Config,

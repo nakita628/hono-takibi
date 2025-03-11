@@ -1,5 +1,13 @@
 import type { Config } from '../../../../config'
 
+/**
+ * Generate import handlers
+ *
+ * @function generateImportHandlers
+ * @param handlerImportsMap - Handler imports map
+ * @param config - Config
+ * @returns Import handlers
+ */
 export function generateImportHandlers(
   handlerImportsMap: { [fileName: string]: string[] },
   config: Config,
