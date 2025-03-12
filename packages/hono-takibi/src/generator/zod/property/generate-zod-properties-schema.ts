@@ -55,7 +55,6 @@ import { generatePropertySchema } from './generate-zod-property-schema'
 export function generateZodPropertiesSchema(
   properties: Record<string, Schema>,
   required: string[],
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
   config: Config,
 ): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
