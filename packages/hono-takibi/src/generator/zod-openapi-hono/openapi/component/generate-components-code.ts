@@ -22,10 +22,7 @@ import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variabl
  * 5. Creates exports for all schemas
  * 6. Returns the complete code with proper ordering to avoid reference errors
  */
-export function generateComponentsCode(
-  components: Components,
-  config: Config,
-): string {
+export function generateComponentsCode(components: Components, config: Config): string {
   // 1. schema extraction
   const { schemas } = components
   if (!schemas) {
