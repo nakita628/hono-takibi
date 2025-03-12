@@ -32,7 +32,7 @@ import { argv } from 'node:process'
  */
 export async function main(dev = false, config: Config = getConfig()) {
   // argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  if (!argv.includes('-o')) {
+  if (config.output === undefined && !argv.includes('-o')) {
     console.error('Usage: hono-takibi <input-file> [-o output-file]')
     process.exit(1)
   }
