@@ -1,6 +1,14 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
+title: Hono Takibi - Zod OpenAPI Hono Code Generator
 layout: home
+
+head:
+  - - meta
+    - name: description
+      content: Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.
+  - - meta
+    - name: keywords
+      content: Hono Takibi, hono-takibi
 
 hero:
   name: "Hono Takibi"

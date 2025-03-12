@@ -22,24 +22,15 @@ export default withMermaid(
       }
     },
     head: [
-      [
-        'meta',
-        {
-          property: 'og:image',
-          content: 'title.png',
-        },
-      ],
+      ['meta',{property: 'og:image',content: 'title.png',},],
       ['meta', { property: 'og:type', content: 'website' }],
-      ['meta', { property: 'twitter:domain', content: 'https://nakita628.github.io/hono-takibi/' }],
-      [
-        'meta',
-        {
-          property: 'twitter:image',
-          content: 'title.png',
-        },
-      ],
-      ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
       ['link', { rel: 'icon', href: 'favicon.png' }],
+      // twitter
+      ['meta', { name: 'twitter:title', content: 'Hono Takibi - Zod OpenAPI Hono Code Generator' }],
+      ['meta', { name: 'twitter:description', content: 'Generate type-safe Hono routes and Zod schemas from OpenAPI specifications' }],
+      ['meta', { property: 'twitter:domain', content: 'https://nakita628.github.io/hono-takibi/' }],
+      ['meta', {property: 'twitter:image',content: 'title.png',},],
+      ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
     ],
     // dark mode
     appearance: 'force-dark',
