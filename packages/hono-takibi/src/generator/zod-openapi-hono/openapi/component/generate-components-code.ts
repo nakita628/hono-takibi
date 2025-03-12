@@ -24,7 +24,6 @@ import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variabl
  */
 export function generateComponentsCode(
   components: Components,
-  // namingCase: 'camelCase' | 'PascalCase' = 'camelCase',
   config: Config,
 ): string {
   // 1. schema extraction
