@@ -63,7 +63,9 @@ export type AddType = typeof api
 const port = 3000
 console.log(`Server is running on http://localhost:${port}`)
 
-serve({
-  fetch: app.fetch,
-  port,
-})
+if (process.env.NODE_ENV !== 'test') {
+  serve({
+    fetch: app.fetch,
+    port,
+  })
+}

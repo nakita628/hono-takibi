@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { sql } from 'drizzle-orm'
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-export const Post = sqliteTable('post', {
+export const post = sqliteTable('post', {
   id: text('id', { length: 36 })
     .primaryKey()
     .$defaultFn(() => randomUUID()),

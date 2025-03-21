@@ -6,9 +6,10 @@
     "deps": "rm -rf node_modules && pnpm install",
     "dev": "tsx watch src/index.ts",
     "migrate": "prisma migrate dev --name init",
-    "test": "vitest run",
+    "test": "NODE_ENV=test vitest run",
     "coverage": "vitest run --coverage",
-    "takibi": "hono-takibi"
+    "takibi": "hono-takibi",
+    "prepare": "cp .env.example .env"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

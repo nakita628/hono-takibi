@@ -6,8 +6,9 @@
     "takibi": "hono-takibi",
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "test": "NODE_ENV=test vitest run",
+    "coverage": "vitest run --coverage",
+    "prepare": "cp .env.example .env"
   },
   "devDependencies": {
     "@hono/node-server": "^1.13.7",
