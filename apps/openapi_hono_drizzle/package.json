@@ -6,7 +6,7 @@
     "takibi": "hono-takibi",
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
-    "test": "vitest run",
+    "test": "NODE_ENV=test vitest run",
     "coverage": "vitest run --coverage",
     "prepare": "cp .env.example .env"
   },
