@@ -8,7 +8,6 @@
     "preview": "vitepress preview"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@braintree/sanitize-url": "^7.1.0",
     "cytoscape": "^3.30.3",
     "cytoscape-cose-bilkent": "^4.1.0",
