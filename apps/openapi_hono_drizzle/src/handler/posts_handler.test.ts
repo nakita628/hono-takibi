@@ -2,14 +2,14 @@ import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import { api } from '../index.ts'
-import db from '../../db'
-import { Post } from '../../db/schema'
+import db, { table } from '../infra'
 import { eq } from 'drizzle-orm'
+
 const test = testClient(api)
 
 describe('Hono Zod OpenAPI Test', () => {
   beforeEach(async () => {
-    await db.delete(Post)
+    await db.delete(table.post)
   })
 
   it('postPostsRouteHandler 201', async () => {
@@ -58,11 +58,11 @@ describe('Hono Zod OpenAPI Test', () => {
 
     await Promise.all(
       generatePosts(20).map(async (data) => {
-        return db.insert(Post).values(data)
+        return db.insert(table.post).values(data)
       }),
     )
 
-    const posts = await db.select().from(Post)
+    const posts = await db.select().from(table.post)
 
     const res = await test.posts.$get({
       query: { page: '1', rows: '15' },
@@ -116,12 +116,12 @@ describe('Hono Zod OpenAPI Test', () => {
   })
 
   it('putPostsIdRouteHandler 204', async () => {
-    await db.insert(Post).values({
+    await db.insert(table.post).values({
       id: randomUUID(),
       post: 'OpenAPIHono🔥',
     })
 
-    const post = await db.select().from(Post)
+    const post = await db.select().from(table.post)
 
     const res = await test.posts[':id'].$put({
       param: { id: post[0].id },
@@ -132,12 +132,12 @@ describe('Hono Zod OpenAPI Test', () => {
   })
 
   it('putPostsIdRouteHandler ZodError', async () => {
-    await db.insert(Post).values({
+    await db.insert(table.post).values({
       id: randomUUID(),
       post: 'OpenAPIHono🔥',
     })
 
-    const post = await db.select().from(Post)
+    const post = await db.select().from(table.post)
 
     const res = await test.posts[':id'].$put({
       param: { id: post[0].id },
@@ -192,12 +192,12 @@ describe('Hono Zod OpenAPI Test', () => {
   })
 
   it('deletePostsIdRouteHandler 204', async () => {
-    await db.insert(Post).values({
+    await db.insert(table.post).values({
       id: randomUUID(),
       post: 'OpenAPIHono🔥',
     })
 
-    const post = await db.select().from(Post)
+    const post = await db.select().from(table.post)
 
     const res = await test.posts[':id'].$delete({
       param: { id: post[0].id },
@@ -205,7 +205,7 @@ describe('Hono Zod OpenAPI Test', () => {
 
     expect(res.status).toBe(204)
 
-    const deletedPost = await db.select().from(Post).where(eq(Post.id, post[0].id))
+    const deletedPost = await db.select().from(table.post).where(eq(table.post.id, post[0].id))
 
     expect(deletedPost).toEqual([])
   })
