@@ -1,9 +1,8 @@
 import type { Operation } from '../../type'
 
 /**
- * Type guard function to check if an object is an Operation
- *
  * @function isOperation
+ * @description Type guard function to check if an object is an Operation
  * @param obj - The object to check
  * @returns True if the object is an Operation, with type narrowing support
  *

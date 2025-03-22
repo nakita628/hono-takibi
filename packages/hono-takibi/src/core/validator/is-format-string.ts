@@ -1,9 +1,8 @@
 import type { Format, FormatString } from '../../type'
 
 /**
- * Checks if the format is a string type
- *
  * @function isFormatString
+ * @description Checks if the format is a string type
  * @param format - OpenAPI format type
  * @returns true if the format is a string type, false otherwise
  */

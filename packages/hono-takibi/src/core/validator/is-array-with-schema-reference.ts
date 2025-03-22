@@ -1,9 +1,8 @@
 import type { Schema } from '../../type'
 
 /**
- * Checks if an array has a schema reference.
- *
  * @function isArrayWithSchemaReference
+ * @description Checks if an array has a schema reference.
  * @param schema - The schema to check.
  * @returns boolean
  */

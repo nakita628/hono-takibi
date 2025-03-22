@@ -1,8 +1,8 @@
 import type { Schema } from '../../type'
 
 /**
- * Determines whether a given sub-schema is `nullable`.
- *
+ * @function isNullableSchema
+ * @description Determines whether a given sub-schema is `nullable`.
  * @param subSchema - The sub-schema to evaluate
  * @returns `true` if `nullable` is set to `true` and it is the only key in the schema, otherwise `false`
  */

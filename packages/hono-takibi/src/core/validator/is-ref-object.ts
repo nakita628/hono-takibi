@@ -4,9 +4,8 @@ type RefObject = {
 }
 
 /**
- * Checks if the value is a reference object
- *
  * @function isRefObject
+ * @description Checks if the value is a reference object
  * @param value - The value to check
  * @returns true if the value is a reference object, false otherwise
  */

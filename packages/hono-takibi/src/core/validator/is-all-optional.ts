@@ -1,7 +1,6 @@
 /**
- * Check if all properties in the object are optional
- *
  * @function isAllOptional
+ * @description Check if all properties in the object are optional
  * @param objectProperties - An array of strings representing the object properties
  * @returns A boolean indicating if all properties are optional
  */

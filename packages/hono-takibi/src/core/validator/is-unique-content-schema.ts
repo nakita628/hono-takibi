@@ -1,9 +1,8 @@
 import type { Content } from '../../type'
 
 /**
- * Get unique content schema
- *
  * @function isUniqueContentSchema
+ * @description Get unique content schema
  * @param contentTypes - Content types
  * @param content - Content
  * @returns Unique content schema

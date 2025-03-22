@@ -1,9 +1,8 @@
 import type { HttpMethod } from '../../type'
 
 /**
- * Type guard function to check if a string is a valid HTTP method
- *
- * @function
+ * @function isHttpMethod
+ * @description Type guard function to check if a string is a valid HTTP method
  * @param method - The string to check against valid HTTP methods
  * @returns True if the string is a valid HTTP method, with type narrowing to HttpMethod
  */
