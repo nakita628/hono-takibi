@@ -11,6 +11,8 @@ const generateZodNumberSchemaTestCases: {
     maximum?: number
     default?: DefaultValue
     example?: ExampleValue
+    exclusiveMinimum?: boolean
+    exclusiveMaximum?: boolean
   }
   expected: string
 }[] = [
@@ -37,6 +39,32 @@ const generateZodNumberSchemaTestCases: {
   {
     args: { example: 1 },
     expected: 'z.number().openapi({example:1})',
+  },
+  {
+    args: { minimum: 0, exclusiveMinimum: true },
+    expected: 'z.number().positive()',
+  },
+  {
+    args: { minimum: 0, exclusiveMinimum: false },
+    expected: 'z.number().nonpositive()',
+  },
+  {
+    args: { maximum: 0, exclusiveMaximum: true },
+    expected: 'z.number().negative()',
+  },
+  {
+    args: {
+      minimum: 1,
+      exclusiveMinimum: true,
+    },
+    expected: 'z.number().min(1).gt(1)',
+  },
+  {
+    args: {
+      maximum: 1,
+      exclusiveMaximum: true,
+    },
+    expected: 'z.number().max(1).lt(1)',
   },
 ]
 
