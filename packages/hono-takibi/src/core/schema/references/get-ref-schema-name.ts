@@ -4,9 +4,8 @@ import { getVariableSchemaNameHelper } from '../../helper/get-variable-schema-na
 import { getRefName } from './get-ref-name'
 
 /**
- * Retrieves the referenced schema name from a schema object.
- *
  * @function getRefSchemaName
+ * @description Retrieves the referenced schema name from a schema object.
  * @param schema - The schema object
  * @param config - The configuration object
  * @returns The referenced schema name

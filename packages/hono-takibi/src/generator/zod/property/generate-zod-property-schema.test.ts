@@ -3,7 +3,7 @@ import { generatePropertySchema } from './generate-zod-property-schema'
 import { DEFAULT_CONFIG } from '../../../config'
 import { PASCAL_CASE_CONFIG } from '../../../../data/test-data'
 import type { Schema } from '../../../type'
-import type { Config} from '../../../config'
+import type { Config } from '../../../config'
 
 const generatePropertySchemaTestCases: {
   schema: Schema

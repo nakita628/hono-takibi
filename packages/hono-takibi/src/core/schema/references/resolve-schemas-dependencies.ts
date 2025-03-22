@@ -2,9 +2,8 @@ import type { Schema } from '../../../type'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
 /**
- * Resolves dependencies between schemas and returns them in topological order for safe processing
- *
  * @function resolveSchemasDependencies
+ * @description Resolves dependencies between schemas and returns them in topological order for safe processing
  * @param schemas - Record mapping schema names to their Schema objects
  * @returns Array of schema names ordered by their dependencies
  *

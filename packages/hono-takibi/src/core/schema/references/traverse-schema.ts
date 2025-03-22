@@ -2,9 +2,8 @@ import type { Schema } from '../../../type'
 import { getRefName } from './get-ref-name'
 
 /**
- * Recursively traverses an OpenAPI schema to collect all $ref references
- *
  * @function traverseSchema
+ * @description Recursively traverses an OpenAPI schema to collect all $ref references
  * @param schema - The OpenAPI schema object to traverse
  * @param refs - Set to collect found reference names
  *
@@ -48,19 +47,19 @@ import { getRefName } from './get-ref-name'
  * - Performs depth-first traversal of the schema structure
  */
 export function traverseSchema(schema: Schema, refs: Set<string>): void {
-  // 1. input check
+  // Exit if schema is undefined or not an object
   if (!schema || typeof schema !== 'object') return
-  // 2. $ref process
+  // If schema has a $ref property, extract and store the referenced schema name
   if (schema.$ref) {
     const ref = getRefName(schema.$ref)
     if (ref) refs.add(ref)
   }
-  // 3. recursive property search
+  // Recursively process each property in the properties object
   if (schema.properties) {
     for (const property of Object.values(schema.properties)) {
       traverseSchema(property, refs)
     }
   }
-  // 4. recursive items search
+  // Recursively process array item schemas
   if (schema.items) traverseSchema(schema.items, refs)
 }

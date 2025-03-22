@@ -2,9 +2,8 @@ import type { Schema } from '../../../type'
 import { traverseSchema } from './traverse-schema'
 
 /**
- * Collects all $ref references from an OpenAPI schema by recursively traversing it
- *
  * @function findReferences
+ * @description Collects all $ref references from an OpenAPI schema by recursively traversing it
  * @param schema - The OpenAPI schema to search for references
  * @returns A Set of strings containing all schema names referenced via $ref
  *

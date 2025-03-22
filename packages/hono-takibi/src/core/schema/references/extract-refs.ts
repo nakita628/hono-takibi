@@ -2,8 +2,8 @@ import type { Schema } from '../../../type'
 import { isRefObject } from '../../validator/is-ref-object'
 
 /**
- * Extracts all references from a given schema
  * @function extractRefs
+ * @description Extracts all references from a given schema
  * @param schema - The schema to extract references from
  * @returns An array of reference names
  */

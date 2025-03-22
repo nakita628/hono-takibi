@@ -1,7 +1,6 @@
 /**
- * Extracts the type name from an OpenAPI schema reference ($ref)
- *
  * @function getRefName
+ * @description Extracts the type name from an OpenAPI schema reference ($ref)
  * @param ref - OpenAPI schema reference path (e.g., '#/components/schemas/Address')
  * @returns The referenced type name, or undefined if the reference is invalid
  *
