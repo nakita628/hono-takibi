@@ -6,7 +6,7 @@ export default function honoTakibiPlugin() {
   return {
     name: 'hono-takibi-plugin',
 
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     configureServer(server: any) {
       const config: Config = getConfig()
       server.watcher.on('change', () => {

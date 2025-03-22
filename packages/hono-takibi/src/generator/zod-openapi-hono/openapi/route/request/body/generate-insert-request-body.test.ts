@@ -23,6 +23,7 @@ describe('insertRequestBody valid cases', () => {
 
 describe('insertRequestBody edge cases', () => {
   it.concurrent('should throw an error when requestParams is undefined', () => {
+    // biome-ignore lint:
     const requestParams = undefined as any
     const requestBodyCode = 'edge case'
 

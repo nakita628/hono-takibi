@@ -119,22 +119,24 @@ describe('generateRequestBody valid cases', () => {
 
 describe('generateRequestBody edge cases', () => {
   it.concurrent('should throw an error when content is null', () => {
+    // biome-ignore lint:
     const content = null as any
     const required = true
     const schema = 'z.object({})'
 
     expect(() => generateRequestBody(required, content, schema)).toThrow(
-      `Cannot convert undefined or null to object`,
+      'Cannot convert undefined or null to object',
     )
   })
 
   it.concurrent('should throw an error when content is undefined', () => {
+    // biome-ignore lint:
     const content = undefined as any
     const required = true
     const schema = 'z.object({})'
 
     expect(() => generateRequestBody(required, content, schema)).toThrow(
-      `Cannot convert undefined or null to object`,
+      'Cannot convert undefined or null to object',
     )
   })
 })

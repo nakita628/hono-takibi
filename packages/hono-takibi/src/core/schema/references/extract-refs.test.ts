@@ -78,19 +78,19 @@ describe('extractRefs edge cases', () => {
   })
 
   it.concurrent('should return empty array when schema is null', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const result = extractRefs(null as any)
     expect(result).toEqual([])
   })
 
   it.concurrent('should return empty array when schema is undefined', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const result = extractRefs(undefined as any)
     expect(result).toEqual([])
   })
 
   it.concurrent('should return empty array when schema is a non-object value', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const result = extractRefs(1 as any)
     expect(result).toEqual([])
   })
@@ -104,7 +104,7 @@ describe('extractRefs edge cases', () => {
           $ref: '#/components/schemas/AnotherRef',
         },
       },
-      // biome-ignore lint/suspicious/noExplicitAny:
+      // biome-ignore lint:
     } as any
     const result = extractRefs(schema)
     expect(result).toEqual(['ValidRef', 'AnotherRef'])

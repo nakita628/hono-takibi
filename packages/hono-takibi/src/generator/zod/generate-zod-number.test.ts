@@ -80,13 +80,13 @@ describe('generateZodNumberSchema valid cases', () => {
 
 describe('generateZodNumberSchema edge cases', () => {
   it.concurrent('should throw an error when schema is null', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const schema = null as any
     expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of null')
   })
 
   it.concurrent('should throw an error when schema is undefined', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const schema = undefined as any
     expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of undefined')
   })
