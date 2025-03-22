@@ -1,9 +1,8 @@
 import { capitalize } from '../text/capitalize'
 
 /**
- * Generates a PascalCase schema name from a given schema name.
- *
  * @function getPascalCaseSchemaNameHelper
+ * @description Generates a PascalCase schema name from a given schema name.
  * @param schemaName - The original schema name.
  * @returns The PascalCase schema name.
  */

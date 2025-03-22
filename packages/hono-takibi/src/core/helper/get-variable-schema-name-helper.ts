@@ -3,9 +3,8 @@ import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helpe
 import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper'
 
 /**
- * Generates a variable schema name from a given name and config.
- *
  * @function getVariableSchemaNameHelper
+ * @description Generates a variable schema name from a given name and config.
  * @param name - The name of the schema.
  * @param config - The config of the schema.
  * @returns The variable schema name.
