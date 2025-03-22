@@ -1,6 +1,6 @@
 /**
- * Escapes text for use in TypeScript code
- *
+ * @function escapeStr
+ * @description Escapes text for use in TypeScript code
  * @param text - The text to escape
  * @returns The escaped text
  */

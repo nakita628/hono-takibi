@@ -1,7 +1,6 @@
 /**
- * Capitalizes the first letter of a string
- *
  * @function capitalize
+ * @description Capitalizes the first letter of a string
  * @param str - String to capitalize
  * @returns String with first letter capitalized
  *

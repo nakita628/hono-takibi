@@ -1,7 +1,6 @@
 /**
- * Decapitalizes the first letter of a string
- *
  * @function decapitalize
+ * @description Decapitalizes the first letter of a string
  * @param str - String to decapitalize
  * @returns String with the first letter in lowercase
  *
