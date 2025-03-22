@@ -1,7 +1,7 @@
-import type { Operation } from '../../../../type'
-import { DEFAULT_CONFIG } from '../../../../data/test-data'
 import { describe, expect, it } from 'vitest'
 import { generateRoute } from './generate-route'
+import { DEFAULT_CONFIG } from '../../../../../data/test-data'
+import type { Operation } from '../../../../type'
 
 describe('generateRoute', () => {
   it.concurrent(

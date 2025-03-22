@@ -1,8 +1,8 @@
-import type { Schema } from '../../type'
-import type { Config } from '../../config'
 import { describe, expect, it } from 'vitest'
 import { generateZod } from './generate-zod'
-import { DEFAULT_CONFIG } from '../../data/test-data'
+import { DEFAULT_CONFIG } from '../../../data/test-data'
+import type { Schema } from '../../type'
+import type { Config } from '../../config'
 
 const generateZodTestCases: { config: Config; schema: Schema; expected: string }[] = [
   {

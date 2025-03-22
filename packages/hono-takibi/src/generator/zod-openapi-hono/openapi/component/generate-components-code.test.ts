@@ -1,8 +1,8 @@
-import type { Components } from '../../../../type'
-import type { Config } from '../../../../config'
-import { DEFAULT_CONFIG } from '../../../../config'
 import { describe, expect, it } from 'vitest'
 import { generateComponentsCode } from './generate-components-code'
+import { DEFAULT_CONFIG } from '../../../../config'
+import type { Components } from '../../../../type'
+import type { Config } from '../../../../config'
 
 const generateComponentsCodeTestCases: {
   components: Components

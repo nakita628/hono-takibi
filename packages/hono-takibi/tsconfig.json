@@ -11,6 +11,6 @@
     "moduleResolution": "NodeNext"
   },
   "types": ["node", "vitest/globals"],
-  "include": ["src/**/*"],
-  "exclude": ["**/src/**/*.test.ts", "**/src/data/**/*.ts"]
+  "include": ["**/src/**/*"],
+  "exclude": ["**/src/**/*.test.ts"]
 }
