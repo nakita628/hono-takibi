@@ -2,10 +2,10 @@ import { isUniqueContentSchema } from '../../../../../../core/validator/is-uniqu
 import type { Content } from '../../../../../../type'
 
 /**
- * Generates a request body configuration for OpenAPI schema
- *
  * @function generateRequestBody
+ * @description Generates a request body configuration for OpenAPI schema
  * @param required - Whether the request body is required
+ * @param content - Content of the request body
  * @param zodSchema - Zod schema string for request body validation
  * @returns string - Generated request body configuration string
  */

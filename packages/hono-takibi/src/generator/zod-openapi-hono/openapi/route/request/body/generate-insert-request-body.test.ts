@@ -11,7 +11,7 @@ const generateInsertRequestBodyTestCases = [
   },
 ]
 
-describe('insertRequestBody', () => {
+describe('insertRequestBody valid cases', () => {
   it.concurrent.each(generateInsertRequestBodyTestCases)(
     'insertRequestBody($requestParams, $requestBodyCode) -> $expected',
     async ({ requestParams, requestBodyCode, expected }) => {
@@ -19,4 +19,15 @@ describe('insertRequestBody', () => {
       expect(result).toBe(expected)
     },
   )
+})
+
+describe('insertRequestBody edge cases', () => {
+  it.concurrent('should throw an error when requestParams is undefined', () => {
+    const requestParams = undefined as any
+    const requestBodyCode = 'edge case'
+
+    expect(() => generateInsertRequestBody(requestParams, requestBodyCode)).toThrow(
+      `Cannot read properties of undefined (reading 'replace')`,
+    )
+  })
 })
