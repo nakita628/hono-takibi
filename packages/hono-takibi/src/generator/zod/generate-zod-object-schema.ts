@@ -1,7 +1,6 @@
 /**
- * Generates a Zod object schema from a record of property types
- *
  * @function generateZodObjectSchema
+ * @description Generates a Zod object schema from a record of property types
  * @param object - Record of property names and their Zod type strings
  * @returns Generated Zod object schema string
  *

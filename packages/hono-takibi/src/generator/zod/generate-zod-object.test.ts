@@ -199,4 +199,12 @@ describe('generateZodObject edge cases', () => {
       'Cannot read properties of null',
     )
   })
+
+  it.concurrent('should throw an error when schema is undefined', () => {
+    // biome-ignore lint/suspicious/noExplicitAny:
+    const schema = undefined as any
+    expect(() => generateZodObject(schema, DEFAULT_CONFIG)).toThrow(
+      `Cannot read properties of undefined (reading 'additionalProperties')`,
+    )
+  })
 })
