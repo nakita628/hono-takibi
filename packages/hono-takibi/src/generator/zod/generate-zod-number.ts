@@ -22,9 +22,8 @@ type GenerateZodNumberParams = {
 }
 
 /**
- * Generates zod  number
- *
  * @function generateZodNumber
+ * @description Generates zod number
  * @param args - zod number params
  * @returns string - Generated Zod number schema string
  */
