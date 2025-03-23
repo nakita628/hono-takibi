@@ -35,9 +35,7 @@ async function HonoTakibis() {
     console.error('No openapi files found')
     return
   }
-  for (const openapiFile of openapiFiles) {
-    await honoTakibi(openapiFile)
-  }
+  await Promise.all(openapiFiles.map(honoTakibi))
 }
 
 HonoTakibis()
