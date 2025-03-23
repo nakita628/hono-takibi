@@ -25,7 +25,6 @@ const EXPORT_APP = 'export default app' as const
 export function generateApp(
   openAPISpec: OpenAPISpec,
   config: Config,
-  env: string | undefined,
   basePath: string | undefined,
 ) {
   const routeMappings = getRouteMaps(openAPISpec)
@@ -50,10 +49,7 @@ export function generateApp(
 
   const docs = generateDocs(openAPISpec)
 
-  const isDev =
-    env !== undefined
-      ? `const isDev = ${env} === 'development'`
-      : `const isDev = process.env.NODE_ENV === 'development'`
+  const isDev =`const isDev = process.env.NODE_ENV === 'development'`
 
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
