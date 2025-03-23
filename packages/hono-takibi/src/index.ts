@@ -78,16 +78,12 @@ export async function main(dev = false, config: Config = getConfig()) {
     if (template === true && isSlash) {
       // Test
       const test = args.includes('-test')
-      // Environment file path
-      const envIndex = args.indexOf('--env')
-      const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
-      const env = hasEnvEquals ? args[envIndex + 2] : undefined
       // Base path
       const basePathIndex = args.indexOf('--base-path')
       const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
       const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
       // generate app code
-      const appCode = generateApp(openAPI, config, env, basePath)
+      const appCode = generateApp(openAPI, config, basePath)
       // generate handler code
       await generateZodOpenapiHonoHandler(openAPI, config, test)
       // format app code

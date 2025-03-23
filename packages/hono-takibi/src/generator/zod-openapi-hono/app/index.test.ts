@@ -8,7 +8,6 @@ import type { Config } from '../../../config'
 const generateAppTestCases: {
   openAPISpec: OpenAPISpec
   config: Config
-  env: string | undefined
   basePath: string | undefined
   expected: string
 }[] = [
@@ -18,7 +17,6 @@ const generateAppTestCases: {
       ...DEFAULT_CONFIG,
       output: './hono-rest/openapi/hono_rest.ts',
     },
-    env: 'process.env.NODE_ENV',
     basePath: 'api',
     expected: `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
@@ -48,8 +46,8 @@ export default app`,
 describe('generateApp', () => {
   it.concurrent.each(generateAppTestCases)(
     'generateApp($openAPISpec, $config) -> $expected',
-    ({ openAPISpec, config, env, basePath, expected }) => {
-      const result = generateApp(openAPISpec, config, env, basePath)
+    ({ openAPISpec, config, basePath, expected }) => {
+      const result = generateApp(openAPISpec, config, basePath)
       expect(result).toEqual(expected)
     },
   )
