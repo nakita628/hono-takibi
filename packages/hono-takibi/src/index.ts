@@ -44,6 +44,36 @@ export async function main(dev = false, config: Config = getConfig()) {
   // output = 'routes/petstore-index.ts'
   const output = config.output ?? args[args.indexOf('-o') + 1]
   config.output = output
+  // export type
+  if (args.includes('--export-type')) {
+    config.type.export = true
+  }
+  // export schema
+  if (args.includes('--export-schema')) {
+    config.schema.export = true
+  }
+
+  // naming case type
+  if (args.includes('--naming-case-type')) {
+    const name = args[args.indexOf('--naming-case-type') + 1]
+    if (name === 'PascalCase') {
+      config.type.name = 'PascalCase'
+    }
+    if (name === 'camelCase') {
+      config.type.name = 'camelCase'
+    }
+  }
+
+  // naming case schema
+  if (args.includes('--naming-case-schema')) {
+    const name = args[args.indexOf('--naming-case-schema') + 1]
+    if (name === 'PascalCase') {
+      config.schema.name = 'PascalCase'
+    }
+    if (name === 'camelCase') {
+      config.schema.name = 'camelCase'
+    }
+  }
 
   try {
     // parse OpenAPI YAML or JSON
