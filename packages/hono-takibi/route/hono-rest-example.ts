@@ -1,8 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
+export const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const PostSchema = z
+export type Error = z.infer<typeof ErrorSchema>
+
+export const PostSchema = z
   .object({
     id: z.string().uuid(),
     post: z.string().min(1).max(140),
@@ -10,6 +12,8 @@ const PostSchema = z
     updatedAt: z.string().datetime(),
   })
   .openapi('Post')
+
+export type Post = z.infer<typeof PostSchema>
 
 export const getRoute = createRoute({
   tags: ['Hono'],
