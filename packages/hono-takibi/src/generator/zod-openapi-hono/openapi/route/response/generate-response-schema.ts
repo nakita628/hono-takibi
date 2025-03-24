@@ -6,12 +6,10 @@ import { generatePropertySchema } from '../../../../zod/property/generate-zod-pr
 
 /**
  * Generates a response schema for different status codes
- *
- * @function generateResponseSchema
- * @param responses - OpenAPI response definitions for different status codes
- * @returns Generated TypeScript code string for response validation
- *
- * @note
+ * @param { Responses } responses - OpenAPI response definitions for different status codes
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string for response validation
+ * 
  * - Handles multiple response status codes
  * - Supports:
  *   - JSON response bodies

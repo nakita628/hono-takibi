@@ -6,12 +6,10 @@ import type { Config } from '../../../../config'
 
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
- *
- * @function generateRouteCode
- * @param openAPIPaths - OpenAPI paths object containing route definitions
- * @returns Generated TypeScript code string for all valid routes
- *
- * @note
+ * @param { OpenAPIPaths } openAPIPaths - OpenAPI paths object containing route definitions
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string for all valid routes
+ * 
  * - Processes each path and HTTP method combination
  * - Validates HTTP methods and operation objects
  * - Skips invalid or unsupported route definitions
@@ -22,8 +20,6 @@ import type { Config } from '../../../../config'
  *   - Response schemas
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
- *
- * @returns string
  */
 export function generateRouteCode(openAPIPaths: OpenAPIPaths, config: Config) {
   const routes: string[] = []

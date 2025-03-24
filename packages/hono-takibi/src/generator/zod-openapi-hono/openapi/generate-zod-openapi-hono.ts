@@ -6,17 +6,14 @@ import { generateTypesCode } from './type/generate-types-code'
 
 /**
  * Import statement for Hono's zod-openapi package
- * @constant
  */
 const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as const
 
 /**
  * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
- *
- * @function generateZodOpenAPIHonoCode
- * @param openAPISpec - OpenAPI specification object containing components and paths
- *
- * @returns string - Generated TypeScript code
+ * @param { OpenAPISpec } openAPISpec - OpenAPI specification object containing components and paths
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code
  */
 export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config): string {
   // 1. get components

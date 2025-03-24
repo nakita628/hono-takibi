@@ -2,11 +2,9 @@ import { capitalize } from '../../../../core/text/capitalize'
 
 /**
  * Generates a route name from HTTP method and path
- *
- * @param method - HTTP method (e.g., 'get', 'post', 'put')
- * @param path - URL path pattern (e.g., '/users/{id}/posts')
- * @returns Formatted route name string
- *
+ * @param { string } method - HTTP method (e.g., 'get', 'post', 'put')
+ * @param { string } path - URL path pattern (e.g., '/users/{id}/posts')
+ * @returns { string } Formatted route name string
  * @remarks
  * Transformation process:
  * 1. Replace special characters (/{}-)  with spaces
@@ -15,8 +13,6 @@ import { capitalize } from '../../../../core/text/capitalize'
  * 4. Capitalize each word
  * 5. Join all words together
  * 6. Add HTTP method and Route suffix
- *
- * @returns string
  */
 export function generateRouteName(method: string, path: string) {
   // 1. api_path: `/user/createWithList`

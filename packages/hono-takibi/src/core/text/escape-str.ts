@@ -1,8 +1,7 @@
 /**
- * @function escapeStr
- * @description Escapes text for use in TypeScript code
- * @param text - The text to escape
- * @returns The escaped text
+ * Escape text for use in TypeScript code
+ * @param {string} text - The text to escape
+ * @returns {string} The escaped text
  */
 export function escapeStr(text: string): string {
   return (

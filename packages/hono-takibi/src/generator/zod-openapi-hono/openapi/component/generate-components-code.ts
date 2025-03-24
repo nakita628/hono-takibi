@@ -9,12 +9,10 @@ import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variabl
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
  * If no schemas are present, returns an empty string.
- *
- * @function generateComponentsCode
- * @param components - OpenAPI components object containing schema definitions
- * @returns Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
- *
- * @note The function:
+ * @param { Components } components - OpenAPI components object containing schema definitions
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
+ * 
  * 1. Extracts schemas from components
  * 2. Resolves dependencies between schemas to determine correct generation order
  * 3. Returns empty string if no schemas are present

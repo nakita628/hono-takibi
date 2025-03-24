@@ -10,14 +10,11 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
+ * @param { Parameters[] | undefined } parameters - Array of path parameters from OpenAPI specification
+ * @param { RequestBody | undefined } requestBody - Request body definition from OpenAPI specification
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string for request validation
  *
- * @function generateRequestParameter
- *
- * @param parameters - Array of path parameters from OpenAPI specification
- * @param requestBody - Request body definition from OpenAPI specification
- * @returns Generated TypeScript code string for request validation
- *
- * @note
  * - Handles both path parameters and request body validation
  * - Supports:
  *   - Path parameters with Zod validation
@@ -27,8 +24,6 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  * - Returns empty string if no parameters or body are defined
  * - Properly combines parameters and body when both are present
  * - Handles schema references and inline schemas
- *
- * @returns string
  */
 export function generateRequestParameter(
   parameters: Parameters[] | undefined,

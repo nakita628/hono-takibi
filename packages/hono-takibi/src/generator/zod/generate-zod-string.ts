@@ -20,31 +20,25 @@ type GenerateZodStringParams = {
 }
 
 /**
- * @function generateZodString
- * @description Generates zod string schema
- * @param args - zod string params
- * @returns zod string
- *
+ * Generates a Zod string schema
+ * @param { GenerateZodStringParams } args - The parameters to generate the zod string schema.
+ * @returns { string } Generated Zod string schema string
  * @example
  * // Basic string validation
  * generateZodString({})
  * // Returns: 'z.string()'
- *
  * @example
  * // With regex pattern
  * generateZodString({ pattern: '^[A-Z]+$' })
  * // Returns: 'z.string().regex(/^[A-Z]+$/)'
- *
  * @example
  * // With length constraints
  * generateZodString({ minLength: 3, maxLength: 10 })
  * // Returns: 'z.string().min(3).max(10)'
- *
  * @example
  * // With format
  * generateZodString({ format: 'email' })
  * // Returns: 'z.string().email()'
- *
  * @example
  * // Combined validations
  * generateZodString({
@@ -54,7 +48,6 @@ type GenerateZodStringParams = {
  *   format: 'email'
  * })
  * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
- * @returns string - Generated Zod string schema string
  */
 export function generateZodString(args: GenerateZodStringParams): string {
   const validations = ['z.string()']

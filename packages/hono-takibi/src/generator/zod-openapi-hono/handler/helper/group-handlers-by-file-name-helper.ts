@@ -4,10 +4,8 @@ type HandlerMap = Map<string, HandlerOutput>
 
 /**
  * Group handlers by file name helper
- *
- * @function groupHandlersByFileNameHelper
- * @param handlers - Handlers
- * @returns Grouped handlers
+ * @param { HandlerOutput[] } handlers - Handlers
+ * @returns { HandlerOutput[] } Grouped handlers
  */
 export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): HandlerOutput[] {
   return Array.from(

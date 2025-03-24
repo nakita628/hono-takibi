@@ -2,10 +2,9 @@ import type { Schema } from '../../../type'
 import { getRefName } from './get-ref-name'
 
 /**
- * @function traverseSchema
- * @description Recursively traverses an OpenAPI schema to collect all $ref references
- * @param schema - The OpenAPI schema object to traverse
- * @param refs - Set to collect found reference names
+ * Recursively traverses an OpenAPI schema to collect all $ref references
+ * @param { Schema } schema - The OpenAPI schema object to traverse
+ * @param { Set<string> } refs - Set to collect found reference names
  *
  * @example
  * const refs = new Set<string>()
@@ -35,7 +34,6 @@ import { getRefName } from './get-ref-name'
  * traverseSchema(schema, refs)
  * // refs contains: Set { 'User', 'Order', 'Country' }
  *
- * @note
  * - Mutates the provided refs Set by adding found references
  * - Handles nested references in:
  *   - Object properties

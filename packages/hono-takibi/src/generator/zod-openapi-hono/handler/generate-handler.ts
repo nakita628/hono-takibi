@@ -1,10 +1,9 @@
 /**
  * Generates a handler function for a route.
- *
- * @param handlerName - The name of the handler function.
- * @param routeName - The name of the route.
- * @returns A string of the handler function.
+ * @param { string } handlerName - The name of the handler function.
+ * @param { string } routeName - The name of the route.
+ * @returns { string } A string of the handler function.
  */
-export function generateHandler(handlerName: string, routeName: string) {
+export function generateHandler(handlerName: string, routeName: string): string {
   return `export const ${handlerName}:RouteHandler<typeof ${routeName}>=async(c)=>{}`
 }

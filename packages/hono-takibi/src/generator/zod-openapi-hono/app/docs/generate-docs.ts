@@ -2,10 +2,8 @@ import type { OpenAPISpec } from '../../../../type'
 
 /**
  * Generate docs
- *
- * @function generateDocs
- * @param openAPISpec - OpenAPI spec
- * @returns docs
+ * @param { OpenAPISpec } openAPISpec - OpenAPI spec
+ * @returns { { openapi: string | undefined, info: OpenAPISpec['info'], servers: OpenAPISpec['servers'], externalDocs: OpenAPISpec['externalDocs'], tags: OpenAPISpec['tags'] } } Docs
  */
 export function generateDocs(openAPISpec: OpenAPISpec): {
   openapi: string | undefined

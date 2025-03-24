@@ -4,13 +4,12 @@ import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-s
 import { getRefName } from '../../../core/schema/references/get-ref-name'
 
 /**
- * generateReferenceSchema
- * generate reference schema
- *
- * @param schema
- * @param config
+ * Generates a Zod schema string for a reference
+ * @param { Schema } schema - The schema to generate the reference schema for
+ * @param { Config } config - The configuration to use for the generation
+ * @returns { string } The generated reference schema
  */
-export function generateReferenceSchema(schema: Schema, config: Config) {
+export function generateReferenceSchema(schema: Schema, config: Config): string {
   if (!schema.$ref) {
     return 'z.any()'
   }

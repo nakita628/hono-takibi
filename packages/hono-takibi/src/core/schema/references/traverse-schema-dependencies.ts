@@ -2,10 +2,12 @@ import type { Schema } from '../../../type'
 import { extractRefs } from './extract-refs'
 
 /**
- * @function traverseSchemaDependencies
- * @description Traverses the schema dependencies and returns them in topological order
- * @param schemaName - The name of the schema to traverse
- * @param schemas - The schemas to traverse
+ * Traverses the schema dependencies and returns them in topological order
+ * @param { string } schemaName - The name of the schema to traverse
+ * @param { Record<string, Schema> } schemas - The schemas to traverse
+ * @param { Set<string> } visited - The visited schemas
+ * @param { Set<string> } recursionStack - The recursion stack
+ * @param { string[] } orderedSchemas - The ordered schemas
  */
 export function traverseSchemaDependencies(
   schemaName: string,

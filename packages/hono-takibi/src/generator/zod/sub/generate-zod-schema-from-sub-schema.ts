@@ -5,10 +5,9 @@ import { generateZod } from '../generate-zod'
 
 /**
  * Generates a Zod schema from a sub-schema.
- *
- * @param subSchema - The sub-schema object.
- * @param config - The configuration object.
- * @returns The generated Zod schema as a string.
+ * @param { Schema } subSchema - The sub-schema object.
+ * @param { Config } config - The configuration object.
+ * @returns { string } The generated Zod schema as a string.
  */
 export function generateZodSchemaFromSubSchema(subSchema: Schema, config: Config): string {
   return subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZod(config, subSchema)

@@ -2,10 +2,8 @@ import type { SecuritySchemes } from '../../../../type'
 
 /**
  * Generate register component
- *
- * @function generateRegisterComponent
- * @param securitySchemes - Security schemes
- * @returns register component
+ * @param { SecuritySchemes } securitySchemes - Security schemes
+ * @returns { string } Register component
  */
 export function generateRegisterComponent(securitySchemes: SecuritySchemes) {
   return Object.entries(securitySchemes)

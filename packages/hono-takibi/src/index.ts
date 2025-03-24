@@ -14,12 +14,12 @@ import { argv } from 'node:process'
 
 /**
  * CLI entry point for hono-takibi
- *
+ * @param { boolean } dev - Development mode
+ * @param { Config } config - Config
  * Usage:
  * ```
  * hono-takibi <input-file> [-o output-file]
  * ```
- *
  * @example
  * ```bash
  * # Global install

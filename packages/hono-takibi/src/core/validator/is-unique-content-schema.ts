@@ -1,13 +1,12 @@
 import type { Content } from '../../type'
 
 /**
- * @function isUniqueContentSchema
- * @description Get unique content schema
- * @param contentTypes - Content types
- * @param content - Content
- * @returns Unique content schema
+ * Get unique content schema
+ * @param {string[]} contentTypes - Content types
+ * @param {Content} content - Content
+ * @returns {boolean} Unique content schema
  */
-export function isUniqueContentSchema(contentTypes: string[], content: Content) {
+export function isUniqueContentSchema(contentTypes: string[], content: Content): boolean {
   const schema = new Set(contentTypes.map((type) => JSON.stringify(content?.[type].schema)))
   return schema.size === 1
 }

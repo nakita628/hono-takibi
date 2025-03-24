@@ -5,18 +5,14 @@ import { generateZod } from '../../../../zod/generate-zod'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
- *
- * @function generateParamsObject
- * @param parameters - Array of OpenAPI path parameters
- * @returns ParamsObject with Zod schemas organized by parameter location
- *
+ * @param { Parameters[] } parameters - Array of OpenAPI path parameters
+ * @param { Config } config - Config
+ * @returns { ParamsObject } ParamsObject with Zod schemas organized by parameter location
  * @remarks
  * - Creates Zod schemas for each parameter based on its schema definition
  * - Handles optional parameters by adding .optional() suffix
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
- *
- * @returns ParamsObject
  */
 export function generateParamsObject(parameters: Parameters[], config: Config): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {

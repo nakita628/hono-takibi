@@ -4,12 +4,11 @@ import { getVariableSchemaNameHelper } from '../../helper/get-variable-schema-na
 import { getRefName } from './get-ref-name'
 
 /**
- * @function getRefSchemaName
- * @description Retrieves the referenced schema name from a schema object.
- * @param schema - The schema object
- * @param config - The configuration object
- * @returns The referenced schema name
- * @throws Will throw an error if the $ref property or the reference name is not found
+ * Retrieves the referenced schema name from a schema object.
+ * @param { Schema } schema - The schema object
+ * @param { Config } config - The configuration object
+ * @returns { string } The referenced schema name
+ * @throws { Error } Will throw an error if the $ref property or the reference name is not found
  */
 export function getRefSchemaName(schema: Schema, config: Config): string {
   if (!schema.$ref) {

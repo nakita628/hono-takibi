@@ -1,0 +1,13 @@
+{
+  "name": "Hono Takibi",
+  // "entryPoints": ["./**/*.ts"],
+  "entryPoints": ["packages/**/*.ts"],
+  "out": "./docs/typedoc/",
+  "exclude": [
+    "packages/hono-takibi/data/**/*",
+    "packages/hono-takibi/route-case-schema-export/**/*",
+    "packages/hono-takibi/route-type-schema-export/**/*",
+    "packages/hono-takibi/route/**/*"
+  ]
+  // "exclude": ["**/node_modules", "**/dist", "**/*test.ts", "**/*.d.ts"]
+}

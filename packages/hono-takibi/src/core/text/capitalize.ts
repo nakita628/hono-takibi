@@ -1,8 +1,7 @@
 /**
- * @function capitalize
- * @description Capitalizes the first letter of a string
- * @param str - String to capitalize
- * @returns String with first letter capitalized
+ * Capitalize the first letter of a string
+ * @param {string} str - String to capitalize
+ * @returns {string} String with first letter capitalized
  *
  * @example
  * capitalize('posts')    // Returns: 'Posts'

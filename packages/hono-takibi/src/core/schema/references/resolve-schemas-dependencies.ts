@@ -2,11 +2,9 @@ import type { Schema } from '../../../type'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
 /**
- * @function resolveSchemasDependencies
- * @description Resolves dependencies between schemas and returns them in topological order for safe processing
- * @param schemas - Record mapping schema names to their Schema objects
- * @returns Array of schema names ordered by their dependencies
- *
+ * Resolves dependencies between schemas and returns them in topological order for safe processing
+ * @param { Record<string, Schema> } schemas - Record mapping schema names to their Schema objects
+ * @returns { string[] } Array of schema names ordered by their dependencies
  * @example
  * const schemas: Record<string, Schema> = {
  *   A: {
@@ -53,7 +51,6 @@ import { traverseSchemaDependencies } from './traverse-schema-dependencies'
  * const orderedSchemas = resolveSchemasDependencies(schemas)
  * // Returns: ['B', 'C', 'A']
  *
- * @note
  * - Performs topological sorting of schemas based on their dependencies
  * - Ensures each schema appears after all its dependencies
  * - Handles multi-level dependency chains correctly

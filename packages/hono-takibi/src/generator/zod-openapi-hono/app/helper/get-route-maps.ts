@@ -1,7 +1,12 @@
-import type { OpenAPISpec } from '../../../../type'
 import { generateHandlerName } from '../../handler/generate-handler-name'
 import { generateRouteName } from '../../openapi/route/generate-route-name'
+import type { OpenAPISpec } from '../../../../type'
 
+/**
+ * Get route maps
+ * @param { OpenAPISpec } openAPISpec - OpenAPI spec
+ * @returns { { routeName: string, handlerName: string, path: string }[] } Route maps
+ */
 export function getRouteMaps(openAPISpec: OpenAPISpec) {
   const paths = openAPISpec.paths
   const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {

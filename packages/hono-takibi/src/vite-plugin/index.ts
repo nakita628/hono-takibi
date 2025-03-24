@@ -5,7 +5,6 @@ import { viteMode } from './vite-mode'
 export default function honoTakibiPlugin() {
   return {
     name: 'hono-takibi-plugin',
-
     // biome-ignore lint:
     configureServer(server: any) {
       const config: Config = getConfig()

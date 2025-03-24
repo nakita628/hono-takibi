@@ -19,16 +19,16 @@ export type HandlerOutput = {
 
 /**
  * Generates the Zod OpenAPI Hono handler.
- *
- * @param openapi - The OpenAPI specification.
- * @param config - The configuration.
- * @param test - Whether to generate the test file.
+ * @param { OpenAPISpec } openapi - The OpenAPI specification.
+ * @param { Config } config - The configuration.
+ * @param { boolean } test - Whether to generate the test file.
+ * @returns { Promise<void> }
  */
 export async function generateZodOpenapiHonoHandler(
   openapi: OpenAPISpec,
   config: Config,
   test: boolean,
-) {
+): Promise<void> {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {

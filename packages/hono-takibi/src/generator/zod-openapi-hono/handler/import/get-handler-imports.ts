@@ -1,9 +1,7 @@
 /**
  * Get handler imports
- *
- * @function getHandlerImports
- * @param handlerMaps - Handler maps
- * @returns Handler imports
+ * @param { { routeName: string, handlerName: string, path: string }[] } handlerMaps - Handler maps
+ * @returns { { [fileName: string]: string[] } } Handler imports
  */
 export function getHandlerImports(
   handlerMaps: {

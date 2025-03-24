@@ -26,8 +26,7 @@ export const DEFAULT_CONFIG: Config = {
 
 /**
  * Loads the configuration from the `hono-takibi.json` file or returns the default configuration.
- *
- * @returns The configuration object.
+ * @returns { Config } The configuration object.
  */
 export function getConfig(): Config {
   const config: Config = fs.existsSync('hono-takibi.json')

@@ -7,14 +7,12 @@ import { generateRouteName } from './generate-route-name'
 import { escapeStr } from '../../../../core/text/escape-str'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
- *
- * @function generateRoute
- * @param path - The URL path pattern for the route
- * @param method - The HTTP method (GET, POST, etc.)
- * @param operation - The OpenAPI Operation object containing route details
- * @returns Generated TypeScript code string for the route
- *
- * @note
+ * @param { string } path - The URL path pattern for the route
+ * @param { string } method - The HTTP method (GET, POST, etc.)
+ * @param { Operation } operation - The OpenAPI Operation object containing route details
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string for the route
+ * 
  * - Generates a complete route definition including:
  *   - Route name based on method and path
  *   - OpenAPI tags for documentation
@@ -26,8 +24,6 @@ import { escapeStr } from '../../../../core/text/escape-str'
  * - All components are properly escaped and formatted
  * - Handles optional parameters appropriately
  * - Integrates with Hono's createRoute function
- *
- * @returns string
  */
 
 export function generateRoute(

@@ -2,10 +2,9 @@ import type { Schema } from '../../../type'
 import { isRefObject } from '../../validator/is-ref-object'
 
 /**
- * @function extractRefs
- * @description Extracts all references from a given schema
- * @param schema - The schema to extract references from
- * @returns An array of reference names
+ * Extracts all references from a given schema
+ * @param { Schema } schema - The schema to extract references from
+ * @returns { string[] } An array of reference names
  */
 export function extractRefs(schema: Schema): string[] {
   const refs: string[] = []

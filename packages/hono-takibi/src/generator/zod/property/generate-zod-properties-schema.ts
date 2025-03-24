@@ -6,12 +6,9 @@ import { generatePropertySchema } from './generate-zod-property-schema'
 
 /**
  * Generates a Zod object schema with properties and their requirements
- *
- * @function generateZodPropertiesSchema
- * @param properties - Record of property names to their schema definitions
- * @param required - Array of property names that are required
- * @returns Generated Zod object schema string
- *
+ * @param { Record<string, Schema> } properties - Record of property names to their schema definitions
+ * @param { string[] } required - Array of property names that are required
+ * @returns { string } Generated Zod object schema string
  * @example
  * // Order schema with optional fields
  * generateZodPropertiesSchema(
@@ -22,7 +19,6 @@ import { generatePropertySchema } from './generate-zod-property-schema'
  *   []
  * )
  * // Returns: 'z.object({id: z.number().int().optional(),status: z.enum(["placed","approved","delivered"]).optional()})'
- *
  * @example
  * // Pet schema with required fields
  * generateZodPropertiesSchema(
@@ -33,7 +29,6 @@ import { generatePropertySchema } from './generate-zod-property-schema'
  *   ['name', 'photoUrls']
  * )
  * // Returns: 'z.object({name: z.string(),photoUrls: z.array(z.string())})'
- *
  * @example
  * // Address schema with references
  * generateZodPropertiesSchema(
@@ -44,7 +39,6 @@ import { generatePropertySchema } from './generate-zod-property-schema'
  *   []
  * )
  * // Returns: 'z.object({category: categorySchema.optional(),tags: z.array(tagSchema).optional()})'
- *
  * @remarks
  * - Generates Zod schema strings for object properties
  * - Handles required and optional properties
