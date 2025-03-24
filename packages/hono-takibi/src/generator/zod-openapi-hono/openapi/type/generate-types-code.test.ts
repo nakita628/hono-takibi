@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Components } from '../../../..type'
+import type { Components } from '../../../../type'
 import type { Config } from '../../../../config'
 import { generateTypesCode } from './generate-types-code'
 
