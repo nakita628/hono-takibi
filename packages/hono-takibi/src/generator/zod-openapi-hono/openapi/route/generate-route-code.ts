@@ -9,7 +9,7 @@ import type { Config } from '../../../../config'
  * @param { OpenAPIPaths } openAPIPaths - OpenAPI paths object containing route definitions
  * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for all valid routes
- * 
+ *
  * - Processes each path and HTTP method combination
  * - Validates HTTP methods and operation objects
  * - Skips invalid or unsupported route definitions

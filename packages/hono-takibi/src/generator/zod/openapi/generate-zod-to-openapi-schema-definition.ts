@@ -1,3 +1,6 @@
+import type { Config } from '../../../config'
+import { generateZodInfer } from '../generate-zod-infer'
+
 /**
  * Creates a Zod schema constant declaration
  * @param { string } name - Name of the schema constant
@@ -18,6 +21,16 @@ export function generateZodToOpenAPISchemaDefinition(
   name: string,
   zodSchema: string,
   schemaName: string,
+  config: Config,
 ): string {
-  return `const ${name} = ${zodSchema}.openapi('${schemaName}')`
+  // schema code
+  const schemaCode = config.schema.export
+    ? `export const ${name} = ${zodSchema}.openapi('${schemaName}')`
+    : `const ${name} = ${zodSchema}.openapi('${schemaName}')`
+  // zod infer code
+  const zodInferCode = config.type.export
+    ? `export type ${schemaName} = z.infer<typeof ${name}>`
+    : ''
+  // return code
+  return `${schemaCode}\n\n${zodInferCode}`
 }

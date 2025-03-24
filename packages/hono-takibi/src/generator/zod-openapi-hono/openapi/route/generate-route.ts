@@ -12,7 +12,7 @@ import { escapeStr } from '../../../../core/text/escape-str'
  * @param { Operation } operation - The OpenAPI Operation object containing route details
  * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for the route
- * 
+ *
  * - Generates a complete route definition including:
  *   - Route name based on method and path
  *   - OpenAPI tags for documentation

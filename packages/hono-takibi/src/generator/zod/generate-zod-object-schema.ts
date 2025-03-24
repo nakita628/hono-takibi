@@ -21,7 +21,7 @@
  *   age: 'z.number().min(0)'
  * })
  * // Returns: 'z.object({email:z.string().email(),age:z.number().min(0)})'
- * 
+ *
  * - Each property value should be a valid Zod type string
  * - Properties are joined with commas in the resulting object
  * - Commonly used for generating simple object schemas

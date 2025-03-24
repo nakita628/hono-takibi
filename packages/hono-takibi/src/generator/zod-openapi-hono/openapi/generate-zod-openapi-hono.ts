@@ -1,8 +1,7 @@
 import type { Config } from '../../../config'
 import type { OpenAPISpec } from '../../../type'
 import { generateComponentsCode } from './component/generate-components-code'
-import { generateRouteCode } from './route/generate-route-code'
-import { generateTypesCode } from './type/generate-types-code'
+import { generateRouteCode } from './route/generate-route-code'z
 
 /**
  * Import statement for Hono's zod-openapi package
@@ -24,11 +23,6 @@ export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config)
   const componentsCode = components === undefined ? '' : generateComponentsCode(components, config)
   // 4. generate route code
   const routeCode = generateRouteCode(paths, config)
-  // 5. generate types code
-  const typesCode = components === undefined ? '' : generateTypesCode(components, config)
-  // 6. generate hono code
-  if (config.type.export) {
-    return `${IMPORT_CODE}\n\n${componentsCode}\n\n${typesCode}\n\n${routeCode}`.trimEnd()
-  }
+  // 5. generate hono code
   return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
 }
