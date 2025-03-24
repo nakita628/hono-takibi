@@ -8,7 +8,7 @@ import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-sche
  * @param { Config } config - Configuration
  * @returns { string } Generated TypeScript type definition string
  */
-export function generateZodInfer(schema: string, config: Config) {
+export function generateZodInfer(schema: string, config: Config): string {
   const schemaName = getVariableSchemaNameHelper(schema, config)
   const variableName = getVariableNameHelper(schema, config)
   return `export type ${variableName} = z.infer<typeof ${schemaName}>`
