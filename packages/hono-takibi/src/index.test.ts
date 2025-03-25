@@ -76,7 +76,7 @@ describe('Hono Takibi', () => {
     expect(result).toBe(expected)
   })
 
-  it('Hono Takibi CLI --naming-case-type camelCase', async () => {
+  it('Hono Takibi CLI --naming-case-type faild', async () => {
     const openapiYaml = path.join('openapi/abcde.yaml')
     // CLI
     try {
