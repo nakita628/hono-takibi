@@ -1,4 +1,6 @@
 import type { Config } from '../../../config'
+import { getVariableNameHelper } from '../../../core/helper/get-variable-name-helper'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { generateZodInfer } from '../generate-zod-infer'
 
 /**
@@ -18,19 +20,18 @@ import { generateZodInfer } from '../generate-zod-infer'
  * - Creates reusable schema definitions
  */
 export function generateZodToOpenAPISchemaDefinition(
-  name: string,
-  zodSchema: string,
   schemaName: string,
+  zodSchema: string,
   config: Config,
 ): string {
+  const variableName = getVariableSchemaNameHelper(schemaName, config)
   // schema code
   const schemaCode = config.schema.export
-    ? `export const ${name} = ${zodSchema}.openapi('${schemaName}')`
-    : `const ${name} = ${zodSchema}.openapi('${schemaName}')`
+    ? `export const ${variableName} = ${zodSchema}.openapi('${schemaName}')`
+    : `const ${variableName} = ${zodSchema}.openapi('${schemaName}')`
   // zod infer code
-  const zodInferCode = config.type.export
-    ? `export type ${schemaName} = z.infer<typeof ${name}>`
-    : ''
+  const typeVariableName = getVariableNameHelper(schemaName, config)
+  const zodInferCode = config.type.export ? generateZodInfer(typeVariableName, variableName) : ''
   // return code
   return `${schemaCode}\n\n${zodInferCode}`
 }

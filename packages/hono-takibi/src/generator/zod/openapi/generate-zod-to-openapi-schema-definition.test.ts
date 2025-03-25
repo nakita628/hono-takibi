@@ -1,35 +1,207 @@
 import { describe, expect, it } from 'vitest'
 import { generateZodToOpenAPISchemaDefinition } from './generate-zod-to-openapi-schema-definition'
+import type { Config } from '../../../config'
 
-const generateSchemaDefinitionTestCases = [
+const testSchemaName = 'A'
+const testZodSchema = 'z.object({a:z.string().openapi({example:"a"})})'
+
+const generateSchemaDefinitionTestCases: {
+  schemaName: string
+  zodSchema: string
+  config: Config
+  expected: string
+}[] = [
+  // schema: PascalCase, type: PascalCase
   {
-    name: 'orderSchema',
-    schema:
-      'z.object({id:z.number().int(),petId:z.number().int(),quantity:z.number().int(),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]),complete:z.boolean()}).optional()',
-    schemaName: 'Order',
-    expected: `const orderSchema = z.object({id:z.number().int(),petId:z.number().int(),quantity:z.number().int(),shipDate:z.string().datetime(),status:z.enum(["placed","approved","delivered"]),complete:z.boolean()}).optional().openapi('Order')`,
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: false },
+      type: { name: 'PascalCase', export: false },
+    },
+    expected: `const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
   },
   {
-    name: 'addressSchema',
-    schema:
-      'z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional()',
-    schemaName: 'Address',
-    expected: `const addressSchema = z.object({street:z.string(),city:z.string(),state:z.string(),zip:z.string()}).optional().openapi('Address')`,
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: true },
+      type: { name: 'PascalCase', export: false },
+    },
+    expected: `export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
   },
   {
-    name: 'userSchema',
-    schema: `z.object({id:z.string().openapi({example:'1212121'}),name:z.string().openapi({example:'John Doe'}),age:z.number().openapi({example:42}),})`,
-    schemaName: 'User',
-    expected: `const userSchema = z.object({id:z.string().openapi({example:'1212121'}),name:z.string().openapi({example:'John Doe'}),age:z.number().openapi({example:42}),}).openapi('User')`,
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: false },
+      type: { name: 'PascalCase', export: true },
+    },
+    expected: `const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type A = z.infer<typeof ASchema>`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: true },
+      type: { name: 'PascalCase', export: true },
+    },
+    expected: `export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type A = z.infer<typeof ASchema>`,
+  },
+
+  // schema: PascalCase, type: camelCase
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: false },
+      type: { name: 'camelCase', export: false },
+    },
+    expected: `const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: true },
+      type: { name: 'camelCase', export: false },
+    },
+    expected: `export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: false },
+      type: { name: 'camelCase', export: true },
+    },
+    expected: `const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type a = z.infer<typeof ASchema>`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'PascalCase', export: true },
+      type: { name: 'camelCase', export: true },
+    },
+    expected: `export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type a = z.infer<typeof ASchema>`,
+  },
+
+  // schema: camelCase, type: PascalCase
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: false },
+      type: { name: 'PascalCase', export: false },
+    },
+    expected: `const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: true },
+      type: { name: 'PascalCase', export: false },
+    },
+    expected: `export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: false },
+      type: { name: 'PascalCase', export: true },
+    },
+    expected: `const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type A = z.infer<typeof aSchema>`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: true },
+      type: { name: 'PascalCase', export: true },
+    },
+    expected: `export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type A = z.infer<typeof aSchema>`,
+  },
+
+  // schema: camelCase, type: camelCase
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: false },
+      type: { name: 'camelCase', export: false },
+    },
+    expected: `const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: true },
+      type: { name: 'camelCase', export: false },
+    },
+    expected: `export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: false },
+      type: { name: 'camelCase', export: true },
+    },
+    expected: `const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type a = z.infer<typeof aSchema>`,
+  },
+  {
+    schemaName: testSchemaName,
+    zodSchema: testZodSchema,
+    config: {
+      schema: { name: 'camelCase', export: true },
+      type: { name: 'camelCase', export: true },
+    },
+    expected: `export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+
+export type a = z.infer<typeof aSchema>`,
   },
 ]
 
 describe('generateSchemaDefinition', () => {
   it.concurrent.each(generateSchemaDefinitionTestCases)(
-    'generateSchemaDefinition($name, $schema, $schemaName) -> $expected',
-    async ({ name, schema, schemaName, expected }) => {
-      const result = generateZodToOpenAPISchemaDefinition(name, schema, schemaName)
-      expect(result).toEqual(expected)
+    'generateSchemaDefinition($schemaName, $zodSchema, $config) -> $expected',
+    async ({ schemaName, zodSchema, config, expected }) => {
+      const result = generateZodToOpenAPISchemaDefinition(schemaName, zodSchema, config)
+      expect(result).toBe(expected)
     },
   )
 })
