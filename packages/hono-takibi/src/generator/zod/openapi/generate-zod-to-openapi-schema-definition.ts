@@ -5,8 +5,9 @@ import { generateZodInfer } from '../generate-zod-infer'
 
 /**
  * Creates a Zod schema constant declaration
- * @param { string } name - Name of the schema constant
+ * @param { string } schemaName - Name of the schema constant
  * @param { string } zodSchema - Zod schema definition string
+ * @param { Config } config - Configuration
  * @returns { string } Generated constant declaration string
  * @example
  * generateZodSchemaDefinition('userSchema', 'z.object({ id: z.number(), name: z.string() })')
