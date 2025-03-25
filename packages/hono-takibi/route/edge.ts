@@ -40,7 +40,7 @@ export const getSearchRoute = createRoute({
     query: z.object({
       q: z.string(),
       filter: z.union([z.string(), z.array(z.string())]).optional(),
-      exclude: z.any().optional(),
+      exclude: z.unknown().optional(),
     }),
   },
   responses: { 200: { description: 'OK' } },
