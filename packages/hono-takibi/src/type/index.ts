@@ -207,6 +207,9 @@ export type Schema = {
   oneOf?: Schema[]
   allOf?: Schema[]
   anyOf?: Schema[]
+  not?: {
+    type: Type
+  }
   discriminator?: {
     propertyName?: string
   }
