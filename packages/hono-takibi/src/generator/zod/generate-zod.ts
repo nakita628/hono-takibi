@@ -5,9 +5,6 @@ import { generateZodString } from './generate-zod-string'
 import { isFormatString } from '../../core/validator/is-format-string'
 import { generateZodNumber } from './generate-zod-number'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema'
-import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
-import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
-import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
 import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
 import { generateZodObject } from './generate-zod-object'
 import { generateZodEnum } from './generate-zod-enum'
@@ -17,6 +14,10 @@ import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper'
 import { generateZodLength } from './generate-zod-length'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper'
+import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
+import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
+import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
+import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -208,16 +209,24 @@ export function generateZod(
     return generateZodArray(generateZod(config, schema.items, undefined, undefined))
   }
 
-  if (schema.allOf) {
-    return generateAllOfCode(schema, config)
+  // oneOf
+  if (schema.oneOf) {
+    return generateOneOfCode(schema, config)
   }
 
+  // anyOf
   if (schema.anyOf) {
     return generateAnyOfCode(schema, config)
   }
 
-  if (schema.oneOf) {
-    return generateOneOfCode(schema, config)
+  // allOf
+  if (schema.allOf) {
+    return generateAllOfCode(schema, config)
+  }
+
+  // not
+  if (schema.not) {
+    return generateNotCode(schema)
   }
 
   if (schema.$ref) {
