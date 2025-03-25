@@ -57,7 +57,7 @@ export async function main(dev = false, config: Config = getConfig()) {
   if (args.includes('--naming-case-type')) {
     const name = args[args.indexOf('--naming-case-type') + 1]
     const validCases = ['PascalCase', 'camelCase']
-    if (!name || !validCases.includes(name)) {
+    if (!(name && validCases.includes(name))) {
       console.error(
         `Invalid value for --naming-case-type: "${name}". Valid options are: ${validCases.join(', ')}`,
       )

@@ -1,4 +1,4 @@
-import { OpenAPISpec } from '../src/type'
+import type { OpenAPISpec } from '../src/type'
 
 export const abcdeOpenAPI: OpenAPISpec = {
   openapi: '3.1.0',
