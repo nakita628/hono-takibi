@@ -74,6 +74,13 @@ export async function main(dev = false, config: Config = getConfig()) {
   // naming case schema
   if (args.includes('--naming-case-schema')) {
     const name = args[args.indexOf('--naming-case-schema') + 1]
+    const validCases = ['PascalCase', 'camelCase']
+    if (!(name && validCases.includes(name))) {
+      console.error(
+        `Invalid value for --naming-case-schema: "${name}". Valid options are: ${validCases.join(', ')}`,
+      )
+      process.exit(1)
+    }
     if (name === 'PascalCase') {
       config.schema.name = 'PascalCase'
     }

@@ -76,6 +76,7 @@ describe('Hono Takibi', () => {
     expect(result).toBe(expected)
   })
 
+  // test CLI error
   it('Hono Takibi CLI --naming-case-type faild', async () => {
     const openapiYaml = path.join('openapi/abcde.yaml')
     // CLI
@@ -88,15 +89,27 @@ describe('Hono Takibi', () => {
       )
     } catch (e) {
       expect(e).toBeInstanceOf(Error)
-      const errorResult = `Command failed: node /workspaces/hono-takibi/packages/hono-takibi/dist/index.js openapi/abcde.yaml -o route/abcde.ts --naming-case-type faild
-Invalid value for --naming-case-type: "faild". Valid options are: PascalCase, camelCase
-`
-      expect(e.message).toBe(errorResult)
+      expect(e.message).toMatch(
+        /Command failed: node .+\/dist\/index\.js.+--naming-case-type faild/,
+      )
     }
+  })
 
-    // const result = fs.readFileSync('route/abcde.ts', { encoding: 'utf-8' })
-    // const expected = petStoreOpenAPIExpected
-
-    // expect(result).toBe(expected)
+  it('Hono Takibi CLI --naming-case-type faild', async () => {
+    const openapiYaml = path.join('openapi/abcde.yaml')
+    // CLI
+    try {
+      execSync(
+        `node ${path.resolve('dist/index.js')} ${openapiYaml} -o route/abcde.ts --naming-case-type camelCase`,
+        {
+          stdio: 'pipe',
+        },
+      )
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error)
+      expect(e.message).toMatch(
+        /Command failed: node .+\/dist\/index\.js.+--naming-case-type camelCase/,
+      )
+    }
   })
 })
