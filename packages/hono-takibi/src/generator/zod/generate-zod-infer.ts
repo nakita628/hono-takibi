@@ -1,15 +1,9 @@
-import type { Config } from '../../config'
-import { getVariableNameHelper } from '../../core/helper/get-variable-name-helper'
-import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
-
 /**
  * Generates a TypeScript type definition for an inferred Zod schema.
- * @param { string } schema - The name of the Zod schema to infer.
- * @param { Config } config - Configuration
+ * @param { string } typeVariableName - The name of the TypeScript type variable.
+ * @param { string } schemaName - The name of the Zod schema to infer.
  * @returns { string } Generated TypeScript type definition string
  */
-export function generateZodInfer(schema: string, config: Config): string {
-  const schemaName = getVariableSchemaNameHelper(schema, config)
-  const variableName = getVariableNameHelper(schema, config)
-  return `export type ${variableName} = z.infer<typeof ${schemaName}>`
+export function generateZodInfer(typeVariableName: string, schemaName: string): string {
+  return `export type ${typeVariableName} = z.infer<typeof ${schemaName}>`
 }
