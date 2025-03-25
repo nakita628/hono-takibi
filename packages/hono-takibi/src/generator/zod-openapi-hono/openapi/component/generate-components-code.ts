@@ -3,9 +3,6 @@ import type { Config } from '../../../../config'
 import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition'
 import { generateZod } from '../../../zod/generate-zod'
 import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
-import { generateSchemasExport } from './schema/generate-schemas-export'
-import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variable-schema-name-helper'
-import { generateZodInfer } from '../../../zod/generate-zod-infer'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
@@ -38,12 +35,10 @@ export function generateComponentsCode(components: Components, config: Config): 
     .map((schemaName) => {
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
-      // 4.2 get variable name
-      const variableName = getVariableSchemaNameHelper(schemaName, config)
-      // 4.3 generate zod schema
+      // 4.2 generate zod schema
       const zodSchema = generateZod(config, schema, undefined, undefined)
-      // 4.4 generate zod schema definition
-      return generateZodToOpenAPISchemaDefinition(variableName, zodSchema, schemaName, config)
+      // 4.3 generate zod schema definition
+      return generateZodToOpenAPISchemaDefinition(schemaName, zodSchema, config)
     })
     .join('\n\n')
   // 5. return code
