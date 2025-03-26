@@ -19,14 +19,16 @@ const EXPORT_APP = 'export default app' as const
  * Generate app
  *
  * @function generateApp
- * @param openAPISpec - OpenAPI spec
- * @param config - Config
+ * @param { OpenAPISpec } openAPISpec - OpenAPI spec
+ * @param { Config } config - Config
+ * @param { string | undefined } basePath - Base path
+ * @returns { string } Generated app code
  */
 export function generateApp(
   openAPISpec: OpenAPISpec,
   config: Config,
   basePath: string | undefined,
-) {
+): string {
   const routeMappings = getRouteMaps(openAPISpec)
 
   const importsMap = processImportMap(routeMappings, config)
@@ -49,8 +51,6 @@ export function generateApp(
 
   const docs = generateDocs(openAPISpec)
 
-  const isDev = `const isDev = process.env.NODE_ENV === 'development'`
-
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
   const { components } = openAPISpec
@@ -59,7 +59,7 @@ export function generateApp(
     ? generateRegisterComponent(components.securitySchemes)
     : ''
 
-  const swagger = `if(isDev){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${path}'}))}`
+  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(docs)}).get('/ui',swaggerUI({url:'${path}'}))}`
 
   const sections = [
     // 1. imports
@@ -68,13 +68,11 @@ export function generateApp(
     openAPIHono,
     // 3. api setup
     api,
-    // 4. development settings
-    isDev,
-    // 5. swagger setup
+    // 4. swagger setup
     swagger,
-    // 6. types and exports
+    // 5. types and exports
     ADD_TYPE,
-    // 7. export app
+    // 6. export app
     EXPORT_APP,
   ]
   return sections.join('\n\n')
