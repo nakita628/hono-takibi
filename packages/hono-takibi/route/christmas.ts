@@ -38,7 +38,6 @@ const DeliveryUpdateSchema = z
 export const getSantaStatusRoute = createRoute({
   method: 'get',
   path: '/santa/status',
-  operationId: 'undefined',
   summary: "Get Santa's Current Status",
   description: "Retrieve Santa's current location and status during his Christmas journey.",
   responses: {
@@ -52,7 +51,6 @@ export const getSantaStatusRoute = createRoute({
 export const getSantaDeliveriesRoute = createRoute({
   method: 'get',
   path: '/santa/deliveries',
-  operationId: 'undefined',
   summary: 'List Scheduled Deliveries',
   description: 'Retrieve a list of all scheduled Christmas present deliveries.',
   responses: {
@@ -66,7 +64,6 @@ export const getSantaDeliveriesRoute = createRoute({
 export const postSantaDeliveriesRoute = createRoute({
   method: 'post',
   path: '/santa/deliveries',
-  operationId: 'undefined',
   summary: 'Schedule a New Delivery',
   description: 'Request Santa to deliver a Christmas present by scheduling a delivery.',
   request: {
@@ -83,7 +80,6 @@ export const postSantaDeliveriesRoute = createRoute({
 export const getSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'get',
   path: '/santa/deliveries/{deliveryId}',
-  operationId: 'undefined',
   summary: 'Get Delivery Details',
   description: 'Retrieve detailed information about a specific delivery using its ID.',
   request: { params: z.object({ deliveryId: z.string() }) },
@@ -99,7 +95,6 @@ export const getSantaDeliveriesDeliveryIdRoute = createRoute({
 export const putSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'put',
   path: '/santa/deliveries/{deliveryId}',
-  operationId: 'undefined',
   summary: 'Update Delivery Information',
   description: 'Update details of an existing delivery (e.g., change address or scheduled time).',
   request: {
@@ -118,7 +113,6 @@ export const putSantaDeliveriesDeliveryIdRoute = createRoute({
 export const deleteSantaDeliveriesDeliveryIdRoute = createRoute({
   method: 'delete',
   path: '/santa/deliveries/{deliveryId}',
-  operationId: 'undefined',
   summary: 'Cancel a Delivery',
   description: 'Cancel an existing delivery request.',
   request: { params: z.object({ deliveryId: z.string() }) },

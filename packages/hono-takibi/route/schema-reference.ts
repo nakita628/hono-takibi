@@ -9,7 +9,6 @@ const ASchema = z.object({ b: BSchema, c: CSchema }).openapi('A')
 export const getExampleRoute = createRoute({
   method: 'get',
   path: '/example',
-  operationId: 'undefined',
   summary: 'Sample Endpoint',
   responses: {
     200: {

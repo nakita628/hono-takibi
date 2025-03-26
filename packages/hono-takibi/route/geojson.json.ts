@@ -111,7 +111,6 @@ const GeometryCollectionSchema = z
 export const getGeometryRoute = createRoute({
   method: 'get',
   path: '/geometry',
-  operationId: 'undefined',
   summary: 'Get an array of GeoJSON Geometry objects',
   responses: {
     200: {
@@ -127,7 +126,6 @@ export const getGeometryRoute = createRoute({
 export const postGeometryRoute = createRoute({
   method: 'post',
   path: '/geometry',
-  operationId: 'undefined',
   summary: 'Create new GeoJSON Geometry object',
   request: {
     body: { required: true, content: { 'application/json': { schema: GeometrySchema } } },

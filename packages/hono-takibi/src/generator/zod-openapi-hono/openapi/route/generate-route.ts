@@ -43,7 +43,7 @@ export function generateRoute(
     tagsCode: tags ? `tags:${tagList},` : '',
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
-    operationIdCode: `operationId:'${operationId}',`,
+    operationIdCode: operationId ? `operationId:'${operationId}',` : '',
     summaryCode: summary ? `summary:'${escapeStr(summary)}',` : '',
     descriptionCode: description ? `description:'${escapeStr(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',

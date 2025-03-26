@@ -1,19 +1,18 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ASchema = z.object({ a: z.string().openapi({ example: 'a' }) }).openapi('A')
+const aSchema = z.object({ a: z.string().openapi({ example: 'a' }) }).openapi('A')
 
-const BSchema = z.object({ b: z.string().openapi({ example: 'b' }) }).openapi('B')
+const bSchema = z.object({ b: z.string().openapi({ example: 'b' }) }).openapi('B')
 
-const CSchema = z.object({ c: z.string().openapi({ example: 'c' }) }).openapi('C')
+const cSchema = z.object({ c: z.string().openapi({ example: 'c' }) }).openapi('C')
 
-const DSchema = z.object({ d: z.string().openapi({ example: 'd' }) }).openapi('D')
+const dSchema = z.object({ d: z.string().openapi({ example: 'd' }) }).openapi('D')
 
-const ESchema = z.object({ e: z.string().openapi({ example: 'e' }) }).openapi('E')
+const eSchema = z.object({ e: z.string().openapi({ example: 'e' }) }).openapi('E')
 
 export const getExampleRoute = createRoute({
   method: 'get',
   path: '/example',
-  operationId: 'undefined',
   summary: 'Get example data',
-  responses: { 200: { description: 'OK', content: { 'application/json': { schema: ASchema } } } },
+  responses: { 200: { description: 'OK', content: { 'application/json': { schema: aSchema } } } },
 })

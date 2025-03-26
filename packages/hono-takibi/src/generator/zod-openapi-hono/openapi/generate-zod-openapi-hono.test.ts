@@ -38,7 +38,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 2. schema: PascalCase, export: true; type: PascalCase, export: false
   {
@@ -69,7 +69,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 3. schema: PascalCase, export: false; type: PascalCase, export: true
   {
@@ -100,7 +100,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 export type E = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 4. schema: PascalCase, export: true; type: PascalCase, export: true
   {
@@ -131,7 +131,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 export type E = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 5. schema: PascalCase, export: false; type: camelCase, export: false
   {
@@ -162,7 +162,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 6. schema: PascalCase, export: true; type: camelCase, export: false
   {
@@ -193,7 +193,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 7. schema: PascalCase, export: false; type: camelCase, export: true
   {
@@ -224,7 +224,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 export type e = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 8. schema: PascalCase, export: true; type: camelCase, export: true
   {
@@ -255,7 +255,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 export type e = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`,
   },
   // 9. schema: camelCase, export: false; type: camelCase, export: false
   {
@@ -286,7 +286,7 @@ const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 10. schema: camelCase, export: true; type: camelCase, export: false
   {
@@ -317,7 +317,7 @@ export const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 11. schema: camelCase, export: false; type: camelCase, export: true
   {
@@ -348,7 +348,7 @@ const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 export type e = z.infer<typeof eSchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 12. schema: camelCase, export: true; type: camelCase, export: true
   {
@@ -379,7 +379,7 @@ export const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 export type e = z.infer<typeof eSchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 13. schema: camelCase, export: false; type: PascalCase, export: false
   {
@@ -410,7 +410,7 @@ const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 14. schema: camelCase, export: true; type: PascalCase, export: false
   {
@@ -441,7 +441,7 @@ export const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 15. schema: camelCase, export: false; type: PascalCase, export: true
   {
@@ -472,7 +472,7 @@ const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 export type E = z.infer<typeof eSchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
   // 16. schema: camelCase, export: true; type: PascalCase, export: true
   {
@@ -503,7 +503,7 @@ export const eSchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 export type E = z.infer<typeof eSchema>
 
-export const getExampleRoute=createRoute({tags:[],method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:aSchema}},},}})`,
   },
 ]
 

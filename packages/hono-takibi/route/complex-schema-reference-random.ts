@@ -330,7 +330,6 @@ const RootSchema = z
 export const getTestRoute = createRoute({
   method: 'get',
   path: '/test',
-  operationId: 'undefined',
   summary: 'Test endpoint for comprehensive schema references',
   responses: {
     200: {

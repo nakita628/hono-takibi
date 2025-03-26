@@ -3,7 +3,6 @@ import { createRoute, z } from '@hono/zod-openapi'
 export const getPrimitiveRoute = createRoute({
   method: 'get',
   path: '/primitive',
-  operationId: 'undefined',
   summary: 'zod primitive',
   description: 'zod primitive',
   responses: {
