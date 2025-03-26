@@ -44,11 +44,11 @@ export async function main(dev = false, config: Config = getConfig()) {
   }
   // naming case type
   if (args.includes('--naming-case-type')) {
-    setNamingCase(args, '--naming-case-type', config)
+    setNamingCaseType(args, '--naming-case-type', config)
   }
   // naming case schema
   if (args.includes('--naming-case-schema')) {
-    setNamingCase(args, '--naming-case-schema', config)
+    setNamingCaseSchema(args, '--naming-case-schema', config)
   }
 
   try {
@@ -158,12 +158,12 @@ function setOutput(
 }
 
 /**
- * Set the naming case of the config
+ * Set the naming case of the type
  * @param { string[] } args - The CLI arguments
  * @param { string } namingCase - The naming case
  * @param { Config } config - The config
  */
-function setNamingCase(args: string[], namingCase: string, config: Config) {
+function setNamingCaseType(args: string[], namingCase: string, config: Config) {
   const VALID_NAMING_CASES = ['PascalCase', 'camelCase']
   const name = args[args.indexOf(namingCase) + 1]
   if (!(name && VALID_NAMING_CASES.includes(name))) {
@@ -172,6 +172,30 @@ function setNamingCase(args: string[], namingCase: string, config: Config) {
     )
     process.exit(1)
   }
+
+  if (name === 'camelCase') {
+    config.type.name = 'camelCase'
+  } else {
+    config.type.name = 'PascalCase'
+  }
+}
+
+/**
+ * Set the naming case of the schema
+ * @param { string[] } args - The CLI arguments
+ * @param { string } namingCase - The naming case
+ * @param { Config } config - The config
+ */
+function setNamingCaseSchema(args: string[], namingCase: string, config: Config) {
+  const VALID_NAMING_CASES = ['PascalCase', 'camelCase']
+  const name = args[args.indexOf(namingCase) + 1]
+  if (!(name && VALID_NAMING_CASES.includes(name))) {
+    console.error(
+      `Invalid value for --naming-case-type: "${name}". Valid options are: ${VALID_NAMING_CASES.join(', ')}`,
+    )
+    process.exit(1)
+  }
+
   if (name === 'camelCase') {
     config.schema.name = 'camelCase'
   } else {
