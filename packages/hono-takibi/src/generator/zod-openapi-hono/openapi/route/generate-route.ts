@@ -32,16 +32,18 @@ export function generateRoute(
   operation: Operation,
   config: Config,
 ): string {
-  const { tags, summary, description, security, parameters, requestBody, responses } = operation
+  const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
+    operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
   const requestParams = generateRequestParameter(parameters, requestBody, config)
 
   const create_args = {
     routeName,
-    tagsCode: `tags:${tagList},`,
+    tagsCode: tags ? `tags:${tagList},` : '',
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
+    operationIdCode: `operationId:'${operationId}',`,
     summaryCode: summary ? `summary:'${escapeStr(summary)}',` : '',
     descriptionCode: description ? `description:'${escapeStr(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',

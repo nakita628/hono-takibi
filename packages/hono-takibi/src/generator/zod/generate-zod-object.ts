@@ -5,7 +5,7 @@ import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/g
 import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
 import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema'
-
+import { generateZodPassthrough } from './generate-zod-passthrough'
 /**
  * Generate Zod object schema
  * @param { Schema } schema - Schema definition
@@ -13,7 +13,20 @@ import { generateZodPropertiesSchema } from './property/generate-zod-properties-
  * @returns { string } Zod object schema string
  */
 export function generateZodObject(schema: Schema, config: Config): string {
-  if (schema.additionalProperties) return generateZodRecord(schema.additionalProperties, config)
+  if (schema.additionalProperties) {
+    if (typeof schema.additionalProperties === 'boolean') {
+      if (schema.properties) {
+        const zodSchema = generateZodPropertiesSchema(
+          schema.properties,
+          schema.required || [],
+          config,
+        )
+        return generateZodPassthrough(zodSchema)
+      }
+      return 'z.any()'
+    }
+    return generateZodRecord(schema.additionalProperties, config)
+  }
   if (schema.allOf) {
     return generateAllOfCode(schema, config)
   }

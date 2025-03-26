@@ -194,10 +194,12 @@ export type Schema = {
   items?: Schema
   enum?: string[]
   nullable?: boolean
-  additionalProperties?: {
-    type: Type
-    format: Format
-  }
+  additionalProperties?:
+    | {
+        type: Type
+        format: Format
+      }
+    | boolean
   $ref?: string
   xml?: {
     name?: string
