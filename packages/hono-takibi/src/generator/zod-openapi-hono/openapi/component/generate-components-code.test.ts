@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateComponentsCode } from './generate-components-code'
-import { DEFAULT_CONFIG } from '../../../../config'
+import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Components } from '../../../../type'
 import type { Config } from '../../../../config'
 
@@ -64,7 +64,6 @@ const generateComponentsCodeTestCases: {
   config: Config
   expected: string
 }[] = [
-  // 空のコンポーネント
   {
     components: {
       schemas: {},
@@ -72,7 +71,6 @@ const generateComponentsCodeTestCases: {
     config: DEFAULT_CONFIG,
     expected: '',
   },
-  // PascalCase: schema, type 共に export false
   {
     components: testComponents,
     config: {

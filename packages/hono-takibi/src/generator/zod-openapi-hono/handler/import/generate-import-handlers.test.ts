@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateImportHandlers } from './generate-import-handlers'
-import { DEFAULT_CONFIG } from '../../../../config'
+import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Config } from '../../../../config'
 
 const generateImportHandlersTestCases: {

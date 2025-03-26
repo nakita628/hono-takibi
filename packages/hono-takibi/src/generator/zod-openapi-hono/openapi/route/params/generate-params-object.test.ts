@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { generateParamsObject } from './generate-params-object'
 import type { ParamsObject, Parameters } from '../../../../../type'
 import type { Config } from '../../../../../config'
-import { DEFAULT_CONFIG } from '../../../../../config'
+import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 
 const generateParamsObjectTestCases: {
   parameters: Parameters[]

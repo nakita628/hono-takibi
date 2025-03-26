@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateZod } from './generate-zod'
-import { DEFAULT_CONFIG } from '../../../data/test-data'
+import { DEFAULT_CONFIG } from '../../../data/test-config'
 import type { Schema } from '../../type'
 import type { Config } from '../../config'
 

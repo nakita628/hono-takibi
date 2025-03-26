@@ -10,5 +10,5 @@ export function generateNotCode(schema: Schema): string {
     console.warn('not exists not')
     return 'z.any()'
   }
-  return `z.unknown()`
+  return 'z.unknown()'
 }

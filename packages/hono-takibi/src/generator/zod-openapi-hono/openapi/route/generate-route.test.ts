@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateRoute } from './generate-route'
-import { DEFAULT_CONFIG } from '../../../../../data/test-data'
+import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Operation } from '../../../../type'
 
 describe('generateRoute', () => {
