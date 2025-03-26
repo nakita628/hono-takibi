@@ -33,15 +33,29 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```
 
-## Options
+## CLI
 
-| Option     | Description |
-|------------|-------------|
-| -template  | Controls the generation of application and handler files. When enabled, creates both the main application file and corresponding route handlers |
-| -test      | Enables automatic generation of test files for your API endpoints. |
-| --base-path | Specifies the base URL path for your API endpoints. |
+### Options
 
-> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the command.
+basic
+
+```bash
+Options:
+  --export-schema    exports all schema definitions
+  --export-type      exports all type definitions
+  --naming-case-type PascalCase or camelCase
+```
+
+template
+
+> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+
+```bash
+Options:
+  -template          generation of application and handler files
+  -test              automatic generation of test files
+  --base-path        base URL path for your API endpoints
+```
 
 ### Example
 
