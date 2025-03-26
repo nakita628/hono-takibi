@@ -328,9 +328,9 @@ const RootSchema = z
   .openapi('Root')
 
 export const getTestRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/test',
+  operationId: 'undefined',
   summary: 'Test endpoint for comprehensive schema references',
   responses: {
     200: {

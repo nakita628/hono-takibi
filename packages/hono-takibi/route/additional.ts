@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getPassthroughRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/passthrough',
+  operationId: 'undefined',
   summary: 'zod passthrough',
   description: 'zod passthrough',
   responses: {

@@ -120,9 +120,9 @@ const ComplexTypeSchema = z
   .openapi('ComplexType')
 
 export const getUsersRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/users',
+  operationId: 'undefined',
   summary: 'List all users',
   responses: {
     200: {
@@ -133,9 +133,9 @@ export const getUsersRoute = createRoute({
 })
 
 export const postUsersRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/users',
+  operationId: 'undefined',
   summary: 'Create a new user',
   request: { body: { required: true, content: { 'application/json': { schema: NewUserSchema } } } },
   responses: {
@@ -147,9 +147,9 @@ export const postUsersRoute = createRoute({
 })
 
 export const getUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/users/{userId}',
+  operationId: 'undefined',
   summary: 'Retrieve a user by ID',
   responses: {
     200: { description: 'User details', content: { 'application/json': { schema: UserSchema } } },
@@ -158,9 +158,9 @@ export const getUsersUserIdRoute = createRoute({
 })
 
 export const putUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'put',
   path: '/users/{userId}',
+  operationId: 'undefined',
   summary: 'Update an existing user',
   request: {
     body: { required: true, content: { 'application/json': { schema: UpdateUserSchema } } },
@@ -175,9 +175,9 @@ export const putUsersUserIdRoute = createRoute({
 })
 
 export const deleteUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'delete',
   path: '/users/{userId}',
+  operationId: 'undefined',
   summary: 'Delete a user',
   responses: {
     204: { description: 'User deleted successfully' },
@@ -186,9 +186,9 @@ export const deleteUsersUserIdRoute = createRoute({
 })
 
 export const getOrdersRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/orders',
+  operationId: 'undefined',
   summary: 'List all orders',
   responses: {
     200: {
@@ -199,9 +199,9 @@ export const getOrdersRoute = createRoute({
 })
 
 export const postOrdersRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/orders',
+  operationId: 'undefined',
   summary: 'Create a new order',
   request: {
     body: { required: true, content: { 'application/json': { schema: NewOrderSchema } } },

@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getNullableRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/nullable',
+  operationId: 'undefined',
   summary: 'zod nullable',
   description: 'zod nullable',
   responses: {

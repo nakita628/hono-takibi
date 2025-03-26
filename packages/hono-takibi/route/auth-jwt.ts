@@ -41,9 +41,9 @@ const ProfileSchema = z
   .openapi('Profile')
 
 export const postAuthLoginRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/auth/login',
+  operationId: 'undefined',
   summary: 'User Login',
   description: 'Authenticate user credentials and initiate two-factor authentication if enabled.',
   request: {
@@ -60,9 +60,9 @@ export const postAuthLoginRoute = createRoute({
 })
 
 export const postAuthVerifyRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/auth/verify',
+  operationId: 'undefined',
   summary: 'Verify Two-Factor Authentication Code',
   description:
     'Verify the 2FA code using the temporary token obtained from the login endpoint. Upon successful verification, a JWT token is issued.',
@@ -79,9 +79,9 @@ export const postAuthVerifyRoute = createRoute({
 })
 
 export const getProfileRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/profile',
+  operationId: 'undefined',
   summary: 'Get User Profile',
   description: 'Retrieve the profile of the authenticated user.',
   security: [{ bearerAuth: [] }],

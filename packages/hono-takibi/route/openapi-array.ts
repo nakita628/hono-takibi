@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getArrayRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/array',
+  operationId: 'undefined',
   summary: 'zod array',
   description: 'zod array',
   responses: {

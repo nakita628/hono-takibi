@@ -124,6 +124,7 @@ export const getRoute = createRoute({
   tags: ['Utility'],
   method: 'get',
   path: '/',
+  operationId: 'undefined',
   summary: 'Ping endpoint',
   description: 'This endpoint is used to check if the server is working properly.',
   responses: {
@@ -142,6 +143,7 @@ export const getProjectsRoute = createRoute({
   tags: ['Projects'],
   method: 'get',
   path: '/projects',
+  operationId: 'undefined',
   summary: 'Get projects related to a given chiban',
   description: 'Get projects related to a given chiban',
   request: { query: z.object({ chiban: z.string() }) },

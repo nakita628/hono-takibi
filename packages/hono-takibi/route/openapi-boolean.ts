@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getBooleanRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/boolean',
+  operationId: 'undefined',
   summary: 'zod boolean',
   description: 'zod boolean',
   responses: {

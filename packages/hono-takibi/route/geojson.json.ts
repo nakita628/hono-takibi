@@ -109,9 +109,9 @@ const GeometryCollectionSchema = z
   .openapi('GeometryCollection')
 
 export const getGeometryRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/geometry',
+  operationId: 'undefined',
   summary: 'Get an array of GeoJSON Geometry objects',
   responses: {
     200: {
@@ -125,9 +125,9 @@ export const getGeometryRoute = createRoute({
 })
 
 export const postGeometryRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/geometry',
+  operationId: 'undefined',
   summary: 'Create new GeoJSON Geometry object',
   request: {
     body: { required: true, content: { 'application/json': { schema: GeometrySchema } } },

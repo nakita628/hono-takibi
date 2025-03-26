@@ -18,9 +18,9 @@ const BaseSchema = z
   .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/polymorphic',
+  operationId: 'undefined',
   summary: 'Polymorphic object with discriminator',
   request: {
     body: {
@@ -32,9 +32,9 @@ export const postPolymorphicRoute = createRoute({
 })
 
 export const getSearchRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/search',
+  operationId: 'undefined',
   summary: 'Search with complex query',
   request: {
     query: z.object({
@@ -47,9 +47,9 @@ export const getSearchRoute = createRoute({
 })
 
 export const putMultiStepRoute = createRoute({
-  tags: [],
   method: 'put',
   path: '/multi-step',
+  operationId: 'undefined',
   summary: 'Multi-step object definition using allOf',
   request: {
     body: {

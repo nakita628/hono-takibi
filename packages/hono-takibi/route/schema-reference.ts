@@ -7,9 +7,9 @@ const CSchema = z.object({ count: z.number().int(), flag: z.boolean() }).partial
 const ASchema = z.object({ b: BSchema, c: CSchema }).openapi('A')
 
 export const getExampleRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/example',
+  operationId: 'undefined',
   summary: 'Sample Endpoint',
   responses: {
     200: {

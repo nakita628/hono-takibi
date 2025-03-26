@@ -15,6 +15,7 @@ export const getRoute = createRoute({
   tags: ['Hono'],
   method: 'get',
   path: '/',
+  operationId: 'undefined',
   summary: 'Welcome message',
   description: 'Retrieve a simple welcome message from the Hono API.',
   responses: {
@@ -33,6 +34,7 @@ export const postPostsRoute = createRoute({
   tags: ['Post'],
   method: 'post',
   path: '/posts',
+  operationId: 'undefined',
   summary: 'Create a new post',
   description: 'Submit a new post with a maximum length of 140 characters.',
   request: {
@@ -61,6 +63,7 @@ export const getPostsRoute = createRoute({
   tags: ['Post'],
   method: 'get',
   path: '/posts',
+  operationId: 'undefined',
   summary: 'Retrieve a list of posts',
   description:
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
@@ -90,6 +93,7 @@ export const putPostsIdRoute = createRoute({
   tags: ['Post'],
   method: 'put',
   path: '/posts/{id}',
+  operationId: 'undefined',
   summary: 'Update an existing post',
   description: 'Update the content of an existing post identified by its unique ID.',
   request: {
@@ -116,6 +120,7 @@ export const deletePostsIdRoute = createRoute({
   tags: ['Post'],
   method: 'delete',
   path: '/posts/{id}',
+  operationId: 'undefined',
   summary: 'Delete a post',
   description: 'Delete an existing post identified by its unique ID.',
   request: {
