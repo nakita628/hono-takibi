@@ -41,9 +41,10 @@ basic
 
 ```bash
 Options:
-  --export-schema    exports all schema definitions
-  --export-type      exports all type definitions
-  --naming-case-type PascalCase or camelCase
+  --export-schema      exports all schema definitions
+  --export-type        exports all type definitions
+  --naming-case-type   PascalCase or camelCase
+  --naming-case-schema PascalCase or camelCase
 ```
 
 template
@@ -52,9 +53,9 @@ template
 
 ```bash
 Options:
-  -template          generation of application and handler files
-  -test              automatic generation of test files
-  --base-path        base URL path for your API endpoints
+  -template            generation of application and handler files
+  -test                automatic generation of test files
+  --base-path          base URL path for your API endpoints
 ```
 
 ### Example
