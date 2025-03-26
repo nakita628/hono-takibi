@@ -2,13 +2,11 @@ import type { Schema } from '../../type'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
 /**
- * Generate Zod enum
- *
- * @function generateZodEnum
- * @param schema - Schema definition
- * @returns string - Generated Zod enum string
+ * Generates a Zod enum string
+ * @param { Schema } schema - The schema definition
+ * @returns { string } Generated Zod enum string
  */
-export function generateZodEnum(schema: Schema) {
+export function generateZodEnum(schema: Schema): string {
   if (!schema.enum) {
     throw new Error('enum is not found')
   }

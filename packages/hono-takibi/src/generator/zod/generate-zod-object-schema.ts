@@ -1,10 +1,7 @@
 /**
  * Generates a Zod object schema from a record of property types
- *
- * @function generateZodObjectSchema
- * @param object - Record of property names and their Zod type strings
- * @returns Generated Zod object schema string
- *
+ * @param { Record<string, string> } object - Record of property names and their Zod type strings
+ * @returns { string } Generated Zod object schema string
  * @example
  * // Basic object
  * generateZodObjectSchema({ name: 'z.string()' })
@@ -25,7 +22,6 @@
  * })
  * // Returns: 'z.object({email:z.string().email(),age:z.number().min(0)})'
  *
- * @note
  * - Each property value should be a valid Zod type string
  * - Properties are joined with commas in the resulting object
  * - Commonly used for generating simple object schemas

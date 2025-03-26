@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../..type'
-import type { Config } from '../../../config'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
-import { DEFAULT_CONFIG } from '../../../data/test-data'
+import { DEFAULT_CONFIG } from '../../../../data/test-config'
+import type { Schema } from '../../../type'
+import type { Config } from '../../../config'
 
 const generateZodPropertiesSchemaTestCases: {
   properties: Record<string, Schema>
@@ -74,7 +74,7 @@ const generateZodPropertiesSchemaTestCases: {
     required: [],
     config: DEFAULT_CONFIG,
     expected:
-      'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(addressSchema)}).partial()',
+      'z.object({id:z.number().int().openapi({example:100000}),username:z.string().openapi({example:"fehguy"}),address:z.array(AddressSchema)}).partial()',
   },
   {
     properties: {
@@ -137,7 +137,7 @@ const generateZodPropertiesSchemaTestCases: {
     required: ['name', 'photoUrls'],
     config: DEFAULT_CONFIG,
     expected:
-      'z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:categorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(tagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})',
+      'z.object({id:z.number().int().openapi({example:10}).optional(),name:z.string().openapi({example:"doggie"}),category:CategorySchema.optional(),photoUrls:z.array(z.string()),tags:z.array(TagSchema).optional(),status:z.enum(["available","pending","sold"]).optional()})',
   },
   {
     properties: {

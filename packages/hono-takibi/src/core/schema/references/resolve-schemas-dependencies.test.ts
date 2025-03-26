@@ -1,8 +1,56 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../type'
 import { resolveSchemasDependencies } from './resolve-schemas-dependencies'
+import type { Schema } from '../../../type'
 
 describe('resolveSchemasDependencies', () => {
+  it('should Order schema', () => {
+    // A B C
+    const schemas: Record<string, Schema> = {
+      A: {
+        type: 'object',
+        properties: {
+          b: {
+            $ref: '#/components/schemas/B',
+          },
+          c: {
+            $ref: '#/components/schemas/C',
+          },
+        },
+        required: ['b', 'c'],
+      },
+      B: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'Identifier for schema B',
+          },
+          message: {
+            type: 'string',
+            description: 'Message from schema B',
+          },
+        },
+        required: ['id'],
+      },
+      C: {
+        type: 'object',
+        properties: {
+          count: {
+            type: 'integer',
+            description: 'Count value',
+          },
+          flag: {
+            type: 'boolean',
+            description: 'A boolean flag',
+          },
+        },
+      },
+    }
+
+    const result = resolveSchemasDependencies(schemas)
+    expect(result).toEqual(['B', 'C', 'A'])
+  })
+
   it('should return empty array for empty schemas', () => {
     const schemas: Record<string, Schema> = {}
     const result = resolveSchemasDependencies(schemas)

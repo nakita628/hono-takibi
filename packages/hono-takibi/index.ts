@@ -16,10 +16,36 @@ async function getOpenAPIFiles() {
   }
 }
 
-// hono-takibi
-async function honoTakibi(openapiFile: string) {
+// hono-takibi Normal
+async function honoTakibiNormal(openapiFile: string) {
   const file = openapiFile.replace('.yaml', '')
   const command = `hono-takibi openapi/${openapiFile} -o route/${file}.ts`
+  exec(command, (error, stdout) => {
+    if (error) {
+      console.error(`Error executing command: ${error}`)
+      return
+    }
+    console.log(stdout)
+  })
+}
+
+// hono-takibi Type Schema Export
+async function honoTakibTypeSchemaExport(openapiFile: string) {
+  const file = openapiFile.replace('.yaml', '')
+  const command = `hono-takibi openapi/${openapiFile} -o route-type-schema-export/${file}.ts --export-type --export-schema`
+  exec(command, (error, stdout) => {
+    if (error) {
+      console.error(`Error executing command: ${error}`)
+      return
+    }
+    console.log(stdout)
+  })
+}
+
+// hono-takibi Case Schema Export
+async function honoTakibCaseSchemaExport(openapiFile: string) {
+  const file = openapiFile.replace('.yaml', '')
+  const command = `hono-takibi openapi/${openapiFile} -o route-case-schema-export/${file}.ts --nameing-case-type camelCase --naming-case-schema camelCase`
   exec(command, (error, stdout) => {
     if (error) {
       console.error(`Error executing command: ${error}`)
@@ -35,9 +61,11 @@ async function HonoTakibis() {
     console.error('No openapi files found')
     return
   }
-  for (const openapiFile of openapiFiles) {
-    await honoTakibi(openapiFile)
-  }
+  await Promise.all([
+    ...openapiFiles.map(honoTakibiNormal),
+    ...openapiFiles.map(honoTakibTypeSchemaExport),
+    ...openapiFiles.map(honoTakibCaseSchemaExport),
+  ])
 }
 
 HonoTakibis()

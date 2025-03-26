@@ -1,11 +1,9 @@
 import type { Schema } from '../../type'
 
 /**
- * Checks if the schema is a reference
- *
- * @function isSchemaReference
- * @param schema
- * @returns boolean
+ * Check if the schema is a reference
+ * @param {Schema} schema - The schema to check
+ * @returns {boolean} A boolean indicating if the schema is a reference
  */
 export function isSchemaReference(schema: Schema): boolean {
   return Boolean(schema.$ref)

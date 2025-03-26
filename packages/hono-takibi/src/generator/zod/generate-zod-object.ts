@@ -5,23 +5,28 @@ import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/g
 import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
 import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema'
-
+import { generateZodPassthrough } from './generate-zod-passthrough'
 /**
  * Generate Zod object schema
- *
- * @function generateZodObject
- * @param schema - Schema definition
- * @param schema.additionalProperties - Additional properties schema
- * @param schema.allOf - AllOf schemas
- * @param schema.oneOf - OneOf schemas
- * @param schema.anyOf - AnyOf schemas
- * @param schema.properties - Properties schema
- * @param schema.required - Required properties
- * @param config - Configuration
- * @returns Zod object schema string
+ * @param { Schema } schema - Schema definition
+ * @param { Config } config - Configuration
+ * @returns { string } Zod object schema string
  */
-export function generateZodObject(schema: Schema, config: Config) {
-  if (schema.additionalProperties) return generateZodRecord(schema.additionalProperties, config)
+export function generateZodObject(schema: Schema, config: Config): string {
+  if (schema.additionalProperties) {
+    if (typeof schema.additionalProperties === 'boolean') {
+      if (schema.properties) {
+        const zodSchema = generateZodPropertiesSchema(
+          schema.properties,
+          schema.required || [],
+          config,
+        )
+        return generateZodPassthrough(zodSchema)
+      }
+      return 'z.any()'
+    }
+    return generateZodRecord(schema.additionalProperties, config)
+  }
   if (schema.allOf) {
     return generateAllOfCode(schema, config)
   }

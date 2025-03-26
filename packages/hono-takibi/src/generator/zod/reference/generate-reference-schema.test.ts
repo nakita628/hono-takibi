@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { generateReferenceSchema } from './generate-reference-schema'
+import { DEFAULT_CONFIG } from '../../../../data/test-config'
 import type { Schema } from '../../../type'
-import { DEFAULT_CONFIG, type Config } from '../../../config'
+import type { Config } from '../../../config'
 
 const generateReferenceSchemaTestCases: {
   schema: Schema

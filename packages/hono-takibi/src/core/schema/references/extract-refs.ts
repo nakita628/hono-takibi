@@ -3,9 +3,8 @@ import { isRefObject } from '../../validator/is-ref-object'
 
 /**
  * Extracts all references from a given schema
- * @function extractRefs
- * @param schema - The schema to extract references from
- * @returns An array of reference names
+ * @param { Schema } schema - The schema to extract references from
+ * @returns { string[] } An array of reference names
  */
 export function extractRefs(schema: Schema): string[] {
   const refs: string[] = []

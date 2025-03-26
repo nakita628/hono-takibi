@@ -194,10 +194,12 @@ export type Schema = {
   items?: Schema
   enum?: string[]
   nullable?: boolean
-  additionalProperties?: {
-    type: Type
-    format: Format
-  }
+  additionalProperties?:
+    | {
+        type: Type
+        format: Format
+      }
+    | boolean
   $ref?: string
   xml?: {
     name?: string
@@ -207,6 +209,9 @@ export type Schema = {
   oneOf?: Schema[]
   allOf?: Schema[]
   anyOf?: Schema[]
+  not?: {
+    type: Type
+  }
   discriminator?: {
     propertyName?: string
   }

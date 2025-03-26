@@ -1,10 +1,7 @@
 /**
  * Generates a formatted request object string for request validation
- *
- * @function generateFormatRequestObject
- * @param requestParamsArray - Array of Zod schema strings for request validation
- * @returns Formatted request validator object string
- *
+ * @param { string[] } requestParamsArray - Array of Zod schema strings for request validation
+ * @returns { string } Formatted request validator object string
  * @example
  * // Single parameter
  * generateFormatRequestObject(['query:z.object({page:z.string()})'])
@@ -20,7 +17,6 @@
  * //   query:z.object({page:z.string(),rows:z.string()}),
  * //   params:z.object({id:z.string()})
  * // }'
- *
  * @example
  * // Empty array
  * generateFormatRequestObject([])

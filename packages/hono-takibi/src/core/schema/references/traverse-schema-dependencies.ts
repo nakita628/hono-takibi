@@ -3,10 +3,11 @@ import { extractRefs } from './extract-refs'
 
 /**
  * Traverses the schema dependencies and returns them in topological order
- *
- * @function traverseSchemaDependencies
- * @param schemaName - The name of the schema to traverse
- * @param schemas - The schemas to traverse
+ * @param { string } schemaName - The name of the schema to traverse
+ * @param { Record<string, Schema> } schemas - The schemas to traverse
+ * @param { Set<string> } visited - The visited schemas
+ * @param { Set<string> } recursionStack - The recursion stack
+ * @param { string[] } orderedSchemas - The ordered schemas
  */
 export function traverseSchemaDependencies(
   schemaName: string,
@@ -15,28 +16,23 @@ export function traverseSchemaDependencies(
   recursionStack: Set<string>,
   orderedSchemas: string[],
 ): void {
-  // Circular dependencies occur if they already exist on the recursing stack
+  if (visited.has(schemaName)) return
   if (recursionStack.has(schemaName)) {
     throw new Error(`Circular dependency detected in schema: ${schemaName}`)
   }
 
-  // Processed only if not visited
-  if (!visited.has(schemaName)) {
-    recursionStack.add(schemaName)
-    const schema = schemas[schemaName]
-    if (schema) {
-      // Get other schemas referenced by the current schema
-      const references = extractRefs(schema)
-      for (const ref of references) {
-        if (ref in schemas) {
-          traverseSchemaDependencies(ref, schemas, visited, recursionStack, orderedSchemas)
-        } else {
-          console.warn(`Schema reference not found: ${ref}`)
-        }
+  recursionStack.add(schemaName)
+  const schema = schemas[schemaName]
+  if (schema) {
+    for (const ref of extractRefs(schema)) {
+      if (schemas[ref]) {
+        traverseSchemaDependencies(ref, schemas, visited, recursionStack, orderedSchemas)
+      } else {
+        console.warn(`Schema reference not found: ${ref}`)
       }
     }
-    recursionStack.delete(schemaName)
-    visited.add(schemaName)
-    orderedSchemas.push(schemaName)
   }
+  recursionStack.delete(schemaName)
+  visited.add(schemaName)
+  orderedSchemas.push(schemaName)
 }

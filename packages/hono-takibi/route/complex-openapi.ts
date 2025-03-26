@@ -120,7 +120,6 @@ const ComplexTypeSchema = z
   .openapi('ComplexType')
 
 export const getUsersRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/users',
   summary: 'List all users',
@@ -133,7 +132,6 @@ export const getUsersRoute = createRoute({
 })
 
 export const postUsersRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/users',
   summary: 'Create a new user',
@@ -147,7 +145,6 @@ export const postUsersRoute = createRoute({
 })
 
 export const getUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/users/{userId}',
   summary: 'Retrieve a user by ID',
@@ -158,7 +155,6 @@ export const getUsersUserIdRoute = createRoute({
 })
 
 export const putUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'put',
   path: '/users/{userId}',
   summary: 'Update an existing user',
@@ -175,7 +171,6 @@ export const putUsersUserIdRoute = createRoute({
 })
 
 export const deleteUsersUserIdRoute = createRoute({
-  tags: [],
   method: 'delete',
   path: '/users/{userId}',
   summary: 'Delete a user',
@@ -186,7 +181,6 @@ export const deleteUsersUserIdRoute = createRoute({
 })
 
 export const getOrdersRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/orders',
   summary: 'List all orders',
@@ -199,7 +193,6 @@ export const getOrdersRoute = createRoute({
 })
 
 export const postOrdersRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/orders',
   summary: 'Create a new order',

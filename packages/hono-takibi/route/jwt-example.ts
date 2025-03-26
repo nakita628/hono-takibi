@@ -1,7 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const postAuthLoginRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/auth/login',
   summary: 'User Login to Retrieve JWT',
@@ -38,7 +37,6 @@ export const postAuthLoginRoute = createRoute({
 })
 
 export const getProtectedRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/protected',
   summary: 'Protected Endpoint',

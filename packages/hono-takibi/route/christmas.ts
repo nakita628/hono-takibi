@@ -36,7 +36,6 @@ const DeliveryUpdateSchema = z
   .openapi('DeliveryUpdate')
 
 export const getSantaStatusRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/santa/status',
   summary: "Get Santa's Current Status",
@@ -50,7 +49,6 @@ export const getSantaStatusRoute = createRoute({
 })
 
 export const getSantaDeliveriesRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/santa/deliveries',
   summary: 'List Scheduled Deliveries',
@@ -64,7 +62,6 @@ export const getSantaDeliveriesRoute = createRoute({
 })
 
 export const postSantaDeliveriesRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/santa/deliveries',
   summary: 'Schedule a New Delivery',
@@ -81,7 +78,6 @@ export const postSantaDeliveriesRoute = createRoute({
 })
 
 export const getSantaDeliveriesDeliveryIdRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Get Delivery Details',
@@ -97,7 +93,6 @@ export const getSantaDeliveriesDeliveryIdRoute = createRoute({
 })
 
 export const putSantaDeliveriesDeliveryIdRoute = createRoute({
-  tags: [],
   method: 'put',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Update Delivery Information',
@@ -116,7 +111,6 @@ export const putSantaDeliveriesDeliveryIdRoute = createRoute({
 })
 
 export const deleteSantaDeliveriesDeliveryIdRoute = createRoute({
-  tags: [],
   method: 'delete',
   path: '/santa/deliveries/{deliveryId}',
   summary: 'Cancel a Delivery',

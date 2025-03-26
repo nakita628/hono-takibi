@@ -1,0 +1,457 @@
+openapi: 3.0.3
+info:
+  title: Complex Reference Test API
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Test endpoint for comprehensive schema references
+      responses:
+        '200':
+          description: A complex response containing various schema references
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Root'
+components:
+  schemas:
+    Root:
+      type: object
+      properties:
+        # Flat references: Directly referencing A through Z.
+        flatRefs:
+          type: object
+          properties:
+            A:
+              $ref: '#/components/schemas/A'
+            B:
+              $ref: '#/components/schemas/B'
+            C:
+              $ref: '#/components/schemas/C'
+            D:
+              $ref: '#/components/schemas/D'
+            E:
+              $ref: '#/components/schemas/E'
+            F:
+              $ref: '#/components/schemas/F'
+            G:
+              $ref: '#/components/schemas/G'
+            H:
+              $ref: '#/components/schemas/H'
+            I:
+              $ref: '#/components/schemas/I'
+            J:
+              $ref: '#/components/schemas/J'
+            K:
+              $ref: '#/components/schemas/K'
+            L:
+              $ref: '#/components/schemas/L'
+            M:
+              $ref: '#/components/schemas/M'
+            N:
+              $ref: '#/components/schemas/N'
+            O:
+              $ref: '#/components/schemas/O'
+            P:
+              $ref: '#/components/schemas/P'
+            Q:
+              $ref: '#/components/schemas/Q'
+            R:
+              $ref: '#/components/schemas/R'
+            S:
+              $ref: '#/components/schemas/S'
+            T:
+              $ref: '#/components/schemas/T'
+            U:
+              $ref: '#/components/schemas/U'
+            V:
+              $ref: '#/components/schemas/V'
+            W:
+              $ref: '#/components/schemas/W'
+            X:
+              $ref: '#/components/schemas/X'
+            Y:
+              $ref: '#/components/schemas/Y'
+            Z:
+              $ref: '#/components/schemas/Z'
+        # Nested references: References nested in deeper groups.
+        nestedRefs:
+          type: object
+          properties:
+            group1:
+              type: object
+              properties:
+                A:
+                  $ref: '#/components/schemas/A'
+                M:
+                  $ref: '#/components/schemas/M'
+                Z:
+                  $ref: '#/components/schemas/Z'
+            group2:
+              type: object
+              properties:
+                B:
+                  $ref: '#/components/schemas/B'
+                N:
+                  $ref: '#/components/schemas/N'
+                Y:
+                  $ref: '#/components/schemas/Y'
+        # Chained references: A deep chain from A to Z using allOf.
+        chainRefs:
+          type: object
+          properties:
+            A:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/A'
+                - type: object
+                  properties:
+                    B:
+                      type: object
+                      allOf:
+                        - $ref: '#/components/schemas/B'
+                        - type: object
+                          properties:
+                            C:
+                              type: object
+                              allOf:
+                                - $ref: '#/components/schemas/C'
+                                - type: object
+                                  properties:
+                                    D:
+                                      type: object
+                                      allOf:
+                                        - $ref: '#/components/schemas/D'
+                                        - type: object
+                                          properties:
+                                            E:
+                                              type: object
+                                              allOf:
+                                                - $ref: '#/components/schemas/E'
+                                                - type: object
+                                                  properties:
+                                                    F:
+                                                      type: object
+                                                      allOf:
+                                                        - $ref: '#/components/schemas/F'
+                                                        - type: object
+                                                          properties:
+                                                            G:
+                                                              type: object
+                                                              allOf:
+                                                                - $ref: '#/components/schemas/G'
+                                                                - type: object
+                                                                  properties:
+                                                                    H:
+                                                                      type: object
+                                                                      allOf:
+                                                                        - $ref: '#/components/schemas/H'
+                                                                        - type: object
+                                                                          properties:
+                                                                            I:
+                                                                              type: object
+                                                                              allOf:
+                                                                                - $ref: '#/components/schemas/I'
+                                                                                - type: object
+                                                                                  properties:
+                                                                                    J:
+                                                                                      type: object
+                                                                                      allOf:
+                                                                                        - $ref: '#/components/schemas/J'
+                                                                                        - type: object
+                                                                                          properties:
+                                                                                            K:
+                                                                                              type: object
+                                                                                              allOf:
+                                                                                                - $ref: '#/components/schemas/K'
+                                                                                                - type: object
+                                                                                                  properties:
+                                                                                                    L:
+                                                                                                      type: object
+                                                                                                      allOf:
+                                                                                                        - $ref: '#/components/schemas/L'
+                                                                                                        - type: object
+                                                                                                          properties:
+                                                                                                            M:
+                                                                                                              type: object
+                                                                                                              allOf:
+                                                                                                                - $ref: '#/components/schemas/M'
+                                                                                                                - type: object
+                                                                                                                  properties:
+                                                                                                                    N:
+                                                                                                                      type: object
+                                                                                                                      allOf:
+                                                                                                                        - $ref: '#/components/schemas/N'
+                                                                                                                        - type: object
+                                                                                                                          properties:
+                                                                                                                            O:
+                                                                                                                              type: object
+                                                                                                                              allOf:
+                                                                                                                                - $ref: '#/components/schemas/O'
+                                                                                                                                - type: object
+                                                                                                                                  properties:
+                                                                                                                                    P:
+                                                                                                                                      type: object
+                                                                                                                                      allOf:
+                                                                                                                                        - $ref: '#/components/schemas/P'
+                                                                                                                                        - type: object
+                                                                                                                                          properties:
+                                                                                                                                            Q:
+                                                                                                                                              type: object
+                                                                                                                                              allOf:
+                                                                                                                                                - $ref: '#/components/schemas/Q'
+                                                                                                                                                - type: object
+                                                                                                                                                  properties:
+                                                                                                                                                    R:
+                                                                                                                                                      type: object
+                                                                                                                                                      allOf:
+                                                                                                                                                        - $ref: '#/components/schemas/R'
+                                                                                                                                                        - type: object
+                                                                                                                                                          properties:
+                                                                                                                                                            S:
+                                                                                                                                                              type: object
+                                                                                                                                                              allOf:
+                                                                                                                                                                - $ref: '#/components/schemas/S'
+                                                                                                                                                                - type: object
+                                                                                                                                                                  properties:
+                                                                                                                                                                    T:
+                                                                                                                                                                      type: object
+                                                                                                                                                                      allOf:
+                                                                                                                                                                        - $ref: '#/components/schemas/T'
+                                                                                                                                                                        - type: object
+                                                                                                                                                                          properties:
+                                                                                                                                                                            U:
+                                                                                                                                                                              type: object
+                                                                                                                                                                              allOf:
+                                                                                                                                                                                - $ref: '#/components/schemas/U'
+                                                                                                                                                                                - type: object
+                                                                                                                                                                                  properties:
+                                                                                                                                                                                    V:
+                                                                                                                                                                                      type: object
+                                                                                                                                                                                      allOf:
+                                                                                                                                                                                        - $ref: '#/components/schemas/V'
+                                                                                                                                                                                        - type: object
+                                                                                                                                                                                          properties:
+                                                                                                                                                                                            W:
+                                                                                                                                                                                              type: object
+                                                                                                                                                                                              allOf:
+                                                                                                                                                                                                - $ref: '#/components/schemas/W'
+                                                                                                                                                                                                - type: object
+                                                                                                                                                                                                  properties:
+                                                                                                                                                                                                    X:
+                                                                                                                                                                                                      type: object
+                                                                                                                                                                                                      allOf:
+                                                                                                                                                                                                        - $ref: '#/components/schemas/X'
+                                                                                                                                                                                                        - type: object
+                                                                                                                                                                                                          properties:
+                                                                                                                                                                                                            Y:
+                                                                                                                                                                                                              type: object
+                                                                                                                                                                                                              allOf:
+                                                                                                                                                                                                                - $ref: '#/components/schemas/Y'
+                                                                                                                                                                                                                - type: object
+                                                                                                                                                                                                                  properties:
+                                                                                                                                                                                                                    Z:
+                                                                                                                                                                                                                      $ref: '#/components/schemas/Z'
+        # oneOf references: Either a direct reference to C or an inline object referencing D.
+        oneOfRefs:
+          oneOf:
+            - $ref: '#/components/schemas/C'
+            - type: object
+              properties:
+                D:
+                  $ref: '#/components/schemas/D'
+        # anyOf references: Either a direct reference to E or an inline object referencing A.
+        anyOfRefs:
+          anyOf:
+            - $ref: '#/components/schemas/E'
+            - type: object
+              properties:
+                A:
+                  $ref: '#/components/schemas/A'
+        # allOf references: Must satisfy both the reference to A and an inline object referencing B.
+        allOfRefs:
+          allOf:
+            - $ref: '#/components/schemas/A'
+            - type: object
+              properties:
+                B:
+                  $ref: '#/components/schemas/B'
+        # Array items references: Each item in the array is defined by a reference to U.
+        arrayRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/U'
+        # Extended chain references: A chain starting with V and then W, X, Y, Z.
+        chainRefsExtended:
+          type: object
+          properties:
+            V:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/V'
+                - type: object
+                  properties:
+                    W:
+                      type: object
+                      allOf:
+                        - $ref: '#/components/schemas/W'
+                        - type: object
+                          properties:
+                            X:
+                              type: object
+                              allOf:
+                                - $ref: '#/components/schemas/X'
+                                - type: object
+                                  properties:
+                                    Y:
+                                      type: object
+                                      allOf:
+                                        - $ref: '#/components/schemas/Y'
+                                        - type: object
+                                          properties:
+                                            Z:
+                                              $ref: '#/components/schemas/Z'
+        # Mixed complex: An object with an array of items that can be one of multiple options.
+        mixedComplex:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/M'
+                  - type: object
+                    properties:
+                      N:
+                        $ref: '#/components/schemas/N'
+    # Schema definitions in random order:
+    Q:
+      type: object
+      properties:
+        quantity:
+          type: integer
+    B:
+      type: object
+      properties:
+        id:
+          type: string
+    X:
+      type: object
+      properties:
+        xFactor:
+          type: string
+    U:
+      type: object
+      properties:
+        unit:
+          type: string
+    D:
+      type: object
+      properties:
+        description:
+          type: string
+    M:
+      type: object
+      properties:
+        meta:
+          type: string
+    G:
+      type: object
+      properties:
+        summary:
+          type: string
+    L:
+      type: object
+      properties:
+        label:
+          type: string
+    J:
+      type: object
+      properties:
+        code:
+          type: string
+    Z:
+      type: object
+      properties:
+        zone:
+          type: string
+    I:
+      type: object
+      properties:
+        data:
+          type: string
+    T:
+      type: object
+      properties:
+        time:
+          type: string
+    R:
+      type: object
+      properties:
+        rating:
+          type: number
+    O:
+      type: object
+      properties:
+        option:
+          type: string
+    A:
+      type: object
+      properties:
+        name:
+          type: string
+    H:
+      type: object
+      properties:
+        info:
+          type: string
+    K:
+      type: object
+      properties:
+        key:
+          type: string
+    E:
+      type: object
+      properties:
+        flag:
+          type: boolean
+    C:
+      type: object
+      properties:
+        value:
+          type: number
+    P:
+      type: object
+      properties:
+        price:
+          type: number
+    S:
+      type: object
+      properties:
+        status:
+          type: string
+    F:
+      type: object
+      properties:
+        title:
+          type: string
+    W:
+      type: object
+      properties:
+        weight:
+          type: number
+    Y:
+      type: object
+      properties:
+        yield:
+          type: string
+    N:
+      type: object
+      properties:
+        number:
+          type: integer
+    V:
+      type: object
+      properties:
+        volume:
+          type: number

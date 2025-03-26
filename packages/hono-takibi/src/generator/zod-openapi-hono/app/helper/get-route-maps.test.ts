@@ -1,7 +1,7 @@
 import type { OpenAPISpec } from '../../../../type'
 import { describe, expect, it } from 'vitest'
 import { getRouteMaps } from './get-route-maps'
-import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
+import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
 
 const getRouteMapsTestCases: {
   openAPISpec: OpenAPISpec

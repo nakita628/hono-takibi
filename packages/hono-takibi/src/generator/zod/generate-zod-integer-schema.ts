@@ -19,10 +19,8 @@ type GenerateZodIntegerSchemaParams = {
 
 /**
  * Generates a zod schema for an integer.
- *
- * @function generateZodIntegerSchema
- * @param args - The parameters to generate the zod schema.
- * @returns string - Generated Zod integer schema string
+ * @param { GenerateZodIntegerSchemaParams } args - The parameters to generate the zod schema.
+ * @returns { string } Generated Zod integer schema string
  */
 export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): string {
   const validations = ['z.number().int()']

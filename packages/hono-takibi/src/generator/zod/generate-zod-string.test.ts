@@ -8,8 +8,11 @@ const generateZodStringSchemaTestCases: {
     minLength?: number
     maxLength?: number
     format?: FormatString
+    nullable?: boolean
     default?: DefaultValue
     example?: ExampleValue
+    paramName?: string
+    isPath?: boolean
   }
   expected: string
 }[] = [
@@ -70,6 +73,12 @@ const generateZodStringSchemaTestCases: {
       default: 'test@example.com',
     },
     expected: `z.string().email().default("test@example.com")`,
+  },
+  {
+    args: {
+      nullable: true,
+    },
+    expected: 'z.string().nullable()',
   },
   {
     args: {

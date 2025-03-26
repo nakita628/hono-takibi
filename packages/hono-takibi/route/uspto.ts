@@ -21,6 +21,7 @@ export const getRoute = createRoute({
   tags: ['metadata'],
   method: 'get',
   path: '/',
+  operationId: 'list-data-sets',
   summary: 'List available data sets',
   responses: {
     200: {
@@ -34,6 +35,7 @@ export const getDatasetVersionFieldsRoute = createRoute({
   tags: ['metadata'],
   method: 'get',
   path: '/{dataset}/{version}/fields',
+  operationId: 'list-searchable-fields',
   summary:
     'Provides the general information about the API and the list of fields that can be used to query the dataset.',
   description:
@@ -57,6 +59,7 @@ export const postDatasetVersionRecordsRoute = createRoute({
   tags: ['search'],
   method: 'post',
   path: '/{dataset}/{version}/records',
+  operationId: 'perform-search',
   summary: 'Provides search capability for the data set with the given search criteria.',
   description:
     "This API is based on Solr/Lucene Search. The data is indexed using SOLR. This GET API returns the list of all the searchable field names that are in the Solr Index. Please see the 'fields' attribute which returns an array of field names. Each field or a combination of fields can be searched using the Solr/Lucene Syntax. Please refer https://lucene.apache.org/core/3_6_2/queryparsersyntax.html#Overview for the query syntax. List of field names that are searchable can be determined using above GET api.",

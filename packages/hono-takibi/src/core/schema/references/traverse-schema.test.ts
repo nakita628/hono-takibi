@@ -1,38 +1,40 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Schema } from '../../../type'
 import { traverseSchema } from './traverse-schema'
+import type { Schema } from '../../../type'
 
-describe('traverseSchema', () => {
+describe('traverseSchema - Simple A, B, C, D, E tests', () => {
   let refs: Set<string>
 
   beforeEach(() => {
     refs = new Set()
   })
 
-  it('should handle empty schema', () => {
-    const schema: Schema = {}
-    traverseSchema(schema, refs)
-    expect(refs.size).toBe(0)
-  })
-
-  it('should add reference to refs when schema contains $ref', () => {
+  // Normal
+  it('should collect A, B, C, D, E from a flat schema', () => {
     const schema: Schema = {
-      $ref: '#/components/schemas/User',
+      properties: {
+        refA: { $ref: '#/components/schemas/A' },
+        refB: { $ref: '#/components/schemas/B' },
+        refC: { $ref: '#/components/schemas/C' },
+        refD: { $ref: '#/components/schemas/D' },
+        refE: { $ref: '#/components/schemas/E' },
+      },
     }
 
     traverseSchema(schema, refs)
 
-    expect(refs.has('User')).toBe(true)
-    expect(refs.size).toBe(1)
+    expect(refs).toEqual(new Set(['A', 'B', 'C', 'D', 'E']))
   })
 
-  it('should collect all $refs from nested properties', () => {
+  // Nested
+  it('should collect A, B and E from nested properties', () => {
     const schema: Schema = {
       properties: {
-        user: { $ref: '#/components/schemas/User' },
-        address: {
+        group: {
           properties: {
-            country: { $ref: '#/components/schemas/Country' },
+            refA: { $ref: '#/components/schemas/A' },
+            refB: { $ref: '#/components/schemas/B' },
+            refE: { $ref: '#/components/schemas/E' },
           },
         },
       },
@@ -40,21 +42,56 @@ describe('traverseSchema', () => {
 
     traverseSchema(schema, refs)
 
-    expect(refs.has('User')).toBe(true)
-    expect(refs.has('Country')).toBe(true)
-    expect(refs.size).toBe(2)
+    expect(refs).toEqual(new Set(['A', 'B', 'E']))
   })
 
-  it('should collect $ref from array items', () => {
+  // Chain
+  it('should collect A, B, C, D, E from a nested chain', () => {
     const schema: Schema = {
-      items: {
-        $ref: '#/components/schemas/ListItem',
+      properties: {
+        A: {
+          $ref: '#/components/schemas/A',
+          properties: {
+            B: {
+              $ref: '#/components/schemas/B',
+              properties: {
+                C: {
+                  $ref: '#/components/schemas/C',
+                  properties: {
+                    D: {
+                      $ref: '#/components/schemas/D',
+                      properties: {
+                        E: { $ref: '#/components/schemas/E' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     }
 
     traverseSchema(schema, refs)
 
-    expect(refs.has('ListItem')).toBe(true)
-    expect(refs.size).toBe(1)
+    expect(refs).toEqual(new Set(['A', 'B', 'C', 'D', 'E']))
+  })
+
+  // Duplicate
+  it('should not add duplicate references, including E', () => {
+    const schema: Schema = {
+      properties: {
+        first: { $ref: '#/components/schemas/A' },
+        second: { $ref: '#/components/schemas/A' },
+        third: { $ref: '#/components/schemas/B' },
+        fourth: { $ref: '#/components/schemas/E' },
+        fifth: { $ref: '#/components/schemas/E' },
+      },
+    }
+
+    traverseSchema(schema, refs)
+
+    expect(refs).toEqual(new Set(['A', 'B', 'E']))
   })
 })

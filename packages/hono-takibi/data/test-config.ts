@@ -1,8 +1,8 @@
-import type { Config } from '../config'
+import type { Config } from '../src/config'
 
 export const DEFAULT_CONFIG: Config = {
   schema: {
-    name: 'camelCase',
+    name: 'PascalCase',
     export: false,
   },
   type: {

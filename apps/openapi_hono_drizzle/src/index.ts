@@ -40,9 +40,7 @@ export const api = app
   .openapi(putPostsIdRoute, putPostsIdRouteHandler)
   .openapi(deletePostsIdRoute, deletePostsIdRouteHandler)
 
-const isDev = process.env.NODE_ENV === 'development'
-
-if (isDev) {
+if (process.env.NODE_ENV === 'development') {
   app
     .doc('/doc', {
       openapi: '3.1.0',

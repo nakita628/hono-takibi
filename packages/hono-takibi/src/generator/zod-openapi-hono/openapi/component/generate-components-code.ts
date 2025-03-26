@@ -3,18 +3,14 @@ import type { Config } from '../../../../config'
 import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition'
 import { generateZod } from '../../../zod/generate-zod'
 import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
-import { generateSchemasExport } from './schema/generate-schemas-export'
-import { getVariableSchemaNameHelper } from '../../../../core/helper/get-variable-schema-name-helper'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
  * If no schemas are present, returns an empty string.
+ * @param { Components } components - OpenAPI components object containing schema definitions
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
  *
- * @function generateComponentsCode
- * @param components - OpenAPI components object containing schema definitions
- * @returns Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
- *
- * @note The function:
  * 1. Extracts schemas from components
  * 2. Resolves dependencies between schemas to determine correct generation order
  * 3. Returns empty string if no schemas are present
@@ -39,19 +35,12 @@ export function generateComponentsCode(components: Components, config: Config): 
     .map((schemaName) => {
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
-      // 4.2 get variable name
-      const variableName = getVariableSchemaNameHelper(schemaName, config)
-      // 4.3 generate zod schema
+      // 4.2 generate zod schema
       const zodSchema = generateZod(config, schema, undefined, undefined)
-      // 4.4 generate zod schema definition
-      return generateZodToOpenAPISchemaDefinition(variableName, zodSchema, schemaName)
+      // 4.3 generate zod schema definition
+      return generateZodToOpenAPISchemaDefinition(schemaName, zodSchema, config)
     })
     .join('\n\n')
-  // 5. generate export statement
-  const exports = generateSchemasExport(orderedSchemas, config)
-  // 6. final code assembly
-  if (config.schema.export) {
-    return `${schemaDefinitions}\n\n${exports}`
-  }
+  // 5. return code
   return schemaDefinitions
 }

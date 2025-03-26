@@ -3,44 +3,54 @@ import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
 /**
  * Resolves dependencies between schemas and returns them in topological order for safe processing
- *
- * @function resolveSchemasDependencies
- * @param schemas - Record mapping schema names to their Schema objects
- * @returns Array of schema names ordered by their dependencies
- *
+ * @param { Record<string, Schema> } schemas - Record mapping schema names to their Schema objects
+ * @returns { string[] } Array of schema names ordered by their dependencies
  * @example
- * const schemas = {
- *   User: {
+ * const schemas: Record<string, Schema> = {
+ *   A: {
  *     type: 'object',
  *     properties: {
- *       profile: { $ref: '#/components/schemas/Profile' },
- *       settings: { $ref: '#/components/schemas/Settings' }
- *     }
+ *       b: {
+ *         $ref: '#/components/schemas/B',
+ *       },
+ *       c: {
+ *         $ref: '#/components/schemas/C',
+ *       },
+ *     },
+ *     required: ['b', 'c'],
  *   },
- *   Profile: {
+ *   B: {
  *     type: 'object',
  *     properties: {
- *       address: { $ref: '#/components/schemas/Address' }
- *     }
- *   },
- *   Settings: {
- *     type: 'object',
- *     properties: {
- *       theme: { type: 'string' }
- *     }
- *   },
- *   Address: {
- *     type: 'object',
- *     properties: {
- *       street: { type: 'string' }
- *     }
+ *       id: {
+ *         type: 'string',
+ *         description: 'Identifier for schema B',
+ *       },
+ *       message: {
+ *         type: 'string',
+ *         description: 'Message from schema B',
+ *       },
+ *       required: ['id'],
+ *     },
+ *     C: {
+ *       type: 'object',
+ *       properties: {
+ *         count: {
+ *           type: 'integer',
+ *           description: 'Count value',
+ *         },
+ *         flag: {
+ *           type: 'boolean',
+ *           description: 'A boolean flag',
+ *         },
+ *       },
+ *     },
  *   }
  * }
  *
  * const orderedSchemas = resolveSchemasDependencies(schemas)
- * // Returns: ['Address', 'Profile', 'Settings', 'User']
+ * // Returns: ['B', 'C', 'A']
  *
- * @note
  * - Performs topological sorting of schemas based on their dependencies
  * - Ensures each schema appears after all its dependencies
  * - Handles multi-level dependency chains correctly
@@ -48,13 +58,11 @@ import { traverseSchemaDependencies } from './traverse-schema-dependencies'
  * - Uses depth-first search for dependency resolution
  * - Automatically handles circular dependencies by preventing infinite recursion
  */
-
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
   const visited = new Set<string>()
   const recursionStack = new Set<string>()
   const orderedSchemas: string[] = []
 
-  // Conduct visits for each schema
   for (const schemaName of Object.keys(schemas)) {
     if (!visited.has(schemaName)) {
       traverseSchemaDependencies(schemaName, schemas, visited, recursionStack, orderedSchemas)

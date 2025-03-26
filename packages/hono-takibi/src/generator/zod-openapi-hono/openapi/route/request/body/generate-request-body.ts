@@ -3,11 +3,10 @@ import type { Content } from '../../../../../../type'
 
 /**
  * Generates a request body configuration for OpenAPI schema
- *
- * @function generateRequestBody
- * @param required - Whether the request body is required
- * @param zodSchema - Zod schema string for request body validation
- * @returns string - Generated request body configuration string
+ * @param { boolean } required - Whether the request body is required
+ * @param { Content } content - Content of the request body
+ * @param { string } zodSchema - Zod schema string for request body validation
+ * @returns { string } Generated request body configuration string
  */
 export function generateRequestBody(
   required: boolean,

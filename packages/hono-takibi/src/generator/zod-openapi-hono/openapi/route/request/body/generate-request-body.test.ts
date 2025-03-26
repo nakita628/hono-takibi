@@ -1,6 +1,6 @@
-import type { Content } from '../../../../../../type'
 import { describe, expect, it } from 'vitest'
 import { generateRequestBody } from './generate-request-body'
+import type { Content } from '../../../../../../type'
 
 const generateRequestBodyTestCases: {
   required: boolean
@@ -107,7 +107,7 @@ const generateRequestBodyTestCases: {
   },
 ]
 
-describe('generateRequestBody', () => {
+describe('generateRequestBody valid cases', () => {
   it.concurrent.each(generateRequestBodyTestCases)(
     'generateRequestBody($required, $content, $schema) -> $expected',
     async ({ content, schema, required, expected }) => {
@@ -115,4 +115,28 @@ describe('generateRequestBody', () => {
       expect(result).toBe(expected)
     },
   )
+})
+
+describe('generateRequestBody edge cases', () => {
+  it.concurrent('should throw an error when content is null', () => {
+    // biome-ignore lint:
+    const content = null as any
+    const required = true
+    const schema = 'z.object({})'
+
+    expect(() => generateRequestBody(required, content, schema)).toThrow(
+      'Cannot convert undefined or null to object',
+    )
+  })
+
+  it.concurrent('should throw an error when content is undefined', () => {
+    // biome-ignore lint:
+    const content = undefined as any
+    const required = true
+    const schema = 'z.object({})'
+
+    expect(() => generateRequestBody(required, content, schema)).toThrow(
+      'Cannot convert undefined or null to object',
+    )
+  })
 })

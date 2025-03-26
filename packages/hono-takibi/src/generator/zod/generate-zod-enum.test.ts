@@ -84,7 +84,7 @@ describe('generateZodEnum valid cases', () => {
 
 describe('generateZodEnum edge cases', () => {
   it.concurrent('should throw an error when schema is null', () => {
-    // biome-ignore lint/suspicious/noExplicitAny:
+    // biome-ignore lint:
     const schema = null as any
     expect(() => generateZodEnum(schema)).toThrow('Cannot read properties of null')
   })
@@ -99,7 +99,7 @@ describe('generateZodEnum edge cases', () => {
   it.concurrent('should throw an error when enum is null', () => {
     const schema: Schema = {
       type: 'string',
-      // biome-ignore lint/suspicious/noExplicitAny:
+      // biome-ignore lint:
       enum: null as any,
     } as Schema
     expect(() => generateZodEnum(schema)).toThrow('enum is not found')

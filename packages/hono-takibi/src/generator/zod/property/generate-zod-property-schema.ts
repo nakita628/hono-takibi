@@ -1,10 +1,7 @@
 /**
  * Generates a Zod schema string for a given OpenAPI schema definition
- *
- * @function generatePropertySchema
- * @param schema - OpenAPI schema definition
- * @returns Generated Zod schema string
- *
+ * @param { Schema } schema - OpenAPI schema definition
+ * @returns { string } Generated Zod schema string
  * @example
  * // Reference type
  * generatePropertySchema({ $ref: '#/components/schemas/User' })

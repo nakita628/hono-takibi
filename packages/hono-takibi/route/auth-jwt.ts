@@ -41,7 +41,6 @@ const ProfileSchema = z
   .openapi('Profile')
 
 export const postAuthLoginRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/auth/login',
   summary: 'User Login',
@@ -60,7 +59,6 @@ export const postAuthLoginRoute = createRoute({
 })
 
 export const postAuthVerifyRoute = createRoute({
-  tags: [],
   method: 'post',
   path: '/auth/verify',
   summary: 'Verify Two-Factor Authentication Code',
@@ -79,7 +77,6 @@ export const postAuthVerifyRoute = createRoute({
 })
 
 export const getProfileRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/profile',
   summary: 'Get User Profile',

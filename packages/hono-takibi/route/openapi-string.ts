@@ -1,7 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getStringRoute = createRoute({
-  tags: [],
   method: 'get',
   path: '/string',
   summary: 'zod string',

@@ -1,10 +1,8 @@
 /**
  * Generate app route handler
- *
- * @function generateAppRouteHandler
- * @param routeName - Route name
- * @param handlerName - Handler name
- * @returns app route handler
+ * @param { string } routeName - Route name
+ * @param { string } handlerName - Handler name
+ * @returns { string } App route handler
  */
 export function generateAppRouteHandler(routeName: string, handlerName: string) {
   return `.openapi(${routeName},${handlerName})`

@@ -7,7 +7,12 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import fs from 'node:fs'
 import path from 'node:path'
 
-export async function viteMode(config: Config = getConfig()) {
+/**
+ * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
+ * @param { Config } config - Config
+ * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
+ */
+export async function viteMode(config: Config = getConfig()): Promise<boolean | undefined> {
   try {
     if (config.input) {
       const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPISpec

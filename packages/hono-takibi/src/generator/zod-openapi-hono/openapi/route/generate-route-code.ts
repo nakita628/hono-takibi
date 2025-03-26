@@ -1,17 +1,15 @@
 import type { OpenAPIPaths } from '../../../../type'
+import type { Config } from '../../../../config'
 import { isHttpMethod } from '../../../../core/validator/is-http-method'
 import { generateRoute } from './generate-route'
 import { isOperation } from '../../../../core/validator/is-operation'
-import type { Config } from '../../../../config'
 
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
+ * @param { OpenAPIPaths } openAPIPaths - OpenAPI paths object containing route definitions
+ * @param { Config } config - Config
+ * @returns { string } Generated TypeScript code string for all valid routes
  *
- * @function generateRouteCode
- * @param openAPIPaths - OpenAPI paths object containing route definitions
- * @returns Generated TypeScript code string for all valid routes
- *
- * @note
  * - Processes each path and HTTP method combination
  * - Validates HTTP methods and operation objects
  * - Skips invalid or unsupported route definitions
@@ -22,10 +20,8 @@ import type { Config } from '../../../../config'
  *   - Response schemas
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
- *
- * @returns string
  */
-export function generateRouteCode(openAPIPaths: OpenAPIPaths, config: Config) {
+export function generateRouteCode(openAPIPaths: OpenAPIPaths, config: Config): string {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
   for (const [path, pathItem] of Object.entries(openAPIPaths)) {

@@ -14,12 +14,12 @@ import { argv } from 'node:process'
 
 /**
  * CLI entry point for hono-takibi
- *
+ * @param { boolean } dev - Development mode
+ * @param { Config } config - Config
  * Usage:
  * ```
  * hono-takibi <input-file> [-o output-file]
  * ```
- *
  * @example
  * ```bash
  * # Global install
@@ -32,18 +32,24 @@ import { argv } from 'node:process'
  */
 export async function main(dev = false, config: Config = getConfig()) {
   // argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  if (config.output === undefined && !argv.includes('-o')) {
-    console.error('Usage: hono-takibi <input-file> [-o output-file]')
-    process.exit(1)
+  // set output
+  const { args, input, output } = setOutput(argv, config)
+  // export type
+  if (args.includes('--export-type')) {
+    config.type.export = true
   }
-  // slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  const args = process.argv.slice(2)
-  // input = 'example/pet-store.yaml'
-  const input = config.input ?? args[0]
-  config.input = input
-  // output = 'routes/petstore-index.ts'
-  const output = config.output ?? args[args.indexOf('-o') + 1]
-  config.output = output
+  // export schema
+  if (args.includes('--export-schema')) {
+    config.schema.export = true
+  }
+  // naming case type
+  if (args.includes('--naming-case-type')) {
+    setNamingCase(args, '--naming-case-type', config)
+  }
+  // naming case schema
+  if (args.includes('--naming-case-schema')) {
+    setNamingCase(args, '--naming-case-schema', config)
+  }
 
   try {
     // parse OpenAPI YAML or JSON
@@ -78,16 +84,12 @@ export async function main(dev = false, config: Config = getConfig()) {
     if (template === true && isSlash) {
       // Test
       const test = args.includes('-test')
-      // Environment file path
-      const envIndex = args.indexOf('--env')
-      const hasEnvEquals = envIndex !== -1 && args[envIndex + 1] === '='
-      const env = hasEnvEquals ? args[envIndex + 2] : undefined
       // Base path
       const basePathIndex = args.indexOf('--base-path')
       const hasBasePathEquals = basePathIndex !== -1 && args[basePathIndex + 1] === '='
       const basePath = hasBasePathEquals ? args[basePathIndex + 2] : undefined
       // generate app code
-      const appCode = generateApp(openAPI, config, env, basePath)
+      const appCode = generateApp(openAPI, config, basePath)
       // generate handler code
       await generateZodOpenapiHonoHandler(openAPI, config, test)
       // format app code
@@ -124,4 +126,55 @@ if (require.main === module) {
       process.exit(1)
     }
   })
+}
+
+/**
+ * Set the output of the config
+ * @param { string[] } argv - The CLI arguments
+ * @param { Config } config - The config
+ * @returns { { args: string[]; input: string; output: string } } The CLI arguments, input, and output
+ */
+function setOutput(
+  argv: string[],
+  config: Config,
+): { args: string[]; input: string; output: string } {
+  if (config.output === undefined && !argv.includes('-o')) {
+    console.error('Usage: hono-takibi <input-file> [-o output-file]')
+    process.exit(1)
+  }
+  // slice [ 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
+  const args = process.argv.slice(2)
+  // input = 'example/pet-store.yaml'
+  const input = config.input ?? args[0]
+  config.input = input
+  // output = 'routes/petstore-index.ts'
+  const output = config.output ?? args[args.indexOf('-o') + 1]
+  config.output = output
+  return {
+    args,
+    input,
+    output,
+  }
+}
+
+/**
+ * Set the naming case of the config
+ * @param { string[] } args - The CLI arguments
+ * @param { string } namingCase - The naming case
+ * @param { Config } config - The config
+ */
+function setNamingCase(args: string[], namingCase: string, config: Config) {
+  const VALID_NAMING_CASES = ['PascalCase', 'camelCase']
+  const name = args[args.indexOf(namingCase) + 1]
+  if (!(name && VALID_NAMING_CASES.includes(name))) {
+    console.error(
+      `Invalid value for --naming-case-type: "${name}". Valid options are: ${VALID_NAMING_CASES.join(', ')}`,
+    )
+    process.exit(1)
+  }
+  if (name === 'camelCase') {
+    config.schema.name = 'camelCase'
+  } else {
+    config.schema.name = 'PascalCase'
+  }
 }

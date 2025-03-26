@@ -2,11 +2,9 @@ import type { Config } from '../../../../config'
 
 /**
  * Generate import handlers
- *
- * @function generateImportHandlers
- * @param handlerImportsMap - Handler imports map
- * @param config - Config
- * @returns Import handlers
+ * @param { { [fileName: string]: string[] } } handlerImportsMap - Handler imports map
+ * @param { Config } config - Config
+ * @returns { string[] } Import handlers
  */
 export function generateImportHandlers(
   handlerImportsMap: { [fileName: string]: string[] },

@@ -1,10 +1,7 @@
 /**
  * Generate Zod min validation
- *
- * @function generateZodMin
- * @param min - Minimum value
- * @returns string - Generated Zod min validation string
- *
+ * @param { number } min - The minimum value
+ * @returns { string } Generated Zod min validation string
  * @example
  * generateZodMin(1) -> ".min(1)"
  * generateZodMin(10) -> ".min(10)"
