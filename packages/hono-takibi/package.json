@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "release": "npm pkg fix && npm publish"
+    "release": "npm pkg fix && pnpm build && npm publish"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
