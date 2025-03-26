@@ -20,9 +20,7 @@
     "website:deploy": "pnpm -F hono-takibi-website deploy"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4"
-  },
-  "dependencies": {
+    "@biomejs/biome": "^1.9.4",
     "typedoc": "^0.28.1"
   }
 }
