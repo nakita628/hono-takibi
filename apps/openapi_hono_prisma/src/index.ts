@@ -49,9 +49,7 @@ api.use('*', async (c, next) => {
   }
 })
 
-const isDev = process.env.NODE_ENV === 'development'
-
-if (isDev) {
+if (process.env.NODE_ENV === 'development') {
   // swagger
   app
     .doc('/doc', {
