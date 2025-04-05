@@ -18,7 +18,6 @@ import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/g
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
 import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code'
-import { Z_ASCII } from 'node:zlib'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
 
 /**
