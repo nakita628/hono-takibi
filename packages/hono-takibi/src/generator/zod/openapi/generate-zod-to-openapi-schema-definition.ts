@@ -26,13 +26,20 @@ export function generateZodToOpenAPISchemaDefinition(
   config: Config,
 ): string {
   const variableName = getVariableSchemaNameHelper(schemaName, config)
+  // "-" → "_"
+  const safeVariableName = variableName.replace(/[^a-zA-Z0-9_$]/g, '_')
+  // "-" → "_"
+  const safeSchemaName = schemaName.replace(/[^a-zA-Z0-9_$]/g, '_')
   // schema code
   const schemaCode = config.schema.export
-    ? `export const ${variableName} = ${zodSchema}.openapi('${schemaName}')`
-    : `const ${variableName} = ${zodSchema}.openapi('${schemaName}')`
+    ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
+    : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
   const typeVariableName = getVariableNameHelper(schemaName, config)
-  const zodInferCode = config.type.export ? generateZodInfer(typeVariableName, variableName) : ''
+  const safeTypeVariableName = typeVariableName.replace(/[^a-zA-Z0-9_$]/g, '_')
+  const zodInferCode = config.type.export
+    ? generateZodInfer(safeTypeVariableName, safeVariableName)
+    : ''
   // return code
   return `${schemaCode}\n\n${zodInferCode}`
 }
