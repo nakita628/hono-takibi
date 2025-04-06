@@ -65,11 +65,15 @@ export function generateZodNumber(args: GenerateZodNumberParams): string {
   }
   // nonpositive
   if (args.minimum === 0 && !args.exclusiveMinimum) {
-    validations.push('.nonpositive()')
+    if (!args.default) {
+      validations.push('.nonpositive()')
+    }
   }
   // negative
   if (args.maximum === 0 && args.exclusiveMaximum) {
-    validations.push('.negative()')
+    if (!args.default) {
+      validations.push('.negative()')
+    }
   }
   // gt
   if (args.minimum) {
