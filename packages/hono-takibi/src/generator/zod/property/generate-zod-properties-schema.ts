@@ -54,7 +54,9 @@ export function generateZodPropertiesSchema(
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const propertySchema = generatePropertySchema(schema, config)
-    return `${key}:${propertySchema}${isRequired ? '' : '.optional()'}`
+    // include "-"" "${key}"
+    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `"${key}"`
+    return `${safeKey}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
 
   // Check if all properties are optional
