@@ -68,7 +68,7 @@ const generateZodEnumTestCases: { schema: Schema; expected: string }[] = [
       type: 'string',
       enum: ['Point'],
     },
-    expected: 'z.enum(["Point"])',
+    expected: `z.literal('Point')`,
   },
 ]
 
