@@ -27,9 +27,8 @@ export function generateZodEnum(schema: Schema): string {
     if (schema.enum.length > 1) {
       const literals = schema.enum.map((value) => `z.literal(${value})`)
       return `z.union([${literals}])`
-    } else {
-      return `z.literal(${schema.enum[0]})`
     }
+    return `z.literal(${schema.enum[0]})`
   }
 
   // bigint
@@ -49,9 +48,8 @@ export function generateZodEnum(schema: Schema): string {
       if (Array.isArray(value)) {
         const tupleItems = value.map((item) => `z.literal(${item})`)
         return `z.tuple([${tupleItems}])`
-      } else {
-        return `z.literal(${value})`
       }
+      return `z.literal(${value})`
     })
     return `z.union([${unionParts}])`
   }
@@ -66,14 +64,13 @@ export function generateZodEnum(schema: Schema): string {
     const allStrings = schema.enum.every((v) => typeof v === 'string')
     if (allStrings) {
       return `z.enum(${JSON.stringify(schema.enum)})`
-    } else {
-      const unionLiterals = schema.enum.map((value) =>
-        value === null
-          ? 'z.null()'
-          : `z.literal(${typeof value === 'string' ? `'${value}'` : value})`,
-      )
-      return `z.union([${unionLiterals}])`
     }
+    const unionLiterals = schema.enum.map((value) =>
+      value === null
+        ? 'z.null()'
+        : `z.literal(${typeof value === 'string' ? `'${value}'` : value})`,
+    )
+    return `z.union([${unionLiterals}])`
   }
 
   return `z.literal(${typeof schema.enum[0] === 'string' ? `'${schema.enum[0]}'` : schema.enum[0]})`
