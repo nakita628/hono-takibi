@@ -164,7 +164,7 @@ const generateZodObjectTestCases: { schema: Schema; config: Config; expected: st
       },
     },
     config: DEFAULT_CONFIG,
-    expected: 'z.object({type:z.enum(["Point"]),coordinates:PositionSchema})',
+    expected: `z.object({type:z.literal('Point'),coordinates:PositionSchema})`,
   },
   {
     schema: {
