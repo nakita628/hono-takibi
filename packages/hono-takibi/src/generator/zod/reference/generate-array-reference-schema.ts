@@ -1,7 +1,8 @@
 import type { Config } from '../../../config'
+import type { Schema } from '../../../type'
+import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper'
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { getRefName } from '../../../core/schema/references/get-ref-name'
-import type { Schema } from '../../../type'
 import { generateZodArray } from '../generate-zod-array'
 
 /**
@@ -20,5 +21,7 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
   }
 
   const variableName = getVariableSchemaNameHelper(refName, config)
-  return generateZodArray(variableName)
+  const safeVariableName = getToSafeIdentifierHelper(variableName)
+
+  return generateZodArray(safeVariableName)
 }
