@@ -33,37 +33,6 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
 ```
 
-## CLI
-
-### Options
-
-basic
-
-```bash
-Options:
-  --export-schema      exports all schema definitions
-  --export-type        exports all type definitions
-  --naming-case-type   PascalCase or camelCase
-  --naming-case-schema PascalCase or camelCase
-```
-
-template
-
-> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
-
-```bash
-Options:
-  -template            generation of application and handler files
-  -test                automatic generation of test files
-  --base-path          base URL path for your API endpoints
-```
-
-### Example
-
-```bash
-npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath 'api'
-```
-
 ## Demo 
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
@@ -75,7 +44,11 @@ openapi: 3.1.0
 info:
   title: Hono API
   version: v1
-
+tags:
+  - name: Hono
+    description: Endpoints related to general Hono operations
+  - name: Post
+    description: Endpoints for creating, retrieving, updating, and deleting posts
 components:
   schemas:
     Error:
@@ -91,32 +64,21 @@ components:
         id:
           type: string
           format: uuid
-          description: Unique identifier of the post
         post:
           type: string
-          description: Content of the post
           minLength: 1
           maxLength: 140
         createdAt:
           type: string
           format: date-time
-          description: Timestamp when the post was created
         updatedAt:
           type: string
           format: date-time
-          description: Timestamp when the post was last updated
       required:
         - id
         - post
         - createdAt
         - updatedAt
-
-tags:
-  - name: Hono
-    description: Endpoints related to general Hono operations
-  - name: Post
-    description: Endpoints for creating, retrieving, updating, and deleting posts
-
 paths:
   /:
     get:
@@ -137,7 +99,6 @@ paths:
                     example: Hono🔥
                 required:
                   - message
-
   /posts:
     post:
       tags:
@@ -153,63 +114,52 @@ paths:
               properties:
                 post:
                   type: string
-                  description: Content of the post
                   minLength: 1
                   maxLength: 140
               required:
                 - post
-            example:
-              post: "This is my first post!"
       responses:
         '201':
           description: Post successfully created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                message: Created
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
         '400':
           description: Invalid request due to bad input.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Post content is required and must be between 1 and 140 characters.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
     get:
       tags:
         - Post
       summary: Retrieve a list of posts
-      description: Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
+      description: >-
+        Retrieve a paginated list of posts. Specify the page number and the
+        number of posts per page.
       parameters:
-        - in: query
+        - schema:
+            type: string
+          required: true
           name: page
+          in: query
+        - schema:
+            type: string
           required: true
-          schema:
-            type: integer
-            minimum: 0
-            default: 1
-            example: 1
-          description: The page number to retrieve. Must be a positive integer. Defaults to 1.
-        - in: query
           name: rows
-          required: true
-          schema:
-            type: integer
-            minimum: 0
-            default: 10
-            example: 10
-          description: The number of posts per page. Must be a positive integer. Defaults to 10.
+          in: query
       responses:
         '200':
           description: Successfully retrieved a list of posts.
@@ -219,28 +169,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-              example:
-                - id: "123e4567-e89b-12d3-a456-426614174000"
-                  post: "Hello world!"
-                  createdAt: "2024-12-01T12:34:56Z"
-                  updatedAt: "2024-12-02T14:20:00Z"
         '400':
           description: Invalid request due to bad input.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Invalid page or rows parameter. Both must be positive integers.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
   /posts/{id}:
     put:
       tags:
@@ -248,13 +188,12 @@ paths:
       summary: Update an existing post
       description: Update the content of an existing post identified by its unique ID.
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
+        - schema:
             type: string
             format: uuid
-          description: Unique identifier of the post.
+          required: true
+          name: id
+          in: path
       requestBody:
         required: true
         content:
@@ -264,13 +203,10 @@ paths:
               properties:
                 post:
                   type: string
-                  description: Updated content for the post
                   minLength: 1
                   maxLength: 140
               required:
                 - post
-            example:
-              post: "Updated post content."
       responses:
         '204':
           description: Post successfully updated.
@@ -280,31 +216,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Post content is required and must be between 1 and 140 characters.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
     delete:
       tags:
         - Post
       summary: Delete a post
       description: Delete an existing post identified by its unique ID.
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
+        - schema:
             type: string
             format: uuid
             example: 123e4567-e89b-12d3-a456-426614174000
-          description: Unique identifier of the post.
+          required: true
+          name: id
+          in: path
       responses:
         '204':
           description: Post successfully deleted.
@@ -314,16 +244,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Invalid post ID.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
 ```
 
 output:
@@ -331,9 +257,9 @@ output:
 ```ts
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
+const errorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const PostSchema = z
+const postSchema = z
   .object({
     id: z.string().uuid(),
     post: z.string().min(1).max(140),
@@ -375,15 +301,15 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -395,24 +321,19 @@ export const getPostsRoute = createRoute({
   summary: 'Retrieve a list of posts',
   description:
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
-  request: {
-    query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
-    }),
-  },
+  request: { query: z.object({ page: z.string(), rows: z.string() }) },
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(PostSchema) } },
+      content: { 'application/json': { schema: z.array(postSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -434,11 +355,11 @@ export const putPostsIdRoute = createRoute({
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -464,14 +385,45 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
+```
+
+## CLI
+
+### Options
+
+basic
+
+```bash
+Options:
+  --export-schema      exports all schema definitions
+  --export-type        exports all type definitions
+  --naming-case-type   PascalCase or camelCase
+  --naming-case-schema PascalCase or camelCase
+```
+
+template
+
+> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+
+```bash
+Options:
+  -template            generation of application and handler files
+  -test                automatic generation of test files
+  --base-path          base URL path for your API endpoints
+```
+
+### Example
+
+```bash
+npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath 'api'
 ```
 
 ## Configuration
