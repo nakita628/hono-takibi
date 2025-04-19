@@ -64,12 +64,7 @@ export const getPostsRoute = createRoute({
   summary: 'Retrieve a list of posts',
   description:
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
-  request: {
-    query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
-    }),
-  },
+  request: { query: z.object({ page: z.string(), rows: z.string() }) },
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
