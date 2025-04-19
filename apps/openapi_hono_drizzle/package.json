@@ -1,5 +1,5 @@
 {
-  "name": "@apps/openapi_hono_vite",
+  "name": "@apps/openapi_hono_drizzle",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "takibi_vite": "vite --host",

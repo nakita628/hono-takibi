@@ -1,5 +1,5 @@
 {
-  "name": "openapi_hono",
+  "name": "@apps/openapi_hono_prisma",
   "private": true,
   "type": "module",
   "scripts": {
