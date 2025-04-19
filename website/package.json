@@ -2,7 +2,7 @@
   "name": "hono-takibi-website",
   "private": true,
   "scripts": {
-    "deps": "rm -rf node_modules && pnpm install",
+    "deps": "rm -rf node_modules && npm install",
     "dev": "vitepress dev --host",
     "build": "vitepress build",
     "preview": "vitepress preview"

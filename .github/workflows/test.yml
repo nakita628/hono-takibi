@@ -10,30 +10,29 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '18.x', '20.x', '22.x' ]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          node-version: ${{ matrix.node }}
 
       - name: Install Dependencies
-        run: pnpm -F hono-takibi deps
+        run: npm -w hono-takibi deps
 
       - name: Lint
-        run: pnpm lint
+        run: npm run lint
       
       - name: Typecheck
-        run: pnpm -F hono-takibi typecheck
+        run: npm run -w hono-takibi typecheck
 
       - name: Build
-        run: pnpm -F hono-takibi build
+        run: npm run -w hono-takibi build
 
       - name: Run Coverage
-        run: pnpm -F hono-takibi coverage
+        run: npm run -w hono-takibi coverage
 
       

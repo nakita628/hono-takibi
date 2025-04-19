@@ -1,5 +1,6 @@
 {
   "name": "hono-takibi",
+  "type": "module",
   "description": "Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.",
   "version": "0.6.3",
   "license": "MIT",
@@ -29,14 +30,14 @@
     }
   },
   "scripts": {
-    "takibis": "pnpm build && tsx index.ts",
+    "takibis": "npm run build && tsx index.ts",
     "dev": "vite --host",
-    "deps": "rm -rf node_modules && pnpm install",
+    "deps": "rm -rf node_modules && npm install",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "release": "npm pkg fix && pnpm build && npm publish"
+    "release": "npm pkg fix && npm run build && npm publish"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
