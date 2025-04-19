@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
+const errorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const PostSchema = z
+const postSchema = z
   .object({
     id: z.string().uuid(),
     post: z.string().min(1).max(140),
@@ -44,15 +44,15 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -73,15 +73,15 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(PostSchema) } },
+      content: { 'application/json': { schema: z.array(postSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -103,11 +103,11 @@ export const putPostsIdRoute = createRoute({
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })
@@ -133,11 +133,11 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: errorSchema } },
     },
   },
 })

@@ -44,7 +44,7 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
