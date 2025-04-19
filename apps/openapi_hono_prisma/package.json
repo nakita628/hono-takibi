@@ -22,7 +22,7 @@
     "@scalar/hono-api-reference": "^0.5.165",
     "@types/node": "^20.11.17",
     "@vitest/coverage-v8": "^2.1.8",
-    "hono-takibi": "^0.2.2",
+    "hono-takibi": "^0.6.3",
     "prisma": "^6.0.1",
     "tsx": "^4.7.1",
     "vitest": "^2.1.8"
