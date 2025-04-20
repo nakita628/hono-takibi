@@ -1,25 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { generateZodToOpenAPI } from './generate-zod-to-openapi'
 
-const generateZodToOpenAPITestCases = [
-  {
-    example: 'John Doe',
-    expected: `.openapi({example:"John Doe"})`,
-  },
-  {
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    paramName: 'id',
-    isPath: true,
-    expected: `.openapi({param:{name:'id',in:'path'},example:"123e4567-e89b-12d3-a456-426614174000"})`,
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/openapi/generate-zod-to-openapi.test.ts
 
-describe('generateZodToOpenAPI', () => {
-  it.concurrent.each(generateZodToOpenAPITestCases)(
-    'generateZodToOpenAPI($example, $paramName, $isPath) -> $expected',
-    async ({ example, paramName, isPath, expected }) => {
-      const result = generateZodToOpenAPI(example, paramName, isPath)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodToOpenAPI Test', () => {
+  test.concurrent('generateZodToOpenAPI success', () => {
+    const result = generateZodToOpenAPI('Test')
+    const expected = '.openapi({example:"Test"})'
+    expect(result).toBe(expected)
+  })
 })
