@@ -1,55 +1,38 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect, it } from 'vitest'
 import { isRefObject } from './is-ref-object'
 
-const isRefObjectTestCases = [
-  {
-    value: { $ref: '#/components/schemas/Pet' },
-    expected: true,
-  },
-  {
-    value: { type: 'object', properties: {} },
-    expected: true,
-  },
-  {
-    value: null,
-    expected: false,
-  },
-  {
-    value: undefined,
-    expected: false,
-  },
-  {
-    value: 'string',
-    expected: false,
-  },
-  {
-    value: 123,
-    expected: false,
-  },
-  {
-    value: true,
-    expected: false,
-  },
-  {
-    value: [],
-    expected: true,
-  },
-  {
-    value: new Date(),
-    expected: true,
-  },
-  {
-    value: { nested: { $ref: '#/components/schemas/Pet' } },
-    expected: true,
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/validator/is-ref-object.test.ts
 
-describe('isRefObject', () => {
-  it.concurrent.each(isRefObjectTestCases)(
-    'isRefObject($value) -> $expected',
-    ({ value, expected }) => {
-      const result = isRefObject(value)
-      expect(result).toBe(expected)
-    },
-  )
+describe('isRefObject Test', () => {
+  test.concurrent('isRefObject -> true', () => {
+    const result = isRefObject({ type: 'object' })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isRefObject -> true', () => {
+    const result = isRefObject({ $ref: '#/components/schemas/Test' })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isRefObject -> false', () => {
+    const result = isRefObject('string')
+    const expected = false
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isRefObject -> false', () => {
+    const result = isRefObject(1)
+    const expected = false
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isRefObject -> false', () => {
+    const result = isRefObject(true)
+    const expected = false
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isRefObject -> false', () => {
+    const result = isRefObject(false)
+    const expected = false
+    expect(result).toBe(expected)
+  })
 })

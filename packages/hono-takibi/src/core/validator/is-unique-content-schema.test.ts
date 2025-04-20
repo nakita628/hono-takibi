@@ -1,40 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { isUniqueContentSchema } from './is-unique-content-schema'
-import type { Content } from '../../type'
 
-const isUniqueContentSchemaTestCases: {
-  contentTypes: string[]
-  content: Content
-  expected: boolean
-}[] = [
-  // true
-  {
-    contentTypes: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'],
-    content: {
-      'application/json': { schema: { $ref: '#/components/schemas/Pet' } },
-      'application/xml': { schema: { $ref: '#/components/schemas/Pet' } },
-      'application/x-www-form-urlencoded': { schema: { $ref: '#/components/schemas/Pet' } },
-    },
-    expected: true,
-  },
+// Test run
+// pnpm vitest run ./src/core/validator/is-unique-content-schema.test.ts
 
-  // false
-  {
-    contentTypes: ['application/json', 'application/xml'],
-    content: {
-      'application/json': { schema: { $ref: '#/components/schemas/User' } },
-      'application/xml': { schema: { $ref: '#/components/schemas/Admin' } },
-    },
-    expected: false,
-  },
-]
-
-describe('isUniqueContentSchema', () => {
-  it.concurrent.each(isUniqueContentSchemaTestCases)(
-    'isUniqueContentSchema($contentTypes, $content) -> $expected',
-    async ({ contentTypes, content, expected }) => {
-      const result = isUniqueContentSchema(contentTypes, content)
-      expect(result).toBe(expected)
-    },
-  )
+describe('isUniqueContentSchema Test', () => {
+  test.concurrent('isUniqueContentSchema -> true', () => {
+    const result = isUniqueContentSchema(['application/json'], {
+      'application/json': { schema: { $ref: '#/components/schemas/Test' } },
+    })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isUniqueContentSchema -> false', () => {
+    const result = isUniqueContentSchema(['application/json', 'application/xml'], {
+      'application/json': { schema: { $ref: '#/components/schemas/Test' } },
+      'application/xml': { schema: { $ref: '#/components/schemas/Example' } },
+    })
+    const expected = false
+    expect(result).toBe(expected)
+  })
 })

@@ -1,71 +1,21 @@
-import { describe, expect, it } from 'vitest'
-import type { Operation } from '../../type'
+import { describe, test, expect } from 'vitest'
 import { isOperation } from './is-operation'
 
-const isOperationTestCases: { obj: Operation; expected: boolean }[] = [
-  {
-    obj: {
-      tags: ['products'],
-      summary: 'List all products',
-      description: 'Retrieve a list of all products available in the store.',
-      operationId: 'listProducts',
-      parameters: [
-        {
-          name: 'category',
-          in: 'query',
-          description: 'Filter products by category',
-          required: false,
-          schema: {
-            type: 'string',
-          },
-        },
-        {
-          name: 'priceMin',
-          in: 'query',
-          description: 'Minimum price filter',
-          required: false,
-          schema: {
-            type: 'number',
-            format: 'float',
-          },
-        },
-        {
-          name: 'priceMax',
-          in: 'query',
-          description: 'Maximum price filter',
-          required: false,
-          schema: {
-            type: 'number',
-            format: 'float',
-          },
-        },
-      ],
-      responses: {
-        '200': {
-          description: 'A list of products',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'array',
-                items: {
-                  $ref: '#/components/schemas/Product',
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    expected: true,
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/validator/is-operation.test.ts
 
-describe('isOperation', () => {
-  it.concurrent.each(isOperationTestCases)(
-    'isOperation($object) -> $expected',
-    async ({ obj, expected }) => {
-      const result = isOperation(obj)
-      expect(result).toBe(expected)
-    },
-  )
+describe('isOperation Test', () => {
+  test.concurrent('isOperation -> true', () => {
+    const result = isOperation({
+      responses: {},
+    })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isOperation -> false', () => {
+    // biome-ignore lint:
+    const result = isOperation('test' as any)
+    const expected = false
+    expect(result).toBe(expected)
+  })
 })

@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { isFormatString } from './is-format-string'
 import type { FormatString } from '../../type'
 
+// Test run
+// pnpm vitest run ./src/core/validator/is-format-string.test.ts
+
 const isFormatStringTestCases: { format: FormatString; expected: boolean }[] = [
   { format: 'email', expected: true },
   { format: 'uri', expected: true },
@@ -20,9 +23,11 @@ const isFormatStringTestCases: { format: FormatString; expected: boolean }[] = [
   { format: 'time', expected: true },
   { format: 'duration', expected: true },
   { format: 'base64', expected: true },
+  // biome-ignore lint:
+  { format: 'string' as any, expected: false },
 ]
 
-describe('isFormatString', () => {
+describe('isFormatString Test', () => {
   it.concurrent.each(isFormatStringTestCases)(
     'isFormatString($format) -> $expected',
     async ({ format, expected }) => {

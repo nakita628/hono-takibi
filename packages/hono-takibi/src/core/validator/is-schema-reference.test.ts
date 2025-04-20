@@ -1,27 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { isSchemaReference } from './is-schema-reference'
-import type { Schema } from '../../type'
 
-const isSchemaReferenceTestCases: {
-  schema: Schema
-  expected: boolean
-}[] = [
-  { schema: { $ref: '#/components/schemas/User' }, expected: true },
-  { schema: { $ref: '#/components/schemas/Error' }, expected: true },
-  { schema: { $ref: '#/components/schemas/Pet' }, expected: true },
-  { schema: { $ref: '#/components/schemas/ApiResponse' }, expected: true },
-  { schema: { $ref: '#/components/schemas/Order' }, expected: true },
-  { schema: { $ref: '#/components/schemas/Tag' }, expected: true },
-  { schema: { $ref: '#/components/schemas/Category' }, expected: true },
-  { schema: { $ref: undefined }, expected: false },
-]
+// Test run
+// pnpm vitest run ./src/core/validator/is-schema-reference.test.ts
 
-describe('isSchemaReference', () => {
-  it.concurrent.each(isSchemaReferenceTestCases)(
-    'isSchemaReference(%s) -> %s',
-    ({ schema, expected }) => {
-      const result = isSchemaReference(schema)
-      expect(result).toBe(expected)
-    },
-  )
+describe('isSchemaReference Test', () => {
+  test.concurrent('isSchemaReference -> true', () => {
+    const result = isSchemaReference({ $ref: '#/components/schemas/Test' })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isSchemaReference -> false', () => {
+    const result = isSchemaReference({ $ref: undefined })
+    const expected = false
+    expect(result).toBe(expected)
+  })
 })

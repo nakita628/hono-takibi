@@ -2,8 +2,8 @@ import type { Operation } from '../../type'
 
 /**
  * Check if an object is an Operation
- * @param {Operation} obj - The object to check
- * @returns {boolean} True if the object is an Operation, with type narrowing support
+ * @param { Operation } obj - The object to check
+ * @returns { boolean } True if the object is an Operation, with type narrowing support
  *
  * Consider using `unknown` type instead of `Operation` for better type guarding:
  * ```typescript
