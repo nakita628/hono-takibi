@@ -5,7 +5,7 @@ import { formatCode } from './index'
 // pnpm vitest run ./src/format/index.test.ts
 
 describe('formatCode Test', () => {
-  test('code format output', async ()=> {
+  test('code format output', async () => {
     const result = await formatCode('const takibi="hono-takibi";')
     const expected = `const takibi = 'hono-takibi'
 `
