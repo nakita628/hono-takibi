@@ -1,19 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { stripMinIfgTExistHelper } from './strip-min-if-gt-exist-helper'
 
-const stripMinIfgTExistHelperTestCases = [
-  {
-    str: 'z.number().min(1).gt(1)',
-    minimum: 1,
-    expected: 'z.number().gt(1)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/helper/strip-min-if-gt-exist-helper.test.ts
 
 describe('stripMinIfgTExistHelper', () => {
-  it.concurrent.each(stripMinIfgTExistHelperTestCases)(
-    'stripMinIfgTExistHelper(%s, %s) -> %s',
-    ({ str, minimum, expected }) => {
-      expect(stripMinIfgTExistHelper(str, minimum)).toBe(expected)
+  test.concurrent(
+    `stripMinIfgTExistHelper('z.number().min(1).gt(1)', 1) -> 'z.number().gt(1)'`,
+    () => {
+      const result = stripMinIfgTExistHelper('z.number().min(1).gt(1)', 1)
+      const expected = 'z.number().gt(1)'
+      expect(result).toBe(expected)
     },
   )
 })
