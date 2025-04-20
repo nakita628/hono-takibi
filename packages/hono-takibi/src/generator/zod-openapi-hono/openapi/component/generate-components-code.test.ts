@@ -163,8 +163,8 @@ export type test = z.infer<typeof TestSchema>`
   test('schema name camelCase export true type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
-      type: { name: 'PascalCase', export: true }
-    },)
+      type: { name: 'PascalCase', export: true },
+    })
 
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -180,8 +180,8 @@ export type Test = z.infer<typeof testSchema>`
   test('schema name camelCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
-      type: { name: 'PascalCase', export: false }
-    },)
+      type: { name: 'PascalCase', export: false },
+    })
 
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -197,8 +197,8 @@ export type Test = z.infer<typeof testSchema>`
   test('schema name camelCase export true type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
-      type: { name: 'camelCase', export: true }
-    },)
+      type: { name: 'camelCase', export: true },
+    })
 
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -214,8 +214,8 @@ export type test = z.infer<typeof testSchema>`
   test('schema name camelCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
-      type: { name: 'camelCase', export: false }
-    },)
+      type: { name: 'camelCase', export: false },
+    })
 
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -231,8 +231,8 @@ export type test = z.infer<typeof testSchema>`
   test('schema name camelCase export false type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
-      type: { name: 'PascalCase', export: true }
-    },)
+      type: { name: 'PascalCase', export: true },
+    })
 
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -249,8 +249,8 @@ export type Test = z.infer<typeof testSchema>`
   test('schema name camelCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
-      type: { name: 'PascalCase', export: false }
-    },)
+      type: { name: 'PascalCase', export: false },
+    })
 
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -266,8 +266,8 @@ export type Test = z.infer<typeof testSchema>`
   test('schema name camelCase export false type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
-      type: { name: 'camelCase', export: true }
-    },)
+      type: { name: 'camelCase', export: true },
+    })
 
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
@@ -283,7 +283,7 @@ export type test = z.infer<typeof testSchema>`
   test('schema name camelCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
-      type: { name: 'camelCase', export: false }
+      type: { name: 'camelCase', export: false },
     })
 
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
@@ -292,6 +292,25 @@ export type test = z.infer<typeof testSchema>`
 
     expect(result).toBe(expected)
   })
+  // 17
+  // schema empty
+  test(`schema empty -> ''`, () => {
+    const result = generateComponentsCode(
+      {},
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
 
+    const expected = ''
 
+    expect(result).toBe(expected)
+  })
 })
