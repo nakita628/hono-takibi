@@ -1,24 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect, it } from 'vitest'
 import { getRefName } from './get-ref-name'
 
-const getRefNameTestCases = [
-  {
-    ref: '#/components/schemas/Address',
-    expected: 'Address',
-  },
-  {
-    ref: '#/components/schemas/Tag',
-    expected: 'Tag',
-  },
-  {
-    ref: '#/components/schemas/Pet',
-    expected: 'Pet',
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/schema/references/get-ref-name.test.ts
 
-describe('getRefName', () => {
-  it.concurrent.each(getRefNameTestCases)('getRefName($ref) -> $expected', ({ ref, expected }) => {
-    const result = getRefName(ref)
+describe('getRefName Test', () => {
+  test.concurrent(`getRefName('#/components/schemas/Test') -> 'Test'`, () => {
+    const result = getRefName('#/components/schemas/Test')
+    const expected = 'Test'
     expect(result).toBe(expected)
   })
 })

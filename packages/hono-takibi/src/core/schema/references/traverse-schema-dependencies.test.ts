@@ -1,153 +1,188 @@
-import { describe, expect, it, vi } from 'vitest'
-import type { Schema } from '../../../type'
+import { describe, test, expect, vi } from 'vitest'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
-describe('traverseSchemaDependencies', () => {
-  it('should handle single schema with no dependencies', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-        },
-      },
-    }
+// Test run
+// pnpm vitest run ./src/core/schema/references/traverse-schema-dependencies.test.ts
+
+describe('traverseSchemaDependencies Test', () => {
+  test.concurrent('should handle single schema with no dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
 
-    traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas)
+    traverseSchemaDependencies(
+      'Test',
+      {
+        Test: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      },
+      visited,
+      recursionStack,
+      orderedSchemas,
+    )
 
-    expect(orderedSchemas).toEqual(['User'])
-    expect(visited.has('User')).toBe(true)
+    expect(orderedSchemas).toStrictEqual(['Test'])
+    expect(visited.has('Test')).toBe(true)
     expect(recursionStack.size).toBe(0)
   })
 
-  it('should handle simple dependency chain', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          profile: { $ref: '#/components/schemas/Profile' },
-        },
-      },
-      Profile: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-        },
-      },
-    }
+  test.concurrent('should handle simple dependency chain', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
 
-    traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas)
+    traverseSchemaDependencies(
+      'Test',
+      {
+        Test: {
+          type: 'object',
+          properties: {
+            example: { $ref: '#/components/schemas/Example' },
+          },
+        },
+        Example: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      },
+      visited,
+      recursionStack,
+      orderedSchemas,
+    )
 
-    expect(orderedSchemas).toEqual(['Profile', 'User'])
-    expect(visited.has('User')).toBe(true)
-    expect(visited.has('Profile')).toBe(true)
+    expect(orderedSchemas).toStrictEqual(['Example', 'Test'])
+    expect(visited.has('Test')).toBe(true)
+    expect(visited.has('Example')).toBe(true)
     expect(recursionStack.size).toBe(0)
   })
 
-  it('should handle multiple levels of dependencies', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          profile: { $ref: '#/components/schemas/Profile' },
-        },
-      },
-      Profile: {
-        type: 'object',
-        properties: {
-          address: { $ref: '#/components/schemas/Address' },
-        },
-      },
-      Address: {
-        type: 'object',
-        properties: {
-          street: { type: 'string' },
-        },
-      },
-    }
+  test.concurrent('should handle multiple levels of dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
 
-    traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas)
+    traverseSchemaDependencies(
+      'Test',
+      {
+        Test: {
+          type: 'object',
+          properties: {
+            example: { $ref: '#/components/schemas/Example' },
+          },
+        },
+        Example: {
+          type: 'object',
+          properties: {
+            sample: { $ref: '#/components/schemas/Sample' },
+          },
+        },
+        Sample: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+        },
+      },
+      visited,
+      recursionStack,
+      orderedSchemas,
+    )
 
-    expect(orderedSchemas).toEqual(['Address', 'Profile', 'User'])
+    expect(orderedSchemas).toStrictEqual(['Sample', 'Example', 'Test'])
+    expect(visited.has('Test')).toBe(true)
+    expect(visited.has('Example')).toBe(true)
+    expect(visited.has('Sample')).toBe(true)
     expect(recursionStack.size).toBe(0)
   })
 
-  it('should detect circular dependencies', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          profile: { $ref: '#/components/schemas/Profile' },
-        },
-      },
-      Profile: {
-        type: 'object',
-        properties: {
-          user: { $ref: '#/components/schemas/User' },
-        },
-      },
-    }
+  test.concurrent('should detect circular dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
 
     expect(() =>
-      traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas),
-    ).toThrow('Circular dependency detected in schema: User')
+      traverseSchemaDependencies(
+        'Test',
+        {
+          Test: {
+            type: 'object',
+            properties: {
+              example: { $ref: '#/components/schemas/Example' },
+            },
+          },
+          Example: {
+            type: 'object',
+            properties: {
+              test: { $ref: '#/components/schemas/Test' },
+            },
+          },
+        },
+        visited,
+        recursionStack,
+        orderedSchemas,
+      ),
+    ).toThrow('Circular dependency detected in schema: Test')
   })
 
-  it('should handle missing schema references', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          profile: { $ref: '#/components/schemas/NonExistentSchema' },
-        },
-      },
-    }
+  test.concurrent('should handle missing schema references', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
     const consoleSpy = vi.spyOn(console, 'warn')
 
-    traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas)
+    traverseSchemaDependencies(
+      'Test',
+      {
+        Test: {
+          type: 'object',
+          properties: {
+            profile: { $ref: '#/components/schemas/Example' },
+          },
+        },
+      },
+      visited,
+      recursionStack,
+      orderedSchemas,
+    )
 
-    expect(consoleSpy).toHaveBeenCalledWith('Schema reference not found: NonExistentSchema')
-    expect(orderedSchemas).toEqual(['User'])
+    expect(consoleSpy).toHaveBeenCalledWith('Schema reference not found: Example')
+    expect(orderedSchemas).toStrictEqual(['Test'])
     consoleSpy.mockRestore()
   })
 
-  it('should handle already visited schemas', () => {
-    const schemas: Record<string, Schema> = {
-      User: {
-        type: 'object',
-        properties: {
-          profile: { $ref: '#/components/schemas/Profile' },
-        },
-      },
-      Profile: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-        },
-      },
-    }
-    const visited = new Set<string>(['Profile'])
+  test.concurrent('should handle already visited schemas', () => {
+    const visited = new Set<string>(['Example'])
     const recursionStack = new Set<string>()
-    const orderedSchemas: string[] = ['Profile']
+    const orderedSchemas: string[] = ['Example']
 
-    traverseSchemaDependencies('User', schemas, visited, recursionStack, orderedSchemas)
+    traverseSchemaDependencies(
+      'Test',
+      {
+        Test: {
+          type: 'object',
+          properties: {
+            example: { $ref: '#/components/schemas/Example' },
+          },
+        },
+        Example: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      },
+      visited,
+      recursionStack,
+      orderedSchemas,
+    )
 
-    expect(orderedSchemas).toEqual(['Profile', 'User'])
+    expect(orderedSchemas).toEqual(['Example', 'Test'])
     expect(recursionStack.size).toBe(0)
   })
 })
