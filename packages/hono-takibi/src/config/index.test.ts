@@ -5,7 +5,7 @@ import { getConfig } from './index'
 // pnpm vitest run ./src/config/index.test.ts
 
 describe('getConfig Test', () => {
-  test('getConfig', () => {
+  test.concurrent('getConfig', () => {
     const result = getConfig()
 
     const expected = {

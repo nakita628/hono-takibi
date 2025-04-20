@@ -1,48 +1,68 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getVariableNameHelper } from './get-variable-name-helper'
-import type { Config } from '../../config'
 
-const camelCaseConfig: Config = {
-  schema: {
-    name: 'camelCase',
-    export: false,
-  },
-  type: {
-    name: 'camelCase',
-    export: true,
-  },
-}
+// Test run
+// pnpm vitest run ./src/core/helper/get-variable-name-helper.test.ts
 
-const pascalCaseConfig: Config = {
-  schema: {
-    name: 'PascalCase',
-    export: false,
-  },
-  type: {
-    name: 'PascalCase',
-    export: true,
-  },
-}
+describe('getVariableNameHelper Test', () => {
+  test.concurrent('getVariableNameHelper test return Test', () => {
+    const result = getVariableNameHelper('test', {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    })
 
-const getVariableNameHelperTestCases = [
-  {
-    name: 'Order',
-    config: camelCaseConfig,
-    expected: 'order',
-  },
-  {
-    name: 'Order',
-    config: pascalCaseConfig,
-    expected: 'Order',
-  },
-]
+    const expected = 'Test'
+    expect(result).toBe(expected)
+  })
+  test.concurrent('getVariableNameHelper test return test', () => {
+    const result = getVariableNameHelper('test', {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'camelCase',
+        export: false,
+      },
+    })
 
-describe('getVariableNameHelper', () => {
-  it.concurrent.each(getVariableNameHelperTestCases)(
-    'getVariableNameHelper($name, $config) -> $expected',
-    ({ name, config, expected }) => {
-      const result = getVariableNameHelper(name, config)
-      expect(result).toBe(expected)
-    },
-  )
+    const expected = 'test'
+    expect(result).toBe(expected)
+  })
+  test.concurrent('getVariableNameHelper Test return Test', () => {
+    const result = getVariableNameHelper('Test', {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    })
+
+    const expected = 'Test'
+    expect(result).toBe(expected)
+  })
+  test.concurrent('getVariableNameHelper Test return test', () => {
+    const result = getVariableNameHelper('Test', {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'camelCase',
+        export: false,
+      },
+    })
+
+    const expected = 'test'
+    expect(result).toBe(expected)
+  })
 })
