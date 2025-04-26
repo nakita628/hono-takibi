@@ -1,5 +1,5 @@
-import type { Schema } from '../../../types'
-import { isRefObject } from '../../validator/is-ref-object'
+import type { Schema } from '../../../types/index.js'
+import { isRefObject } from '../../validator/is-ref-object.js'
 
 /**
  * Extracts all references from a given schema

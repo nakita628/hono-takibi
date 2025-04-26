@@ -1,4 +1,4 @@
-import type { ParamsObject } from '../../../../../type'
+import type { ParamsObject } from '../../../../../types'
 import { describe, expect, it } from 'vitest'
 import { generateRequestParamsArray } from './generate-request-params-array'
 

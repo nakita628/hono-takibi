@@ -1,7 +1,7 @@
-import type { Config } from '../../../config'
-import type { Schema } from '../../../types'
-import { getVariableSchemaNameHelper } from '../../helper/get-variable-schema-name-helper'
-import { getRefName } from './get-ref-name'
+import type { Config } from '../../../config/index.js'
+import type { Schema } from '../../../types/index.js'
+import { getVariableSchemaNameHelper } from '../../helper/get-variable-schema-name-helper.js'
+import { getRefName } from './get-ref-name.js'
 
 /**
  * Retrieves the referenced schema name from a schema object.

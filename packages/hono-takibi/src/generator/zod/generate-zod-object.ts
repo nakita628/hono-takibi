@@ -1,11 +1,11 @@
-import type { Schema } from '../../types'
-import type { Config } from '../../config'
-import { generateZodRecord } from './generate-zod-record'
-import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
-import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
-import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
-import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema'
-import { generateZodPassthrough } from './generate-zod-passthrough'
+import type { Schema } from '../../types/index.js'
+import type { Config } from '../../config/index.js'
+import { generateZodRecord } from './generate-zod-record.js'
+import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
+import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
+import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
+import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema.js'
+import { generateZodPassthrough } from './generate-zod-passthrough.js'
 /**
  * Generate Zod object schema
  * @param { Schema } schema - Schema definition

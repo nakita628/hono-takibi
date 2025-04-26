@@ -1,5 +1,5 @@
-import type { Schema } from '../../../types'
-import { extractRefs } from './extract-refs'
+import type { Schema } from '../../../types/index.js'
+import { extractRefs } from './extract-refs.js'
 
 /**
  * Traverses the schema dependencies and returns them in topological order

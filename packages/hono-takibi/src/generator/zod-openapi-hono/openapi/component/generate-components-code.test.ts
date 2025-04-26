@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { generateComponentsCode } from './generate-components-code'
-import type { Components } from '../../../../type'
+import type { Components } from '../../../../types'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/generate-components-code.test.ts

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Schema } from '../../../../../type'
+import type { Schema } from '../../../../../types'
 import { generateNotCode } from './generate-not-code'
 
 const generateNotCodeTestCases: {

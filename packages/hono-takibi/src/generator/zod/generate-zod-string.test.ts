@@ -1,4 +1,4 @@
-import type { DefaultValue, ExampleValue, FormatString } from '../../type'
+import type { DefaultValue, ExampleValue, FormatString } from '../../types'
 import { describe, expect, it } from 'vitest'
 import { generateZodString } from './generate-zod-string'
 

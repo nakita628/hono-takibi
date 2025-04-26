@@ -1,4 +1,4 @@
-import type { FormatString } from '../../types'
+import type { FormatString } from '../../types/index.js'
 
 /**
  * Mapping of OpenAPI formats to Zod validation methods

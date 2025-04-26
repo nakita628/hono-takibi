@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isFormatString } from './is-format-string'
-import type { FormatString } from '../../type'
+import type { FormatString } from '../../types'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-format-string.test.ts

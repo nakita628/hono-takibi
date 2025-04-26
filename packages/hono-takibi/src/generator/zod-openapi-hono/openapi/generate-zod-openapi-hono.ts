@@ -1,7 +1,7 @@
-import type { Config } from '../../../config'
-import type { OpenAPISpec } from '../../../types'
-import { generateComponentsCode } from './component/generate-components-code'
-import { generateRouteCode } from './route/generate-route-code'
+import type { Config } from '../../../config/index.js'
+import type { OpenAPISpec } from '../../../types/index.js'
+import { generateComponentsCode } from './component/generate-components-code.js'
+import { generateRouteCode } from './route/generate-route-code.js'
 
 /**
  * Import statement for Hono's zod-openapi package

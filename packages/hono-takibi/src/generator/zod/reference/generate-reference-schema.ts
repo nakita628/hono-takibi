@@ -1,7 +1,7 @@
-import type { Config } from '../../../config'
-import type { Schema } from '../../../types'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
-import { getRefName } from '../../../core/schema/references/get-ref-name'
+import type { Config } from '../../../config/index.js'
+import type { Schema } from '../../../types/index.js'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
+import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 
 /**
  * Generates a Zod schema string for a reference

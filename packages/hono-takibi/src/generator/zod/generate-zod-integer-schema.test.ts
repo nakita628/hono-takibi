@@ -1,4 +1,4 @@
-import type { ExampleValue } from '../../type'
+import type { ExampleValue } from '../../types'
 import { describe, expect, it } from 'vitest'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema'
 

@@ -1,4 +1,4 @@
-import type { HandlerOutput } from '../generate-zod-openapi-hono-handler'
+import type { HandlerOutput } from '../generate-zod-openapi-hono-handler.js'
 
 type HandlerMap = Map<string, HandlerOutput>
 

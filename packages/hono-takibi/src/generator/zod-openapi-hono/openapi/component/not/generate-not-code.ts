@@ -1,4 +1,4 @@
-import type { Schema } from '../../../../../types'
+import type { Schema } from '../../../../../types/index.js'
 
 /**
  * Generates the Zod code for an `anyOf` schema.

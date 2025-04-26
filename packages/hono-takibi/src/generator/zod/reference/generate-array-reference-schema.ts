@@ -1,9 +1,9 @@
-import type { Config } from '../../../config'
-import type { Schema } from '../../../types'
-import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
-import { getRefName } from '../../../core/schema/references/get-ref-name'
-import { generateZodArray } from '../generate-zod-array'
+import type { Config } from '../../../config/index.js'
+import type { Schema } from '../../../types/index.js'
+import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper.js'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
+import { getRefName } from '../../../core/schema/references/get-ref-name.js'
+import { generateZodArray } from '../generate-zod-array.js'
 
 /**
  * Generates a Zod schema string for an array reference

@@ -1,4 +1,4 @@
-import { removeZodPrefix } from '../../core/text/remove-zod-prefix'
+import { removeZodPrefix } from '../../core/text/remove-zod-prefix.js'
 
 /**
  * Generates a zod pipe function to coerce a value to a zod schema.

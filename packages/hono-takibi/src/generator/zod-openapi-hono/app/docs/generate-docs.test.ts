@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../../type'
+import type { OpenAPISpec } from '../../../../types'
 import { describe, expect, it } from 'vitest'
 import { generateDocs } from './generate-docs'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'

@@ -1,4 +1,3 @@
-import type { Config } from '../../config'
 import { describe, expect, it } from 'vitest'
 import { generateZodInfer } from './generate-zod-infer'
 

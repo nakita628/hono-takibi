@@ -1,4 +1,4 @@
-import type { Format, FormatNumber } from '../../types'
+import type { Format, FormatNumber } from '../../types/index.js'
 
 /**
  * Check if the format is a number type

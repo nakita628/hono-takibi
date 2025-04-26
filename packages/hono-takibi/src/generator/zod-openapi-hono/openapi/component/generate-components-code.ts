@@ -1,8 +1,8 @@
-import type { Components } from '../../../../types'
-import type { Config } from '../../../../config'
-import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition'
-import { generateZod } from '../../../zod/generate-zod'
-import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies'
+import type { Components } from '../../../../types/index.js'
+import type { Config } from '../../../../config/index.js'
+import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition.js'
+import { generateZod } from '../../../zod/generate-zod.js'
+import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies.js'
 
 /**
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.

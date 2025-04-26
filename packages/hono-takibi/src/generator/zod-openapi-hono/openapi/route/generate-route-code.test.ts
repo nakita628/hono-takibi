@@ -3,7 +3,7 @@ import { generateRouteCode } from './generate-route-code'
 import { petStoreOpenAPI } from '../../../../../data/pet-store-openapi'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
 import { DEFAULT_CONFIG } from '../../../../../data/test-config'
-import type { OpenAPIPaths } from '../../../../type'
+import type { OpenAPIPaths } from '../../../../types'
 import type { Config } from '../../../../config'
 
 const generateRouteCodeTestCases: {

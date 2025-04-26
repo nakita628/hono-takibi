@@ -1,4 +1,4 @@
-import { describe, test, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { regexPattern } from './regex-pattern'
 
 // Test run

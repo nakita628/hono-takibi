@@ -1,4 +1,4 @@
-import type { Operation } from '../../types'
+import type { Operation } from '../../types/index.js'
 
 /**
  * Check if an object is an Operation

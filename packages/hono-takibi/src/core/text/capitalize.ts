@@ -1,7 +1,7 @@
 /**
  * Capitalize the first letter of a string
- * @param {string} str - String to capitalize
- * @returns {string} String with first letter capitalized
+ * @param { string } str - String to capitalize
+ * @returns { string } String with first letter capitalized
  *
  * @example
  * capitalize('posts')    // Returns: 'Posts'

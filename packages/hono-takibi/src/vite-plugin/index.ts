@@ -1,6 +1,6 @@
-import type { Config } from '../config'
-import { getConfig } from '../config'
-import { viteMode } from './vite-mode'
+import type { Config } from '../config/index.js'
+import { getConfig } from '../config/index.js'
+import { viteMode } from './vite-mode.js'
 
 export default function honoTakibiPlugin() {
   return {

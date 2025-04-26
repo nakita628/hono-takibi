@@ -1,4 +1,4 @@
-import type { ExampleValue } from '../../../types'
+import type { ExampleValue } from '../../../types/index.js'
 
 /**
  * Generate OpenAPI example value from Zod example value

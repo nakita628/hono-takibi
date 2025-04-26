@@ -19,13 +19,13 @@
  * // Returns: 'z.string()'
  */
 
-import type { Schema } from '../../../types'
-import type { Config } from '../../../config'
-import { isSchemaReference } from '../../../core/validator/is-schema-reference'
-import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference'
-import { generateReferenceSchema } from '../reference/generate-reference-schema'
-import { generateArrayReferenceSchema } from '../reference/generate-array-reference-schema'
-import { generateZod } from '../generate-zod'
+import type { Schema } from '../../../types/index.js'
+import type { Config } from '../../../config/index.js'
+import { isSchemaReference } from '../../../core/validator/is-schema-reference.js'
+import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference.js'
+import { generateReferenceSchema } from '../reference/generate-reference-schema.js'
+import { generateArrayReferenceSchema } from '../reference/generate-array-reference-schema.js'
+import { generateZod } from '../generate-zod.js'
 
 /**
  * generatePropertySchema
