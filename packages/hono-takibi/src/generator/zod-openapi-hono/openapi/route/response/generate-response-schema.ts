@@ -1,4 +1,4 @@
-import type { Responses } from '../../../../../type'
+import type { Responses } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { escapeStr } from '../../../../../core/text/escape-str'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema'

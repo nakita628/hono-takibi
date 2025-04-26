@@ -1,4 +1,4 @@
-import type { Schema } from '../../type'
+import type { Schema } from '../../types'
 
 /**
  * Check if an array has a schema reference

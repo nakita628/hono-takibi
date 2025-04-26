@@ -19,7 +19,7 @@
  * // Returns: 'z.string()'
  */
 
-import type { Schema } from '../../../type'
+import type { Schema } from '../../../types'
 import type { Config } from '../../../config'
 import { isSchemaReference } from '../../../core/validator/is-schema-reference'
 import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference'

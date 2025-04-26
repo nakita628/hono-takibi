@@ -1,4 +1,4 @@
-import type { Components } from '../../../../type'
+import type { Components } from '../../../../types'
 import type { Config } from '../../../../config'
 import { generateZodToOpenAPISchemaDefinition } from '../../../zod/openapi/generate-zod-to-openapi-schema-definition'
 import { generateZod } from '../../../zod/generate-zod'

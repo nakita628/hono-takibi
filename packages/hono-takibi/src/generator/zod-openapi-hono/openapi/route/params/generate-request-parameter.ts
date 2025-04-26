@@ -1,4 +1,4 @@
-import type { Parameters, RequestBody } from '../../../../../type'
+import type { Parameters, RequestBody } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { generateParamsObject } from './generate-params-object'
 import { generateRequestParamsArray } from './generate-request-params-array'

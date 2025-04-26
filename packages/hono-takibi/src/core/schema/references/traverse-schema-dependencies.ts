@@ -1,4 +1,4 @@
-import type { Schema } from '../../../type'
+import type { Schema } from '../../../types'
 import { extractRefs } from './extract-refs'
 
 /**

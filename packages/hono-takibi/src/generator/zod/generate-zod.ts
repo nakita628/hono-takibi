@@ -1,4 +1,4 @@
-import type { Schema, Type } from '../../type'
+import type { Schema, Type } from '../../types'
 import type { Config } from '../../config'
 import { isFormatString } from '../../core/validator/is-format-string'
 import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'

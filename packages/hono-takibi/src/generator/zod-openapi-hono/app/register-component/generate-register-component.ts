@@ -1,4 +1,4 @@
-import type { SecuritySchemes } from '../../../../type'
+import type { SecuritySchemes } from '../../../../types'
 
 /**
  * Generate register component

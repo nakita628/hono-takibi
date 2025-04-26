@@ -1,4 +1,4 @@
-import type { Schema } from '../../type'
+import type { Schema } from '../../types'
 import type { Config } from '../../config'
 import { generateZodRecord } from './generate-zod-record'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'

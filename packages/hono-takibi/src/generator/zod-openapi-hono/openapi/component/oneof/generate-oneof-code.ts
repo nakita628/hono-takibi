@@ -1,4 +1,4 @@
-import type { Schema } from '../../../../../type'
+import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name'
 import { generateZodUnion } from '../../../../zod/generate-zod-union'

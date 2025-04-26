@@ -1,4 +1,4 @@
-import type { Content } from '../../type'
+import type { Content } from '../../types'
 
 /**
  * Get unique content schema

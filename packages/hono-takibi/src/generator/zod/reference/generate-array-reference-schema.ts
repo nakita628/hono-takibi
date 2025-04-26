@@ -1,5 +1,5 @@
 import type { Config } from '../../../config'
-import type { Schema } from '../../../type'
+import type { Schema } from '../../../types'
 import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper'
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
 import { getRefName } from '../../../core/schema/references/get-ref-name'

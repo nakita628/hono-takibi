@@ -1,4 +1,4 @@
-import type { Operation } from '../../type'
+import type { Operation } from '../../types'
 
 /**
  * Check if an object is an Operation

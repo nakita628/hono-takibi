@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import type { OpenAPISpec } from './type'
+import type { OpenAPISpec } from './types'
 import type { Config } from './config'
 import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
 import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler'

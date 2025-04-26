@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-import type { OpenAPIPaths, OpenAPISpec } from '../../../type'
+import type { OpenAPIPaths, OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 import { generateHandler } from './generate-handler'
 import { generateRouteName } from '../openapi/route/generate-route-name'

@@ -1,4 +1,4 @@
-import type { Schema } from '../../../type'
+import type { Schema } from '../../../types'
 import { isRefObject } from '../../validator/is-ref-object'
 
 /**

@@ -1,5 +1,5 @@
 import type { Config } from '../../config'
-import type { Format, Type } from '../../type'
+import type { Format, Type } from '../../types'
 import { generateZod } from './generate-zod'
 
 /**

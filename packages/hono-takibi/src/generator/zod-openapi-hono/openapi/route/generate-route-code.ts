@@ -1,4 +1,4 @@
-import type { OpenAPIPaths } from '../../../../type'
+import type { OpenAPIPaths } from '../../../../types'
 import type { Config } from '../../../../config'
 import { isHttpMethod } from '../../../../core/validator/is-http-method'
 import { generateRoute } from './generate-route'

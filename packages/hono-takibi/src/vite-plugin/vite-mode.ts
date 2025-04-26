@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../type'
+import type { OpenAPISpec } from '../types'
 import type { Config } from '../config'
 import { generateZodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/generate-zod-openapi-hono'
 import { getConfig } from '../config'

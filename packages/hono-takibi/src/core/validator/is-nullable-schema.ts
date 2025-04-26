@@ -1,4 +1,4 @@
-import type { Schema } from '../../type'
+import type { Schema } from '../../types'
 
 /**
  * Check if a given sub-schema is `nullable`

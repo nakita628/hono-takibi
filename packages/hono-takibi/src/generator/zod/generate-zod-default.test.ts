@@ -1,4 +1,4 @@
-import type { DefaultValue } from '../../type'
+import type { DefaultValue } from '../../types'
 import { describe, expect, it } from 'vitest'
 import { generateZodDefault } from './generate-zod-default'
 

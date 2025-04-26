@@ -1,4 +1,4 @@
-import type { Parameters, ParamsObject } from '../../../../../type'
+import type { Parameters, ParamsObject } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { generateZodCoerce } from '../../../../zod/generate-zod-coerce'
 import { generateZod } from '../../../../zod/generate-zod'

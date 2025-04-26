@@ -1,4 +1,4 @@
-import type { Operation } from '../../../../type'
+import type { Operation } from '../../../../types'
 import type { Config } from '../../../../config'
 import { generateCreateRoute } from './generate-create-route'
 import { generateRequestParameter } from './params/generate-request-parameter'

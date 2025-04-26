@@ -22,7 +22,7 @@ export default defineConfig({
         '**/dist/**',
         '**/src/data/*.ts',
         '**/src/vite-plugin/*.ts',
-        '**/src/type/*.ts',
+        '**/src/types/*.ts',
         '**/pet-store/**/*.ts',
         '**/node_modules/**',
         '**/hono-takibi/index.ts',
