@@ -1,48 +1,49 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateReferenceSchema } from './generate-reference-schema'
-import { DEFAULT_CONFIG } from '../../../../data/test-config'
-import type { Schema } from '../../../type'
-import type { Config } from '../../../config'
 
-const generateReferenceSchemaTestCases: {
-  schema: Schema
-  config: Config
-  expected: string
-}[] = [
-  {
-    schema: {
-      $ref: '#/components/schemas/User',
-    },
-    config: DEFAULT_CONFIG,
-    expected: 'UserSchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/Error' },
-    config: DEFAULT_CONFIG,
-    expected: 'ErrorSchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/Pet' },
-    config: DEFAULT_CONFIG,
-    expected: 'PetSchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/ApiResponse' },
-    config: DEFAULT_CONFIG,
-    expected: 'ApiResponseSchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/Order' },
-    config: DEFAULT_CONFIG,
-    expected: 'OrderSchema',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/reference/generate-reference-schema.test.ts
 
-describe('generateReferenceSchema', () => {
-  it.concurrent.each(generateReferenceSchemaTestCases)(
-    'generateReferenceSchema(%s, %s) -> %s',
-    ({ schema, config, expected }) => {
-      expect(generateReferenceSchema(schema, config)).toBe(expected)
-    },
-  )
+describe('generateReferenceSchema Test', () => {
+  test.concurrent('generateReferenceSchema -> TestSchema', () => {
+    const result = generateReferenceSchema(
+      {
+        $ref: '#/components/schemas/Test',
+      },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
+
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateReferenceSchema -> z.any()', () => {
+    const result = generateReferenceSchema(
+      {
+        $ref: '',
+      },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
+
+    const expected = 'z.any()'
+    expect(result).toBe(expected)
+  })
 })

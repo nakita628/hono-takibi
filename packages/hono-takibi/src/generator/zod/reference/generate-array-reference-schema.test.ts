@@ -1,50 +1,50 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { generateArrayReferenceSchema } from './generate-array-reference-schema'
-import { DEFAULT_CONFIG } from '../../../../data/test-config'
-import type { Schema } from '../../../type'
-import type { Config } from '../../../config'
 
-const generateArrayReferenceSchemaTestCases: {
-  schema: Schema
-  config: Config
-  expected: string
-}[] = [
-  {
-    schema: {
-      type: 'array',
-      xml: { name: 'addresses', wrapped: true },
-      items: { $ref: '#/components/schemas/Address' },
-    },
-    config: DEFAULT_CONFIG,
-    expected: 'z.array(AddressSchema)',
-  },
-  {
-    schema: {
-      type: 'array',
-      xml: { wrapped: true },
-      items: { $ref: '#/components/schemas/Tag' },
-    },
-    config: DEFAULT_CONFIG,
-    expected: 'z.array(TagSchema)',
-  },
-  {
-    schema: { type: 'array', items: { $ref: '#/components/schemas/Feature' } },
-    config: DEFAULT_CONFIG,
-    expected: 'z.array(FeatureSchema)',
-  },
-  {
-    schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
-    config: DEFAULT_CONFIG,
-    expected: 'z.array(PetSchema)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/reference/generate-array-reference-schema.test.ts
 
-describe('generateArrayReferenceSchema', () => {
-  it.concurrent.each(generateArrayReferenceSchemaTestCases)(
-    'generateArrayReferenceSchema(%s, %s) -> %s',
-    ({ schema, config, expected }) => {
-      const result = generateArrayReferenceSchema(schema, config)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateArrayReferenceSchema Test', () => {
+  test.concurrent('generateArrayReferenceSchema -> z.array(TestSchema)', () => {
+    const result = generateArrayReferenceSchema(
+      {
+        type: 'array',
+        items: { $ref: '#/components/schemas/Test' },
+      },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
+
+    const expected = 'z.array(TestSchema)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateArrayReferenceSchema -> z.array(z.any())', () => {
+    const result = generateArrayReferenceSchema(
+      {
+        type: 'array',
+      },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
+
+    const expected = 'z.array(z.any())'
+    expect(result).toBe(expected)
+  })
 })
