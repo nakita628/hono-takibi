@@ -4,6 +4,9 @@ import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import { describe, expect, it } from 'vitest'
 import { generateAllOfCode } from '../allof/generate-allof-code'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/generate-allof-code.test.ts
+
 const generateAnyOfCodeTestCases: {
   schema: Schema
   config: Config

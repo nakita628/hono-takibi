@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateHandler } from './generate-handler'
 
+// Test run
+// pnpm vitet run ./src/generator/zod-openapi-hono/handler/generate-handler.test.ts
+
 const generateHandlerTestCases: {
   handlerName: string
   routeName: string

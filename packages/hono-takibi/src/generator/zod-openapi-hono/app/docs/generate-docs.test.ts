@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { generateDocs } from './generate-docs'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/docs/generate-docs.test.ts
+
 const generateDocsTestCases: {
   openAPISpec: OpenAPISpec
   expected: {

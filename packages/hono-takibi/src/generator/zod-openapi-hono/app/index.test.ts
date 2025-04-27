@@ -5,6 +5,9 @@ import { DEFAULT_CONFIG } from '../../../../data/test-config'
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/index.test.ts
+
 const generateAppTestCases: {
   openAPISpec: OpenAPISpec
   config: Config

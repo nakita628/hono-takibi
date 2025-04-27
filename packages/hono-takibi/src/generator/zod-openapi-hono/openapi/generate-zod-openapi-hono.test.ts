@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest'
 import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
 import { abcdeOpenAPI } from '../../../../data/abcde'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.test.ts
+
 const generateZodOpenAPIHonoTestCases: {
   openAPISpec: OpenAPISpec
   config: Config

@@ -3,6 +3,9 @@ import { processImportMap } from './process-import-map'
 import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Config } from '../../../../config'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/helper/process-import-map.test.ts
+
 const processImportMapTestCases: {
   routeMappings: {
     routeName: string
