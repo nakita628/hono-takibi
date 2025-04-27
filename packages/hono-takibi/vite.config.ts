@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
-import honoTakibiPlugin from './src/vite-plugin'
+import HonoTakibiVite from './src/vite-plugin'
 
 export default defineConfig({
-  plugins: [honoTakibiPlugin()],
+  plugins: [HonoTakibiVite()],
 })
