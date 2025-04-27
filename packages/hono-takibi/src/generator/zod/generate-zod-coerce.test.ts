@@ -1,29 +1,33 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test, it } from 'vitest'
 import { generateZodCoerce } from './generate-zod-coerce'
 
-const generateZodCoerceTestCases = [
-  {
-    z: 'z.string()',
-    zodSchema: 'z.number()',
-    expected: 'z.string().pipe(z.coerce.number())',
-  },
-  {
-    z: 'z.string()',
-    zodSchema: 'z.number().min(1)',
-    expected: 'z.string().pipe(z.coerce.number().min(1))',
-  },
-  {
-    z: 'z.string()',
-    zodSchema: 'z.number().max(10)',
-    expected: 'z.string().pipe(z.coerce.number().max(10))',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-coerce.test.ts
 
-describe('generateZodCoerce', () => {
-  it.concurrent.each(generateZodCoerceTestCases)(
-    'generateZodCoerce($z, $zodSchema) -> $expected',
-    async ({ z, zodSchema, expected }) => {
-      const result = generateZodCoerce(z, zodSchema)
+describe('generateZodCoerce Test', () => {
+  test.concurrent(
+    `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number())`,
+    () => {
+      const result = generateZodCoerce('z.string()', 'z.number()')
+      const expected = 'z.string().pipe(z.coerce.number())'
+      expect(result).toBe(expected)
+    },
+  )
+
+  test.concurrent(
+    `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number().min(1))`,
+    () => {
+      const result = generateZodCoerce('z.string()', 'z.number().min(1)')
+      const expected = 'z.string().pipe(z.coerce.number().min(1))'
+      expect(result).toBe(expected)
+    },
+  )
+
+  test.concurrent(
+    `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number().max(10))`,
+    () => {
+      const result = generateZodCoerce('z.string()', 'z.number().max(10)')
+      const expected = 'z.string().pipe(z.coerce.number().max(10))'
       expect(result).toBe(expected)
     },
   )
