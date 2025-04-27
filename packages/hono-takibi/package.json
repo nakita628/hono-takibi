@@ -25,8 +25,7 @@
   "exports": {
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
-      "import": "./dist/vite-plugin/index.js",
-      "require": "./dist/vite-plugin/index.js"
+      "import": "./dist/vite-plugin/index.js"
     }
   },
   "scripts": {
