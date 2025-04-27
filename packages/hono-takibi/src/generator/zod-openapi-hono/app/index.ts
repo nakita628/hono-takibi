@@ -1,13 +1,13 @@
-import type { OpenAPISpec } from '../../../types/index.js'
-import type { Config } from '../../../config/index.js'
-import { generateDocs } from './docs/generate-docs.js'
-import { getHandlerImports } from '../handler/import/get-handler-imports.js'
-import { getRouteMaps } from './helper/get-route-maps.js'
-import { generateImportHandlers } from '../handler/import/generate-import-handlers.js'
-import { generateRegisterComponent } from './register-component/generate-register-component.js'
-import { generateImportRoutes } from './generators/generate-import-routes.js'
-import { generateApplyOpenapiRoutes } from './generators/generate-apply-openapi-routes.js'
-import { processImportMap } from './helper/process-import-map.js'
+import type { OpenAPISpec } from '../../../types'
+import type { Config } from '../../../config'
+import { generateDocs } from './docs/generate-docs'
+import { getHandlerImports } from '../handler/import/get-handler-imports'
+import { getRouteMaps } from './helper/get-route-maps'
+import { generateImportHandlers } from '../handler/import/generate-import-handlers'
+import { generateRegisterComponent } from './register-component/generate-register-component'
+import { generateImportRoutes } from './generators/generate-import-routes'
+import { generateApplyOpenapiRoutes } from './generators/generate-apply-openapi-routes'
+import { processImportMap } from './helper/process-import-map'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
