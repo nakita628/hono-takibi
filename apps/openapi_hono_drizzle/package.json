@@ -15,12 +15,13 @@
     "@hono/swagger-ui": "^0.5.0",
     "@vitest/coverage-v8": "^2.1.8",
     "drizzle-kit": "^0.30.4",
-    "hono-takibi": "^0.6.3",
+    "hono-takibi": "^0.6.5",
     "tsx": "^4.7.1",
     "vite": "^6.1.0",
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@hono/vite-dev-server": "^0.19.0",
     "@hono/zod-openapi": "^0.18.3",
     "@libsql/client": "^0.14.0",
     "@types/node": "^22.13.1",
