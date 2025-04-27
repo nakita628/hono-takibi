@@ -7,6 +7,17 @@ export default defineConfig({
     devServer({
       entry: 'src/index.ts',
     }),
-    honoTakibiPlugin(),
+    honoTakibiPlugin({
+      input: 'src/openapi.yaml',
+      output: 'src/route.ts',
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    }),
   ],
 })
