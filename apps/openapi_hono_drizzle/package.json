@@ -16,7 +16,7 @@
     "@hono/swagger-ui": "^0.5.0",
     "@vitest/coverage-v8": "^2.1.8",
     "drizzle-kit": "^0.30.4",
-    "hono-takibi": "0.6.6",
+    "hono-takibi": "0.6.7",
     "tsx": "^4.7.1",
     "vite": "^6.1.0",
     "vitest": "^2.1.8"
