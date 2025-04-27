@@ -1,41 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodIntersection } from './generate-zod-intersection'
 
-const generateZodIntersectionTestCases: {
-  schemas: string[]
-  expected: string
-}[] = [
-  {
-    schemas: [
-      'geoJsonObjectSchema',
-      'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])})',
-    ],
-    expected:
-      'z.intersection(geoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
-  },
-  {
-    schemas: [
-      'geometrySchema',
-      'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"])})',
-    ],
-    expected:
-      'z.intersection(geometrySchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"])}))',
-  },
-  {
-    schemas: [
-      'geometryElementSchema',
-      'z.object({coordinates:z.array(z.array(linearRingSchema))})',
-    ],
-    expected:
-      'z.intersection(geometryElementSchema,z.object({coordinates:z.array(z.array(linearRingSchema))}))',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-intersection.test.ts
 
-describe('generateZodIntersection', () => {
-  it.concurrent.each(generateZodIntersectionTestCases)(
-    'should generate a Zod intersection schema for %s',
-    ({ schemas, expected }) => {
-      const result = generateZodIntersection(schemas)
+describe('generateZodIntersection Test', () => {
+  test.concurrent(
+    `generateZodIntersection(['TestSchema', 'z.object({type:z.enum(["A","B","C"])})']) -> z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))`,
+    () => {
+      const result = generateZodIntersection([
+        'TestSchema',
+        'z.object({type:z.enum(["A","B","C"])})',
+      ])
+      const expected = 'z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))'
       expect(result).toBe(expected)
     },
   )

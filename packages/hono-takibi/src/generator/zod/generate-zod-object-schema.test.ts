@@ -1,28 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodObjectSchema } from './generate-zod-object-schema'
 
-const generateZodObjectSchemaTestCases: { object: Record<string, string>; expected: string }[] = [
-  {
-    object: {
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-object-schema.test.ts
+
+describe('generateZodObjectSchema Test', () => {
+  test.concurrent('generateZodObjectSchema -> z.object({name:string})', () => {
+    const result = generateZodObjectSchema({
       name: 'string',
-    },
-    expected: 'z.object({name:string})',
-  },
-  {
-    object: {
+    })
+    const expected = 'z.object({name:string})'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodObjectSchema -> z.object({name:string,age:number})', () => {
+    const result = generateZodObjectSchema({
       name: 'string',
       age: 'number',
-    },
-    expected: 'z.object({name:string,age:number})',
-  },
-]
-
-describe('generateZodObjectSchema', () => {
-  it.concurrent.each(generateZodObjectSchemaTestCases)(
-    'generateZodObjectSchema($object) -> $expected',
-    async ({ object, expected }) => {
-      const result = generateZodObjectSchema(object)
-      expect(result).toBe(expected)
-    },
-  )
+    })
+    const expected = 'z.object({name:string,age:number})'
+    expect(result).toBe(expected)
+  })
 })

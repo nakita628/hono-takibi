@@ -1,4 +1,4 @@
-import { describe, expect, test, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodCoerce } from './generate-zod-coerce'
 
 // Test run

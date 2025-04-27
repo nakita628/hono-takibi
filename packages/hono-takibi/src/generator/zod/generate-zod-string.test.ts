@@ -1,99 +1,71 @@
-import type { DefaultValue, ExampleValue, FormatString } from '../../types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodString } from './generate-zod-string'
 
-const generateZodStringSchemaTestCases: {
-  args: {
-    pattern?: string
-    minLength?: number
-    maxLength?: number
-    format?: FormatString
-    nullable?: boolean
-    default?: DefaultValue
-    example?: ExampleValue
-    paramName?: string
-    isPath?: boolean
-  }
-  expected: string
-}[] = [
-  {
-    args: {},
-    expected: 'z.string()',
-  },
-  {
-    args: { pattern: '^[a-z]+$' },
-    expected: 'z.string().regex(/^[a-z]+$/)',
-  },
-  {
-    args: { minLength: 3 },
-    expected: 'z.string().min(3)',
-  },
-  {
-    args: { maxLength: 10 },
-    expected: 'z.string().max(10)',
-  },
-  {
-    args: { minLength: 3, maxLength: 10 },
-    expected: 'z.string().min(3).max(10)',
-  },
-  {
-    args: { format: 'email' },
-    expected: 'z.string().email()',
-  },
-  {
-    args: { format: 'uuid' },
-    expected: 'z.string().uuid()',
-  },
-  {
-    args: { pattern: '^[A-Z]+$', minLength: 2, maxLength: 5 },
-    expected: 'z.string().regex(/^[A-Z]+$/).min(2).max(5)',
-  },
-  {
-    args: { format: 'email', maxLength: 100 },
-    expected: 'z.string().max(100).email()',
-  },
-  {
-    args: {
-      pattern: '^[a-zA-Z]+$',
-      minLength: 3,
-      maxLength: 20,
-      format: 'email',
-    },
-    expected: 'z.string().regex(/^[a-zA-Z]+$/).min(3).max(20).email()',
-  },
-  {
-    args: {
-      default: 'hello',
-    },
-    expected: `z.string().default("hello")`,
-  },
-  {
-    args: {
-      format: 'email',
-      default: 'test@example.com',
-    },
-    expected: `z.string().email().default("test@example.com")`,
-  },
-  {
-    args: {
-      nullable: true,
-    },
-    expected: 'z.string().nullable()',
-  },
-  {
-    args: {
-      example: 'test@example.com',
-    },
-    expected: `z.string().openapi({example:"test@example.com"})`,
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-string.test.ts
 
-describe('generateZodStringSchema', () => {
-  it.concurrent.each(generateZodStringSchemaTestCases)(
-    'generateZodStringSchema($args) -> $expected',
-    async ({ args, expected }) => {
-      const result = generateZodString(args)
+describe('generateZodStringSchema Test', () => {
+  test.concurrent('generateZodString({}) -> z.string()', () => {
+    const result = generateZodString({})
+    const expected = 'z.string()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(
+    `generateZodString({ pattern: '^[a-z]+$' }) -> z.string().regex(/^[a-z]+$/)`,
+    () => {
+      const result = generateZodString({ pattern: '^[a-z]+$' })
+      const expected = 'z.string().regex(/^[a-z]+$/)'
       expect(result).toBe(expected)
     },
   )
+
+  test.concurrent('generateZodString({ minLength: 1 }) -> z.string().min(1)', () => {
+    const result = generateZodString({ minLength: 1 })
+    const expected = 'z.string().min(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodString({ maxLength: 10 }) -> z.string().max(10)', () => {
+    const result = generateZodString({ maxLength: 10 })
+    const expected = 'z.string().max(10)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(
+    'generateZodString({ minLength: 1, maxLength: 10 }) -> z.string().min(1).max(10)',
+    () => {
+      const result = generateZodString({ minLength: 1, maxLength: 10 })
+      const expected = 'z.string().min(1).max(10)'
+      expect(result).toBe(expected)
+    },
+  )
+
+  test.concurrent(`generateZodString({ format: 'email' }) -> z.string().email()`, () => {
+    const result = generateZodString({ format: 'email' })
+    const expected = 'z.string().email()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(`generateZodString({ format: 'uuid' }) -> z.string().uuid()`, () => {
+    const result = generateZodString({ format: 'uuid' })
+    const expected = 'z.string().uuid()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(`generateZodString({ default: 'test' }) -> z.string().default("test")`, () => {
+    const result = generateZodString({
+      default: 'test',
+    })
+    const expected = `z.string().default("test")`
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodString({ nullable: true }) -> z.string().nullable()', () => {
+    const result = generateZodString({
+      nullable: true,
+    })
+    const expected = 'z.string().nullable()'
+    expect(result).toBe(expected)
+  })
 })

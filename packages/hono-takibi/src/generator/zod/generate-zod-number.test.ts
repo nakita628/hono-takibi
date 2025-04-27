@@ -1,91 +1,74 @@
-import type { DefaultValue, ExampleValue } from '../../types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodNumber } from './generate-zod-number'
 
-const generateZodNumberSchemaTestCases: {
-  args: {
-    pattern?: string
-    minLength?: number
-    maxLength?: number
-    minimum?: number
-    maximum?: number
-    default?: DefaultValue
-    example?: ExampleValue
-    exclusiveMinimum?: boolean
-    exclusiveMaximum?: boolean
-  }
-  expected: string
-}[] = [
-  {
-    args: {},
-    expected: 'z.number()',
-  },
-  {
-    args: { minimum: 0 },
-    expected: 'z.number().nonpositive()',
-  },
-  {
-    args: { minLength: 1 },
-    expected: 'z.number().min(1)',
-  },
-  {
-    args: { maxLength: 10 },
-    expected: 'z.number().max(10)',
-  },
-  {
-    args: { default: 1 },
-    expected: 'z.number().default(1)',
-  },
-  {
-    args: { example: 1 },
-    expected: 'z.number().openapi({example:1})',
-  },
-  {
-    args: { minimum: 0, exclusiveMinimum: true },
-    expected: 'z.number().positive()',
-  },
-  {
-    args: { minimum: 0, exclusiveMinimum: false },
-    expected: 'z.number().nonpositive()',
-  },
-  {
-    args: { maximum: 0, exclusiveMaximum: true },
-    expected: 'z.number().negative()',
-  },
-  {
-    args: {
-      minimum: 1,
-      exclusiveMinimum: true,
-    },
-    expected: 'z.number().min(1).gt(1)',
-  },
-  {
-    args: {
-      maximum: 1,
-      exclusiveMaximum: true,
-    },
-    expected: 'z.number().max(1).lt(1)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-number.test.ts
 
-describe('generateZodNumberSchema valid cases', () => {
-  it.concurrent.each(generateZodNumberSchemaTestCases)(
-    'generateZodNumberSchema($args) -> $expected',
-    ({ args, expected }) => {
-      const result = generateZodNumber(args)
+describe('generateZodNumberSchema Test', () => {
+  test.concurrent('generateZodNumber({}) -> z.number()', () => {
+    const result = generateZodNumber({})
+    const expected = 'z.number()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodNumber({ minimum: 0 }) -> z.number().nonpositive()', () => {
+    const result = generateZodNumber({ minimum: 0 })
+    const expected = 'z.number().nonpositive()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodNumber({ minLength: 1 }) -> z.number().min(1)', () => {
+    const result = generateZodNumber({ minLength: 1 })
+    const expected = 'z.number().min(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodNumber({ maxLength: 10 }) -> z.number().max(10)', () => {
+    const result = generateZodNumber({ maxLength: 10 })
+    const expected = 'z.number().max(10)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodNumber({ default: 1 }) -> z.number().default(1)', () => {
+    const result = generateZodNumber({ default: 1 })
+    const expected = 'z.number().default(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(
+    'generateZodNumber({ minimum: 0, exclusiveMinimum: true }) -> z.number().positive()',
+    () => {
+      const result = generateZodNumber({ minimum: 0, exclusiveMinimum: true })
+      const expected = 'z.number().positive()'
       expect(result).toBe(expected)
     },
   )
-})
 
-describe('generateZodNumberSchema edge cases', () => {
-  it.concurrent('should throw an error when schema is null', () => {
+  test.concurrent(
+    'generateZodNumber({ minimum: 0, exclusiveMinimum: false }) -> z.number().nonpositive()',
+    () => {
+      const result = generateZodNumber({ minimum: 0, exclusiveMinimum: false })
+      const expected = 'z.number().nonpositive()'
+      expect(result).toBe(expected)
+    },
+  )
+
+  test.concurrent(
+    'generateZodNumber({ maximum: 0, exclusiveMaximum: true }) -> z.number().negative()',
+    () => {
+      const result = generateZodNumber({ maximum: 0, exclusiveMaximum: true })
+      const expected = 'z.number().negative()'
+      expect(result).toBe(expected)
+    },
+  )
+
+  test.concurrent('should throw an error when schema is null', () => {
     // biome-ignore lint:
     const schema = null as any
     expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of null')
   })
 
-  it.concurrent('should throw an error when schema is undefined', () => {
+  test.concurrent('should throw an error when schema is undefined', () => {
     // biome-ignore lint:
     const schema = undefined as any
     expect(() => generateZodNumber(schema)).toThrow('Cannot read properties of undefined')

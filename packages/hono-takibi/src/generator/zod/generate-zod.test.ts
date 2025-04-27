@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { generateZod } from './generate-zod'
-import { DEFAULT_CONFIG } from '../../../data/test-config'
 import type { Schema } from '../../types'
 import type { Config } from '../../config'
+
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod.test.ts
+
+const DEFAULT_CONFIG: Config = {
+  schema: {
+    name: 'PascalCase',
+    export: false,
+  },
+  type: {
+    name: 'PascalCase',
+    export: false,
+  },
+}
 
 const generateZodTestCases: { config: Config; schema: Schema; expected: string }[] = [
   {

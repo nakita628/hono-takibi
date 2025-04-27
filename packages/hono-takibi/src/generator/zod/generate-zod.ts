@@ -119,7 +119,6 @@ export function generateZod(
     if (
       schema.minLength &&
       schema.maxLength &&
-      schema.maxLength &&
       schema.minLength === schema.maxLength &&
       res.includes(`min(${schema.minLength})`) &&
       res.includes(`max(${schema.maxLength})`)

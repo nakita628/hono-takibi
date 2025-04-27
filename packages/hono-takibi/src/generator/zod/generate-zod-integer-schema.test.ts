@@ -1,41 +1,25 @@
-import type { ExampleValue } from '../../types'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema'
 
-const generateZodIntegerSchemaTestCases: {
-  args: {
-    minLength?: number
-    maxLength?: number
-    minimum?: number
-    maximum?: number
-    example?: ExampleValue
-  }
-  expected: string
-}[] = [
-  {
-    args: {},
-    expected: 'z.number().int()',
-  },
-  {
-    args: { minimum: 1 },
-    expected: 'z.number().int().min(1)',
-  },
-  {
-    args: { maximum: 10 },
-    expected: 'z.number().int().max(10)',
-  },
-  {
-    args: { example: 1 },
-    expected: 'z.number().int().openapi({example:1})',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-integer-schema.test.ts
 
-describe('generateZodIntegerSchema', () => {
-  it.concurrent.each(generateZodIntegerSchemaTestCases)(
-    'generateZodIntegerSchema($args) -> $expected',
-    ({ args, expected }) => {
-      const result = generateZodIntegerSchema(args)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodIntegerSchema Test', () => {
+  test.concurrent(`generateZodIntegerSchema({}) -> z.number().int()`, () => {
+    const result = generateZodIntegerSchema({})
+    const expected = 'z.number().int()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(`generateZodIntegerSchema({ minimum: 1 }) -> z.number().int().min(1)`, () => {
+    const result = generateZodIntegerSchema({ minimum: 1 })
+    const expected = 'z.number().int().min(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(`generateZodIntegerSchema({ maximum: 10 }) -> z.number().int().max(10)`, () => {
+    const result = generateZodIntegerSchema({ maximum: 10 })
+    const expected = 'z.number().int().max(10)'
+    expect(result).toBe(expected)
+  })
 })

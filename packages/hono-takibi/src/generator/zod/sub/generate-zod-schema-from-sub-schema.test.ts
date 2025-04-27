@@ -1,4 +1,4 @@
-import { describe, expect, test, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodSchemaFromSubSchema } from './generate-zod-schema-from-sub-schema'
 
 // Test run
