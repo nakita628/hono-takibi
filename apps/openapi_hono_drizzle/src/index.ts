@@ -67,3 +67,5 @@ if (process.env.NODE_ENV !== 'test') {
     port,
   })
 }
+
+export default app
