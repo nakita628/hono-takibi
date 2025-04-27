@@ -1,4 +1,4 @@
-import { OpenAPISpec } from '../../../../types'
+import type { OpenAPISpec } from '../../../../types/index.js'
 
 /**
  * Generate docs

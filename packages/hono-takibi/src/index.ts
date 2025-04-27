@@ -120,13 +120,11 @@ export async function main(dev = false, config: Config = getConfig()) {
   }
 }
 
-if (require.main === module) {
-  main().then((success) => {
-    if (!success) {
-      process.exit(1)
-    }
-  })
-}
+main().then((success) => {
+  if (!success) {
+    process.exit(1)
+  }
+})
 
 /**
  * Set the output of the config

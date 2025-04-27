@@ -1,4 +1,4 @@
-import type { SecuritySchemes } from '../../../../types'
+import type { SecuritySchemes } from '../../../../types/index.js'
 
 /**
  * Generate register component
