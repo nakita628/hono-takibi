@@ -7,5 +7,6 @@ export default defineConfig({
     devServer({
       entry: 'src/index.ts',
     }),
-    honoTakibiPlugin()],
+    honoTakibiPlugin(),
+  ],
 })

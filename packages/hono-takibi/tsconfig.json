@@ -6,7 +6,8 @@
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "declaration": true
   },
   "include": ["**/src/**/*"],
   "exclude": ["**/src/**/*.test.ts"]
