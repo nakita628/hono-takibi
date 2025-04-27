@@ -1,6 +1,6 @@
-import { generateHandlerName } from '../../handler/generate-handler-name'
-import { generateRouteName } from '../../openapi/route/generate-route-name'
-import type { OpenAPISpec } from '../../../../types/index'
+import { generateHandlerName } from '../../handler/generate-handler-name.js'
+import { generateRouteName } from '../../openapi/route/generate-route-name.js'
+import type { OpenAPISpec } from '../../../../types/index.js'
 
 /**
  * Get route maps
