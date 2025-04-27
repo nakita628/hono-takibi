@@ -22,13 +22,5 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "typedoc": "^0.28.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "hono-takibi": "link:packages/hono-takibi"
-    }
-  },
-  "dependencies": {
-    "hono-takibi": "link:packages/hono-takibi"
   }
 }
