@@ -1,12 +1,12 @@
-import type { Parameters, RequestBody } from '../../../../../type'
-import type { Config } from '../../../../../config'
-import { generateParamsObject } from './generate-params-object'
-import { generateRequestParamsArray } from './generate-request-params-array'
-import { generateRequestParams } from './generate-request-params'
-import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema'
-import { generateFormatRequestObject } from '../request/object/generate-format-request-object'
-import { generateRequestBody } from '../request/body/generate-request-body'
-import { generateInsertRequestBody } from '../request/body/generate-insert-request-body'
+import type { Parameters, RequestBody } from '../../../../../types/index.js'
+import type { Config } from '../../../../../config/index.js'
+import { generateParamsObject } from './generate-params-object.js'
+import { generateRequestParamsArray } from './generate-request-params-array.js'
+import { generateRequestParams } from './generate-request-params.js'
+import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
+import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
+import { generateRequestBody } from '../request/body/generate-request-body.js'
+import { generateInsertRequestBody } from '../request/body/generate-insert-request-body.js'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification

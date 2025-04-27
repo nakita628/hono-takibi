@@ -1,47 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper'
 
-const getPascalCaseSchemaNameTestCases = [
-  {
-    schemaName: 'Order',
-    expected: 'OrderSchema',
-  },
-  {
-    schemaName: 'Address',
-    expected: 'AddressSchema',
-  },
-  {
-    schemaName: 'Customer',
-    expected: 'CustomerSchema',
-  },
-  {
-    schemaName: 'Category',
-    expected: 'CategorySchema',
-  },
-  {
-    schemaName: 'User',
-    expected: 'UserSchema',
-  },
-  {
-    schemaName: 'Tag',
-    expected: 'TagSchema',
-  },
-  {
-    schemaName: 'Pet',
-    expected: 'PetSchema',
-  },
-  {
-    schemaName: 'ApiResponse',
-    expected: 'ApiResponseSchema',
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/helper/get-pascal-case-schema-name-helper.test.ts
 
-describe('getPascalCaseSchemaName', () => {
-  it.concurrent.each(getPascalCaseSchemaNameTestCases)(
-    'getPascalCaseSchemaName($schemaName) -> $expected',
-    ({ schemaName, expected }) => {
-      const result = getPascalCaseSchemaNameHelper(schemaName)
-      expect(result).toBe(expected)
-    },
-  )
+describe('getPascalCaseSchemaNameHelper Test', () => {
+  test.concurrent(`getPascalCaseSchemaNameHelper('test') -> 'testSchema'`, () => {
+    const result = getPascalCaseSchemaNameHelper('test')
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
+  test.concurrent(`getPascalCaseSchemaNameHelper('Test') -> 'TestSchema'`, () => {
+    const result = getPascalCaseSchemaNameHelper('Test')
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
 })

@@ -1,7 +1,7 @@
-import type { Config } from '../../../config'
-import { getVariableNameHelper } from '../../../core/helper/get-variable-name-helper'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper'
-import { generateZodInfer } from '../generate-zod-infer'
+import type { Config } from '../../../config/index.js'
+import { getVariableNameHelper } from '../../../core/helper/get-variable-name-helper.js'
+import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
+import { generateZodInfer } from '../generate-zod-infer.js'
 
 /**
  * Creates a Zod schema constant declaration

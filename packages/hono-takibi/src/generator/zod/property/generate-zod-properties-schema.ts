@@ -1,9 +1,9 @@
-import type { Schema } from '../../../type'
-import type { Config } from '../../../config'
-import { isAllOptional } from '../../../core/validator/is-all-optional'
-import { generateZodPartialSchema } from '../generate-zod-partial-schema'
-import { generatePropertySchema } from './generate-zod-property-schema'
-import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper'
+import type { Schema } from '../../../types/index.js'
+import type { Config } from '../../../config/index.js'
+import { isAllOptional } from '../../../core/validator/is-all-optional.js'
+import { generateZodPartialSchema } from '../generate-zod-partial-schema.js'
+import { generatePropertySchema } from './generate-zod-property-schema.js'
+import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper.js'
 
 /**
  * Generates a Zod object schema with properties and their requirements

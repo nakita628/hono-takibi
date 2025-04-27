@@ -1,10 +1,10 @@
-import type { Operation } from '../../../../type'
-import type { Config } from '../../../../config'
-import { generateCreateRoute } from './generate-create-route'
-import { generateRequestParameter } from './params/generate-request-parameter'
-import { generateResponseSchema } from './response/generate-response-schema'
-import { generateRouteName } from './generate-route-name'
-import { escapeStr } from '../../../../core/text/escape-str'
+import type { Operation } from '../../../../types/index.js'
+import type { Config } from '../../../../config/index.js'
+import { generateCreateRoute } from './generate-create-route.js'
+import { generateRequestParameter } from './params/generate-request-parameter.js'
+import { generateResponseSchema } from './response/generate-response-schema.js'
+import { generateRouteName } from './generate-route-name.js'
+import { escapeStr } from '../../../../core/text/escape-str.js'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
  * @param { string } path - The URL path pattern for the route

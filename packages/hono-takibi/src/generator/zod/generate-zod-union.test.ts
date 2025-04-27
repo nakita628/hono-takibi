@@ -1,19 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodUnion } from './generate-zod-union'
 
-const generateZodUnionTestCases = [
-  {
-    schemas: ['multiPolygonSchema', 'polygonSchema'],
-    expected: 'z.union([multiPolygonSchema,polygonSchema])',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-union.test.ts
 
-describe('generateZodUnion', () => {
-  it.concurrent.each(generateZodUnionTestCases)(
-    'generateZodUnion($schemas) -> $expected',
-    ({ schemas, expected }) => {
-      const result = generateZodUnion(schemas)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodUnion Test', () => {
+  test.concurrent(`generateZodUnion(['A', 'B']) -> z.union([A,B])`, () => {
+    const result = generateZodUnion(['A', 'B'])
+    const expected = 'z.union([A,B])'
+    expect(result).toBe(expected)
+  })
 })

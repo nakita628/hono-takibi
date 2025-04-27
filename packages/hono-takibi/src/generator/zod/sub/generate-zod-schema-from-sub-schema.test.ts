@@ -1,51 +1,57 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodSchemaFromSubSchema } from './generate-zod-schema-from-sub-schema'
-import { DEFAULT_CONFIG } from '../../../../data/test-config'
-import type { Schema } from '../../../type'
-import type { Config } from '../../../config'
-const generateZodSchemaFromSubSchemaTestCases: {
-  subSchema: Schema
-  config: Config
-  expected: string
-}[] = [
-  {
-    subSchema: { $ref: '#/components/schemas/GeoJsonObject' },
-    config: DEFAULT_CONFIG,
-    expected: 'GeoJsonObjectSchema',
-  },
-  {
-    subSchema: {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: [
-            'Point',
-            'MultiPoint',
-            'LineString',
-            'MultiLineString',
-            'Polygon',
-            'MultiPolygon',
-            'GeometryCollection',
-          ],
-        },
-      },
-      required: ['type'],
-      discriminator: {
-        propertyName: 'type',
-      },
-    },
-    config: DEFAULT_CONFIG,
-    expected:
-      'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])})',
-  },
-]
+
+// Test run
+// pnpm vitest run ./src/generator/zod/sub/generate-zod-schema-from-sub-schema.test.ts
 
 describe('generateZodSchemaFromSubSchema', () => {
-  it.concurrent.each(generateZodSchemaFromSubSchemaTestCases)(
-    'generateZodSchemaFromSubSchema($subSchema, $config) -> $expected',
-    ({ subSchema, config, expected }) => {
-      const result = generateZodSchemaFromSubSchema(subSchema, config)
+  test.concurrent('generateZodSchemaFromSubSchema -> TestSchema', () => {
+    const result = generateZodSchemaFromSubSchema(
+      { $ref: '#/components/schemas/Test' },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
+
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(
+    'generateZodSchemaFromSubSchema -> z.object({test:z.enum(["A","B","C"])})',
+    () => {
+      const result = generateZodSchemaFromSubSchema(
+        {
+          type: 'object',
+          properties: {
+            test: {
+              type: 'string',
+              enum: ['A', 'B', 'C'],
+            },
+          },
+          required: ['test'],
+        },
+
+        {
+          schema: {
+            name: 'PascalCase',
+            export: false,
+          },
+          type: {
+            name: 'PascalCase',
+            export: false,
+          },
+        },
+      )
+
+      const expected = 'z.object({test:z.enum(["A","B","C"])})'
       expect(result).toBe(expected)
     },
   )

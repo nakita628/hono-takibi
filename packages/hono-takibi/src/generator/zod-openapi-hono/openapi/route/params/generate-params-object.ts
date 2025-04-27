@@ -1,7 +1,7 @@
-import type { Parameters, ParamsObject } from '../../../../../type'
-import type { Config } from '../../../../../config'
-import { generateZodCoerce } from '../../../../zod/generate-zod-coerce'
-import { generateZod } from '../../../../zod/generate-zod'
+import type { Parameters, ParamsObject } from '../../../../../types/index.js'
+import type { Config } from '../../../../../config/index.js'
+import { generateZodCoerce } from '../../../../zod/generate-zod-coerce.js'
+import { generateZod } from '../../../../zod/generate-zod.js'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations

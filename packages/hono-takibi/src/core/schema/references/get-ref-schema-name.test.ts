@@ -1,39 +1,43 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getRefSchemaName } from './get-ref-schema-name'
-import type { Schema } from '../../../type'
-import type { Config } from '../../../config'
-import { DEFAULT_CONFIG } from '../../../../data/test-config'
 
-const getRefSchemaNameTestCases: { schema: Schema; config: Config; expected: string }[] = [
-  {
-    schema: { $ref: '#/components/schemas/GeoJsonObject' },
-    config: DEFAULT_CONFIG,
-    expected: 'GeoJsonObjectSchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/Geometry' },
-    config: DEFAULT_CONFIG,
-    expected: 'GeometrySchema',
-  },
-  {
-    schema: { $ref: '#/components/schemas/GeometryElement' },
-    config: DEFAULT_CONFIG,
-    expected: 'GeometryElementSchema',
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/schema/references/get-ref-schema-name.test.ts
 
-describe('getRefSchemaName valid cases', () => {
-  it.concurrent.each(getRefSchemaNameTestCases)(
-    'getRefSchemaName($schema, $config) -> $expected',
-    ({ schema, config, expected }) => {
-      const result = getRefSchemaName(schema, config)
-      expect(result).toBe(expected)
-    },
-  )
-})
+describe('getRefSchemaName Test', () => {
+  test.concurrent('getRefSchemaName #/components/schemas/Test -> Test', () => {
+    const result = getRefSchemaName(
+      { $ref: '#/components/schemas/Test' },
+      {
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    )
 
-describe('getRefSchemaName edge cases', () => {
-  it.concurrent('should throw error when $ref is empty', () => {
-    expect(() => getRefSchemaName({ $ref: '' }, DEFAULT_CONFIG)).toThrow('refName is not found')
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
+  test.concurrent('should throw error when $ref is empty', () => {
+    expect(() =>
+      getRefSchemaName(
+        { $ref: '' },
+        {
+          schema: {
+            name: 'PascalCase',
+            export: false,
+          },
+          type: {
+            name: 'PascalCase',
+            export: false,
+          },
+        },
+      ),
+    ).toThrow('refName is not found')
   })
 })

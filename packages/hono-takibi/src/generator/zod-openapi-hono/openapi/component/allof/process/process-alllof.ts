@@ -1,7 +1,7 @@
-import type { Config } from '../../../../../../config'
-import type { Schema } from '../../../../../../type'
-import { isNullableSchema } from '../../../../../../core/validator/is-nullable-schema'
-import { generateZodSchemaFromSubSchema } from '../../../../../zod/sub/generate-zod-schema-from-sub-schema'
+import type { Config } from '../../../../../../config/index.js'
+import type { Schema } from '../../../../../../types/index.js'
+import { isNullableSchema } from '../../../../../../core/validator/is-nullable-schema.js'
+import { generateZodSchemaFromSubSchema } from '../../../../../zod/sub/generate-zod-schema-from-sub-schema.js'
 
 type Accumulator = {
   nullable: boolean

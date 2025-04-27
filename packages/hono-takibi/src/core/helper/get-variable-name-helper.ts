@@ -1,6 +1,6 @@
-import { capitalize } from '../text/capitalize'
-import { decapitalize } from '../text/decapitalize'
-import type { Config } from '../../config'
+import { capitalize } from '../text/capitalize.js'
+import { decapitalize } from '../text/decapitalize.js'
+import type { Config } from '../../config/index.js'
 
 /**
  * Generates a variable name from a given name and config.

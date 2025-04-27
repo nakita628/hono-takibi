@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import type { Schema } from '../../../../../type'
+import type { Schema } from '../../../../../types'
 import { generateNotCode } from './generate-not-code'
+
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/not/generate-not-code.test.ts
 
 const generateNotCodeTestCases: {
   schema: Schema

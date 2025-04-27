@@ -1,6 +1,6 @@
-import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper'
-import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper'
-import type { Config } from '../../config'
+import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper.js'
+import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper.js'
+import type { Config } from '../../config/index.js'
 
 /**
  * Generates a variable schema name from a given name and config.

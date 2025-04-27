@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateResponseSchema } from './generate-response-schema'
 import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
-import type { Responses } from '../../../../../type'
+import type { Responses } from '../../../../../types'
 import type { Config } from '../../../../../config'
 
 const generateResponseSchemaTestCases: {

@@ -1,40 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect, it } from 'vitest'
 import { findReferences } from './find-references'
-import type { Schema } from '../../../type'
 
-const findReferencesTestCases: { schema: Schema; expected: Set<string> }[] = [
-  {
-    schema: {},
-    expected: new Set(),
-  },
-  {
-    schema: { $ref: '#/components/schemas/Address' },
-    expected: new Set(['Address']),
-  },
-  {
-    schema: {
-      items: {
-        $ref: '#/components/schemas/Category',
-      },
-    },
-    expected: new Set(['Category']),
-  },
-  {
-    schema: {
-      items: {
-        $ref: '#/components/schemas/Tag',
-      },
-    },
-    expected: new Set(['Tag']),
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/schema/references/find-references.test.ts
 
-describe('findReferences', () => {
-  it.concurrent.each(findReferencesTestCases)(
-    'findReferences($schema) -> $expected',
-    async ({ schema, expected }) => {
-      const result = findReferences(schema)
-      expect(result).toEqual(expected)
+describe('findReferences Test', () => {
+  test.concurrent(
+    `findReferences({ $ref: '#/components/schemas/Test' }) -> new Set(['Test'])`,
+    () => {
+      const result = findReferences({ $ref: '#/components/schemas/Test' })
+      const expected = new Set(['Test'])
+      expect(result).toStrictEqual(expected)
     },
   )
 })

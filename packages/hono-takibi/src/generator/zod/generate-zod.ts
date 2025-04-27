@@ -1,24 +1,24 @@
-import type { Schema, Type } from '../../type'
-import type { Config } from '../../config'
-import { isFormatString } from '../../core/validator/is-format-string'
-import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper'
-import { generateZodObject } from './generate-zod-object'
-import { generateZodEnum } from './generate-zod-enum'
-import { generateZodMax } from './generate-zod-max'
-import { generateZodMin } from './generate-zod-min'
-import { generateZodNumber } from './generate-zod-number'
-import { generateZodIntegerSchema } from './generate-zod-integer-schema'
-import { generateZodLength } from './generate-zod-length'
-import { generateZodArray } from './generate-zod-array'
-import { generateZodString } from './generate-zod-string'
-import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper'
-import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper'
-import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper'
-import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code'
-import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code'
-import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code'
-import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
+import type { Schema, Type } from '../../types/index.js'
+import type { Config } from '../../config/index.js'
+import { isFormatString } from '../../core/validator/is-format-string.js'
+import { getVariableSchemaNameHelper } from '../../core/helper/get-variable-schema-name-helper.js'
+import { generateZodObject } from './generate-zod-object.js'
+import { generateZodEnum } from './generate-zod-enum.js'
+import { generateZodMax } from './generate-zod-max.js'
+import { generateZodMin } from './generate-zod-min.js'
+import { generateZodNumber } from './generate-zod-number.js'
+import { generateZodIntegerSchema } from './generate-zod-integer-schema.js'
+import { generateZodLength } from './generate-zod-length.js'
+import { generateZodArray } from './generate-zod-array.js'
+import { generateZodString } from './generate-zod-string.js'
+import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
+import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
+import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
+import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
+import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
+import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
+import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code.js'
+import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -118,7 +118,6 @@ export function generateZod(
     // length
     if (
       schema.minLength &&
-      schema.maxLength &&
       schema.maxLength &&
       schema.minLength === schema.maxLength &&
       res.includes(`min(${schema.minLength})`) &&

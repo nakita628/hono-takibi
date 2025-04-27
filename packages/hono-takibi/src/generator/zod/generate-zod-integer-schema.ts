@@ -1,9 +1,9 @@
-import type { DefaultValue, ExampleValue } from '../../type'
-import { generateZodDefault } from './generate-zod-default'
-import { generateZodMax } from './generate-zod-max'
-import { generateZodMin } from './generate-zod-min'
-import { generateZodRegex } from './generate-zod-regex'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
+import type { DefaultValue, ExampleValue } from '../../types/index.js'
+import { generateZodDefault } from './generate-zod-default.js'
+import { generateZodMax } from './generate-zod-max.js'
+import { generateZodMin } from './generate-zod-min.js'
+import { generateZodRegex } from './generate-zod-regex.js'
+import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 type GenerateZodIntegerSchemaParams = {
   pattern?: string

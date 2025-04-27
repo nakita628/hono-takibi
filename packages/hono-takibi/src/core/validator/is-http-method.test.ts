@@ -20,7 +20,7 @@ const isHttpMethodTestCases = [
   { method: 'TRACE', expected: false },
 ]
 
-describe('isHttpMethod', () => {
+describe('isHttpMethod Test', () => {
   it.concurrent.each(isHttpMethodTestCases)(
     'isHttpMethod($method) -> $expected',
     async ({ method, expected }) => {

@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../../type'
+import { OpenAPISpec } from '../../../../types'
 
 /**
  * Generate docs

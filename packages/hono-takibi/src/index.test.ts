@@ -4,7 +4,10 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { petStoreOpenAPIExpected } from '../data/expected/pet-store-openapi'
 
-describe('Hono Takibi', () => {
+// Test run
+// pnpm vitest run ./src/index.test.ts
+
+describe('Hono Takibi Test', () => {
   beforeAll(() => {
     if (!fs.existsSync('route')) {
       fs.mkdirSync('route', { recursive: true })

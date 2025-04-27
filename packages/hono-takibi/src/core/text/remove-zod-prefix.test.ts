@@ -1,23 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { removeZodPrefix } from './remove-zod-prefix'
 
-const removeZodPrefixTestCases = [
-  {
-    input: 'z.string().min(1)',
-    expected: 'string().min(1)',
-  },
-  {
-    input: 'z.number().min(1)',
-    expected: 'number().min(1)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/text/remove-zod-prefix.test.ts
 
-describe('removeZodPrefix', () => {
-  it.concurrent.each(removeZodPrefixTestCases)(
-    'removeZodPrefix(%s) -> %s',
-    ({ input, expected }) => {
-      const result = removeZodPrefix(input)
-      expect(result).toBe(expected)
-    },
-  )
+describe('removeZodPrefix Test', () => {
+  test.concurrent(`removeZodPrefix('z.string().min(1)') -> 'string().min(1)'`, () => {
+    const result = removeZodPrefix('z.string().min(1)')
+    const expected = 'string().min(1)'
+    expect(result).toBe(expected)
+  })
+  test.concurrent(`removeZodPrefix('z.number().min(1)') -> 'number().min(1)'`, () => {
+    const result = removeZodPrefix('z.number().min(1)')
+    const expected = 'number().min(1)'
+    expect(result).toBe(expected)
+  })
 })

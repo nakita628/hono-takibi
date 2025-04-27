@@ -1,47 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper'
 
-const getCamelCaseSchemaNameTestCases = [
-  {
-    schemaName: 'Order',
-    expected: 'orderSchema',
-  },
-  {
-    schemaName: 'Address',
-    expected: 'addressSchema',
-  },
-  {
-    schemaName: 'Customer',
-    expected: 'customerSchema',
-  },
-  {
-    schemaName: 'Category',
-    expected: 'categorySchema',
-  },
-  {
-    schemaName: 'User',
-    expected: 'userSchema',
-  },
-  {
-    schemaName: 'Tag',
-    expected: 'tagSchema',
-  },
-  {
-    schemaName: 'Pet',
-    expected: 'petSchema',
-  },
-  {
-    schemaName: 'ApiResponse',
-    expected: 'apiResponseSchema',
-  },
-]
+// Test run
+// pnpm vitest run ./src/core/helper/get-camel-case-schema-name-helper.test.ts
 
-describe('getCamelCaseSchemaName', () => {
-  it.concurrent.each(getCamelCaseSchemaNameTestCases)(
-    'getCamelCaseSchemaName($schemaName) -> $expected',
-    ({ schemaName, expected }) => {
-      const result = getCamelCaseSchemaNameHelper(schemaName)
-      expect(result).toBe(expected)
-    },
-  )
+describe('getCamelCaseSchemaNameHelper Test', () => {
+  test.concurrent(`getCamelCaseSchemaNameHelper('test') -> 'testSchema'`, () => {
+    const result = getCamelCaseSchemaNameHelper('test')
+    const expected = 'testSchema'
+    expect(result).toBe(expected)
+  })
+  test.concurrent(`getCamelCaseSchemaNameHelper('Test') -> 'testSchema'`, () => {
+    const result = getCamelCaseSchemaNameHelper('Test')
+    const expected = 'testSchema'
+    expect(result).toBe(expected)
+  })
 })

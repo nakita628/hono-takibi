@@ -1,4 +1,4 @@
-import { generateAppRouteHandler } from '../generate-app-route-handler'
+import { generateAppRouteHandler } from '../generate-app-route-handler.js'
 
 /**
  * Generates the application route handlers.

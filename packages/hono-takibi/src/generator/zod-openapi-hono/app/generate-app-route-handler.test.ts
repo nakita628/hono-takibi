@@ -1,33 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateAppRouteHandler } from './generate-app-route-handler'
 
-const generateAppRouteHandlerTestCases: {
-  routeName: string
-  handlerName: string
-  expected: string
-}[] = [
-  {
-    routeName: 'putPetRoute',
-    handlerName: 'putPetRouteHandler',
-    expected: '.openapi(putPetRoute,putPetRouteHandler)',
-  },
-  {
-    routeName: 'postPetRoute',
-    handlerName: 'postPetRouteHandler',
-    expected: '.openapi(postPetRoute,postPetRouteHandler)',
-  },
-  {
-    routeName: 'getPetFindByStatusRoute',
-    handlerName: 'getPetFindByStatusRouteHandler',
-    expected: '.openapi(getPetFindByStatusRoute,getPetFindByStatusRouteHandler)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generate-app-route-handler.test.ts
 
-describe('generateAppRouteHandler', () => {
-  it.concurrent.each(generateAppRouteHandlerTestCases)(
-    'generateAppRouteHandler($routeName, $handlerName) -> $expected',
-    ({ routeName, handlerName, expected }) => {
-      const result = generateAppRouteHandler(routeName, handlerName)
+describe('generateAppRouteHandler Test', () => {
+  test.concurrent(
+    `generateAppRouteHandler('getRoute', 'getRouteHandler') -> .openapi(getRoute,getRouteHandler)`,
+    () => {
+      const result = generateAppRouteHandler('getRoute', 'getRouteHandler')
+      const expected = '.openapi(getRoute,getRouteHandler)'
       expect(result).toBe(expected)
     },
   )

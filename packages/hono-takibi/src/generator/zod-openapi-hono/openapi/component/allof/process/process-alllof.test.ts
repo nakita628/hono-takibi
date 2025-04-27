@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { processAllOf } from './process-alllof'
 import { DEFAULT_CONFIG } from '../../../../../../../data/test-config'
-import type { Schema } from '../../../../../../type'
+import type { Schema } from '../../../../../../types'
 import type { Config } from '../../../../../../config'
+
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/process/process-alllof.test.ts
 
 const processAllOfTestCases: {
   allOf: Schema[]

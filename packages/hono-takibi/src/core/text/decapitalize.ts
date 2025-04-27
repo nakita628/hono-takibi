@@ -1,7 +1,7 @@
 /**
  * Decapitalize the first letter of a string
- * @param {string} str - String to decapitalize
- * @returns {string} String with the first letter in lowercase
+ * @param { string } str - String to decapitalize
+ * @returns { string } String with the first letter in lowercase
  *
  * @example
  * decapitalize('Posts')    // Returns: 'posts'

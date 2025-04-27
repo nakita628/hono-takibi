@@ -1,24 +1,19 @@
-import type { DefaultValue } from '../../type'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodDefault } from './generate-zod-default'
 
-const generateZodDefaultTestCases: { defaultValue: DefaultValue; expected: string }[] = [
-  {
-    defaultValue: 1,
-    expected: '.default(1)',
-  },
-  {
-    defaultValue: 10,
-    expected: '.default(10)',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-default.test.ts
 
-describe('generateZodDefault', () => {
-  it.concurrent.each(generateZodDefaultTestCases)(
-    'generateZodDefault($defaultValue) -> $expected',
-    async ({ defaultValue, expected }) => {
-      const result = generateZodDefault(defaultValue)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodDefault Test', () => {
+  test.concurrent('generateZodDefault(1) -> .default(1)', () => {
+    const result = generateZodDefault(1)
+    const expected = '.default(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodDefault(10) -> .default(10)', () => {
+    const result = generateZodDefault(10)
+    const expected = '.default(10)'
+    expect(result).toBe(expected)
+  })
 })

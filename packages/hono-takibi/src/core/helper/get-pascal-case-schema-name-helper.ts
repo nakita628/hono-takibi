@@ -1,4 +1,4 @@
-import { capitalize } from '../text/capitalize'
+import { capitalize } from '../text/capitalize.js'
 
 /**
  * Generates a PascalCase schema name from a given schema name.

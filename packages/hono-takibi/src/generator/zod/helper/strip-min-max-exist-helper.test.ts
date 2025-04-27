@@ -1,20 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test, it } from 'vitest'
 import { stripMinMaxExistHelper } from './strip-min-max-exist-helper'
 
-const stripMinMaxExistHelperTestCases = [
-  {
-    str: 'z.string().min(1).max(1)',
-    min: 1,
-    max: 1,
-    expected: 'z.string()',
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/helper/strip-min-max-exist-helper.test.ts
 
-describe('stripMinMaxExistHelper', () => {
-  it.concurrent.each(stripMinMaxExistHelperTestCases)(
-    'stripMinMaxExistHelper(%s, %s, %s) -> %s',
-    ({ str, min, max, expected }) => {
-      const result = stripMinMaxExistHelper(str, min, max)
+describe('stripMinMaxExistHelper Test', () => {
+  test.concurrent(
+    `stripMinMaxExistHelper('z.string().min(1).max(1)', 1, 1) -> 'z.string()'`,
+    () => {
+      const result = stripMinMaxExistHelper('z.string().min(1).max(1)', 1, 1)
+      const expected = 'z.string()'
       expect(result).toBe(expected)
     },
   )

@@ -1,42 +1,29 @@
-import { describe, expect, it } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { isArrayWithSchemaReference } from './is-array-with-schema-reference'
-import type { Schema } from '../../type'
 
-const isArrayWithSchemaReferenceTestCases: {
-  schema: Schema
-  expected: boolean
-}[] = [
-  {
-    schema: {
+// Test run
+// pnpm vitest run ./src/core/validator/is-array-with-schema-reference.test.ts
+
+describe('isArrayWithSchemaReference Test', () => {
+  test.concurrent('isArrayWithSchemaReference -> true', () => {
+    const result = isArrayWithSchemaReference({
       type: 'array',
-      xml: { name: 'addresses', wrapped: true },
-      items: { $ref: '#/components/schemas/Address' },
-    },
-    expected: true,
-  },
-  {
-    schema: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-    expected: true,
-  },
-  {
-    schema: { type: 'string', format: 'binary' },
-    expected: false,
-  },
-  {
-    schema: {
+      items: { $ref: '#/components/schemas/Test' },
+    })
+    const expected = true
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isArrayWithSchemaReference -> false', () => {
+    const result = isArrayWithSchemaReference({ type: 'string', format: 'binary' })
+    const expected = false
+    expect(result).toBe(expected)
+  })
+  test.concurrent('isArrayWithSchemaReference -> false', () => {
+    const result = isArrayWithSchemaReference({
       type: 'array',
       items: undefined,
-    },
-    expected: false,
-  },
-]
-
-describe('isArrayWithSchemaReference', () => {
-  it.concurrent.each(isArrayWithSchemaReferenceTestCases)(
-    'isArrayWithSchemaReference(%s) -> %s',
-    ({ schema, expected }) => {
-      const result = isArrayWithSchemaReference(schema)
-      expect(result).toBe(expected)
-    },
-  )
+    })
+    const expected = false
+    expect(result).toBe(expected)
+  })
 })

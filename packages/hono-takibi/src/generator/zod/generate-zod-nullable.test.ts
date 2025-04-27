@@ -1,17 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodNullable } from './generate-zod-nullable'
 
-const generateZodNullableTestCases = [
-  { nullable: true, expected: '.nullable()' },
-  { nullable: false, expected: '' },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-nullable.test.ts
 
-describe('generateZodNullable', () => {
-  it.concurrent.each(generateZodNullableTestCases)(
-    'generateZodNullable($nullable) -> $expected',
-    ({ nullable, expected }) => {
-      const result = nullable ? generateZodNullable() : ''
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodNullable Test', () => {
+  test.concurrent(`generateZodNullable() -> '.nullable()'`, () => {
+    const nullable = true
+    const result = nullable ? generateZodNullable() : ''
+    const expected = '.nullable()'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent(`generateZodNullable() -> ''`, () => {
+    const nullable = false
+    const result = nullable ? generateZodNullable() : ''
+    const expected = ''
+    expect(result).toBe(expected)
+  })
 })

@@ -1,6 +1,6 @@
-import type { Config } from '../../config'
-import type { Format, Type } from '../../type'
-import { generateZod } from './generate-zod'
+import type { Config } from '../../config/index.js'
+import type { Format, Type } from '../../types/index.js'
+import { generateZod } from './generate-zod.js'
 
 /**
  * Generates a Zod record schema for objects with additional properties

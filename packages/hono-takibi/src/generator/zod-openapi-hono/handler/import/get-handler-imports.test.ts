@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { getHandlerImports } from './get-handler-imports'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/handler/import/get-handler-imports.test.ts
+
 const getHandlerImportsTestCases: {
   handlerMaps: {
     routeName: string

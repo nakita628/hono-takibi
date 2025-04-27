@@ -1,17 +1,19 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateZodMin } from './generate-zod-min'
 
-const generateZodMinTestCases = [
-  { min: 1, expected: '.min(1)' },
-  { min: 10, expected: '.min(10)' },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod/generate-zod-min.test.ts
 
-describe('generateZodMin', () => {
-  it.concurrent.each(generateZodMinTestCases)(
-    'generateZodMin($min) -> $expected',
-    ({ min, expected }) => {
-      const result = generateZodMin(min)
-      expect(result).toBe(expected)
-    },
-  )
+describe('generateZodMin Test', () => {
+  test.concurrent('generateZodMin(1) -> .min(1)', () => {
+    const result = generateZodMin(1)
+    const expected = '.min(1)'
+    expect(result).toBe(expected)
+  })
+
+  test.concurrent('generateZodMin(10) -> .min(10)', () => {
+    const result = generateZodMin(10)
+    const expected = '.min(10)'
+    expect(result).toBe(expected)
+  })
 })

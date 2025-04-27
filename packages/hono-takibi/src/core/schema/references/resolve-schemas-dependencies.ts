@@ -1,5 +1,5 @@
-import type { Schema } from '../../../type'
-import { traverseSchemaDependencies } from './traverse-schema-dependencies'
+import type { Schema } from '../../../types/index.js'
+import { traverseSchemaDependencies } from './traverse-schema-dependencies.js'
 
 /**
  * Resolves dependencies between schemas and returns them in topological order for safe processing

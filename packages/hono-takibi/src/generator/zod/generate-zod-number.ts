@@ -1,11 +1,11 @@
-import type { DefaultValue, ExampleValue } from '../../type'
-import { generateZodDefault } from './generate-zod-default'
-import { generateZodGt } from './generate-zod-gt'
-import { generateZodLt } from './generate-zod-lt'
-import { generateZodMax } from './generate-zod-max'
-import { generateZodMin } from './generate-zod-min'
-import { generateZodRegex } from './generate-zod-regex'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi'
+import type { DefaultValue, ExampleValue } from '../../types/index.js'
+import { generateZodDefault } from './generate-zod-default.js'
+import { generateZodGt } from './generate-zod-gt.js'
+import { generateZodLt } from './generate-zod-lt.js'
+import { generateZodMax } from './generate-zod-max.js'
+import { generateZodMin } from './generate-zod-min.js'
+import { generateZodRegex } from './generate-zod-regex.js'
+import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 type GenerateZodNumberParams = {
   pattern?: string

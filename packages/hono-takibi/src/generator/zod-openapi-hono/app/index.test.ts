@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { generateApp } from './'
 import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
 import { DEFAULT_CONFIG } from '../../../../data/test-config'
-import type { OpenAPISpec } from '../../../type'
+import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
+
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/index.test.ts
 
 const generateAppTestCases: {
   openAPISpec: OpenAPISpec

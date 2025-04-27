@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateApplyOpenapiRoutes } from './generate-apply-openapi-routes'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generators/generate-apply-openapi-routes.test.ts
+
 const generateApplyOpenapiRoutesTestCases = [
   {
     routeMappings: [

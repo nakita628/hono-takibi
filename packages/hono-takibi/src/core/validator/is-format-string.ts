@@ -1,9 +1,9 @@
-import type { Format, FormatString } from '../../type'
+import type { Format, FormatString } from '../../types/index.js'
 
 /**
  *  Check if the format is a string type
- * @param {Format} format - OpenAPI format type
- * @returns {boolean} true if the format is a string type, false otherwise
+ * @param { Format } format - OpenAPI format type
+ * @returns { boolean } true if the format is a string type, false otherwise
  */
 export function isFormatString(format: Format): format is FormatString {
   return [

@@ -1,7 +1,7 @@
-import type { Schema } from '../../../../../type'
-import type { Config } from '../../../../../config'
-import { processAllOf } from './process/process-alllof'
-import { generateZodIntersection } from '../../../../zod/generate-zod-intersection'
+import type { Schema } from '../../../../../types/index.js'
+import type { Config } from '../../../../../config/index.js'
+import { processAllOf } from './process/process-alllof.js'
+import { generateZodIntersection } from '../../../../zod/generate-zod-intersection.js'
 
 /**
  * Converts an `allOf` schema into a Zod schema.

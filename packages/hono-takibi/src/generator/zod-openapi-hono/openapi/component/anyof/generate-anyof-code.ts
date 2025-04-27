@@ -1,8 +1,8 @@
-import type { Schema } from '../../../../../type'
-import type { Config } from '../../../../../config'
-import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name'
-import { generateZodUnion } from '../../../../zod/generate-zod-union'
-import { generateZod } from '../../../../zod/generate-zod'
+import type { Schema } from '../../../../../types/index.js'
+import type { Config } from '../../../../../config/index.js'
+import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name.js'
+import { generateZodUnion } from '../../../../zod/generate-zod-union.js'
+import { generateZod } from '../../../../zod/generate-zod.js'
 
 /**
  * Generates the Zod code for an `anyOf` schema.

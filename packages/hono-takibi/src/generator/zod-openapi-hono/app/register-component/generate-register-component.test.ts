@@ -1,29 +1,27 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { generateRegisterComponent } from './generate-register-component'
 
-const generateRegisterComponentTestCases = [
-  {
-    securitySchemes: {
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/register-component/generate-register-component.test.ts
+
+describe('generateRegisterComponent', () => {
+  test.concurrent('generateRegisterComponent success', () => {
+    const result = generateRegisterComponent({
       jwt: {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
-    },
-    expected: `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-    })})`,
-  },
-]
+    })
 
-describe('generateRegisterComponent', () => {
-  it.concurrent.each(generateRegisterComponentTestCases)(
-    'should generate register component for $securitySchemes',
-    ({ securitySchemes, expected }) => {
-      const result = generateRegisterComponent(securitySchemes)
-      expect(result).toBe(expected)
-    },
-  )
+    const expected = `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    )})`
+
+    expect(result).toBe(expected)
+  })
 })

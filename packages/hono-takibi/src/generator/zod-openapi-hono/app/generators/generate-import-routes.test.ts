@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateImportRoutes } from './generate-import-routes'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generators/generate-import-routes.test.ts
+
 const generateImportRoutesTestCases = [
   {
     importsMap: {

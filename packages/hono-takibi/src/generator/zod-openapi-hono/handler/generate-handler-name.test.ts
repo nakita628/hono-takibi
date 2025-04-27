@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { generateHandlerName } from './generate-handler-name'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/handler/generate-handler-name.test.ts
+
 const generateHandlerNameTestCases: {
   method: string
   path: string
