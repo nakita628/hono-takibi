@@ -44,7 +44,7 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: z.object({ message: z.string() }) } },
+      content: { 'application/json': { schema: errorSchema } },
     },
     400: {
       description: 'Invalid request due to bad input.',
@@ -64,7 +64,12 @@ export const getPostsRoute = createRoute({
   summary: 'Retrieve a list of posts',
   description:
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
-  request: { query: z.object({ page: z.string(), rows: z.string() }) },
+  request: {
+    query: z.object({
+      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
+      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
+    }),
+  },
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
