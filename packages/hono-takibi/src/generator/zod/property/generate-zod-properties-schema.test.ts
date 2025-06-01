@@ -1,11 +1,11 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodPropertiesSchema } from './generate-zod-properties-schema'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/property/generate-zod-properties-schema.test.ts
 
 describe('generateZodPropertiesSchema Test', () => {
-  test.concurrent('generateZodPropertiesSchema -> z.object({test:z.string()}).partial()', () => {
+  it.concurrent('generateZodPropertiesSchema -> z.object({test:z.string()}).partial()', () => {
     const result = generateZodPropertiesSchema(
       {
         test: { type: 'string' },
@@ -27,7 +27,7 @@ describe('generateZodPropertiesSchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generateZodPropertiesSchema -> z.object({test:z.string()})', () => {
+  it.concurrent('generateZodPropertiesSchema -> z.object({test:z.string()})', () => {
     const result = generateZodPropertiesSchema(
       {
         test: { type: 'string' },

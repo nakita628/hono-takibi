@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodObject } from './generate-zod-object'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/generate-zod-object.test.ts
 
 describe('generateZodObject Test', () => {
-  test.concurrent('generateZodObject -> z.object({}))', () => {
+  it.concurrent('generateZodObject -> z.object({}))', () => {
     const result = generateZodObject(
       {
         type: 'object',
@@ -27,7 +27,7 @@ describe('generateZodObject Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generateZodObject -> z.object({type:z.enum(["A","B","C"])})', () => {
+  it.concurrent('generateZodObject -> z.object({type:z.enum(["A","B","C"])})', () => {
     const result = generateZodObject(
       {
         type: 'object',
@@ -58,7 +58,7 @@ describe('generateZodObject Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('should throw an error when schema is null', () => {
+  it.concurrent('should throw an error when schema is null', () => {
     // biome-ignore lint:
     const schema = null as any
     expect(() =>
@@ -75,7 +75,7 @@ describe('generateZodObject Test', () => {
     ).toThrow('Cannot read properties of null')
   })
 
-  test.concurrent('should throw an error when schema is undefined', () => {
+  it.concurrent('should throw an error when schema is undefined', () => {
     // biome-ignore lint:
     const schema = undefined as any
     expect(() =>

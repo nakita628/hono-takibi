@@ -1,11 +1,11 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getConfig } from './index'
 
 // Test run
 // pnpm vitest run ./src/config/index.test.ts
 
 describe('getConfig Test', () => {
-  test.concurrent('getConfig', () => {
+  it.concurrent('getConfig', () => {
     const result = getConfig()
 
     const expected = {

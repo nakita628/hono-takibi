@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateRouteCode } from './generate-route-code'
 import { petStoreOpenAPI } from '../../../../../data/pet-store-openapi'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'

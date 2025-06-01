@@ -20,6 +20,6 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
   }
 
   const variableName = getVariableSchemaNameHelper(refName, config)
-  
+
   return generateZodArray(variableName)
 }

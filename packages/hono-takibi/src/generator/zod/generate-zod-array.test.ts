@@ -1,23 +1,23 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodArray } from './generate-zod-array'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/generate-zod-array.test.ts
 
 describe('generateZodArray Test', () => {
-  test.concurrent(`generateZodArray('Test') -> z.array(Test)`, () => {
+  it.concurrent(`generateZodArray('Test') -> z.array(Test)`, () => {
     const result = generateZodArray('Test')
     const expected = 'z.array(Test)'
     expect(result).toBe(expected)
   })
 
-  test.concurrent(`generateZodArray('z.string()') -> z.array(z.string())`, () => {
+  it.concurrent(`generateZodArray('z.string()') -> z.array(z.string())`, () => {
     const result = generateZodArray('z.string()')
     const expected = 'z.array(z.string())'
     expect(result).toBe(expected)
   })
 
-  test.concurrent(
+  it.concurrent(
     `generateZodArray('z.object({ name: z.string() })') -> z.array(z.object({ name: z.string() }))`,
     () => {
       const result = generateZodArray('z.object({ name: z.string() })')

@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateReferenceSchema } from './generate-reference-schema'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/reference/generate-reference-schema.test.ts
 
 describe('generateReferenceSchema Test', () => {
-  test.concurrent('generateReferenceSchema -> TestSchema', () => {
+  it.concurrent('generateReferenceSchema -> TestSchema', () => {
     const result = generateReferenceSchema(
       {
         $ref: '#/components/schemas/Test',
@@ -26,7 +26,7 @@ describe('generateReferenceSchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generateReferenceSchema -> z.any()', () => {
+  it.concurrent('generateReferenceSchema -> z.any()', () => {
     const result = generateReferenceSchema(
       {
         $ref: '',

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
 import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import type { Parameters, RequestBody } from '../../../../../types'

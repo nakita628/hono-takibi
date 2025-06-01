@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, it, expect } from 'vitest'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import fs from 'node:fs'
