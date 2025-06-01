@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateRegisterComponent } from './generate-register-component'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/register-component/generate-register-component.test.ts
 
 describe('generateRegisterComponent', () => {
-  test.concurrent('generateRegisterComponent success', () => {
+  it.concurrent('generateRegisterComponent success', () => {
     const result = generateRegisterComponent({
       jwt: {
         type: 'http',

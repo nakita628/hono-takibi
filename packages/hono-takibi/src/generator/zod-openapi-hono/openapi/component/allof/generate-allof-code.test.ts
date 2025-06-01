@@ -1,7 +1,7 @@
 import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateAllOfCode } from '../allof/generate-allof-code'
 
 // Test run

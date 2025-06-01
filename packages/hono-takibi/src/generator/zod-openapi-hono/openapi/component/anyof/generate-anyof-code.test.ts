@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateAnyOfCode } from './generate-anyof-code'
 import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import type { Schema } from '../../../../../types'

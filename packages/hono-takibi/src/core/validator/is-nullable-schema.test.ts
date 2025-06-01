@@ -1,18 +1,18 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { isNullableSchema } from './is-nullable-schema'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-nullable-schema.test.ts
 
 describe('isNullableSchema Test', () => {
-  test.concurrent('isNullableSchema -> true', () => {
+  it.concurrent('isNullableSchema -> true', () => {
     const result = isNullableSchema({
       nullable: true,
     })
     const expected = true
     expect(result).toBe(expected)
   })
-  test.concurrent('isNullableSchema -> false', () => {
+  it.concurrent('isNullableSchema -> false', () => {
     const result = isNullableSchema({
       type: 'object',
       properties: {

@@ -1,11 +1,11 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generatePropertySchema } from './generate-zod-property-schema'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/property/generate-zod-property-schema.test.ts
 
 describe('generatePropertySchema Test', () => {
-  test.concurrent('generatePropertySchema -> TestSchema', () => {
+  it.concurrent('generatePropertySchema -> TestSchema', () => {
     const result = generatePropertySchema(
       {
         $ref: '#/components/schemas/Test',
@@ -26,7 +26,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.string()', () => {
+  it.concurrent('generatePropertySchema -> z.string()', () => {
     const result = generatePropertySchema(
       {
         type: 'string',
@@ -47,7 +47,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.number()', () => {
+  it.concurrent('generatePropertySchema -> z.number()', () => {
     const result = generatePropertySchema(
       {
         type: 'number',
@@ -68,7 +68,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.any', () => {
+  it.concurrent('generatePropertySchema -> z.any', () => {
     const result = generatePropertySchema(
       {
         $ref: '',
@@ -89,7 +89,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.array(z.any())', () => {
+  it.concurrent('generatePropertySchema -> z.array(z.any())', () => {
     const result = generatePropertySchema(
       {
         type: 'array',
@@ -113,7 +113,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.array(TestSchema)', () => {
+  it.concurrent('generatePropertySchema -> z.array(TestSchema)', () => {
     const result = generatePropertySchema(
       {
         type: 'array',
@@ -137,7 +137,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.string().email()', () => {
+  it.concurrent('generatePropertySchema -> z.string().email()', () => {
     const result = generatePropertySchema(
       { type: 'string', format: 'email' },
       {
@@ -156,7 +156,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.string().uuid()', () => {
+  it.concurrent('generatePropertySchema -> z.string().uuid()', () => {
     const result = generatePropertySchema(
       { type: 'string', format: 'uuid' },
       {
@@ -175,7 +175,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.string().datetime()', () => {
+  it.concurrent('generatePropertySchema -> z.string().datetime()', () => {
     const result = generatePropertySchema(
       { type: 'string', format: 'date-time' },
       {
@@ -194,7 +194,7 @@ describe('generatePropertySchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  test.concurrent('generatePropertySchema -> z.enum(["a","b","c"])', () => {
+  it.concurrent('generatePropertySchema -> z.enum(["a","b","c"])', () => {
     const result = generatePropertySchema(
       { type: 'string', enum: ['a', 'b', 'c'] },
       {

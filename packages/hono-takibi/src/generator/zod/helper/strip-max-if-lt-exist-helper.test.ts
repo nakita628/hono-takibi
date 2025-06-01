@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { stripMaxIfLtExistHelper } from './strip-max-if-lt-exist-helper'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/helper/strip-max-if-lt-exist-helper.test.ts
 
 describe('stripMaxIfLtExistHelper Test', () => {
-  test.concurrent(
+  it.concurrent(
     `stripMaxIfLtExistHelper('z.number().max(1).lt(1)', 1) -> 'z.number().lt(1)'`,
     () => {
       const result = stripMaxIfLtExistHelper('z.number().max(1).lt(1)', 1)

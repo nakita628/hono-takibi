@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateComponentsCode } from './generate-components-code'
 import type { Components } from '../../../../types'
 
@@ -25,7 +25,7 @@ describe('generateComponentsCode Test', () => {
   //   schema: { name: 'PascalCase', export: true },
   //   type: { name: 'PascalCase', export: true }
   // },
-  test.concurrent('schema name PascalCase export true type PascalCase export true', () => {
+  it.concurrent('schema name PascalCase export true type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'PascalCase', export: true },
@@ -41,7 +41,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: true },
   //   type: { name: 'PascalCase', export: false }
   // },
-  test.concurrent('schema name PascalCase export true type not output export false', () => {
+  it.concurrent('schema name PascalCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'PascalCase', export: false },
@@ -58,7 +58,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: true },
   //   type: { name: 'camelCase', export: true }
   // },
-  test.concurrent('schema name PascalCase export true type camelCase export true', () => {
+  it.concurrent('schema name PascalCase export true type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'camelCase', export: true },
@@ -75,7 +75,7 @@ export type test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: true },
   //   type: { name: 'camelCase', export: false }
   // },
-  test.concurrent('schema name PascalCase export true type not output export false', () => {
+  it.concurrent('schema name PascalCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'camelCase', export: false },
@@ -92,7 +92,7 @@ export type test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: false },
   //   type: { name: 'PascalCase', export: true }
   // },
-  test.concurrent('schema name PascalCase export false type PascalCase export true', () => {
+  it.concurrent('schema name PascalCase export false type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: true },
@@ -109,7 +109,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: false },
   //   type: { name: 'PascalCase', export: false }
   // },
-  test.concurrent('schema name PascalCase export false type not output export false', () => {
+  it.concurrent('schema name PascalCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: false },
@@ -126,7 +126,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: false },
   //   type: { name: 'camelCase', export: true }
   // },
-  test.concurrent('schema name PascalCase export false type camelCase export true', () => {
+  it.concurrent('schema name PascalCase export false type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'camelCase', export: true },
@@ -143,7 +143,7 @@ export type test = z.infer<typeof TestSchema>`
   //   schema: { name: 'PascalCase', export: false },
   //   type: { name: 'camelCase', export: false }
   // },
-  test.concurrent('schema name PascalCase export false type not output export false', () => {
+  it.concurrent('schema name PascalCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'camelCase', export: false },
@@ -160,7 +160,7 @@ export type test = z.infer<typeof TestSchema>`
   //   schema: { name: 'camelCase', export: true },
   //   type: { name: 'PascalCase', export: true }
   // },
-  test.concurrent('schema name camelCase export true type PascalCase export true', () => {
+  it.concurrent('schema name camelCase export true type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
       type: { name: 'PascalCase', export: true },
@@ -177,7 +177,7 @@ export type Test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: true },
   //   type: { name: 'PascalCase', export: false }
   // },
-  test.concurrent('schema name camelCase export true type not output export false', () => {
+  it.concurrent('schema name camelCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
       type: { name: 'PascalCase', export: false },
@@ -194,7 +194,7 @@ export type Test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: true },
   //   type: { name: 'camelCase', export: true }
   // },
-  test.concurrent('schema name camelCase export true type camelCase export true', () => {
+  it.concurrent('schema name camelCase export true type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
       type: { name: 'camelCase', export: true },
@@ -211,7 +211,7 @@ export type test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: true },
   //   type: { name: 'camelCase', export: false }
   // },
-  test.concurrent('schema name camelCase export true type not output export false', () => {
+  it.concurrent('schema name camelCase export true type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: true },
       type: { name: 'camelCase', export: false },
@@ -228,7 +228,7 @@ export type test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'PascalCase', export: true }
   // },
-  test.concurrent('schema name camelCase export false type PascalCase export true', () => {
+  it.concurrent('schema name camelCase export false type PascalCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
       type: { name: 'PascalCase', export: true },
@@ -246,7 +246,7 @@ export type Test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'PascalCase', export: false }
   // },
-  test.concurrent('schema name camelCase export false type not output export false', () => {
+  it.concurrent('schema name camelCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
       type: { name: 'PascalCase', export: false },
@@ -263,7 +263,7 @@ export type Test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'camelCase', export: true }
   // },
-  test.concurrent('schema name camelCase export false type camelCase export true', () => {
+  it.concurrent('schema name camelCase export false type camelCase export true', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
       type: { name: 'camelCase', export: true },
@@ -280,7 +280,7 @@ export type test = z.infer<typeof testSchema>`
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'camelCase', export: false }
   // }
-  test.concurrent('schema name camelCase export false type not output export false', () => {
+  it.concurrent('schema name camelCase export false type not output export false', () => {
     const result = generateComponentsCode(testComponents, {
       schema: { name: 'camelCase', export: false },
       type: { name: 'camelCase', export: false },
@@ -294,7 +294,7 @@ export type test = z.infer<typeof testSchema>`
   })
   // 17
   // schema empty
-  test.concurrent(`schema empty -> ''`, () => {
+  it.concurrent(`schema empty -> ''`, () => {
     const result = generateComponentsCode(
       {},
       {

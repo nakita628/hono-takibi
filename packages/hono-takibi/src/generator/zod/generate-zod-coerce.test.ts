@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodCoerce } from './generate-zod-coerce'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/generate-zod-coerce.test.ts
 
 describe('generateZodCoerce Test', () => {
-  test.concurrent(
+  it.concurrent(
     `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number())`,
     () => {
       const result = generateZodCoerce('z.string()', 'z.number()')
@@ -14,7 +14,7 @@ describe('generateZodCoerce Test', () => {
     },
   )
 
-  test.concurrent(
+  it.concurrent(
     `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number().min(1))`,
     () => {
       const result = generateZodCoerce('z.string()', 'z.number().min(1)')
@@ -23,7 +23,7 @@ describe('generateZodCoerce Test', () => {
     },
   )
 
-  test.concurrent(
+  it.concurrent(
     `generateZodCoerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number().max(10))`,
     () => {
       const result = generateZodCoerce('z.string()', 'z.number().max(10)')

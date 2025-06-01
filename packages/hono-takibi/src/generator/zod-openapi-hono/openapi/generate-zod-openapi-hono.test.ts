@@ -1,6 +1,6 @@
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
 import { abcdeOpenAPI } from '../../../../data/abcde'
 

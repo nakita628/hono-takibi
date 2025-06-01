@@ -1,16 +1,16 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { removeZodPrefix } from './remove-zod-prefix'
 
 // Test run
 // pnpm vitest run ./src/core/text/remove-zod-prefix.test.ts
 
 describe('removeZodPrefix Test', () => {
-  test.concurrent(`removeZodPrefix('z.string().min(1)') -> 'string().min(1)'`, () => {
+  it.concurrent(`removeZodPrefix('z.string().min(1)') -> 'string().min(1)'`, () => {
     const result = removeZodPrefix('z.string().min(1)')
     const expected = 'string().min(1)'
     expect(result).toBe(expected)
   })
-  test.concurrent(`removeZodPrefix('z.number().min(1)') -> 'number().min(1)'`, () => {
+  it.concurrent(`removeZodPrefix('z.number().min(1)') -> 'number().min(1)'`, () => {
     const result = removeZodPrefix('z.number().min(1)')
     const expected = 'number().min(1)'
     expect(result).toBe(expected)

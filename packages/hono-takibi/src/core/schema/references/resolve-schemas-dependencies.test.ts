@@ -1,11 +1,11 @@
-import { describe, expect, test, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { resolveSchemasDependencies } from './resolve-schemas-dependencies'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/resolve-schemas-dependencies.test.ts
 
 describe('resolveSchemasDependencies Test', () => {
-  test.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
+  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
     const result = resolveSchemasDependencies({
       A: {
         type: 'object',

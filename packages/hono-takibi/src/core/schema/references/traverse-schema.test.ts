@@ -1,4 +1,4 @@
-import { beforeEach, describe, test, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import { traverseSchema } from './traverse-schema'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
@@ -13,7 +13,7 @@ describe('traverseSchema Test', () => {
   })
 
   // Normal
-  test('should collect A, B, C, D, E from a flat schema', () => {
+  it('should collect A, B, C, D, E from a flat schema', () => {
     traverseSchema(
       {
         properties: {
@@ -33,7 +33,7 @@ describe('traverseSchema Test', () => {
   })
 
   // Nested
-  test('should collect A, B and E from nested properties', () => {
+  it('should collect A, B and E from nested properties', () => {
     traverseSchema(
       {
         properties: {
@@ -55,7 +55,7 @@ describe('traverseSchema Test', () => {
   })
 
   // Chain
-  test('should collect A, B, C, D, E from a nested chain', () => {
+  it('should collect A, B, C, D, E from a nested chain', () => {
     traverseSchema(
       {
         properties: {
@@ -91,7 +91,7 @@ describe('traverseSchema Test', () => {
   })
 
   // Duplicate
-  test('should not add duplicate references, including E', () => {
+  it('should not add duplicate references, including E', () => {
     traverseSchema(
       {
         properties: {
@@ -111,7 +111,7 @@ describe('traverseSchema Test', () => {
   })
 
   // Error
-  test('should throw error on circular reference (A -> B -> C -> A)', () => {
+  it('should throw error on circular reference (A -> B -> C -> A)', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []

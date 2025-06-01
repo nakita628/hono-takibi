@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { processImportMap } from './process-import-map'
 import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Config } from '../../../../config'

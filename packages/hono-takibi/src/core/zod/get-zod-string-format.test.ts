@@ -1,5 +1,5 @@
-import type { FormatString } from '../../type'
-import { describe, expect, it } from 'vitest'
+import type { FormatString } from '../../types'
+import { describe, it, expect } from 'vitest'
 import { getZodFormatString } from './get-zod-string-format'
 
 const getZodFormatStringTestCases: {

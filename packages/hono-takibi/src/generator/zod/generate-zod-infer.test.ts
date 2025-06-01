@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateZodInfer } from './generate-zod-infer'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/generate-zod-infer.test.ts
 
 describe('generateZodInfer Test', () => {
-  test.concurrent(
+  it.concurrent(
     `generateZodInfer('test', 'testSchema') -> export type test = z.infer<typeof testSchema>`,
     () => {
       const result = generateZodInfer('test', 'testSchema')
@@ -14,7 +14,7 @@ describe('generateZodInfer Test', () => {
     },
   )
 
-  test.concurrent(
+  it.concurrent(
     `generateZodInfer('Test', 'TestSchema') -> export type Test = z.infer<typeof TestSchema>`,
     () => {
       const result = generateZodInfer('Test', 'TestSchema')

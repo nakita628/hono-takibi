@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { generateResponseSchema } from './generate-response-schema'
 import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import type { Responses } from '../../../../../types'

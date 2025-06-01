@@ -1,11 +1,11 @@
-import { describe, test, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { extractRefs } from './extract-refs'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/extract-refs.test.ts
 
 describe('extractRefs Test', () => {
-  test.concurrent(`extractRefs '#/components/schemas/Test' -> ['Test']`, () => {
+  it.concurrent(`extractRefs '#/components/schemas/Test' -> ['Test']`, () => {
     const result = extractRefs({
       type: 'object',
       properties: {
@@ -19,7 +19,7 @@ describe('extractRefs Test', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  test.concurrent('extractRefs({}) -> []', () => {
+  it.concurrent('extractRefs({}) -> []', () => {
     const result = extractRefs({})
     expect(result).toEqual([])
   })
