@@ -1,11 +1,11 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { traverseSchemaDependencies } from './traverse-schema-dependencies'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/traverse-schema-dependencies.test.ts
 
 describe('traverseSchemaDependencies Test', () => {
-  test.concurrent('should handle single schema with no dependencies', () => {
+  it.concurrent('should handle single schema with no dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
@@ -30,7 +30,7 @@ describe('traverseSchemaDependencies Test', () => {
     expect(recursionStack.size).toBe(0)
   })
 
-  test.concurrent('should handle simple dependency chain', () => {
+  it.concurrent('should handle simple dependency chain', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
@@ -62,7 +62,7 @@ describe('traverseSchemaDependencies Test', () => {
     expect(recursionStack.size).toBe(0)
   })
 
-  test.concurrent('should handle multiple levels of dependencies', () => {
+  it.concurrent('should handle multiple levels of dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
@@ -101,7 +101,7 @@ describe('traverseSchemaDependencies Test', () => {
     expect(recursionStack.size).toBe(0)
   })
 
-  test.concurrent('should detect circular dependencies', () => {
+  it.concurrent('should detect circular dependencies', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
@@ -130,7 +130,7 @@ describe('traverseSchemaDependencies Test', () => {
     ).toThrow('Circular dependency detected in schema: Test')
   })
 
-  test.concurrent('should handle missing schema references', () => {
+  it.concurrent('should handle missing schema references', () => {
     const visited = new Set<string>()
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = []
@@ -156,7 +156,7 @@ describe('traverseSchemaDependencies Test', () => {
     consoleSpy.mockRestore()
   })
 
-  test.concurrent('should handle already visited schemas', () => {
+  it.concurrent('should handle already visited schemas', () => {
     const visited = new Set<string>(['Example'])
     const recursionStack = new Set<string>()
     const orderedSchemas: string[] = ['Example']
