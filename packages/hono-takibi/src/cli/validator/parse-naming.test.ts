@@ -25,7 +25,6 @@ describe('parseNaming', () => {
 
   it('returns err when given an invalid case', () => {
     const result = parseNaming('snake_case')
-
     const expected = {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got snake_case)',
@@ -35,7 +34,6 @@ describe('parseNaming', () => {
 
   it('returns err when given an empty string', () => {
     const result = parseNaming('')
-    console.log(result)
     const expected = {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got )',

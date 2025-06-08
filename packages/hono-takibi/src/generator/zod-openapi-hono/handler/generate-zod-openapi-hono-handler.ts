@@ -1,12 +1,12 @@
-import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 
 import type { OpenAPIPaths, OpenAPISpec } from '../../../types/index.js'
 import type { Config } from '../../../config/index.js'
-import { generateHandler } from './generate-handler.js'
+import { generateHandler } from './generators/generate-handler.js'
 import { generateRouteName } from '../openapi/route/generate-route-name.js'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
 import { formatCode } from '../../../format/index.js'
-import { generateHandlerName } from '../handler/generate-handler-name.js'
+import { generateHandlerName } from './generators/generate-handler-name.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
@@ -62,9 +62,8 @@ export async function generateZodOpenapiHonoHandler(
   for (const handler of mergedHandlers) {
     const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
     const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
-    if (!fs.existsSync(handlerPath)) {
-      fs.mkdirSync(handlerPath, { recursive: true })
-    }
+
+    await fsp.mkdir(handlerPath, { recursive: true })
 
     const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
 
@@ -80,11 +79,11 @@ export async function generateZodOpenapiHonoHandler(
 
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 
-    fs.writeFileSync(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
+    fsp.writeFile(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
       encoding: 'utf-8',
     })
     if (test) {
-      fs.writeFileSync(`${handlerPath}/${handler.testFileName}`, '', {
+      fsp.writeFile(`${handlerPath}/${handler.testFileName}`, '', {
         encoding: 'utf-8',
       })
     }
