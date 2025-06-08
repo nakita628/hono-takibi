@@ -7,13 +7,14 @@ import type { ExampleValue } from '../../../types/index.js'
  * @param { boolean } isPath - Whether the example value is a path parameter
  * @returns { string } The OpenAPI example value
  */
-export function generateZodToOpenAPI(
+export function generateZodToOpenAPIExample(
+  zod: string,
   example: ExampleValue,
   paramName?: string,
   isPath?: boolean,
 ): string {
   if (isPath) {
-    return `.openapi({param:{name:'${paramName}',in:'path'},example:${JSON.stringify(example)}})`
+    return `${zod}.openapi({param:{name:'${paramName}',in:'path'},example:${JSON.stringify(example)}})`
   }
-  return `.openapi({example:${JSON.stringify(example)}})`
+  return `${zod}.openapi({example:${JSON.stringify(example)}})`
 }

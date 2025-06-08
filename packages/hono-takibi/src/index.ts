@@ -3,7 +3,7 @@
 import type { OpenAPISpec } from './types/index.js'
 import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.js'
 import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler.js'
-import { getConfig } from './config/index.js'
+import { getConfig, type Config } from './config/index.js'
 import { formatCode } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs } from './cli/validator/index.js'
@@ -28,9 +28,9 @@ import fsp from 'node:fs/promises'
  * npx hono-takibi openapi.yaml -o routes.ts
  * ```
  */
-export async function main() {
+export async function main(): Promise<boolean> {
   // argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  const cli = parseCliArgs(process.argv)
+  const cli = parseCliArgs(process.argv, getConfig())
   if (!cli.ok) {
     console.error(cli.error)
     process.exit(1)

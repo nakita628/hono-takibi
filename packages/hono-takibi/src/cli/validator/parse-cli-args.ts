@@ -1,4 +1,4 @@
-import type { CliFlags, Naming, Result } from '../types/index.js'
+import type { CliFlags, Result } from '../types/index.js'
 import { flagValHelper } from '../helpers/flag-val-helper.js'
 import { hasFlagHelper } from '../helpers/has-flag-helper.js'
 import { sliceArgsHelper } from '../helpers/slice-args-helper.js'
@@ -37,12 +37,16 @@ Options:
  * @param argv - The command line arguments.
  * @returns A Result containing the parsed flags or an error message.
  */
-export function parseCliArgs(argv: readonly string[]): Result<CliFlags> {
+export function parseCliArgs(
+  argv: string[],
+  config: { input?: string; output?: string },
+): Result<CliFlags> {
   const args = sliceArgsHelper(argv)
+
   if (args.includes('--help')) {
     return err(HELP_TEXT)
   }
-  const io = ensureIO(args)
+  const io = ensureIO(args, config)
   if (!io.ok) return err(io.error)
 
   const tRes = parseNaming(flagValHelper(args, '--naming-case-type'))
@@ -54,8 +58,8 @@ export function parseCliArgs(argv: readonly string[]): Result<CliFlags> {
   return ok({
     input: io.value.input,
     output: io.value.output,
-    exportType: hasFlagHelper(args, '--export-type'),
-    exportSchema: hasFlagHelper(args, '--export-schema'),
+    exportType: hasFlagHelper(args, '--export-type') ? true : undefined,
+    exportSchema: hasFlagHelper(args, '--export-schema') ? true : undefined,
     typeCase: tRes.value,
     schemaCase: sRes.value,
     template: hasFlagHelper(args, '--template'),

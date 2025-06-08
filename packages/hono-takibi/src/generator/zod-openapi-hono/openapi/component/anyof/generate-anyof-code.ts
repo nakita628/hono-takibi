@@ -3,6 +3,7 @@ import type { Config } from '../../../../../config/index.js'
 import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name.js'
 import { generateZodUnion } from '../../../../zod/generate-zod-union.js'
 import { generateZod } from '../../../../zod/generate-zod.js'
+import { generateZodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Generates the Zod code for an `anyOf` schema.
@@ -17,8 +18,8 @@ export function generateAnyOfCode(schema: Schema, config: Config): string {
   }
 
   const zodSchemas = schema.anyOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZod(config, subSchema)
-    return generateZod(config, subSchema)
+    subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZodToOpenAPI(config, subSchema)
+    return generateZodToOpenAPI(config, subSchema)
   })
 
   return generateZodUnion(zodSchemas)

@@ -5,19 +5,19 @@ import { flagValHelper, hasFlagHelper, mergeConfigHelper, sliceArgsHelper } from
 // pnpm vitest run ./src/cli/helpers/index.test.ts
 
 describe('helpers barrel file exports', () => {
-  it('should export flagValHelper', () => {
+  it.concurrent('should export flagValHelper', () => {
     expect(typeof flagValHelper).toBe('function')
   })
 
-  it('should export hasFlagHelper', () => {
+  it.concurrent('should export hasFlagHelper', () => {
     expect(typeof hasFlagHelper).toBe('function')
   })
 
-  it('should export mergeConfigHelper', () => {
+  it.concurrent('should export mergeConfigHelper', () => {
     expect(typeof mergeConfigHelper).toBe('function')
   })
 
-  it('should export sliceArgsHelper', () => {
+  it.concurrent('should export sliceArgsHelper', () => {
     expect(typeof sliceArgsHelper).toBe('function')
   })
 })

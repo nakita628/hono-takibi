@@ -236,7 +236,10 @@ export const postPetPetIdUploadImageRoute = createRoute({
   summary: 'uploads an image',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
+    body: {
+      required: false,
+      content: { 'application/octet-stream': { schema: z.instanceof(Uint8Array) } },
+    },
     params: z.object({ petId: z.number().int() }),
     query: z.object({ additionalMetadata: z.string().optional() }),
   },

@@ -25,7 +25,7 @@ import { isSchemaReference } from '../../../core/validator/is-schema-reference.j
 import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference.js'
 import { generateReferenceSchema } from '../reference/generate-reference-schema.js'
 import { generateArrayReferenceSchema } from '../reference/generate-array-reference-schema.js'
-import { generateZod } from '../generate-zod.js'
+import { generateZodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
  * generatePropertySchema
@@ -43,5 +43,5 @@ export function generatePropertySchema(schema: Schema, config: Config) {
     return generateArrayReferenceSchema(schema, config)
   }
 
-  return generateZod(config, schema, undefined, undefined)
+  return generateZodToOpenAPI(config, schema, undefined, undefined)
 }

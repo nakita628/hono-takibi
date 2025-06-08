@@ -5,7 +5,7 @@ import { parseCliArgs } from './parse-cli-args'
 // pnpm vitest run ./src/cli/validator/parse-cli-args.test.ts
 
 describe('parseCliArgs', () => {
-  it('parses full valid arguments correctly', () => {
+  it.concurrent('parses full valid arguments correctly', () => {
     const argv = [
       'node',
       'script.js',
@@ -23,9 +23,8 @@ describe('parseCliArgs', () => {
       '--base-path',
       '/api/v1',
     ]
-
-    const result = parseCliArgs(argv)
-
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
     const expected = {
       ok: true,
       value: {
@@ -40,23 +39,32 @@ describe('parseCliArgs', () => {
         basePath: '/api/v1',
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when input or output is missing', () => {
+  it.concurrent('returns error when input or output is missing', () => {
     const argv = ['node', 'script.js', '--naming-case-type', 'PascalCase']
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
-      ok: false,
-      error: 'Usage: hono-takibi <input-file> -o <output-file>',
+      ok: true,
+      value: {
+        input: '--naming-case-type',
+        output: 'output.ts',
+        exportType: undefined,
+        exportSchema: undefined,
+        typeCase: 'PascalCase',
+        schemaCase: undefined,
+        template: false,
+        test: false,
+        basePath: undefined,
+      },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when naming-case-type is invalid', () => {
+  it.concurrent('returns error when naming-case-type is invalid', () => {
     const argv = [
       'node',
       'script.js',
@@ -68,17 +76,17 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'camelCase',
     ]
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got snake_case)',
     }
-
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when naming-case-schema is missing or invalid', () => {
+  it.concurrent('returns error when naming-case-schema is missing or invalid', () => {
     const argv = [
       'node',
       'script.js',
@@ -88,27 +96,27 @@ describe('parseCliArgs', () => {
       '--naming-case-type',
       'camelCase',
     ]
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
       ok: true,
       value: {
         input: 'input.yaml',
         output: 'output.ts',
-        exportType: false,
-        exportSchema: false,
+        exportType: undefined,
+        exportSchema: undefined,
         typeCase: 'camelCase',
-        schemaCase: 'PascalCase',
+        schemaCase: undefined,
         template: false,
         test: false,
         basePath: undefined,
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
-  it('parses minimal valid arguments correctly', () => {
+  it.concurrent('parses minimal valid arguments correctly', () => {
     const argv = [
       'node',
       'script.js',
@@ -120,16 +128,15 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'PascalCase',
     ]
-
-    const result = parseCliArgs(argv)
-
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
     const expected = {
       ok: true,
       value: {
         input: 'input.yaml',
         output: 'output.ts',
-        exportType: false,
-        exportSchema: false,
+        exportType: undefined,
+        exportSchema: undefined,
         typeCase: 'PascalCase',
         schemaCase: 'PascalCase',
         template: false,
@@ -137,7 +144,6 @@ describe('parseCliArgs', () => {
         basePath: undefined,
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 })

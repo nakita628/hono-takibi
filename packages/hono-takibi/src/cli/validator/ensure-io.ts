@@ -3,12 +3,18 @@ import { ok, err } from '../types/index.js'
 
 /**
  * @param args - The CLI arguments
- * @returns
  */
-export function ensureIO(args: string[]): Result<{ input: string; output: string }> {
-  const input = args[0]
+export function ensureIO(
+  args: string[],
+  config: { input?: string; output?: string },
+): Result<{ input: string; output: string }> {
+  const cliInput = args[0]
   const oIdx = args.indexOf('-o')
-  const output = oIdx !== -1 ? args[oIdx + 1] : undefined
+  const cliOutput = oIdx !== -1 ? args[oIdx + 1] : undefined
+
+  const input = cliInput ?? config.input
+  const output = cliOutput ?? config.output
+
   return input && output
     ? ok({ input, output })
     : err('Usage: hono-takibi <input-file> -o <output-file>')

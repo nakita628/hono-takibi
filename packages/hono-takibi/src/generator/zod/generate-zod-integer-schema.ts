@@ -1,44 +1,28 @@
-import type { DefaultValue, ExampleValue } from '../../types/index.js'
+import type { Schema } from '../../types/index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodRegex } from './generate-zod-regex.js'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
-
-type GenerateZodIntegerSchemaParams = {
-  pattern?: string
-  minLength?: number
-  maxLength?: number
-  minimum?: number
-  maximum?: number
-  default?: DefaultValue
-  example?: ExampleValue
-  paramName?: string
-  isPath?: boolean
-}
 
 /**
  * Generates a zod schema for an integer.
- * @param { GenerateZodIntegerSchemaParams } args - The parameters to generate the zod schema.
+ * @param { Schema } schema - OpenAPI schema definition for an integer
  * @returns { string } Generated Zod integer schema string
  */
-export function generateZodIntegerSchema(args: GenerateZodIntegerSchemaParams): string {
+export function generateZodIntegerSchema(schema: Schema): string {
   const validations = ['z.number().int()']
   // pattern
-  if (args.pattern) validations.push(generateZodRegex(args.pattern))
+  if (schema.pattern) validations.push(generateZodRegex(schema.pattern))
   // minLength
-  if (args.minLength) validations.push(generateZodMin(args.minLength))
+  if (schema.minLength) validations.push(generateZodMin(schema.minLength))
   // maxLength
-  if (args.maxLength) validations.push(generateZodMax(args.maxLength))
+  if (schema.maxLength) validations.push(generateZodMax(schema.maxLength))
   // 0 falsy value
   // minimum
-  if (typeof args.minimum === 'number') validations.push(generateZodMin(args.minimum))
+  if (typeof schema.minimum === 'number') validations.push(generateZodMin(schema.minimum))
   // maximum
-  if (typeof args.maximum === 'number') validations.push(generateZodMax(args.maximum))
+  if (typeof schema.maximum === 'number') validations.push(generateZodMax(schema.maximum))
   // default
-  if (args.default) validations.push(generateZodDefault(args.default))
-  // example
-  if (args.example)
-    validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
+  if (schema.default) validations.push(generateZodDefault(schema.default))
   return validations.join('')
 }

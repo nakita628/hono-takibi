@@ -1,130 +1,168 @@
 import { describe, it, expect } from 'vitest'
 import { generateRequestParameter } from './generate-request-parameter'
-import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
-import type { Parameters, RequestBody } from '../../../../../types'
-import type { Config } from '../../../../../config'
 
-const generateRequestParameterTestCases: {
-  parameters: Parameters[] | undefined
-  requestBody: RequestBody | undefined
-  config: Config
-  expected: string
-}[] = [
-  {
-    parameters: undefined,
-    requestBody: {
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              post: {
-                type: 'string',
-                minLength: 1,
-                maxLength: 140,
-              },
-            },
-            required: ['post'],
-          },
-        },
-      },
-    },
-    config: DEFAULT_CONFIG,
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`,
-  },
-  {
-    parameters: [
-      {
-        schema: { type: 'string' },
-        required: true,
-        name: 'page',
-        in: 'query',
-      },
-      {
-        schema: { type: 'string' },
-        required: true,
-        name: 'rows',
-        in: 'query',
-      },
-    ],
-    requestBody: undefined,
-    config: DEFAULT_CONFIG,
-    expected: 'request:{query:z.object({page:z.string(),rows:z.string()})},',
-  },
-  {
-    parameters: [
-      {
-        schema: { type: 'string', format: 'uuid' },
-        required: true,
-        name: 'id',
-        in: 'path',
-      },
-    ],
-    requestBody: {
-      required: true,
-      content: {
-        'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              post: {
-                type: 'string',
-                minLength: 1,
-                maxLength: 140,
-              },
-            },
-            required: ['post'],
-          },
-        },
-      },
-    },
-    config: DEFAULT_CONFIG,
-    expected: `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
-  },
-  {
-    parameters: [
-      {
-        name: 'petId',
-        in: 'path',
-        description: 'ID of pet to update',
-        required: true,
-        schema: {
-          type: 'integer',
-          format: 'int64',
-        },
-      },
-      {
-        name: 'additionalMetadata',
-        in: 'query',
-        description: 'Additional Metadata',
-        required: false,
-        schema: {
-          type: 'string',
-        },
-      },
-    ],
-    requestBody: {
-      content: {
-        'application/octet-stream': {
-          schema: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-      },
-    },
-    config: DEFAULT_CONFIG,
-    expected: `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string()}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`,
-  },
-]
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/generate-request-parameter.test.ts
 
 describe('generateRequestParameters', () => {
-  it.concurrent.each(generateRequestParameterTestCases)(
-    'generateRequestParameter($parameters, $requestBody, $config) -> $expected',
-    async ({ parameters, requestBody, config, expected }) => {
-      const result = generateRequestParameter(parameters, requestBody, config)
-      expect(result).toBe(expected)
-    },
-  )
+  it.concurrent('generateRequestParameter parameters undefined', () => {
+    const result = generateRequestParameter(
+      undefined,
+      {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                post: {
+                  type: 'string',
+                  minLength: 1,
+                  maxLength: 140,
+                },
+              },
+              required: ['post'],
+            },
+          },
+        },
+      },
+      {
+        schema: {
+          name: 'camelCase',
+          export: false,
+        },
+        type: {
+          name: 'camelCase',
+          export: true,
+        },
+      },
+    )
+
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('generateRequestParameter parameters requestBody undefined', () => {
+    const result = generateRequestParameter(
+      [
+        {
+          schema: { type: 'string' },
+          required: true,
+          name: 'page',
+          in: 'query',
+        },
+        {
+          schema: { type: 'string' },
+          required: true,
+          name: 'rows',
+          in: 'query',
+        },
+      ],
+      undefined,
+      {
+        schema: {
+          name: 'camelCase',
+          export: false,
+        },
+        type: {
+          name: 'camelCase',
+          export: true,
+        },
+      },
+    )
+    expect(result).toBe('request:{query:z.object({page:z.string(),rows:z.string()})},')
+  })
+
+  it.concurrent('generateRequestParameter parameters and requestBody not undefined', () => {
+    const result = generateRequestParameter(
+      [
+        {
+          schema: { type: 'string', format: 'uuid' },
+          required: true,
+          name: 'id',
+          in: 'path',
+        },
+      ],
+      {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                post: {
+                  type: 'string',
+                  minLength: 1,
+                  maxLength: 140,
+                },
+              },
+              required: ['post'],
+            },
+          },
+        },
+      },
+      {
+        schema: {
+          name: 'camelCase',
+          export: false,
+        },
+        type: {
+          name: 'camelCase',
+          export: true,
+        },
+      },
+    )
+    expect(result).toBe(
+      `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
+    )
+  })
+
+  it.concurrent('generateRequestParameter parameters and requestBody not undefined binary', () => {
+    const result = generateRequestParameter(
+      [
+        {
+          name: 'petId',
+          in: 'path',
+          description: 'ID of pet to update',
+          required: true,
+          schema: {
+            type: 'integer',
+            format: 'int64',
+          },
+        },
+        {
+          name: 'additionalMetadata',
+          in: 'query',
+          description: 'Additional Metadata',
+          required: false,
+          schema: {
+            type: 'string',
+          },
+        },
+      ],
+      {
+        content: {
+          'application/octet-stream': {
+            schema: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      },
+      {
+        schema: {
+          name: 'camelCase',
+          export: false,
+        },
+        type: {
+          name: 'camelCase',
+          export: true,
+        },
+      },
+    )
+
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`
+    expect(result).toBe(expected)
+  })
 })
