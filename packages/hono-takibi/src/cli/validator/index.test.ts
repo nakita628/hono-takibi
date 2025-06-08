@@ -5,15 +5,15 @@ import { ensureIO, parseCliArgs, parseNaming } from '.'
 // pnpm vitest run ./src/cli/validator/index.test.ts
 
 describe('helpers barrel file exports', () => {
-  it('should export ensureIO', () => {
+  it.concurrent('should export ensureIO', () => {
     expect(typeof ensureIO).toBe('function')
   })
 
-  it('should export parseCliArgs', () => {
+  it.concurrent('should export parseCliArgs', () => {
     expect(typeof parseCliArgs).toBe('function')
   })
 
-  it('should export parseNaming', () => {
+  it.concurrent('should export parseNaming', () => {
     expect(typeof parseNaming).toBe('function')
   })
 })

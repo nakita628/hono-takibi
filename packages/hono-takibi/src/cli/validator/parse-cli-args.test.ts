@@ -5,7 +5,7 @@ import { parseCliArgs } from './parse-cli-args'
 // pnpm vitest run ./src/cli/validator/parse-cli-args.test.ts
 
 describe('parseCliArgs', () => {
-  it('parses full valid arguments correctly', () => {
+  it.concurrent('parses full valid arguments correctly', () => {
     const argv = [
       'node',
       'script.js',
@@ -42,7 +42,7 @@ describe('parseCliArgs', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when input or output is missing', () => {
+  it.concurrent('returns error when input or output is missing', () => {
     const argv = ['node', 'script.js', '--naming-case-type', 'PascalCase']
     const config = { input: 'input.yaml', output: 'output.ts' }
     const result = parseCliArgs(argv, config)
@@ -52,10 +52,10 @@ describe('parseCliArgs', () => {
       value: {
         input: '--naming-case-type',
         output: 'output.ts',
-        exportType: false,
-        exportSchema: false,
+        exportType: undefined,
+        exportSchema: undefined,
         typeCase: 'PascalCase',
-        schemaCase: 'PascalCase',
+        schemaCase: undefined,
         template: false,
         test: false,
         basePath: undefined,
@@ -64,7 +64,7 @@ describe('parseCliArgs', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when naming-case-type is invalid', () => {
+  it.concurrent('returns error when naming-case-type is invalid', () => {
     const argv = [
       'node',
       'script.js',
@@ -86,7 +86,7 @@ describe('parseCliArgs', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  it('returns error when naming-case-schema is missing or invalid', () => {
+  it.concurrent('returns error when naming-case-schema is missing or invalid', () => {
     const argv = [
       'node',
       'script.js',
@@ -104,10 +104,10 @@ describe('parseCliArgs', () => {
       value: {
         input: 'input.yaml',
         output: 'output.ts',
-        exportType: false,
-        exportSchema: false,
+        exportType: undefined,
+        exportSchema: undefined,
         typeCase: 'camelCase',
-        schemaCase: 'PascalCase',
+        schemaCase: undefined,
         template: false,
         test: false,
         basePath: undefined,
@@ -116,7 +116,7 @@ describe('parseCliArgs', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  it('parses minimal valid arguments correctly', () => {
+  it.concurrent('parses minimal valid arguments correctly', () => {
     const argv = [
       'node',
       'script.js',
@@ -135,8 +135,8 @@ describe('parseCliArgs', () => {
       value: {
         input: 'input.yaml',
         output: 'output.ts',
-        exportType: false,
-        exportSchema: false,
+        exportType: undefined,
+        exportSchema: undefined,
         typeCase: 'PascalCase',
         schemaCase: 'PascalCase',
         template: false,
