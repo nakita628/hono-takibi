@@ -13,7 +13,7 @@ import { generateZodToOpenAPI } from '../../zod-to-openapi/index.js'
  * @param config
  */
 export function generatePropertySchema(schema: Schema, config: Config) {
-  if (Boolean(schema.$ref)) {
+  if (Boolean(schema.$ref) === true) {
     return generateReferenceSchema(schema, config)
   }
 
