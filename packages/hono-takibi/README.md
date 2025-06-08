@@ -459,19 +459,19 @@ Options:
 
 template
 
-> **⚠️** When using the `-template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
 
 ```bash
 Options:
-  -template            generation of application and handler files
-  -test                automatic generation of test files
+  --template            generation of application and handler files
+  --test                automatic generation of test files
   --base-path          base URL path for your API endpoints
 ```
 
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o project/routes.ts -template -test --basePath 'api'
+npx hono-takibi openapi.yaml -o project/routes.ts --template -test --base-path 'api'
 ```
 
 ## Configuration
