@@ -5,7 +5,7 @@ import {
   getToSafeIdentifierHelper,
   getVariableNameHelper,
   getVariableSchemaNameHelper,
-} from './'
+} from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/index.test.ts
