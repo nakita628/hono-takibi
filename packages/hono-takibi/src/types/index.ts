@@ -177,7 +177,7 @@ export type Schema = {
   name?: string
   description?: string
   type?: Type
-  format?: Format
+  format?: Format | FormatString | FormatNumber
   pattern?: string
   minLength?: number
   maxLength?: number

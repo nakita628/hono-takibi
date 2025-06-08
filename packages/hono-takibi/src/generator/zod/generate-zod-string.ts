@@ -1,4 +1,4 @@
-import type { FormatString, ExampleValue, DefaultValue } from '../../types/index.js'
+import type { FormatString, ExampleValue, DefaultValue, Schema } from '../../types/index.js'
 import { getZodFormatString } from '../../core/zod/get-zod-string-format.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
@@ -45,30 +45,30 @@ type GenerateZodStringParams = {
  * })
  * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
  */
-export function generateZodString(args: GenerateZodStringParams): string {
+export function generateZodString(schema: Schema): string {
   const validations = ['z.string()']
   // pattern
-  if (args.pattern) {
-    validations.push(generateZodRegex(args.pattern))
+  if (schema.pattern) {
+    validations.push(generateZodRegex(schema.pattern))
   }
   // minLength
-  if (args.minLength) {
-    validations.push(generateZodMin(args.minLength))
+  if (schema.minLength) {
+    validations.push(generateZodMin(schema.minLength))
   }
   // maxLength
-  if (args.maxLength) {
-    validations.push(generateZodMax(args.maxLength))
+  if (schema.maxLength) {
+    validations.push(generateZodMax(schema.maxLength))
   }
   // format
-  if (args.format) {
-    validations.push(getZodFormatString(args.format))
+  if (schema.format) {
+    validations.push(getZodFormatString(schema.format))
   }
   // default
-  if (args.default) {
-    validations.push(generateZodDefault(args.default))
+  if (schema.default) {
+    validations.push(generateZodDefault(schema.default))
   }
   // nullable
-  if (args.nullable) {
+  if (schema.nullable) {
     validations.push(generateZodNullable())
   }
   return validations.join('')

@@ -86,12 +86,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function generateZod(
-  config: Config,
-  schema: Schema,
-  paramName?: string,
-  isPath?: boolean,
-): string {
+export function generateZod(config: Config, schema: Schema): string {
   // enum
   if (schema.enum) {
     const res = generateZodEnum(schema)
@@ -107,14 +102,7 @@ export function generateZod(
 
   // string
   if (schema.type === 'string') {
-    const res = generateZodString({
-      pattern: schema.pattern,
-      minLength: schema.minLength,
-      maxLength: schema.maxLength,
-      format: schema.format && isFormatString(schema.format) ? schema.format : undefined,
-      nullable: schema.nullable,
-      default: schema.default,
-    })
+    const res = generateZodString(schema)
     // length
     if (
       schema.minLength &&
@@ -163,19 +151,19 @@ export function generateZod(
         const minItemsSchema = generateZodMin(schema.minItems)
         const maxItemsSchema = generateZodMax(schema.maxItems)
 
-        const zodArray = generateZodArray(generateZod(config, schema.items, undefined, undefined))
+        const zodArray = generateZodArray(generateZod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
         const minItemsSchema = generateZodMin(schema.minItems)
-        const zodArray = generateZodArray(generateZod(config, schema.items, undefined, undefined))
+        const zodArray = generateZodArray(generateZod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
         const maxItemsSchema = generateZodMax(schema.maxItems)
-        const zodArray = generateZodArray(generateZod(config, schema.items, undefined, undefined))
+        const zodArray = generateZodArray(generateZod(config, schema.items))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }

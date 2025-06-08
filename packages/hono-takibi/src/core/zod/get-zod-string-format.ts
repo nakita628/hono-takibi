@@ -8,7 +8,7 @@ import type { FormatString } from '../../types/index.js'
  * - Number formats map to number type
  * - Empty string for unrecognized formats
  */
-const FORMAT_STRING_TO_ZOD_VALIDATION: Record<FormatString, string> = {
+const FORMAT_STRING_TO_ZOD_VALIDATION: Record<string, string> = {
   // max: '.max()',
   // min: '.min()',
   // length: '.length()',
@@ -61,6 +61,6 @@ const FORMAT_STRING_TO_ZOD_VALIDATION: Record<FormatString, string> = {
  * - Returns empty string for unrecognized formats
  * - Used in schema generation for request/response validation
  */
-export function getZodFormatString(format: FormatString): string {
+export function getZodFormatString(format: string): string {
   return FORMAT_STRING_TO_ZOD_VALIDATION[format]
 }

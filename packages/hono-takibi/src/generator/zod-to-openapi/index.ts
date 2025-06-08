@@ -16,9 +16,9 @@ export function generateZodToOpenAPI(
   paramName?: string,
   isPath?: boolean,
 ) {
-  const zod = generateZod(config, schema, paramName, isPath)
+  const zod = generateZod(config, schema)
   if (schema.example) {
-    const zod = generateZod(config, schema, paramName, isPath)
+    const zod = generateZod(config, schema)
     return generateZodToOpenAPIExample(zod, schema.example, paramName, isPath)
   }
   return zod
