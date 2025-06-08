@@ -6,12 +6,11 @@ import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/hand
 import { getConfig } from './config/index.js'
 import { formatCode } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
+import { parseCliArgs } from './cli/validator/index.js'
+import { mergeConfigHelper } from './cli/helpers/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
-
 import path from 'node:path'
 import fsp from 'node:fs/promises'
-import { parseCliArgs } from './cli/validator/parse-cli-args.js'
-import { mergeConfigHelper } from './cli/helpers/merge-config-helper.js'
 
 /**
  * CLI entry point for hono-takibi
@@ -54,9 +53,14 @@ export async function main() {
     // generate template code
     if (cli.value.template && config.output.includes('/')) {
       const appCode = await formatCode(generateApp(openAPI, config, cli.value.basePath))
+
       const dir = path.dirname(config.output)
-      const fileName = (await exists(path.join(dir, 'index.ts'))) ? 'main.ts' : 'index.ts'
-      await fsp.writeFile(path.join(dir, fileName), appCode, 'utf-8')
+      const files = await fsp.readdir(dir)
+      const tgt = files.includes('index.ts')
+        ? path.join(dir, 'main.ts')
+        : path.join(dir, 'index.ts')
+
+      await fsp.writeFile(tgt, appCode, 'utf-8')
       await generateZodOpenapiHonoHandler(openAPI, config, cli.value.test)
     }
 
@@ -76,12 +80,3 @@ main().then((success) => {
     process.exit(1)
   }
 })
-
-async function exists(p: string): Promise<boolean> {
-  try {
-    await fsp.access(p)
-    return true
-  } catch {
-    return false
-  }
-}
