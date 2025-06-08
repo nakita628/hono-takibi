@@ -25,7 +25,7 @@ describe('sliceArgsHelper', () => {
     expect(sliceArgsHelper(argv)).toStrictEqual(['c', 'd'])
   })
 
-  it(`sliceArgsHelper([]) -> []`, () => {
+  it('sliceArgsHelper([]) -> []', () => {
     const argv: string[] = []
     expect(sliceArgsHelper(argv)).toStrictEqual([])
   })
