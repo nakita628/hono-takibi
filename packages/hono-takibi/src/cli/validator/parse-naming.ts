@@ -10,5 +10,5 @@ import { ok, err } from '../types/index.js'
 export function parseNaming(raw: string | undefined): Result<Naming | undefined> {
   if (raw === 'PascalCase' || raw === 'camelCase') return ok(raw)
   if (raw === undefined) return ok(undefined)
-  return err('--naming-case must be PascalCase or camelCase (got ' + raw + ')')
+  return err(`--naming-case must be PascalCase or camelCase (got ' + raw + ')`)
 }
