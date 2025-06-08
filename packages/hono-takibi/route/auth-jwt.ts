@@ -9,8 +9,17 @@ const LoginInputSchema = z
 
 const LoginResponseSchema = z
   .object({
-    two_factor_required: z.boolean(),
-    temp_token: z.string().openapi({ example: 'temp1234567890' }).optional(),
+    two_factor_required: z
+      .boolean()
+      .openapi({ description: 'Indicates if 2FA is required for the user.', example: true }),
+    temp_token: z
+      .string()
+      .openapi({
+        description:
+          'Temporary token to be used for 2FA verification. This field is provided only if `two_factor_required` is true.\n',
+        example: 'temp1234567890',
+      })
+      .optional(),
     message: z
       .string()
       .openapi({ example: '2FA required. Please verify using the code sent to your device.' })
@@ -20,15 +29,28 @@ const LoginResponseSchema = z
 
 const VerifyInputSchema = z
   .object({
-    temp_token: z.string().openapi({ example: 'temp1234567890' }),
-    code: z.string().openapi({ example: '123456' }),
+    temp_token: z
+      .string()
+      .openapi({
+        description: 'Temporary token received from the login response.',
+        example: 'temp1234567890',
+      }),
+    code: z.string().openapi({ description: 'Two-factor authentication code.', example: '123456' }),
   })
   .openapi('VerifyInput')
 
 const VerifyResponseSchema = z
   .object({
-    token: z.string().openapi({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }),
-    expires_in: z.number().int().openapi({ example: 3600 }),
+    token: z
+      .string()
+      .openapi({
+        description: 'JWT token issued upon successful 2FA verification.',
+        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      }),
+    expires_in: z
+      .number()
+      .int()
+      .openapi({ description: 'Token expiration time in seconds.', example: 3600 }),
   })
   .openapi('VerifyResponse')
 
