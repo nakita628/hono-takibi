@@ -4,7 +4,7 @@ import { generateZodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/ge
 import { getConfig } from '../config/index.js'
 import { formatCode } from '../format/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
-import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import path from 'node:path'
 
 /**
@@ -19,11 +19,8 @@ export async function viteMode(config: Config = getConfig()): Promise<boolean | 
       const hono = generateZodOpenAPIHono(openAPI, config)
       const formattedCode = await formatCode(hono)
       if (config.output) {
-        const outputDir = path.dirname(config.output)
-        if (!fs.existsSync(outputDir)) {
-          fs.mkdirSync(outputDir, { recursive: true })
-        }
-        fs.writeFileSync(config.output, formattedCode, { encoding: 'utf-8' })
+        await fsp.mkdir(path.dirname(config.output), { recursive: true })
+        await fsp.writeFile(config.output, formattedCode, 'utf-8')
         console.log(`Generated code written to ${config.output}`)
         return true
       }
