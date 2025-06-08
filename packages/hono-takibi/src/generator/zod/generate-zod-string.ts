@@ -1,23 +1,13 @@
-import type { FormatString, ExampleValue, DefaultValue, Schema } from '../../types/index.js'
-import { getZodFormatString } from '../../core/zod/get-zod-string-format.js'
+import type { FormatString, DefaultValue, Schema } from '../../types/index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodNullable } from './generate-zod-nullable.js'
 import { generateZodRegex } from './generate-zod-regex.js'
 
-type GenerateZodStringParams = {
-  pattern?: string
-  minLength?: number
-  maxLength?: number
-  format?: FormatString
-  nullable?: boolean
-  default?: DefaultValue
-}
-
 /**
  * Generates a Zod string schema
- * @param { GenerateZodStringParams } args - The parameters to generate the zod string schema.
+ * @param { Schema } schema - The parameters to generate the zod string schema.
  * @returns { string } Generated Zod string schema string
  * @example
  * // Basic string validation
@@ -60,27 +50,21 @@ export function generateZodString(schema: Schema): string {
     }
     if (schema.format === 'uuid') {
       validations.push('z.string().uuid()')
-      
     }
     if (schema.format === 'nanoid') {
       validations.push('z.string().nanoid()')
-      
     }
     if (schema.format === 'cuid') {
       validations.push('z.string().cuid()')
-      
     }
     if (schema.format === 'cuid2') {
       validations.push('z.string().cuid2()')
-      
     }
     if (schema.format === 'ulid') {
       validations.push('z.string().ulid()')
-      
     }
     if (schema.format === 'date-time') {
       validations.push('z.string().datetime()')
-      
     }
     if (schema.format === 'ip') {
       validations.push('z.string().ip()')
