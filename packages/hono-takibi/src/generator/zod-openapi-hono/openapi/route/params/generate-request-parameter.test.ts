@@ -162,7 +162,7 @@ describe('generateRequestParameters', () => {
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.string().instanceof(Uint8Array)}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`
     expect(result).toBe(expected)
   })
 })
