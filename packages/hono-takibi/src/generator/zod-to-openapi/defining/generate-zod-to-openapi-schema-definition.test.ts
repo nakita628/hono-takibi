@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { generateZodToOpenAPISchemaDefinition } from './generate-zod-to-openapi-schema-definition'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/openapi/generate-zod-to-openapi-schema-definition.test.ts
+// pnpm vitest run ./src/generator/zod-to-openapi/defining/generate-zod-to-openapi-schema-definition.test.ts
 
 describe('generateZodToOpenAPISchemaDefinition Test', () => {
   test.concurrent('generateZodToOpenAPISchemaDefinition success', () => {
