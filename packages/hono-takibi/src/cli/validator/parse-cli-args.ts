@@ -7,20 +7,29 @@ import { parseNaming } from './parse-naming.js'
 import { ok, err } from '../types/index.js'
 
 const HELP_TEXT = `
-hono-takibi – generate Hono + Zod routes from an OpenAPI file
-
 Usage:
-  hono-takibi <input-file> -o <output-file> [options]
+  hono-takibi <input.yaml|json> -o <routes.ts> [options]
 
 Options:
-  --template            Generate application & handler skeleton
-  --test                Generate test files
-  --base-path <path>    Base URL prefix (e.g. /api)
-  --naming-case-type    <PascalCase|camelCase>
-  --naming-case-schema  <PascalCase|camelCase>
-  --export-type         Export generated type aliases
-  --export-schema       Export generated schema objects
-  -h, --help            Show this help and exit
+  --export-type               Export generated type aliases
+
+  --export-schema             Export generated schema objects
+
+  --naming-case-type <PascalCase|camelCase>
+                              Casing for generated *type aliases*
+                              (default: PascalCase)
+
+  --naming-case-schema <PascalCase|camelCase>
+                              Casing for generated *schema objects*
+                              (default: PascalCase)
+
+  --template                  Generate an app file and handler stubs
+
+  --test                      Generate empty *.test.ts files for handlers
+
+  --base-path <path>          API prefix (e.g. /api)
+  
+  --help                      Show this help and exit
 `.trimStart()
 
 /**
@@ -30,7 +39,7 @@ Options:
  */
 export function parseCliArgs(argv: readonly string[]): Result<CliFlags> {
   const args = sliceArgsHelper(argv)
-  if (args.includes('-h') || args.includes('--help')) {
+  if (args.includes('--help')) {
     return err(HELP_TEXT)
   }
   const io = ensureIO(args)
