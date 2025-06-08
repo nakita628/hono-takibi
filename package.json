@@ -13,11 +13,7 @@
     "test": "pnpm -F hono-takibi test",
     "coverage": "pnpm -F hono-takibi coverage",
     "release": "pnpm build && pnpm -F hono-takibi release",
-    "takibis": "pnpm -F hono-takibi takibis",
-    "website:dev": "pnpm -F hono-takibi-website dev",
-    "website:build": "pnpm -F hono-takibi-website build",
-    "website:preview": "pnpm -F hono-takibi-website preview",
-    "website:deploy": "pnpm -F hono-takibi-website deploy"
+    "takibis": "pnpm -F hono-takibi takibis"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
