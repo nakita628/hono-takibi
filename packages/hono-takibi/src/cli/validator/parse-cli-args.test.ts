@@ -61,7 +61,6 @@ describe('parseCliArgs', () => {
         basePath: undefined,
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
@@ -84,7 +83,6 @@ describe('parseCliArgs', () => {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got snake_case)',
     }
-
     expect(result).toStrictEqual(expected)
   })
 
@@ -115,7 +113,6 @@ describe('parseCliArgs', () => {
         basePath: undefined,
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
@@ -132,9 +129,7 @@ describe('parseCliArgs', () => {
       'PascalCase',
     ]
     const config = { input: 'input.yaml', output: 'output.ts' }
-
     const result = parseCliArgs(argv, config)
-
     const expected = {
       ok: true,
       value: {
@@ -149,7 +144,6 @@ describe('parseCliArgs', () => {
         basePath: undefined,
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 })
