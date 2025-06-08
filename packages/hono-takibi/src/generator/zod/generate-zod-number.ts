@@ -5,7 +5,6 @@ import { generateZodLt } from './generate-zod-lt.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodRegex } from './generate-zod-regex.js'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 /**
  * Generates a Zod number schema string
