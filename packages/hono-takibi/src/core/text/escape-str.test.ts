@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { escapeStr } from './escape-str'
+import { escapeStr } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/text/escape-str.test.ts

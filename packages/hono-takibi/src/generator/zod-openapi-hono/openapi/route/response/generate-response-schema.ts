@@ -1,6 +1,6 @@
 import type { Responses } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
-import { escapeStr } from '../../../../../core/text/escape-str.js'
+import { escapeStr } from '../../../../../core/text/index.js'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema.js'
 import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
 

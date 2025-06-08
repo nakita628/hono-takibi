@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { decapitalize } from './decapitalize'
+import { decapitalize } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/text/decapitalize.test.ts

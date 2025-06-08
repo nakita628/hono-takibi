@@ -1,4 +1,4 @@
-import { regexPattern } from '../../core/text/regex-pattern.js'
+import { regexPattern } from '../../core/text/index.js'
 
 /**
  * Generate Zod regex validation
