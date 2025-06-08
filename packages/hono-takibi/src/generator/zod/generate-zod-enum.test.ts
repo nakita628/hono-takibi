@@ -35,34 +35,4 @@ describe('generateZodEnum Test', () => {
     const expected = `z.literal('test')`
     expect(result).toBe(expected)
   })
-
-  it.concurrent('should throw an error when schema is null', () => {
-    // biome-ignore lint:
-    const schema = null as any
-    expect(() => generateZodEnum(schema)).toThrow('Cannot read properties of null')
-  })
-
-  it.concurrent('should throw an error when enum is not defined', () => {
-    const schema: Schema = {
-      type: 'string',
-    }
-    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
-  })
-
-  it.concurrent('should throw an error when enum is null', () => {
-    const schema: Schema = {
-      type: 'string',
-      // biome-ignore lint:
-      enum: null as any,
-    } as Schema
-    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
-  })
-
-  it.concurrent('should throw an error when enum is undefined', () => {
-    const schema: Schema = {
-      type: 'string',
-      enum: undefined,
-    }
-    expect(() => generateZodEnum(schema)).toThrow('enum is not found')
-  })
 })

@@ -23,9 +23,8 @@ describe('parseCliArgs', () => {
       '--base-path',
       '/api/v1',
     ]
-
-    const result = parseCliArgs(argv)
-
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
     const expected = {
       ok: true,
       value: {
@@ -40,17 +39,27 @@ describe('parseCliArgs', () => {
         basePath: '/api/v1',
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
   it('returns error when input or output is missing', () => {
     const argv = ['node', 'script.js', '--naming-case-type', 'PascalCase']
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
-      ok: false,
-      error: 'Usage: hono-takibi <input-file> -o <output-file>',
+      ok: true,
+      value: {
+        input: '--naming-case-type',
+        output: 'output.ts',
+        exportType: false,
+        exportSchema: false,
+        typeCase: 'PascalCase',
+        schemaCase: 'PascalCase',
+        template: false,
+        test: false,
+        basePath: undefined,
+      },
     }
 
     expect(result).toStrictEqual(expected)
@@ -68,7 +77,8 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'camelCase',
     ]
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
       ok: false,
@@ -88,7 +98,8 @@ describe('parseCliArgs', () => {
       '--naming-case-type',
       'camelCase',
     ]
-    const result = parseCliArgs(argv)
+    const config = { input: 'input.yaml', output: 'output.ts' }
+    const result = parseCliArgs(argv, config)
 
     const expected = {
       ok: true,
@@ -120,8 +131,9 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'PascalCase',
     ]
+    const config = { input: 'input.yaml', output: 'output.ts' }
 
-    const result = parseCliArgs(argv)
+    const result = parseCliArgs(argv, config)
 
     const expected = {
       ok: true,

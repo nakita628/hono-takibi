@@ -18,7 +18,7 @@ import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/g
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
 import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code.js'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
+import { generateZodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -94,7 +94,10 @@ export function generateZod(
 ): string {
   // enum
   if (schema.enum) {
-    return generateZodEnum(schema)
+    const res = generateZodEnum(schema)
+    if (res !== undefined) {
+      return res
+    }
   }
 
   // object
@@ -111,9 +114,6 @@ export function generateZod(
       format: schema.format && isFormatString(schema.format) ? schema.format : undefined,
       nullable: schema.nullable,
       default: schema.default,
-      example: schema.example,
-      paramName,
-      isPath,
     })
     // length
     if (
@@ -131,19 +131,7 @@ export function generateZod(
 
   // number
   if (schema.type === 'number') {
-    const res = generateZodNumber({
-      pattern: schema.pattern,
-      minLength: schema.minLength,
-      maxLength: schema.maxLength,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
-      default: schema.default,
-      example: schema.example,
-      paramName,
-      isPath,
-      exclusiveMinimum: schema.exclusiveMinimum,
-      exclusiveMaximum: schema.exclusiveMaximum,
-    })
+    const res = generateZodNumber(schema)
     // gt
     if (
       res.includes(`min(${schema.minimum})`) &&
@@ -165,16 +153,7 @@ export function generateZod(
 
   // integer
   if (schema.type === 'integer') {
-    return generateZodIntegerSchema({
-      minLength: schema.minLength,
-      maxLength: schema.maxLength,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
-      default: schema.default,
-      example: schema.example,
-      paramName,
-      isPath,
-    })
+    return generateZodIntegerSchema(schema)
   }
 
   // array
@@ -203,15 +182,13 @@ export function generateZod(
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = generateZodLength(schema.minLength)
-        const zodArray = generateZodArray(generateZod(config, schema.items, undefined, undefined))
+        const zodArray = generateZodArray(
+          generateZodToOpenAPI(config, schema.items, undefined, undefined),
+        )
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
-      return generateZodArray(generateZod(config, schema.items, undefined, undefined))
-    }
-    if (schema.example) {
-      const example = generateZodToOpenAPI(schema.example, undefined, undefined)
-      return `z.array(z.any())${example}`
+      return generateZodArray(generateZodToOpenAPI(config, schema.items, undefined, undefined))
     }
     return 'z.array(z.any())'
   }

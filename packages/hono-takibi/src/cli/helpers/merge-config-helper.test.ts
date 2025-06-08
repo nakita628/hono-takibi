@@ -25,16 +25,10 @@ describe('mergeConfigHelper', () => {
     const result = mergeConfigHelper(base, cliFlags)
 
     expect(result).toStrictEqual({
+      schema: { name: 'PascalCase', export: false },
+      type: { name: 'PascalCase', export: false },
       input: 'input.yaml',
       output: 'output.ts',
-      type: {
-        export: true,
-        name: 'camelCase',
-      },
-      schema: {
-        export: true,
-        name: 'camelCase',
-      },
     })
   })
 })

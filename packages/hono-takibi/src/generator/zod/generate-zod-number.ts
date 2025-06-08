@@ -1,4 +1,4 @@
-import type { DefaultValue, ExampleValue } from '../../types/index.js'
+import type { DefaultValue, Schema } from '../../types/index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodGt } from './generate-zod-gt.js'
 import { generateZodLt } from './generate-zod-lt.js'
@@ -7,84 +7,65 @@ import { generateZodMin } from './generate-zod-min.js'
 import { generateZodRegex } from './generate-zod-regex.js'
 import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
-type GenerateZodNumberParams = {
-  pattern?: string
-  minLength?: number
-  maxLength?: number
-  minimum?: number
-  maximum?: number
-  exclusiveMinimum?: boolean
-  exclusiveMaximum?: boolean
-  default?: DefaultValue
-  example?: ExampleValue
-  paramName?: string
-  isPath?: boolean
-}
-
 /**
  * Generates a Zod number schema string
- * @param { GenerateZodNumberParams } args - The parameters to generate the zod number schema.
+ * @param { Schema } schema - OpenAPI schema definition for a number
  * @returns { string } Generated Zod number schema string
  */
-export function generateZodNumber(args: GenerateZodNumberParams): string {
+export function generateZodNumber(schema: Schema): string {
   const validations = ['z.number()']
   // pattern
-  if (args.pattern) {
-    validations.push(generateZodRegex(args.pattern))
+  if (schema.pattern) {
+    validations.push(generateZodRegex(schema.pattern))
   }
   // minLength
-  if (args.minLength) {
-    validations.push(generateZodMin(args.minLength))
+  if (schema.minLength) {
+    validations.push(generateZodMin(schema.minLength))
   }
   // maxLength
-  if (args.maxLength) {
-    validations.push(generateZodMax(args.maxLength))
+  if (schema.maxLength) {
+    validations.push(generateZodMax(schema.maxLength))
   }
   // minimum
-  if (args.minimum) {
-    validations.push(generateZodMin(args.minimum))
+  if (schema.minimum) {
+    validations.push(generateZodMin(schema.minimum))
   }
   // maximum
-  if (args.maximum) {
-    validations.push(generateZodMax(args.maximum))
+  if (schema.maximum) {
+    validations.push(generateZodMax(schema.maximum))
   }
   // default
-  if (args.default) {
-    validations.push(generateZodDefault(args.default))
+  if (schema.default) {
+    validations.push(generateZodDefault(schema.default))
   }
-  // example
-  if (args.example) {
-    validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
-  }
-
   // 0 falsy value
   // minimum === 0
   // positive
-  if (args.minimum === 0 && args.exclusiveMinimum) {
+  if (schema.minimum === 0 && schema.exclusiveMinimum) {
     validations.push('.positive()')
   }
   // nonpositive
-  if (args.minimum === 0 && !args.exclusiveMinimum) {
-    if (!args.default) {
+  if (schema.minimum === 0 && !schema.exclusiveMinimum) {
+    if (!schema.default) {
       validations.push('.nonpositive()')
     }
   }
   // negative
-  if (args.maximum === 0 && args.exclusiveMaximum) {
-    if (!args.default) {
+  if (schema.maximum === 0 && schema.exclusiveMaximum) {
+    if (!schema.default) {
       validations.push('.negative()')
     }
   }
   // gt
-  if (args.minimum) {
-    if (args.minimum > 0 && args.exclusiveMinimum) {
-      validations.push(generateZodGt(args.minimum))
+  if (schema.minimum) {
+    if (schema.minimum > 0 && schema.exclusiveMinimum) {
+      validations.push(generateZodGt(schema.minimum))
     }
   }
   // lt
-  if (args.maximum) {
-    if (args.maximum > 0 && args.exclusiveMaximum) {
-      validations.push(generateZodLt(args.maximum))
+  if (schema.maximum) {
+    if (schema.maximum > 0 && schema.exclusiveMaximum) {
+      validations.push(generateZodLt(schema.maximum))
     }
   }
   return validations.join('')

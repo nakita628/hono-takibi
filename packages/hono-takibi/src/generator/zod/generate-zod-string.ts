@@ -5,7 +5,6 @@ import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodNullable } from './generate-zod-nullable.js'
 import { generateZodRegex } from './generate-zod-regex.js'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 type GenerateZodStringParams = {
   pattern?: string
@@ -14,9 +13,6 @@ type GenerateZodStringParams = {
   format?: FormatString
   nullable?: boolean
   default?: DefaultValue
-  example?: ExampleValue
-  paramName?: string
-  isPath?: boolean
 }
 
 /**
@@ -74,10 +70,6 @@ export function generateZodString(args: GenerateZodStringParams): string {
   // nullable
   if (args.nullable) {
     validations.push(generateZodNullable())
-  }
-  // example
-  if (args.example) {
-    validations.push(generateZodToOpenAPI(args.example, args.paramName, args.isPath))
   }
   return validations.join('')
 }

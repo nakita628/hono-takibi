@@ -1,22 +1,10 @@
 import type { Schema } from '../../types/index.js'
-import { generateZodToOpenAPI } from './openapi/generate-zod-to-openapi.js'
 
 /**
  * Generates a Zod enum string
  * @param { Schema } schema - The schema definition
- * @returns { string } Generated Zod enum string
  */
-export function generateZodEnum(schema: Schema): string {
-  if (!schema.enum) {
-    throw new Error('enum is not found')
-  }
-
-  // example
-  if (schema.example) {
-    const openapi_example = generateZodToOpenAPI(schema.example)
-    return `z.enum(${JSON.stringify(schema.enum)})${openapi_example}`
-  }
-
+export function generateZodEnum(schema: Schema) {
   // number
   if (schema.type === 'number' && schema.enum) {
     return `z.literal(${schema.enum})`
@@ -59,19 +47,20 @@ export function generateZodEnum(schema: Schema): string {
     return `z.literal(${schema.enum})`
   }
 
-  // enum.length > 1
-  if (schema.enum.length > 1) {
-    const allStrings = schema.enum.every((v) => typeof v === 'string')
-    if (allStrings) {
-      return `z.enum(${JSON.stringify(schema.enum)})`
+  if (schema.enum) {
+    // enum.length > 1
+    if (schema.enum.length > 1) {
+      const allStrings = schema.enum.every((v) => typeof v === 'string')
+      if (allStrings) {
+        return `z.enum(${JSON.stringify(schema.enum)})`
+      }
+      const unionLiterals = schema.enum.map((value) =>
+        value === null
+          ? 'z.null()'
+          : `z.literal(${typeof value === 'string' ? `'${value}'` : value})`,
+      )
+      return `z.union([${unionLiterals}])`
     }
-    const unionLiterals = schema.enum.map((value) =>
-      value === null
-        ? 'z.null()'
-        : `z.literal(${typeof value === 'string' ? `'${value}'` : value})`,
-    )
-    return `z.union([${unionLiterals}])`
+    return `z.literal(${typeof schema.enum[0] === 'string' ? `'${schema.enum[0]}'` : schema.enum[0]})`
   }
-
-  return `z.literal(${typeof schema.enum[0] === 'string' ? `'${schema.enum[0]}'` : schema.enum[0]})`
 }
