@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "takibi": "hono-takibi src/openapi.yaml -o src/route.ts",
     "vite": "vite --host",
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
@@ -15,7 +16,7 @@
     "@hono/swagger-ui": "^0.5.0",
     "@vitest/coverage-v8": "^2.1.8",
     "drizzle-kit": "^0.30.4",
-    "hono-takibi": "0.7.0",
+    "hono-takibi": "0.7.1",
     "tsx": "^4.7.1",
     "vite": "^6.1.0",
     "vitest": "^2.1.8"
