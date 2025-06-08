@@ -3,7 +3,6 @@ import { ok, err } from '../types/index.js'
 
 /**
  * @param args - The CLI arguments
- * @returns
  */
 export function ensureIO(
   args: string[],

@@ -4,23 +4,23 @@ import type { CliFlags } from '../types/index.js'
 /**
  * Merge the base configuration with the CLI flags.
  * @param base
- * @param f
+ * @param cli
  * @returns
  */
 export function mergeConfigHelper(base: Config, cli: CliFlags) {
   return {
     ...base,
-    input: base.input ?? cli.input ?? '',
-    output: base.output ?? cli.output ?? '',
+    input: cli.input ?? base.input ?? '',
+    output: cli.output ?? base.output ?? '',
     type: {
       ...base.type,
-      export: base.type.export ?? cli.exportType ?? false,
-      name: base.type.name ?? cli.typeCase ?? 'PascalCase',
+      export: cli.exportType ?? base.type.export ?? false,
+      name: cli.typeCase ?? base.type.name ?? 'PascalCase',
     },
     schema: {
       ...base.schema,
-      export: base.schema.export ?? cli.exportSchema ?? false,
-      name: base.schema.name ?? cli.schemaCase ?? 'PascalCase',
+      export: cli.exportSchema ?? base.schema.export ?? false,
+      name: cli.schemaCase ?? base.schema.name ?? 'PascalCase',
     },
   }
 }

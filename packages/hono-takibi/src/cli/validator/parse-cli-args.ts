@@ -1,4 +1,4 @@
-import type { CliFlags, Naming, Result } from '../types/index.js'
+import type { CliFlags, Result } from '../types/index.js'
 import { flagValHelper } from '../helpers/flag-val-helper.js'
 import { hasFlagHelper } from '../helpers/has-flag-helper.js'
 import { sliceArgsHelper } from '../helpers/slice-args-helper.js'
@@ -42,6 +42,7 @@ export function parseCliArgs(
   config: { input?: string; output?: string },
 ): Result<CliFlags> {
   const args = sliceArgsHelper(argv)
+
   if (args.includes('--help')) {
     return err(HELP_TEXT)
   }
@@ -57,8 +58,8 @@ export function parseCliArgs(
   return ok({
     input: io.value.input,
     output: io.value.output,
-    exportType: hasFlagHelper(args, '--export-type'),
-    exportSchema: hasFlagHelper(args, '--export-schema'),
+    exportType: hasFlagHelper(args, '--export-type') ? true : undefined,
+    exportSchema: hasFlagHelper(args, '--export-schema') ? true : undefined,
     typeCase: tRes.value,
     schemaCase: sRes.value,
     template: hasFlagHelper(args, '--template'),

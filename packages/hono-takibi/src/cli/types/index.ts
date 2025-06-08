@@ -8,10 +8,10 @@ export const err = <E>(e: E): Err<E> => ({ ok: false, error: e })
 export type CliFlags = {
   input: string
   output: string
-  exportType: boolean
-  exportSchema: boolean
-  typeCase: Naming
-  schemaCase: Naming
+  exportType?: boolean
+  exportSchema?: boolean
+  typeCase?: Naming
+  schemaCase?: Naming
   template: boolean
   test: boolean
   basePath?: string

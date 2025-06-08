@@ -7,8 +7,8 @@ import { ok, err } from '../types/index.js'
  * @param raw - The raw naming case string.
  * @returns A Result containing the parsed Naming or an error message.
  */
-export function parseNaming(raw: string | undefined): Result<Naming> {
+export function parseNaming(raw: string | undefined): Result<Naming | undefined> {
   if (raw === 'PascalCase' || raw === 'camelCase') return ok(raw)
-  if (raw === undefined) return ok('PascalCase')
-  return err(`--naming-case must be PascalCase or camelCase (got ${raw})`)
+  if (raw === undefined) return ok(undefined)
+  return err('--naming-case must be PascalCase or camelCase (got ' + raw + ')')
 }
