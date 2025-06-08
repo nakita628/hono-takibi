@@ -37,12 +37,15 @@ Options:
  * @param argv - The command line arguments.
  * @returns A Result containing the parsed flags or an error message.
  */
-export function parseCliArgs(argv: readonly string[]): Result<CliFlags> {
+export function parseCliArgs(
+  argv: string[],
+  config: { input?: string; output?: string },
+): Result<CliFlags> {
   const args = sliceArgsHelper(argv)
   if (args.includes('--help')) {
     return err(HELP_TEXT)
   }
-  const io = ensureIO(args)
+  const io = ensureIO(args, config)
   if (!io.ok) return err(io.error)
 
   const tRes = parseNaming(flagValHelper(args, '--naming-case-type'))

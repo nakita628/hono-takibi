@@ -8,11 +8,26 @@ import type { CliFlags } from '../types/index.js'
  * @returns
  */
 export function mergeConfigHelper(base: Config, f: CliFlags) {
+  const preferBase = <T>(cfg: T | undefined, cli: T | undefined): T | undefined =>
+    cfg !== undefined ? cfg : cli
+
+  const withFallback = <T>(v: T | undefined, fallback: T): T => (v === undefined ? fallback : v)
+
   return {
     ...base,
-    input: f.input,
-    output: f.output,
-    type: { ...base.type, export: f.exportType, name: f.typeCase },
-    schema: { ...base.schema, export: f.exportSchema, name: f.schemaCase },
+    input: withFallback(preferBase(base.input, f.input), ''),
+    output: withFallback(preferBase(base.output, f.output), ''),
+
+    type: {
+      ...base.type,
+      export: withFallback(preferBase(base.type.export, f.exportType), false),
+      name: withFallback(preferBase(base.type.name, f.typeCase), 'PascalCase'),
+    },
+
+    schema: {
+      ...base.schema,
+      export: withFallback(preferBase(base.schema.export, f.exportSchema), false),
+      name: withFallback(preferBase(base.schema.name, f.schemaCase), 'PascalCase'),
+    },
   }
 }
