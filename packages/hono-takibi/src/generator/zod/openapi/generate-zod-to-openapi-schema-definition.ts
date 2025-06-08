@@ -1,5 +1,5 @@
 import type { Config } from '../../../config/index.js'
-import { getVariableNameHelper } from '../../../core/helper/get-variable-name-helper.js'
+import { getVariableNameHelper } from '../../../core/helper/index.js'
 import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
 import { generateZodInfer } from '../generate-zod-infer.js'
 

@@ -1,4 +1,4 @@
-import { generateRouteName } from '../openapi/route/generate-route-name.js'
+import { generateRouteName } from '../../openapi/route/generate-route-name.js'
 
 /**
  * Generate handler name

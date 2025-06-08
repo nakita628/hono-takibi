@@ -1,4 +1,4 @@
-import { decapitalize } from '../text/decapitalize.js'
+import { decapitalize } from '../text/index.js'
 
 /**
  * Generates a camelCase schema name from a given schema name.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { removeZodPrefix } from './remove-zod-prefix'
+import { removeZodPrefix } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/text/remove-zod-prefix.test.ts

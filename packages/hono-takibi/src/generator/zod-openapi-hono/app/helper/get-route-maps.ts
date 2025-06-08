@@ -1,4 +1,4 @@
-import { generateHandlerName } from '../../handler/generate-handler-name.js'
+import { generateHandlerName } from '../../handler/generators/generate-handler-name.js'
 import { generateRouteName } from '../../openapi/route/generate-route-name.js'
 import type { OpenAPISpec } from '../../../../types/index.js'
 

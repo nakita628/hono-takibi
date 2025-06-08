@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getToSafeIdentifierHelper } from './get-to-safe-identifier-helper'
+import { getToSafeIdentifierHelper } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-to-safe-identifier-helper.test.ts

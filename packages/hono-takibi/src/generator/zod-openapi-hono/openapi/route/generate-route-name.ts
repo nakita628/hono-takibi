@@ -1,4 +1,4 @@
-import { capitalize } from '../../../../core/text/capitalize.js'
+import { capitalize } from '../../../../core/text/index.js'
 
 /**
  * Generates a route name from HTTP method and path

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getVariableNameHelper } from './get-variable-name-helper'
+import { getVariableNameHelper } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-variable-name-helper.test.ts

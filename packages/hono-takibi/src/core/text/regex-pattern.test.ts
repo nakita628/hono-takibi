@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { regexPattern } from './regex-pattern'
+import { regexPattern } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/text/regex-pattern.test.ts

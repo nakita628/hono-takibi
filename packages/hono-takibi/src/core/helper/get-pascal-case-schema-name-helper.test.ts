@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper'
+import { getPascalCaseSchemaNameHelper } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-pascal-case-schema-name-helper.test.ts

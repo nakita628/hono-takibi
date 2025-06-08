@@ -1,5 +1,4 @@
-import { capitalize } from '../text/capitalize.js'
-import { decapitalize } from '../text/decapitalize.js'
+import { capitalize, decapitalize } from '../text/index.js'
 import type { Config } from '../../config/index.js'
 
 /**
