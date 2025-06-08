@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper'
+import { getCamelCaseSchemaNameHelper } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-camel-case-schema-name-helper.test.ts

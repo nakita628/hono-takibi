@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getVariableSchemaNameHelper } from './get-variable-schema-name-helper'
+import { getVariableSchemaNameHelper } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-variable-schema-name-helper.test.ts

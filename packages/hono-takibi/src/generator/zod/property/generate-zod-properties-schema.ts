@@ -3,7 +3,7 @@ import type { Config } from '../../../config/index.js'
 import { isAllOptional } from '../../../core/validator/is-all-optional.js'
 import { generateZodPartialSchema } from '../generate-zod-partial-schema.js'
 import { generatePropertySchema } from './generate-zod-property-schema.js'
-import { getToSafeIdentifierHelper } from '../../../core/helper/get-to-safe-identifier-helper.js'
+import { getToSafeIdentifierHelper } from '../../../core/helper/index.js'
 
 /**
  * Generates a Zod object schema with properties and their requirements

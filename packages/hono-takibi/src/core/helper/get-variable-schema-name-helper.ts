@@ -1,5 +1,4 @@
-import { getCamelCaseSchemaNameHelper } from './get-camel-case-schema-name-helper.js'
-import { getPascalCaseSchemaNameHelper } from './get-pascal-case-schema-name-helper.js'
+import { getCamelCaseSchemaNameHelper, getPascalCaseSchemaNameHelper } from './index.js'
 import type { Config } from '../../config/index.js'
 
 /**

@@ -1,6 +1,6 @@
 import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../types/index.js'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
+import { getVariableSchemaNameHelper } from '../../../core/helper/index.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 
 /**
