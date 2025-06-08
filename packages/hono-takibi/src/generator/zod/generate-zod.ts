@@ -1,6 +1,5 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { isFormatString } from '../../core/validator/is-format-string.js'
 import { getVariableSchemaNameHelper } from '../../core/helper/index.js'
 import { generateZodObject } from './generate-zod-object.js'
 import { generateZodEnum } from './generate-zod-enum.js'
