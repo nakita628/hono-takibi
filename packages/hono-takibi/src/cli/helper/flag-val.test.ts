@@ -7,10 +7,12 @@ import { flagVal } from '.'
 describe('flagVal', () => {
   it('should get value for --naming-case-schema', () => {
     const args = [
-      '--naming-case-schema', 'PascalCase',
+      '--naming-case-schema',
+      'PascalCase',
       '--export-schema',
-      '--naming-case-type', 'camelCase',
-      '--export-type'
+      '--naming-case-type',
+      'camelCase',
+      '--export-type',
     ]
     expect(flagVal(args, '--naming-case-schema')).toBe('PascalCase')
     expect(flagVal(args, '--naming-case-type')).toBe('camelCase')
@@ -18,10 +20,12 @@ describe('flagVal', () => {
 
   it('should return undefined for boolean flag', () => {
     const args = [
-      '--naming-case-schema', 'PascalCase',
+      '--naming-case-schema',
+      'PascalCase',
       '--export-schema',
-      '--naming-case-type', 'camelCase',
-      '--export-type'
+      '--naming-case-type',
+      'camelCase',
+      '--export-type',
     ]
     expect(flagVal(args, '--export-schema')).toBeUndefined()
     expect(flagVal(args, '--export-type')).toBeUndefined()

@@ -579,20 +579,18 @@ export const postTestRoute = createRoute({
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'camelCase', export: true }
   // },
-  it.concurrent(
-    '--naming-case-schema camelCase --naming-case-type camelCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --naming-case-type camelCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type camelCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
+  it.concurrent('--naming-case-schema camelCase --naming-case-type camelCase --export-type', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    // CLI
+    // --naming-case-schema camelCase --naming-case-type camelCase --export-type
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type camelCase --export-type`,
+      {
+        stdio: 'pipe',
+      },
+    )
+    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const testSchema = z.object({ test: z.string() }).openapi('Test')
 
@@ -606,10 +604,10 @@ export const postTestRoute = createRoute({
   responses: { 200: { description: 'Successful test' } },
 })
 `
-      expect(result).toBe(expected)
-    })
+    expect(result).toBe(expected)
+  })
 
-    // 16
+  // 16
   // {
   //   schema: { name: 'camelCase', export: false },
   //   type: { name: 'camelCase', export: false }
@@ -638,6 +636,59 @@ export const postTestRoute = createRoute({
 })
 `
     expect(result).toBe(expected)
+  })
+})
+
+// Help
+describe.concurrent('Hono Takibi Help Test', () => {
+  it.concurrent('Hono Takibi --help', async () => {
+    try {
+      execSync(`node ${path.resolve('dist/index.js')} --help`, { stdio: 'pipe' })
+    } catch (e) {
+      if (e instanceof Error) {
+        expect(e.message).toMatch(
+          new RegExp(
+            [
+              'Usage: hono-takibi <input-file> \\[-o output-file\\]',
+              '',
+              'Options:',
+              '  -o, --output <file>   Output file path',
+              '  --naming-case-schema <case>  Naming case for schema (camelCase, PascalCase)',
+              '  --export-schema       Export schema type',
+              '  --naming-case-type <case>    Naming case for type (camelCase, PascalCase)',
+              '  --export-type         Export type',
+              '  --template            Use template',
+              '  --test                Run tests',
+            ].join('\\n'),
+          ),
+        )
+      }
+    }
+  })
+
+  it.concurrent('Hono Takibi -h', async () => {
+    try {
+      execSync(`node ${path.resolve('dist/index.js')} -h`, { stdio: 'pipe' })
+    } catch (e) {
+      if (e instanceof Error) {
+        expect(e.message).toMatch(
+          new RegExp(
+            [
+              'Usage: hono-takibi <input-file> \\[-o output-file\\]',
+              '',
+              'Options:',
+              '  -o, --output <file>   Output file path',
+              '  --naming-case-schema <case>  Naming case for schema (camelCase, PascalCase)',
+              '  --export-schema       Export schema type',
+              '  --naming-case-type <case>    Naming case for type (camelCase, PascalCase)',
+              '  --export-type         Export type',
+              '  --template            Use template',
+              '  --test                Run tests',
+            ].join('\\n'),
+          ),
+        )
+      }
+    }
   })
 })
 
