@@ -29,24 +29,20 @@ const LoginResponseSchema = z
 
 const VerifyInputSchema = z
   .object({
-    temp_token: z
-      .string()
-      .openapi({
-        description: 'Temporary token received from the login response.',
-        example: 'temp1234567890',
-      }),
+    temp_token: z.string().openapi({
+      description: 'Temporary token received from the login response.',
+      example: 'temp1234567890',
+    }),
     code: z.string().openapi({ description: 'Two-factor authentication code.', example: '123456' }),
   })
   .openapi('VerifyInput')
 
 const VerifyResponseSchema = z
   .object({
-    token: z
-      .string()
-      .openapi({
-        description: 'JWT token issued upon successful 2FA verification.',
-        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-      }),
+    token: z.string().openapi({
+      description: 'JWT token issued upon successful 2FA verification.',
+      example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    }),
     expires_in: z
       .number()
       .int()

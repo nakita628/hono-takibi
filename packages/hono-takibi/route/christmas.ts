@@ -2,25 +2,18 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const SantaStatusSchema = z
   .object({
-    location: z
-      .string()
-      .openapi({
-        description: 'Current location of Santa (e.g., "North Pole", "En route to Chicago").',
-        example: 'En route to Chicago',
-      }),
-    status: z
-      .string()
-      .openapi({
-        description: 'Current status (e.g., "delivering", "resting", "in transit").',
-        example: 'delivering',
-      }),
-    lastUpdate: z
-      .string()
-      .datetime()
-      .openapi({
-        description: 'Timestamp of the last status update.',
-        example: '2025-12-24T22:00:00Z',
-      }),
+    location: z.string().openapi({
+      description: 'Current location of Santa (e.g., "North Pole", "En route to Chicago").',
+      example: 'En route to Chicago',
+    }),
+    status: z.string().openapi({
+      description: 'Current status (e.g., "delivering", "resting", "in transit").',
+      example: 'delivering',
+    }),
+    lastUpdate: z.string().datetime().openapi({
+      description: 'Timestamp of the last status update.',
+      example: '2025-12-24T22:00:00Z',
+    }),
   })
   .openapi('SantaStatus')
 
@@ -36,19 +29,14 @@ const DeliverySchema = z
     present: z
       .string()
       .openapi({ description: 'Description of the Christmas present.', example: 'Toy Train Set' }),
-    status: z
-      .string()
-      .openapi({
-        description: 'Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").',
-        example: 'scheduled',
-      }),
-    scheduledTime: z
-      .string()
-      .datetime()
-      .openapi({
-        description: 'Scheduled time for the delivery.',
-        example: '2025-12-25T08:00:00Z',
-      }),
+    status: z.string().openapi({
+      description: 'Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").',
+      example: 'scheduled',
+    }),
+    scheduledTime: z.string().datetime().openapi({
+      description: 'Scheduled time for the delivery.',
+      example: '2025-12-25T08:00:00Z',
+    }),
   })
   .openapi('Delivery')
 
@@ -70,19 +58,14 @@ const DeliveryRequestSchema = z
 
 const DeliveryUpdateSchema = z
   .object({
-    address: z
-      .string()
-      .openapi({
-        description: 'Updated delivery address.',
-        example: '456 Reindeer Road, North Pole',
-      }),
-    scheduledTime: z
-      .string()
-      .datetime()
-      .openapi({
-        description: 'Updated scheduled delivery time.',
-        example: '2025-12-25T09:00:00Z',
-      }),
+    address: z.string().openapi({
+      description: 'Updated delivery address.',
+      example: '456 Reindeer Road, North Pole',
+    }),
+    scheduledTime: z.string().datetime().openapi({
+      description: 'Updated scheduled delivery time.',
+      example: '2025-12-25T09:00:00Z',
+    }),
   })
   .openapi('DeliveryUpdate')
 
