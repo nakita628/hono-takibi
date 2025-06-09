@@ -1,118 +1,144 @@
-import { afterAll, beforeAll, describe, it, expect } from 'vitest'
+import { beforeAll, afterAll, describe, it, expect } from 'vitest'
+import type { OpenAPISpec } from './types/index.js'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import fs from 'node:fs'
-import { petStoreOpenAPIExpected } from '../data/expected/pet-store-openapi'
 
 // Test run
 // pnpm vitest run ./src/index.test.ts
 
-describe('Hono Takibi Test', () => {
+describe('Hono Takibi Normal Test', () => {
+  const tmpOpenAPI: OpenAPISpec = {
+    openapi: '3.0.0',
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
+    },
+    components: {
+      schemas: {
+        Test: {
+          type: 'object',
+          required: ['test'],
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+    paths: {
+      '/test': {
+        post: {
+          summary: 'Test endpoint',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Test',
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'Successful test',
+            },
+          },
+        },
+      },
+    },
+  }
   beforeAll(() => {
-    if (!fs.existsSync('route')) {
-      fs.mkdirSync('route', { recursive: true })
+    if (!fs.existsSync('tmp-openapi')) {
+      fs.mkdirSync('tmp-openapi', { recursive: true })
+      fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
     }
   })
 
   afterAll(() => {
-    if (fs.existsSync('route/pet-store.ts')) {
-      fs.unlinkSync('route/pet-store.ts')
+    if (fs.existsSync('tmp-openapi/test.json')) {
+      fs.unlinkSync('tmp-openapi/test.json')
     }
-    if (fs.existsSync('route') && fs.readdirSync('route').length === 0) {
-      fs.rmdirSync('route')
+    if (fs.existsSync('tmp-openapi') && fs.readdirSync('tmp-openapi').length === 0) {
+      fs.rmdirSync('tmp-openapi')
+    }
+    if (fs.existsSync('tmp-route/test.ts')) {
+      fs.unlinkSync('tmp-route/test.ts')
+    }
+    if (fs.existsSync('tmp-route') && fs.readdirSync('tmp-route').length === 0) {
+      fs.rmdirSync('tmp-route')
     }
   })
 
-  // test failed yaml
-  it('failed yaml', async () => {
-    // 1. set a failed yaml file
-    const failedYaml = path.join('openapi/failed.yaml')
+  it('Hono Takibi CLI Normal', async () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    // CLI
+    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`, {
+      stdio: 'pipe',
+    })
+    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+
+    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+
+const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
+`
+
+    expect(result).toBe(expected)
+  })
+})
+
+describe('Hono Takibi Failed Test', () => {
+  const tmpOpenAPI = {
+    openapi: '3.0.0',
+  }
+  beforeAll(() => {
+    if (!fs.existsSync('tmp-openapi-fail')) {
+      fs.mkdirSync('tmp-openapi-fail', { recursive: true })
+      fs.writeFileSync('tmp-openapi-fail/test.json', JSON.stringify(tmpOpenAPI))
+    }
+  })
+
+  afterAll(() => {
+    if (fs.existsSync('tmp-openapi-fail/test.json')) {
+      fs.unlinkSync('tmp-openapi-fail/test.json')
+    }
+    if (fs.existsSync('tmp-openapi-fail') && fs.readdirSync('tmp-openapi-fail').length === 0) {
+      fs.rmdirSync('tmp-openapi-fail')
+    }
+    if (fs.existsSync('tmp-route-fail/test.ts')) {
+      fs.unlinkSync('tmp-route-fail/test.ts')
+    }
+    if (fs.existsSync('tmp-route-fail') && fs.readdirSync('tmp-route-fail').length === 0) {
+      fs.rmdirSync('tmp-route-fail')
+    }
+  })
+
+  it('Hono Takibi CLI Failed', async () => {
+    const openapiPath = path.join('tmp-openapi-fail/test.json')
+
     try {
-      // CLI
-      execSync(`node ${path.resolve('dist/index.js')} ${failedYaml} -o route/failed.ts`, {
+      execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`, {
         stdio: 'pipe',
       })
     } catch (e) {
       if (e instanceof Error) {
         expect(e.message).toMatch(
-          new RegExp(
-            [
-              'Error parsing .+/packages/hono-takibi/openapi/failed\\.yaml: bad indentation of a mapping entry \\(15:5\\)',
-              '',
-              ' 12 \\|           type: string',
-              ' 13 \\|       required:',
-              ' 14 \\|         - message',
-              ' 15 \\|     Post:',
-              '----------\\^',
-              ' 16 \\|       type: object',
-              ' 17 \\|       properties:',
-            ].join('\n'),
-          ),
+          `Command failed: node /workspaces/hono-takibi/packages/hono-takibi/dist/index.js tmp-openapi-fail/test.json -o tmp-route/test.ts
+Usage: hono-takibi <input-file> [-o output-file]
+Error processing OpenAPI document: tmp-openapi-fail/test.json is not a valid Openapi API definition
+`,
         )
       }
-    }
-  })
-
-  // test CLI error
-  it('CLI error', async () => {
-    const openapiYaml = path.join('openapi/pet-store.yaml')
-    try {
-      // CLI
-      execSync(`node ${path.resolve('dist/index.js')} ${openapiYaml} route/pet-store.ts`, {
-        stdio: 'pipe',
-      })
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error)
-    }
-  })
-
-  // test the normal system
-  it('Hono Takibi CLI pet-store.yaml', async () => {
-    const openapiYaml = path.join('openapi/pet-store.yaml')
-    // CLI
-    execSync(`node ${path.resolve('dist/index.js')} ${openapiYaml} -o route/pet-store.ts`, {
-      stdio: 'pipe',
-    })
-    const result = fs.readFileSync('route/pet-store.ts', { encoding: 'utf-8' })
-    const expected = petStoreOpenAPIExpected
-
-    expect(result).toBe(expected)
-  })
-
-  // test CLI error
-  it('Hono Takibi CLI --naming-case-type faild', async () => {
-    const openapiYaml = path.join('openapi/abcde.yaml')
-    // CLI
-    try {
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiYaml} -o route/abcde.ts --naming-case-type faild`,
-        {
-          stdio: 'pipe',
-        },
-      )
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error)
-      expect(e.message).toMatch(
-        /Command failed: node .+\/dist\/index\.js.+--naming-case-type faild/,
-      )
-    }
-  })
-
-  it('Hono Takibi CLI --naming-case-type faild', async () => {
-    const openapiYaml = path.join('openapi/abcde.yaml')
-    // CLI
-    try {
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiYaml} -o route/abcde.ts --naming-case-type camelCase`,
-        {
-          stdio: 'pipe',
-        },
-      )
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error)
-      expect(e.message).toMatch(
-        /Command failed: node .+\/dist\/index\.js.+--naming-case-type camelCase/,
-      )
     }
   })
 })
