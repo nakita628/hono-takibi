@@ -7,7 +7,7 @@ import type { CliFlags } from '../types/index.js'
  * @param cli
  * @returns
  */
-export function mergeConfigHelper(base: Config, cli: CliFlags) {
+export function mergeConfig(base: Config, cli: CliFlags) {
   return {
     ...base,
     input: cli.input ?? base.input ?? '',

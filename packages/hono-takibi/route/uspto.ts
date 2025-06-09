@@ -6,10 +6,14 @@ const DataSetListSchema = z
     apis: z.array(
       z
         .object({
-          apiKey: z.string(),
-          apiVersionNumber: z.string(),
-          apiUrl: z.string(),
-          apiDocumentationUrl: z.string(),
+          apiKey: z.string().openapi({ description: 'To be used as a dataset parameter value' }),
+          apiVersionNumber: z
+            .string()
+            .openapi({ description: 'To be used as a version parameter value' }),
+          apiUrl: z.string().openapi({ description: "The URL describing the dataset's fields" }),
+          apiDocumentationUrl: z
+            .string()
+            .openapi({ description: 'A URL to the API console for each API' }),
         })
         .partial(),
     ),
@@ -40,7 +44,12 @@ export const getDatasetVersionFieldsRoute = createRoute({
     'Provides the general information about the API and the list of fields that can be used to query the dataset.',
   description:
     "This GET API returns the list of all the searchable field names that are in the oa_citations. Please see the 'fields' attribute which returns an array of field names. Each field or a combination of fields can be searched using the syntax options shown below.",
-  request: { params: z.object({ dataset: z.string(), version: z.string() }) },
+  request: {
+    params: z.object({
+      dataset: z.string().openapi({ param: { in: 'path', name: 'dataset' } }),
+      version: z.string().openapi({ param: { in: 'path', name: 'version' } }),
+    }),
+  },
   responses: {
     200: {
       description:
@@ -69,16 +78,37 @@ export const postDatasetVersionRecordsRoute = createRoute({
       content: {
         'application/x-www-form-urlencoded': {
           schema: z.object({
-            criteria: z.string().default('*:*'),
-            start: z.number().int().optional(),
-            rows: z.number().int().default(100).optional(),
+            criteria: z.string().default('*:*').openapi({
+              description:
+                "Uses Lucene Query Syntax in the format of propertyName:value, propertyName:[num1 TO num2] and date range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the response please see the 'docs' element which has the list of record objects. Each record structure would consist of all the fields and their corresponding values.",
+            }),
+            start: z
+              .number()
+              .int()
+              .openapi({ description: 'Starting record number. Default value is 0.' })
+              .optional(),
+            rows: z
+              .number()
+              .int()
+              .default(100)
+              .openapi({
+                description:
+                  "Specify number of rows to be returned. If you run the search with default values, in the response you will see 'numFound' attribute which will tell the number of records available in the dataset.",
+              })
+              .optional(),
           }),
         },
       },
     },
     params: z.object({
-      version: z.string().default('v1'),
-      dataset: z.string().default('oa_citations'),
+      version: z
+        .string()
+        .default('v1')
+        .openapi({ param: { in: 'path', name: 'version' } }),
+      dataset: z
+        .string()
+        .default('oa_citations')
+        .openapi({ param: { in: 'path', name: 'dataset' } }),
     }),
   },
   responses: {

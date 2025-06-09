@@ -7,10 +7,36 @@ import { getConfig, type Config } from './config/index.js'
 import { formatCode } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs } from './cli/validator/index.js'
-import { mergeConfigHelper } from './cli/helpers/index.js'
+import { mergeConfig } from './cli/helper/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
 import fsp from 'node:fs/promises'
+
+const HELP_TEXT = `
+Usage:
+  hono-takibi <input.yaml|json> -o <routes.ts> [options]
+
+Options:
+  --export-type               Export generated type aliases
+
+  --export-schema             Export generated schema objects
+
+  --naming-case-type <PascalCase|camelCase>
+                              Casing for generated *type aliases*
+                              (default: PascalCase)
+
+  --naming-case-schema <PascalCase|camelCase>
+                              Casing for generated *schema objects*
+                              (default: PascalCase)
+
+  --template                  Generate an app file and handler stubs
+
+  --test                      Generate empty *.test.ts files for handlers
+
+  --base-path <path>          API prefix (e.g. /api)
+  
+  --help                      Show this help and exit
+`.trimStart()
 
 /**
  * CLI entry point for hono-takibi
@@ -30,13 +56,18 @@ import fsp from 'node:fs/promises'
  */
 export async function main(): Promise<boolean> {
   // argv ['**/bin/node', '**/dist/index.js', 'example/pet-store.yaml', '-o', 'routes/petstore-index.ts']
-  const cli = parseCliArgs(process.argv, getConfig())
+  const setting = getConfig()
+  const cli = parseCliArgs(process.argv, setting)
   if (!cli.ok) {
+    if (cli.error === 'help') {
+      console.log(HELP_TEXT)
+      process.exit(0)
+    }
     console.error(cli.error)
     process.exit(1)
   }
 
-  const config = mergeConfigHelper(getConfig(), cli.value)
+  const config = mergeConfig(setting, cli.value)
 
   try {
     const { input, output } = config

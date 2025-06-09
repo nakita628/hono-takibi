@@ -62,7 +62,7 @@ const OrderItemSchema = z
 
 const CreditCardPaymentSchema = z
   .object({
-    method: z.enum(['credit_card']),
+    method: z.literal('credit_card'),
     cardNumber: z.string().openapi({ example: '4111111111111111' }),
     cardHolder: z.string().openapi({ example: 'John Doe' }),
     expirationDate: z
@@ -74,13 +74,14 @@ const CreditCardPaymentSchema = z
 
 const PaypalPaymentSchema = z
   .object({
-    method: z.enum(['paypal']),
+    method: z.literal('paypal'),
     email: z.string().email().openapi({ example: 'user@paypal.com' }),
   })
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z
   .union([CreditCardPaymentSchema, PaypalPaymentSchema])
+  .openapi({ description: 'A polymorphic payment method' })
   .openapi('PaymentMethod')
 
 const OrderSchema = z

@@ -6,7 +6,9 @@ const OrderSchema = z
     petId: z.number().int().openapi({ example: 198772 }),
     quantity: z.number().int().openapi({ example: 7 }),
     shipDate: z.string().datetime(),
-    status: z.enum(['placed', 'approved', 'delivered']).openapi({ example: 'approved' }),
+    status: z
+      .enum(['placed', 'approved', 'delivered'])
+      .openapi({ description: 'Order Status', example: 'approved' }),
     complete: z.boolean(),
   })
   .partial()
@@ -48,7 +50,7 @@ const UserSchema = z
     email: z.string().openapi({ example: 'john@email.com' }),
     password: z.string().openapi({ example: '12345' }),
     phone: z.string().openapi({ example: '12345' }),
-    userStatus: z.number().int().openapi({ example: 1 }),
+    userStatus: z.number().int().openapi({ description: 'User Status', example: 1 }),
   })
   .partial()
   .openapi('User')
@@ -62,7 +64,10 @@ const PetSchema = z
     category: CategorySchema.optional(),
     photoUrls: z.array(z.string()),
     tags: z.array(TagSchema).optional(),
-    status: z.enum(['available', 'pending', 'sold']).optional(),
+    status: z
+      .enum(['available', 'pending', 'sold'])
+      .openapi({ description: 'pet status in the store' })
+      .optional(),
   })
   .openapi('Pet')
 
@@ -185,7 +190,14 @@ export const getPetPetIdRoute = createRoute({
   summary: 'Find pet by ID',
   description: 'Returns a single pet',
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
-  request: { params: z.object({ petId: z.number().int() }) },
+  request: {
+    params: z.object({
+      petId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'petId' } }),
+    }),
+  },
   responses: {
     200: {
       description: 'successful operation',
@@ -207,7 +219,12 @@ export const postPetPetIdRoute = createRoute({
   summary: 'Updates a pet in the store with form data',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    params: z.object({ petId: z.number().int() }),
+    params: z.object({
+      petId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'petId' } }),
+    }),
     query: z.object({ name: z.string().optional(), status: z.string().optional() }),
   },
   responses: { 400: { description: 'Invalid input' } },
@@ -223,7 +240,12 @@ export const deletePetPetIdRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     header: z.object({ api_key: z.string().optional() }),
-    params: z.object({ petId: z.number().int() }),
+    params: z.object({
+      petId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'petId' } }),
+    }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
 })
@@ -236,8 +258,16 @@ export const postPetPetIdUploadImageRoute = createRoute({
   summary: 'uploads an image',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    body: { required: false, content: { 'application/octet-stream': { schema: z.string() } } },
-    params: z.object({ petId: z.number().int() }),
+    body: {
+      required: false,
+      content: { 'application/octet-stream': { schema: z.instanceof(Uint8Array) } },
+    },
+    params: z.object({
+      petId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'petId' } }),
+    }),
     query: z.object({ additionalMetadata: z.string().optional() }),
   },
   responses: {
@@ -299,7 +329,14 @@ export const getStoreOrderOrderIdRoute = createRoute({
   summary: 'Find purchase order by ID',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
-  request: { params: z.object({ orderId: z.number().int() }) },
+  request: {
+    params: z.object({
+      orderId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'orderId' } }),
+    }),
+  },
   responses: {
     200: {
       description: 'successful operation',
@@ -321,7 +358,14 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
   summary: 'Delete purchase order by ID',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
-  request: { params: z.object({ orderId: z.number().int() }) },
+  request: {
+    params: z.object({
+      orderId: z
+        .number()
+        .int()
+        .openapi({ param: { in: 'path', name: 'orderId' } }),
+    }),
+  },
   responses: {
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Order not found' },
@@ -414,7 +458,9 @@ export const getUserUsernameRoute = createRoute({
   path: '/user/{username}',
   operationId: 'getUserByName',
   summary: 'Get user by user name',
-  request: { params: z.object({ username: z.string() }) },
+  request: {
+    params: z.object({ username: z.string().openapi({ param: { in: 'path', name: 'username' } }) }),
+  },
   responses: {
     200: {
       description: 'successful operation',
@@ -444,7 +490,7 @@ export const putUserUsernameRoute = createRoute({
         'application/x-www-form-urlencoded': { schema: UserSchema },
       },
     },
-    params: z.object({ username: z.string() }),
+    params: z.object({ username: z.string().openapi({ param: { in: 'path', name: 'username' } }) }),
   },
   responses: { default: { description: 'successful operation' } },
 })
@@ -456,7 +502,9 @@ export const deleteUserUsernameRoute = createRoute({
   operationId: 'deleteUser',
   summary: 'Delete user',
   description: 'This can only be done by the logged in user.',
-  request: { params: z.object({ username: z.string() }) },
+  request: {
+    params: z.object({ username: z.string().openapi({ param: { in: 'path', name: 'username' } }) }),
+  },
   responses: {
     400: { description: 'Invalid username supplied' },
     404: { description: 'User not found' },

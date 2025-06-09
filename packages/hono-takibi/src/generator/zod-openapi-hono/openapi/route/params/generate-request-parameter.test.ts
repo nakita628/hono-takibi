@@ -28,12 +28,12 @@ describe('generateRequestParameters', () => {
       },
       {
         schema: {
-          name: 'camelCase',
+          name: 'PascalCase',
           export: false,
         },
         type: {
-          name: 'camelCase',
-          export: true,
+          name: 'PascalCase',
+          export: false,
         },
       },
     )
@@ -61,12 +61,12 @@ describe('generateRequestParameters', () => {
       undefined,
       {
         schema: {
-          name: 'camelCase',
+          name: 'PascalCase',
           export: false,
         },
         type: {
-          name: 'camelCase',
-          export: true,
+          name: 'PascalCase',
+          export: false,
         },
       },
     )
@@ -103,18 +103,18 @@ describe('generateRequestParameters', () => {
       },
       {
         schema: {
-          name: 'camelCase',
+          name: 'PascalCase',
           export: false,
         },
         type: {
-          name: 'camelCase',
-          export: true,
+          name: 'PascalCase',
+          export: false,
         },
       },
     )
-    expect(result).toBe(
-      `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid()})},`,
-    )
+
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid().openapi({param:{in:"path",name:"id"}})})},`
+    expect(result).toBe(expected)
   })
 
   it.concurrent('generateRequestParameter parameters and requestBody not undefined binary', () => {
@@ -152,17 +152,17 @@ describe('generateRequestParameters', () => {
       },
       {
         schema: {
-          name: 'camelCase',
+          name: 'PascalCase',
           export: false,
         },
         type: {
-          name: 'camelCase',
-          export: true,
+          name: 'PascalCase',
+          export: false,
         },
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int()}),query:z.object({additionalMetadata:z.string().optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId"}})}),query:z.object({additionalMetadata:z.string().optional()})},`
     expect(result).toBe(expected)
   })
 })

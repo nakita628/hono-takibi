@@ -1,7 +1,7 @@
 import type { Config } from '../../../config/index.js'
-import { getVariableNameHelper } from '../../../core/helper/index.js'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
-import { generateZodInfer } from '../generate-zod-infer.js'
+import { getToSafeIdentifierHelper, getVariableNameHelper } from '../../../core/helper/index.js'
+import { getVariableSchemaNameHelper } from '../../../core/helper/index.js'
+import { generateZodInfer } from '../../zod/generate-zod-infer.js'
 
 /**
  * Creates a Zod schema constant declaration
@@ -27,16 +27,18 @@ export function generateZodToOpenAPISchemaDefinition(
 ): string {
   const variableName = getVariableSchemaNameHelper(schemaName, config)
   // "-" → "_"
-  const safeVariableName = variableName.replace(/[^a-zA-Z0-9_$]/g, '_')
+  const safeVariableName = getToSafeIdentifierHelper(variableName)
   // "-" → "_"
-  const safeSchemaName = schemaName.replace(/[^a-zA-Z0-9_$]/g, '_')
+  const safeSchemaName = getToSafeIdentifierHelper(schemaName)
   // schema code
   const schemaCode = config.schema.export
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
   const typeVariableName = getVariableNameHelper(schemaName, config)
-  const safeTypeVariableName = typeVariableName.replace(/[^a-zA-Z0-9_$]/g, '_')
+  // "-" → "_"
+  const safeTypeVariableName = getToSafeIdentifierHelper(typeVariableName)
+
   const zodInferCode = config.type.export
     ? generateZodInfer(safeTypeVariableName, safeVariableName)
     : ''

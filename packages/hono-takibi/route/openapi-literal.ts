@@ -11,9 +11,9 @@ export const getPrimitiveRoute = createRoute({
       content: {
         'application/json': {
           schema: z.object({
-            tuna_literal: z.enum(['tuna']),
+            tuna_literal: z.literal('tuna'),
             twelve_literal: z.literal(12),
-            twobig_literal: z.literal(2n),
+            twobig_literal: z.literal(2),
             true_literal: z.literal(true),
           }),
         },

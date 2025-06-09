@@ -1,8 +1,19 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const BSchema = z.object({ id: z.string(), message: z.string().optional() }).openapi('B')
+const BSchema = z
+  .object({
+    id: z.string().openapi({ description: 'Identifier for schema B' }),
+    message: z.string().openapi({ description: 'Message from schema B' }).optional(),
+  })
+  .openapi('B')
 
-const CSchema = z.object({ count: z.number().int(), flag: z.boolean() }).partial().openapi('C')
+const CSchema = z
+  .object({
+    count: z.number().int().openapi({ description: 'Count value' }),
+    flag: z.boolean().openapi({ description: 'A boolean flag' }),
+  })
+  .partial()
+  .openapi('C')
 
 const ASchema = z.object({ b: BSchema, c: CSchema }).openapi('A')
 
