@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { CliFlags } from '../types'
 import type { Config } from '../../config'
-import { mergeConfigHelper } from '../helpers'
+import { mergeConfigHelper } from '../helper'
 import { DEFAULT_CONFIG } from '../../config'
 
 // Test run

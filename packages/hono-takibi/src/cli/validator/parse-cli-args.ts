@@ -1,10 +1,11 @@
-import type { CliFlags, Result } from '../types/index.js'
-import { flagValHelper } from '../helpers/flag-val-helper.js'
-import { hasFlagHelper } from '../helpers/has-flag-helper.js'
-import { sliceArgsHelper } from '../helpers/slice-args-helper.js'
-import { ensureIO } from './ensure-io.js'
+import type { CliFlags } from '../types/index.js'
+import type { Result } from '../../result/types/index.js'
+import { flagValHelper } from '../helper/flag-val-helper.js'
+import { hasFlagHelper } from '../helper/has-flag-helper.js'
+import { sliceArgsHelper } from '../helper/slice-args-helper.js'
+import { parseIO } from './parse-io.js'
 import { parseNaming } from './parse-naming.js'
-import { ok, err } from '../types/index.js'
+import { ok, err } from '../../result/index.js'
 
 const HELP_TEXT = `
 Usage:
@@ -37,16 +38,13 @@ Options:
  * @param argv - The command line arguments.
  * @returns A Result containing the parsed flags or an error message.
  */
-export function parseCliArgs(
-  argv: string[],
-  config: { input?: string; output?: string },
-): Result<CliFlags> {
+export function parseCliArgs(argv: string[], config: { input?: string; output?: string }) {
   const args = sliceArgsHelper(argv)
 
   if (args.includes('--help')) {
     return err(HELP_TEXT)
   }
-  const io = ensureIO(args, config)
+  const io = parseIO(args, config)
   if (!io.ok) return err(io.error)
 
   const tRes = parseNaming(flagValHelper(args, '--naming-case-type'))

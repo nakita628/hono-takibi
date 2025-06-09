@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { ensureIO } from '.'
+import { parseIO } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/validator/ensure-io.test.ts
+// pnpm vitest run ./src/cli/validator/parse-io.test.ts
 
-describe('ensureIO', () => {
+describe('parseIO', () => {
   it.concurrent('returns ok when input and output are provided correctly', () => {
     const args = ['input.yaml', '-o', 'output.ts']
     const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = ensureIO(args, config)
+    const result = parseIO(args, config)
     const expected = { ok: true, value: { input: 'input.yaml', output: 'output.ts' } }
     expect(result).toStrictEqual(expected)
   })
@@ -16,7 +16,7 @@ describe('ensureIO', () => {
   it.concurrent('returns err when -o is missing', () => {
     const args = ['input.yaml']
     const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = ensureIO(args, config)
+    const result = parseIO(args, config)
     const expected = { ok: true, value: { input: 'input.yaml', output: 'output.ts' } }
     expect(result).toStrictEqual(expected)
   })
@@ -24,7 +24,7 @@ describe('ensureIO', () => {
   it.concurrent('returns err when -o has no value', () => {
     const args = ['input.yaml', '-o']
     const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = ensureIO(args, config)
+    const result = parseIO(args, config)
     const expected = { ok: true, value: { input: 'input.yaml', output: 'output.ts' } }
     expect(result).toStrictEqual(expected)
   })
@@ -32,7 +32,7 @@ describe('ensureIO', () => {
   it.concurrent('returns err when both input and output are missing', () => {
     const args: string[] = []
     const config = { input: '', output: '' }
-    const result = ensureIO(args, config)
+    const result = parseIO(args, config)
     const expected = {
       ok: false,
       error: 'Usage: hono-takibi <input-file> -o <output-file>',
