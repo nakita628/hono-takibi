@@ -1,4 +1,4 @@
-export * from './flag-val-helper.js'
-export * from './has-flag-helper.js'
-export * from './merge-config-helper.js'
-export * from './slice-args-helper.js'
+export { flagVal } from './flag-val.js'
+export { hasFlag } from './has-flag.js'
+export { mergeConfig } from './merge-config.js'
+export { sliceArgs } from './slice-args.js'

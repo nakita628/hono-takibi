@@ -1,15 +1,25 @@
 import { describe, it, expect } from 'vitest'
+import { mergeConfig } from '.'
 import type { CliFlags } from '../types'
 import type { Config } from '../../config'
-import { mergeConfigHelper } from '../helper'
-import { DEFAULT_CONFIG } from '../../config'
 
 // Test run
-// pnpm vitest run ./src/cli/helpers/merge-config-helper.test.ts
+// pnpm vitest run ./src/cli/helper/merge-config.test.ts
 
 describe('mergeConfigHelper', () => {
   it.concurrent('should merge CLI flags into base config export true', () => {
-    const base: Config = { ...DEFAULT_CONFIG }
+    const base: Config = {
+      ...{
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    }
     const cliFlags: CliFlags = {
       input: 'input.yaml',
       output: 'output.ts',
@@ -20,7 +30,7 @@ describe('mergeConfigHelper', () => {
       template: false,
       test: false,
     }
-    const result = mergeConfigHelper(base, cliFlags)
+    const result = mergeConfig(base, cliFlags)
     expect(result).toStrictEqual({
       schema: { name: 'camelCase', export: true },
       type: { name: 'camelCase', export: true },
@@ -30,7 +40,18 @@ describe('mergeConfigHelper', () => {
   })
 
   it.concurrent('should merge CLI flags into base config export false', () => {
-    const base: Config = { ...DEFAULT_CONFIG }
+    const base: Config = {
+      ...{
+        schema: {
+          name: 'PascalCase',
+          export: false,
+        },
+        type: {
+          name: 'PascalCase',
+          export: false,
+        },
+      },
+    }
     const cliFlags: CliFlags = {
       input: 'input.yaml',
       output: 'output.ts',
@@ -41,7 +62,7 @@ describe('mergeConfigHelper', () => {
       template: false,
       test: false,
     }
-    const result = mergeConfigHelper(base, cliFlags)
+    const result = mergeConfig(base, cliFlags)
     expect(result).toStrictEqual({
       schema: { name: 'camelCase', export: false },
       type: { name: 'camelCase', export: false },

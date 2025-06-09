@@ -3,6 +3,6 @@
  * @param f
  */
 
-export function hasFlagHelper(as: string[], f: string) {
+export function hasFlag(as: string[], f: string) {
   return as.includes(f)
 }

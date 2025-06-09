@@ -1,8 +1,6 @@
-import type { CliFlags } from '../types/index.js'
-import type { Result } from '../../result/types/index.js'
-import { flagValHelper } from '../helper/flag-val-helper.js'
-import { hasFlagHelper } from '../helper/has-flag-helper.js'
-import { sliceArgsHelper } from '../helper/slice-args-helper.js'
+import { flagVal } from '../helper/flag-val.js'
+import { hasFlag } from '../helper/has-flag.js'
+import { sliceArgs } from '../helper/slice-args.js'
 import { parseIO } from './parse-io.js'
 import { parseNaming } from './parse-naming.js'
 import { ok, err } from '../../result/index.js'
@@ -39,7 +37,7 @@ Options:
  * @returns A Result containing the parsed flags or an error message.
  */
 export function parseCliArgs(argv: string[], config: { input?: string; output?: string }) {
-  const args = sliceArgsHelper(argv)
+  const args = sliceArgs(argv)
 
   if (args.includes('--help')) {
     return err(HELP_TEXT)
@@ -47,21 +45,21 @@ export function parseCliArgs(argv: string[], config: { input?: string; output?: 
   const io = parseIO(args, config)
   if (!io.ok) return err(io.error)
 
-  const tRes = parseNaming(flagValHelper(args, '--naming-case-type'))
+  const tRes = parseNaming(flagVal(args, '--naming-case-type'))
   if (!tRes.ok) return err(tRes.error)
 
-  const sRes = parseNaming(flagValHelper(args, '--naming-case-schema'))
+  const sRes = parseNaming(flagVal(args, '--naming-case-schema'))
   if (!sRes.ok) return err(sRes.error)
 
   return ok({
     input: io.value.input,
     output: io.value.output,
-    exportType: hasFlagHelper(args, '--export-type') ? true : undefined,
-    exportSchema: hasFlagHelper(args, '--export-schema') ? true : undefined,
+    exportType: hasFlag(args, '--export-type') ? true : undefined,
+    exportSchema: hasFlag(args, '--export-schema') ? true : undefined,
     typeCase: tRes.value,
     schemaCase: sRes.value,
-    template: hasFlagHelper(args, '--template'),
-    test: hasFlagHelper(args, '--test'),
-    basePath: flagValHelper(args, '--base-path'),
+    template: hasFlag(args, '--template'),
+    test: hasFlag(args, '--test'),
+    basePath: flagVal(args, '--base-path'),
   })
 }

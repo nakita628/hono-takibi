@@ -7,7 +7,7 @@ import { getConfig, type Config } from './config/index.js'
 import { formatCode } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs } from './cli/validator/index.js'
-import { mergeConfigHelper } from './cli/helper/index.js'
+import { mergeConfig } from './cli/helper/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
 import fsp from 'node:fs/promises'
@@ -36,7 +36,7 @@ export async function main(): Promise<boolean> {
     process.exit(1)
   }
 
-  const config = mergeConfigHelper(getConfig(), cli.value)
+  const config = mergeConfig(getConfig(), cli.value)
 
   try {
     const { input, output } = config
