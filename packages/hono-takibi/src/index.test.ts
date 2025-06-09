@@ -135,9 +135,9 @@ describe('Hono Takibi Failed Test', () => {
         expect(e.message).toMatch(
           new RegExp(
             [
-              `Command failed: node .*dist/index\\.js tmp-openapi-fail/test\\.json -o tmp-route/test\\.ts`,
-              `Usage: hono-takibi <input-file> \\[-o output-file\\]`,
-              `Error processing OpenAPI document: tmp-openapi-fail/test\\.json is not a valid Openapi API definition`,
+              'Command failed: node .*dist/index\\.js tmp-openapi-fail/test\\.json -o tmp-route/test\\.ts',
+              'Usage: hono-takibi <input-file> \\[-o output-file\\]',
+              'Error processing OpenAPI document: tmp-openapi-fail/test\\.json is not a valid Openapi API definition',
             ].join('\\n'),
           ),
         )
