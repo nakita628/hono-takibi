@@ -1,8 +1,8 @@
 /**
- * @param as - The array of strings to check for the flag
+ * @param args - The array of strings to check for the flag
  * @param f
  */
 
-export function hasFlag(as: string[], f: string) {
-  return as.includes(f)
+export function hasFlag(args: readonly string[], f: string) {
+  return args.includes(f)
 }

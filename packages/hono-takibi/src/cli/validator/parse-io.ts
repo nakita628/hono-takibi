@@ -7,7 +7,7 @@ import { ok, err } from '../../result/index.js'
  * @returns A Result containing the input and output file paths or an error message
  */
 export function parseIO(
-  args: string[],
+  args: readonly string[],
   config: { input?: string; output?: string },
 ): Result<{ input: string; output: string }, string> {
   const cliInput = args[0]

@@ -10,7 +10,7 @@ import { ok, err } from '../../result/index.js'
  * @returns A Result containing the parsed flags or an error message.
  */
 export function parseCliArgs(
-  argv: string[],
+  argv: readonly string[],
   config: { input?: string; output?: string },
 ): Result<CliFlags, string> {
   const args = sliceArgs(argv)
