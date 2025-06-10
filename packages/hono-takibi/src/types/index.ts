@@ -253,7 +253,7 @@ export type Parameters = {
   description?: string
   required?: boolean
   name: string
-  in: string
+  in: 'path' | 'query' | 'header' | 'cookie'
   explode?: boolean
 }
 
