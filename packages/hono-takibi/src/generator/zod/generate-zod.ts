@@ -17,7 +17,7 @@ import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/g
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
 import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code.js'
-import { generateZodToOpenAPI } from '../zod-to-openapi/index.js'
+import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -170,12 +170,12 @@ export function generateZod(config: Config, schema: Schema): string {
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = generateZodLength(schema.minLength)
         const zodArray = generateZodArray(
-          generateZodToOpenAPI(config, schema.items, undefined, undefined),
+          zodToOpenAPI(config, schema.items, undefined, undefined),
         )
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
-      return generateZodArray(generateZodToOpenAPI(config, schema.items, undefined, undefined))
+      return generateZodArray(zodToOpenAPI(config, schema.items, undefined, undefined))
     }
     return 'z.array(z.any())'
   }

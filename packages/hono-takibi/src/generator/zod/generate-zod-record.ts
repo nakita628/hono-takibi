@@ -1,6 +1,6 @@
 import type { Config } from '../../config/index.js'
 import type { Schema } from '../../types/index.js'
-import { generateZodToOpenAPI } from '../zod-to-openapi/index.js'
+import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
  * Generates a Zod record schema for objects with additional properties
@@ -26,6 +26,6 @@ import { generateZodToOpenAPI } from '../zod-to-openapi/index.js'
  * - Supports all Zod-compatible types and formats
  */
 export function generateZodRecord(additionalProperties: Schema, config: Config): string {
-  const schema = generateZodToOpenAPI(config, additionalProperties)
+  const schema = zodToOpenAPI(config, additionalProperties)
   return `z.record(z.string(),${schema})`
 }

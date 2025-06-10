@@ -1,7 +1,7 @@
 import type { Parameters, ParamsObject } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { generateZodCoerce } from '../../../../zod/generate-zod-coerce.js'
-import { generateZodToOpenAPI } from '../../../../zod-to-openapi/index.js'
+import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
@@ -20,8 +20,8 @@ export function generateParamsObject(parameters: Parameters[], config: Config): 
     // path params are generated with the param name
     const baseSchema =
       param.in === 'path'
-        ? generateZodToOpenAPI(config, param.schema, param.name, true)
-        : generateZodToOpenAPI(config, param.schema, param.name, false)
+        ? zodToOpenAPI(config, param.schema, param.name, true)
+        : zodToOpenAPI(config, param.schema, param.name, false)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {
