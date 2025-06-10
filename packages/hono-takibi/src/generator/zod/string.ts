@@ -1,6 +1,5 @@
 import type { Schema } from '../../types/index.js'
-import { regex } from './index.js'
-import { generateZodDefault } from './generate-zod-default.js'
+import { regex,_default } from './index.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodNullable } from './generate-zod-nullable.js'
@@ -85,7 +84,7 @@ export function string(schema: Schema): string {
   }
   // default
   if (schema.default) {
-    validations.push(generateZodDefault(schema.default))
+    validations.push(_default(schema.default))
   }
   return validations.join('')
 }

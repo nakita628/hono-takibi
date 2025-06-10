@@ -5,6 +5,6 @@ import type { DefaultValue } from '../../types/index.js'
  * @param { DefaultValue } defaultValue - The default value to set
  * @returns { string } Generated Zod default validation string
  */
-export function generateZodDefault(defaultValue: DefaultValue): string {
+export function _default(defaultValue: DefaultValue): string {
   return `.default(${JSON.stringify(defaultValue)})`
 }

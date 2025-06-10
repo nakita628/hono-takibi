@@ -1,8 +1,8 @@
 import type { Schema } from '../../types/index.js'
-import { generateZodDefault } from './generate-zod-default.js'
+
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { regex } from './index.js'
+import { regex , _default} from './index.js'
 
 /**
  * Generates a zod schema for an integer.
@@ -23,6 +23,6 @@ export function generateZodIntegerSchema(schema: Schema): string {
   // maximum
   if (typeof schema.maximum === 'number') validations.push(generateZodMax(schema.maximum))
   // default
-  if (schema.default) validations.push(generateZodDefault(schema.default))
+  if (schema.default) validations.push(_default(schema.default))
   return validations.join('')
 }
