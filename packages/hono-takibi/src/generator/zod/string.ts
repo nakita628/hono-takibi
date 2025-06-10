@@ -1,5 +1,5 @@
 import type { Schema } from '../../types/index.js'
-import { regex,_default } from './index.js'
+import { regex, _default } from './index.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodNullable } from './generate-zod-nullable.js'

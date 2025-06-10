@@ -1,9 +1,7 @@
 import type { DefaultValue, Schema } from '../../types/index.js'
-import { generateZodGt } from './generate-zod-gt.js'
-import { generateZodLt } from './generate-zod-lt.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { regex ,_default} from './index.js'
+import { regex, _default, gt, lt } from './index.js'
 
 /**
  * Generates a Zod number schema string
@@ -57,13 +55,13 @@ export function number(schema: Schema): string {
   // gt
   if (schema.minimum) {
     if (schema.minimum > 0 && schema.exclusiveMinimum) {
-      validations.push(generateZodGt(schema.minimum))
+      validations.push(gt(schema.minimum))
     }
   }
   // lt
   if (schema.maximum) {
     if (schema.maximum > 0 && schema.exclusiveMaximum) {
-      validations.push(generateZodLt(schema.maximum))
+      validations.push(lt(schema.maximum))
     }
   }
   return validations.join('')

@@ -5,14 +5,11 @@ import { coerce } from '.'
 // pnpm vitest run ./src/generator/zod/generate-zod-coerce.test.ts
 
 describe('coerce Test', () => {
-  it.concurrent(
-    `coerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number())`,
-    () => {
-      const result = coerce('z.string()', 'z.number()')
-      const expected = 'z.string().pipe(z.coerce.number())'
-      expect(result).toBe(expected)
-    },
-  )
+  it.concurrent(`coerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number())`, () => {
+    const result = coerce('z.string()', 'z.number()')
+    const expected = 'z.string().pipe(z.coerce.number())'
+    expect(result).toBe(expected)
+  })
 
   it.concurrent(
     `coerce('z.string()', 'z.number()') -> z.string().pipe(z.coerce.number().min(1))`,
