@@ -1,7 +1,8 @@
 import type { Parameters, ParamsObject } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
-import { generateZodCoerce } from '../../../../zod/generate-zod-coerce.js'
+import { coerce } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
+import { getToSafeIdentifier } from '../../../../../core/helper/get-to-safe-identifier.js'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
@@ -31,11 +32,11 @@ export function generateParamsObject(parameters: Parameters[], config: Config): 
     // Handle coercion for query number/integer types
     const zodSchema =
       param.in === 'query' && (param.schema.type === 'number' || param.schema.type === 'integer')
-        ? generateZodCoerce('z.string()', baseSchema)
+        ? coerce('z.string()', baseSchema)
         : baseSchema
 
     // Add parameter to its section
-    acc[param.in][param.name] = `${zodSchema}${optionalSuffix}`
+    acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`
     return acc
   }, {})
 }

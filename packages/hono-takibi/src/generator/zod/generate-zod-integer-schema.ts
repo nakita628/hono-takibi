@@ -2,7 +2,7 @@ import type { Schema } from '../../types/index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { generateZodRegex } from './regex.js'
+import { regex } from './index.js'
 
 /**
  * Generates a zod schema for an integer.
@@ -12,7 +12,7 @@ import { generateZodRegex } from './regex.js'
 export function generateZodIntegerSchema(schema: Schema): string {
   const validations = ['z.number().int()']
   // pattern
-  if (schema.pattern) validations.push(generateZodRegex(schema.pattern))
+  if (schema.pattern) validations.push(regex(schema.pattern))
   // minLength
   if (schema.minLength) validations.push(generateZodMin(schema.minLength))
   // maxLength

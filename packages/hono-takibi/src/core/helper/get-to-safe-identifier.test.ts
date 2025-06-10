@@ -3,20 +3,31 @@ import { getToSafeIdentifier } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/get-to-safe-identifier.test.ts
-describe('getToSafeIdentifier Test', () => {
-  it.concurrent(`getToSafeIdentifier(' - ') -> '_'`, () => {
-    const result = getToSafeIdentifier(' - ')
-    const expected = '_'
-    expect(result).toBe(expected)
+
+describe('getToSafeIdentifier', () => {
+  it('should return the string as-is if it is a valid identifier', () => {
+    expect(getToSafeIdentifier('validName')).toBe('validName')
+    expect(getToSafeIdentifier('_underscore')).toBe('_underscore')
+    expect(getToSafeIdentifier('$dollar')).toBe('$dollar')
+    expect(getToSafeIdentifier('camelCase123')).toBe('camelCase123')
   })
-  it.concurrent(`getToSafeIdentifierHelper('Test - Schema') -> 'Test_Schema'`, () => {
-    const result = getToSafeIdentifier('Test - Schema')
-    const expected = 'Test_Schema'
-    expect(result).toBe(expected)
+
+  it('should quote the string if it contains invalid characters', () => {
+    expect(getToSafeIdentifier('invalid-name')).toBe('"invalid-name"')
+    expect(getToSafeIdentifier('123startWithNumber')).toBe('"123startWithNumber"')
+    expect(getToSafeIdentifier('has space')).toBe('"has space"')
+    expect(getToSafeIdentifier('has.dot')).toBe('"has.dot"')
+    expect(getToSafeIdentifier('hyphen-ated')).toBe('"hyphen-ated"')
   })
-  it.concurrent(`getToSafeIdentifierHelper('TestSchema') -> 'TestSchema'`, () => {
-    const result = getToSafeIdentifier('TestSchema')
-    const expected = 'TestSchema'
-    expect(result).toBe(expected)
+
+  it('should quote reserved keywords', () => {
+    expect(getToSafeIdentifier('class')).toBe('class')
+    expect(getToSafeIdentifier('function')).toBe('function')
+  })
+
+  it('should handle edge cases correctly', () => {
+    expect(getToSafeIdentifier('')).toBe('""')
+    expect(getToSafeIdentifier(' ')).toBe('" "')
+    expect(getToSafeIdentifier('-')).toBe('"-"')
   })
 })

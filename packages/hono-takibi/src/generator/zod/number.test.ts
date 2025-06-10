@@ -35,14 +35,11 @@ describe('numberSchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent(
-    'number({ minimum: 0, exclusiveMinimum: true }) -> z.number().positive()',
-    () => {
-      const result = number({ minimum: 0, exclusiveMinimum: true })
-      const expected = 'z.number().positive()'
-      expect(result).toBe(expected)
-    },
-  )
+  it.concurrent('number({ minimum: 0, exclusiveMinimum: true }) -> z.number().positive()', () => {
+    const result = number({ minimum: 0, exclusiveMinimum: true })
+    const expected = 'z.number().positive()'
+    expect(result).toBe(expected)
+  })
 
   it.concurrent(
     'number({ minimum: 0, exclusiveMinimum: false }) -> z.number().nonpositive()',
@@ -53,14 +50,11 @@ describe('numberSchema Test', () => {
     },
   )
 
-  it.concurrent(
-    'number({ maximum: 0, exclusiveMaximum: true }) -> z.number().negative()',
-    () => {
-      const result = number({ maximum: 0, exclusiveMaximum: true })
-      const expected = 'z.number().negative()'
-      expect(result).toBe(expected)
-    },
-  )
+  it.concurrent('number({ maximum: 0, exclusiveMaximum: true }) -> z.number().negative()', () => {
+    const result = number({ maximum: 0, exclusiveMaximum: true })
+    const expected = 'z.number().negative()'
+    expect(result).toBe(expected)
+  })
 
   it.concurrent('should throw an error when schema is null', () => {
     // biome-ignore lint:

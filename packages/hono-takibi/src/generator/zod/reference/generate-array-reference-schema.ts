@@ -2,7 +2,7 @@ import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../types/index.js'
 import { getVariableSchemaName } from '../../../core/helper/get-variable-schema-name.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
-import { generateZodArray } from '../generate-zod-array.js'
+import { array } from '../index.js'
 
 /**
  * Generates a Zod schema string for an array reference
@@ -21,5 +21,5 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
 
   const variableName = getVariableSchemaName(refName, config)
 
-  return generateZodArray(variableName)
+  return array(variableName)
 }

@@ -6,7 +6,7 @@ import { removeZodPrefix } from '../../core/text/index.js'
  * @param { string } zodSchema - The zod schema to coerce.
  * @returns { string } Generated zod pipe function to coerce a value to a zod schema.
  */
-export function generateZodCoerce(z: string, zodSchema: string): string {
+export function coerce(z: string, zodSchema: string): string {
   const zod = removeZodPrefix(zodSchema)
   return `${z}.pipe(z.coerce.${zod})`
 }

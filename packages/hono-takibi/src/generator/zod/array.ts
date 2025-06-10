@@ -19,6 +19,6 @@
  * generateZodArray('z.object({ name: z.string() })')
  * // Returns: 'z.array(z.object({ name: z.string() }))'
  */
-export function generateZodArray(zodSchema: string) {
+export function array(zodSchema: string): string {
   return `z.array(${zodSchema})`
 }
