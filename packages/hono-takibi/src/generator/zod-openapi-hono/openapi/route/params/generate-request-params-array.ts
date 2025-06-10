@@ -1,5 +1,5 @@
 import type { ParamsObject } from '../../../../../types/index.js'
-import { generateZodObjectSchema } from '../../../../zod/generate-zod-object-schema.js'
+import { schema } from '../../../../zod/index.js'
 
 /**
  * Generates an array of Zod schema strings for non-empty parameter sections
@@ -19,12 +19,12 @@ export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
         const obj = paramsObj[section]
         // 2.1 process only if object is not empty
         if (Object.keys(obj).length) {
-          const schema = generateZodObjectSchema(obj)
+          const s = schema(obj)
           // path is params convention
           if (section === 'path') {
-            return `params:${schema}`
+            return `params:${s}`
           }
-          return `${section}:${schema}`
+          return `${section}:${s}`
         }
         return null
       })

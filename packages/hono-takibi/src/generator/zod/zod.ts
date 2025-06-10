@@ -1,8 +1,7 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { string, number, array, _enum, integer, length, max, min } from './index.js'
+import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
-import { generateZodObject } from './generate-zod-object.js'
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
@@ -89,7 +88,7 @@ export function zod(config: Config, schema: Schema): string {
 
   // object
   if (schema.type === 'object') {
-    return generateZodObject(schema, config)
+    return object(schema, config)
   }
 
   // string

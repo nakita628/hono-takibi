@@ -11,7 +11,7 @@ import { generateZodPropertiesSchema } from './property/generate-zod-properties-
  * @param { Config } config - Configuration
  * @returns { string } Zod object schema string
  */
-export function generateZodObject(schema: Schema, config: Config): string {
+export function object(schema: Schema, config: Config): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {

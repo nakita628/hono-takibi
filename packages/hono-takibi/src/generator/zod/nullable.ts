@@ -4,6 +4,6 @@
  * @example
  * generateZodNullable() -> ".nullable()"
  */
-export function generateZodNullable(): string {
+export function nullable(): string {
   return '.nullable()'
 }

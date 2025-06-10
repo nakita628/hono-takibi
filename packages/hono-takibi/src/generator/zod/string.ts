@@ -1,6 +1,5 @@
 import type { Schema } from '../../types/index.js'
-import { regex, _default, max, min } from './index.js'
-import { generateZodNullable } from './generate-zod-nullable.js'
+import { regex, _default, min, max, nullable } from './index.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
@@ -78,7 +77,7 @@ export function string(schema: Schema): string {
   }
   // nullable
   if (schema.nullable) {
-    validations.push(generateZodNullable())
+    validations.push(nullable())
   }
   // default
   if (schema.default) {

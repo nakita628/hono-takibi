@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { generateZodObject } from './generate-zod-object'
+import { object } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/generate-zod-object.test.ts
+// pnpm vitest run ./src/generator/zod/object.test.ts
 
-describe('generateZodObject Test', () => {
-  it.concurrent('generateZodObject -> z.object({}))', () => {
-    const result = generateZodObject(
+describe('object Test', () => {
+  it.concurrent('object -> z.object({}))', () => {
+    const result = object(
       {
         type: 'object',
         nullable: true,
@@ -27,8 +27,8 @@ describe('generateZodObject Test', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('generateZodObject -> z.object({type:z.enum(["A","B","C"])})', () => {
-    const result = generateZodObject(
+  it.concurrent('object -> z.object({type:z.enum(["A","B","C"])})', () => {
+    const result = object(
       {
         type: 'object',
         properties: {
@@ -62,7 +62,7 @@ describe('generateZodObject Test', () => {
     // biome-ignore lint:
     const schema = null as any
     expect(() =>
-      generateZodObject(schema, {
+      object(schema, {
         schema: {
           name: 'PascalCase',
           export: false,
@@ -79,7 +79,7 @@ describe('generateZodObject Test', () => {
     // biome-ignore lint:
     const schema = undefined as any
     expect(() =>
-      generateZodObject(schema, {
+      object(schema, {
         schema: {
           name: 'PascalCase',
           export: false,
