@@ -1,11 +1,8 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { string, number, array, _enum, integer } from './index.js'
+import { string, number, array, _enum, integer, length, max, min } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
 import { generateZodObject } from './generate-zod-object.js'
-import { generateZodMax } from './generate-zod-max.js'
-import { generateZodMin } from './generate-zod-min.js'
-import { generateZodLength } from './generate-zod-length.js'
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
@@ -107,7 +104,7 @@ export function zod(config: Config, schema: Schema): string {
       res.includes(`max(${schema.maxLength})`)
     ) {
       const property = stripMinMaxExistHelper(res, schema.minLength, schema.maxLength)
-      return `${property}${generateZodLength(schema.minLength)}`
+      return `${property}${length(schema.minLength)}`
     }
     return res
   }
@@ -143,28 +140,28 @@ export function zod(config: Config, schema: Schema): string {
   if (schema.type === 'array') {
     if (schema.items) {
       if (schema.minItems && schema.maxItems) {
-        const minItemsSchema = generateZodMin(schema.minItems)
-        const maxItemsSchema = generateZodMax(schema.maxItems)
+        const minItemsSchema = min(schema.minItems)
+        const maxItemsSchema = max(schema.maxItems)
 
         const zodArray = array(zod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
-        const minItemsSchema = generateZodMin(schema.minItems)
+        const minItemsSchema = min(schema.minItems)
         const zodArray = array(zod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
-        const maxItemsSchema = generateZodMax(schema.maxItems)
+        const maxItemsSchema = max(schema.maxItems)
         const zodArray = array(zod(config, schema.items))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
-        const minLengthSchema = generateZodLength(schema.minLength)
+        const minLengthSchema = length(schema.minLength)
         const zodArray = array(zodToOpenAPI(config, schema.items, undefined, undefined))
         const res = `${zodArray}${minLengthSchema}`
         return res

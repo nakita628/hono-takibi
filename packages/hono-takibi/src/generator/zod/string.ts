@@ -1,7 +1,5 @@
 import type { Schema } from '../../types/index.js'
-import { regex, _default } from './index.js'
-import { generateZodMax } from './generate-zod-max.js'
-import { generateZodMin } from './generate-zod-min.js'
+import { regex, _default, max, min } from './index.js'
 import { generateZodNullable } from './generate-zod-nullable.js'
 
 const FORMAT_STRING: Record<string, string> = {
@@ -72,11 +70,11 @@ export function string(schema: Schema): string {
   }
   // minLength
   if (schema.minLength) {
-    validations.push(generateZodMin(schema.minLength))
+    validations.push(min(schema.minLength))
   }
   // maxLength
   if (schema.maxLength) {
-    validations.push(generateZodMax(schema.maxLength))
+    validations.push(max(schema.maxLength))
   }
   // nullable
   if (schema.nullable) {

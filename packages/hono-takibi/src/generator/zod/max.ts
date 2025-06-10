@@ -3,6 +3,6 @@
  * @param { number } max - The maximum value
  * @returns { string } Generated Zod max validation string
  */
-export function generateZodMax(max: number): string {
+export function max(max: number): string {
   return `.max(${max})`
 }

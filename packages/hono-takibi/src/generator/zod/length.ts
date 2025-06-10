@@ -6,6 +6,6 @@
  * const lengthValidation = generateZodLength(10)
  * // Returns: 'length(10)'
  */
-export function generateZodLength(length: number): string {
+export function length(length: number): string {
   return `.length(${length})`
 }
