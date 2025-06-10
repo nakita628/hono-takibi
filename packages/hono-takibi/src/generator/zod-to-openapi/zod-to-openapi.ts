@@ -1,6 +1,6 @@
 import type { Config } from '../../config/index.js'
 import type { Schema } from '../../types/index.js'
-import { generateZod } from '../zod/generate-zod.js'
+import { zod } from '../zod/index.js'
 
 /**
  * Converts a Zod schema into a Zod schema with `.openapi()` metadata if needed.
@@ -17,7 +17,7 @@ export function zodToOpenAPI(
   paramName?: string,
   isPath?: boolean,
 ): string {
-  const zod = generateZod(config, schema)
+  const z = zod(config, schema)
 
   const description = schema.description
     ? `description:${JSON.stringify(schema.description)}`
@@ -32,8 +32,8 @@ export function zodToOpenAPI(
   const parts = [param, description, example].filter(Boolean)
 
   if (parts.length === 0) {
-    return zod
+    return z
   }
 
-  return `${zod}.openapi({${parts.join(',')}})`
+  return `${z}.openapi({${parts.join(',')}})`
 }

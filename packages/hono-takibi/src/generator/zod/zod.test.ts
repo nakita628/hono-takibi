@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { generateZod } from './generate-zod'
+import { zod } from '.'
 import type { Schema } from '../../types'
 import type { Config } from '../../config'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/generate-zod.test.ts
+// pnpm vitest run ./src/generator/zod/zod.test.ts
 
 const DEFAULT_CONFIG: Config = {
   schema: {
@@ -227,7 +227,7 @@ describe('generateZod', () => {
   it.concurrent.each(generateZodTestCases)(
     'generateZod($schema) -> $expected',
     async ({ schema, config, expected }) => {
-      const result = generateZod(config, schema)
+      const result = zod(config, schema)
       expect(result).toBe(expected)
     },
   )

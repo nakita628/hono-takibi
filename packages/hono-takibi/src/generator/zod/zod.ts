@@ -85,7 +85,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function generateZod(config: Config, schema: Schema): string {
+export function zod(config: Config, schema: Schema): string {
   // enum
   if (schema.enum) {
     const res = generateZodEnum(schema)
@@ -150,19 +150,19 @@ export function generateZod(config: Config, schema: Schema): string {
         const minItemsSchema = generateZodMin(schema.minItems)
         const maxItemsSchema = generateZodMax(schema.maxItems)
 
-        const zodArray = generateZodArray(generateZod(config, schema.items))
+        const zodArray = generateZodArray(zod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
         const minItemsSchema = generateZodMin(schema.minItems)
-        const zodArray = generateZodArray(generateZod(config, schema.items))
+        const zodArray = generateZodArray(zod(config, schema.items))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
         const maxItemsSchema = generateZodMax(schema.maxItems)
-        const zodArray = generateZodArray(generateZod(config, schema.items))
+        const zodArray = generateZodArray(zod(config, schema.items))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }
