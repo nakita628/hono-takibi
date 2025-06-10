@@ -223,9 +223,9 @@ const generateZodTestCases: { config: Config; schema: Schema; expected: string }
   },
 ]
 
-describe('generateZod', () => {
+describe('zod', () => {
   it.concurrent.each(generateZodTestCases)(
-    'generateZod($schema) -> $expected',
+    'zod($schema) -> $expected',
     async ({ schema, config, expected }) => {
       const result = zod(config, schema)
       expect(result).toBe(expected)

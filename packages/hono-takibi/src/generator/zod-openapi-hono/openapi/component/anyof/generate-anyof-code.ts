@@ -1,7 +1,7 @@
 import type { Schema } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name.js'
-import { generateZodUnion } from '../../../../zod/generate-zod-union.js'
+import { union } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
@@ -21,5 +21,5 @@ export function generateAnyOfCode(schema: Schema, config: Config): string {
     return zodToOpenAPI(config, subSchema)
   })
 
-  return generateZodUnion(zodSchemas)
+  return union(zodSchemas)
 }
