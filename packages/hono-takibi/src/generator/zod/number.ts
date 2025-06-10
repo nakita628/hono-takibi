@@ -4,18 +4,18 @@ import { generateZodGt } from './generate-zod-gt.js'
 import { generateZodLt } from './generate-zod-lt.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { generateZodRegex } from './regex.js'
+import { regex } from './index.js'
 
 /**
  * Generates a Zod number schema string
  * @param { Schema } schema - OpenAPI schema definition for a number
  * @returns { string } Generated Zod number schema string
  */
-export function generateZodNumber(schema: Schema): string {
+export function number(schema: Schema): string {
   const validations = ['z.number()']
   // pattern
   if (schema.pattern) {
-    validations.push(generateZodRegex(schema.pattern))
+    validations.push(regex(schema.pattern))
   }
   // minLength
   if (schema.minLength) {

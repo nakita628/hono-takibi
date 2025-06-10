@@ -1,12 +1,11 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { string } from './index.js'
+import { string, number } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
 import { generateZodObject } from './generate-zod-object.js'
 import { generateZodEnum } from './generate-zod-enum.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { generateZodNumber } from './generate-zod-number.js'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema.js'
 import { generateZodLength } from './generate-zod-length.js'
 import { generateZodArray } from './generate-zod-array.js'
@@ -118,7 +117,7 @@ export function zod(config: Config, schema: Schema): string {
 
   // number
   if (schema.type === 'number') {
-    const res = generateZodNumber(schema)
+    const res = number(schema)
     // gt
     if (
       res.includes(`min(${schema.minimum})`) &&
