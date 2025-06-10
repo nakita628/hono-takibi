@@ -1,6 +1,6 @@
 import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../types/index.js'
-import { getVariableSchemaNameHelper } from '../../../core/helper/index.js'
+import { getVariableSchemaName } from '../../../core/helper/index.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 
 /**
@@ -18,5 +18,5 @@ export function generateReferenceSchema(schema: Schema, config: Config): string 
     return 'z.any()'
   }
 
-  return getVariableSchemaNameHelper(refName, config) || 'z.any()'
+  return getVariableSchemaName(refName, config) || 'z.any()'
 }

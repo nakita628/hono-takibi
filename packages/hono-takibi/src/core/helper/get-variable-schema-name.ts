@@ -1,4 +1,4 @@
-import { getCamelCaseSchemaNameHelper, getPascalCaseSchemaNameHelper } from './index.js'
+import { getCamelCaseSchemaName, getPascalCaseSchemaName } from './index.js'
 import type { Config } from '../../config/index.js'
 
 /**
@@ -7,8 +7,8 @@ import type { Config } from '../../config/index.js'
  * @param { Config } config - The config of the schema.
  * @returns { string } The variable schema name.
  */
-export function getVariableSchemaNameHelper(name: string, config: Config): string {
+export function getVariableSchemaName(name: string, config: Config): string {
   return config.schema.name === 'camelCase'
-    ? getCamelCaseSchemaNameHelper(name)
-    : getPascalCaseSchemaNameHelper(name)
+    ? getCamelCaseSchemaName(name)
+    : getPascalCaseSchemaName(name)
 }

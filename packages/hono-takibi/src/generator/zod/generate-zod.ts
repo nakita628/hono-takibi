@@ -1,6 +1,6 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { getVariableSchemaNameHelper } from '../../core/helper/index.js'
+import { getVariableSchemaName } from '../../core/helper/index.js'
 import { generateZodObject } from './generate-zod-object.js'
 import { generateZodEnum } from './generate-zod-enum.js'
 import { generateZodMax } from './generate-zod-max.js'
@@ -169,9 +169,7 @@ export function generateZod(config: Config, schema: Schema): string {
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = generateZodLength(schema.minLength)
-        const zodArray = generateZodArray(
-          zodToOpenAPI(config, schema.items, undefined, undefined),
-        )
+        const zodArray = generateZodArray(zodToOpenAPI(config, schema.items, undefined, undefined))
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
@@ -203,7 +201,7 @@ export function generateZod(config: Config, schema: Schema): string {
   if (schema.$ref) {
     const refParts = schema.$ref.split('/')
     const refName = refParts[refParts.length - 1]
-    const schemaName = getVariableSchemaNameHelper(refName, config)
+    const schemaName = getVariableSchemaName(refName, config)
     return schemaName
   }
 

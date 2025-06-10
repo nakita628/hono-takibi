@@ -7,6 +7,6 @@ import type { Config } from '../../config/index.js'
  * @param { Config } config - The config of the schema.
  * @returns { string } The variable name.
  */
-export function getVariableNameHelper(name: string, config: Config): string {
+export function getVariableName(name: string, config: Config): string {
   return config.type.name === 'camelCase' ? decapitalize(name) : capitalize(name)
 }

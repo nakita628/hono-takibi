@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { getVariableNameHelper } from '.'
+import { getVariableName } from '.'
 
 // Test run
-// pnpm vitest run ./src/core/helper/get-variable-name-helper.test.ts
+// pnpm vitest run ./src/core/helper/get-variable-name.test.ts
 
-describe('getVariableNameHelper Test', () => {
-  it.concurrent('getVariableNameHelper test return Test', () => {
-    const result = getVariableNameHelper('test', {
+describe('getVariableName Test', () => {
+  it.concurrent('getVariableName test return Test', () => {
+    const result = getVariableName('test', {
       schema: {
         name: 'PascalCase',
         export: false,
@@ -20,8 +20,8 @@ describe('getVariableNameHelper Test', () => {
     const expected = 'Test'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableNameHelper test return test', () => {
-    const result = getVariableNameHelper('test', {
+  it.concurrent('getVariableName test return test', () => {
+    const result = getVariableName('test', {
       schema: {
         name: 'PascalCase',
         export: false,
@@ -35,8 +35,8 @@ describe('getVariableNameHelper Test', () => {
     const expected = 'test'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableNameHelper Test return Test', () => {
-    const result = getVariableNameHelper('Test', {
+  it.concurrent('getVariableName Test return Test', () => {
+    const result = getVariableName('Test', {
       schema: {
         name: 'PascalCase',
         export: false,
@@ -50,8 +50,8 @@ describe('getVariableNameHelper Test', () => {
     const expected = 'Test'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableNameHelper Test return test', () => {
-    const result = getVariableNameHelper('Test', {
+  it.concurrent('getVariableName Test return test', () => {
+    const result = getVariableName('Test', {
       schema: {
         name: 'PascalCase',
         export: false,

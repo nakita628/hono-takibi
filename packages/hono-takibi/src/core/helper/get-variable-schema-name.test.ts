@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { getVariableSchemaNameHelper } from '.'
+import { getVariableSchemaName } from '.'
 
 // Test run
-// pnpm vitest run ./src/core/helper/get-variable-schema-name-helper.test.ts
+// pnpm vitest run ./src/core/helper/get-variable-schema-name.test.ts
 
-describe('getVariableSchemaNameHelper Test', () => {
-  it.concurrent('getVariableSchemaNameHelper test -> TestSchema', () => {
-    const result = getVariableSchemaNameHelper('test', {
+describe('getVariableSchemaName Test', () => {
+  it.concurrent('getVariableSchemaName test -> TestSchema', () => {
+    const result = getVariableSchemaName('test', {
       schema: {
         name: 'PascalCase',
         export: false,
@@ -20,8 +20,8 @@ describe('getVariableSchemaNameHelper Test', () => {
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableSchemaNameHelper test -> testSchema', () => {
-    const result = getVariableSchemaNameHelper('test', {
+  it.concurrent('getVariableSchemaName test -> testSchema', () => {
+    const result = getVariableSchemaName('test', {
       schema: {
         name: 'camelCase',
         export: false,
@@ -35,8 +35,8 @@ describe('getVariableSchemaNameHelper Test', () => {
     const expected = 'testSchema'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableSchemaNameHelper Test -> TestSchema', () => {
-    const result = getVariableSchemaNameHelper('Test', {
+  it.concurrent('getVariableSchemaName Test -> TestSchema', () => {
+    const result = getVariableSchemaName('Test', {
       schema: {
         name: 'PascalCase',
         export: false,
@@ -50,8 +50,8 @@ describe('getVariableSchemaNameHelper Test', () => {
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
-  it.concurrent('getVariableSchemaNameHelper Test -> testSchema', () => {
-    const result = getVariableSchemaNameHelper('Test', {
+  it.concurrent('getVariableSchemaName Test -> testSchema', () => {
+    const result = getVariableSchemaName('Test', {
       schema: {
         name: 'camelCase',
         export: false,

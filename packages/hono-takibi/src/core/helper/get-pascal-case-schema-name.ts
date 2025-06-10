@@ -5,7 +5,7 @@ import { capitalize } from '../text/index.js'
  * @param { string } schemaName - The original schema name.
  * @returns { string } The PascalCase schema name.
  */
-export function getPascalCaseSchemaNameHelper(schemaName: string): string {
+export function getPascalCaseSchemaName(schemaName: string): string {
   const capitalizedSchemaName = capitalize(schemaName)
   return `${capitalizedSchemaName}Schema`
 }

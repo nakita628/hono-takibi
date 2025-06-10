@@ -1,6 +1,6 @@
 import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../types/index.js'
-import { getVariableSchemaNameHelper } from '../../../core/helper/get-variable-schema-name-helper.js'
+import { getVariableSchemaName } from '../../../core/helper/get-variable-schema-name.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 import { generateZodArray } from '../generate-zod-array.js'
 
@@ -19,7 +19,7 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
     return 'z.array(z.any())'
   }
 
-  const variableName = getVariableSchemaNameHelper(refName, config)
+  const variableName = getVariableSchemaName(refName, config)
 
   return generateZodArray(variableName)
 }
