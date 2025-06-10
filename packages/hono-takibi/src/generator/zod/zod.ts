@@ -1,9 +1,8 @@
 import type { Schema, Type } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { string, number, array } from './index.js'
+import { string, number, array, _enum } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
 import { generateZodObject } from './generate-zod-object.js'
-import { generateZodEnum } from './generate-zod-enum.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodIntegerSchema } from './generate-zod-integer-schema.js'
@@ -86,7 +85,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
 export function zod(config: Config, schema: Schema): string {
   // enum
   if (schema.enum) {
-    const res = generateZodEnum(schema)
+    const res = _enum(schema)
     if (res !== undefined) {
       return res
     }

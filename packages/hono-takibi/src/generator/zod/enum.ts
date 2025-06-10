@@ -4,7 +4,7 @@ import type { Schema } from '../../types/index.js'
  * Generates a Zod enum string
  * @param { Schema } schema - The schema definition
  */
-export function generateZodEnum(schema: Schema) {
+export function _enum(schema: Schema) {
   // number
   if (schema.type === 'number' && schema.enum) {
     return `z.literal(${schema.enum})`
