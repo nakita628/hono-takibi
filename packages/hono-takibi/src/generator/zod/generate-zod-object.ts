@@ -1,11 +1,10 @@
 import type { Schema } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { record } from './index.js'
+import { record, passthrough } from './index.js'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
 import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
 import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema.js'
-import { generateZodPassthrough } from './generate-zod-passthrough.js'
 /**
  * Generate Zod object schema
  * @param { Schema } schema - Schema definition
@@ -21,7 +20,7 @@ export function generateZodObject(schema: Schema, config: Config): string {
           schema.required || [],
           config,
         )
-        return generateZodPassthrough(zodSchema)
+        return passthrough(zodSchema)
       }
       return 'z.any()'
     }

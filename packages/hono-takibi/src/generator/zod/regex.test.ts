@@ -11,14 +11,11 @@ describe('regex Test', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent(
-    `regex('^\\d{4}-\\d{2}-\\d{2}$') -> .regex(/^\\d{4}-\\d{2}-\\d{2}$/)`,
-    () => {
-      const result = regex('^\\d{4}-\\d{2}-\\d{2}$')
-      const expected = '.regex(/^\\d{4}-\\d{2}-\\d{2}$/)'
-      expect(result).toBe(expected)
-    },
-  )
+  it.concurrent(`regex('^\\d{4}-\\d{2}-\\d{2}$') -> .regex(/^\\d{4}-\\d{2}-\\d{2}$/)`, () => {
+    const result = regex('^\\d{4}-\\d{2}-\\d{2}$')
+    const expected = '.regex(/^\\d{4}-\\d{2}-\\d{2}$/)'
+    expect(result).toBe(expected)
+  })
 
   it.concurrent(
     `regex('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$') -> .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$/)`,
@@ -38,9 +35,7 @@ describe('regex Test', () => {
   it.concurrent(
     `regex('^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$') -> .regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)`,
     () => {
-      const result = regex(
-        '^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$',
-      )
+      const result = regex('^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$')
       const expected = '.regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)'
       expect(result).toBe(expected)
     },
