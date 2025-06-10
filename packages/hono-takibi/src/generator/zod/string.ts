@@ -1,9 +1,9 @@
 import type { Schema } from '../../types/index.js'
+import { regex } from './index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
 import { generateZodNullable } from './generate-zod-nullable.js'
-import { generateZodRegex } from './generate-zod-regex.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
@@ -69,7 +69,7 @@ export function string(schema: Schema): string {
 
   // pattern
   if (schema.pattern) {
-    validations.push(generateZodRegex(schema.pattern))
+    validations.push(regex(schema.pattern))
   }
   // minLength
   if (schema.minLength) {

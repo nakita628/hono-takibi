@@ -2,7 +2,7 @@ import type { Schema } from '../../types/index.js'
 import { generateZodDefault } from './generate-zod-default.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { generateZodRegex } from './generate-zod-regex.js'
+import { generateZodRegex } from './regex.js'
 
 /**
  * Generates a zod schema for an integer.

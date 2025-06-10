@@ -4,7 +4,7 @@ import { generateZodGt } from './generate-zod-gt.js'
 import { generateZodLt } from './generate-zod-lt.js'
 import { generateZodMax } from './generate-zod-max.js'
 import { generateZodMin } from './generate-zod-min.js'
-import { generateZodRegex } from './generate-zod-regex.js'
+import { generateZodRegex } from './regex.js'
 
 /**
  * Generates a Zod number schema string
