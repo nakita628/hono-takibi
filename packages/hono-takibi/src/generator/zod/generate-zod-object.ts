@@ -1,6 +1,6 @@
 import type { Schema } from '../../types/index.js'
 import type { Config } from '../../config/index.js'
-import { generateZodRecord } from './generate-zod-record.js'
+import { record } from './index.js'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
 import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
 import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
@@ -25,7 +25,7 @@ export function generateZodObject(schema: Schema, config: Config): string {
       }
       return 'z.any()'
     }
-    return generateZodRecord(schema.additionalProperties, config)
+    return record(schema.additionalProperties, config)
   }
   if (schema.allOf) {
     return generateAllOfCode(schema, config)

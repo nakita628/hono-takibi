@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { generateZodRecord } from './generate-zod-record'
+import { record } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/generate-zod-record.test.ts
+// pnpm vitest run ./src/generator/zod/record.test.ts
 
-describe('generateZodRecord Test', () => {
-  it.concurrent('generateZodRecord -> z.record(z.string(),z.number().int())', () => {
-    const result = generateZodRecord(
+describe('record Test', () => {
+  it.concurrent('record -> z.record(z.string(),z.number().int())', () => {
+    const result = record(
       { type: 'integer', format: 'int32' },
       {
         schema: {

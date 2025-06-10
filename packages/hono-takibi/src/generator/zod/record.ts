@@ -25,7 +25,7 @@ import { zodToOpenAPI } from '../zod-to-openapi/index.js'
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
  */
-export function generateZodRecord(additionalProperties: Schema, config: Config): string {
+export function record(additionalProperties: Schema, config: Config): string {
   const schema = zodToOpenAPI(config, additionalProperties)
   return `z.record(z.string(),${schema})`
 }
