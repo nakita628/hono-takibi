@@ -9,7 +9,7 @@ import { regex, _default } from './index.js'
  * @param { Schema } schema - OpenAPI schema definition for an integer
  * @returns { string } Generated Zod integer schema string
  */
-export function generateZodIntegerSchema(schema: Schema): string {
+export function integer(schema: Schema): string {
   const validations = ['z.number().int()']
   // pattern
   if (schema.pattern) validations.push(regex(schema.pattern))

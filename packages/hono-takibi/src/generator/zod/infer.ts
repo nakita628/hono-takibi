@@ -4,6 +4,6 @@
  * @param { string } schemaName - The name of the Zod schema to infer.
  * @returns { string } Generated TypeScript type definition string
  */
-export function generateZodInfer(typeVariableName: string, schemaName: string): string {
+export function infer(typeVariableName: string, schemaName: string): string {
   return `export type ${typeVariableName} = z.infer<typeof ${schemaName}>`
 }

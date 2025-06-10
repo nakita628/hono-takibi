@@ -4,7 +4,7 @@ import {
   getVariableName,
   getToSafeIdentifier,
 } from '../../../core/helper/index.js'
-import { generateZodInfer } from '../../zod/generate-zod-infer.js'
+import { infer } from '../../zod/index.js'
 
 /**
  * Creates a Zod schema constant declaration
@@ -42,9 +42,7 @@ export function generateZodToOpenAPISchemaDefinition(
   // "-" → "_"
   const safeTypeVariableName = getToSafeIdentifier(typeVariableName)
 
-  const zodInferCode = config.type.export
-    ? generateZodInfer(safeTypeVariableName, safeVariableName)
-    : ''
+  const zodInferCode = config.type.export ? infer(safeTypeVariableName, safeVariableName) : ''
   // return code
   return `${schemaCode}\n\n${zodInferCode}`
 }
