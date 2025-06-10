@@ -57,7 +57,7 @@ const FORMAT_STRING: Record<string, string> = {
  * })
  * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
  */
-export function generateZodString(schema: Schema): string {
+export function string(schema: Schema): string {
   const validations: string[] = []
 
   if (schema.format === 'binary') {
