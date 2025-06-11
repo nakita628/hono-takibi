@@ -17,7 +17,7 @@ export function object(schema: Schema, config: Config): string {
       if (schema.properties) {
         const zodSchema = generateZodPropertiesSchema(
           schema.properties,
-          schema.required || [],
+          Array.isArray(schema.required) ? schema.required : [],
           config,
         )
         return passthrough(zodSchema)
@@ -38,5 +38,9 @@ export function object(schema: Schema, config: Config): string {
   if (!schema.properties) {
     return 'z.object({})'
   }
-  return generateZodPropertiesSchema(schema.properties, schema.required || [], config)
+  return generateZodPropertiesSchema(
+    schema.properties,
+    Array.isArray(schema.required) ? schema.required : [],
+    config,
+  )
 }

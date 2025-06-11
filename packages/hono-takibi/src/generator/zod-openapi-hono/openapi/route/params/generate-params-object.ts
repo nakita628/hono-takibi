@@ -19,10 +19,9 @@ export function generateParamsObject(parameters: Parameters[], config: Config): 
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     // path params are generated with the param name
-    const baseSchema =
-      param.in === 'path'
-        ? zodToOpenAPI(config, param.schema, param.name, true)
-        : zodToOpenAPI(config, param.schema, param.name, false)
+    const baseSchema = param.in
+      ? zodToOpenAPI(config, param.schema, param.name, param.in)
+      : zodToOpenAPI(config, param.schema, param.name)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {
