@@ -4,36 +4,40 @@ import { zod } from '../zod/index.js'
 
 /**
  * Converts a Zod schema into a Zod schema with `.openapi()` metadata if needed.
+ * The order of fields in `.openapi({ ... })` will follow the original OpenAPI YAML order.
  *
  * @param config - Global config
  * @param schema - Schema metadata
- * @param paramName - If provided and isPath is true, will set param name
- * @param isPath - Whether schema is for a path parameter
- * @returns A string like `z.string().openapi({...})` or just `z.string()`
+ * @param paramName - Parameter name, if applicable
+ * @param paramIn - Parameter location: path/query/header/cookie
+ * @returns Zod schema string with optional `.openapi({...})` metadata
  */
 export function zodToOpenAPI(
   config: Config,
   schema: Schema,
   paramName?: string,
-  isPath?: boolean,
+  paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
   const z = zod(config, schema)
+  const openapiProps: string[] = []
 
-  const description = schema.description
-    ? `description:${JSON.stringify(schema.description)}`
-    : undefined
-
-  const example =
-    schema.example !== undefined ? `example:${JSON.stringify(schema.example)}` : undefined
-
-  const param =
-    isPath && paramName ? `param:{in:"path",name:${JSON.stringify(paramName)}}` : undefined
-
-  const parts = [param, description, example].filter(Boolean)
-
-  if (parts.length === 0) {
-    return z
+  if (paramIn && paramName) {
+    const required = paramIn === 'path' ? true : !!schema.required
+    openapiProps.push(
+      `param:{in:"${paramIn}",name:${JSON.stringify(paramName)},required:${required}}`,
+    )
   }
 
-  return `${z}.openapi({${parts.join(',')}})`
+  if (Object.prototype.hasOwnProperty.call(schema, 'example') && schema.example !== undefined) {
+    openapiProps.push(`example:${JSON.stringify(schema.example)}`)
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(schema, 'description') &&
+    schema.description !== undefined
+  ) {
+    openapiProps.push(`description:${JSON.stringify(schema.description)}`)
+  }
+
+  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }
