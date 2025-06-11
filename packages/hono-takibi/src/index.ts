@@ -77,13 +77,21 @@ export async function main(): Promise<boolean> {
     const hono = generateZodOpenAPIHono(openAPI, config)
     // format code
     const formattedCode = await formatCode(hono)
+    if (!formattedCode.ok) {
+      console.error(formattedCode.error)
+      process.exit(1)
+    }
 
     await fsp.mkdir(path.dirname(output), { recursive: true })
-    await fsp.writeFile(output, formattedCode, 'utf-8')
+    await fsp.writeFile(output, formattedCode.value, 'utf-8')
 
     // generate template code
     if (cli.value.template && config.output.includes('/')) {
       const appCode = await formatCode(generateApp(openAPI, config, cli.value.basePath))
+      if (!appCode.ok) {
+        console.error(appCode.error)
+        process.exit(1)
+      }
 
       const dir = path.dirname(config.output)
       const files = await fsp.readdir(dir)
@@ -91,7 +99,7 @@ export async function main(): Promise<boolean> {
         ? path.join(dir, 'main.ts')
         : path.join(dir, 'index.ts')
 
-      await fsp.writeFile(tgt, appCode, 'utf-8')
+      await fsp.writeFile(tgt, appCode.value, 'utf-8')
       await generateZodOpenapiHonoHandler(openAPI, config, cli.value.test)
     }
 
