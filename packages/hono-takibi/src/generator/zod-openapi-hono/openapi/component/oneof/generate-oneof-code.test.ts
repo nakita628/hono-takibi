@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { generateOneOfCode } from './generate-oneof-code'
-import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
 
@@ -23,7 +22,16 @@ const generateAnyOfCodeTestCases: {
         },
       ],
     },
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: 'z.union([z.number(),z.string()])',
   },
 ]

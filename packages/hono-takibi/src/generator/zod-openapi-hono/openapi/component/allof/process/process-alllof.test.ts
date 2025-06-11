@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { processAllOf } from './process-alllof'
-import { DEFAULT_CONFIG } from '../../../../../../../data/test-config'
 import type { Schema } from '../../../../../../types'
 import type { Config } from '../../../../../../config'
 
@@ -42,7 +41,16 @@ const processAllOfTestCases: {
         },
       },
     ],
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: {
       nullable: false,
       schemas: [
@@ -77,7 +85,16 @@ const processAllOfTestCases: {
         },
       },
     ],
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: {
       nullable: false,
       schemas: [
@@ -95,7 +112,16 @@ const processAllOfTestCases: {
         $ref: '#/components/schemas/Geometry',
       },
     ],
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: { nullable: true, schemas: ['GeometrySchema'] },
   },
 ]
