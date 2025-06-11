@@ -190,7 +190,7 @@ export type Schema = {
   default?: DefaultValue
   example?: ExampleValue
   properties?: Record<string, Schema>
-  required?: string[]
+  required?: string[] | boolean
   items?: Schema
   enum?: string[]
   nullable?: boolean
