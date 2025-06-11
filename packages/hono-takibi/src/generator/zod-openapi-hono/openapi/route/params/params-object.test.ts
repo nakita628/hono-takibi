@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { generateParamsObject } from './generate-params-object'
+import { paramsObject } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/generate-params-object.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/params-object.test.ts
 
-describe('generateRequestBody', () => {
-  it.concurrent('generateParamsObject query', () => {
-    const result = generateParamsObject(
+describe('paramsObject', () => {
+  it.concurrent('paramsObject query', () => {
+    const result = paramsObject(
       [
         {
           schema: { type: 'string' },
@@ -33,12 +33,17 @@ describe('generateRequestBody', () => {
       },
     )
 
-    const expected = { query: { page: 'z.string()', rows: 'z.string()' } }
+    const expected = {
+      query: {
+        page: 'z.string().openapi({param:{in:"query",name:"page",required:false}})',
+        rows: 'z.string().openapi({param:{in:"query",name:"rows",required:false}})',
+      },
+    }
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('generateParamsObject minimum 0', () => {
-    const result = generateParamsObject(
+  it.concurrent('paramsObject minimum 0', () => {
+    const result = paramsObject(
       [
         {
           schema: { type: 'number', minimum: 0 },
@@ -67,15 +72,15 @@ describe('generateRequestBody', () => {
 
     const expected = {
       query: {
-        page: 'z.string().pipe(z.coerce.number().nonpositive())',
-        rows: 'z.string().pipe(z.coerce.number().nonpositive())',
+        page: 'z.string().pipe(z.coerce.number().nonpositive().openapi({param:{in:"query",name:"page",required:false}}))',
+        rows: 'z.string().pipe(z.coerce.number().nonpositive().openapi({param:{in:"query",name:"rows",required:false}}))',
       },
     }
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('generateParamsObject integer', () => {
-    const result = generateParamsObject(
+  it.concurrent('paramsObject integer', () => {
+    const result = paramsObject(
       [
         {
           schema: {
@@ -103,14 +108,15 @@ describe('generateRequestBody', () => {
 
     const expected = {
       query: {
-        page: 'z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({example:1}))',
+        page: 'z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({param:{in:"query",name:"page",required:false},example:1}))',
       },
     }
+
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('generateParamsObject integer example 10', () => {
-    const result = generateParamsObject(
+  it.concurrent('paramsObject integer example 10', () => {
+    const result = paramsObject(
       [
         {
           schema: {
@@ -138,14 +144,14 @@ describe('generateRequestBody', () => {
 
     const expected = {
       query: {
-        page: 'z.string().pipe(z.coerce.number().int().max(10).default(10).openapi({example:10}))',
+        page: 'z.string().pipe(z.coerce.number().int().max(10).default(10).openapi({param:{in:"query",name:"page",required:false},example:10}))',
       },
     }
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('generateParamsObject path with example', () => {
-    const result = generateParamsObject(
+  it.concurrent('paramsObject path with example', () => {
+    const result = paramsObject(
       [
         {
           in: 'path',
@@ -173,7 +179,7 @@ describe('generateRequestBody', () => {
 
     const expected = {
       path: {
-        id: 'z.string().uuid().openapi({param:{in:"path",name:"id"},example:"123e4567-e89b-12d3-a456-426614174000"})',
+        id: 'z.string().uuid().openapi({param:{in:"path",name:"id",required:true},example:"123e4567-e89b-12d3-a456-426614174000"})',
       },
     }
     expect(result).toStrictEqual(expected)

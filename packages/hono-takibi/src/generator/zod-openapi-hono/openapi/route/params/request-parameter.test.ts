@@ -4,7 +4,7 @@ import { requestParameter } from '.'
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/request-parameter.test.ts
 
-describe('requestParameters', () => {
+describe('requestParameter', () => {
   it.concurrent('requestParameter parameters undefined', () => {
     const result = requestParameter(
       undefined,

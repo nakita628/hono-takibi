@@ -6,7 +6,7 @@ import { schema } from '../../../../zod/index.js'
  * @param { ParamsObject } paramsObj - Object containing query, path, and header parameter schemas
  * @returns { string[] } Array of Zod schema strings
  */
-export function generateRequestParamsArray(paramsObj: ParamsObject): string[] {
+export function requestParamsArray(paramsObj: ParamsObject): string[] {
   // 1.  define sections to be processed
   const sections = Object.entries(paramsObj)
     .filter(([_, obj]) => obj && Object.keys(obj).length > 0)

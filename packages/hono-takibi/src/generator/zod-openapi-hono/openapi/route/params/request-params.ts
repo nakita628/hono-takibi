@@ -3,6 +3,6 @@
  * @param { string } requestBodyCode - Zod schema string for request body validation
  * @returns { string } string
  */
-export function generateRequestParams(requestBodyCode: string): string {
+export function requestParams(requestBodyCode: string): string {
   return `request:{${requestBodyCode}},`
 }

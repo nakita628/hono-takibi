@@ -1,8 +1,6 @@
 import type { Parameters, RequestBody } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
-import { generateParamsObject } from './generate-params-object.js'
-import { generateRequestParamsArray } from './generate-request-params-array.js'
-import { generateRequestParams } from './generate-request-params.js'
+import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
 import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
 import { generateRequestBody } from '../request/body/generate-request-body.js'
@@ -39,8 +37,8 @@ export function requestParameter(
 
   const params = parameters
     ? (() => {
-        const paramsObj = generateParamsObject(parameters, config)
-        const requestParamsArr = generateRequestParamsArray(paramsObj)
+        const paramsObj = paramsObject(parameters, config)
+        const requestParamsArr = requestParamsArray(paramsObj)
         return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
       })()
     : ''
@@ -67,7 +65,7 @@ export function requestParameter(
 
     return params
       ? generateInsertRequestBody(params, requestBodyCode)
-      : generateRequestParams(requestBodyCode)
+      : requestParams(requestBodyCode)
   }
 
   return params
