@@ -1,6 +1,5 @@
 import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
-import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import { describe, it, expect } from 'vitest'
 import { generateAllOfCode } from '../allof/generate-allof-code'
 
@@ -45,7 +44,16 @@ const generateAnyOfCodeTestCases: {
         },
       ],
     },
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected:
       'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
   },
@@ -91,7 +99,16 @@ const generateAnyOfCodeTestCases: {
         },
       ],
     },
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected:
       'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))',
   },

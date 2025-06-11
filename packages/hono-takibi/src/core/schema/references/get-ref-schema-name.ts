@@ -1,6 +1,6 @@
 import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../types/index.js'
-import { getVariableSchemaNameHelper } from '../../helper/index.js'
+import { getVariableSchemaName } from '../../helper/index.js'
 import { getRefName } from './get-ref-name.js'
 
 /**
@@ -18,5 +18,5 @@ export function getRefSchemaName(schema: Schema, config: Config): string {
   if (!refName) {
     throw new Error('refName is not found')
   }
-  return getVariableSchemaNameHelper(refName, config)
+  return getVariableSchemaName(refName, config)
 }

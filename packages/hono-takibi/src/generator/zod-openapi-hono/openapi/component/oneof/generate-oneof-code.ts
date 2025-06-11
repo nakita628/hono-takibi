@@ -1,8 +1,8 @@
 import type { Schema } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name.js'
-import { generateZodUnion } from '../../../../zod/generate-zod-union.js'
-import { generateZodToOpenAPI } from '../../../../zod-to-openapi/index.js'
+import { union } from '../../../../zod/index.js'
+import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Generates the Zod code for a `oneOf` schema.
@@ -17,9 +17,9 @@ export function generateOneOfCode(schema: Schema, config: Config): string {
   }
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema, config) : generateZodToOpenAPI(config, subSchema)
-    return generateZodToOpenAPI(config, subSchema)
+    subSchema.$ref ? getRefSchemaName(subSchema, config) : zodToOpenAPI(config, subSchema)
+    return zodToOpenAPI(config, subSchema)
   })
 
-  return generateZodUnion(zodSchemas)
+  return union(zodSchemas)
 }

@@ -1,7 +1,7 @@
 import type { Schema } from '../../../../../types/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { processAllOf } from './process/process-alllof.js'
-import { generateZodIntersection } from '../../../../zod/generate-zod-intersection.js'
+import { intersection } from '../../../../zod/index.js'
 
 /**
  * Converts an `allOf` schema into a Zod schema.
@@ -25,8 +25,5 @@ export function generateAllOfCode(schema: Schema, config: Config): string {
     return nullable ? `${schemas[0]}.nullable()` : schemas[0]
   }
 
-  const intersectionSchema = generateZodIntersection(schemas)
-
-  const intersection = `${intersectionSchema}${nullable ? '.nullable()' : ''}`
-  return intersection
+  return `${intersection(schemas)}${nullable ? '.nullable()' : ''}`
 }

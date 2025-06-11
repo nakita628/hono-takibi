@@ -190,7 +190,7 @@ export type Schema = {
   default?: DefaultValue
   example?: ExampleValue
   properties?: Record<string, Schema>
-  required?: string[]
+  required?: string[] | boolean
   items?: Schema
   enum?: string[]
   nullable?: boolean
@@ -253,7 +253,7 @@ export type Parameters = {
   description?: string
   required?: boolean
   name: string
-  in: string
+  in: 'path' | 'query' | 'header' | 'cookie'
   explode?: boolean
 }
 

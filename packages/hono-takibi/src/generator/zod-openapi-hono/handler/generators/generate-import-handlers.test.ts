@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { generateImportHandlers } from './generate-import-handlers'
-import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Config } from '../../../../config'
 
 // Test run
@@ -39,7 +38,16 @@ const generateImportHandlersTestCases: {
         'deleteUserUsernameRouteHandler',
       ],
     },
-    config: { ...DEFAULT_CONFIG },
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: [
       "import { putPetRouteHandler,postPetRouteHandler,getPetFindByStatusRouteHandler,getPetFindByTagsRouteHandler,getPetPetIdRouteHandler,postPetPetIdRouteHandler,deletePetPetIdRouteHandler,postPetPetIdUploadImageRouteHandler } from 'handler/pet_handler.ts';",
       "import { getStoreInventoryRouteHandler,postStoreOrderRouteHandler,getStoreOrderOrderIdRouteHandler,deleteStoreOrderOrderIdRouteHandler } from 'handler/store_handler.ts';",

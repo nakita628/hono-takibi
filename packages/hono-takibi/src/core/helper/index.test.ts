@@ -1,33 +1,33 @@
 import { describe, it, expect } from 'vitest'
 import {
-  getCamelCaseSchemaNameHelper,
-  getPascalCaseSchemaNameHelper,
-  getToSafeIdentifierHelper,
-  getVariableNameHelper,
-  getVariableSchemaNameHelper,
+  getCamelCaseSchemaName,
+  getPascalCaseSchemaName,
+  getToSafeIdentifier,
+  getVariableName,
+  getVariableSchemaName,
 } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/helper/index.test.ts
 
 describe('helpers barrel file exports', () => {
-  it('should export getCamelCaseSchemaNameHelper', () => {
-    expect(typeof getCamelCaseSchemaNameHelper).toBe('function')
+  it('should export getCamelCaseSchemaName', () => {
+    expect(typeof getCamelCaseSchemaName).toBe('function')
   })
 
-  it('should export getPascalCaseSchemaNameHelper', () => {
-    expect(typeof getPascalCaseSchemaNameHelper).toBe('function')
+  it('should export getPascalCaseSchemaName', () => {
+    expect(typeof getPascalCaseSchemaName).toBe('function')
   })
 
   it('should export getToSafeIdentifierHelper', () => {
-    expect(typeof getToSafeIdentifierHelper).toBe('function')
+    expect(typeof getToSafeIdentifier).toBe('function')
   })
 
-  it('should export getVariableNameHelper', () => {
-    expect(typeof getVariableNameHelper).toBe('function')
+  it('should export getVariableName', () => {
+    expect(typeof getVariableName).toBe('function')
   })
 
-  it('should export getVariableSchemaNameHelper', () => {
-    expect(typeof getVariableSchemaNameHelper).toBe('function')
+  it('should export getVariableSchemaName', () => {
+    expect(typeof getVariableSchemaName).toBe('function')
   })
 })

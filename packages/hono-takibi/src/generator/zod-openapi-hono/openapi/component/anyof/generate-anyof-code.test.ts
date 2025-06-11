@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { generateAnyOfCode } from './generate-anyof-code'
-import { DEFAULT_CONFIG } from '../../../../../../data/test-config'
 import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
 
@@ -24,7 +23,16 @@ const generateAnyOfCodeTestCases: {
       ],
       description: 'Center coordinates',
     },
-    config: DEFAULT_CONFIG,
+    config: {
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+    },
     expected: 'z.union([MultiPolygonSchema,PolygonSchema])',
   },
 ]

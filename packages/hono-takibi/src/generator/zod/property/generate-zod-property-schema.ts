@@ -3,7 +3,7 @@ import type { Config } from '../../../config/index.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference.js'
 import { generateReferenceSchema } from '../reference/generate-reference-schema.js'
 import { generateArrayReferenceSchema } from '../reference/generate-array-reference-schema.js'
-import { generateZodToOpenAPI } from '../../zod-to-openapi/index.js'
+import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
  * generatePropertySchema
@@ -21,5 +21,5 @@ export function generatePropertySchema(schema: Schema, config: Config) {
     return generateArrayReferenceSchema(schema, config)
   }
 
-  return generateZodToOpenAPI(config, schema, undefined, undefined)
+  return zodToOpenAPI(config, schema, undefined, undefined)
 }

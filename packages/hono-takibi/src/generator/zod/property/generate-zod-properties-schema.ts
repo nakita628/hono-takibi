@@ -1,9 +1,9 @@
 import type { Schema } from '../../../types/index.js'
 import type { Config } from '../../../config/index.js'
 import { isAllOptional } from '../../../core/validator/is-all-optional.js'
-import { generateZodPartialSchema } from '../generate-zod-partial-schema.js'
+import { partial } from '../index.js'
 import { generatePropertySchema } from './generate-zod-property-schema.js'
-import { getToSafeIdentifierHelper } from '../../../core/helper/index.js'
+import { getToSafeIdentifier } from '../../../core/helper/index.js'
 
 /**
  * Generates a Zod object schema with properties and their requirements
@@ -55,7 +55,7 @@ export function generateZodPropertiesSchema(
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const propertySchema = generatePropertySchema(schema, config)
-    const safeKey = getToSafeIdentifierHelper(key)
+    const safeKey = getToSafeIdentifier(key)
     return `${safeKey}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })
 
@@ -64,7 +64,7 @@ export function generateZodPropertiesSchema(
 
   // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
-    return generateZodPartialSchema(objectProperties)
+    return partial(objectProperties)
   }
 
   return `z.object({${objectProperties}})`

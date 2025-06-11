@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { processImportMap } from './process-import-map'
-import { DEFAULT_CONFIG } from '../../../../../data/test-config'
 import type { Config } from '../../../../config'
 
 // Test run
@@ -114,7 +113,15 @@ const processImportMapTestCases: {
       },
     ],
     config: {
-      ...DEFAULT_CONFIG,
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
+
       output: './pet-store/openapi/pet_store.ts',
     },
     expected: {

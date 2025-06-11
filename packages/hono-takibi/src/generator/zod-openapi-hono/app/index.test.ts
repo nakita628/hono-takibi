@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateApp } from './'
 import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
-import { DEFAULT_CONFIG } from '../../../../data/test-config'
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 
@@ -17,7 +16,14 @@ const generateAppTestCases: {
   {
     openAPISpec: honoRestOpenAPI,
     config: {
-      ...DEFAULT_CONFIG,
+      schema: {
+        name: 'PascalCase',
+        export: false,
+      },
+      type: {
+        name: 'PascalCase',
+        export: false,
+      },
       output: './hono-rest/openapi/hono_rest.ts',
     },
     basePath: 'api',
