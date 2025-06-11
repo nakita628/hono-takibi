@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { generateRequestParameter } from './generate-request-parameter'
+import { requestParameter } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/generate-request-parameter.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/request-parameter.test.ts
 
-describe('generateRequestParameters', () => {
-  it.concurrent('generateRequestParameter parameters undefined', () => {
-    const result = generateRequestParameter(
+describe('requestParameters', () => {
+  it.concurrent('requestParameter parameters undefined', () => {
+    const result = requestParameter(
       undefined,
       {
         required: true,
@@ -42,8 +42,8 @@ describe('generateRequestParameters', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('generateRequestParameter parameters requestBody undefined', () => {
-    const result = generateRequestParameter(
+  it.concurrent('requestParameter parameters requestBody undefined', () => {
+    const result = requestParameter(
       [
         {
           schema: { type: 'string' },
@@ -70,11 +70,13 @@ describe('generateRequestParameters', () => {
         },
       },
     )
-    expect(result).toBe('request:{query:z.object({page:z.string(),rows:z.string()})},')
+
+    const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:false}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:false}})})},`
+    expect(result).toBe(expected)
   })
 
-  it.concurrent('generateRequestParameter parameters and requestBody not undefined', () => {
-    const result = generateRequestParameter(
+  it.concurrent('requestParameter parameters and requestBody not undefined', () => {
+    const result = requestParameter(
       [
         {
           schema: { type: 'string', format: 'uuid' },
@@ -113,12 +115,12 @@ describe('generateRequestParameters', () => {
       },
     )
 
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid().openapi({param:{in:"path",name:"id"}})})},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
     expect(result).toBe(expected)
   })
 
-  it.concurrent('generateRequestParameter parameters and requestBody not undefined binary', () => {
-    const result = generateRequestParameter(
+  it.concurrent('requestParameter parameters and requestBody not undefined binary', () => {
+    const result = requestParameter(
       [
         {
           name: 'petId',
@@ -162,7 +164,7 @@ describe('generateRequestParameters', () => {
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId"}})}),query:z.object({additionalMetadata:z.string().optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
     expect(result).toBe(expected)
   })
 })

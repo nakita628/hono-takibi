@@ -25,7 +25,7 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  * - Properly combines parameters and body when both are present
  * - Handles schema references and inline schemas
  */
-export function generateRequestParameter(
+export function requestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
   config: Config,

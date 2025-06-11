@@ -1,7 +1,7 @@
 import type { Operation } from '../../../../types/index.js'
 import type { Config } from '../../../../config/index.js'
+import { requestParameter } from './params/index.js'
 import { generateCreateRoute } from './generate-create-route.js'
-import { generateRequestParameter } from './params/generate-request-parameter.js'
 import { generateResponseSchema } from './response/generate-response-schema.js'
 import { generateRouteName } from './generate-route-name.js'
 import { escapeStr } from '../../../../core/text/index.js'
@@ -36,7 +36,7 @@ export function generateRoute(
     operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = generateRequestParameter(parameters, requestBody, config)
+  const requestParams = requestParameter(parameters, requestBody, config)
 
   const create_args = {
     routeName,
