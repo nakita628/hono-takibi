@@ -2,15 +2,16 @@
 
 import type { OpenAPISpec } from './types/index.js'
 import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.js'
-import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler.js'
+import { zodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 import { getConfig, type Config } from './config/index.js'
 import { fmt } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs } from './cli/validator/index.js'
 import { mergeConfig } from './cli/helper/index.js'
-import SwaggerParser from '@apidevtools/swagger-parser'
+
 import path from 'node:path'
 import fsp from 'node:fs/promises'
+import { parseOpenAPI } from './swagger/index.js'
 import { mkdir, writeFile, readdir } from './fsp/index.js'
 
 const HELP_TEXT = `
@@ -73,9 +74,14 @@ export async function main(): Promise<boolean> {
   try {
     const { input, output } = config
     // parse OpenAPI YAML or JSON
-    const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
+    const openAPI = await parseOpenAPI(input)
+    if (!openAPI.ok) {
+      console.error(openAPI.error)
+      process.exit(1)
+    }
+    // const openAPI = (await SwaggerParser.parse(input)) as OpenAPISpec
     // generate Hono code
-    const hono = generateZodOpenAPIHono(openAPI, config)
+    const hono = generateZodOpenAPIHono(openAPI.value, config)
     // format code
     const formattedCode = await fmt(hono)
     if (!formattedCode.ok) {
@@ -101,7 +107,7 @@ export async function main(): Promise<boolean> {
 
     // generate template code
     if (cli.value.template && config.output.includes('/')) {
-      const appCode = await fmt(generateApp(openAPI, config, cli.value.basePath))
+      const appCode = await fmt(generateApp(openAPI.value, config, cli.value.basePath))
       if (!appCode.ok) {
         console.error(appCode.error)
         process.exit(1)
@@ -119,7 +125,8 @@ export async function main(): Promise<boolean> {
         : path.join(dir, 'index.ts')
 
       await fsp.writeFile(tgt, appCode.value, 'utf-8')
-      await generateZodOpenapiHonoHandler(openAPI, config, cli.value.test)
+
+      await zodOpenapiHonoHandler(openAPI.value, config, cli.value.test)
     }
 
     console.log(`Generated code written to ${output}`)

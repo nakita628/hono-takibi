@@ -16,20 +16,20 @@ describe('mkdir', () => {
     }
   })
 
-  it.concurrent('returns ok when directory is created', async () => {
+  it('returns ok when directory is created', async () => {
     console.log(process.cwd())
     const result = await mkdir(TEST_DIR)
     expect(result).toEqual({ ok: true, value: undefined })
     expect(fs.existsSync(TEST_DIR)).toBe(true)
   })
 
-  it.concurrent('returns ok when directory already exists (recursive:true)', async () => {
+  it('returns ok when directory already exists (recursive:true)', async () => {
     await fsp.mkdir(TEST_DIR, { recursive: true })
     const result = await mkdir(TEST_DIR)
     expect(result).toEqual({ ok: true, value: undefined })
   })
 
-  it.concurrent('returns err for invalid path', async () => {
+  it('returns err for invalid path', async () => {
     const filePath = path.join(TEST_DIR, 'foo.txt')
     await fsp.mkdir(TEST_DIR, { recursive: true })
     await fsp.writeFile(filePath, 'dummy')

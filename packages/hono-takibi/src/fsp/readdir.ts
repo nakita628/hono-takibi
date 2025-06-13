@@ -1,4 +1,5 @@
 import fsp from 'node:fs/promises'
+import { ok, err } from '../result/index.js'
 import type { Result } from '../result/index.js'
 
 /**
@@ -8,11 +9,8 @@ import type { Result } from '../result/index.js'
 export async function readdir(dir: string): Promise<Result<string[], string>> {
   try {
     const files = await fsp.readdir(dir)
-    return { ok: true, value: files }
+    return ok(files)
   } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : String(e),
-    }
+    return err(e instanceof Error ? e.message : String(e))
   }
 }

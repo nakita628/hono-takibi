@@ -24,7 +24,7 @@ export type HandlerOutput = {
  * @param { boolean } test - Whether to generate the test file.
  * @returns { Promise<void> }
  */
-export async function generateZodOpenapiHonoHandler(
+export async function zodOpenapiHonoHandler(
   openapi: OpenAPISpec,
   config: Config,
   test: boolean,
