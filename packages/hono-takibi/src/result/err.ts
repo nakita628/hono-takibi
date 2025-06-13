@@ -1,4 +1,4 @@
-import type { Err } from "./index.js";
+import type { Err } from './index.js'
 
 /**
  * Creates an error result.

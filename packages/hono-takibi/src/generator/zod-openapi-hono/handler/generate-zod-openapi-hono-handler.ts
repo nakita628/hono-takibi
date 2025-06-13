@@ -1,12 +1,12 @@
-import fsp from 'node:fs/promises'
-
 import type { OpenAPIPaths, OpenAPISpec } from '../../../types/index.js'
 import type { Config } from '../../../config/index.js'
 import { generateHandler } from './generators/generate-handler.js'
 import { generateRouteName } from '../openapi/route/generate-route-name.js'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
-import { formatCode } from '../../../format/index.js'
+import { fmt } from '../../../format/index.js'
+import { mkdir, writeFile } from '../../../fsp/index.js'
 import { generateHandlerName } from './generators/generate-handler-name.js'
+import type { Result } from '../../../result/types.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
@@ -28,7 +28,7 @@ export async function generateZodOpenapiHonoHandler(
   openapi: OpenAPISpec,
   config: Config,
   test: boolean,
-): Promise<void> {
+): Promise<Result<void, string>> {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
@@ -63,7 +63,11 @@ export async function generateZodOpenapiHonoHandler(
     const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
     const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
 
-    await fsp.mkdir(handlerPath, { recursive: true })
+    const mkdirResult = await mkdir(handlerPath)
+
+    if (!mkdirResult.ok) {
+      return { ok: false, error: mkdirResult.error }
+    }
 
     const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
 
@@ -79,13 +83,22 @@ export async function generateZodOpenapiHonoHandler(
 
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 
-    fsp.writeFile(`${handlerPath}/${handler.fileName}`, await formatCode(fileContent), {
-      encoding: 'utf-8',
-    })
+    const formatCode = await fmt(fileContent)
+
+    if (!formatCode.ok) {
+      return { ok: false, error: formatCode.error }
+    }
+
+    const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, formatCode.value)
+
+    if (!writeResult.ok) writeResult
+
     if (test) {
-      fsp.writeFile(`${handlerPath}/${handler.testFileName}`, '', {
-        encoding: 'utf-8',
-      })
+      const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
+      if (!writeResult.ok) {
+        return { ok: false, error: writeResult.error }
+      }
     }
   }
+  return { ok: true, value: undefined }
 }

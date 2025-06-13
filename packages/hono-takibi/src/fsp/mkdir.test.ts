@@ -1,4 +1,4 @@
-import { afterEach,describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect } from 'vitest'
 import { mkdir } from '.'
 import fsp from 'node:fs/promises'
 import fs from 'node:fs'
@@ -9,26 +9,27 @@ import path from 'node:path'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
 
-describe('mkdir (safe fs wrapper)', () => {
+describe('mkdir', () => {
   afterEach(async () => {
     if (fs.existsSync(TEST_DIR)) {
       await fsp.rmdir(TEST_DIR, { recursive: true })
     }
   })
 
-  it('returns ok when directory is created', async () => {
+  it.concurrent('returns ok when directory is created', async () => {
+    console.log(process.cwd())
     const result = await mkdir(TEST_DIR)
     expect(result).toEqual({ ok: true, value: undefined })
     expect(fs.existsSync(TEST_DIR)).toBe(true)
   })
 
-  it('returns ok when directory already exists (recursive:true)', async () => {
+  it.concurrent('returns ok when directory already exists (recursive:true)', async () => {
     await fsp.mkdir(TEST_DIR, { recursive: true })
     const result = await mkdir(TEST_DIR)
     expect(result).toEqual({ ok: true, value: undefined })
   })
 
-  it('returns err for invalid path', async () => {
+  it.concurrent('returns err for invalid path', async () => {
     const filePath = path.join(TEST_DIR, 'foo.txt')
     await fsp.mkdir(TEST_DIR, { recursive: true })
     await fsp.writeFile(filePath, 'dummy')

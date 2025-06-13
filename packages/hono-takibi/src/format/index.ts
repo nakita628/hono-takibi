@@ -6,7 +6,7 @@ import type { Result } from '../result/index.js'
  * @param { string } code - The TypeScript code to format
  * @returns { Promise<Result<string, string>> } - A promise that resolves to a Result containing the formatted code or an error message
  */
-export async function formatCode(code: string): Promise<Result<string, string>> {
+export async function fmt(code: string): Promise<Result<string, string>> {
   try {
     const formatted = await format(code, {
       parser: 'typescript',

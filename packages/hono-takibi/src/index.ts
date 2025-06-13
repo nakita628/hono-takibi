@@ -4,13 +4,14 @@ import type { OpenAPISpec } from './types/index.js'
 import { generateZodOpenAPIHono } from './generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.js'
 import { generateZodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/generate-zod-openapi-hono-handler.js'
 import { getConfig, type Config } from './config/index.js'
-import { formatCode } from './format/index.js'
+import { fmt } from './format/index.js'
 import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs } from './cli/validator/index.js'
 import { mergeConfig } from './cli/helper/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
 import fsp from 'node:fs/promises'
+import { mkdir, writeFile, readdir } from './fsp/index.js'
 
 const HELP_TEXT = `
 Usage:
@@ -76,26 +77,44 @@ export async function main(): Promise<boolean> {
     // generate Hono code
     const hono = generateZodOpenAPIHono(openAPI, config)
     // format code
-    const formattedCode = await formatCode(hono)
+    const formattedCode = await fmt(hono)
     if (!formattedCode.ok) {
       console.error(formattedCode.error)
       process.exit(1)
     }
 
-    await fsp.mkdir(path.dirname(output), { recursive: true })
-    await fsp.writeFile(output, formattedCode.value, 'utf-8')
+    const mkdirResult = await mkdir(path.dirname(output))
+    if (!mkdirResult.ok) {
+      console.log(mkdirResult.error)
+      process.exit(1)
+    }
+
+    // await fsp.mkdir(path.dirname(output), { recursive: true })
+
+    const writeResult = await writeFile(output, formattedCode.value)
+    if (!writeResult.ok) {
+      console.error(writeResult.error)
+      process.exit(1)
+    }
+
+    // await fsp.writeFile(output, formattedCode.value, 'utf-8')
 
     // generate template code
     if (cli.value.template && config.output.includes('/')) {
-      const appCode = await formatCode(generateApp(openAPI, config, cli.value.basePath))
+      const appCode = await fmt(generateApp(openAPI, config, cli.value.basePath))
       if (!appCode.ok) {
         console.error(appCode.error)
         process.exit(1)
       }
 
       const dir = path.dirname(config.output)
-      const files = await fsp.readdir(dir)
-      const tgt = files.includes('index.ts')
+      const readdirResult = await readdir(dir)
+      if (!readdirResult.ok) {
+        console.error(readdirResult.error)
+        process.exit(1)
+      }
+      // const files = await fsp.readdir(dir)
+      const tgt = readdirResult.value.includes('index.ts')
         ? path.join(dir, 'main.ts')
         : path.join(dir, 'index.ts')
 

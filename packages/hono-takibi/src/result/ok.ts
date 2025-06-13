@@ -1,4 +1,4 @@
-import type { Ok } from "./index.js";
+import type { Ok } from './index.js'
 
 /**
  * Creates a successful result.
