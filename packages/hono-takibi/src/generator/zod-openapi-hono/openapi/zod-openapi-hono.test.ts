@@ -1,11 +1,11 @@
 import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 import { describe, it, expect } from 'vitest'
-import { generateZodOpenAPIHono } from './generate-zod-openapi-hono'
+import { zodOpenAPIHono } from './zod-openapi-hono'
 import { abcdeOpenAPI } from '../../../../data/abcde'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/zod-openapi-hono.test.ts
 
 const generateZodOpenAPIHonoTestCases: {
   openAPISpec: OpenAPISpec
@@ -514,7 +514,7 @@ describe('generateZodOpenAPIHono', () => {
   it.concurrent.each(generateZodOpenAPIHonoTestCases)(
     'generateZodOpenAPIHono($openAPISpec, $config) -> $expected',
     async ({ openAPISpec, config, expected }) => {
-      const result = generateZodOpenAPIHono(openAPISpec, config)
+      const result = zodOpenAPIHono(openAPISpec, config)
       expect(result).toBe(expected)
     },
   )

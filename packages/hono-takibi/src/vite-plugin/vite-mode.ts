@@ -1,8 +1,8 @@
 import type { OpenAPISpec } from '../types/index.js'
 import type { Config } from '../config/index.js'
-import { generateZodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/generate-zod-openapi-hono.js'
+import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
 import { getConfig } from '../config/index.js'
-import { formatCode } from '../format/index.js'
+import { fmt } from '../format/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
@@ -16,11 +16,15 @@ export async function viteMode(config: Config = getConfig()): Promise<boolean | 
   try {
     if (config.input) {
       const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPISpec
-      const hono = generateZodOpenAPIHono(openAPI, config)
-      const formattedCode = await formatCode(hono)
+      const hono = zodOpenAPIHono(openAPI, config)
+      const code = await fmt(hono)
+      if (!code.ok) {
+        console.error(`Error formatting code: ${code.error}`)
+        return false
+      }
       if (config.output) {
         await fsp.mkdir(path.dirname(config.output), { recursive: true })
-        await fsp.writeFile(config.output, formattedCode, 'utf-8')
+        await fsp.writeFile(config.output, code.value, 'utf-8')
         console.log(`Generated code written to ${config.output}`)
         return true
       }
