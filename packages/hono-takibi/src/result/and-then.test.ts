@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { andThen } from '.'
-import { ok, err } from '../'
+import { ok, err } from '.'
 
 // Test run
-// pnpm vitest run ./src/result/and-then/index.test.ts
+// pnpm vitest run ./src/result/and-then.test.ts
 
 describe('andThen', () => {
   it('calls the function and returns its result when given ok', () => {

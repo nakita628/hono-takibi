@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { err } from '.'
 
 // Test run
-// pnpm vitest run ./src/result/err/index.test.ts
+// pnpm vitest run ./src/result/err.test.ts
 
 describe('err', () => {
   it.concurrent('should create an Err result', () => {
