@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { processImportMap } from './process-import-map'
-import type { Config } from '../../../../config'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/helper/process-import-map.test.ts
@@ -11,21 +10,13 @@ const processImportMapTestCases: {
     handlerName: string
     path: string
   }[]
-  config: Config
+  output: `${string}.ts`
   expected: { [importPath: string]: string[] }
 }[] = [
   {
     routeMappings: [
-      {
-        routeName: 'putPetRoute',
-        handlerName: 'putPetRouteHandler',
-        path: '/pet',
-      },
-      {
-        routeName: 'postPetRoute',
-        handlerName: 'postPetRouteHandler',
-        path: '/pet',
-      },
+      { routeName: 'putPetRoute', handlerName: 'putPetRouteHandler', path: '/pet' },
+      { routeName: 'postPetRoute', handlerName: 'postPetRouteHandler', path: '/pet' },
       {
         routeName: 'getPetFindByStatusRoute',
         handlerName: 'getPetFindByStatusRouteHandler',
@@ -76,11 +67,7 @@ const processImportMapTestCases: {
         handlerName: 'deleteStoreOrderOrderIdRouteHandler',
         path: '/store/order/{orderId}',
       },
-      {
-        routeName: 'postUserRoute',
-        handlerName: 'postUserRouteHandler',
-        path: '/user',
-      },
+      { routeName: 'postUserRoute', handlerName: 'postUserRouteHandler', path: '/user' },
       {
         routeName: 'postUserCreateWithListRoute',
         handlerName: 'postUserCreateWithListRouteHandler',
@@ -112,18 +99,7 @@ const processImportMapTestCases: {
         path: '/user/{username}',
       },
     ],
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-
-      output: './pet-store/openapi/pet_store.ts',
-    },
+    output: './pet-store/openapi/pet_store.ts',
     expected: {
       'pet_store.ts': [
         'putPetRoute',
@@ -152,9 +128,9 @@ const processImportMapTestCases: {
 
 describe('processImportMap', () => {
   it.concurrent.each(processImportMapTestCases)(
-    'processImportMap($routeMappings, $config) -> $expected',
-    ({ routeMappings, config, expected }) => {
-      const result = processImportMap(routeMappings, config)
+    'processImportMap(%j, %s) should return expected import mapping',
+    ({ routeMappings, output, expected }) => {
+      const result = processImportMap(routeMappings, output)
       expect(result).toEqual(expected)
     },
   )

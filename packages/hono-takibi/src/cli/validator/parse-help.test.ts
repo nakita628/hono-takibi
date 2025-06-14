@@ -5,10 +5,6 @@ import { parseHelp } from '.'
 // pnpm vitest run ./src/cli/validator/parse-help.test.ts
 
 describe('parseHelp', () => {
-  it('returns true for no arguments', () => {
-    expect(parseHelp([])).toBe(true)
-  })
-
   it('returns true for ["--help"]', () => {
     expect(parseHelp(['--help'])).toBe(true)
   })

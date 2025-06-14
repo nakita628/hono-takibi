@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { generateImportHandlers } from './generate-import-handlers'
-import type { Config } from '../../../../config'
+import { importHandlers } from './import-handlers'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/handler/import/generate-import-handlers.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/handler/generators/generate-import-handlers.test.ts
 
 const generateImportHandlersTestCases: {
   handlerImportsMap: { [fileName: string]: string[] }
-  config: Config
   expected: string[]
 }[] = [
   {
@@ -38,16 +36,6 @@ const generateImportHandlersTestCases: {
         'deleteUserUsernameRouteHandler',
       ],
     },
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
     expected: [
       "import { putPetRouteHandler,postPetRouteHandler,getPetFindByStatusRouteHandler,getPetFindByTagsRouteHandler,getPetPetIdRouteHandler,postPetPetIdRouteHandler,deletePetPetIdRouteHandler,postPetPetIdUploadImageRouteHandler } from 'handler/pet_handler.ts';",
       "import { getStoreInventoryRouteHandler,postStoreOrderRouteHandler,getStoreOrderOrderIdRouteHandler,deleteStoreOrderOrderIdRouteHandler } from 'handler/store_handler.ts';",
@@ -56,11 +44,11 @@ const generateImportHandlersTestCases: {
   },
 ]
 
-describe('generateImportHandlers', () => {
+describe('importHandlers', () => {
   it.concurrent.each(generateImportHandlersTestCases)(
-    'generateImportHandlers($handlerImportsMap, $config) -> $expected',
-    ({ handlerImportsMap, config, expected }) => {
-      const result = generateImportHandlers(handlerImportsMap, config)
+    'importHandlers($handlerImportsMap, $config) -> $expected',
+    ({ handlerImportsMap, expected }) => {
+      const result = importHandlers(handlerImportsMap)
       expect(result).toEqual(expected)
     },
   )

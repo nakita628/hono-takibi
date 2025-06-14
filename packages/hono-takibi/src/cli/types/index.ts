@@ -1,6 +1,6 @@
 export type CliFlags = {
-  input: string
-  output: string
+  input: `${string}.yaml` | `${string}.json`
+  output: `${string}.ts`
   exportType?: boolean
   exportSchema?: boolean
   typeCase?: 'PascalCase' | 'camelCase'

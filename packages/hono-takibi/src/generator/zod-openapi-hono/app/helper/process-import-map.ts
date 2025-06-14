@@ -12,11 +12,11 @@ export function processImportMap(
     handlerName: string
     path: string
   }[],
-  config: Config,
+  output: `${string}.ts`,
 ) {
   const importsMap: { [importPath: string]: string[] } = {}
   for (const { routeName } of routeMappings) {
-    const path = config.output
+    const path = output
     if (!path) {
       throw new Error('Output path is required')
     }

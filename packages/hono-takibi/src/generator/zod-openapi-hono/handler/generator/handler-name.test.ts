@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { generateHandlerName } from './generate-handler-name'
+import { handlerName } from './handler-name'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/handler/generate-handler-name.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/handler/generator/handler-name.test.ts
 
 const generateHandlerNameTestCases: {
   method: string
@@ -15,11 +15,11 @@ const generateHandlerNameTestCases: {
   { method: 'delete', path: '/posts/{id}', expected: 'deletePostsIdRouteHandler' },
 ]
 
-describe('generateHandlerName', () => {
+describe('handlerName', () => {
   it.concurrent.each(generateHandlerNameTestCases)(
-    'generateHandlerName($method, $path) -> $expected',
+    'handlerName($method, $path) -> $expected',
     async ({ method, path, expected }) => {
-      const result = generateHandlerName(method, path)
+      const result = handlerName(method, path)
       expect(result).toBe(expected)
     },
   )

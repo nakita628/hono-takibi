@@ -6,6 +6,6 @@ import { generateRouteName } from '../../openapi/route/generate-route-name.js'
  * @param { string } path - Path
  * @returns { string } Handler name
  */
-export function generateHandlerName(method: string, path: string): string {
+export function handlerName(method: string, path: string): string {
   return `${generateRouteName(method, path)}Handler`
 }

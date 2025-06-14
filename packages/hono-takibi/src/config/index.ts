@@ -12,8 +12,8 @@ export type Config = {
     name: 'PascalCase' | 'camelCase'
     export: boolean
   }
-  input?: string
-  output?: string
+  input?: `${string}.yaml` | `${string}.json`
+  output?: `${string}.ts`
 }
 
 export const DEFAULT_CONFIG = {

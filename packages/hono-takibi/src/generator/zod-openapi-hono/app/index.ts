@@ -1,9 +1,8 @@
 import type { OpenAPISpec } from '../../../openapi/index.js'
-import type { Config } from '../../../config/index.js'
 import { generateDocs } from './docs/generate-docs.js'
 import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
-import { generateImportHandlers } from '../handler/generators/generate-import-handlers.js'
+import { importHandlers } from '../handler/generator/index.js'
 import { generateRegisterComponent } from './register-component/generate-register-component.js'
 import { generateImportRoutes } from './generators/generate-import-routes.js'
 import { generateApplyOpenapiRoutes } from './generators/generate-apply-openapi-routes.js'
@@ -20,26 +19,24 @@ const EXPORT_APP = 'export default app' as const
  *
  * @function generateApp
  * @param { OpenAPISpec } openAPISpec - OpenAPI spec
- * @param { Config } config - Config
+ * @param { `${string}.ts` } output - Output file name
  * @param { string | undefined } basePath - Base path
  * @returns { string } Generated app code
  */
 export function generateApp(
   openAPISpec: OpenAPISpec,
-  config: Config,
+  output: `${string}.ts`,
   basePath: string | undefined,
 ): string {
   const routeMappings = getRouteMaps(openAPISpec)
 
-  const importsMap = processImportMap(routeMappings, config)
+  const importsMap = processImportMap(routeMappings, output)
 
   const importRoutes = generateImportRoutes(importsMap)
 
   const handlerImportsMap: { [fileName: string]: string[] } = getHandlerImports(routeMappings)
 
-  const importHandlers = generateImportHandlers(handlerImportsMap, config)
-
-  const importHandlersCode = importHandlers.join('\n')
+  const importHandlersCode = importHandlers(handlerImportsMap, output).join('\n')
 
   const applyOpenapiRoutes = generateApplyOpenapiRoutes(routeMappings)
 

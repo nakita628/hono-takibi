@@ -1,13 +1,19 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const errorSchema = z.object({ message: z.string() }).openapi('Error')
+const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const postSchema = z
+const PostSchema = z
   .object({
-    id: z.string().uuid(),
-    post: z.string().min(1).max(140),
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
+    id: z.string().uuid().openapi({ description: 'Unique identifier of the post' }),
+    post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
+    createdAt: z
+      .string()
+      .datetime()
+      .openapi({ description: 'Timestamp when the post was created' }),
+    updatedAt: z
+      .string()
+      .datetime()
+      .openapi({ description: 'Timestamp when the post was last updated' }),
   })
   .openapi('Post')
 
@@ -38,21 +44,33 @@ export const postPostsRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
+          }),
+        },
+      },
     },
   },
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string().openapi({ example: 'Post created successfully.' }),
+          }),
+        },
+      },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -66,22 +84,32 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
+      page: z.string().pipe(
+        z.coerce
+          .number()
+          .int()
+          .openapi({ param: { in: 'query', name: 'page', required: false } }),
+      ),
+      rows: z.string().pipe(
+        z.coerce
+          .number()
+          .int()
+          .openapi({ param: { in: 'query', name: 'rows', required: false } }),
+      ),
     }),
   },
   responses: {
     200: {
       description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(postSchema) } },
+      content: { 'application/json': { schema: z.array(PostSchema) } },
     },
     400: {
       description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -95,19 +123,37 @@ export const putPostsIdRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            post: z
+              .string()
+              .min(1)
+              .max(140)
+              .openapi({ description: 'Updated content for the post' }),
+          }),
+        },
+      },
     },
-    params: z.object({ id: z.string().uuid() }),
+    params: z.object({
+      id: z
+        .string()
+        .uuid()
+        .openapi({
+          param: { in: 'path', name: 'id', required: true },
+          description: 'Unique identifier of the post.',
+        }),
+    }),
   },
   responses: {
     204: { description: 'Post successfully updated.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -124,8 +170,9 @@ export const deletePostsIdRoute = createRoute({
         .string()
         .uuid()
         .openapi({
-          param: { name: 'id', in: 'path' },
+          param: { in: 'path', name: 'id', required: true },
           example: '123e4567-e89b-12d3-a456-426614174000',
+          description: 'Unique identifier of the post.',
         }),
     }),
   },
@@ -133,11 +180,11 @@ export const deletePostsIdRoute = createRoute({
     204: { description: 'Post successfully deleted.' },
     400: {
       description: 'Invalid input.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     500: {
       description: 'Internal server error.',
-      content: { 'application/json': { schema: errorSchema } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })

@@ -12,7 +12,7 @@ import { ok, andThen } from '../../result/index.js'
 
 export function parseCliArgs(
   args: readonly string[],
-  config: { input?: string; output?: string },
+  config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` },
 ): Result<CliFlags, string> {
   return andThen(parseIO(args, config), (io) =>
     andThen(parseNaming(flagVal(args, '--naming-case-type')), (typeCase) =>

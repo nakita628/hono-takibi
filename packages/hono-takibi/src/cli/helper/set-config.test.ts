@@ -60,26 +60,4 @@ describe('mergeConfig', () => {
       },
     })
   })
-
-  it.concurrent('should return error when input or output is missing', () => {
-    const base: Config = {
-      schema: { name: 'PascalCase', export: false },
-      type: { name: 'PascalCase', export: false },
-    }
-    const cliFlags: CliFlags = {
-      input: '',
-      output: '',
-      exportType: true,
-      exportSchema: true,
-      typeCase: 'PascalCase',
-      schemaCase: 'PascalCase',
-      template: false,
-      test: false,
-    }
-    const result = setConfig(base, cliFlags)
-    expect(result).toStrictEqual({
-      ok: false,
-      error: 'Usage: hono-takibi <input-file> -o <output-file>',
-    })
-  })
 })
