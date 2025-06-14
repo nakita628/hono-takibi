@@ -1,7 +1,7 @@
 import type { Result } from '../result/index.js'
 import { ok, asyncAndThen } from '../result/index.js'
 import { getConfig } from '../config/index.js'
-import { setConfig } from './helper/set-config.js'
+import { resolveConfig } from './config/index.js'
 import { takibi } from './takibi.js'
 import { parseCli } from './args/parse-cli.js'
 import { isHelpRequested, sliceArgv } from './utils/index.js'
@@ -39,7 +39,7 @@ export async function honoTakibi(): Promise<Result<{ message: string }, string>>
     ? ok({ message: HELP_TEXT })
     : await asyncAndThen(getConfig(), async (config) =>
         asyncAndThen(parseCli(args, config), async (cli) =>
-          asyncAndThen(setConfig(config, cli), async (finalConfig) =>
+          asyncAndThen(resolveConfig(config, cli), async (finalConfig) =>
             takibi(finalConfig, cli.template, cli.test, cli.basePath),
           ),
         ),

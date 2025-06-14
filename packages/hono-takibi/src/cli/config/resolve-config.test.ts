@@ -1,18 +1,19 @@
 import { describe, it, expect } from 'vitest'
-import { setConfig } from '.'
+import { resolveConfig } from '.'
 import type { CliFlags } from '../types'
 import type { Config } from '../../config'
 
 // Test run
-// pnpm vitest run ./src/cli/helper/set-config.test.ts
+// pnpm vitest run ./src/cli/config/resolve-config.test.ts
 
-describe('mergeConfig', () => {
-  it.concurrent('should merge CLI flags into base config (export true)', () => {
+describe('resolveConfig', () => {
+  it('merges CLI flags into base config (export true)', () => {
     const base: Config = {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: false },
     }
-    const cliFlags: CliFlags = {
+
+    const cli: CliFlags = {
       input: 'input.yaml',
       output: 'output.ts',
       exportType: true,
@@ -22,8 +23,8 @@ describe('mergeConfig', () => {
       template: false,
       test: false,
     }
-    const result = setConfig(base, cliFlags)
-    expect(result).toStrictEqual({
+
+    expect(resolveConfig(base, cli)).toStrictEqual({
       ok: true,
       value: {
         schema: { name: 'camelCase', export: true },
@@ -34,12 +35,13 @@ describe('mergeConfig', () => {
     })
   })
 
-  it.concurrent('should merge CLI flags into base config (export false)', () => {
+  it('merges CLI flags into base config (export false)', () => {
     const base: Config = {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: false },
     }
-    const cliFlags: CliFlags = {
+
+    const cli: CliFlags = {
       input: 'input.yaml',
       output: 'output.ts',
       exportType: false,
@@ -49,8 +51,8 @@ describe('mergeConfig', () => {
       template: false,
       test: false,
     }
-    const result = setConfig(base, cliFlags)
-    expect(result).toStrictEqual({
+
+    expect(resolveConfig(base, cli)).toStrictEqual({
       ok: true,
       value: {
         schema: { name: 'camelCase', export: false },

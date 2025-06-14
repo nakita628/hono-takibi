@@ -9,7 +9,7 @@ import type { CliFlags } from '../types/index.js'
  * @param cli
  * @returns Result<Config, string>
  */
-export function setConfig(
+export function resolveConfig(
   base: Config,
   cli: CliFlags,
 ): Result<
