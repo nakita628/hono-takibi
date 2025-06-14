@@ -1,31 +1,20 @@
 import { describe, it, expect } from 'vitest'
 import { generateApp } from './'
 import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
-import type { OpenAPISpec } from '../../../types'
-import type { Config } from '../../../config'
+import type { OpenAPISpec } from '../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/index.test.ts
 
 const generateAppTestCases: {
   openAPISpec: OpenAPISpec
-  config: Config
+  output: `${string}.ts`
   basePath: string | undefined
   expected: string
 }[] = [
   {
     openAPISpec: honoRestOpenAPI,
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-      output: './hono-rest/openapi/hono_rest.ts',
-    },
+    output: './hono-rest/openapi/hono_rest.ts',
     basePath: 'api',
     expected: `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
@@ -53,8 +42,8 @@ export default app`,
 describe('generateApp', () => {
   it.concurrent.each(generateAppTestCases)(
     'generateApp($openAPISpec, $config) -> $expected',
-    ({ openAPISpec, config, basePath, expected }) => {
-      const result = generateApp(openAPISpec, config, basePath)
+    ({ openAPISpec, output, basePath, expected }) => {
+      const result = generateApp(openAPISpec, output, basePath)
       expect(result).toEqual(expected)
     },
   )

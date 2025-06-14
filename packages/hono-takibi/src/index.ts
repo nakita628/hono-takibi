@@ -9,7 +9,7 @@ import { getConfig } from './config/index.js'
 import { fmt } from './format/index.js'
 import { parseCliArgs, parseHelp } from './cli/validator/index.js'
 import { setConfig, sliceArgs } from './cli/helper/index.js'
-import { parseOpenAPI } from './openapi/index.js'
+import { parseOpenAPI, type OpenAPISpec } from './openapi/index.js'
 import { mkdir, writeFile, readdir } from './fsp/index.js'
 import { ok, err, andThen, asyncAndThen } from './result/index.js'
 
@@ -76,27 +76,44 @@ export async function main(): Promise<Result<{ message: string }, string>> {
   return await asyncAndThen(await parseOpenAPI(config.input), async (openAPI) =>
     asyncAndThen(await fmt(zodOpenAPIHono(openAPI, config)), async (code) =>
       asyncAndThen(await mkdir(path.dirname(config.output)), async () =>
-        asyncAndThen(await writeFile(config.output, code), async () => {
-          if (cli.value.template && config.output.includes('/')) {
-            return asyncAndThen(
-              await fmt(generateApp(openAPI, config, cli.value.basePath)),
-              async (appCode) =>
-                asyncAndThen(await readdir(path.dirname(config.output)), async (files) => {
-                  const tgt = files.includes('index.ts')
-                    ? path.join(path.dirname(config.output), 'main.ts')
-                    : path.join(path.dirname(config.output), 'index.ts')
-
-                  return asyncAndThen(await writeFile(tgt, appCode), async () => {
-                    await zodOpenapiHonoHandler(openAPI, config.output, cli.value.test)
-                    return ok({ message: 'Generated code written template code' })
-                  })
-                }),
-            )
-          }
-          return ok({ message: `Generated code written to ${config.output}` })
-        }),
+        asyncAndThen(await writeFile(config.output, code), async () =>
+          asyncAndThen(
+            await templateCode(
+              openAPI,
+              config.output,
+              cli.value.template,
+              cli.value.test,
+              cli.value.basePath,
+            ),
+            async () =>
+              ok({
+                message: cli.value.template
+                  ? 'Generated code written template code'
+                  : `Generated code written to ${config.output}`,
+              }),
+          ),
+        ),
       ),
     ),
+  )
+}
+
+export async function templateCode(
+  openAPI: OpenAPISpec,
+  output: `${string}.ts`,
+  test: boolean,
+  template: boolean,
+  basePath?: string,
+): Promise<Result<void, string>> {
+  if (!template || !output.includes('/')) return ok(undefined)
+  const dir = path.dirname(output)
+  return await asyncAndThen(await fmt(generateApp(openAPI, output, basePath)), async (appCode) =>
+    asyncAndThen(await readdir(dir), async (files) => {
+      const target = path.join(dir, files.includes('index.ts') ? 'main.ts' : 'index.ts')
+      return await asyncAndThen(await writeFile(target, appCode), async () =>
+        asyncAndThen(await zodOpenapiHonoHandler(openAPI, output, test), async () => ok(undefined)),
+      )
+    }),
   )
 }
 

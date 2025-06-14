@@ -1,20 +1,18 @@
-import type { Config } from '../../../../config/index.js'
-
 /**
  * Generate import handlers
  * @param { { [fileName: string]: string[] } } handlerImportsMap - Handler imports map
- * @param { Config } config - Config
+ * @param { string } output - Output file path
  * @returns { string[] } Import handlers
  */
-export function generateImportHandlers(
+export function importHandlers(
   handlerImportsMap: { [fileName: string]: string[] },
-  config: Config,
+  output?: string,
 ) {
   const importHandlers: string[] = []
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))
 
-    const replacePath = config?.output?.replace(/\/[^/]+\.ts$/, '')
+    const replacePath = output?.replace(/\/[^/]+\.ts$/, '')
     const dirPath = replacePath === undefined ? '.' : replacePath
     const handlerPath = 'handler'
     if (dirPath === '.') {

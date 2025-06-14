@@ -1,11 +1,9 @@
 import type { OpenAPIPaths, OpenAPISpec } from '../../../openapi/index.js'
-import type { Config } from '../../../config/index.js'
-import { generateHandler } from './generators/generate-handler.js'
+import { handler, handlerName } from './generator/index.js'
 import { generateRouteName } from '../openapi/route/generate-route-name.js'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
-import { generateHandlerName } from './generators/generate-handler-name.js'
 import type { Result } from '../../../result/types.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
@@ -20,7 +18,7 @@ export type HandlerOutput = {
 /**
  * Generates the Zod OpenAPI Hono handler.
  * @param { OpenAPISpec } openapi - The OpenAPI specification.
- * @param { Config } config - The configuration.
+ * @param { output } output - The output directory or file path.
  * @param { boolean } test - Whether to generate the test file.
  * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or failure.
  */
@@ -34,9 +32,7 @@ export async function zodOpenapiHonoHandler(
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
       const routeName = generateRouteName(method, path)
-      const handlerName = generateHandlerName(method, path)
-
-      const routeHandlerContent = generateHandler(handlerName, routeName)
+      const routeHandlerContent = handler(handlerName(method, path), routeName)
 
       const path_name = path
         .replace(/[\/{}-]/g, ' ')
