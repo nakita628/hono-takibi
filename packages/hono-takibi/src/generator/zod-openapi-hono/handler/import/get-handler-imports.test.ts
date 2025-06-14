@@ -111,7 +111,7 @@ const getHandlerImportsTestCases: {
       },
     ],
     expected: {
-      'pet_handler.ts': [
+      'pet-handler.ts': [
         'putPetRouteHandler',
         'postPetRouteHandler',
         'getPetFindByStatusRouteHandler',
@@ -121,13 +121,13 @@ const getHandlerImportsTestCases: {
         'deletePetPetIdRouteHandler',
         'postPetPetIdUploadImageRouteHandler',
       ],
-      'store_handler.ts': [
+      'store-handler.ts': [
         'getStoreInventoryRouteHandler',
         'postStoreOrderRouteHandler',
         'getStoreOrderOrderIdRouteHandler',
         'deleteStoreOrderOrderIdRouteHandler',
       ],
-      'user_handler.ts': [
+      'user-handler.ts': [
         'postUserRouteHandler',
         'postUserCreateWithListRouteHandler',
         'getUserLoginRouteHandler',

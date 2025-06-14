@@ -17,7 +17,7 @@ export function getHandlerImports(
       .trim()
       .split(/\s+/)[0]
 
-    const fileName = path_name.length === 0 ? 'index_handler.ts' : `${path_name}_handler.ts`
+    const fileName = path_name.length === 0 ? 'index-handler.ts' : `${path_name}-handler.ts`
 
     if (!getHandlerImports[fileName]) {
       getHandlerImports[fileName] = []
