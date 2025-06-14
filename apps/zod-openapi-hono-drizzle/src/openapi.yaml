@@ -127,7 +127,7 @@ paths:
             minimum: 0
             default: 1
             example: 1
-          description: The page number to retrieve. Must be a positive integer. Defaults to 1.
+            description: The page number to retrieve. Must be a positive integer. Defaults to 1.
         - in: query
           name: rows
           required: true

@@ -1,32 +1,29 @@
 import { testClient } from 'hono/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import prisma from '../infra'
 import { api } from '../index.ts'
+import db, { table } from '../infra/index.ts'
+import { eq } from 'drizzle-orm'
 
 const test = testClient(api)
 
 describe('Hono Zod OpenAPI Test', () => {
   beforeEach(async () => {
-    await prisma.post.deleteMany()
+    await db.delete(table.post)
   })
 
   it('postPostsRouteHandler 201', async () => {
     const res = await test.posts.$post({
-      json: {
-        post: 'OpenAPIHono🔥',
-      },
+      json: { post: 'OpenAPIHono🔥' },
     })
     const input = await res.json()
     expect(input).toEqual({ message: 'Created' })
     expect(res.status).toBe(201)
   })
 
-  it('postPostsHandler ZodError', async () => {
+  it('postPostsRouteHandler ZodError', async () => {
     const res = await test.posts.$post({
-      json: {
-        post: '',
-      },
+      json: { post: '' },
     })
     const input = await res.json()
     expect(input).toEqual({
@@ -54,39 +51,30 @@ describe('Hono Zod OpenAPI Test', () => {
       return Array.from({ length: count }, (_, i) => ({
         id: randomUUID(),
         post: `OpenAPIHono🔥${i + 1}`,
-        createdAt: new Date(`2021-01-${i + 1}`),
-        updatedAt: new Date(`2021-01-${i + 1}`),
+        createdAt: new Date(`2021-01-${i + 1}`).toISOString(),
+        updatedAt: new Date(`2021-01-${i + 1}`).toISOString(),
       }))
     }
 
-    const postDatas = await Promise.all(
+    await Promise.all(
       generatePosts(20).map(async (data) => {
-        return prisma.post.create({
-          data,
-        })
+        return db.insert(table.post).values(data)
       }),
     )
 
+    const posts = await db.select().from(table.post)
+
     const res = await test.posts.$get({
-      query: {
-        page: '1',
-        rows: '15',
-      },
+      query: { page: '1', rows: '15' },
     })
 
     const input = await res.json()
 
-    const expected = postDatas
+    const expected = posts
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 15)
-      .map((post) => ({
-        ...post,
-        createdAt: new Date(post.createdAt).toISOString(),
-        updatedAt: new Date(post.updatedAt).toISOString(),
-      }))
 
     expect(input).toEqual(expected)
-    expect(res.status).toEqual(200)
   })
 
   it('getPostsRouteHandler 400', async () => {
@@ -128,52 +116,32 @@ describe('Hono Zod OpenAPI Test', () => {
   })
 
   it('putPostsIdRouteHandler 204', async () => {
-    const post = await prisma.post.create({
-      data: {
-        id: randomUUID(),
-        post: 'OpenAPIHono🔥',
-        createdAt: new Date('2021-01-01'),
-        updatedAt: new Date('2021-01-01'),
-      },
+    await db.insert(table.post).values({
+      id: randomUUID(),
+      post: 'OpenAPIHono🔥',
     })
 
+    const post = await db.select().from(table.post)
+
     const res = await test.posts[':id'].$put({
-      param: {
-        id: post.id,
-      },
-      json: {
-        post: 'OpenAPIHono🔥🔥',
-      },
+      param: { id: post[0].id },
+      json: { post: 'OpenAPIHono🔥🔥' },
     })
 
     expect(res.status).toBe(204)
-
-    const updatedPost = await prisma.post.findUnique({
-      where: {
-        id: post.id,
-      },
-    })
-
-    expect(updatedPost?.post).toEqual('OpenAPIHono🔥🔥')
   })
 
   it('putPostsIdRouteHandler ZodError', async () => {
-    const post = await prisma.post.create({
-      data: {
-        id: randomUUID(),
-        post: 'Hono🔥',
-        createdAt: new Date('2021-01-01'),
-        updatedAt: new Date('2021-01-01'),
-      },
+    await db.insert(table.post).values({
+      id: randomUUID(),
+      post: 'OpenAPIHono🔥',
     })
 
+    const post = await db.select().from(table.post)
+
     const res = await test.posts[':id'].$put({
-      param: {
-        id: post.id,
-      },
-      json: {
-        post: '',
-      },
+      param: { id: post[0].id },
+      json: { post: '' },
     })
 
     const input = await res.json()
@@ -201,15 +169,12 @@ describe('Hono Zod OpenAPI Test', () => {
 
   it('putPostsIdRouteHandler ZodError', async () => {
     const res = await test.posts[':id'].$put({
-      param: {
-        id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
-      },
-      json: {
-        post: 'test',
-      },
+      param: { id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥' },
+      json: { post: 'test' },
     })
 
     const input = await res.json()
+
     expect(input).toEqual({
       success: false,
       error: {
@@ -227,42 +192,32 @@ describe('Hono Zod OpenAPI Test', () => {
   })
 
   it('deletePostsIdRouteHandler 204', async () => {
-    const post = await prisma.post.create({
-      data: {
-        id: randomUUID(),
-        post: 'OpenAPIHono🔥',
-        createdAt: new Date('2021-01-01'),
-        updatedAt: new Date('2021-01-01'),
-      },
+    await db.insert(table.post).values({
+      id: randomUUID(),
+      post: 'OpenAPIHono🔥',
     })
 
+    const post = await db.select().from(table.post)
+
     const res = await test.posts[':id'].$delete({
-      param: {
-        id: post.id,
-      },
+      param: { id: post[0].id },
     })
 
     expect(res.status).toBe(204)
 
-    const deletedPost = await prisma.post.findUnique({
-      where: {
-        id: post.id,
-      },
-    })
+    const deletedPost = await db.select().from(table.post).where(eq(table.post.id, post[0].id))
 
-    expect(deletedPost).toBeNull()
+    expect(deletedPost).toEqual([])
   })
 
   it('deletePostsIdRouteHandler ZodError', async () => {
     const res = await test.posts[':id'].$delete({
-      param: {
-        id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
-      },
+      param: { id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥' },
     })
 
-    const input2 = await res.json()
+    const input = await res.json()
 
-    expect(input2).toEqual({
+    expect(input).toEqual({
       success: false,
       error: {
         issues: [

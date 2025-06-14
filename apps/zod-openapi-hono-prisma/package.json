@@ -1,0 +1,30 @@
+{
+  "name": "@apps/zod-openapi_hono_prisma",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deps": "rm -rf node_modules && pnpm install",
+    "dev": "tsx watch src/index.ts",
+    "migrate": "prisma migrate dev --name init",
+    "test": "NODE_ENV=test vitest run",
+    "coverage": "vitest run --coverage",
+    "takibi": "hono-takibi",
+    "prepare": "cp .env.example .env"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "@hono/zod-openapi": "^0.18.4",
+    "@prisma/client": "^6.9.0",
+    "hono": "^4.7.11"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@scalar/hono-api-reference": "^0.5.184",
+    "@types/node": "^20.19.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "hono-takibi": "^0.7.2",
+    "prisma": "^6.9.0",
+    "tsx": "^4.20.3",
+    "vitest": "^2.1.9"
+  }
+}
