@@ -1,4 +1,4 @@
-import type { HttpMethod } from '../../types/index.js'
+import type { HttpMethod } from '../../openapi/index.js'
 
 /**
  * Check if a string is a valid HTTP method

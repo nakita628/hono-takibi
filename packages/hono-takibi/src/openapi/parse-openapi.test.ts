@@ -1,6 +1,5 @@
-import { beforeAll, describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { parseOpenAPI } from '.'
-import { OpenAPISpec } from '../types'
 
 // Test run
 // pnpm vitest run ./src/swagger/index.test.ts

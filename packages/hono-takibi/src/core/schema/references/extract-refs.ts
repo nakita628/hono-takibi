@@ -1,4 +1,4 @@
-import type { Schema } from '../../../types/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import { isRefObject } from '../../validator/is-ref-object.js'
 
 /**

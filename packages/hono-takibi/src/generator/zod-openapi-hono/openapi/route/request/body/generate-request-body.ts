@@ -1,5 +1,5 @@
 import { isUniqueContentSchema } from '../../../../../../core/validator/is-unique-content-schema.js'
-import type { Content } from '../../../../../../types/index.js'
+import type { Content } from '../../../../../../openapi/index.js'
 
 /**
  * Generates a request body configuration for OpenAPI schema

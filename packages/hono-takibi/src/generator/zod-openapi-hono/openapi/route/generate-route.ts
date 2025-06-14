@@ -1,4 +1,4 @@
-import type { Operation } from '../../../../types/index.js'
+import type { Operation } from '../../../../openapi/index.js'
 import type { Config } from '../../../../config/index.js'
 import { requestParameter } from './params/index.js'
 import { generateCreateRoute } from './generate-create-route.js'

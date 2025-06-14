@@ -1,4 +1,4 @@
-import type { Schema } from '../../types/index.js'
+import type { Schema } from '../../openapi/index.js'
 import { regex, _default, gt, lt, min, max } from './index.js'
 
 /**

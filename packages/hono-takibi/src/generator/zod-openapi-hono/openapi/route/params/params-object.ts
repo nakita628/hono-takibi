@@ -1,4 +1,4 @@
-import type { Parameters, ParamsObject } from '../../../../../types/index.js'
+import type { Parameters, ParamsObject } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { coerce } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'

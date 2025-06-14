@@ -1,4 +1,4 @@
-import type { Responses } from '../../../../../types/index.js'
+import type { Responses } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { escapeStr } from '../../../../../core/text/index.js'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema.js'

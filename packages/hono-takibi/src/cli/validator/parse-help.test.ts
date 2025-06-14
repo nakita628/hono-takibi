@@ -4,29 +4,29 @@ import { parseHelp } from '.'
 // Test run
 // pnpm vitest run ./src/cli/validator/parse-help.test.ts
 
-describe('parseHelp (Result version)', () => {
-  it('should return err("help") for no arguments (args.length === 0)', () => {
-    expect(parseHelp([])).toEqual({ ok: false, error: 'help' })
+describe('parseHelp', () => {
+  it('returns true for no arguments', () => {
+    expect(parseHelp([])).toBe(true)
   })
 
-  it('should return err("help") for ["--help"]', () => {
-    expect(parseHelp(['--help'])).toEqual({ ok: false, error: 'help' })
+  it('returns true for ["--help"]', () => {
+    expect(parseHelp(['--help'])).toBe(true)
   })
 
-  it('should return err("help") for ["-h"]', () => {
-    expect(parseHelp(['-h'])).toEqual({ ok: false, error: 'help' })
+  it('returns true for ["-h"]', () => {
+    expect(parseHelp(['-h'])).toBe(true)
   })
 
-  it('should return ok(undefined) for other options only', () => {
-    expect(parseHelp(['--foo'])).toEqual({ ok: true, value: undefined })
-    expect(parseHelp(['input.yaml', '-o', 'output.ts'])).toEqual({ ok: true, value: undefined })
-    expect(parseHelp(['--export-type'])).toEqual({ ok: true, value: undefined })
+  it('returns false for other arguments only', () => {
+    expect(parseHelp(['--foo'])).toBe(false)
+    expect(parseHelp(['input.yaml', '-o', 'output.ts'])).toBe(false)
+    expect(parseHelp(['--export-type'])).toBe(false)
   })
 
-  it('should return ok(undefined) for --help or -h with other arguments', () => {
-    expect(parseHelp(['input.yaml', '--help'])).toEqual({ ok: true, value: undefined })
-    expect(parseHelp(['-h', '--foo'])).toEqual({ ok: true, value: undefined })
-    expect(parseHelp(['--help', '--foo'])).toEqual({ ok: true, value: undefined })
-    expect(parseHelp(['--foo', '--help'])).toEqual({ ok: true, value: undefined })
+  it('returns false for --help or -h mixed with other arguments', () => {
+    expect(parseHelp(['input.yaml', '--help'])).toBe(false)
+    expect(parseHelp(['-h', '--foo'])).toBe(false)
+    expect(parseHelp(['--help', '--foo'])).toBe(false)
+    expect(parseHelp(['--foo', '--help'])).toBe(false)
   })
 })

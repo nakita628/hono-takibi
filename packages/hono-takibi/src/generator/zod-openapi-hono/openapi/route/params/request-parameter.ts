@@ -1,4 +1,4 @@
-import type { Parameters, RequestBody } from '../../../../../types/index.js'
+import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'

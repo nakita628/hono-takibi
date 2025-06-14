@@ -1,4 +1,4 @@
-import type { Schema, Type } from '../../types/index.js'
+import type { Schema, Type } from '../../openapi/index.js'
 import type { Config } from '../../config/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'

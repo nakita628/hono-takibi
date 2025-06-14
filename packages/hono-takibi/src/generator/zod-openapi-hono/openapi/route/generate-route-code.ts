@@ -1,4 +1,4 @@
-import type { OpenAPIPaths } from '../../../../types/index.js'
+import type { OpenAPIPaths } from '../../../../openapi/index.js'
 import type { Config } from '../../../../config/index.js'
 import { isHttpMethod } from '../../../../core/validator/is-http-method.js'
 import { generateRoute } from './generate-route.js'

@@ -1,5 +1,5 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { OpenAPISpec } from '../types/index.js'
+import type { OpenAPISpec } from './index.js'
 import type { Result } from '../result/index.js'
 import { ok, err } from '../result/index.js'
 

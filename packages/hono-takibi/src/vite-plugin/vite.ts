@@ -1,7 +1,6 @@
-import type { OpenAPISpec } from '../types/index.js'
+import type { OpenAPISpec } from '../openapi/index.js'
 import type { Config } from '../config/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
-import { getConfig } from '../config/index.js'
 import { fmt } from '../format/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import fsp from 'node:fs/promises'
@@ -12,7 +11,7 @@ import path from 'node:path'
  * @param { Config } config - Config
  * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
  */
-export async function viteMode(config: Config = getConfig()): Promise<boolean | undefined> {
+export async function vite(config: Config): Promise<boolean | undefined> {
   try {
     if (config.input) {
       const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPISpec

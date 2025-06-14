@@ -1,4 +1,4 @@
-import type { Schema } from '../../types/index.js'
+import type { Schema } from '../../openapi/index.js'
 import type { Config } from '../../config/index.js'
 import { record, passthrough } from './index.js'
 import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'

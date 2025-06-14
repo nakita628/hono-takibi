@@ -1,4 +1,4 @@
-import type { Schema } from '../../types/index.js'
+import type { Schema } from '../../openapi/index.js'
 
 /**
  * Check if a given sub-schema is `nullable`

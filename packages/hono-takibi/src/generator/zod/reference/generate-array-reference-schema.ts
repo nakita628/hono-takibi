@@ -1,5 +1,5 @@
 import type { Config } from '../../../config/index.js'
-import type { Schema } from '../../../types/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import { getVariableSchemaName } from '../../../core/helper/get-variable-schema-name.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 import { array } from '../index.js'

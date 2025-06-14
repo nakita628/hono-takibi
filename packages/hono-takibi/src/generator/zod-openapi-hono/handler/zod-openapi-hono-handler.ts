@@ -1,4 +1,4 @@
-import type { OpenAPIPaths, OpenAPISpec } from '../../../types/index.js'
+import type { OpenAPIPaths, OpenAPISpec } from '../../../openapi/index.js'
 import type { Config } from '../../../config/index.js'
 import { generateHandler } from './generators/generate-handler.js'
 import { generateRouteName } from '../openapi/route/generate-route-name.js'

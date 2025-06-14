@@ -1,4 +1,4 @@
-import type { Schema } from '../../../types/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import type { Config } from '../../../config/index.js'
 import { isAllOptional } from '../../../core/validator/is-all-optional.js'
 import { partial } from '../index.js'

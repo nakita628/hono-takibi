@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { zodToOpenAPI } from '.'
-import type { Schema } from '../../types/index.js'
+import type { Schema } from '../../openapi/index.js'
 import type { Config } from '../../config/index.js'
 
 // Test Run

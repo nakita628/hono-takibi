@@ -1,4 +1,4 @@
-import type { Content } from '../../types/index.js'
+import type { Content } from '../../openapi/index.js'
 
 /**
  * Get unique content schema
