@@ -30,7 +30,7 @@ export function setConfig(
   const input = cli.input ?? base.input
   const output = cli.output ?? base.output
 
-  if (!input || !output) {
+  if (!(input || output)) {
     return err('Usage: hono-takibi <input-file> -o <output-file>')
   }
 

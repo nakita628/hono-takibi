@@ -6,7 +6,6 @@ export async function asyncAndThen<A, E, B>(
 ): Promise<Result<B, E>> {
   if (res.ok) {
     return await f(res.value)
-  } else {
-    return res
   }
+  return res
 }
