@@ -1,4 +1,4 @@
-import { flagVal, hasFlag } from '../helper/index.js'
+import { getFlagValue, hasFlag } from '../utils/index.js'
 import type { Result } from '../../result/index.js'
 import type { CliFlags } from '../types/index.js'
 import { ok, andThen } from '../../result/index.js'
@@ -16,8 +16,8 @@ export function parseCli(
   config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` },
 ): Result<CliFlags, string> {
   return andThen(parseIO(args, config), (io) =>
-    andThen(parseNamingCase(flagVal(args, '--naming-case-type')), (typeCase) =>
-      andThen(parseNamingCase(flagVal(args, '--naming-case-schema')), (schemaCase) =>
+    andThen(parseNamingCase(getFlagValue(args, '--naming-case-type')), (typeCase) =>
+      andThen(parseNamingCase(getFlagValue(args, '--naming-case-schema')), (schemaCase) =>
         ok({
           input: io.input,
           output: io.output,
@@ -27,7 +27,7 @@ export function parseCli(
           schemaCase,
           template: hasFlag(args, '--template'),
           test: hasFlag(args, '--test'),
-          basePath: flagVal(args, '--base-path'),
+          basePath: getFlagValue(args, '--base-path'),
         }),
       ),
     ),

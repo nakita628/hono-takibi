@@ -1,11 +1,10 @@
 import type { Result } from '../result/index.js'
 import { ok, asyncAndThen } from '../result/index.js'
-import { sliceArgs } from './helper/slice-args.js'
-import { parseHelp } from './validator/parse-help.js'
-import { parseCliArgs } from './validator/parse-cli-args.js'
 import { getConfig } from '../config/index.js'
 import { setConfig } from './helper/set-config.js'
 import { takibi } from './takibi.js'
+import { parseCli } from './args/parse-cli.js'
+import { isHelpRequested, sliceArgv } from './utils/index.js'
 
 const HELP_TEXT = `
 Usage:
@@ -34,12 +33,12 @@ Options:
 `.trimStart()
 
 export async function honoTakibi(): Promise<Result<{ message: string }, string>> {
-  const args = sliceArgs(process.argv)
+  const args = sliceArgv(process.argv)
 
-  return parseHelp(args)
+  return isHelpRequested(args)
     ? ok({ message: HELP_TEXT })
     : await asyncAndThen(getConfig(), async (config) =>
-        asyncAndThen(parseCliArgs(args, config), async (cli) =>
+        asyncAndThen(parseCli(args, config), async (cli) =>
           asyncAndThen(setConfig(config, cli), async (finalConfig) =>
             takibi(finalConfig, cli.template, cli.test, cli.basePath),
           ),

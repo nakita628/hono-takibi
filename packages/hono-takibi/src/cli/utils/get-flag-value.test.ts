@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { flagVal } from '.'
+import { getFlagValue } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/helper/flag-val.test.ts
+// pnpm vitest run ./src/cli/utils/get-flag-value.test.ts
 
 describe('flagVal', () => {
   it('should get value for --naming-case-schema', () => {
@@ -14,8 +14,8 @@ describe('flagVal', () => {
       'camelCase',
       '--export-type',
     ]
-    expect(flagVal(args, '--naming-case-schema')).toBe('PascalCase')
-    expect(flagVal(args, '--naming-case-type')).toBe('camelCase')
+    expect(getFlagValue(args, '--naming-case-schema')).toBe('PascalCase')
+    expect(getFlagValue(args, '--naming-case-type')).toBe('camelCase')
   })
 
   it('should return undefined for boolean flag', () => {
@@ -27,7 +27,7 @@ describe('flagVal', () => {
       'camelCase',
       '--export-type',
     ]
-    expect(flagVal(args, '--export-schema')).toBeUndefined()
-    expect(flagVal(args, '--export-type')).toBeUndefined()
+    expect(getFlagValue(args, '--export-schema')).toBeUndefined()
+    expect(getFlagValue(args, '--export-type')).toBeUndefined()
   })
 })

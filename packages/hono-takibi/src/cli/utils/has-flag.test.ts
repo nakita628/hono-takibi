@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { hasFlag } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/helper/has-flag.test.ts
+// pnpm vitest run ./src/cli/utils/has-flag.test.ts
 
 describe('hasFlag', () => {
   it.concurrent(`hasFlag(['--debug'], '--debug') -> true`, () => {
