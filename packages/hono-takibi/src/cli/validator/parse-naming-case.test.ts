@@ -1,30 +1,30 @@
 import { describe, it, expect } from 'vitest'
-import { parseNaming } from './'
+import { parseNamingCase } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/validator/parse-naming.test.ts
+// pnpm vitest run ./src/cli/validator/parse-naming-case.test.ts
 
-describe('parseNaming', () => {
+describe('parseNamingCaseCase', () => {
   it.concurrent('returns ok when given PascalCase', () => {
-    const result = parseNaming('PascalCase')
+    const result = parseNamingCase('PascalCase')
     const expected = { ok: true, value: 'PascalCase' }
     expect(result).toStrictEqual(expected)
   })
 
   it.concurrent('returns ok when given camelCase', () => {
-    const result = parseNaming('camelCase')
+    const result = parseNamingCase('camelCase')
     const expected = { ok: true, value: 'camelCase' }
     expect(result).toStrictEqual(expected)
   })
 
   it.concurrent('defaults to PascalCase when input is undefined', () => {
-    const result = parseNaming(undefined)
+    const result = parseNamingCase(undefined)
     const expected = { ok: true, value: undefined }
     expect(result).toStrictEqual(expected)
   })
 
   it.concurrent('returns err when given an invalid case', () => {
-    const result = parseNaming('snake_case')
+    const result = parseNamingCase('snake_case')
     const expected = {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got snake_case)',
@@ -33,7 +33,7 @@ describe('parseNaming', () => {
   })
 
   it.concurrent('returns err when given an empty string', () => {
-    const result = parseNaming('')
+    const result = parseNamingCase('')
     const expected = {
       ok: false,
       error: '--naming-case must be PascalCase or camelCase (got )',

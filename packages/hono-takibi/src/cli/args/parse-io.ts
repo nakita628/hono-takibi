@@ -1,6 +1,6 @@
 import type { Result } from '../../result/index.js'
 import { ok, err } from '../../result/index.js'
-import { isTs, isYamlOrJson } from './index.js'
+import { isTs, isYamlOrJson } from '../validator/index.js'
 
 /**
  * @param args - The CLI arguments

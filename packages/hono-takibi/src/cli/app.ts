@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { OpenAPISpec } from '../openapi/index.js'
 import type { Result } from '../result/index.js'
-import { ok, asyncAndThen } from '../result/index.js'
+import { ok, err, asyncAndThen } from '../result/index.js'
 import { readdir, writeFile } from '../fsp/index.js'
 import { fmt } from '../format/index.js'
 import { generateApp } from '../generator/zod-openapi-hono/app/index.js'
@@ -10,8 +10,8 @@ import { zodOpenapiHonoHandler } from '../generator/zod-openapi-hono/handler/zod
 export async function app(
   openAPI: OpenAPISpec,
   output: `${string}.ts`,
-  test: boolean,
   template: boolean,
+  test: boolean,
   basePath?: string,
 ): Promise<Result<void, string>> {
   if (!(template || !output.includes('/'))) return ok(undefined)

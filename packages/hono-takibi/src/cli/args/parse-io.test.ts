@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { parseIO } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/validator/parse-io.test.ts
+// pnpm vitest run ./src/cli/args/parse-io.test.ts
 
 describe('parseIO', () => {
   it.concurrent('returns ok when input and output are provided correctly', () => {
