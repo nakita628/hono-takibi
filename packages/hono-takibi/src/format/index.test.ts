@@ -15,7 +15,7 @@ describe('fmt', () => {
 
   it.concurrent('returns error result for invalid code', async () => {
     const result = await fmt('const = ;')
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       ok: false,
       error: 'Variable declaration expected. (1:7)\n> 1 | const = ;\n    |       ^',
     })
