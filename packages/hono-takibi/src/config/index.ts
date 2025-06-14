@@ -16,7 +16,7 @@ export type Config = {
   output?: string
 }
 
-export const DEFAULT_CONFIG: Config = {
+export const DEFAULT_CONFIG = {
   schema: {
     name: 'PascalCase',
     export: false,

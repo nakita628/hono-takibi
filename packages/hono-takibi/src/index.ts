@@ -3,15 +3,15 @@
 import path from 'node:path'
 import type { Result } from './result/types.js'
 import { zodOpenAPIHono } from './generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
+import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { zodOpenapiHonoHandler } from './generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 import { getConfig } from './config/index.js'
 import { fmt } from './format/index.js'
-import { generateApp } from './generator/zod-openapi-hono/app/index.js'
 import { parseCliArgs, parseHelp } from './cli/validator/index.js'
-import { mergeConfig, sliceArgs } from './cli/helper/index.js'
+import { setConfig, sliceArgs } from './cli/helper/index.js'
 import { parseOpenAPI } from './openapi/index.js'
 import { mkdir, writeFile, readdir } from './fsp/index.js'
-import { ok, andThen, asyncAndThen } from './result/index.js'
+import { ok, err, andThen, asyncAndThen } from './result/index.js'
 
 const HELP_TEXT = `
 Usage:
@@ -58,24 +58,20 @@ Options:
 export async function main(): Promise<Result<{ message: string }, string>> {
   const args = sliceArgs(process.argv)
 
-  if (parseHelp(args)) {
-    return ok({ message: HELP_TEXT })
-  }
+  if (parseHelp(args)) return ok({ message: HELP_TEXT })
 
   const setting = andThen(getConfig(), (config) =>
     andThen(parseCliArgs(args, config), (cli) => ok({ config, cli })),
   )
-
-  if (!setting.ok) {
-    return { ok: false, error: setting.error }
-  }
+  if (!setting.ok) return err(setting.error)
 
   const cli = parseCliArgs(args, setting.value.config)
-  if (!cli.ok) {
-    return { ok: false, error: cli.error }
-  }
+  if (!cli.ok) return err(cli.error)
 
-  const config = mergeConfig(setting.value.config, cli.value)
+  const setConfigResult = setConfig(setting.value.config, cli.value)
+  if (!setConfigResult.ok) return err(setConfigResult.error)
+
+  const config = setConfigResult.value
 
   return await asyncAndThen(await parseOpenAPI(config.input), async (openAPI) =>
     asyncAndThen(await fmt(zodOpenAPIHono(openAPI, config)), async (code) =>
@@ -97,7 +93,6 @@ export async function main(): Promise<Result<{ message: string }, string>> {
                 }),
             )
           }
-
           return ok({ message: `Generated code written to ${config.output}` })
         }),
       ),

@@ -57,6 +57,9 @@ describe.concurrent('Hono Takibi Normal Test', () => {
       fs.mkdirSync('tmp-openapi', { recursive: true })
       fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
     }
+    if (!fs.existsSync('tmp-route')) {
+      fs.mkdirSync('tmp-route', { recursive: true })
+    }
   })
 
   afterAll(() => {
