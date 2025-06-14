@@ -136,7 +136,7 @@ paths:
             minimum: 0
             default: 10
             example: 10
-          description: The number of posts per page. Must be a positive integer. Defaults to 10.
+            description: The number of posts per page. Must be a positive integer. Defaults to 10.
       responses:
         '200':
           description: Successfully retrieved a list of posts.
@@ -216,7 +216,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                message: An unexpected error occurred. Please try again later.
+              message: An unexpected error occurred. Please try again later.
 
     delete:
       tags:
@@ -231,7 +231,7 @@ paths:
             type: string
             format: uuid
             example: 123e4567-e89b-12d3-a456-426614174000
-          description: Unique identifier of the post.
+            description: Unique identifier of the post.
       responses:
         '204':
           description: Post successfully deleted.
