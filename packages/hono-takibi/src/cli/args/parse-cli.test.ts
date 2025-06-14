@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { parseCliArgs } from './parse-cli-args'
+import { parseCli } from '.'
 
 // Test run
-// pnpm vitest run ./src/cli/validator/parse-cli-args.test.ts
+// pnpm vitest run ./src/cli/args/parse-cli-args.test.ts
 
-describe('parseCliArgs', () => {
+describe('parseCli', () => {
   it('parses full valid arguments correctly', () => {
     const args = [
       'input.yaml',
@@ -21,8 +21,11 @@ describe('parseCliArgs', () => {
       '--base-path',
       '/api/v1',
     ]
-    const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = parseCliArgs(args, config)
+    const config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` } = {
+      input: 'input.yaml',
+      output: 'output.ts',
+    }
+    const result = parseCli(args, config)
 
     expect(result).toStrictEqual({
       ok: true,
@@ -50,8 +53,11 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'PascalCase',
     ]
-    const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = parseCliArgs(args, config)
+    const config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` } = {
+      input: 'input.yaml',
+      output: 'output.ts',
+    }
+    const result = parseCli(args, config)
 
     expect(result).toStrictEqual({
       ok: false,
@@ -69,8 +75,11 @@ describe('parseCliArgs', () => {
       '--naming-case-schema',
       'PascalCase',
     ]
-    const config = { input: 'input.yaml', output: 'output.ts' }
-    const result = parseCliArgs(args, config)
+    const config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` } = {
+      input: 'input.yaml',
+      output: 'output.ts',
+    }
+    const result = parseCli(args, config)
 
     expect(result).toStrictEqual({
       ok: true,

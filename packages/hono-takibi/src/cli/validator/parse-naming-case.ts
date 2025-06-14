@@ -6,7 +6,7 @@ import { ok, err } from '../../result/index.js'
  * @param str - The raw naming case string.
  * @returns A Result containing the parsed Naming or an error message.
  */
-export function parseNaming(
+export function parseNamingCase(
   str: string | undefined,
 ): Result<'PascalCase' | 'camelCase' | undefined, string> {
   if (str === 'PascalCase' || str === 'camelCase') return ok(str)

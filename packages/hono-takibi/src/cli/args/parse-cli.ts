@@ -1,8 +1,9 @@
 import { flagVal, hasFlag } from '../helper/index.js'
-import { parseIO, parseNaming } from './index.js'
 import type { Result } from '../../result/index.js'
 import type { CliFlags } from '../types/index.js'
 import { ok, andThen } from '../../result/index.js'
+import { parseNamingCase } from '../validator/parse-naming-case.js'
+import { parseIO } from './index.js'
 
 /**
  * Parses command line arguments into a structured format.
@@ -10,13 +11,13 @@ import { ok, andThen } from '../../result/index.js'
  * @returns A Result containing the parsed flags or an error message.
  */
 
-export function parseCliArgs(
+export function parseCli(
   args: readonly string[],
   config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` },
 ): Result<CliFlags, string> {
   return andThen(parseIO(args, config), (io) =>
-    andThen(parseNaming(flagVal(args, '--naming-case-type')), (typeCase) =>
-      andThen(parseNaming(flagVal(args, '--naming-case-schema')), (schemaCase) =>
+    andThen(parseNamingCase(flagVal(args, '--naming-case-type')), (typeCase) =>
+      andThen(parseNamingCase(flagVal(args, '--naming-case-schema')), (schemaCase) =>
         ok({
           input: io.input,
           output: io.output,
