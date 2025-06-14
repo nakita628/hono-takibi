@@ -1,4 +1,4 @@
-import type { Schema, Type } from '../../types/index.js'
+import type { Schema, Type } from '../../openapi/index.js'
 import type { Config } from '../../config/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
@@ -36,8 +36,6 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * Generates a Zod schema string from an OpenAPI/JSON Schema definition
  * @param { Config } config - The configuration object
  * @param { Schema } schema - The schema definition object
- * @param { string } paramName - The name of the parameter
- * @param { boolean } isPath - Whether the schema is a path parameter
  * @returns { string } Generated Zod schema string
  * @example
  * // Enum type

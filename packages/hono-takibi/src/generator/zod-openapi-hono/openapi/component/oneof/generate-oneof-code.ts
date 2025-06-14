@@ -1,4 +1,4 @@
-import type { Schema } from '../../../../../types/index.js'
+import type { Schema } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { getRefSchemaName } from '../../../../../core/schema/references/get-ref-schema-name.js'
 import { union } from '../../../../zod/index.js'

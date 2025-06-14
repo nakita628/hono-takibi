@@ -1,4 +1,4 @@
-import type { DefaultValue } from '../../types/index.js'
+import type { DefaultValue } from '../../openapi/index.js'
 
 /**
  * Generates a Zod default validation string

@@ -1,4 +1,4 @@
-import type { Schema } from '../../../types/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import type { Config } from '../../../config/index.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/is-array-with-schema-reference.js'
 import { generateReferenceSchema } from '../reference/generate-reference-schema.js'

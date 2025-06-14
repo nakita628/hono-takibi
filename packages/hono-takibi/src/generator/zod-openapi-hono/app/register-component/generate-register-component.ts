@@ -1,4 +1,4 @@
-import type { SecuritySchemes } from '../../../../types/index.js'
+import type { SecuritySchemes } from '../../../../openapi/index.js'
 
 /**
  * Generate register component

@@ -1,4 +1,4 @@
-import type { ParamsObject } from '../../../../../types/index.js'
+import type { ParamsObject } from '../../../../../openapi/index.js'
 import { schema } from '../../../../zod/index.js'
 
 /**

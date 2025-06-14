@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../types/index.js'
+import type { OpenAPISpec } from '../../../openapi/index.js'
 import type { Config } from '../../../config/index.js'
 import { generateDocs } from './docs/generate-docs.js'
 import { getHandlerImports } from '../handler/import/get-handler-imports.js'

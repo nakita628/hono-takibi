@@ -1,5 +1,5 @@
 import type { Config } from '../../../config/index.js'
-import type { OpenAPISpec } from '../../../types/index.js'
+import type { OpenAPISpec } from '../../../openapi/index.js'
 import { generateComponentsCode } from './component/generate-components-code.js'
 import { generateRouteCode } from './route/generate-route-code.js'
 
@@ -14,7 +14,7 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
  * @param { Config } config - Config
  * @returns { string } Generated TypeScript code
  */
-export function generateZodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config): string {
+export function zodOpenAPIHono(openAPISpec: OpenAPISpec, config: Config): string {
   // 1. get components
   const components = openAPISpec.components ? openAPISpec.components : undefined
   // 2. get paths

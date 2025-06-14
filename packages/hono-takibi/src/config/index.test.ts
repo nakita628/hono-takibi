@@ -1,18 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { getConfig } from './index'
+import { getConfig, DEFAULT_CONFIG } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/config/index.test.ts
 
-describe('getConfig Test', () => {
-  it.concurrent('getConfig', () => {
+describe('_config', () => {
+  it.concurrent('returns ok with DEFAULT_CONFIG when no file exists', () => {
     const result = getConfig()
-
-    const expected = {
-      schema: { name: 'PascalCase', export: false },
-      type: { name: 'PascalCase', export: false },
-    }
-
-    expect(result).toStrictEqual(expected)
+    expect(result).toStrictEqual({ ok: true, value: DEFAULT_CONFIG })
   })
 })

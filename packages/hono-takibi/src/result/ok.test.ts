@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { ok } from '.'
 
 // Test run
-// pnpm vitest run ./src/result/ok/index.test.ts
+// pnpm vitest run ./src/result/ok.test.ts
 
 describe('ok', () => {
   it.concurrent('should create an Ok result', () => {

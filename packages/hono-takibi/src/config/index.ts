@@ -1,4 +1,7 @@
 import fs from 'node:fs'
+import { ok } from '../result/ok.js'
+import { err } from '../result/err.js'
+import type { Result } from '../result/types.js'
 
 export type Config = {
   schema: {
@@ -13,7 +16,7 @@ export type Config = {
   output?: string
 }
 
-export const DEFAULT_CONFIG: Config = {
+export const DEFAULT_CONFIG = {
   schema: {
     name: 'PascalCase',
     export: false,
@@ -26,11 +29,15 @@ export const DEFAULT_CONFIG: Config = {
 
 /**
  * Loads the configuration from the `hono-takibi.json` file or returns the default configuration.
- * @returns { Config } The configuration object.
+ * @returns { Result<Config, string> } - A Result containing the configuration or an error message.
  */
-export function getConfig(): Config {
-  const config: Config = fs.existsSync('hono-takibi.json')
-    ? { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
-    : DEFAULT_CONFIG
-  return config
+export function getConfig(): Result<Config, string> {
+  try {
+    const config: Config = fs.existsSync('hono-takibi.json')
+      ? { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync('hono-takibi.json', 'utf-8')) }
+      : DEFAULT_CONFIG
+    return ok(config)
+  } catch (e) {
+    return err(e instanceof Error ? e.message : String(e))
+  }
 }

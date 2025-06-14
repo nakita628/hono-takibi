@@ -1,4 +1,4 @@
-import type { Schema } from '../../../../../types/index.js'
+import type { Schema } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
 import { processAllOf } from './process/process-alllof.js'
 import { intersection } from '../../../../zod/index.js'

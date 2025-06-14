@@ -5,25 +5,25 @@ import { parseHelp } from '.'
 // pnpm vitest run ./src/cli/validator/parse-help.test.ts
 
 describe('parseHelp', () => {
-  it('should return true for no arguments (args.length === 0)', () => {
+  it('returns true for no arguments', () => {
     expect(parseHelp([])).toBe(true)
   })
 
-  it('should return true for ["--help"]', () => {
+  it('returns true for ["--help"]', () => {
     expect(parseHelp(['--help'])).toBe(true)
   })
 
-  it('should return true for ["-h"]', () => {
+  it('returns true for ["-h"]', () => {
     expect(parseHelp(['-h'])).toBe(true)
   })
 
-  it('should return false for other options only', () => {
+  it('returns false for other arguments only', () => {
     expect(parseHelp(['--foo'])).toBe(false)
     expect(parseHelp(['input.yaml', '-o', 'output.ts'])).toBe(false)
     expect(parseHelp(['--export-type'])).toBe(false)
   })
 
-  it('should return false for --help with other arguments', () => {
+  it('returns false for --help or -h mixed with other arguments', () => {
     expect(parseHelp(['input.yaml', '--help'])).toBe(false)
     expect(parseHelp(['-h', '--foo'])).toBe(false)
     expect(parseHelp(['--help', '--foo'])).toBe(false)

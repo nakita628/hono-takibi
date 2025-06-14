@@ -1,4 +1,4 @@
-import type { Schema } from '../../types/index.js'
+import type { Schema } from '../../openapi/index.js'
 import { regex, _default, min, max, nullable } from './index.js'
 
 const FORMAT_STRING: Record<string, string> = {

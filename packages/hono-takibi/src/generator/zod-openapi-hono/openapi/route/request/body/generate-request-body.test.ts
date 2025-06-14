@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateRequestBody } from './generate-request-body'
-import type { Content } from '../../../../../../types'
+import type { Content } from '../../../../../../openapi'
 
 const generateRequestBodyTestCases: {
   required: boolean
