@@ -22,8 +22,8 @@ export function setConfig(
       name: 'PascalCase' | 'camelCase'
       export: boolean
     }
-    input: string
-    output: string
+    input: `${string}.yaml` | `${string}.json`
+    output: `${string}.ts`
   },
   string
 > {

@@ -87,7 +87,7 @@ export async function main(): Promise<Result<{ message: string }, string>> {
                     : path.join(path.dirname(config.output), 'index.ts')
 
                   return asyncAndThen(await writeFile(tgt, appCode), async () => {
-                    await zodOpenapiHonoHandler(openAPI, config, cli.value.test)
+                    await zodOpenapiHonoHandler(openAPI, config.output, cli.value.test)
                     return ok({ message: 'Generated code written template code' })
                   })
                 }),

@@ -1,5 +1,6 @@
 import type { Result } from '../../result/index.js'
 import { ok, err } from '../../result/index.js'
+import { isTs, isYamlOrJson } from './index.js'
 
 /**
  * @param args - The CLI arguments
@@ -8,8 +9,8 @@ import { ok, err } from '../../result/index.js'
  */
 export function parseIO(
   args: readonly string[],
-  config: { input?: string; output?: string },
-): Result<{ input: string; output: string }, string> {
+  config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` },
+): Result<{ input: `${string}.yaml` | `${string}.json`; output: `${string}.ts` }, string> {
   const cliInput = args[0]
   const oIdx = args.indexOf('-o')
   const cliOutput = oIdx !== -1 ? args[oIdx + 1] : undefined
@@ -17,7 +18,10 @@ export function parseIO(
   const input = cliInput ?? config.input
   const output = cliOutput ?? config.output
 
-  return input && output
-    ? ok({ input, output })
-    : err('Usage: hono-takibi <input-file> -o <output-file>')
+  if (output) {
+    if (isYamlOrJson(input) && isTs(output)) {
+      return ok({ input, output })
+    }
+  }
+  return err('Usage: hono-takibi <input.yaml|.json> -o <output.ts>')
 }

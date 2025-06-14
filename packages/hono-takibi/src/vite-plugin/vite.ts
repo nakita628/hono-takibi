@@ -29,7 +29,7 @@ export async function vite(config: Config): Promise<boolean | undefined> {
       }
     }
   } catch (e) {
-    console.error('Usage: hono-takibi <input-file> [-o output-file]')
+    console.error('Usage: hono-takibi <input.yaml|.json> -o <output.ts>')
     return false
   }
 }

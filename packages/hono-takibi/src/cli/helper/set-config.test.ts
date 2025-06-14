@@ -79,7 +79,7 @@ describe('mergeConfig', () => {
     const result = setConfig(base, cliFlags)
     expect(result).toStrictEqual({
       ok: false,
-      error: 'Usage: hono-takibi <input-file> -o <output-file>',
+      error: 'Usage: hono-takibi <input.yaml|.json> -o <output.ts>',
     })
   })
 })

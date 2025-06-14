@@ -22,11 +22,11 @@ export type HandlerOutput = {
  * @param { OpenAPISpec } openapi - The OpenAPI specification.
  * @param { Config } config - The configuration.
  * @param { boolean } test - Whether to generate the test file.
- * @returns { Promise<void> }
+ * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or failure.
  */
 export async function zodOpenapiHonoHandler(
   openapi: OpenAPISpec,
-  config: Config,
+  output: string,
   test: boolean,
 ): Promise<Result<void, string>> {
   const paths: OpenAPIPaths = openapi.paths
@@ -43,10 +43,10 @@ export async function zodOpenapiHonoHandler(
         .trim()
         .split(/\s+/)[0]
 
-      const fileName = path_name.length === 0 ? 'index_handler.ts' : `${path_name}_handler.ts`
+      const fileName = path_name.length === 0 ? 'index-handler.ts' : `${path_name}-handler.ts`
 
       const testFileName =
-        path_name.length === 0 ? 'index_handler.test.ts' : `${path_name}_handler.test.ts`
+        path_name.length === 0 ? 'index-handler.test.ts' : `${path_name}-handler.test.ts`
 
       handlers.push({
         fileName,
@@ -60,7 +60,7 @@ export async function zodOpenapiHonoHandler(
   const mergedHandlers = groupHandlersByFileNameHelper(handlers)
 
   for (const handler of mergedHandlers) {
-    const dirPath = config?.output?.replace(/\/[^/]+\.ts$/, '')
+    const dirPath = output?.replace(/\/[^/]+\.ts$/, '')
     const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
 
     const mkdirResult = await mkdir(handlerPath)
@@ -71,11 +71,11 @@ export async function zodOpenapiHonoHandler(
 
     const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
 
-    const match = config.output?.match(/[^/]+\.ts$/)
+    const match = output?.match(/[^/]+\.ts$/)
 
     const matchPath = match ? match[0] : ''
 
-    const path = config.output === '.' || config.output === './' ? config.output : `../${matchPath}`
+    const path = output === '.' || output === './' ? output : `../${matchPath}`
 
     const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
 
