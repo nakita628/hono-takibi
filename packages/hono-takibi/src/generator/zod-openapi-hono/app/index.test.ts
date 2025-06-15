@@ -1,26 +1,26 @@
 import { describe, it, expect } from 'vitest'
 import { generateApp } from './'
 import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
-import type { OpenAPISpec } from '../../../openapi'
+import type { OpenAPI } from '../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/index.test.ts
 
 const generateAppTestCases: {
-  openAPISpec: OpenAPISpec
+  openAPI: OpenAPI
   output: `${string}.ts`
   basePath: string | undefined
   expected: string
 }[] = [
   {
-    openAPISpec: honoRestOpenAPI,
-    output: './hono-rest/openapi/hono_rest.ts',
+    openAPI: honoRestOpenAPI,
+    output: './hono-rest/openapi/hono-rest.ts',
     basePath: 'api',
     expected: `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
-import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRoute } from './hono_rest.ts';
-import { getRouteHandler } from './handler/index_handler.ts';
-import { postPostsRouteHandler,getPostsRouteHandler,putPostsIdRouteHandler,deletePostsIdRouteHandler } from './handler/posts_handler.ts';
+import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRoute } from './hono-rest.ts';
+import { getRouteHandler } from './handler/index-handler.ts';
+import { postPostsRouteHandler,getPostsRouteHandler,putPostsIdRouteHandler,deletePostsIdRouteHandler } from './handler/posts-handler.ts';
 
 const app = new OpenAPIHono().basePath('api')
 
@@ -41,9 +41,9 @@ export default app`,
 
 describe('generateApp', () => {
   it.concurrent.each(generateAppTestCases)(
-    'generateApp($openAPISpec, $config) -> $expected',
-    ({ openAPISpec, output, basePath, expected }) => {
-      const result = generateApp(openAPISpec, output, basePath)
+    'generateApp($openAPI, $config) -> $expected',
+    ({ openAPI, output, basePath, expected }) => {
+      const result = generateApp(openAPI, output, basePath)
       expect(result).toEqual(expected)
     },
   )

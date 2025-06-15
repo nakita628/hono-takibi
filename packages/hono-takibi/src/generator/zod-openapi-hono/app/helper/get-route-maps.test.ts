@@ -1,17 +1,17 @@
-import type { OpenAPISpec } from '../../../../types'
 import { describe, it, expect } from 'vitest'
 import { getRouteMaps } from './get-route-maps'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
+import type { OpenAPI } from '../../../../openapi'
 
 // Test run
 // pnpm vitest run /src/generator/zod-openapi-hono/app/helper/get-route-maps.test.ts
 
 const getRouteMapsTestCases: {
-  openAPISpec: OpenAPISpec
+  openapi: OpenAPI
   expected: { routeName: string; handlerName: string; path: string }[]
 }[] = [
   {
-    openAPISpec: honoRestOpenAPI,
+    openapi: honoRestOpenAPI,
     expected: [
       { routeName: 'getRoute', handlerName: 'getRouteHandler', path: '/' },
       {
@@ -40,9 +40,9 @@ const getRouteMapsTestCases: {
 
 describe('getRouteMaps', () => {
   it.concurrent.each(getRouteMapsTestCases)(
-    'getRouteMaps($openAPISpec) -> $expected',
-    ({ openAPISpec, expected }) => {
-      const result = getRouteMaps(openAPISpec)
+    'getRouteMaps($openAPI) -> $expected',
+    ({ openapi, expected }) => {
+      const result = getRouteMaps(openapi)
       expect(result).toEqual(expected)
     },
   )

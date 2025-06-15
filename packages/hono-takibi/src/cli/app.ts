@@ -1,14 +1,14 @@
 import path from 'node:path'
-import type { OpenAPISpec } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import type { Result } from '../result/index.js'
-import { ok, err, asyncAndThen } from '../result/index.js'
+import { ok, asyncAndThen } from '../result/index.js'
 import { readdir, writeFile } from '../fsp/index.js'
 import { fmt } from '../format/index.js'
 import { generateApp } from '../generator/zod-openapi-hono/app/index.js'
 import { zodOpenapiHonoHandler } from '../generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 
 export async function app(
-  openAPI: OpenAPISpec,
+  openAPI: OpenAPI,
   output: `${string}.ts`,
   template: boolean,
   test: boolean,

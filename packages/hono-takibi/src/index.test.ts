@@ -1,5 +1,5 @@
 import { beforeAll, afterAll, describe, it, expect } from 'vitest'
-import type { OpenAPISpec } from './openapi/index.js'
+import type { OpenAPI } from './openapi/index.js'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
 import fs from 'node:fs'
@@ -9,7 +9,7 @@ import fs from 'node:fs'
 
 // Normal
 describe.concurrent('Hono Takibi Normal Test', () => {
-  const tmpOpenAPI: OpenAPISpec = {
+  const tmpOpenAPI: OpenAPI = {
     openapi: '3.0.0',
     info: {
       title: 'Test API',
@@ -210,18 +210,20 @@ export const postTestRoute = createRoute({
   //   schema: { name: 'PascalCase', export: true },
   //   type: { name: 'camelCase', export: false }
   // },
-  it.concurrent('schema name PascalCase export true type not output export false', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema PascalCase --export-schema --naming-case-type camelCase
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --export-schema --naming-case-type camelCase`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+  it.concurrent(
+    '--naming-case-schema PascalCase --export-schema --naming-case-type camelCase',
+    () => {
+      const openapiPath = path.join('tmp-openapi/test.json')
+      // CLI
+      // --naming-case-schema PascalCase --export-schema --naming-case-type camelCase
+      execSync(
+        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --export-schema --naming-case-type camelCase`,
+        {
+          stdio: 'pipe',
+        },
+      )
+      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+      const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 export const TestSchema = z.object({ test: z.string() }).openapi('Test')
 
@@ -233,8 +235,9 @@ export const postTestRoute = createRoute({
   responses: { 200: { description: 'Successful test' } },
 })
 `
-    expect(result).toBe(expected)
-  })
+      expect(result).toBe(expected)
+    },
+  )
 
   // 5
   // {

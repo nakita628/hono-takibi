@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import type { Config } from '../config/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
 import { fmt } from '../format/index.js'
@@ -14,7 +14,7 @@ import path from 'node:path'
 export async function vite(config: Config): Promise<boolean | undefined> {
   try {
     if (config.input) {
-      const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPISpec
+      const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPI
       const hono = zodOpenAPIHono(openAPI, config)
       const code = await fmt(hono)
       if (!code.ok) {

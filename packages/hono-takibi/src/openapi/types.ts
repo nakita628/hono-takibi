@@ -3,12 +3,12 @@ import type SwaggerParser from '@apidevtools/swagger-parser'
 /**
  * Base OpenAPI type derived from SwaggerParser
  */
-export type OpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
+type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
 
 /**
  * Extended OpenAPI specification with required components and paths
  */
-export type OpenAPISpec = OpenAPI & {
+export type OpenAPI = BaseOpenAPI & {
   openapi?: string
   servers?: string | { url: string }[]
   components: Components
@@ -20,7 +20,7 @@ export type OpenAPISpec = OpenAPI & {
  * OpenAPI paths with PathItem definitions
  */
 export type OpenAPIPaths = {
-  [P in keyof NonNullable<OpenAPI['paths']>]: PathItem
+  [P in keyof NonNullable<BaseOpenAPI['paths']>]: PathItem
 }
 
 /**

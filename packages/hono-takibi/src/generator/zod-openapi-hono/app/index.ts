@@ -1,4 +1,4 @@
-import type { OpenAPISpec } from '../../../openapi/index.js'
+import type { OpenAPI } from '../../../openapi/index.js'
 import { generateDocs } from './docs/generate-docs.js'
 import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
@@ -18,17 +18,17 @@ const EXPORT_APP = 'export default app' as const
  * Generate app
  *
  * @function generateApp
- * @param { OpenAPISpec } openAPISpec - OpenAPI spec
+ * @param { OpenAPI } openAPI - OpenAPI spec
  * @param { `${string}.ts` } output - Output file name
  * @param { string | undefined } basePath - Base path
  * @returns { string } Generated app code
  */
 export function generateApp(
-  openAPISpec: OpenAPISpec,
+  openapi: OpenAPI,
   output: `${string}.ts`,
   basePath: string | undefined,
 ): string {
-  const routeMappings = getRouteMaps(openAPISpec)
+  const routeMappings = getRouteMaps(openapi)
 
   const importsMap = processImportMap(routeMappings, output)
 
@@ -46,11 +46,11 @@ export function generateApp(
 
   const api = `export const api = ${app}`
 
-  const docs = generateDocs(openAPISpec)
+  const docs = generateDocs(openapi)
 
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
-  const { components } = openAPISpec
+  const { components } = openapi
 
   const registerComponent = components?.securitySchemes
     ? generateRegisterComponent(components.securitySchemes)
