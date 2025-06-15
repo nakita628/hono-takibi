@@ -6,11 +6,11 @@ import { getRefName } from './get-ref-name.js'
 /**
  * Retrieves the referenced schema name from a schema object.
  * @param { Schema } schema - The schema object
- * @param { Config } config - The configuration object
+ * @param { 'camelCase' | 'PascalCase' } style - The naming style for the schema name, either 'camelCase' or 'PascalCase'
  * @returns { string } The referenced schema name
  * @throws { Error } Will throw an error if the $ref property or the reference name is not found
  */
-export function getRefSchemaName(schema: Schema, config: Config): string {
+export function getRefSchemaName(schema: Schema, style: 'camelCase' | 'PascalCase' = 'PascalCase'): string {
   if (!schema.$ref) {
     throw new Error('refName is not found')
   }
@@ -18,5 +18,5 @@ export function getRefSchemaName(schema: Schema, config: Config): string {
   if (!refName) {
     throw new Error('refName is not found')
   }
-  return getVariableSchemaName(refName, config.schema.name)
+  return getVariableSchemaName(refName, style)
 }
