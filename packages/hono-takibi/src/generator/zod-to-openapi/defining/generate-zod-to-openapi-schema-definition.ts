@@ -23,20 +23,23 @@ import { infer } from '../../zod/index.js'
 export function generateZodToOpenAPISchemaDefinition(
   schemaName: string,
   zodSchema: string,
-  config: Config,
+  exportSchema: boolean,
+  exportType: boolean,
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
-  const variableName = getVariableSchemaName(schemaName, config.schema.name)
+  const variableName = getVariableSchemaName(schemaName, schemaNameCase)
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)
   // schema code
-  const schemaCode = config.schema.export
+  const schemaCode = exportSchema
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
-  const typeVariableName = getVariableName(schemaName, config.type.name)
+  const typeVariableName = getVariableName(schemaName, typeNameCase)
   const safeTypeVariableName = sanitizeIdentifier(typeVariableName)
 
-  const zodInferCode = config.type.export ? infer(safeTypeVariableName, safeVariableName) : ''
+  const zodInferCode = exportType ? infer(safeTypeVariableName, safeVariableName) : ''
   // return code
   return `${schemaCode}\n\n${zodInferCode}`
 }

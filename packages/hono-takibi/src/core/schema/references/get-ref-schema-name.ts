@@ -1,4 +1,3 @@
-import type { Config } from '../../../config/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { getVariableSchemaName } from '../../helper/index.js'
 import { getRefName } from './get-ref-name.js'
@@ -12,7 +11,7 @@ import { getRefName } from './get-ref-name.js'
  */
 export function getRefSchemaName(
   schema: Schema,
-  style: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.$ref) {
     throw new Error('refName is not found')
@@ -21,5 +20,5 @@ export function getRefSchemaName(
   if (!refName) {
     throw new Error('refName is not found')
   }
-  return getVariableSchemaName(refName, style)
+  return getVariableSchemaName(refName, schemaNameCase)
 }

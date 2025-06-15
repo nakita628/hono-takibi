@@ -50,11 +50,13 @@ import { getToSafeIdentifier } from '../../../core/helper/index.js'
 export function generateZodPropertiesSchema(
   properties: Record<string, Schema>,
   required: string[],
-  config: Config,
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  // config: Config,
 ): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
-    const propertySchema = generatePropertySchema(schema, config)
+    const propertySchema = generatePropertySchema(schema, schemaNameCase, typeNameCase)
     const safeKey = getToSafeIdentifier(key)
     return `${safeKey}:${propertySchema}${isRequired ? '' : '.optional()'}`
   })

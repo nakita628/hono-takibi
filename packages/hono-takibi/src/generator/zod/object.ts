@@ -1,5 +1,4 @@
 import type { Schema } from '../../openapi/index.js'
-import type { Config } from '../../config/index.js'
 import { record, passthrough } from './index.js'
 import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
@@ -11,29 +10,34 @@ import { generateZodPropertiesSchema } from './property/generate-zod-properties-
  * @param { Config } config - Configuration
  * @returns { string } Zod object schema string
  */
-export function object(schema: Schema, config: Config): string {
+export function object(
+  schema: Schema,
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
         const zodSchema = generateZodPropertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
-          config,
+          schemaNameCase,
+          typeNameCase,
         )
         return passthrough(zodSchema)
       }
       return 'z.any()'
     }
-    return record(schema.additionalProperties, config)
+    return record(schema.additionalProperties, schemaNameCase, typeNameCase)
   }
   if (schema.allOf) {
-    return allOf(schema, config)
+    return allOf(schema, schemaNameCase, typeNameCase)
   }
   if (schema.oneOf) {
-    return oneOf(schema, config)
+    return oneOf(schema, schemaNameCase, typeNameCase)
   }
   if (schema.anyOf) {
-    return anyOf(schema, config)
+    return anyOf(schema, schemaNameCase, typeNameCase)
   }
   if (!schema.properties) {
     return 'z.object({})'
@@ -41,6 +45,7 @@ export function object(schema: Schema, config: Config): string {
   return generateZodPropertiesSchema(
     schema.properties,
     Array.isArray(schema.required) ? schema.required : [],
-    config,
+    schemaNameCase,
+    typeNameCase,
   )
 }

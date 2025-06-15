@@ -75,7 +75,11 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function zod(config: Config, schema: Schema): string {
+export function zod(
+  schema: Schema,
+  schematyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   // enum
   if (schema.enum) {
     const res = _enum(schema)
@@ -86,7 +90,7 @@ export function zod(config: Config, schema: Schema): string {
 
   // object
   if (schema.type === 'object') {
-    return object(schema, config)
+    return object(schema, schematyle, typeNameCase)
   }
 
   // string
@@ -140,47 +144,47 @@ export function zod(config: Config, schema: Schema): string {
         const minItemsSchema = min(schema.minItems)
         const maxItemsSchema = max(schema.maxItems)
 
-        const zodArray = array(zod(config, schema.items))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
         const minItemsSchema = min(schema.minItems)
-        const zodArray = array(zod(config, schema.items))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
         const maxItemsSchema = max(schema.maxItems)
-        const zodArray = array(zod(config, schema.items))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = length(schema.minLength)
-        const zodArray = array(zodToOpenAPI(config, schema.items, undefined, undefined))
+        const zodArray = array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
-      return array(zodToOpenAPI(config, schema.items, undefined, undefined))
+      return array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
     }
     return 'z.array(z.any())'
   }
 
   // oneOf
   if (schema.oneOf) {
-    return oneOf(schema, config)
+    return oneOf(schema, schematyle, typeNameCase)
   }
 
   // anyOf
   if (schema.anyOf) {
-    return anyOf(schema, config)
+    return anyOf(schema, schematyle, typeNameCase)
   }
 
   // allOf
   if (schema.allOf) {
-    return allOf(schema, config)
+    return allOf(schema, schematyle, typeNameCase)
   }
 
   // not
@@ -191,7 +195,7 @@ export function zod(config: Config, schema: Schema): string {
   if (schema.$ref) {
     const refParts = schema.$ref.split('/')
     const refName = refParts[refParts.length - 1]
-    const schemaName = getVariableSchemaName(refName, config.schema.name)
+    const schemaName = getVariableSchemaName(refName, schematyle)
     return schemaName
   }
 

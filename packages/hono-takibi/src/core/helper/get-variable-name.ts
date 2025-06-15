@@ -8,7 +8,7 @@ import { capitalize, decapitalize } from '../utils/index.js'
  */
 export function getVariableName(
   name: string,
-  style: 'camelCase' | 'PascalCase' = 'PascalCase',
+  nameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
-  return style === 'camelCase' ? decapitalize(name) : capitalize(name)
+  return nameCase === 'camelCase' ? decapitalize(name) : capitalize(name)
 }

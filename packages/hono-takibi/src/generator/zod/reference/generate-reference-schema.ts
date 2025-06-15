@@ -9,7 +9,10 @@ import { getRefName } from '../../../core/schema/references/get-ref-name.js'
  * @param { Config } config - The configuration to use for the generation
  * @returns { string } The generated reference schema
  */
-export function generateReferenceSchema(schema: Schema, config: Config): string {
+export function generateReferenceSchema(
+  schema: Schema,
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   if (!schema.$ref) {
     return 'z.any()'
   }
@@ -18,5 +21,5 @@ export function generateReferenceSchema(schema: Schema, config: Config): string 
     return 'z.any()'
   }
 
-  return getVariableSchemaName(refName, config.schema.name) || 'z.any()'
+  return getVariableSchemaName(refName, schemaNameCase) || 'z.any()'
 }

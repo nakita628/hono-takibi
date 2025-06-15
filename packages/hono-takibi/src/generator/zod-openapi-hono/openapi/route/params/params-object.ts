@@ -15,13 +15,17 @@ import { getToSafeIdentifier } from '../../../../../core/helper/get-to-safe-iden
  * - Organizes parameters into appropriate objects based on their location
  * - Maintains empty objects for unused parameter locations
  */
-export function paramsObject(parameters: Parameters[], config: Config): ParamsObject {
+export function paramsObject(
+  parameters: Parameters[],
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+): ParamsObject {
   return parameters.reduce((acc: ParamsObject, param) => {
     const optionalSuffix = param.required ? '' : '.optional()'
     // path params are generated with the param name
     const baseSchema = param.in
-      ? zodToOpenAPI(config, param.schema, param.name, param.in)
-      : zodToOpenAPI(config, param.schema, param.name)
+      ? zodToOpenAPI(param.schema, schemaNameCase, typeNameCase, param.name, param.in)
+      : zodToOpenAPI(param.schema, schemaNameCase, typeNameCase, param.name)
 
     // Initialize section if it doesn't exist
     if (!acc[param.in]) {
