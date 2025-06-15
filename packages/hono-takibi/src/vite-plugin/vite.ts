@@ -15,7 +15,13 @@ export async function vite(config: Config): Promise<boolean | undefined> {
   try {
     if (config.input) {
       const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPI
-      const hono = zodOpenAPIHono(openAPI, config)
+      const hono = zodOpenAPIHono(
+        openAPI,
+        config.schema.export,
+        config.type.export,
+        config.schema.name,
+        config.type.name,
+      )
       const code = await fmt(hono)
       if (!code.ok) {
         console.error(`Error formatting code: ${code.error}`)

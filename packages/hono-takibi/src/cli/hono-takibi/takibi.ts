@@ -25,20 +25,30 @@ export async function takibi(
   basePath?: string,
 ): Promise<Result<{ message: string }, string>> {
   return await asyncAndThen(await parseOpenAPI(config.input), async (openAPI) =>
-    asyncAndThen(await fmt(zodOpenAPIHono(openAPI, config)), async (code) =>
-      asyncAndThen(await mkdir(path.dirname(config.output)), async () =>
-        asyncAndThen(await writeFile(config.output, code), async () =>
-          asyncAndThen(
-            await templateCode(openAPI, config.output, template, test, basePath),
-            async () =>
-              ok({
-                message: template
-                  ? 'Generated code and template files written'
-                  : `Generated code written to ${config.output}`,
-              }),
-          ),
+    asyncAndThen(
+      await fmt(
+        zodOpenAPIHono(
+          openAPI,
+          config.schema.export,
+          config.type.export,
+          config.schema.name,
+          config.type.name,
         ),
       ),
+      async (code) =>
+        asyncAndThen(await mkdir(path.dirname(config.output)), async () =>
+          asyncAndThen(await writeFile(config.output, code), async () =>
+            asyncAndThen(
+              await templateCode(openAPI, config.output, template, test, basePath),
+              async () =>
+                ok({
+                  message: template
+                    ? 'Generated code and template files written'
+                    : `Generated code written to ${config.output}`,
+                }),
+            ),
+          ),
+        ),
     ),
   )
 }
