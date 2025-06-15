@@ -9,16 +9,6 @@ describe('generateZodToOpenAPISchemaDefinition Test', () => {
     const result = generateZodToOpenAPISchemaDefinition(
       'Test',
       'z.object({test:z.string().openapi({example:"test"})})',
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
     )
     const expected = `const TestSchema = z.object({test:z.string().openapi({example:"test"})}).openapi('Test')
 

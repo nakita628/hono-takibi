@@ -9,13 +9,17 @@ import { intersection } from '../../../../zod/index.js'
  * @param { Config } config - The configuration object.
  * @returns { string } The generated Zod schema as a string.
  */
-export function allOf(schema: Schema, config: Config): string {
+export function allOf(
+  schema: Schema,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   if (!schema.allOf || schema.allOf.length === 0) {
     console.warn('not exists allOf')
     return 'z.any()'
   }
 
-  const { nullable, schemas } = processAllOf(schema.allOf, config)
+  const { nullable, schemas } = processAllOf(schema.allOf, schemaStyle, typeStyle)
 
   if (schemas.length === 0) {
     return nullable ? 'z.any().nullable()' : 'z.any()'

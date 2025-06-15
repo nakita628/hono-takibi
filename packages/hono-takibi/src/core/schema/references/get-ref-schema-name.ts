@@ -12,7 +12,7 @@ import { getRefName } from './get-ref-name.js'
  */
 export function getRefSchemaName(
   schema: Schema,
-  style: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.$ref) {
     throw new Error('refName is not found')
@@ -21,5 +21,5 @@ export function getRefSchemaName(
   if (!refName) {
     throw new Error('refName is not found')
   }
-  return getVariableSchemaName(refName, style)
+  return getVariableSchemaName(refName, schemaStyle)
 }

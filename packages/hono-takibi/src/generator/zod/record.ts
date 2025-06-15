@@ -25,7 +25,11 @@ import { zodToOpenAPI } from '../zod-to-openapi/index.js'
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
  */
-export function record(additionalProperties: Schema, config: Config): string {
-  const schema = zodToOpenAPI(config, additionalProperties)
+export function record(
+  additionalProperties: Schema,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
+  const schema = zodToOpenAPI(additionalProperties, schemaStyle, typeStyle)
   return `z.record(z.string(),${schema})`
 }

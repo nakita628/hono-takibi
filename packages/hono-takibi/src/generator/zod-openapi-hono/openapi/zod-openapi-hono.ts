@@ -14,10 +14,19 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
  * @param { Config } config - Config
  * @returns { string } Generated TypeScript code
  */
-export function zodOpenAPIHono(openapi: OpenAPI, config: Config): string {
+export function zodOpenAPIHono(
+  openapi: OpenAPI,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaExport: boolean = true,
+  typeExport: boolean = true,
+): string {
   const components = openapi.components ? openapi.components : undefined
   const paths = openapi.paths
-  const componentsCode = components === undefined ? '' : generateComponentsCode(components, config)
-  const routeCode = generateRouteCode(paths, config)
+  const componentsCode =
+    components === undefined
+      ? ''
+      : generateComponentsCode(components, schemaStyle, typeStyle, schemaExport, typeExport)
+  const routeCode = generateRouteCode(paths, schemaStyle, typeStyle)
   return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
 }

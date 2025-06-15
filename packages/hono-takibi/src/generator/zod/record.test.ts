@@ -6,19 +6,7 @@ import { record } from '.'
 
 describe('record Test', () => {
   it.concurrent('record -> z.record(z.string(),z.number().int())', () => {
-    const result = record(
-      { type: 'integer', format: 'int32' },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
-    )
+    const result = record({ type: 'integer', format: 'int32' })
 
     const expected = 'z.record(z.string(),z.number().int())'
     expect(result).toBe(expected)

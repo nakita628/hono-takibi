@@ -18,7 +18,13 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  * 5. Creates exports for all schemas
  * 6. Returns the complete code with proper ordering to avoid reference errors
  */
-export function generateComponentsCode(components: Components, config: Config): string {
+export function generateComponentsCode(
+  components: Components,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaExport: boolean = true,
+  typeExport: boolean = true,
+): string {
   // 1. schema extraction
   const { schemas } = components
   if (!schemas) {
@@ -36,9 +42,16 @@ export function generateComponentsCode(components: Components, config: Config): 
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
-      const zodSchema = zodToOpenAPI(config, schema)
+      const zodSchema = zodToOpenAPI(schema, schemaStyle, typeStyle)
       // 4.3 generate zod schema definition
-      return generateZodToOpenAPISchemaDefinition(schemaName, zodSchema, config)
+      return generateZodToOpenAPISchemaDefinition(
+        schemaName,
+        zodSchema,
+        schemaStyle,
+        typeStyle,
+        schemaExport,
+        typeExport,
+      )
     })
     .join('\n\n')
   // 5. return code

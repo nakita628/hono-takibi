@@ -10,7 +10,11 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  * @param { Config } config - The configuration object.
  * @returns { string } The generated Zod code as a string.
  */
-export function oneOf(schema: Schema, config: Config): string {
+export function oneOf(
+  schema: Schema,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
     console.warn('not exists oneOf')
     return 'z.any()'
@@ -18,9 +22,9 @@ export function oneOf(schema: Schema, config: Config): string {
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
     subSchema.$ref
-      ? getRefSchemaName(subSchema, config.schema.name)
-      : zodToOpenAPI(config, subSchema)
-    return zodToOpenAPI(config, subSchema)
+      ? getRefSchemaName(subSchema, schemaStyle)
+      : zodToOpenAPI(subSchema, schemaStyle, typeStyle)
+    return zodToOpenAPI(subSchema, schemaStyle, typeStyle)
   })
 
   return union(zodSchemas)

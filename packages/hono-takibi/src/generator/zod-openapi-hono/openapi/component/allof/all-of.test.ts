@@ -1,18 +1,12 @@
-import type { Config } from '../../../../../config'
 import { describe, it, expect } from 'vitest'
 import { allOf } from '.'
-import type { Schema } from '../../../../../openapi'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/generate-allof-code.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/all-of.test.ts
 
-const generateAnyOfCodeTestCases: {
-  schema: Schema
-  config: Config
-  expected: string
-}[] = [
-  {
-    schema: {
+describe('allOf', () => {
+  it.concurrent('allOf with GeoJsonObject', () => {
+    const result = allOf({
       description: 'Abstract type for all GeoJSon object except Feature and FeatureCollection\n',
       externalDocs: {
         url: 'https://tools.ietf.org/html/rfc7946#section-3',
@@ -43,22 +37,14 @@ const generateAnyOfCodeTestCases: {
           },
         },
       ],
-    },
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected:
-      'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
-  },
-  {
-    schema: {
+    })
+    const expected =
+      'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('allOf with GeoJSon Feature object', () => {
+    const result = allOf({
       description: "GeoJSon 'Feature' object",
       externalDocs: {
         url: 'https://tools.ietf.org/html/rfc7946#section-3.2',
@@ -98,28 +84,10 @@ const generateAnyOfCodeTestCases: {
           },
         },
       ],
-    },
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected:
-      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))',
-  },
-]
+    })
 
-describe('allOf', () => {
-  it.concurrent.each(generateAnyOfCodeTestCases)(
-    'allOf($args.schema, $args.config) -> $expected',
-    async ({ schema, config, expected }) => {
-      const result = allOf(schema, config)
-      expect(result).toBe(expected)
-    },
-  )
+    const expected =
+      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))'
+    expect(result).toBe(expected)
+  })
 })

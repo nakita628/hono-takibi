@@ -13,12 +13,13 @@ import { zod } from '../zod/index.js'
  * @returns Zod schema string with optional `.openapi({...})` metadata
  */
 export function zodToOpenAPI(
-  config: Config,
   schema: Schema,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
-  const z = zod(config, schema)
+  const z = zod(schema, schemaStyle, typeStyle)
   const openapiProps: string[] = []
 
   if (paramIn && paramName) {

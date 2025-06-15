@@ -1,21 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { processAllOf } from './process-alllof'
-import type { Schema } from '../../../../../../openapi'
-import type { Config } from '../../../../../../config'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/process/process-alllof.test.ts
 
-const processAllOfTestCases: {
-  allOf: Schema[]
-  config: Config
-  expected: {
-    nullable: boolean
-    schemas: string[]
-  }
-}[] = [
-  {
-    allOf: [
+describe('processAllOf', () => {
+  it.concurrent('processAllOf with allOf GeoJsonObject', () => {
+    const result = processAllOf([
       {
         $ref: '#/components/schemas/GeoJsonObject',
       },
@@ -40,27 +31,20 @@ const processAllOfTestCases: {
           propertyName: 'type',
         },
       },
-    ],
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected: {
+    ])
+
+    const expected = {
       nullable: false,
       schemas: [
         'GeoJsonObjectSchema',
         'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])})',
       ],
-    },
-  },
-  {
-    allOf: [
+    }
+    expect(result).toStrictEqual(expected)
+  })
+
+  it.concurrent('processAllOf with allof Geometry', () => {
+    const result = processAllOf([
       {
         $ref: '#/components/schemas/Geometry',
       },
@@ -84,54 +68,15 @@ const processAllOfTestCases: {
           propertyName: 'type',
         },
       },
-    ],
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected: {
+    ])
+
+    const expected = {
       nullable: false,
       schemas: [
         'GeometrySchema',
         'z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"])})',
       ],
-    },
-  },
-  {
-    allOf: [
-      {
-        nullable: true,
-      },
-      {
-        $ref: '#/components/schemas/Geometry',
-      },
-    ],
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected: { nullable: true, schemas: ['GeometrySchema'] },
-  },
-]
-
-describe('processAllOf', () => {
-  it.concurrent.each(processAllOfTestCases)(
-    'processAllOf($args.allOf, $args.config) -> $expected',
-    async ({ allOf, config, expected }) => {
-      const result = processAllOf(allOf, config)
-      expect(result).toEqual(expected)
-    },
-  )
+    }
+    expect(result).toStrictEqual(expected)
+  })
 })

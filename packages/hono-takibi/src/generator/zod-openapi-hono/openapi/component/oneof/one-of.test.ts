@@ -1,18 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import type { Config } from '../../../../../config'
-import type { Schema } from '../../../../../openapi'
-import { oneOf } from './one-of'
+import { oneOf } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/oneof/generate-oneof-code.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/oneof/one-of.test.ts
 
-const oneOfTestCases: {
-  schema: Schema
-  config: Config
-  expected: string
-}[] = [
-  {
-    schema: {
+describe('oneOf', () => {
+  it.concurrent('oneOf with oneOf', () => {
+    const result = oneOf({
       oneOf: [
         {
           type: 'number',
@@ -21,27 +15,9 @@ const oneOfTestCases: {
           type: 'string',
         },
       ],
-    },
-    config: {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    },
-    expected: 'z.union([z.number(),z.string()])',
-  },
-]
+    })
 
-describe('oneOf', () => {
-  it.concurrent.each(oneOfTestCases)(
-    'oneOf($args.schema, $args.config) -> $expected',
-    async ({ schema, config, expected }) => {
-      const result = oneOf(schema, config)
-      expect(result).toBe(expected)
-    },
-  )
+    const expected = 'z.union([z.number(),z.string()])'
+    expect(result).toBe(expected)
+  })
 })

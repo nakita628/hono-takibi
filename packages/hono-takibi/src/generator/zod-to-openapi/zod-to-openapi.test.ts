@@ -1,26 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { zodToOpenAPI } from '.'
-import type { Schema } from '../../types/index.js'
-import type { Config } from '../../config/index.js'
+import type { Schema } from '../../openapi/index.js'
 
 // Test Run
 // pnpm vitest run ./src/generator/zod-to-openapi/zod-to-openapi.test.ts
 
 describe('zodToOpenAPI Test', () => {
-  const config: Config = {
-    schema: {
-      name: 'PascalCase',
-      export: false,
-    },
-    type: {
-      name: 'PascalCase',
-      export: false,
-    },
-  }
-
   it('zodToOpenAPI not exists openapi()', () => {
     const schema: Schema = { type: 'string' }
-    const result = zodToOpenAPI(config, schema)
+    const result = zodToOpenAPI(schema)
     const expected = 'z.string()'
     expect(result).toBe(expected)
   })
@@ -31,7 +19,7 @@ describe('zodToOpenAPI Test', () => {
       example: 'hello',
       description: 'Example string',
     }
-    const result = zodToOpenAPI(config, schema)
+    const result = zodToOpenAPI(schema)
     const expected = 'z.string().openapi({example:"hello",description:"Example string"})'
     expect(result).toBe(expected)
   })
@@ -42,7 +30,7 @@ describe('zodToOpenAPI Test', () => {
       example: 'uuid-example',
       description: 'UUID parameter',
     }
-    const result = zodToOpenAPI(config, schema, 'id', 'path')
+    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'id', 'path')
     const expected =
       'z.string().openapi({param:{in:"path",name:"id",required:true},example:"uuid-example",description:"UUID parameter"})'
     expect(result).toBe(expected)
@@ -55,7 +43,7 @@ describe('zodToOpenAPI Test', () => {
       description: 'Optional query parameter',
       required: false,
     }
-    const result = zodToOpenAPI(config, schema, 'q', 'query')
+    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'q', 'query')
     const expected =
       'z.string().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
     expect(result).toBe(expected)
@@ -63,7 +51,7 @@ describe('zodToOpenAPI Test', () => {
 
   it('should insert only param if no example or description is given', () => {
     const schema: Schema = { type: 'string', required: true }
-    const result = zodToOpenAPI(config, schema, 'x', 'header')
+    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'x', 'header')
     const expected = 'z.string().openapi({param:{in:"header",name:"x",required:true}})'
     expect(result).toBe(expected)
   })

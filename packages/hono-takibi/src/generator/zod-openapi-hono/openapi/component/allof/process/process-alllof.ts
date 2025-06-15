@@ -14,14 +14,18 @@ type Accumulator = {
  * @param { Config } config - The configuration object.
  * @returns { Accumulator } An object containing the `nullable` flag and the generated array of schemas.
  */
-export function processAllOf(allOf: Schema[], config: Config): Accumulator {
+export function processAllOf(
+  allOf: Schema[],
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+): Accumulator {
   return allOf.reduce<Accumulator>(
     (acc, subSchema) => {
       if (isNullableSchema(subSchema)) {
         acc.nullable = true
         return acc
       }
-      const zodSchema = generateZodSchemaFromSubSchema(subSchema, config)
+      const zodSchema = generateZodSchemaFromSubSchema(subSchema, schemaStyle, typeStyle)
       acc.schemas.push(zodSchema)
       return acc
     },

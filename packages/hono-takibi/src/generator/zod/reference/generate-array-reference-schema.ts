@@ -10,7 +10,10 @@ import { array } from '../index.js'
  * @param { Config } config - The configuration to use for the generation
  * @returns { string } The generated array reference schema
  */
-export function generateArrayReferenceSchema(schema: Schema, config: Config): string {
+export function generateArrayReferenceSchema(
+  schema: Schema,
+  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
   if (!schema.items?.$ref) {
     return 'z.array(z.any())'
   }
@@ -19,7 +22,7 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
     return 'z.array(z.any())'
   }
 
-  const variableName = getVariableSchemaName(refName, config.schema.name)
+  const variableName = getVariableSchemaName(refName, schemaStyle)
 
   return array(variableName)
 }
