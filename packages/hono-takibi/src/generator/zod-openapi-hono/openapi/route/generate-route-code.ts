@@ -23,8 +23,8 @@ import { isOperation } from '../../../../core/validator/is-operation.js'
  */
 export function generateRouteCode(
   openAPIPaths: OpenAPIPaths,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
@@ -42,7 +42,7 @@ export function generateRouteCode(
       // 3.4 at this point, pathItemValue is only a possibility for Operation
       if (!isOperation(pathItemValue)) continue
       // 3.5 generating the root code and adding it to the array
-      routes.push(generateRoute(path, method, pathItemValue, schemaStyle, typeStyle))
+      routes.push(generateRoute(path, method, pathItemValue, schemaNameCase, typeNameCase))
     }
   }
   // 4. exclude invalid routes and join them with a newline

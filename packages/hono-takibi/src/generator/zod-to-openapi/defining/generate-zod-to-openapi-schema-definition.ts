@@ -25,10 +25,10 @@ export function generateZodToOpenAPISchemaDefinition(
   zodSchema: string,
   exportSchema: boolean,
   exportType: boolean,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
-  const variableName = getVariableSchemaName(schemaName, schemaStyle)
+  const variableName = getVariableSchemaName(schemaName, schemaNameCase)
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)
   // schema code
@@ -36,7 +36,7 @@ export function generateZodToOpenAPISchemaDefinition(
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
-  const typeVariableName = getVariableName(schemaName, typeStyle)
+  const typeVariableName = getVariableName(schemaName, typeNameCase)
   const safeTypeVariableName = sanitizeIdentifier(typeVariableName)
 
   const zodInferCode = exportType ? infer(safeTypeVariableName, safeVariableName) : ''

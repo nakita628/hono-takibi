@@ -14,12 +14,12 @@ import { zod } from '../zod/index.js'
  */
 export function zodToOpenAPI(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
-  const z = zod(schema, schemaStyle, typeStyle)
+  const z = zod(schema, schemaNameCase, typeNameCase)
   const openapiProps: string[] = []
 
   if (paramIn && paramName) {

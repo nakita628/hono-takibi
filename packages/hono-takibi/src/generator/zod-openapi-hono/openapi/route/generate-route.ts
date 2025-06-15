@@ -30,14 +30,14 @@ export function generateRoute(
   path: string,
   method: string,
   operation: Operation,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
     operation
   const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = requestParameter(parameters, requestBody, schemaStyle, typeStyle)
+  const requestParams = requestParameter(parameters, requestBody, schemaNameCase, typeNameCase)
 
   const create_args = {
     routeName,
@@ -50,7 +50,7 @@ export function generateRoute(
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
     responsesCode: responses
-      ? `responses:{${generateResponseSchema(responses, schemaStyle, typeStyle)}}`
+      ? `responses:{${generateResponseSchema(responses, schemaNameCase, typeNameCase)}}`
       : '',
   }
   return generateCreateRoute(create_args)

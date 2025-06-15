@@ -11,15 +11,15 @@ import { intersection } from '../../../../zod/index.js'
  */
 export function allOf(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.allOf || schema.allOf.length === 0) {
     console.warn('not exists allOf')
     return 'z.any()'
   }
 
-  const { nullable, schemas } = processAllOf(schema.allOf, schemaStyle, typeStyle)
+  const { nullable, schemas } = processAllOf(schema.allOf, schemaNameCase, typeNameCase)
 
   if (schemas.length === 0) {
     return nullable ? 'z.any().nullable()' : 'z.any()'

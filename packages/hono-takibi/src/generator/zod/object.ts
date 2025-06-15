@@ -12,8 +12,8 @@ import { generateZodPropertiesSchema } from './property/generate-zod-properties-
  */
 export function object(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
@@ -21,23 +21,23 @@ export function object(
         const zodSchema = generateZodPropertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
-          schemaStyle,
-          typeStyle,
+          schemaNameCase,
+          typeNameCase,
         )
         return passthrough(zodSchema)
       }
       return 'z.any()'
     }
-    return record(schema.additionalProperties, schemaStyle, typeStyle)
+    return record(schema.additionalProperties, schemaNameCase, typeNameCase)
   }
   if (schema.allOf) {
-    return allOf(schema, schemaStyle, typeStyle)
+    return allOf(schema, schemaNameCase, typeNameCase)
   }
   if (schema.oneOf) {
-    return oneOf(schema, schemaStyle, typeStyle)
+    return oneOf(schema, schemaNameCase, typeNameCase)
   }
   if (schema.anyOf) {
-    return anyOf(schema, schemaStyle, typeStyle)
+    return anyOf(schema, schemaNameCase, typeNameCase)
   }
   if (!schema.properties) {
     return 'z.object({})'
@@ -45,7 +45,7 @@ export function object(
   return generateZodPropertiesSchema(
     schema.properties,
     Array.isArray(schema.required) ? schema.required : [],
-    schemaStyle,
-    typeStyle,
+    schemaNameCase,
+    typeNameCase,
   )
 }

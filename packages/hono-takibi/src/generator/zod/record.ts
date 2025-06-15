@@ -27,9 +27,9 @@ import { zodToOpenAPI } from '../zod-to-openapi/index.js'
  */
 export function record(
   additionalProperties: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
-  const schema = zodToOpenAPI(additionalProperties, schemaStyle, typeStyle)
+  const schema = zodToOpenAPI(additionalProperties, schemaNameCase, typeNameCase)
   return `z.record(z.string(),${schema})`
 }

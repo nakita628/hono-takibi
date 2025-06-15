@@ -78,7 +78,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
 export function zod(
   schema: Schema,
   schematyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   // enum
   if (schema.enum) {
@@ -90,7 +90,7 @@ export function zod(
 
   // object
   if (schema.type === 'object') {
-    return object(schema, schematyle, typeStyle)
+    return object(schema, schematyle, typeNameCase)
   }
 
   // string
@@ -144,47 +144,47 @@ export function zod(
         const minItemsSchema = min(schema.minItems)
         const maxItemsSchema = max(schema.maxItems)
 
-        const zodArray = array(zod(schema.items, schematyle, typeStyle))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
         const minItemsSchema = min(schema.minItems)
-        const zodArray = array(zod(schema.items, schematyle, typeStyle))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
         const maxItemsSchema = max(schema.maxItems)
-        const zodArray = array(zod(schema.items, schematyle, typeStyle))
+        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = length(schema.minLength)
-        const zodArray = array(zodToOpenAPI(schema.items, schematyle, typeStyle))
+        const zodArray = array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
-      return array(zodToOpenAPI(schema.items, schematyle, typeStyle))
+      return array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
     }
     return 'z.array(z.any())'
   }
 
   // oneOf
   if (schema.oneOf) {
-    return oneOf(schema, schematyle, typeStyle)
+    return oneOf(schema, schematyle, typeNameCase)
   }
 
   // anyOf
   if (schema.anyOf) {
-    return anyOf(schema, schematyle, typeStyle)
+    return anyOf(schema, schematyle, typeNameCase)
   }
 
   // allOf
   if (schema.allOf) {
-    return allOf(schema, schematyle, typeStyle)
+    return allOf(schema, schematyle, typeNameCase)
   }
 
   // not

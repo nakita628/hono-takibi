@@ -9,20 +9,20 @@ import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
  * generate property schema
  *
  * @param schema
- * @param schemaStyle
+ * @param schemaNameCase
  */
 export function generatePropertySchema(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ) {
   if (Boolean(schema.$ref) === true) {
-    return generateReferenceSchema(schema, schemaStyle)
+    return generateReferenceSchema(schema, schemaNameCase)
   }
 
   if (isArrayWithSchemaReference(schema)) {
-    return generateArrayReferenceSchema(schema, schemaStyle)
+    return generateArrayReferenceSchema(schema, schemaNameCase)
   }
 
-  return zodToOpenAPI(schema, schemaStyle, typeStyle)
+  return zodToOpenAPI(schema, schemaNameCase, typeNameCase)
 }

@@ -18,15 +18,15 @@ export function zodOpenAPIHono(
   openapi: OpenAPI,
   exportSchema: boolean,
   exportType: boolean,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   const components = openapi.components ? openapi.components : undefined
   const paths = openapi.paths
   const componentsCode =
     components === undefined
       ? ''
-      : generateComponentsCode(components, exportSchema, exportType, schemaStyle, typeStyle)
-  const routeCode = generateRouteCode(paths, schemaStyle, typeStyle)
+      : generateComponentsCode(components, exportSchema, exportType, schemaNameCase, typeNameCase)
+  const routeCode = generateRouteCode(paths, schemaNameCase, typeNameCase)
   return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
 }

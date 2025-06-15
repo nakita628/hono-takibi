@@ -24,8 +24,8 @@ import { escapeStringLiteral } from '../../../../../core/utils/index.js'
  */
 export function generateResponseSchema(
   responses: Responses,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
@@ -44,7 +44,7 @@ export function generateResponseSchema(
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = generatePropertySchema(content.schema, schemaStyle, typeStyle)
+        const zodSchema = generatePropertySchema(content.schema, schemaNameCase, typeNameCase)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
       return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`

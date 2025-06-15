@@ -12,8 +12,8 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  */
 export function oneOf(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
     console.warn('not exists oneOf')
@@ -22,9 +22,9 @@ export function oneOf(
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
     subSchema.$ref
-      ? getRefSchemaName(subSchema, schemaStyle)
-      : zodToOpenAPI(subSchema, schemaStyle, typeStyle)
-    return zodToOpenAPI(subSchema, schemaStyle, typeStyle)
+      ? getRefSchemaName(subSchema, schemaNameCase)
+      : zodToOpenAPI(subSchema, schemaNameCase, typeNameCase)
+    return zodToOpenAPI(subSchema, schemaNameCase, typeNameCase)
   })
 
   return union(zodSchemas)

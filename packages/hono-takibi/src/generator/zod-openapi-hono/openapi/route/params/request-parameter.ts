@@ -26,8 +26,8 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
 export function requestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   // Early return if no parameters or content
   if (!(parameters || requestBody?.content)) {
@@ -38,7 +38,7 @@ export function requestParameter(
 
   const params = parameters
     ? (() => {
-        const paramsObj = paramsObject(parameters, schemaStyle)
+        const paramsObj = paramsObject(parameters, schemaNameCase)
         const requestParamsArr = requestParamsArray(paramsObj)
         return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
       })()
@@ -50,7 +50,7 @@ export function requestParameter(
 
     for (const contentType of requestBodyContentTypes) {
       const { schema } = requestBody.content[contentType]
-      const zodSchema = generatePropertySchema(schema, schemaStyle, typeStyle)
+      const zodSchema = generatePropertySchema(schema, schemaNameCase, typeNameCase)
 
       uniqueSchemas.set(zodSchema, zodSchema)
     }

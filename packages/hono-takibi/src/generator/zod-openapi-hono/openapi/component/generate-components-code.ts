@@ -1,5 +1,4 @@
 import type { Components } from '../../../../openapi/index.js'
-import type { Config } from '../../../../config/index.js'
 import { generateZodToOpenAPISchemaDefinition } from '../../../zod-to-openapi/defining/generate-zod-to-openapi-schema-definition.js'
 import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
@@ -8,7 +7,10 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
  * If no schemas are present, returns an empty string.
  * @param { Components } components - OpenAPI components object containing schema definitions
- * @param { Config } config - Config
+ * @param { boolean } exportSchema - Whether to export the schema definitions
+ * @param { boolean } exportType - Whether to export the type definitions
+ * @param { 'camelCase' | 'PascalCase' } schemaNameCase - Case style for schema names (default: 'PascalCase')
+ * @param { 'camelCase' | 'PascalCase' } typeNameCase - Case style for type names (default: 'PascalCase')
  * @returns { string } Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
  *
  * 1. Extracts schemas from components
@@ -22,8 +24,8 @@ export function generateComponentsCode(
   components: Components,
   exportSchema: boolean,
   exportType: boolean,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   // 1. schema extraction
   const { schemas } = components
@@ -42,15 +44,15 @@ export function generateComponentsCode(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
-      const zodSchema = zodToOpenAPI(schema, schemaStyle, typeStyle)
+      const zodSchema = zodToOpenAPI(schema, schemaNameCase, typeNameCase)
       // 4.3 generate zod schema definition
       return generateZodToOpenAPISchemaDefinition(
         schemaName,
         zodSchema,
         exportSchema,
         exportType,
-        schemaStyle,
-        typeStyle,
+        schemaNameCase,
+        typeNameCase,
       )
     })
     .join('\n\n')

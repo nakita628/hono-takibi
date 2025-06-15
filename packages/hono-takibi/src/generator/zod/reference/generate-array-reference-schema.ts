@@ -12,7 +12,7 @@ import { array } from '../index.js'
  */
 export function generateArrayReferenceSchema(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.items?.$ref) {
     return 'z.array(z.any())'
@@ -22,7 +22,7 @@ export function generateArrayReferenceSchema(
     return 'z.array(z.any())'
   }
 
-  const variableName = getVariableSchemaName(refName, schemaStyle)
+  const variableName = getVariableSchemaName(refName, schemaNameCase)
 
   return array(variableName)
 }

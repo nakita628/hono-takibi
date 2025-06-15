@@ -11,7 +11,7 @@ import { getRefName } from '../../../core/schema/references/get-ref-name.js'
  */
 export function generateReferenceSchema(
   schema: Schema,
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.$ref) {
     return 'z.any()'
@@ -21,5 +21,5 @@ export function generateReferenceSchema(
     return 'z.any()'
   }
 
-  return getVariableSchemaName(refName, schemaStyle) || 'z.any()'
+  return getVariableSchemaName(refName, schemaNameCase) || 'z.any()'
 }

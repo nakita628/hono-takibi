@@ -16,8 +16,8 @@ type Accumulator = {
  */
 export function processAllOf(
   allOf: Schema[],
-  schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
+  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
+  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): Accumulator {
   return allOf.reduce<Accumulator>(
     (acc, subSchema) => {
@@ -25,7 +25,7 @@ export function processAllOf(
         acc.nullable = true
         return acc
       }
-      const zodSchema = generateZodSchemaFromSubSchema(subSchema, schemaStyle, typeStyle)
+      const zodSchema = generateZodSchemaFromSubSchema(subSchema, schemaNameCase, typeNameCase)
       acc.schemas.push(zodSchema)
       return acc
     },
