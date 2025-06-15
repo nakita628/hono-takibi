@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, describe, it, expect } from 'vitest'
+import { vi, beforeEach, beforeAll, afterAll, describe, it, expect } from 'vitest'
 import type { OpenAPI } from './openapi/index.js'
 import { execSync } from 'node:child_process'
 import path from 'node:path'
@@ -645,104 +645,50 @@ export const postTestRoute = createRoute({
   })
 })
 
-// Help
-// describe.concurrent('Hono Takibi Help Test', () => {
-//   it.concurrent('Hono Takibi --help', async () => {
-//     try {
-//       execSync(`node ${path.resolve('dist/index.js')} --help`, { stdio: 'pipe' })
-//     } catch (e) {
-//       if (e instanceof Error) {
-//         expect(e.message).toMatch(
-//           new RegExp(
-//             [
-//               'Usage: hono-takibi <input-file> \\[-o output-file\\]',
-//               '',
-//               'Options:',
-//               '  -o, --output <file>   Output file path',
-//               '  --naming-case-schema <case>  Naming case for schema (camelCase, PascalCase)',
-//               '  --export-schema       Export schema type',
-//               '  --naming-case-type <case>    Naming case for type (camelCase, PascalCase)',
-//               '  --export-type         Export type',
-//               '  --template            Use template',
-//               '  --test                Run tests',
-//             ].join('\\n'),
-//           ),
-//         )
-//       }
-//     }
-//   })
+describe('cli test', () => {
+  const exitSpy = vi
+    .spyOn(process, 'exit')
+    .mockImplementation(((code?: number | string | null) => undefined) as never)
 
-//   it.concurrent('Hono Takibi -h', async () => {
-//     try {
-//       execSync(`node ${path.resolve('dist/index.js')} -h`, { stdio: 'pipe' })
-//     } catch (e) {
-//       if (e instanceof Error) {
-//         expect(e.message).toMatch(
-//           new RegExp(
-//             [
-//               'Usage: hono-takibi <input-file> \\[-o output-file\\]',
-//               '',
-//               'Options:',
-//               '  -o, --output <file>   Output file path',
-//               '  --naming-case-schema <case>  Naming case for schema (camelCase, PascalCase)',
-//               '  --export-schema       Export schema type',
-//               '  --naming-case-type <case>    Naming case for type (camelCase, PascalCase)',
-//               '  --export-type         Export type',
-//               '  --template            Use template',
-//               '  --test                Run tests',
-//             ].join('\\n'),
-//           ),
-//         )
-//       }
-//     }
-//   })
-// })
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-// // Failed
-// describe.concurrent('Hono Takibi Failed Test', () => {
-//   const tmpOpenAPI = {
-//     openapi: '3.0.0',
-//   }
-//   beforeAll(() => {
-//     if (!fs.existsSync('tmp-openapi-fail')) {
-//       fs.mkdirSync('tmp-openapi-fail', { recursive: true })
-//       fs.writeFileSync('tmp-openapi-fail/test.json', JSON.stringify(tmpOpenAPI))
-//     }
-//   })
+  const flushMicrotasks = () => new Promise<void>((r) => setImmediate(r))
 
-//   afterAll(() => {
-//     if (fs.existsSync('tmp-openapi-fail/test.json')) {
-//       fs.unlinkSync('tmp-openapi-fail/test.json')
-//     }
-//     if (fs.existsSync('tmp-openapi-fail') && fs.readdirSync('tmp-openapi-fail').length === 0) {
-//       fs.rmdirSync('tmp-openapi-fail')
-//     }
-//     if (fs.existsSync('tmp-route-fail/test.ts')) {
-//       fs.unlinkSync('tmp-route-fail/test.ts')
-//     }
-//     if (fs.existsSync('tmp-route-fail') && fs.readdirSync('tmp-route-fail').length === 0) {
-//       fs.rmdirSync('tmp-route-fail')
-//     }
-//   })
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    flushMicrotasks()
+  })
+  it('logs message & exits(0) on success', async () => {
+    vi.doMock('./cli/index.js', async () => {
+      const actual = await vi.importActual<typeof import('./cli/index.js')>('./cli/index.js')
+      return {
+        ...actual,
+        honoTakibi: vi.fn(() => Promise.resolve({ ok: true, value: { message: 'OK' } } as const)),
+      }
+    })
 
-//   it.concurrent('Hono Takibi CLI Failed', async () => {
-//     const openapiPath = path.join('tmp-openapi-fail/test.json')
-//     try {
-//       execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`, {
-//         stdio: 'pipe',
-//       })
-//     } catch (e) {
-//       if (e instanceof Error) {
-//         expect(e.message).toMatch(
-//           new RegExp(
-//             [
-//               'Command failed: node .*dist/index\\.js tmp-openapi-fail/test\\.json -o tmp-route/test\\.ts',
-//               'Usage: hono-takibi <input-file> \\[-o output-file\\]',
-//               'Error processing OpenAPI document: tmp-openapi-fail/test\\.json is not a valid Openapi API definition',
-//             ].join('\\n'),
-//           ),
-//         )
-//       }
-//     }
-//   })
-// })
+    await import('./index.js')
+
+    expect(logSpy).toHaveBeenCalledWith('OK')
+    expect(exitSpy).toHaveBeenCalledWith(0)
+    expect(errorSpy).not.toHaveBeenCalled()
+  })
+
+  it('logs error & exits(1) on failure', async () => {
+    vi.doMock('./cli/index.js', async () => {
+      const actual = await vi.importActual<typeof import('./cli/index.js')>('./cli/index.js')
+      return {
+        ...actual,
+        honoTakibi: vi.fn(() => Promise.resolve({ ok: false, error: 'FAIL' } as const)),
+      }
+    })
+
+    await import('./index.js')
+
+    expect(errorSpy).toHaveBeenCalledWith('FAIL')
+    expect(exitSpy).toHaveBeenCalledWith(1)
+    expect(logSpy).not.toHaveBeenCalled()
+  })
+})
