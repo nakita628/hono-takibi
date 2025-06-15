@@ -24,5 +24,5 @@ export function generatePropertySchema(
     return generateArrayReferenceSchema(schema, schemaNameCase)
   }
 
-  return zodToOpenAPI(schema, schemaNameCase, typeNameCase)
+  return zodToOpenAPI(schema)
 }

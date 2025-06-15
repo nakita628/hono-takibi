@@ -30,7 +30,7 @@ describe('zodToOpenAPI Test', () => {
       example: 'uuid-example',
       description: 'UUID parameter',
     }
-    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'id', 'path')
+    const result = zodToOpenAPI(schema, 'id', 'path')
     const expected =
       'z.string().openapi({param:{in:"path",name:"id",required:true},example:"uuid-example",description:"UUID parameter"})'
     expect(result).toBe(expected)
@@ -43,7 +43,7 @@ describe('zodToOpenAPI Test', () => {
       description: 'Optional query parameter',
       required: false,
     }
-    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'q', 'query')
+    const result = zodToOpenAPI(schema, 'q', 'query')
     const expected =
       'z.string().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
     expect(result).toBe(expected)
@@ -51,7 +51,7 @@ describe('zodToOpenAPI Test', () => {
 
   it('should insert only param if no example or description is given', () => {
     const schema: Schema = { type: 'string', required: true }
-    const result = zodToOpenAPI(schema, 'PascalCase', 'PascalCase', 'x', 'header')
+    const result = zodToOpenAPI(schema, 'x', 'header')
     const expected = 'z.string().openapi({param:{in:"header",name:"x",required:true}})'
     expect(result).toBe(expected)
   })

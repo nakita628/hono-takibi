@@ -1,4 +1,3 @@
-import type { Config } from '../../config/index.js'
 import type { Schema } from '../../openapi/index.js'
 import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
@@ -25,11 +24,7 @@ import { zodToOpenAPI } from '../zod-to-openapi/index.js'
  * - Value type is determined by the additionalProperties schema
  * - Supports all Zod-compatible types and formats
  */
-export function record(
-  additionalProperties: Schema,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-): string {
-  const schema = zodToOpenAPI(additionalProperties, schemaNameCase, typeNameCase)
+export function record(additionalProperties: Schema): string {
+  const schema = zodToOpenAPI(additionalProperties)
   return `z.record(z.string(),${schema})`
 }
