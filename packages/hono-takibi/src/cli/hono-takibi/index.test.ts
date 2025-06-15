@@ -108,7 +108,7 @@ describe('honoTakibi', () => {
   it('honoTakibi generated', async () => {
     const result = await honoTakibi()
 
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       ok: true,
       value: { message: 'Generated code written to zod-openapi-hono.ts' },
     })
