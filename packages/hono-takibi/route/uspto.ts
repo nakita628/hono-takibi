@@ -78,13 +78,10 @@ export const postDatasetVersionRecordsRoute = createRoute({
       content: {
         'application/x-www-form-urlencoded': {
           schema: z.object({
-            criteria: z
-              .string()
-              .default('*:*')
-              .openapi({
-                description:
-                  "Uses Lucene Query Syntax in the format of propertyName:value, propertyName:[num1 TO num2] and date range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the response please see the 'docs' element which has the list of record objects. Each record structure would consist of all the fields and their corresponding values.",
-              }),
+            criteria: z.string().default('*:*').openapi({
+              description:
+                "Uses Lucene Query Syntax in the format of propertyName:value, propertyName:[num1 TO num2] and date range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the response please see the 'docs' element which has the list of record objects. Each record structure would consist of all the fields and their corresponding values.",
+            }),
             start: z
               .number()
               .int()

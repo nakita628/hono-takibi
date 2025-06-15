@@ -1,7 +1,7 @@
 import type { Config } from '../../../../../config'
 import { describe, it, expect } from 'vitest'
-import { allOf } from './all-of'
-import { Schema } from '../../../../../openapi'
+import { allOf } from '.'
+import type { Schema } from '../../../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/generate-allof-code.test.ts

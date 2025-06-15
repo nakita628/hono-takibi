@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-
 import type { Config } from '../../../../../config'
-import { Schema } from '../../../../../openapi'
+import type { Schema } from '../../../../../openapi'
 import { anyOf } from '.'
 
 // Test run

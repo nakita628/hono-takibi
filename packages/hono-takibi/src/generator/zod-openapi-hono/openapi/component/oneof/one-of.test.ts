@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { Config } from '../../../../../config'
+import type { Schema } from '../../../../../openapi'
 import { oneOf } from './one-of'
-import { Schema } from '../../../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/oneof/generate-oneof-code.test.ts

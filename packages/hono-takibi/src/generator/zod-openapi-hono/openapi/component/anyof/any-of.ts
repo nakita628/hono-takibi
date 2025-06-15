@@ -17,7 +17,9 @@ export function anyOf(schema: Schema, config: Config): string {
   }
 
   const zodSchemas = schema.anyOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema, config.schema.name) : zodToOpenAPI(config, subSchema)
+    subSchema.$ref
+      ? getRefSchemaName(subSchema, config.schema.name)
+      : zodToOpenAPI(config, subSchema)
     return zodToOpenAPI(config, subSchema)
   })
 
