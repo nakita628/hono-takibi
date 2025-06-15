@@ -14,7 +14,7 @@ export async function templateCode(
   test: boolean,
   basePath?: string,
 ): Promise<Result<void, string>> {
-  if (!(template && !output.includes('/'))) return ok(undefined)
+  if (!(template && output.includes('/'))) return ok(undefined)
   const dir = path.dirname(output)
   return await asyncAndThen(await fmt(generateApp(openAPI, output, basePath)), async (appCode) =>
     asyncAndThen(await readdir(dir), async (files) => {
