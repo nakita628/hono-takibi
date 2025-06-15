@@ -1,23 +1,23 @@
-import type { OpenAPISpec } from '../../../../openapi'
+import type { OpenAPI } from '../../../../openapi'
 import { describe, it, expect } from 'vitest'
-import { generateDocs } from './generate-docs'
+import { docs } from '.'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/docs/generate-docs.test.ts
 
 const generateDocsTestCases: {
-  openAPISpec: OpenAPISpec
+  openapi: OpenAPI
   expected: {
     openapi: string
-    info: OpenAPISpec['info']
-    servers?: OpenAPISpec['servers']
-    externalDocs: OpenAPISpec['externalDocs']
-    tags: OpenAPISpec['tags']
+    info: OpenAPI['info']
+    servers?: OpenAPI['servers']
+    externalDocs: OpenAPI['externalDocs']
+    tags: OpenAPI['tags']
   }
 }[] = [
   {
-    openAPISpec: honoRestOpenAPI,
+    openapi: honoRestOpenAPI,
     expected: {
       openapi: '3.1.0',
       info: { title: 'Hono API', version: 'v1' },
@@ -37,11 +37,11 @@ const generateDocsTestCases: {
   },
 ]
 
-describe('generateDocs', () => {
+describe('docs', () => {
   it.concurrent.each(generateDocsTestCases)(
-    'generateDocs($openAPISpec) -> $expected',
-    ({ openAPISpec, expected }) => {
-      const result = generateDocs(openAPISpec)
+    'docs($openapi) -> $expected',
+    ({ openapi, expected }) => {
+      const result = docs(openapi)
       expect(result).toEqual(expected)
     },
   )

@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { generateImportRoutes } from './generate-import-routes'
+import { importRoutes } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/app/generators/generate-import-routes.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generator/import-routes.test.ts
 
-const generateImportRoutesTestCases = [
+const importRoutesTestCases = [
   {
     importsMap: {
       'routes/pet-store.ts': [
@@ -36,10 +36,10 @@ const generateImportRoutesTestCases = [
 ]
 
 describe('generateImportRoutes', () => {
-  it.concurrent.each(generateImportRoutesTestCases)(
+  it.concurrent.each(importRoutesTestCases)(
     'generateImportRoutes($importsMap) -> $expected',
     ({ importsMap, expected }) => {
-      const result = generateImportRoutes(importsMap)
+      const result = importRoutes(importsMap)
       expect(result).toEqual(expected)
     },
   )
