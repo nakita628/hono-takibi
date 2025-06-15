@@ -1,14 +1,14 @@
 import { getCamelCaseSchemaName, getPascalCaseSchemaName } from './index.js'
-import type { Config } from '../../config/index.js'
 
 /**
  * Generates a variable schema name from a given name and config.
  * @param { string } name - The name of the schema.
- * @param { Config } config - The config of the schema.
+ * @param { 'camelCase' | 'PascalCase' } style - The style of the variable name.
  * @returns { string } The variable schema name.
  */
-export function getVariableSchemaName(name: string, config: Config): string {
-  return config.schema.name === 'camelCase'
-    ? getCamelCaseSchemaName(name)
-    : getPascalCaseSchemaName(name)
+export function getVariableSchemaName(
+  name: string,
+  style: 'camelCase' | 'PascalCase' = 'PascalCase',
+): string {
+  return style === 'camelCase' ? getCamelCaseSchemaName(name) : getPascalCaseSchemaName(name)
 }

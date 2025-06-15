@@ -18,5 +18,5 @@ export function getRefSchemaName(schema: Schema, config: Config): string {
   if (!refName) {
     throw new Error('refName is not found')
   }
-  return getVariableSchemaName(refName, config)
+  return getVariableSchemaName(refName, config.schema.name)
 }

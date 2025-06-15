@@ -28,7 +28,7 @@ export function generateZodToOpenAPISchemaDefinition(
   zodSchema: string,
   config: Config,
 ): string {
-  const variableName = getVariableSchemaName(schemaName, config)
+  const variableName = getVariableSchemaName(schemaName, config.schema.name)
   // "-" → "_"
   const safeVariableName = getToSafeIdentifier(variableName)
   // "-" → "_"
@@ -38,7 +38,7 @@ export function generateZodToOpenAPISchemaDefinition(
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
-  const typeVariableName = getVariableName(schemaName, config)
+  const typeVariableName = getVariableName(schemaName, config.type.name)
   // "-" → "_"
   const safeTypeVariableName = getToSafeIdentifier(typeVariableName)
 

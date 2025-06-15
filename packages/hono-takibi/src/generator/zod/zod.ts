@@ -191,7 +191,7 @@ export function zod(config: Config, schema: Schema): string {
   if (schema.$ref) {
     const refParts = schema.$ref.split('/')
     const refName = refParts[refParts.length - 1]
-    const schemaName = getVariableSchemaName(refName, config)
+    const schemaName = getVariableSchemaName(refName, config.schema.name)
     return schemaName
   }
 
