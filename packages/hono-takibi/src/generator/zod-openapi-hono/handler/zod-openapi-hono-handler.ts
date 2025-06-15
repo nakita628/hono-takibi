@@ -34,10 +34,7 @@ export async function zodOpenapiHonoHandler(
       const routeName = generateRouteName(method, path)
       const routeHandlerContent = handler(handlerName(method, path), routeName)
 
-      const path_name = path
-        .replace(/[\/{}-]/g, ' ')
-        .trim()
-        .split(/\s+/)[0]
+      const path_name = path.replace(/^\/+/, '').split('/')[0]
 
       const fileName = path_name.length === 0 ? 'index-handler.ts' : `${path_name}-handler.ts`
 
