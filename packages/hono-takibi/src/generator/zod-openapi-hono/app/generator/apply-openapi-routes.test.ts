@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { generateApplyOpenapiRoutes } from './generate-apply-openapi-routes'
-
+import { applyOpenapiRoutes } from '.'
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/app/generators/generate-apply-openapi-routes.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generator/apply-openapi-routes.test.ts
 
-const generateApplyOpenapiRoutesTestCases = [
+const applyOpenapiRoutesTestCases = [
   {
     routeMappings: [
       {
@@ -126,10 +125,10 @@ const generateApplyOpenapiRoutesTestCases = [
 ]
 
 describe('generateApplyOpenapiRoutes', () => {
-  it.concurrent.each(generateApplyOpenapiRoutesTestCases)(
+  it.concurrent.each(applyOpenapiRoutesTestCases)(
     'generateApplyOpenapiRoutes($routeMappings) -> $expected',
     ({ routeMappings, expected }) => {
-      const result = generateApplyOpenapiRoutes(routeMappings)
+      const result = applyOpenapiRoutes(routeMappings)
       expect(result).toBe(expected)
     },
   )

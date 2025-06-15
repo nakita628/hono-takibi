@@ -1,6 +1,6 @@
-import type { OpenAPISpec } from '../src/openapi/index.js'
+import type { OpenAPI } from '../src/openapi/index.js'
 
-export const abcdeOpenAPI: OpenAPISpec = {
+export const abcdeOpenAPI: OpenAPI = {
   openapi: '3.1.0',
   info: {
     title: 'Sample API',

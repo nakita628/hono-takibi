@@ -1,6 +1,6 @@
-import type { OpenAPISpec } from '../src/openapi/index.js'
+import type { OpenAPI } from '../src/openapi/index.js'
 
-export const petStoreOpenAPI: OpenAPISpec = {
+export const petStoreOpenAPI: OpenAPI = {
   openapi: '3.0.3',
   info: {
     title: 'Swagger Petstore - OpenAPI 3.0',

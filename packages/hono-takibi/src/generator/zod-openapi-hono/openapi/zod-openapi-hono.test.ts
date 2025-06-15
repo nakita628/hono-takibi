@@ -1,20 +1,20 @@
-import type { OpenAPISpec } from '../../../types'
 import type { Config } from '../../../config'
 import { describe, it, expect } from 'vitest'
 import { zodOpenAPIHono } from './zod-openapi-hono'
 import { abcdeOpenAPI } from '../../../../data/abcde'
+import type { OpenAPI } from '../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/zod-openapi-hono.test.ts
 
 const generateZodOpenAPIHonoTestCases: {
-  openAPISpec: OpenAPISpec
+  openapi: OpenAPI
   config: Config
   expected: string
 }[] = [
   // 1. schema: PascalCase, export: false; type: PascalCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: false },
@@ -45,7 +45,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 2. schema: PascalCase, export: true; type: PascalCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'PascalCase', export: false },
@@ -76,7 +76,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 3. schema: PascalCase, export: false; type: PascalCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'PascalCase', export: true },
@@ -107,7 +107,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 4. schema: PascalCase, export: true; type: PascalCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'PascalCase', export: true },
@@ -138,7 +138,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 5. schema: PascalCase, export: false; type: camelCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'camelCase', export: false },
@@ -169,7 +169,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 6. schema: PascalCase, export: true; type: camelCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'camelCase', export: false },
@@ -200,7 +200,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 7. schema: PascalCase, export: false; type: camelCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: false },
       type: { name: 'camelCase', export: true },
@@ -231,7 +231,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 8. schema: PascalCase, export: true; type: camelCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'PascalCase', export: true },
       type: { name: 'camelCase', export: true },
@@ -262,7 +262,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 9. schema: camelCase, export: false; type: camelCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: false },
       type: { name: 'camelCase', export: false },
@@ -293,7 +293,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 10. schema: camelCase, export: true; type: camelCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: true },
       type: { name: 'camelCase', export: false },
@@ -324,7 +324,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 11. schema: camelCase, export: false; type: camelCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: false },
       type: { name: 'camelCase', export: true },
@@ -355,7 +355,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 12. schema: camelCase, export: true; type: camelCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: true },
       type: { name: 'camelCase', export: true },
@@ -386,7 +386,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 13. schema: camelCase, export: false; type: PascalCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: false },
       type: { name: 'PascalCase', export: false },
@@ -417,7 +417,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 14. schema: camelCase, export: true; type: PascalCase, export: false
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: true },
       type: { name: 'PascalCase', export: false },
@@ -448,7 +448,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 15. schema: camelCase, export: false; type: PascalCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: false },
       type: { name: 'PascalCase', export: true },
@@ -479,7 +479,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
   // 16. schema: camelCase, export: true; type: PascalCase, export: true
   {
-    openAPISpec: abcdeOpenAPI,
+    openapi: abcdeOpenAPI,
     config: {
       schema: { name: 'camelCase', export: true },
       type: { name: 'PascalCase', export: true },
@@ -510,11 +510,11 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   },
 ]
 
-describe('generateZodOpenAPIHono', () => {
+describe('zodOpenAPIHono', () => {
   it.concurrent.each(generateZodOpenAPIHonoTestCases)(
-    'generateZodOpenAPIHono($openAPISpec, $config) -> $expected',
-    async ({ openAPISpec, config, expected }) => {
-      const result = zodOpenAPIHono(openAPISpec, config)
+    'zodOpenAPIHono($openapi, $config) -> $expected',
+    async ({ openapi, config, expected }) => {
+      const result = zodOpenAPIHono(openapi, config)
       expect(result).toBe(expected)
     },
   )
