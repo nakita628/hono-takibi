@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { generateOneOfCode } from './generate-oneof-code'
-import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
+import type { Schema } from '../../../../../openapi'
+import { oneOf } from './one-of'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/oneof/generate-oneof-code.test.ts
 
-const generateAnyOfCodeTestCases: {
+const oneOfTestCases: {
   schema: Schema
   config: Config
   expected: string
@@ -36,11 +36,11 @@ const generateAnyOfCodeTestCases: {
   },
 ]
 
-describe('generateAnyOfCode', () => {
-  it.concurrent.each(generateAnyOfCodeTestCases)(
-    'generateAnyOfCode($args.schema, $args.config) -> $expected',
+describe('oneOf', () => {
+  it.concurrent.each(oneOfTestCases)(
+    'oneOf($args.schema, $args.config) -> $expected',
     async ({ schema, config, expected }) => {
-      const result = generateOneOfCode(schema, config)
+      const result = oneOf(schema, config)
       expect(result).toBe(expected)
     },
   )

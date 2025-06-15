@@ -29,7 +29,7 @@
     }
   },
   "scripts": {
-    "takibis": "pnpm build && tsx index.ts",
+    "takibis": "pnpm build && tsx exec.ts",
     "dev": "vite --host",
     "deps": "rm -rf node_modules && pnpm install",
     "build": "rm -rf ./dist/* && tsc",

@@ -78,8 +78,22 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
+      page: z.string().pipe(
+        z.coerce
+          .number()
+          .int()
+          .min(0)
+          .default(1)
+          .openapi({ param: { in: 'query', name: 'page', required: false }, example: 1 }),
+      ),
+      rows: z.string().pipe(
+        z.coerce
+          .number()
+          .int()
+          .min(0)
+          .default(10)
+          .openapi({ param: { in: 'query', name: 'rows', required: false }, example: 10 }),
+      ),
     }),
   },
   responses: {
@@ -123,7 +137,7 @@ export const putPostsIdRoute = createRoute({
       id: z
         .string()
         .uuid()
-        .openapi({ param: { in: 'path', name: 'id' } }),
+        .openapi({ param: { in: 'path', name: 'id', required: true } }),
     }),
   },
   responses: {
@@ -151,7 +165,7 @@ export const deletePostsIdRoute = createRoute({
         .string()
         .uuid()
         .openapi({
-          param: { in: 'path', name: 'id' },
+          param: { in: 'path', name: 'id', required: true },
           example: '123e4567-e89b-12d3-a456-426614174000',
         }),
     }),

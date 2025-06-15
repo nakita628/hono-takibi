@@ -19,7 +19,7 @@ export function generateArrayReferenceSchema(schema: Schema, config: Config): st
     return 'z.array(z.any())'
   }
 
-  const variableName = getVariableSchemaName(refName, config)
+  const variableName = getVariableSchemaName(refName, config.schema.name)
 
   return array(variableName)
 }

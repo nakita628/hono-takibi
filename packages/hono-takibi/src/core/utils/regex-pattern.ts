@@ -5,6 +5,5 @@
  */
 export function regexPattern(pattern: string): string {
   const escapedPattern = pattern.replace(/(?<!\\)\//g, '\\/')
-  const res = `/${escapedPattern}/`
-  return res
+  return `/${escapedPattern}/`
 }

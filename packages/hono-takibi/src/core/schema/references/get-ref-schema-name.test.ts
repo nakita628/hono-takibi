@@ -4,40 +4,14 @@ import { getRefSchemaName } from './get-ref-schema-name'
 // Test run
 // pnpm vitest run ./src/core/schema/references/get-ref-schema-name.test.ts
 
-describe('getRefSchemaName Test', () => {
+describe('getRefSchemaName', () => {
   it.concurrent('getRefSchemaName #/components/schemas/Test -> Test', () => {
-    const result = getRefSchemaName(
-      { $ref: '#/components/schemas/Test' },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
-    )
+    const result = getRefSchemaName({ $ref: '#/components/schemas/Test' }, 'PascalCase')
 
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
   it.concurrent('should throw error when $ref is empty', () => {
-    expect(() =>
-      getRefSchemaName(
-        { $ref: '' },
-        {
-          schema: {
-            name: 'PascalCase',
-            export: false,
-          },
-          type: {
-            name: 'PascalCase',
-            export: false,
-          },
-        },
-      ),
-    ).toThrow('refName is not found')
+    expect(() => getRefSchemaName({ $ref: '' }, 'PascalCase')).toThrow('refName is not found')
   })
 })

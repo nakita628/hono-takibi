@@ -36,9 +36,15 @@ export const getSearchRoute = createRoute({
   summary: 'Search with complex query',
   request: {
     query: z.object({
-      q: z.string(),
-      filter: z.union([z.string(), z.array(z.string())]).optional(),
-      exclude: z.unknown().optional(),
+      q: z.string().openapi({ param: { in: 'query', name: 'q', required: false } }),
+      filter: z
+        .union([z.string(), z.array(z.string())])
+        .openapi({ param: { in: 'query', name: 'filter', required: false } })
+        .optional(),
+      exclude: z
+        .unknown()
+        .openapi({ param: { in: 'query', name: 'exclude', required: false } })
+        .optional(),
     }),
   },
   responses: { 200: { description: 'OK' } },

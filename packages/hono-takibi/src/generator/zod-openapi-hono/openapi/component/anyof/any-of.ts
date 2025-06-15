@@ -5,19 +5,21 @@ import { union } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
- * Generates the Zod code for a `oneOf` schema.
+ * Generates the Zod code for an `anyOf` schema.
  * @param { Schema } schema - The OpenAPI schema object.
  * @param { Config } config - The configuration object.
  * @returns { string } The generated Zod code as a string.
  */
-export function generateOneOfCode(schema: Schema, config: Config): string {
-  if (!schema.oneOf || schema.oneOf.length === 0) {
-    console.warn('not exists oneOf')
+export function anyOf(schema: Schema, config: Config): string {
+  if (!schema.anyOf || schema.anyOf.length === 0) {
+    console.warn('not exists anyOf')
     return 'z.any()'
   }
 
-  const zodSchemas = schema.oneOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema, config) : zodToOpenAPI(config, subSchema)
+  const zodSchemas = schema.anyOf.map((subSchema) => {
+    subSchema.$ref
+      ? getRefSchemaName(subSchema, config.schema.name)
+      : zodToOpenAPI(config, subSchema)
     return zodToOpenAPI(config, subSchema)
   })
 

@@ -3,7 +3,7 @@
  * @param { string } text - The text to escape
  * @returns { string } The escaped text
  */
-export function escapeStr(text: string): string {
+export function escapeStringLiteral(text: string): string {
   return (
     text
       // Basic text cleaning

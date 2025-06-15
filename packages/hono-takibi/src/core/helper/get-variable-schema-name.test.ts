@@ -4,65 +4,17 @@ import { getVariableSchemaName } from '.'
 // Test run
 // pnpm vitest run ./src/core/helper/get-variable-schema-name.test.ts
 
-describe('getVariableSchemaName Test', () => {
-  it.concurrent('getVariableSchemaName test -> TestSchema', () => {
-    const result = getVariableSchemaName('test', {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    })
-
-    const expected = 'TestSchema'
-    expect(result).toBe(expected)
+describe('getVariableSchemaName', () => {
+  it.concurrent(`getVariableSchemaName('test', 'PascalCase') -> 'TestSchema'`, () => {
+    expect(getVariableSchemaName('test', 'PascalCase')).toBe('TestSchema')
   })
-  it.concurrent('getVariableSchemaName test -> testSchema', () => {
-    const result = getVariableSchemaName('test', {
-      schema: {
-        name: 'camelCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    })
-
-    const expected = 'testSchema'
-    expect(result).toBe(expected)
+  it.concurrent(`getVariableSchemaName('test', 'camelCase') -> testSchema`, () => {
+    expect(getVariableSchemaName('test', 'camelCase')).toBe('testSchema')
   })
-  it.concurrent('getVariableSchemaName Test -> TestSchema', () => {
-    const result = getVariableSchemaName('Test', {
-      schema: {
-        name: 'PascalCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    })
-
-    const expected = 'TestSchema'
-    expect(result).toBe(expected)
+  it.concurrent(`getVariableSchemaName('Test', 'PascalCase') -> 'TestSchema'`, () => {
+    expect(getVariableSchemaName('Test', 'PascalCase')).toBe('TestSchema')
   })
-  it.concurrent('getVariableSchemaName Test -> testSchema', () => {
-    const result = getVariableSchemaName('Test', {
-      schema: {
-        name: 'camelCase',
-        export: false,
-      },
-      type: {
-        name: 'PascalCase',
-        export: false,
-      },
-    })
-
-    const expected = 'testSchema'
-    expect(result).toBe(expected)
+  it.concurrent(`getVariableSchemaName('Test', 'camelCase') -> 'testSchema`, () => {
+    expect(getVariableSchemaName('Test', 'camelCase')).toBe('testSchema')
   })
 })

@@ -46,8 +46,8 @@ export const getDatasetVersionFieldsRoute = createRoute({
     "This GET API returns the list of all the searchable field names that are in the oa_citations. Please see the 'fields' attribute which returns an array of field names. Each field or a combination of fields can be searched using the syntax options shown below.",
   request: {
     params: z.object({
-      dataset: z.string().openapi({ param: { in: 'path', name: 'dataset' } }),
-      version: z.string().openapi({ param: { in: 'path', name: 'version' } }),
+      dataset: z.string().openapi({ param: { in: 'path', name: 'dataset', required: true } }),
+      version: z.string().openapi({ param: { in: 'path', name: 'version', required: true } }),
     }),
   },
   responses: {
@@ -104,11 +104,11 @@ export const postDatasetVersionRecordsRoute = createRoute({
       version: z
         .string()
         .default('v1')
-        .openapi({ param: { in: 'path', name: 'version' } }),
+        .openapi({ param: { in: 'path', name: 'version', required: true } }),
       dataset: z
         .string()
         .default('oa_citations')
-        .openapi({ param: { in: 'path', name: 'dataset' } }),
+        .openapi({ param: { in: 'path', name: 'dataset', required: true } }),
     }),
   },
   responses: {

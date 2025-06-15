@@ -1,8 +1,8 @@
 import type { Responses } from '../../../../../openapi/index.js'
 import type { Config } from '../../../../../config/index.js'
-import { escapeStr } from '../../../../../core/text/index.js'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema.js'
 import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
+import { escapeStringLiteral } from '../../../../../core/utils/index.js'
 
 /**
  * Generates a response schema for different status codes
@@ -30,7 +30,7 @@ export function generateResponseSchema(responses: Responses, config: Config): st
     const response = responses[code]
     // 2.1 no content (description only response)
     if (!response.content)
-      return `${code}:{description:'${escapeStr(response.description ?? '')}',},`
+      return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',},`
     // check duplication
     const contentTypes = Object.keys(response.content)
     const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
@@ -43,7 +43,7 @@ export function generateResponseSchema(responses: Responses, config: Config): st
         const zodSchema = generatePropertySchema(content.schema, config)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
-      return `${code}:{description:'${escapeStr(response.description ?? '')}',content:{${contentParts.join(',')}},},`
+      return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`
     }
   })
   // 3.combine all response definitions

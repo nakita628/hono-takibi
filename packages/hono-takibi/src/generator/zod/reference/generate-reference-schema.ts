@@ -18,5 +18,5 @@ export function generateReferenceSchema(schema: Schema, config: Config): string 
     return 'z.any()'
   }
 
-  return getVariableSchemaName(refName, config) || 'z.any()'
+  return getVariableSchemaName(refName, config.schema.name) || 'z.any()'
 }

@@ -5,10 +5,10 @@ import { getVariableSchemaName } from '../../core/helper/index.js'
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
-import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
-import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
-import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
-import { generateNotCode } from '../zod-openapi-hono/openapi/component/not/generate-not-code.js'
+import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
+import { anyOf } from '../zod-openapi-hono/openapi/component/anyof/index.js'
+import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
+import { not } from '../zod-openapi-hono/openapi/component/not/index.js'
 import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
@@ -170,28 +170,28 @@ export function zod(config: Config, schema: Schema): string {
 
   // oneOf
   if (schema.oneOf) {
-    return generateOneOfCode(schema, config)
+    return oneOf(schema, config)
   }
 
   // anyOf
   if (schema.anyOf) {
-    return generateAnyOfCode(schema, config)
+    return anyOf(schema, config)
   }
 
   // allOf
   if (schema.allOf) {
-    return generateAllOfCode(schema, config)
+    return allOf(schema, config)
   }
 
   // not
   if (schema.not) {
-    return generateNotCode(schema)
+    return not(schema)
   }
 
   if (schema.$ref) {
     const refParts = schema.$ref.split('/')
     const refName = refParts[refParts.length - 1]
-    const schemaName = getVariableSchemaName(refName, config)
+    const schemaName = getVariableSchemaName(refName, config.schema.name)
     return schemaName
   }
 

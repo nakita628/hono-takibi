@@ -27,8 +27,8 @@ export const postAuthLoginRoute = createRoute({
           schema: z
             .object({
               token: z.string().openapi({
-                description: 'JWT token',
                 example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                description: 'JWT token',
               }),
             })
             .partial(),

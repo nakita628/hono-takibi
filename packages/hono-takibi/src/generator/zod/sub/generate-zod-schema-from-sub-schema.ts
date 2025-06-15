@@ -10,5 +10,5 @@ import { zod } from '../index.js'
  * @returns { string } The generated Zod schema as a string.
  */
 export function generateZodSchemaFromSubSchema(subSchema: Schema, config: Config): string {
-  return subSchema.$ref ? getRefSchemaName(subSchema, config) : zod(config, subSchema)
+  return subSchema.$ref ? getRefSchemaName(subSchema, config.schema.name) : zod(config, subSchema)
 }

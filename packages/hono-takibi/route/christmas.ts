@@ -3,16 +3,16 @@ import { createRoute, z } from '@hono/zod-openapi'
 const SantaStatusSchema = z
   .object({
     location: z.string().openapi({
-      description: 'Current location of Santa (e.g., "North Pole", "En route to Chicago").',
       example: 'En route to Chicago',
+      description: 'Current location of Santa (e.g., "North Pole", "En route to Chicago").',
     }),
     status: z.string().openapi({
-      description: 'Current status (e.g., "delivering", "resting", "in transit").',
       example: 'delivering',
+      description: 'Current status (e.g., "delivering", "resting", "in transit").',
     }),
     lastUpdate: z.string().datetime().openapi({
-      description: 'Timestamp of the last status update.',
       example: '2025-12-24T22:00:00Z',
+      description: 'Timestamp of the last status update.',
     }),
   })
   .openapi('SantaStatus')
@@ -21,50 +21,50 @@ const DeliverySchema = z
   .object({
     id: z
       .string()
-      .openapi({ description: 'Unique identifier for the delivery.', example: 'delivery-001' }),
-    recipient: z.string().openapi({ description: 'Name of the recipient.', example: 'John Doe' }),
+      .openapi({ example: 'delivery-001', description: 'Unique identifier for the delivery.' }),
+    recipient: z.string().openapi({ example: 'John Doe', description: 'Name of the recipient.' }),
     address: z
       .string()
-      .openapi({ description: 'Delivery address.', example: '123 Candy Cane Lane, North Pole' }),
+      .openapi({ example: '123 Candy Cane Lane, North Pole', description: 'Delivery address.' }),
     present: z
       .string()
-      .openapi({ description: 'Description of the Christmas present.', example: 'Toy Train Set' }),
+      .openapi({ example: 'Toy Train Set', description: 'Description of the Christmas present.' }),
     status: z.string().openapi({
-      description: 'Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").',
       example: 'scheduled',
+      description: 'Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").',
     }),
     scheduledTime: z.string().datetime().openapi({
-      description: 'Scheduled time for the delivery.',
       example: '2025-12-25T08:00:00Z',
+      description: 'Scheduled time for the delivery.',
     }),
   })
   .openapi('Delivery')
 
 const DeliveryRequestSchema = z
   .object({
-    recipient: z.string().openapi({ description: 'Name of the recipient.', example: 'John Doe' }),
+    recipient: z.string().openapi({ example: 'John Doe', description: 'Name of the recipient.' }),
     address: z
       .string()
-      .openapi({ description: 'Delivery address.', example: '123 Candy Cane Lane, North Pole' }),
+      .openapi({ example: '123 Candy Cane Lane, North Pole', description: 'Delivery address.' }),
     present: z
       .string()
-      .openapi({ description: 'Description of the Christmas present.', example: 'Toy Train Set' }),
+      .openapi({ example: 'Toy Train Set', description: 'Description of the Christmas present.' }),
     scheduledTime: z
       .string()
       .datetime()
-      .openapi({ description: 'Requested delivery time.', example: '2025-12-25T08:00:00Z' }),
+      .openapi({ example: '2025-12-25T08:00:00Z', description: 'Requested delivery time.' }),
   })
   .openapi('DeliveryRequest')
 
 const DeliveryUpdateSchema = z
   .object({
     address: z.string().openapi({
-      description: 'Updated delivery address.',
       example: '456 Reindeer Road, North Pole',
+      description: 'Updated delivery address.',
     }),
     scheduledTime: z.string().datetime().openapi({
-      description: 'Updated scheduled delivery time.',
       example: '2025-12-25T09:00:00Z',
+      description: 'Updated scheduled delivery time.',
     }),
   })
   .openapi('DeliveryUpdate')
@@ -118,7 +118,7 @@ export const getSantaDeliveriesDeliveryIdRoute = createRoute({
   description: 'Retrieve detailed information about a specific delivery using its ID.',
   request: {
     params: z.object({
-      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId' } }),
+      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId', required: true } }),
     }),
   },
   responses: {
@@ -138,7 +138,7 @@ export const putSantaDeliveriesDeliveryIdRoute = createRoute({
   request: {
     body: { required: true, content: { 'application/json': { schema: DeliveryUpdateSchema } } },
     params: z.object({
-      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId' } }),
+      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId', required: true } }),
     }),
   },
   responses: {
@@ -157,7 +157,7 @@ export const deleteSantaDeliveriesDeliveryIdRoute = createRoute({
   description: 'Cancel an existing delivery request.',
   request: {
     params: z.object({
-      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId' } }),
+      deliveryId: z.string().openapi({ param: { in: 'path', name: 'deliveryId', required: true } }),
     }),
   },
   responses: {

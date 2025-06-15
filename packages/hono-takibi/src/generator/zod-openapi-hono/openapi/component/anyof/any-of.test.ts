@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { generateAnyOfCode } from './generate-anyof-code'
-import type { Schema } from '../../../../../types'
+
 import type { Config } from '../../../../../config'
+import type { Schema } from '../../../../../openapi'
+import { anyOf } from '.'
 
 // Test run
 // pnpm vitet run ./src/generator/zod-openapi-hono/openapi/component/anyof/generate-anyof-code.test.ts
@@ -41,7 +42,7 @@ describe('generateAnyOfCode', () => {
   it.concurrent.each(generateAnyOfCodeTestCases)(
     'generateAnyOfCode($args.schema, $args.config) -> $expected',
     async ({ schema, config, expected }) => {
-      const result = generateAnyOfCode(schema, config)
+      const result = anyOf(schema, config)
       expect(result).toBe(expected)
     },
   )
