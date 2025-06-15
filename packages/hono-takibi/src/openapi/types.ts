@@ -11,7 +11,7 @@ type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
 export type OpenAPI = BaseOpenAPI & {
   openapi?: string
   servers?: string | { url: string }[]
-  components: Components
+  components?: Components
 } & {
   paths: OpenAPIPaths
 }
