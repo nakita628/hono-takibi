@@ -9,7 +9,7 @@ import { intersection } from '../../../../zod/index.js'
  * @param { Config } config - The configuration object.
  * @returns { string } The generated Zod schema as a string.
  */
-export function generateAllOfCode(schema: Schema, config: Config): string {
+export function allOf(schema: Schema, config: Config): string {
   if (!schema.allOf || schema.allOf.length === 0) {
     console.warn('not exists allOf')
     return 'z.any()'

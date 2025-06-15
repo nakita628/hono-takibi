@@ -1,7 +1,7 @@
-import type { Schema } from '../../../../../types'
 import type { Config } from '../../../../../config'
 import { describe, it, expect } from 'vitest'
-import { generateAllOfCode } from '../allof/generate-allof-code'
+import { allOf } from './all-of'
+import { Schema } from '../../../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/generate-allof-code.test.ts
@@ -114,11 +114,11 @@ const generateAnyOfCodeTestCases: {
   },
 ]
 
-describe('generateAnyOfCode', () => {
+describe('allOf', () => {
   it.concurrent.each(generateAnyOfCodeTestCases)(
-    'generateAnyOfCode($args.schema, $args.config) -> $expected',
+    'allOf($args.schema, $args.config) -> $expected',
     async ({ schema, config, expected }) => {
-      const result = generateAllOfCode(schema, config)
+      const result = allOf(schema, config)
       expect(result).toBe(expected)
     },
   )

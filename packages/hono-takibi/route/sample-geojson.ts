@@ -197,7 +197,11 @@ export const getProjectsRoute = createRoute({
   path: '/projects',
   summary: 'Get projects related to a given chiban',
   description: 'Get projects related to a given chiban',
-  request: { query: z.object({ chiban: z.string() }) },
+  request: {
+    query: z.object({
+      chiban: z.string().openapi({ param: { in: 'query', name: 'chiban', required: false } }),
+    }),
+  },
   responses: {
     200: {
       description: 'If successful, returns a list of project information',

@@ -10,14 +10,16 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  * @param { Config } config - The configuration object.
  * @returns { string } The generated Zod code as a string.
  */
-export function generateOneOfCode(schema: Schema, config: Config): string {
+export function oneOf(schema: Schema, config: Config): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
     console.warn('not exists oneOf')
     return 'z.any()'
   }
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema, config) : zodToOpenAPI(config, subSchema)
+    subSchema.$ref
+      ? getRefSchemaName(subSchema, config.schema.name)
+      : zodToOpenAPI(config, subSchema)
     return zodToOpenAPI(config, subSchema)
   })
 

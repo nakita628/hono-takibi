@@ -197,7 +197,11 @@ export const getProjectsRoute = createRoute({
   path: '/projects',
   summary: 'Get the site associated with a given lot number',
   description: 'Update the content of an existing post identified by its unique ID.',
-  request: { query: z.object({ chiban: z.string() }) },
+  request: {
+    query: z.object({
+      chiban: z.string().openapi({ param: { in: 'query', name: 'chiban', required: false } }),
+    }),
+  },
   responses: {
     200: {
       description: 'Success, return list of projects',

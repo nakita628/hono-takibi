@@ -5,7 +5,7 @@ import type { Schema } from '../../../../../openapi/index.js'
  * @param { Schema } schema - The OpenAPI schema object.
  * @returns { string } The generated Zod code as a string.
  */
-export function generateNotCode(schema: Schema): string {
+export function not(schema: Schema): string {
   if (!schema.not) {
     console.warn('not exists not')
     return 'z.any()'

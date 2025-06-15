@@ -1,9 +1,9 @@
 import type { Schema } from '../../openapi/index.js'
 import type { Config } from '../../config/index.js'
 import { record, passthrough } from './index.js'
-import { generateAllOfCode } from '../zod-openapi-hono/openapi/component/allof/generate-allof-code.js'
-import { generateOneOfCode } from '../zod-openapi-hono/openapi/component/oneof/generate-oneof-code.js'
-import { generateAnyOfCode } from '../zod-openapi-hono/openapi/component/anyof/generate-anyof-code.js'
+import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
+import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
+import { anyOf } from '../zod-openapi-hono/openapi/component/anyof/any-of.js'
 import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema.js'
 /**
  * Generate Zod object schema
@@ -27,13 +27,13 @@ export function object(schema: Schema, config: Config): string {
     return record(schema.additionalProperties, config)
   }
   if (schema.allOf) {
-    return generateAllOfCode(schema, config)
+    return allOf(schema, config)
   }
   if (schema.oneOf) {
-    return generateOneOfCode(schema, config)
+    return oneOf(schema, config)
   }
   if (schema.anyOf) {
-    return generateAnyOfCode(schema, config)
+    return anyOf(schema, config)
   }
   if (!schema.properties) {
     return 'z.object({})'

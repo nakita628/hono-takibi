@@ -6,20 +6,12 @@ import { getRefSchemaName } from './get-ref-schema-name'
 
 describe('getRefSchemaName', () => {
   it.concurrent('getRefSchemaName #/components/schemas/Test -> Test', () => {
-    const result = getRefSchemaName(
-      { $ref: '#/components/schemas/Test' },
-      'PascalCase',
-    )
+    const result = getRefSchemaName({ $ref: '#/components/schemas/Test' }, 'PascalCase')
 
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
   it.concurrent('should throw error when $ref is empty', () => {
-    expect(() =>
-      getRefSchemaName(
-        { $ref: '' },
-        'PascalCase',
-      ),
-    ).toThrow('refName is not found')
+    expect(() => getRefSchemaName({ $ref: '' }, 'PascalCase')).toThrow('refName is not found')
   })
 })
