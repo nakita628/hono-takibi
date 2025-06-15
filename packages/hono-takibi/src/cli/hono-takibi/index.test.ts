@@ -1,10 +1,10 @@
 import { beforeAll, afterAll, describe, it, expect } from 'vitest'
-import { takibi } from './takibi.js'
+import { honoTakibi } from '.'
 import type { OpenAPI } from '../../openapi/index.js'
 import fs from 'node:fs'
 
 // Test run
-// pnpm vitest run ./src/cli/hono-takibi/takibi.test.ts
+// pnpm vitest run ./src/cli/hono-takibi/index.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',
@@ -95,27 +95,18 @@ const openapi: OpenAPI = {
   },
 }
 
-describe('takibi generate', () => {
+describe('honoTakibi', () => {
   beforeAll(() => {
+    process.argv = ['*/*/bin/node', '*/dist/index.js', 'openapi.yaml', '-o', 'zod-openapi-hono.ts']
     fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
   })
-
   afterAll(() => {
     fs.rmSync('openapi.yaml', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
   })
 
-  it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi(
-      {
-        schema: { name: 'PascalCase', export: true },
-        type: { name: 'PascalCase', export: true },
-        input: 'openapi.yaml',
-        output: 'zod-openapi-hono.ts',
-      },
-      false,
-      false,
-    )
+  it('honoTakibi generated', async () => {
+    const result = await honoTakibi()
 
     expect(result).toStrictEqual({
       ok: true,
@@ -183,33 +174,80 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 })
 
-describe('takibi generate', () => {
+describe('honoTakibi --help', () => {
   beforeAll(() => {
-    if (!fs.existsSync('openapi.yaml')) {
-      fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
-    }
+    process.argv = ['*/*/bin/node', '*/dist/index.js', '--help']
   })
 
-  afterAll(() => {
-    fs.rmSync('openapi.yaml', { force: true })
-    fs.rmSync('zod-openapi-hono.ts', { force: true })
-  })
-
-  it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi(
-      {
-        schema: { name: 'PascalCase', export: true },
-        type: { name: 'PascalCase', export: true },
-        input: 'openapi.yaml',
-        output: 'zod-openapi-hono.ts',
-      },
-      true,
-      true,
-    )
-
+  it('honoTakibi help requested --help', async () => {
+    const result = await honoTakibi()
     expect(result).toStrictEqual({
       ok: true,
-      value: { message: 'Generated code and template files written' },
+      value: {
+        message:
+          'Usage:\n' +
+          '  hono-takibi <input.yaml|json> -o <routes.ts> [options]\n' +
+          '\n' +
+          'Options:\n' +
+          '  --export-type               Export generated type aliases\n' +
+          '\n' +
+          '  --export-schema             Export generated schema objects\n' +
+          '\n' +
+          '  --naming-case-type <PascalCase|camelCase>\n' +
+          '                              Casing for generated *type aliases*\n' +
+          '                              (default: PascalCase)\n' +
+          '\n' +
+          '  --naming-case-schema <PascalCase|camelCase>\n' +
+          '                              Casing for generated *schema objects*\n' +
+          '                              (default: PascalCase)\n' +
+          '\n' +
+          '  --template                  Generate an app file and handler stubs\n' +
+          '\n' +
+          '  --test                      Generate empty *.test.ts files for handlers\n' +
+          '\n' +
+          '  --base-path <path>          API prefix (e.g. /api)\n' +
+          '  \n' +
+          '  --help                      Show this help and exit\n',
+      },
+    })
+  })
+})
+
+describe('honoTakibi -h', () => {
+  beforeAll(() => {
+    process.argv = ['*/*/bin/node', '*/dist/index.js', '-h']
+  })
+
+  it('honoTakibi help requested -h', async () => {
+    const result = await honoTakibi()
+    expect(result).toStrictEqual({
+      ok: true,
+      value: {
+        message:
+          'Usage:\n' +
+          '  hono-takibi <input.yaml|json> -o <routes.ts> [options]\n' +
+          '\n' +
+          'Options:\n' +
+          '  --export-type               Export generated type aliases\n' +
+          '\n' +
+          '  --export-schema             Export generated schema objects\n' +
+          '\n' +
+          '  --naming-case-type <PascalCase|camelCase>\n' +
+          '                              Casing for generated *type aliases*\n' +
+          '                              (default: PascalCase)\n' +
+          '\n' +
+          '  --naming-case-schema <PascalCase|camelCase>\n' +
+          '                              Casing for generated *schema objects*\n' +
+          '                              (default: PascalCase)\n' +
+          '\n' +
+          '  --template                  Generate an app file and handler stubs\n' +
+          '\n' +
+          '  --test                      Generate empty *.test.ts files for handlers\n' +
+          '\n' +
+          '  --base-path <path>          API prefix (e.g. /api)\n' +
+          '  \n' +
+          '  --help                      Show this help and exit\n',
+      },
     })
   })
 })
