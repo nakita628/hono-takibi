@@ -1,4 +1,4 @@
-import { capitalize, decapitalize } from '../text/index.js'
+import { capitalize, decapitalize } from '../utils/index.js'
 
 /**
  * Generates a variable name from a given name and config.

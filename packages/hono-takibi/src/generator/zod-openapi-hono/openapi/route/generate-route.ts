@@ -4,7 +4,7 @@ import { requestParameter } from './params/index.js'
 import { generateCreateRoute } from './generate-create-route.js'
 import { generateResponseSchema } from './response/generate-response-schema.js'
 import { generateRouteName } from './generate-route-name.js'
-import { escapeStr } from '../../../../core/text/index.js'
+import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
  * @param { string } path - The URL path pattern for the route
@@ -44,8 +44,8 @@ export function generateRoute(
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,
     operationIdCode: operationId ? `operationId:'${operationId}',` : '',
-    summaryCode: summary ? `summary:'${escapeStr(summary)}',` : '',
-    descriptionCode: description ? `description:'${escapeStr(description)}',` : '',
+    summaryCode: summary ? `summary:'${escapeStringLiteral(summary)}',` : '',
+    descriptionCode: description ? `description:'${escapeStringLiteral(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
     responsesCode: responses ? `responses:{${generateResponseSchema(responses, config)}}` : '',

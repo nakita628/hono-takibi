@@ -1,9 +1,6 @@
 import type { Config } from '../../../config/index.js'
-import {
-  getVariableSchemaName,
-  getVariableName,
-  getToSafeIdentifier,
-} from '../../../core/helper/index.js'
+import { getVariableSchemaName, getVariableName } from '../../../core/helper/index.js'
+import { sanitizeIdentifier } from '../../../core/utils/index.js'
 import { infer } from '../../zod/index.js'
 
 /**
@@ -29,18 +26,15 @@ export function generateZodToOpenAPISchemaDefinition(
   config: Config,
 ): string {
   const variableName = getVariableSchemaName(schemaName, config.schema.name)
-  // "-" → "_"
-  const safeVariableName = getToSafeIdentifier(variableName)
-  // "-" → "_"
-  const safeSchemaName = getToSafeIdentifier(schemaName)
+  const safeVariableName = sanitizeIdentifier(variableName)
+  const safeSchemaName = sanitizeIdentifier(schemaName)
   // schema code
   const schemaCode = config.schema.export
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
   const typeVariableName = getVariableName(schemaName, config.type.name)
-  // "-" → "_"
-  const safeTypeVariableName = getToSafeIdentifier(typeVariableName)
+  const safeTypeVariableName = sanitizeIdentifier(typeVariableName)
 
   const zodInferCode = config.type.export ? infer(safeTypeVariableName, safeVariableName) : ''
   // return code
