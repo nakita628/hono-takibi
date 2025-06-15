@@ -20,10 +20,10 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  */
 export function generateComponentsCode(
   components: Components,
+  schemaExport: boolean,
+  typeExport: boolean,
   schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
   typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  schemaExport: boolean = true,
-  typeExport: boolean = true,
 ): string {
   // 1. schema extraction
   const { schemas } = components
@@ -47,10 +47,10 @@ export function generateComponentsCode(
       return generateZodToOpenAPISchemaDefinition(
         schemaName,
         zodSchema,
-        schemaStyle,
-        typeStyle,
         schemaExport,
         typeExport,
+        schemaStyle,
+        typeStyle,
       )
     })
     .join('\n\n')

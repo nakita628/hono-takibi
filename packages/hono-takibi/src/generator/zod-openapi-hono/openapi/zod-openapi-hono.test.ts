@@ -1,4 +1,3 @@
-import type { Config } from '../../../config'
 import { describe, it, expect } from 'vitest'
 import { zodOpenAPIHono } from './zod-openapi-hono'
 import type { OpenAPI } from '../../../openapi'
@@ -6,7 +5,7 @@ import type { OpenAPI } from '../../../openapi'
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/zod-openapi-hono.test.ts
 
-export const abcdeOpenAPI: OpenAPI = {
+const abcdeOpenAPI: OpenAPI = {
   openapi: '3.1.0',
   info: {
     title: 'Sample API',
@@ -90,7 +89,7 @@ export const abcdeOpenAPI: OpenAPI = {
 describe('zodOpenAPIHono', () => {
   // 1. schema: PascalCase, export: false; type: PascalCase, export: false
   it.concurrent('zodOpenAPIHono PascalCase PascalCase false false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'PascalCase', false, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, false, 'PascalCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -117,7 +116,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // 2. schema: PascalCase, export: true; type: PascalCase, export: false
   it.concurrent('zodOpenAPIHono PascalCase PascalCase true false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'PascalCase', true, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, false, 'PascalCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -146,7 +145,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 3. schema: PascalCase, export: false; type: PascalCase, export: true
   it.concurrent('zodOpenAPIHono PascalCase PascalCase false true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'PascalCase', false, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, true, 'PascalCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -174,7 +173,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // 4. schema: PascalCase, export: true; type: PascalCase, export: true
   it.concurrent('zodOpenAPIHono PascalCase PascalCase true true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'PascalCase', true, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, true, 'PascalCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -201,7 +200,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // 5. schema: PascalCase, export: false; type: camelCase, export: false
   it.concurrent('zodOpenAPIHono PascalCase camelCase false false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'camelCase', false, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, false, 'PascalCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -230,7 +229,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 6. schema: PascalCase, export: true; type: camelCase, export: false
   it.concurrent('zodOpenAPIHono PascalCase camelCase true false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'camelCase', true, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, false, 'PascalCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -259,7 +258,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 7. schema: PascalCase, export: false; type: camelCase, export: true
   it.concurrent('zodOpenAPIHono PascalCase camelCase false true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'camelCase', false, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, true, 'PascalCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -288,7 +287,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 8. schema: PascalCase, export: true; type: camelCase, export: true
   it.concurrent('zodOpenAPIHono PascalCase camelCase true true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'PascalCase', 'camelCase', true, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, true, 'PascalCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -317,7 +316,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 9. schema: camelCase, export: false; type: camelCase, export: false
   it.concurrent('zodOpenAPIHono camelCase camelCase false false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'camelCase', false, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, false, 'camelCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -346,7 +345,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 10. schema: camelCase, export: true; type: camelCase, export: false
   it.concurrent('zodOpenAPIHono camelCase camelCase true false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'camelCase', true, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, false, 'camelCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -375,7 +374,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 11. schema: camelCase, export: false; type: camelCase, export: true
   it.concurrent('zodOpenAPIHono camelCase camelCase false true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'camelCase', false, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, true, 'camelCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -404,7 +403,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 12. schema: camelCase, export: true; type: camelCase, export: true
   it.concurrent('zodOpenAPIHono camelCase camelCase true true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'camelCase', true, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, true, 'camelCase', 'camelCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -433,7 +432,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 13. schema: camelCase, export: false; type: PascalCase, export: false
   it.concurrent('zodOpenAPIHono camelCase PascalCase false false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'PascalCase', false, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, false, 'camelCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -462,7 +461,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 14. schema: camelCase, export: true; type: PascalCase, export: false
   it.concurrent('zodOpenAPIHono camelCase PascalCase true false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'PascalCase', true, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, false, 'camelCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -491,7 +490,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 15. schema: camelCase, export: false; type: PascalCase, export: true
   it.concurrent('zodOpenAPIHono camelCase PascalCase false true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'PascalCase', false, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, false, true, 'camelCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -520,7 +519,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
 
   // 16. schema: camelCase, export: true; type: PascalCase, export: true
   it.concurrent('zodOpenAPIHono camelCase PascalCase true true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, 'camelCase', 'PascalCase', true, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, true, true, 'camelCase', 'PascalCase')
     const expected = `import { createRoute, z } from '@hono/zod-openapi';
 
 export const aSchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')

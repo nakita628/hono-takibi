@@ -16,17 +16,17 @@ const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as con
  */
 export function zodOpenAPIHono(
   openapi: OpenAPI,
+  schemaExport: boolean,
+  typeExport: boolean,
   schemaStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
   typeStyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  schemaExport: boolean = true,
-  typeExport: boolean = true,
 ): string {
   const components = openapi.components ? openapi.components : undefined
   const paths = openapi.paths
   const componentsCode =
     components === undefined
       ? ''
-      : generateComponentsCode(components, schemaStyle, typeStyle, schemaExport, typeExport)
+      : generateComponentsCode(components, schemaExport, typeExport, schemaStyle, typeStyle)
   const routeCode = generateRouteCode(paths, schemaStyle, typeStyle)
   return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
 }

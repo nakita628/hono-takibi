@@ -134,25 +134,25 @@ describe('zod', () => {
     const result = zod(schema)
     const expected = 'z.array(z.string())'
     expect(result).toBe(expected)
-  }),
-    it.concurrent('z.array(z.number())', () => {
-      const schema: Schema = {
-        type: 'array',
-        items: { type: 'number' },
-      }
-      const result = zod(schema)
-      const expected = 'z.array(z.number())'
-      expect(result).toBe(expected)
-    }),
-    it.concurrent('z.array(z.boolean())', () => {
-      const schema: Schema = {
-        type: 'array',
-        items: { type: 'boolean' },
-      }
-      const result = zod(schema)
-      const expected = 'z.array(z.boolean())'
-      expect(result).toBe(expected)
-    })
+  })
+  it.concurrent('z.array(z.number())', () => {
+    const schema: Schema = {
+      type: 'array',
+      items: { type: 'number' },
+    }
+    const result = zod(schema)
+    const expected = 'z.array(z.number())'
+    expect(result).toBe(expected)
+  })
+  it.concurrent('z.array(z.boolean())', () => {
+    const schema: Schema = {
+      type: 'array',
+      items: { type: 'boolean' },
+    }
+    const result = zod(schema)
+    const expected = 'z.array(z.boolean())'
+    expect(result).toBe(expected)
+  })
   it.concurrent('z.array(z.array(z.array(z.number())))', () => {
     const schema: Schema = {
       type: 'array',
@@ -167,28 +167,28 @@ describe('zod', () => {
     const result = zod(schema)
     const expected = 'z.array(z.array(z.array(z.number())))'
     expect(result).toBe(expected)
-  }),
-    it.concurrent('z.array(z.union([z.string(),z.number(),z.boolean()]))', () => {
-      const schema: Schema = {
-        type: 'array',
-        items: {
-          anyOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-            {
-              type: 'boolean',
-            },
-          ],
-        },
-      }
-      const result = zod(schema)
-      const expected = 'z.array(z.union([z.string(),z.number(),z.boolean()]))'
-      expect(result).toBe(expected)
-    })
+  })
+  it.concurrent('z.array(z.union([z.string(),z.number(),z.boolean()]))', () => {
+    const schema: Schema = {
+      type: 'array',
+      items: {
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+          {
+            type: 'boolean',
+          },
+        ],
+      },
+    }
+    const result = zod(schema)
+    const expected = 'z.array(z.union([z.string(),z.number(),z.boolean()]))'
+    expect(result).toBe(expected)
+  })
   it.concurrent(
     'z.array(z.object({id:z.number().int().min(0),name:z.string(),active:z.boolean().optional()}))',
     () => {

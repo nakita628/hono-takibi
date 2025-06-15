@@ -26,7 +26,7 @@ describe('generateComponentsCode Test', () => {
   //   type: { name: 'PascalCase', export: true }
   // },
   it.concurrent('schema name PascalCase export true type PascalCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'PascalCase', true, true)
+    const result = generateComponentsCode(testComponents, true, true, 'PascalCase', 'PascalCase')
     const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 export type Test = z.infer<typeof TestSchema>`
@@ -38,7 +38,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   type: { name: 'PascalCase', export: false }
   // },
   it.concurrent('schema name PascalCase export true type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'PascalCase', true, false)
+    const result = generateComponentsCode(testComponents, true, false, 'PascalCase', 'PascalCase')
     const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -51,7 +51,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   type: { name: 'camelCase', export: true }
   // },
   it.concurrent('schema name PascalCase export true type camelCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'camelCase', true, true)
+    const result = generateComponentsCode(testComponents, true, true, 'PascalCase', 'camelCase')
     const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 export type test = z.infer<typeof TestSchema>`
@@ -64,7 +64,7 @@ export type test = z.infer<typeof TestSchema>`
   //   type: { name: 'camelCase', export: false }
   // },
   it.concurrent('schema name PascalCase export true type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'camelCase', true, false)
+    const result = generateComponentsCode(testComponents, true, false, 'PascalCase', 'camelCase')
     const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -77,7 +77,7 @@ export type test = z.infer<typeof TestSchema>`
   //   type: { name: 'PascalCase', export: true }
   // },
   it.concurrent('schema name PascalCase export false type PascalCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'PascalCase', false, true)
+    const result = generateComponentsCode(testComponents, false, true, 'PascalCase', 'PascalCase')
     const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 export type Test = z.infer<typeof TestSchema>`
@@ -90,7 +90,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   type: { name: 'PascalCase', export: false }
   // },
   it.concurrent('schema name PascalCase export false type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'PascalCase', false, false)
+    const result = generateComponentsCode(testComponents, false, false, 'PascalCase', 'PascalCase')
     const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -103,7 +103,7 @@ export type Test = z.infer<typeof TestSchema>`
   //   type: { name: 'camelCase', export: true }
   // },
   it.concurrent('schema name PascalCase export false type camelCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'camelCase', false, true)
+    const result = generateComponentsCode(testComponents, false, true, 'PascalCase', 'camelCase')
     const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 export type test = z.infer<typeof TestSchema>`
@@ -116,7 +116,7 @@ export type test = z.infer<typeof TestSchema>`
   //   type: { name: 'camelCase', export: false }
   // },
   it.concurrent('schema name PascalCase export false type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'PascalCase', 'camelCase', false, false)
+    const result = generateComponentsCode(testComponents, false, false, 'PascalCase', 'camelCase')
     const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -129,7 +129,7 @@ export type test = z.infer<typeof TestSchema>`
   //   type: { name: 'PascalCase', export: true }
   // },
   it.concurrent('schema name camelCase export true type PascalCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'PascalCase', true, true)
+    const result = generateComponentsCode(testComponents, true, true, 'camelCase', 'PascalCase')
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
 export type Test = z.infer<typeof testSchema>`
@@ -142,7 +142,7 @@ export type Test = z.infer<typeof testSchema>`
   //   type: { name: 'PascalCase', export: false }
   // },
   it.concurrent('schema name camelCase export true type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'PascalCase', true, false)
+    const result = generateComponentsCode(testComponents, true, false, 'camelCase', 'PascalCase')
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -155,7 +155,7 @@ export type Test = z.infer<typeof testSchema>`
   //   type: { name: 'camelCase', export: true }
   // },
   it.concurrent('schema name camelCase export true type camelCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'camelCase', true, true)
+    const result = generateComponentsCode(testComponents, true, true, 'camelCase', 'camelCase')
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
 export type test = z.infer<typeof testSchema>`
@@ -168,7 +168,7 @@ export type test = z.infer<typeof testSchema>`
   //   type: { name: 'camelCase', export: false }
   // },
   it.concurrent('schema name camelCase export true type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'camelCase', true, false)
+    const result = generateComponentsCode(testComponents, true, false, 'camelCase', 'camelCase')
     const expected = `export const testSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -182,7 +182,7 @@ export type test = z.infer<typeof testSchema>`
   //   type: { name: 'PascalCase', export: true }
   // },
   it.concurrent('schema name camelCase export false type PascalCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'PascalCase', false, true)
+    const result = generateComponentsCode(testComponents, false, true, 'camelCase', 'PascalCase')
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
 export type Test = z.infer<typeof testSchema>`
@@ -196,7 +196,7 @@ export type Test = z.infer<typeof testSchema>`
   //   type: { name: 'PascalCase', export: false }
   // },
   it.concurrent('schema name camelCase export false type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'PascalCase', false, false)
+    const result = generateComponentsCode(testComponents, false, false, 'camelCase', 'PascalCase')
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -210,7 +210,7 @@ export type Test = z.infer<typeof testSchema>`
   //   type: { name: 'camelCase', export: true }
   // },
   it.concurrent('schema name camelCase export false type camelCase export true', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'camelCase', false, true)
+    const result = generateComponentsCode(testComponents, false, true, 'camelCase', 'camelCase')
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
 export type test = z.infer<typeof testSchema>`
@@ -224,7 +224,7 @@ export type test = z.infer<typeof testSchema>`
   //   type: { name: 'camelCase', export: false }
   // }
   it.concurrent('schema name camelCase export false type not output export false', () => {
-    const result = generateComponentsCode(testComponents, 'camelCase', 'camelCase', false, false)
+    const result = generateComponentsCode(testComponents, false, false, 'camelCase', 'camelCase')
     const expected = `const testSchema = z.object({test:z.string()}).openapi('Test')
 
 `
@@ -234,7 +234,7 @@ export type test = z.infer<typeof testSchema>`
   // 17
   // schema empty
   it.concurrent(`schema empty -> ''`, () => {
-    const result = generateComponentsCode({}, 'PascalCase', 'PascalCase', false, false)
+    const result = generateComponentsCode({}, false, false, 'PascalCase', 'PascalCase')
     const expected = ''
 
     expect(result).toBe(expected)
