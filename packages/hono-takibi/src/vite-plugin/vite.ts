@@ -1,5 +1,4 @@
 import type { OpenAPI } from '../openapi/index.js'
-import type { Config } from '../config/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
 import { fmt } from '../format/index.js'
 import SwaggerParser from '@apidevtools/swagger-parser'
@@ -11,28 +10,25 @@ import path from 'node:path'
  * @param { Config } config - Config
  * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
  */
-export async function vite(config: Config): Promise<boolean | undefined> {
+export async function vite(
+  input: `${string}.yaml` | `${string}.json`,
+  output: `${string}.ts`,
+  exportType: boolean,
+  exportSchema: boolean,
+): Promise<boolean | undefined> {
   try {
-    if (config.input) {
-      const openAPI = (await SwaggerParser.parse(config.input)) as OpenAPI
-      const hono = zodOpenAPIHono(
-        openAPI,
-        config.schema.export,
-        config.type.export,
-        config.schema.name,
-        config.type.name,
-      )
-      const code = await fmt(hono)
-      if (!code.ok) {
-        console.error(`Error formatting code: ${code.error}`)
-        return false
-      }
-      if (config.output) {
-        await fsp.mkdir(path.dirname(config.output), { recursive: true })
-        await fsp.writeFile(config.output, code.value, 'utf-8')
-        console.log(`Generated code written to ${config.output}`)
-        return true
-      }
+    const openAPI = (await SwaggerParser.parse(input)) as OpenAPI
+    const hono = zodOpenAPIHono(openAPI, exportSchema, exportType)
+    const code = await fmt(hono)
+    if (!code.ok) {
+      console.error(`Error formatting code: ${code.error}`)
+      return false
+    }
+    if (output) {
+      await fsp.mkdir(path.dirname(output), { recursive: true })
+      await fsp.writeFile(output, code.value, 'utf-8')
+      console.log(`Generated code written to ${output}`)
+      return true
     }
   } catch (e) {
     console.error('Usage: hono-takibi <input.yaml|.json> -o <output.ts>')

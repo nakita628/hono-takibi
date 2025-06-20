@@ -1,5 +1,4 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
-import type { Config } from '../../../../../config/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
 import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
@@ -38,7 +37,7 @@ export function requestParameter(
 
   const params = parameters
     ? (() => {
-        const paramsObj = paramsObject(parameters, schemaNameCase)
+        const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
         return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
       })()

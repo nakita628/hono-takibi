@@ -28,7 +28,7 @@ export function object(
       }
       return 'z.any()'
     }
-    return record(schema.additionalProperties, schemaNameCase, typeNameCase)
+    return record(schema.additionalProperties)
   }
   if (schema.allOf) {
     return allOf(schema, schemaNameCase, typeNameCase)

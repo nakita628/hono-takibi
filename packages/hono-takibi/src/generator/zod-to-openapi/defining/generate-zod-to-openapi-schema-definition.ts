@@ -1,4 +1,3 @@
-import type { Config } from '../../../config/index.js'
 import { getVariableSchemaName, getVariableName } from '../../../core/helper/index.js'
 import { sanitizeIdentifier } from '../../../core/utils/index.js'
 import { infer } from '../../zod/index.js'

@@ -1,5 +1,4 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
-import type { Config } from '../../../../config/index.js'
 import { isHttpMethod } from '../../../../core/validator/is-http-method.js'
 import { generateRoute } from './generate-route.js'
 import { isOperation } from '../../../../core/validator/is-operation.js'
@@ -7,7 +6,6 @@ import { isOperation } from '../../../../core/validator/is-operation.js'
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
  * @param { OpenAPIPaths } openAPIPaths - OpenAPI paths object containing route definitions
- * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for all valid routes
  *
  * - Processes each path and HTTP method combination

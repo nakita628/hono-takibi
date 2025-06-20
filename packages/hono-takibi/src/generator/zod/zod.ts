@@ -1,5 +1,4 @@
 import type { Schema, Type } from '../../openapi/index.js'
-import type { Config } from '../../config/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
 import { getVariableSchemaName } from '../../core/helper/index.js'
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
@@ -34,7 +33,6 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
 
 /**
  * Generates a Zod schema string from an OpenAPI/JSON Schema definition
- * @param { Config } config - The configuration object
  * @param { Schema } schema - The schema definition object
  * @returns { string } Generated Zod schema string
  * @example

@@ -1,5 +1,4 @@
 import type { Operation } from '../../../../openapi/index.js'
-import type { Config } from '../../../../config/index.js'
 import { requestParameter } from './params/index.js'
 import { generateCreateRoute } from './generate-create-route.js'
 import { generateResponseSchema } from './response/generate-response-schema.js'
@@ -10,7 +9,6 @@ import { escapeStringLiteral } from '../../../../core/utils/escape-string-litera
  * @param { string } path - The URL path pattern for the route
  * @param { string } method - The HTTP method (GET, POST, etc.)
  * @param { Operation } operation - The OpenAPI Operation object containing route details
- * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for the route
  *
  * - Generates a complete route definition including:

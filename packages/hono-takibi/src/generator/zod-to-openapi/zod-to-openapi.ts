@@ -1,4 +1,3 @@
-import type { Config } from '../../config/index.js'
 import type { Schema } from '../../openapi/index.js'
 import { zod } from '../zod/index.js'
 

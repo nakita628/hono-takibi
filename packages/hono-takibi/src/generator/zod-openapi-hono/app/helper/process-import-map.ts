@@ -1,9 +1,6 @@
-import type { Config } from '../../../../config/index.js'
-
 /**
  * Process import map
  * @param { { routeName: string, handlerName: string, path: string }[] } routeMappings - Route mappings
- * @param { Config } config - Config
  * @returns { { [importPath: string]: string[] } } Import map
  */
 export function processImportMap(
