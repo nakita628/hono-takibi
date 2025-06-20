@@ -73,11 +73,7 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * - Falls back to basic type mapping for simple types
  * - Returns z.any() for unknown types with a warning
  */
-export function zod(
-  schema: Schema,
-  schematyle: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-): string {
+export function zod(schema: Schema): string {
   // enum
   if (schema.enum) {
     const res = _enum(schema)
@@ -88,7 +84,7 @@ export function zod(
 
   // object
   if (schema.type === 'object') {
-    return object(schema, schematyle, typeNameCase)
+    return object(schema)
   }
 
   // string
@@ -172,17 +168,17 @@ export function zod(
 
   // oneOf
   if (schema.oneOf) {
-    return oneOf(schema, schematyle)
+    return oneOf(schema)
   }
 
   // anyOf
   if (schema.anyOf) {
-    return anyOf(schema, schematyle)
+    return anyOf(schema)
   }
 
   // allOf
   if (schema.allOf) {
-    return allOf(schema, schematyle, typeNameCase)
+    return allOf(schema)
   }
 
   // not
@@ -193,8 +189,7 @@ export function zod(
   if (schema.$ref) {
     const refParts = schema.$ref.split('/')
     const refName = refParts[refParts.length - 1]
-    const schemaName = getVariableSchemaName(refName, schematyle)
-    return schemaName
+    return `${refName}Schema`
   }
 
   // fallback

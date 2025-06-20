@@ -5,21 +5,15 @@ import { intersection } from '../../../../zod/index.js'
 /**
  * Converts an `allOf` schema into a Zod schema.
  * @param { Schema } schema - The OpenAPI schema object.
- * @param { 'camelCase' | 'PascalCase' } schemaNameCase - The case style for schema names (default: 'PascalCase').
- * @param { 'camelCase' | 'PascalCase' } typeNameCase - The case style for type names (default: 'PascalCase').
  * @returns { string } The generated Zod schema as a string.
  */
-export function allOf(
-  schema: Schema,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-): string {
+export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
     console.warn('not exists allOf')
     return 'z.any()'
   }
 
-  const { nullable, schemas } = processAllOf(schema.allOf, schemaNameCase, typeNameCase)
+  const { nullable, schemas } = processAllOf(schema.allOf)
 
   if (schemas.length === 0) {
     return nullable ? 'z.any().nullable()' : 'z.any()'

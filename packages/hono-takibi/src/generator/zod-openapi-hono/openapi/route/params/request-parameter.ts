@@ -9,7 +9,6 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  * Generates TypeScript code for request validation based on OpenAPI specification
  * @param { Parameters[] | undefined } parameters - Array of path parameters from OpenAPI specification
  * @param { RequestBody | undefined } requestBody - Request body definition from OpenAPI specification
- * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for request validation
  *
  * - Handles both path parameters and request body validation
@@ -25,8 +24,6 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
 export function requestParameter(
   parameters: Parameters[] | undefined,
   requestBody: RequestBody | undefined,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   // Early return if no parameters or content
   if (!(parameters || requestBody?.content)) {
@@ -49,7 +46,7 @@ export function requestParameter(
 
     for (const contentType of requestBodyContentTypes) {
       const { schema } = requestBody.content[contentType]
-      const zodSchema = generatePropertySchema(schema, schemaNameCase, typeNameCase)
+      const zodSchema = generatePropertySchema(schema)
 
       uniqueSchemas.set(zodSchema, zodSchema)
     }
