@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const DataSetListSchema = z
+const dataSetListSchema = z
   .object({
     total: z.number().int(),
     apis: z.array(
@@ -30,7 +30,7 @@ export const getRoute = createRoute({
   responses: {
     200: {
       description: 'Returns a list of data sets',
-      content: { 'application/json': { schema: DataSetListSchema } },
+      content: { 'application/json': { schema: dataSetListSchema } },
     },
   },
 })

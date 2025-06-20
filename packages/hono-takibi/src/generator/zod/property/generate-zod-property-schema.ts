@@ -10,9 +10,7 @@ import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
  *
  * @param schema
  */
-export function generatePropertySchema(
-  schema: Schema,
-) {
+export function generatePropertySchema(schema: Schema) {
   if (Boolean(schema.$ref) === true) {
     return generateReferenceSchema(schema)
   }

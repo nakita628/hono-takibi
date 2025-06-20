@@ -7,9 +7,7 @@ import { getRefName } from '../../../core/schema/references/get-ref-name.js'
  * @param { Schema } schema - The schema to generate the reference schema for
  * @returns { string } The generated reference schema
  */
-export function generateReferenceSchema(
-  schema: Schema,
-): string {
+export function generateReferenceSchema(schema: Schema): string {
   if (!schema.$ref) {
     return 'z.any()'
   }

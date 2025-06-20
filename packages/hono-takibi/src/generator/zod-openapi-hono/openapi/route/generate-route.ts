@@ -24,11 +24,7 @@ import { escapeStringLiteral } from '../../../../core/utils/escape-string-litera
  * - Integrates with Hono's createRoute function
  */
 
-export function generateRoute(
-  path: string,
-  method: string,
-  operation: Operation,
-): string {
+export function generateRoute(path: string, method: string, operation: Operation): string {
   const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
     operation
   const routeName = generateRouteName(method, path)
@@ -45,9 +41,7 @@ export function generateRoute(
     descriptionCode: description ? `description:'${escapeStringLiteral(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
-    responsesCode: responses
-      ? `responses:{${generateResponseSchema(responses)}}`
-      : '',
+    responsesCode: responses ? `responses:{${generateResponseSchema(responses)}}` : '',
   }
   return generateCreateRoute(create_args)
 }

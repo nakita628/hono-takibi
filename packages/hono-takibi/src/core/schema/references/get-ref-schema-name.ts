@@ -7,9 +7,7 @@ import { getRefName } from './get-ref-name.js'
  * @returns { string } The referenced schema name
  * @throws { Error } Will throw an error if the $ref property or the reference name is not found
  */
-export function getRefSchemaName(
-  schema: Schema,
-): string {
+export function getRefSchemaName(schema: Schema): string {
   if (!schema.$ref) {
     throw new Error('refName is not found')
   }

@@ -42,19 +42,6 @@ async function honoTakibiNormal(openapiFile: string) {
 //   })
 // }
 
-// // hono-takibi Case Schema Export
-// async function honoTakibCaseSchemaExport(openapiFile: string) {
-//   const file = openapiFile.replace('.yaml', '')
-//   const command = `hono-takibi openapi/${openapiFile} -o route-case-schema-export/${file}.ts --nameing-case-type camelCase --naming-case-schema camelCase`
-//   exec(command, (error, stdout) => {
-//     if (error) {
-//       console.error(`Error executing command: ${error}`)
-//       return
-//     }
-//     console.log(stdout)
-//   })
-// }
-
 async function HonoTakibis() {
   const openapiFiles = await getOpenAPIFiles()
   if (!openapiFiles) {
