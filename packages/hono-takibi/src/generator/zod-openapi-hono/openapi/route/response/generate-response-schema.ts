@@ -6,7 +6,6 @@ import { escapeStringLiteral } from '../../../../../core/utils/index.js'
 /**
  * Generates a response schema for different status codes
  * @param { Responses } responses - OpenAPI response definitions for different status codes
- * @param { Config } config - Config
  * @returns { string } Generated TypeScript code string for response validation
  *
  * - Handles multiple response status codes

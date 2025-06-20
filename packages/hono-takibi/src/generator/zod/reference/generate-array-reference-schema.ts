@@ -5,7 +5,6 @@ import { array } from '../index.js'
 /**
  * Generates a Zod schema string for an array reference
  * @param { Schema } schema - The schema to generate the array reference schema for
- * @param { Config } config - The configuration to use for the generation
  * @returns { string } The generated array reference schema
  */
 export function generateArrayReferenceSchema(
