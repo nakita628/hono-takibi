@@ -14,8 +14,8 @@ describe('parseCli', () => {
       value: {
         input: 'input.yaml',
         output: 'output.ts',
-        exportType: undefined,
-        exportSchema: undefined,
+        exportType: false,
+        exportSchema: false,
         template: false,
         test: false,
         basePath: undefined,
