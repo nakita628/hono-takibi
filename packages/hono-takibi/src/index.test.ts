@@ -77,9 +77,88 @@ describe.concurrent('Hono Takibi Normal Test', () => {
     }
   })
 
-  it.concurrent('Hono Takibi CLI Normal', async () => {
+  // #1: exportSchema=true, exportType=true
+  it('--export-schema --export-type', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema --export-type`,
+      {
+        stdio: 'pipe',
+      },
+    )
+    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+
+export const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export type Test = z.infer<typeof TestSchema>
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
+`
+    expect(result).toBe(expected)
+  })
+
+  // #2: exportSchema=true, exportType=false
+  it('--export-schema', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema`,
+      {
+        stdio: 'pipe',
+      },
+    )
+    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+
+export const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
+`
+    expect(result).toBe(expected)
+  })
+
+  // #3: exportSchema=false, exportType=true
+  it('--export-type', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-type`,
+      {
+        stdio: 'pipe',
+      },
+    )
+    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+
+const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export type Test = z.infer<typeof TestSchema>
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
+`
+    expect(result).toBe(expected)
+  })
+
+  // #4: exportSchema=false, exportType=false
+  it('exportSchema=false, exportType=false', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`, {
       stdio: 'pipe',
     })
@@ -93,551 +172,6 @@ export const postTestRoute = createRoute({
   path: '/test',
   summary: 'Test endpoint',
   request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 1
-  // {
-  //   schema: { name: 'PascalCase', export: true },
-  //   type: { name: 'PascalCase', export: true }
-  // },
-  it('--naming-case-schema PascalCase --export-schema --naming-case-type PascalCase --export-type', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema PascalCase --export-schema --naming-case-type PascalCase --export-type
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --export-schema --naming-case-type PascalCase --export-type`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type Test = z.infer<typeof TestSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 2
-  // {
-  //   schema: { name: 'PascalCase', export: true },
-  //   type: { name: 'PascalCase', export: false }
-  // },
-  it.concurrent(
-    '--naming-case-schema PascalCase --naming-case-type PascalCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema PascalCase --naming-case-type PascalCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --naming-case-type PascalCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type Test = z.infer<typeof TestSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 3
-  // {
-  //   schema: { name: 'PascalCase', export: true },
-  //   type: { name: 'camelCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema PascalCase --export-schema --naming-case-type camelCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema PascalCase --export-schema --naming-case-type camelCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --export-schema --naming-case-type camelCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type test = z.infer<typeof TestSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 4
-  // {
-  //   schema: { name: 'PascalCase', export: true },
-  //   type: { name: 'camelCase', export: false }
-  // },
-  it.concurrent(
-    '--naming-case-schema PascalCase --export-schema --naming-case-type camelCase',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema PascalCase --export-schema --naming-case-type camelCase
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --export-schema --naming-case-type camelCase`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 5
-  // {
-  //   schema: { name: 'PascalCase', export: false },
-  //   type: { name: 'PascalCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema PascalCase --naming-case-type PascalCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema PascalCase --naming-case-type PascalCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --naming-case-type PascalCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type Test = z.infer<typeof TestSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 6
-  // {
-  //   schema: { name: 'PascalCase', export: false },
-  //   type: { name: 'PascalCase', export: false }
-  // },
-  it.concurrent('--naming-case-schema PascalCase --naming-case-type PascalCase', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema PascalCase --naming-case-type PascalCase
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --naming-case-type PascalCase`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 7
-  // {
-  //   schema: { name: 'PascalCase', export: false },
-  //   type: { name: 'camelCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema PascalCase --naming-case-type camelCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema PascalCase --naming-case-type camelCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --naming-case-type camelCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type test = z.infer<typeof TestSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 8
-  // {
-  //   schema: { name: 'PascalCase', export: false },
-  //   type: { name: 'camelCase', export: false }
-  // },
-  it.concurrent('--naming-case-schema PascalCase --naming-case-type camelCase', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema PascalCase --naming-case-type camelCase
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema PascalCase --naming-case-type camelCase`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const TestSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 9
-  // {
-  //   schema: { name: 'camelCase', export: true },
-  //   type: { name: 'PascalCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema camelCase --export-schema --naming-case-type PascalCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --export-schema --naming-case-type PascalCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --export-schema --naming-case-type PascalCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type Test = z.infer<typeof testSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 10
-  // {
-  //   schema: { name: 'camelCase', export: true },
-  //   type: { name: 'PascalCase', export: false }
-  // },
-  it.concurrent(
-    '--naming-case-schema camelCase --export-schema --naming-case-type PascalCase',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --export-schema --naming-case-type PascalCase
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --export-schema --naming-case-type PascalCase`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 11
-  // {
-  //   schema: { name: 'camelCase', export: true },
-  //   type: { name: 'camelCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema camelCase --export-schema --naming-case-type camelCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --export-schema --naming-case-type camelCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --export-schema --naming-case-type camelCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type test = z.infer<typeof testSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 12
-  // {
-  //   schema: { name: 'camelCase', export: true },
-  //   type: { name: 'camelCase', export: false }
-  // },
-  it.concurrent(
-    '--naming-case-schema camelCase --export-schema --naming-case-type camelCase',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --export-schema --naming-case-type camelCase
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --export-schema --naming-case-type camelCase`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 13
-  // {
-  //   schema: { name: 'camelCase', export: false },
-  //   type: { name: 'PascalCase', export: true }
-  // },
-  it.concurrent(
-    '--naming-case-schema camelCase --naming-case-type PascalCase --export-type',
-    () => {
-      const openapiPath = path.join('tmp-openapi/test.json')
-      // CLI
-      // --naming-case-schema camelCase --naming-case-type PascalCase --export-type
-      execSync(
-        `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type PascalCase --export-type`,
-        {
-          stdio: 'pipe',
-        },
-      )
-      const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-      const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type Test = z.infer<typeof testSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-      expect(result).toBe(expected)
-    },
-  )
-
-  // 14
-  // {
-  //   schema: { name: 'camelCase', export: false },
-  //   type: { name: 'PascalCase', export: false }
-  // },
-  it.concurrent('--naming-case-schema camelCase --naming-case-type PascalCase', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema camelCase --naming-case-type PascalCase
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type PascalCase`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 15
-  // {
-  //   schema: { name: 'camelCase', export: false },
-  //   type: { name: 'camelCase', export: true }
-  // },
-  it.concurrent('--naming-case-schema camelCase --naming-case-type camelCase --export-type', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema camelCase --naming-case-type camelCase --export-type
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type camelCase --export-type`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export type test = z.infer<typeof testSchema>
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
-  responses: { 200: { description: 'Successful test' } },
-})
-`
-    expect(result).toBe(expected)
-  })
-
-  // 16
-  // {
-  //   schema: { name: 'camelCase', export: false },
-  //   type: { name: 'camelCase', export: false }
-  // }
-  it.concurrent('--naming-case-schema camelCase --naming-case-type camelCase', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    // CLI
-    // --naming-case-schema camelCase --naming-case-type camelCase
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --naming-case-schema camelCase --naming-case-type camelCase`,
-      {
-        stdio: 'pipe',
-      },
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const testSchema = z.object({ test: z.string() }).openapi('Test')
-
-export const postTestRoute = createRoute({
-  method: 'post',
-  path: '/test',
-  summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: testSchema } } } },
   responses: { 200: { description: 'Successful test' } },
 })
 `
