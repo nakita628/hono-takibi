@@ -15,8 +15,8 @@ export function parseCli(args: readonly string[]): Result<CliFlags, string> {
     ok({
       input: io.input,
       output: io.output,
-      exportType: hasFlag(args, '--export-type') ? true : false,
-      exportSchema: hasFlag(args, '--export-schema') ? true : false,
+      exportType: hasFlag(args, '--export-type'),
+      exportSchema: hasFlag(args, '--export-schema'),
       template: hasFlag(args, '--template'),
       test: hasFlag(args, '--test'),
       basePath: getFlagValue(args, '--base-path'),

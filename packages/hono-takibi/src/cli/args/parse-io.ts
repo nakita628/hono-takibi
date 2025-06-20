@@ -4,7 +4,6 @@ import { isTs, isYamlOrJson } from '../validator/index.js'
 
 /**
  * @param args - The CLI arguments
- * @param config - The configuration object containing input and output file paths
  * @returns A Result containing the input and output file paths or an error message
  */
 export function parseIO(
