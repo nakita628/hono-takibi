@@ -1,7 +1,5 @@
 import type { Result } from '../../result/index.js'
 import { ok, asyncAndThen } from '../../result/index.js'
-import { getConfig } from '../../config/index.js'
-import { resolveConfig } from '../config/index.js'
 import { takibi } from './takibi.js'
 import { parseCli } from '../args/parse-cli.js'
 import { isHelpRequested, sliceArgv } from '../utils/index.js'
@@ -15,14 +13,6 @@ Options:
 
   --export-schema             Export generated schema objects
 
-  --naming-case-type <PascalCase|camelCase>
-                              Casing for generated *type aliases*
-                              (default: PascalCase)
-
-  --naming-case-schema <PascalCase|camelCase>
-                              Casing for generated *schema objects*
-                              (default: PascalCase)
-
   --template                  Generate an app file and handler stubs
 
   --test                      Generate empty *.test.ts files for handlers
@@ -35,13 +25,20 @@ Options:
 export async function honoTakibi(): Promise<Result<{ message: string }, string>> {
   const args = sliceArgv(process.argv)
 
-  return isHelpRequested(args)
+  return isHelpRequested(sliceArgv(process.argv))
     ? ok({ message: HELP_TEXT })
-    : await asyncAndThen(getConfig(), async (config) =>
-        asyncAndThen(parseCli(args, config), async (cli) =>
-          asyncAndThen(resolveConfig(config, cli), async (finalConfig) =>
-            takibi(finalConfig, cli.template, cli.test, cli.basePath),
+    : await asyncAndThen(parseCli(args), async (cli) =>
+        asyncAndThen(
+          await takibi(
+            cli.input,
+            cli.output,
+            cli.exportSchema ?? false,
+            cli.exportType ?? false,
+            cli.template ?? false,
+            cli.test ?? false,
+            cli.basePath,
           ),
+          async (result) => ok(result),
         ),
       )
 }

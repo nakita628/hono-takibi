@@ -184,30 +184,22 @@ describe('honoTakibi --help', () => {
     expect(result).toStrictEqual({
       ok: true,
       value: {
-        message:
-          'Usage:\n' +
-          '  hono-takibi <input.yaml|json> -o <routes.ts> [options]\n' +
-          '\n' +
-          'Options:\n' +
-          '  --export-type               Export generated type aliases\n' +
-          '\n' +
-          '  --export-schema             Export generated schema objects\n' +
-          '\n' +
-          '  --naming-case-type <PascalCase|camelCase>\n' +
-          '                              Casing for generated *type aliases*\n' +
-          '                              (default: PascalCase)\n' +
-          '\n' +
-          '  --naming-case-schema <PascalCase|camelCase>\n' +
-          '                              Casing for generated *schema objects*\n' +
-          '                              (default: PascalCase)\n' +
-          '\n' +
-          '  --template                  Generate an app file and handler stubs\n' +
-          '\n' +
-          '  --test                      Generate empty *.test.ts files for handlers\n' +
-          '\n' +
-          '  --base-path <path>          API prefix (e.g. /api)\n' +
-          '  \n' +
-          '  --help                      Show this help and exit\n',
+        message: `Usage:
+  hono-takibi <input.yaml|json> -o <routes.ts> [options]
+
+Options:
+  --export-type               Export generated type aliases
+
+  --export-schema             Export generated schema objects
+
+  --template                  Generate an app file and handler stubs
+
+  --test                      Generate empty *.test.ts files for handlers
+
+  --base-path <path>          API prefix (e.g. /api)
+  
+  --help                      Show this help and exit
+`,
       },
     })
   })
@@ -223,30 +215,22 @@ describe('honoTakibi -h', () => {
     expect(result).toStrictEqual({
       ok: true,
       value: {
-        message:
-          'Usage:\n' +
-          '  hono-takibi <input.yaml|json> -o <routes.ts> [options]\n' +
-          '\n' +
-          'Options:\n' +
-          '  --export-type               Export generated type aliases\n' +
-          '\n' +
-          '  --export-schema             Export generated schema objects\n' +
-          '\n' +
-          '  --naming-case-type <PascalCase|camelCase>\n' +
-          '                              Casing for generated *type aliases*\n' +
-          '                              (default: PascalCase)\n' +
-          '\n' +
-          '  --naming-case-schema <PascalCase|camelCase>\n' +
-          '                              Casing for generated *schema objects*\n' +
-          '                              (default: PascalCase)\n' +
-          '\n' +
-          '  --template                  Generate an app file and handler stubs\n' +
-          '\n' +
-          '  --test                      Generate empty *.test.ts files for handlers\n' +
-          '\n' +
-          '  --base-path <path>          API prefix (e.g. /api)\n' +
-          '  \n' +
-          '  --help                      Show this help and exit\n',
+        message: `Usage:
+  hono-takibi <input.yaml|json> -o <routes.ts> [options]
+
+Options:
+  --export-type               Export generated type aliases
+
+  --export-schema             Export generated schema objects
+
+  --template                  Generate an app file and handler stubs
+
+  --test                      Generate empty *.test.ts files for handlers
+
+  --base-path <path>          API prefix (e.g. /api)
+  
+  --help                      Show this help and exit
+`,
       },
     })
   })

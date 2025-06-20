@@ -3,8 +3,6 @@ export type CliFlags = {
   output: `${string}.ts`
   exportType?: boolean
   exportSchema?: boolean
-  typeCase?: 'PascalCase' | 'camelCase'
-  schemaCase?: 'PascalCase' | 'camelCase'
   template: boolean
   test: boolean
   basePath?: string
