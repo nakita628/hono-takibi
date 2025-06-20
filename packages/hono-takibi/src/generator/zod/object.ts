@@ -7,22 +7,15 @@ import { generateZodPropertiesSchema } from './property/generate-zod-properties-
 /**
  * Generate Zod object schema
  * @param { Schema } schema - Schema definition
- * @param { Config } config - Configuration
  * @returns { string } Zod object schema string
  */
-export function object(
-  schema: Schema,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-): string {
+export function object(schema: Schema): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
         const zodSchema = generateZodPropertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
-          schemaNameCase,
-          typeNameCase,
         )
         return passthrough(zodSchema)
       }
@@ -31,13 +24,13 @@ export function object(
     return record(schema.additionalProperties)
   }
   if (schema.allOf) {
-    return allOf(schema, schemaNameCase, typeNameCase)
+    return allOf(schema)
   }
   if (schema.oneOf) {
-    return oneOf(schema, schemaNameCase)
+    return oneOf(schema)
   }
   if (schema.anyOf) {
-    return anyOf(schema, schemaNameCase)
+    return anyOf(schema)
   }
   if (!schema.properties) {
     return 'z.object({})'
@@ -45,7 +38,5 @@ export function object(
   return generateZodPropertiesSchema(
     schema.properties,
     Array.isArray(schema.required) ? schema.required : [],
-    schemaNameCase,
-    typeNameCase,
   )
 }

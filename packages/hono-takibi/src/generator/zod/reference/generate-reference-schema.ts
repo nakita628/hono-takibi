@@ -5,12 +5,10 @@ import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 /**
  * Generates a Zod schema string for a reference
  * @param { Schema } schema - The schema to generate the reference schema for
- * @param { Config } config - The configuration to use for the generation
  * @returns { string } The generated reference schema
  */
 export function generateReferenceSchema(
   schema: Schema,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
   if (!schema.$ref) {
     return 'z.any()'
@@ -20,5 +18,5 @@ export function generateReferenceSchema(
     return 'z.any()'
   }
 
-  return getVariableSchemaName(refName, schemaNameCase) || 'z.any()'
+  return `${refName}Schema` || 'z.any()'
 }

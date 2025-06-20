@@ -6,7 +6,6 @@ import { infer } from '../../zod/index.js'
  * Creates a Zod schema constant declaration
  * @param { string } schemaName - Name of the schema constant
  * @param { string } zodSchema - Zod schema definition string
- * @param { Config } config - Configuration
  * @returns { string } Generated constant declaration string
  * @example
  * generateZodSchemaDefinition('userSchema', 'z.object({ id: z.number(), name: z.string() })')
@@ -24,10 +23,8 @@ export function generateZodToOpenAPISchemaDefinition(
   zodSchema: string,
   exportSchema: boolean,
   exportType: boolean,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
 ): string {
-  const variableName = getVariableSchemaName(schemaName, schemaNameCase)
+  const variableName = `${schemaName}Schema`
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)
   // schema code
@@ -35,7 +32,7 @@ export function generateZodToOpenAPISchemaDefinition(
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
-  const typeVariableName = getVariableName(schemaName, typeNameCase)
+  const typeVariableName = schemaName
   const safeTypeVariableName = sanitizeIdentifier(typeVariableName)
 
   const zodInferCode = exportType ? infer(safeTypeVariableName, safeVariableName) : ''
