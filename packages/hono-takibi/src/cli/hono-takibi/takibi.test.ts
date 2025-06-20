@@ -106,16 +106,7 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi(
-      {
-        schema: { name: 'PascalCase', export: true },
-        type: { name: 'PascalCase', export: true },
-        input: 'openapi.yaml',
-        output: 'zod-openapi-hono.ts',
-      },
-      false,
-      false,
-    )
+    const result = await takibi('openapi.yaml', 'zod-openapi-hono.ts', true, true, false, false)
 
     expect(result).toStrictEqual({
       ok: true,
@@ -196,16 +187,7 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi(
-      {
-        schema: { name: 'PascalCase', export: true },
-        type: { name: 'PascalCase', export: true },
-        input: 'openapi.yaml',
-        output: 'zod-openapi-hono.ts',
-      },
-      true,
-      true,
-    )
+    const result = await takibi('openapi.yaml', 'zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
       ok: true,

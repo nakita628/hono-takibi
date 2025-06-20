@@ -21,11 +21,7 @@ import { isOperation } from '../../../../core/validator/is-operation.js'
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
  */
-export function generateRouteCode(
-  openAPIPaths: OpenAPIPaths,
-  schemaNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-  typeNameCase: 'camelCase' | 'PascalCase' = 'PascalCase',
-): string {
+export function generateRouteCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
   for (const [path, pathItem] of Object.entries(openAPIPaths)) {
@@ -42,7 +38,7 @@ export function generateRouteCode(
       // 3.4 at this point, pathItemValue is only a possibility for Operation
       if (!isOperation(pathItemValue)) continue
       // 3.5 generating the root code and adding it to the array
-      routes.push(generateRoute(path, method, pathItemValue, schemaNameCase, typeNameCase))
+      routes.push(generateRoute(path, method, pathItemValue))
     }
   }
   // 4. exclude invalid routes and join them with a newline

@@ -8,47 +8,27 @@ import { templateCode } from './template-code.js'
 import { mkdir, writeFile } from '../../fsp/index.js'
 
 export async function takibi(
-  config: {
-    schema: {
-      name: 'PascalCase' | 'camelCase'
-      export: boolean
-    }
-    type: {
-      name: 'PascalCase' | 'camelCase'
-      export: boolean
-    }
-    input: `${string}.yaml` | `${string}.json`
-    output: `${string}.ts`
-  },
+  input: `${string}.yaml` | `${string}.json`,
+  output: `${string}.ts`,
+  exportSchema: boolean,
+  exportType: boolean,
   template: boolean,
   test: boolean,
   basePath?: string,
 ): Promise<Result<{ message: string }, string>> {
-  return await asyncAndThen(await parseOpenAPI(config.input), async (openAPI) =>
-    asyncAndThen(
-      await fmt(
-        zodOpenAPIHono(
-          openAPI,
-          config.schema.export,
-          config.type.export,
-          config.schema.name,
-          config.type.name,
-        ),
-      ),
-      async (code) =>
-        asyncAndThen(await mkdir(path.dirname(config.output)), async () =>
-          asyncAndThen(await writeFile(config.output, code), async () =>
-            asyncAndThen(
-              await templateCode(openAPI, config.output, template, test, basePath),
-              async () =>
-                ok({
-                  message: template
-                    ? 'Generated code and template files written'
-                    : `Generated code written to ${config.output}`,
-                }),
-            ),
+  return await asyncAndThen(await parseOpenAPI(input), async (openAPI) =>
+    asyncAndThen(await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType)), async (code) =>
+      asyncAndThen(await mkdir(path.dirname(output)), async () =>
+        asyncAndThen(await writeFile(output, code), async () =>
+          asyncAndThen(await templateCode(openAPI, output, template, test, basePath), async () =>
+            ok({
+              message: template
+                ? 'Generated code and template files written'
+                : `Generated code written to ${output}`,
+            }),
           ),
         ),
+      ),
     ),
   )
 }

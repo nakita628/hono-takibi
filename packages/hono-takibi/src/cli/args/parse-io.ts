@@ -4,19 +4,14 @@ import { isTs, isYamlOrJson } from '../validator/index.js'
 
 /**
  * @param args - The CLI arguments
- * @param config - The configuration object containing input and output file paths
  * @returns A Result containing the input and output file paths or an error message
  */
 export function parseIO(
   args: readonly string[],
-  config: { input?: `${string}.yaml` | `${string}.json`; output?: `${string}.ts` },
 ): Result<{ input: `${string}.yaml` | `${string}.json`; output: `${string}.ts` }, string> {
-  const cliInput = args[0]
+  const input = args[0]
   const oIdx = args.indexOf('-o')
-  const cliOutput = oIdx !== -1 ? args[oIdx + 1] : undefined
-
-  const input = cliInput ?? config.input
-  const output = cliOutput ?? config.output
+  const output = oIdx !== -1 ? args[oIdx + 1] : undefined
 
   if (output) {
     if (isYamlOrJson(input) && isTs(output)) {

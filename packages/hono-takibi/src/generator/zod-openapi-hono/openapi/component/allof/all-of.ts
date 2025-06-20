@@ -1,12 +1,12 @@
 import type { Schema } from '../../../../../openapi/index.js'
-import type { Config } from '../../../../../config/index.js'
 import { processAllOf } from './process/process-alllof.js'
 import { intersection } from '../../../../zod/index.js'
 
 /**
  * Converts an `allOf` schema into a Zod schema.
  * @param { Schema } schema - The OpenAPI schema object.
- * @param { Config } config - The configuration object.
+ * @param { 'camelCase' | 'PascalCase' } schemaNameCase - The case style for schema names (default: 'PascalCase').
+ * @param { 'camelCase' | 'PascalCase' } typeNameCase - The case style for type names (default: 'PascalCase').
  * @returns { string } The generated Zod schema as a string.
  */
 export function allOf(

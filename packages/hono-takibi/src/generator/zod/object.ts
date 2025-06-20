@@ -34,10 +34,10 @@ export function object(
     return allOf(schema, schemaNameCase, typeNameCase)
   }
   if (schema.oneOf) {
-    return oneOf(schema, schemaNameCase, typeNameCase)
+    return oneOf(schema, schemaNameCase)
   }
   if (schema.anyOf) {
-    return anyOf(schema, schemaNameCase, typeNameCase)
+    return anyOf(schema, schemaNameCase)
   }
   if (!schema.properties) {
     return 'z.object({})'

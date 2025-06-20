@@ -144,42 +144,42 @@ export function zod(
         const minItemsSchema = min(schema.minItems)
         const maxItemsSchema = max(schema.maxItems)
 
-        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
+        const zodArray = array(zod(schema.items))
         const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
         return res
       }
       if (schema.minItems) {
         const minItemsSchema = min(schema.minItems)
-        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
+        const zodArray = array(zod(schema.items))
         const res = `${zodArray}${minItemsSchema}`
         return res
       }
       if (schema.maxItems) {
         const maxItemsSchema = max(schema.maxItems)
-        const zodArray = array(zod(schema.items, schematyle, typeNameCase))
+        const zodArray = array(zod(schema.items))
         const res = `${zodArray}${maxItemsSchema}`
         return res
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = length(schema.minLength)
-        const zodArray = array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
+        const zodArray = array(zodToOpenAPI(schema.items))
         const res = `${zodArray}${minLengthSchema}`
         return res
       }
-      return array(zodToOpenAPI(schema.items, schematyle, typeNameCase))
+      return array(zodToOpenAPI(schema.items))
     }
     return 'z.array(z.any())'
   }
 
   // oneOf
   if (schema.oneOf) {
-    return oneOf(schema, schematyle, typeNameCase)
+    return oneOf(schema, schematyle)
   }
 
   // anyOf
   if (schema.anyOf) {
-    return anyOf(schema, schematyle, typeNameCase)
+    return anyOf(schema, schematyle)
   }
 
   // allOf
