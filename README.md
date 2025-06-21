@@ -30,7 +30,7 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 ## Usage
 
 ```bash
-npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
+npx hono-takibi path/to/openapi.yaml -o path/to/routes.ts
 ```
 
 ## Demo 
@@ -453,8 +453,6 @@ basic
 Options:
   --export-schema      exports all schema definitions
   --export-type        exports all type definitions
-  --naming-case-type   PascalCase or camelCase
-  --naming-case-schema PascalCase or camelCase
 ```
 
 template
@@ -471,62 +469,7 @@ Options:
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o project/routes.ts --template -test --base-path 'api'
-```
-
-## Configuration
-
-You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
-
-### Schema Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated schema variables |
-| `export` | `boolean` | `false` | When true, exports all schema definitions |
-
-### Type Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated type definitions |
-| `export` | `boolean` | `false` | When true, exports all type definitions |
-
-## Input and Output
-
-You can specify input and output paths in two ways:
-
-1. Command line arguments:
-
-2. Configuration file (`hono-takibi.json`):
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `input` | `string` | `""` | Input file path |
-| `output` | `string` | `""` | Output file path |
-
-> **⚠️** When using a configuration file, command line arguments are not required. The configuration file settings take precedence over command line arguments.
->
-> **🔥** When you have configured `hono-takibi.json`, you can simply run:
-> ```bash
-> npx hono-takibi
-> ```
-
-### Examples
-
-* Default Behavior (PascalCase schemas, PascalCase types)
-
-```json
-{
-  "schema": {
-    "name": "PascalCase",
-    "export": false
-  },
-  "type": {
-    "name": "PascalCase",
-    "export": false
-  }
-}
+npx hono-takibi openapi.yaml -o src/routes.ts --template -test --base-path 'api'
 ```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
