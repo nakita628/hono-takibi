@@ -18,5 +18,5 @@ export function parseIO(
       return ok({ input, output })
     }
   }
-  return err('Usage: hono-takibi <input.yaml|.json> -o <output.ts>')
+  return err('Usage: hono-takibi <input.{yaml,json}> -o <routes.ts> [options]')
 }
