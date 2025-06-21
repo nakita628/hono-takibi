@@ -14,7 +14,7 @@ const DogSchema = z
   .openapi('Dog')
 
 const BaseSchema = z
-  .object({ id: z.string().uuid(), metadata: z.record(z.string(), z.string()).optional() })
+  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).optional() })
   .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({

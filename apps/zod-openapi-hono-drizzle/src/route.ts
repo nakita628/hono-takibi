@@ -6,11 +6,8 @@ const PostSchema = z
   .object({
     id: z.uuid().openapi({ description: 'Unique identifier of the post' }),
     post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
-    createdAt: z.date().openapi({ description: 'Timestamp when the post was created' }),
-    updatedAt: z
-      .string()
-      .datetime()
-      .openapi({ description: 'Timestamp when the post was last updated' }),
+    createdAt: z.iso.date().openapi({ description: 'Timestamp when the post was created' }),
+    updatedAt: z.date().openapi({ description: 'Timestamp when the post was last updated' }),
   })
   .openapi('Post')
 

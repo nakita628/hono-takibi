@@ -27,7 +27,7 @@ const UserSchema = z
   .object({
     id: z.string().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
     name: z.string().openapi({ example: 'John Doe' }),
-    email: z.string().email().openapi({ example: 'john.doe@example.com' }),
+    email: z.email().openapi({ example: 'john.doe@example.com' }),
     address: AddressSchema.optional(),
     profile: UserProfileSchema.optional(),
   })
@@ -36,7 +36,7 @@ const UserSchema = z
 const NewUserSchema = z
   .object({
     name: z.string().openapi({ example: 'Jane Doe' }),
-    email: z.string().email().openapi({ example: 'jane.doe@example.com' }),
+    email: z.email().openapi({ example: 'jane.doe@example.com' }),
     address: AddressSchema.optional(),
     profile: UserProfileSchema.optional(),
   })
@@ -45,7 +45,7 @@ const NewUserSchema = z
 const UpdateUserSchema = z
   .object({
     name: z.string(),
-    email: z.string().email(),
+    email: z.email(),
     address: AddressSchema,
     profile: UserProfileSchema,
   })
@@ -73,10 +73,7 @@ const CreditCardPaymentSchema = z
   .openapi('CreditCardPayment')
 
 const PaypalPaymentSchema = z
-  .object({
-    method: z.literal('paypal'),
-    email: z.string().email().openapi({ example: 'user@paypal.com' }),
-  })
+  .object({ method: z.literal('paypal'), email: z.email().openapi({ example: 'user@paypal.com' }) })
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z

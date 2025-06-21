@@ -33,7 +33,7 @@ export const getArrayRoute = createRoute({
               }),
             ),
             fixed_values_array: z.array(z.enum(['small', 'medium', 'large'])),
-            email_array: z.array(z.string().email()),
+            email_array: z.array(z.email()),
             sorted_number_array: z.array(z.number()),
             at_least_one_even_number: z.array(z.number()),
           }),

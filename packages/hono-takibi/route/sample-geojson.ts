@@ -111,14 +111,14 @@ const PointSchema = z
 
 const ProjectSchema = z
   .object({
-    id: z.string().uuid().openapi({ description: 'Project ID' }),
+    id: z.uuid().openapi({ description: 'Project ID' }),
     polygon: z
       .union([MultiPolygonSchema, PolygonSchema])
       .openapi({ description: 'Site polygon' })
       .optional(),
     centre: PointSchema.optional(),
-    createdAt: z.string().datetime().openapi({ description: 'Site creation date and time' }),
-    updatedAt: z.string().datetime().openapi({ description: 'Site last updated date and time' }),
+    createdAt: z.iso.datetime().openapi({ description: 'Site creation date and time' }),
+    updatedAt: z.iso.datetime().openapi({ description: 'Site last updated date and time' }),
   })
   .openapi('Project')
 
