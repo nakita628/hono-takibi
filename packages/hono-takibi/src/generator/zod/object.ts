@@ -3,7 +3,7 @@ import { record, passthrough } from './index.js'
 import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/component/anyof/any-of.js'
-import { generateZodPropertiesSchema } from './property/generate-zod-properties-schema.js'
+import { propertiesSchema } from './property/properties-schema.js'
 /**
  * Generate Zod object schema
  * @param { Schema } schema - Schema definition
@@ -13,7 +13,7 @@ export function object(schema: Schema): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
-        const zodSchema = generateZodPropertiesSchema(
+        const zodSchema = propertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
         )
@@ -35,7 +35,7 @@ export function object(schema: Schema): string {
   if (!schema.properties) {
     return 'z.object({})'
   }
-  return generateZodPropertiesSchema(
+  return propertiesSchema(
     schema.properties,
     Array.isArray(schema.required) ? schema.required : [],
   )

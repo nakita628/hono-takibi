@@ -69,37 +69,37 @@ describe('zod', () => {
   it.concurrent('z.email()', () => {
     const schema: Schema = { type: 'string', format: 'email' }
     const result = zod(schema)
-    const expected = 'z.string().email()'
+    const expected = 'z.email()'
     expect(result).toBe(expected)
   })
   it.concurrent('z.string().url()', () => {
     const schema: Schema = { type: 'string', format: 'uri' }
     const result = zod(schema)
-    const expected = 'z.string().url()'
+    const expected = 'z.url()'
     expect(result).toBe(expected)
   })
   it.concurrent('z.string().uuid()', () => {
     const schema: Schema = { type: 'string', format: 'uuid' }
     const result = zod(schema)
-    const expected = 'z.string().uuid()'
+    const expected = 'z.uuid()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.string().cuid()', () => {
+  it.concurrent('z.cuid()', () => {
     const schema: Schema = { type: 'string', format: 'cuid' }
     const result = zod(schema)
-    const expected = 'z.string().cuid()'
+    const expected = 'z.cuid()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.string().cuid2()', () => {
+  it.concurrent('z.cuid2()', () => {
     const schema: Schema = { type: 'string', format: 'cuid2' }
     const result = zod(schema)
-    const expected = 'z.string().cuid2()'
+    const expected = 'z.cuid2()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.string().ulid()', () => {
+  it.concurrent('z.ulid()', () => {
     const schema: Schema = { type: 'string', format: 'ulid' }
     const result = zod(schema)
-    const expected = 'z.string().ulid()'
+    const expected = 'z.ulid()'
     expect(result).toBe(expected)
   })
   it.concurrent('z.string().regex(/^[a-zA-Z]+$/)', () => {
@@ -108,16 +108,16 @@ describe('zod', () => {
     const expected = 'z.string().regex(/^[a-zA-Z]+$/)'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.string().datetime()', () => {
+  it.concurrent('z.iso().datetime()', () => {
     const schema: Schema = { type: 'string', format: 'date-time' }
     const result = zod(schema)
-    const expected = 'z.string().datetime()'
+    const expected = 'z.iso.datetime()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.string().ip()', () => {
-    const schema: Schema = { type: 'string', format: 'ip' }
+  it.concurrent('z.ipv4()', () => {
+    const schema: Schema = { type: 'string', format: 'ipv4' }
     const result = zod(schema)
-    const expected = 'z.string().ip()'
+    const expected = 'z.ipv4()'
     expect(result).toBe(expected)
   })
   it.concurrent('z.string().length(5)', () => {

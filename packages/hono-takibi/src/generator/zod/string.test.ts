@@ -35,15 +35,15 @@ describe('string Test', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent(`string({ format: 'email' }) -> z.string().email()`, () => {
+  it.concurrent(`string({ format: 'email' }) -> z.email()`, () => {
     const result = string({ format: 'email' })
-    const expected = 'z.string().email()'
+    const expected = 'z.email()'
     expect(result).toBe(expected)
   })
 
-  it.concurrent(`string({ format: 'uuid' }) -> z.string().uuid()`, () => {
+  it.concurrent(`string({ format: 'uuid' }) -> z.uuid()`, () => {
     const result = string({ format: 'uuid' })
-    const expected = 'z.string().uuid()'
+    const expected = 'z.uuid()'
     expect(result).toBe(expected)
   })
 

@@ -5,12 +5,12 @@ import { generateArrayReferenceSchema } from '../reference/generate-array-refere
 import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
- * generatePropertySchema
+ * propertySchema
  * generate property schema
  *
  * @param schema
  */
-export function generatePropertySchema(schema: Schema) {
+export function propertySchema(schema: Schema) {
   if (Boolean(schema.$ref) === true) {
     return generateReferenceSchema(schema)
   }
