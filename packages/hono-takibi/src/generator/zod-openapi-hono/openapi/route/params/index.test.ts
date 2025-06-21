@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { paramsObject, requestParameter, requestParams, requestParamsArray } from '.'
+import {
+  paramsObject,
+  requestParameter,
+  requestParams,
+  requestParamsArray,
+  queryParameter,
+} from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/index.test.ts
@@ -19,5 +25,8 @@ describe('request module barrel file exports', () => {
 
   it('should export requestParamsArray', () => {
     expect(typeof requestParamsArray).toBe('function')
+  })
+  it('should export queryParameter', () => {
+    expect(typeof queryParameter).toBe('function')
   })
 })

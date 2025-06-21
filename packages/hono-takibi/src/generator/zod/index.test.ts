@@ -23,6 +23,7 @@ import {
   string,
   union,
   zod,
+  stringbool,
 } from '.'
 
 // Test run
@@ -119,5 +120,8 @@ describe('zod module barrel file exports', () => {
 
   it('should export zod', () => {
     expect(typeof zod).toBe('function')
+  })
+  it('should export stringbool', () => {
+    expect(typeof stringbool).toBe('function')
   })
 })

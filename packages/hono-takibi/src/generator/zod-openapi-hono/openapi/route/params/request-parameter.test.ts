@@ -6,37 +6,24 @@ import { requestParameter } from '.'
 
 describe('requestParameter', () => {
   it.concurrent('requestParameter parameters undefined', () => {
-    const result = requestParameter(
-      undefined,
-      {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                post: {
-                  type: 'string',
-                  minLength: 1,
-                  maxLength: 140,
-                },
+    const result = requestParameter(undefined, {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              post: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 140,
               },
-              required: ['post'],
             },
+            required: ['post'],
           },
         },
       },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
-    )
+    })
 
     const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`
     expect(result).toBe(expected)
@@ -59,16 +46,6 @@ describe('requestParameter', () => {
         },
       ],
       undefined,
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
     )
 
     const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:false}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:false}})})},`
@@ -101,16 +78,6 @@ describe('requestParameter', () => {
               required: ['post'],
             },
           },
-        },
-      },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
         },
       },
     )
@@ -150,16 +117,6 @@ describe('requestParameter', () => {
               format: 'binary',
             },
           },
-        },
-      },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
         },
       },
     )
