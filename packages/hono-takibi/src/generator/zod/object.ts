@@ -24,7 +24,7 @@ export function object(schema: Schema): string {
       return 'z.any()'
     }
     return record(schema.additionalProperties)
-  } 
+  }
 
   if (schema.properties) {
     const zodSchema = propertiesSchema(
@@ -36,7 +36,6 @@ export function object(schema: Schema): string {
     }
   }
 
-  
   if (schema.allOf) {
     return allOf(schema)
   }
