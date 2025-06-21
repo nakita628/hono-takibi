@@ -1,5 +1,5 @@
 {
-  "name": "@apps/zod-openapi_hono_prisma",
+  "name": "@apps/zod-openapi-hono-prisma",
   "private": true,
   "type": "module",
   "scripts": {

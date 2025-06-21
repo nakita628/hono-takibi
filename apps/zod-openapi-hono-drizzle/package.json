@@ -1,5 +1,5 @@
 {
-  "name": "@apps/zod-openapi_hono_drizzle",
+  "name": "@apps/zod-openapi-hono-drizzle",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
