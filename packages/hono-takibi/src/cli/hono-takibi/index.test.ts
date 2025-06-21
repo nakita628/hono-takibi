@@ -181,24 +181,24 @@ describe('honoTakibi --help', () => {
 
   it('honoTakibi help requested --help', async () => {
     const result = await honoTakibi()
+
     expect(result).toStrictEqual({
       ok: true,
       value: {
         message: `Usage:
-  hono-takibi <input.yaml|json> -o <routes.ts> [options]
+  hono-takibi <input.{yaml,json}> -o <routes.ts> [options]
 
 Options:
-  --export-type               Export generated type aliases
+  --export-type             Export TypeScript type aliases
+  --export-schema           Export Zod schema objects
+  --template                Generate app file and handler stubs
+  --test                    Generate empty *.test.ts files
+  --base-path <path>        API prefix (default: /)
+  -h, --help                Show this help and exit
 
-  --export-schema             Export generated schema objects
-
-  --template                  Generate an app file and handler stubs
-
-  --test                      Generate empty *.test.ts files for handlers
-
-  --base-path <path>          API prefix (e.g. /api)
-  
-  --help                      Show this help and exit
+Examples:
+  hono-takibi api.yaml -o routes.ts
+  hono-takibi api.yaml -o routes.ts --export-schema --export-type --base-path /api/v1
 `,
       },
     })
@@ -216,20 +216,19 @@ describe('honoTakibi -h', () => {
       ok: true,
       value: {
         message: `Usage:
-  hono-takibi <input.yaml|json> -o <routes.ts> [options]
+  hono-takibi <input.{yaml,json}> -o <routes.ts> [options]
 
 Options:
-  --export-type               Export generated type aliases
+  --export-type             Export TypeScript type aliases
+  --export-schema           Export Zod schema objects
+  --template                Generate app file and handler stubs
+  --test                    Generate empty *.test.ts files
+  --base-path <path>        API prefix (default: /)
+  -h, --help                Show this help and exit
 
-  --export-schema             Export generated schema objects
-
-  --template                  Generate an app file and handler stubs
-
-  --test                      Generate empty *.test.ts files for handlers
-
-  --base-path <path>          API prefix (e.g. /api)
-  
-  --help                      Show this help and exit
+Examples:
+  hono-takibi api.yaml -o routes.ts
+  hono-takibi api.yaml -o routes.ts --export-schema --export-type --base-path /api/v1
 `,
       },
     })
