@@ -1,6 +1,5 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
-import { getVariableSchemaName } from '../../core/helper/index.js'
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'

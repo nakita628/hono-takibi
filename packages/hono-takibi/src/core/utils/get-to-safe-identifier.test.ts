@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { getToSafeIdentifier } from '.'
 
 // Test run
-// pnpm vitest run ./src/core/helper/get-to-safe-identifier.test.ts
+// pnpm vitest run ./src/core/utils/get-to-safe-identifier.test.ts
 
 describe('getToSafeIdentifier', () => {
   it('should return the string as-is if it is a valid identifier', () => {

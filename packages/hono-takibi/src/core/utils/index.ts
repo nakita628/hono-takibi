@@ -1,6 +1,6 @@
 export { capitalize } from './capitalize.js'
-export { decapitalize } from './decapitalize.js'
 export { escapeStringLiteral } from './escape-string-literal.js'
+export { getToSafeIdentifier } from './get-to-safe-identifier.js'
 export { regexPattern } from './regex-pattern.js'
 export { removeZodPrefix } from './remove-zod-prefix.js'
 export { sanitizeIdentifier } from './sanitizeIdentifier.js'

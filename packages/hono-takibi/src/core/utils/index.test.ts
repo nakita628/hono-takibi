@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   capitalize,
-  decapitalize,
   escapeStringLiteral,
+  getToSafeIdentifier,
   regexPattern,
   removeZodPrefix,
   sanitizeIdentifier,
@@ -15,11 +15,11 @@ describe('string-utils barrel file exports', () => {
   it('should export capitalize', () => {
     expect(typeof capitalize).toBe('function')
   })
-  it('should export decapitalize', () => {
-    expect(typeof decapitalize).toBe('function')
-  })
   it('should export escapeStringLiteral', () => {
     expect(typeof escapeStringLiteral).toBe('function')
+  })
+  it('should export getToSafeIdentifier', () => {
+    expect(typeof getToSafeIdentifier).toBe('function')
   })
   it('should export regexPattern', () => {
     expect(typeof regexPattern).toBe('function')
