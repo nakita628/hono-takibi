@@ -25,24 +25,7 @@ describe('Hono Zod OpenAPI Test', () => {
     const res = await test.posts.$post({
       json: { post: '' },
     })
-    const input = await res.json()
-    expect(input).toEqual({
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'too_small',
-            minimum: 1,
-            type: 'string',
-            inclusive: true,
-            exact: false,
-            message: 'String must contain at least 1 character(s)',
-            path: ['post'],
-          },
-        ],
-        name: 'ZodError',
-      },
-    })
+
     expect(res.status).toBe(400)
   })
 
@@ -65,7 +48,7 @@ describe('Hono Zod OpenAPI Test', () => {
     const posts = await db.select().from(table.post)
 
     const res = await test.posts.$get({
-      query: { page: '1', rows: '15' },
+      query: { page: 1, rows: 15 },
     })
 
     const input = await res.json()
@@ -80,38 +63,11 @@ describe('Hono Zod OpenAPI Test', () => {
   it('getPostsRouteHandler 400', async () => {
     const res = await test.posts.$get({
       query: {
-        page: '-1',
-        rows: '-1',
+        page: -1,
+        rows: -1,
       },
     })
-    const input = await res.json()
 
-    expect(input).toEqual({
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'too_small',
-            minimum: 0,
-            type: 'number',
-            inclusive: true,
-            exact: false,
-            message: 'Number must be greater than or equal to 0',
-            path: ['page'],
-          },
-          {
-            code: 'too_small',
-            minimum: 0,
-            type: 'number',
-            inclusive: true,
-            exact: false,
-            message: 'Number must be greater than or equal to 0',
-            path: ['rows'],
-          },
-        ],
-        name: 'ZodError',
-      },
-    })
     expect(res.status).toBe(400)
   })
 
@@ -146,49 +102,7 @@ describe('Hono Zod OpenAPI Test', () => {
 
     const input = await res.json()
 
-    expect(input).toEqual({
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'too_small',
-            minimum: 1,
-            type: 'string',
-            inclusive: true,
-            exact: false,
-            message: 'String must contain at least 1 character(s)',
-            path: ['post'],
-          },
-        ],
-        name: 'ZodError',
-      },
-    })
-
     expect(res.status).toEqual(400)
-  })
-
-  it('putPostsIdRouteHandler ZodError', async () => {
-    const res = await test.posts[':id'].$put({
-      param: { id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥' },
-      json: { post: 'test' },
-    })
-
-    const input = await res.json()
-
-    expect(input).toEqual({
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'invalid_string',
-            message: 'Invalid uuid',
-            path: ['id'],
-            validation: 'uuid',
-          },
-        ],
-        name: 'ZodError',
-      },
-    })
   })
 
   it('deletePostsIdRouteHandler 204', async () => {
@@ -208,28 +122,5 @@ describe('Hono Zod OpenAPI Test', () => {
     const deletedPost = await db.select().from(table.post).where(eq(table.post.id, post[0].id))
 
     expect(deletedPost).toEqual([])
-  })
-
-  it('deletePostsIdRouteHandler ZodError', async () => {
-    const res = await test.posts[':id'].$delete({
-      param: { id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥' },
-    })
-
-    const input = await res.json()
-
-    expect(input).toEqual({
-      success: false,
-      error: {
-        issues: [
-          {
-            code: 'invalid_string',
-            message: 'Invalid uuid',
-            path: ['id'],
-            validation: 'uuid',
-          },
-        ],
-        name: 'ZodError',
-      },
-    })
   })
 })

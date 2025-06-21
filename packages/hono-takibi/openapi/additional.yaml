@@ -25,4 +25,4 @@ paths:
                     type: string
                 required:
                   - test
-                additionalProperties: true
+                additionalProperties: false

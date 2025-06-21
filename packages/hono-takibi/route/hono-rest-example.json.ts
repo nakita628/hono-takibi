@@ -4,14 +4,10 @@ const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
 const PostSchema = z
   .object({
-    id: z.string().uuid().openapi({ description: 'Unique identifier of the post' }),
+    id: z.uuid().openapi({ description: 'Unique identifier of the post' }),
     post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
-    createdAt: z
-      .string()
-      .datetime()
-      .openapi({ description: 'Timestamp when the post was created' }),
-    updatedAt: z
-      .string()
+    createdAt: z.iso.datetime().openapi({ description: 'Timestamp when the post was created' }),
+    updatedAt: z.iso
       .datetime()
       .openapi({ description: 'Timestamp when the post was last updated' }),
   })
@@ -78,22 +74,18 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.string().pipe(
-        z.coerce
-          .number()
-          .int()
-          .min(0)
-          .default(1)
-          .openapi({ param: { in: 'query', name: 'page', required: false }, example: 1 }),
-      ),
-      rows: z.string().pipe(
-        z.coerce
-          .number()
-          .int()
-          .min(0)
-          .default(10)
-          .openapi({ param: { in: 'query', name: 'rows', required: false }, example: 10 }),
-      ),
+      page: z.coerce
+        .number()
+        .int()
+        .min(0)
+        .default(1)
+        .openapi({ param: { in: 'query', name: 'page', required: false }, example: 1 }),
+      rows: z.coerce
+        .number()
+        .int()
+        .min(0)
+        .default(10)
+        .openapi({ param: { in: 'query', name: 'rows', required: false }, example: 10 }),
     }),
   },
   responses: {
@@ -134,10 +126,7 @@ export const putPostsIdRoute = createRoute({
       },
     },
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
     }),
   },
   responses: {
@@ -161,13 +150,10 @@ export const deletePostsIdRoute = createRoute({
   description: 'Delete an existing post identified by its unique ID.',
   request: {
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: { in: 'path', name: 'id', required: true },
-          example: '123e4567-e89b-12d3-a456-426614174000',
-        }),
+      id: z.uuid().openapi({
+        param: { in: 'path', name: 'id', required: true },
+        example: '123e4567-e89b-12d3-a456-426614174000',
+      }),
     }),
   },
   responses: {

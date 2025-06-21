@@ -6,37 +6,24 @@ import { requestParameter } from '.'
 
 describe('requestParameter', () => {
   it.concurrent('requestParameter parameters undefined', () => {
-    const result = requestParameter(
-      undefined,
-      {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                post: {
-                  type: 'string',
-                  minLength: 1,
-                  maxLength: 140,
-                },
+    const result = requestParameter(undefined, {
+      required: true,
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              post: {
+                type: 'string',
+                minLength: 1,
+                maxLength: 140,
               },
-              required: ['post'],
             },
+            required: ['post'],
           },
         },
       },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
-    )
+    })
 
     const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`
     expect(result).toBe(expected)
@@ -59,16 +46,6 @@ describe('requestParameter', () => {
         },
       ],
       undefined,
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
     )
 
     const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:false}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:false}})})},`
@@ -103,19 +80,9 @@ describe('requestParameter', () => {
           },
         },
       },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
     )
 
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.string().uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
     expect(result).toBe(expected)
   })
 
@@ -152,19 +119,9 @@ describe('requestParameter', () => {
           },
         },
       },
-      {
-        schema: {
-          name: 'PascalCase',
-          export: false,
-        },
-        type: {
-          name: 'PascalCase',
-          export: false,
-        },
-      },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.instanceof(Uint8Array)}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
     expect(result).toBe(expected)
   })
 })

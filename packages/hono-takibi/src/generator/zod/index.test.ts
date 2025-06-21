@@ -16,13 +16,13 @@ import {
   number,
   object,
   partial,
-  passthrough,
   record,
   regex,
   schema,
   string,
   union,
   zod,
+  stringbool,
 } from '.'
 
 // Test run
@@ -93,10 +93,6 @@ describe('zod module barrel file exports', () => {
     expect(typeof partial).toBe('function')
   })
 
-  it('should export passthrough', () => {
-    expect(typeof passthrough).toBe('function')
-  })
-
   it('should export record', () => {
     expect(typeof record).toBe('function')
   })
@@ -119,5 +115,8 @@ describe('zod module barrel file exports', () => {
 
   it('should export zod', () => {
     expect(typeof zod).toBe('function')
+  })
+  it('should export stringbool', () => {
+    expect(typeof stringbool).toBe('function')
   })
 })

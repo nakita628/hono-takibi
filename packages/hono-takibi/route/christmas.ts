@@ -10,7 +10,7 @@ const SantaStatusSchema = z
       example: 'delivering',
       description: 'Current status (e.g., "delivering", "resting", "in transit").',
     }),
-    lastUpdate: z.string().datetime().openapi({
+    lastUpdate: z.iso.datetime().openapi({
       example: '2025-12-24T22:00:00Z',
       description: 'Timestamp of the last status update.',
     }),
@@ -33,7 +33,7 @@ const DeliverySchema = z
       example: 'scheduled',
       description: 'Delivery status (e.g., "scheduled", "in progress", "delivered", "canceled").',
     }),
-    scheduledTime: z.string().datetime().openapi({
+    scheduledTime: z.iso.datetime().openapi({
       example: '2025-12-25T08:00:00Z',
       description: 'Scheduled time for the delivery.',
     }),
@@ -49,8 +49,7 @@ const DeliveryRequestSchema = z
     present: z
       .string()
       .openapi({ example: 'Toy Train Set', description: 'Description of the Christmas present.' }),
-    scheduledTime: z
-      .string()
+    scheduledTime: z.iso
       .datetime()
       .openapi({ example: '2025-12-25T08:00:00Z', description: 'Requested delivery time.' }),
   })
@@ -62,7 +61,7 @@ const DeliveryUpdateSchema = z
       example: '456 Reindeer Road, North Pole',
       description: 'Updated delivery address.',
     }),
-    scheduledTime: z.string().datetime().openapi({
+    scheduledTime: z.iso.datetime().openapi({
       example: '2025-12-25T09:00:00Z',
       description: 'Updated scheduled delivery time.',
     }),

@@ -1,6 +1,6 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
-import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
+import { propertySchema } from '../../../../zod/property/property-schema.js'
 import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
 import { generateRequestBody } from '../request/body/generate-request-body.js'
 import { generateInsertRequestBody } from '../request/body/generate-insert-request-body.js'
@@ -46,7 +46,7 @@ export function requestParameter(
 
     for (const contentType of requestBodyContentTypes) {
       const { schema } = requestBody.content[contentType]
-      const zodSchema = generatePropertySchema(schema)
+      const zodSchema = propertySchema(schema)
 
       uniqueSchemas.set(zodSchema, zodSchema)
     }

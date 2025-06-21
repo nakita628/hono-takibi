@@ -5,7 +5,7 @@ const OrderSchema = z
     id: z.number().int().openapi({ example: 10 }),
     petId: z.number().int().openapi({ example: 198772 }),
     quantity: z.number().int().openapi({ example: 7 }),
-    shipDate: z.string().datetime(),
+    shipDate: z.iso.datetime(),
     status: z
       .enum(['placed', 'approved', 'delivered'])
       .openapi({ example: 'approved', description: 'Order Status' }),
@@ -286,10 +286,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   summary: 'uploads an image',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    body: {
-      required: false,
-      content: { 'application/octet-stream': { schema: z.instanceof(Uint8Array) } },
-    },
+    body: { required: false, content: { 'application/octet-stream': { schema: z.file() } } },
     params: z.object({
       petId: z
         .number()

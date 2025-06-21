@@ -33,4 +33,36 @@ describe('object Test', () => {
     const expected = 'z.object({type:z.enum(["A","B","C"])})'
     expect(result).toBe(expected)
   })
+
+  it.concurrent('zod looseObject', () => {
+    const result = object({
+      type: 'object',
+      properties: {
+        test: {
+          type: 'string',
+        },
+      },
+      required: ['test'],
+      additionalProperties: true,
+    })
+
+    const expected = 'z.looseObject({test:z.string()})'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('zod strictObject', () => {
+    const result = object({
+      type: 'object',
+      properties: {
+        test: {
+          type: 'string',
+        },
+      },
+      required: ['test'],
+      additionalProperties: false,
+    })
+
+    const expected = 'z.strictObject({test:z.string()})'
+    expect(result).toBe(expected)
+  })
 })

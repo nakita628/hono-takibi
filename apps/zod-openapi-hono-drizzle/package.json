@@ -1,5 +1,5 @@
 {
-  "name": "@apps/zod-openapi_hono_drizzle",
+  "name": "@apps/zod-openapi-hono-drizzle",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@hono/vite-dev-server": "^0.19.1",
-    "@hono/zod-openapi": "^0.18.4",
+    "@hono/zod-openapi": "1.0.0-beta.1",
     "@libsql/client": "^0.14.0",
     "@types/node": "^22.15.31",
     "dotenv": "^16.5.0",

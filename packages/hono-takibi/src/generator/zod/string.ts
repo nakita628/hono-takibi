@@ -4,23 +4,29 @@ import { regex, _default, min, max, nullable } from './index.js'
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
   uuid: '.uuid()',
-  ip: '.ip()',
-  cidr: '.cidr()',
+  uuidv4: '.uuidv4()',
+  uuidv6: '.uuidv6()',
+  uuidv7: '.uuidv7()',
+  uri: '.url()',
+  emoji: '.emoji()',
+  base64: '.base64()',
+  base64url: '.base64url()',
+  nanoid: '.nanoid()',
   cuid: '.cuid()',
   cuid2: '.cuid2()',
   ulid: '.ulid()',
-  nanoid: '.nanoid()',
-  uri: '.url()',
-  base64: '.base64()',
+  ipv4: '.ipv4()',
+  ipv6: '.ipv6()',
+  cidrv4: '.cidrv4()',
+  cidrv6: '.cidrv6()',
+  date: '.iso.date()',
+  time: '.iso.time()',
+  'date-time': '.iso.datetime()',
+  duration: 'iso.duration()',
+  binary: '.file()',
   toLowerCase: '.toLowerCase()',
   toUpperCase: '.toUpperCase()',
-  date: '.date()',
-  'date-time': '.datetime()',
-  time: '.time()',
-  duration: '.duration()',
   trim: '.trim()',
-  emoji: '.emoji()',
-  binary: '.instanceof(Uint8Array)',
 }
 
 /**
@@ -56,12 +62,8 @@ const FORMAT_STRING: Record<string, string> = {
 export function string(schema: Schema): string {
   const validations: string[] = []
 
-  if (schema.format === 'binary') {
-    validations.push('z.instanceof(Uint8Array)')
-  } else {
-    const base = schema.format && FORMAT_STRING[schema.format]
-    validations.push(base ? `z.string()${base}` : 'z.string()')
-  }
+  const base = schema.format && FORMAT_STRING[schema.format]
+  validations.push(base ? `z${base}` : 'z.string()')
 
   // pattern
   if (schema.pattern) {

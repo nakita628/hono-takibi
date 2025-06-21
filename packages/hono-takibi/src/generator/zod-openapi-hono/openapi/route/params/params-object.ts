@@ -1,7 +1,7 @@
 import type { Parameters, ParamsObject } from '../../../../../openapi/index.js'
-import { coerce } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { getToSafeIdentifier } from '../../../../../core/utils/index.js'
+import { queryParameter } from './index.js'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
@@ -26,11 +26,8 @@ export function paramsObject(parameters: Parameters[]): ParamsObject {
       acc[param.in] = {}
     }
 
-    // Handle coercion for query number/integer types
-    const zodSchema =
-      param.in === 'query' && (param.schema.type === 'number' || param.schema.type === 'integer')
-        ? coerce('z.string()', baseSchema)
-        : baseSchema
+    // queryParameter check
+    const zodSchema = queryParameter(baseSchema, param)
 
     // Add parameter to its section
     acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`

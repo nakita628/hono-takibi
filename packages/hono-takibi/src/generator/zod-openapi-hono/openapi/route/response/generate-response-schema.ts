@@ -1,6 +1,6 @@
 import type { Responses } from '../../../../../openapi/index.js'
 import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema.js'
-import { generatePropertySchema } from '../../../../zod/property/generate-zod-property-schema.js'
+import { propertySchema } from '../../../../zod/property/property-schema.js'
 import { escapeStringLiteral } from '../../../../../core/utils/index.js'
 
 /**
@@ -38,7 +38,7 @@ export function generateResponseSchema(responses: Responses): string {
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = generatePropertySchema(content.schema)
+        const zodSchema = propertySchema(content.schema)
         contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
       }
       return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`

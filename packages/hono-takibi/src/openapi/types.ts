@@ -55,25 +55,31 @@ export type FormatString =
   // | 'min'
   // | 'length'
   | 'email'
+  | 'uuid'
+  | 'uuidv4'
+  | 'uuidv6'
+  | 'uuidv7'
   | 'uri'
   | 'emoji'
-  | 'uuid'
+  | 'base64'
+  | 'base64url'
   | 'nanoid'
   | 'cuid'
   | 'cuid2'
   | 'ulid'
-  | 'date-time' // ISO 8601; by default only `Z` timezone allowed
-  | 'ip' // defaults to allow both IPv4 and IPv6
-  | 'cidr' // defaults to allow both IPv4 and IPv6
-  // transforms
-  | 'trim' // trim whitespace
-  | 'toLowerCase' // toLowerCase
-  | 'toUpperCase' // toUpperCase
+  | 'ipv4'
+  | 'ipv6'
+  | 'cidrv4'
+  | 'cidrv6'
   | 'date' // ISO date format (YYYY-MM-DD)
   | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
+  | 'date-time' // ISO 8601; by default only `Z` timezone allowed
   | 'duration' // ISO 8601 duration
-  | 'base64'
   | 'binary'
+  // transforms
+  | 'toLowerCase' // toLowerCase
+  | 'toUpperCase' // toUpperCase
+  | 'trim' // trim whitespace
 
 export type FormatNumber = 'int32' | 'int64' | 'float' | 'double'
 
