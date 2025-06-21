@@ -4,8 +4,6 @@ import { zod } from '../zod/index.js'
 /**
  * Converts a Zod schema into a Zod schema with `.openapi()` metadata if needed.
  * The order of fields in `.openapi({ ... })` will follow the original OpenAPI YAML order.
- *
- * @param config - Global config
  * @param schema - Schema metadata
  * @param paramName - Parameter name, if applicable
  * @param paramIn - Parameter location: path/query/header/cookie

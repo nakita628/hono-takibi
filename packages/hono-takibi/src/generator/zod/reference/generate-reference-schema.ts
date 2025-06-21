@@ -1,5 +1,4 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getVariableSchemaName } from '../../../core/helper/index.js'
 import { getRefName } from '../../../core/schema/references/get-ref-name.js'
 
 /**

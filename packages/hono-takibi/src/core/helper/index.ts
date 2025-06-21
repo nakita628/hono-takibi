@@ -1,5 +1,1 @@
-export * from './get-camel-case-schema-name.js'
-export * from './get-pascal-case-schema-name.js'
-export * from './get-to-safe-identifier.js'
-export * from './get-variable-name.js'
-export * from './get-variable-schema-name.js'
+export { getToSafeIdentifier } from './get-to-safe-identifier.js'

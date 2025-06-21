@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
   capitalize,
-  decapitalize,
   escapeStringLiteral,
   regexPattern,
   removeZodPrefix,
@@ -14,9 +13,6 @@ import {
 describe('string-utils barrel file exports', () => {
   it('should export capitalize', () => {
     expect(typeof capitalize).toBe('function')
-  })
-  it('should export decapitalize', () => {
-    expect(typeof decapitalize).toBe('function')
   })
   it('should export escapeStringLiteral', () => {
     expect(typeof escapeStringLiteral).toBe('function')

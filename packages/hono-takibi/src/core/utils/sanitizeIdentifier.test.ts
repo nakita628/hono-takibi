@@ -5,7 +5,9 @@ import { sanitizeIdentifier } from '.'
 // pnpm vitest run ./src/core/utils/sanitizeIdentifier.test.ts
 
 describe('sanitizeIdentifier', () => {
-  it.concurrent(`sanitizeIdentifier('test') -> 'test'`, () => {})
+  it.concurrent(`sanitizeIdentifier('test') -> 'test'`, () => {
+    expect(sanitizeIdentifier('test')).toBe('test')
+  })
   it.concurrent(`sanitizeIdentifier('test123') -> 'test123'`, () => {
     expect(sanitizeIdentifier('test123')).toBe('test123')
   })

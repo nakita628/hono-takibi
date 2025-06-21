@@ -1,5 +1,4 @@
 export { capitalize } from './capitalize.js'
-export { decapitalize } from './decapitalize.js'
 export { escapeStringLiteral } from './escape-string-literal.js'
 export { regexPattern } from './regex-pattern.js'
 export { removeZodPrefix } from './remove-zod-prefix.js'
