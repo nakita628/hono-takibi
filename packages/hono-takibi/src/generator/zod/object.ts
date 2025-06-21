@@ -24,18 +24,19 @@ export function object(schema: Schema): string {
       return 'z.any()'
     }
     return record(schema.additionalProperties)
-  } else {
-    if (schema.properties) {
-      const zodSchema = propertiesSchema(
-        schema.properties,
-        Array.isArray(schema.required) ? schema.required : [],
-      )
-      if (schema.additionalProperties === false) {
-        console.log(schema.additionalProperties)
-        return zodSchema.replace('object', 'strictObject')
-      }
+  } 
+
+  if (schema.properties) {
+    const zodSchema = propertiesSchema(
+      schema.properties,
+      Array.isArray(schema.required) ? schema.required : [],
+    )
+    if (schema.additionalProperties === false) {
+      return zodSchema.replace('object', 'strictObject')
     }
   }
+
+  
   if (schema.allOf) {
     return allOf(schema)
   }
