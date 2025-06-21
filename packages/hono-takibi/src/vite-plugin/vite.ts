@@ -7,7 +7,10 @@ import path from 'node:path'
 
 /**
  * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
- * @param { Config } config - Config
+ * @param { `${string}.yaml` | `${string}.json` } input - Path to the OpenAPI specification file
+ * @param { `${string}.ts` } output - Path to the output TypeScript file
+ * @param { boolean } exportType - Whether to export types
+ * @param { boolean } exportSchema - Whether to export schemas
  * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
  */
 export async function vite(
@@ -24,12 +27,10 @@ export async function vite(
       console.error(`Error formatting code: ${code.error}`)
       return false
     }
-    if (output) {
-      await fsp.mkdir(path.dirname(output), { recursive: true })
-      await fsp.writeFile(output, code.value, 'utf-8')
-      console.log(`Generated code written to ${output}`)
-      return true
-    }
+    await fsp.mkdir(path.dirname(output), { recursive: true })
+    await fsp.writeFile(output, code.value, 'utf-8')
+    console.log(`Generated code written to ${output}`)
+    return true
   } catch (e) {
     console.error('Usage: hono-takibi <input.yaml|.json> -o <output.ts>')
     return false
