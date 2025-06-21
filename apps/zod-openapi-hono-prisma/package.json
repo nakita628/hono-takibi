@@ -13,17 +13,18 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",
-    "@hono/zod-openapi": "^0.18.4",
-    "@prisma/client": "^6.9.0",
-    "hono": "^4.7.11"
+    "@hono/zod-openapi": "1.0.0-beta.1",
+    "@prisma/client": "^6.10.1",
+    "hono": "^4.8.2"
   },
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.2",
+    "@hono/zod-openapi": "1.0.0-beta.1",
     "@scalar/hono-api-reference": "^0.5.184",
-    "@types/node": "^20.19.0",
+    "@types/node": "^20.19.1",
     "@vitest/coverage-v8": "^2.1.9",
-    "hono-takibi": "^0.7.4",
-    "prisma": "^6.9.0",
+    "hono-takibi": "^0.7.5",
+    "prisma": "^6.10.1",
     "tsx": "^4.20.3",
     "vitest": "^2.1.9"
   }
