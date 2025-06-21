@@ -113,7 +113,7 @@ describe('FizzBuzz API Fetch Test', () => {
 
 describe('FizzBuzz API Fail Test for Fetch', () => {
   it('path fizzbuzz get fizzbuzz?number=0 -> ZodError', async () => {
-    const res = await fetch(`http://localhost:3000/fizzbuzz?number=0`)
+    const res = await fetch('http://localhost:3000/fizzbuzz?number=0')
     expect(res.status).toBe(400)
   })
 })
