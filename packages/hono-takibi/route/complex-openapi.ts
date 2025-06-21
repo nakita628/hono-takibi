@@ -11,10 +11,10 @@ const AddressSchema = z
   .openapi('Address')
 
 const UserProfileSchema = z
-  .object({
+  .strictObject({
     bio: z.string().openapi({ example: 'Software engineer with 10 years of experience.' }),
     social: z
-      .object({
+      .strictObject({
         twitter: z.string().openapi({ example: '@johndoe' }),
         linkedin: z.string().openapi({ example: 'john-doe' }),
       })
