@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   capitalize,
   escapeStringLiteral,
+  getToSafeIdentifier,
   regexPattern,
   removeZodPrefix,
   sanitizeIdentifier,
@@ -16,6 +17,9 @@ describe('string-utils barrel file exports', () => {
   })
   it('should export escapeStringLiteral', () => {
     expect(typeof escapeStringLiteral).toBe('function')
+  })
+  it('should export getToSafeIdentifier', () => {
+    expect(typeof getToSafeIdentifier).toBe('function')
   })
   it('should export regexPattern', () => {
     expect(typeof regexPattern).toBe('function')

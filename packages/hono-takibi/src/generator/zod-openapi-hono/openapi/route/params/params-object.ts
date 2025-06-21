@@ -1,7 +1,7 @@
 import type { Parameters, ParamsObject } from '../../../../../openapi/index.js'
 import { coerce } from '../../../../zod/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
-import { getToSafeIdentifier } from '../../../../../core/helper/get-to-safe-identifier.js'
+import { getToSafeIdentifier } from '../../../../../core/utils/index.js'
 
 /**
  * Generates a params object containing Zod schemas for different parameter locations
