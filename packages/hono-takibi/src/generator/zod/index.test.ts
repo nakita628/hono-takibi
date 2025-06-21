@@ -16,7 +16,6 @@ import {
   number,
   object,
   partial,
-  passthrough,
   record,
   regex,
   schema,
@@ -92,10 +91,6 @@ describe('zod module barrel file exports', () => {
 
   it('should export partial', () => {
     expect(typeof partial).toBe('function')
-  })
-
-  it('should export passthrough', () => {
-    expect(typeof passthrough).toBe('function')
   })
 
   it('should export record', () => {

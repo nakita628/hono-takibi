@@ -46,10 +46,7 @@ import { getToSafeIdentifier } from '../../../core/utils/index.js'
  * - Uses .partial() when no properties are required
  * - Maintains property order from input
  */
-export function propertiesSchema(
-  properties: Record<string, Schema>,
-  required: string[],
-): string {
+export function propertiesSchema(properties: Record<string, Schema>, required: string[]): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const safeKey = getToSafeIdentifier(key)

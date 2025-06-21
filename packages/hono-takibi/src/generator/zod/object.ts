@@ -1,5 +1,5 @@
 import type { Schema } from '../../openapi/index.js'
-import { record, passthrough } from './index.js'
+import { record } from './index.js'
 import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/component/anyof/any-of.js'
@@ -17,11 +17,24 @@ export function object(schema: Schema): string {
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
         )
-        return passthrough(zodSchema)
+        if (schema.additionalProperties === true) {
+          return zodSchema.replace('object', 'looseObject')
+        }
       }
       return 'z.any()'
     }
     return record(schema.additionalProperties)
+  } else {
+    if (schema.properties) {
+      const zodSchema = propertiesSchema(
+        schema.properties,
+        Array.isArray(schema.required) ? schema.required : [],
+      )
+      if (schema.additionalProperties === false) {
+        console.log(schema.additionalProperties)
+        return zodSchema.replace('object', 'strictObject')
+      }
+    }
   }
   if (schema.allOf) {
     return allOf(schema)
@@ -35,8 +48,5 @@ export function object(schema: Schema): string {
   if (!schema.properties) {
     return 'z.object({})'
   }
-  return propertiesSchema(
-    schema.properties,
-    Array.isArray(schema.required) ? schema.required : [],
-  )
+  return propertiesSchema(schema.properties, Array.isArray(schema.required) ? schema.required : [])
 }
