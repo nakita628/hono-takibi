@@ -4,7 +4,7 @@ import { docs } from '.'
 import { honoRestOpenAPI } from '../../../../../data/hono-rest-openapi'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/app/docs/generate-docs.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/generator/docs.test.ts
 
 const generateDocsTestCases: {
   openapi: OpenAPI
