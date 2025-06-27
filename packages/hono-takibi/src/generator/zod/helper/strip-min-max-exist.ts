@@ -5,6 +5,6 @@
  * @param { number } max - The max value.
  * @returns { string } The string without min and max.
  */
-export function stripMinMaxExistHelper(str: string, min: number, max: number): string {
+export function stripMinMaxExist(str: string, min: number, max: number): string {
   return str.replace(`.min(${min})`, '').replace(`.max(${max})`, '')
 }

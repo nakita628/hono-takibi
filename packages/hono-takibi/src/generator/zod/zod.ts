@@ -1,8 +1,6 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
-import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
-import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
-import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
+import { stripMinIfgTExist, stripMaxIfLtExist, stripMinMaxExist } from './helper/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
@@ -97,7 +95,7 @@ export function zod(schema: Schema): string {
       res.includes(`min(${schema.minLength})`) &&
       res.includes(`max(${schema.maxLength})`)
     ) {
-      const property = stripMinMaxExistHelper(res, schema.minLength, schema.maxLength)
+      const property = stripMinMaxExist(res, schema.minLength, schema.maxLength)
       return `${property}${length(schema.minLength)}`
     }
     return res
@@ -112,7 +110,7 @@ export function zod(schema: Schema): string {
       res.includes(`gt(${schema.minimum})`) &&
       schema.minimum
     ) {
-      return stripMinIfgTExistHelper(res, schema.minimum)
+      return stripMinIfgTExist(res, schema.minimum)
     }
     // lt
     if (
@@ -120,7 +118,7 @@ export function zod(schema: Schema): string {
       res.includes(`lt(${schema.maximum})`) &&
       schema.maximum
     ) {
-      return stripMaxIfLtExistHelper(res, schema.maximum)
+      return stripMaxIfLtExist(res, schema.maximum)
     }
     return res
   }

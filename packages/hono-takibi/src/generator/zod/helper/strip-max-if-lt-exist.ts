@@ -4,6 +4,6 @@
  * @param { number } maximum - The maximum value.
  * @returns { string } The string without max if less than exist.
  */
-export function stripMaxIfLtExistHelper(str: string, maximum: number): string {
+export function stripMaxIfLtExist(str: string, maximum: number): string {
   return str.replace(`.max(${maximum})`, '')
 }
