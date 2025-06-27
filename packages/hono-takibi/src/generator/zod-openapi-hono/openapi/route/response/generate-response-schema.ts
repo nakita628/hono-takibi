@@ -1,5 +1,5 @@
 import type { Responses } from '../../../../../openapi/index.js'
-import { isUniqueContentSchema } from '../../../../../core/validator/is-unique-content-schema.js'
+import { isUniqueContentSchema } from '../../../../../core/validator/index.js'
 import { propertySchema } from '../../../../zod/property/property-schema.js'
 import { escapeStringLiteral } from '../../../../../core/utils/index.js'
 

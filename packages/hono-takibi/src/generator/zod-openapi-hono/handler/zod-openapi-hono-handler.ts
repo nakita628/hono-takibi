@@ -1,6 +1,6 @@
 import type { OpenAPIPaths, OpenAPI } from '../../../openapi/index.js'
 import { handler, handlerName } from './generator/index.js'
-import { generateRouteName } from '../openapi/route/generate-route-name.js'
+import { generateRouteName } from '../openapi/route/route-name.js'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'

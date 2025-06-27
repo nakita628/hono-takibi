@@ -1,4 +1,4 @@
-import { isUniqueContentSchema } from '../../../../../../core/validator/is-unique-content-schema.js'
+import { isUniqueContentSchema } from '../../../../../../core/validator/index.js'
 import type { Content } from '../../../../../../openapi/index.js'
 
 /**

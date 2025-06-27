@@ -1,7 +1,6 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
-import { isHttpMethod } from '../../../../core/validator/is-http-method.js'
 import { route } from './index.js'
-import { isOperation } from '../../../../core/validator/is-operation.js'
+import { isHttpMethod, isOperation } from '../../../../core/validator/index.js'
 
 /**
  * Generates TypeScript code for all valid routes based on OpenAPI paths
@@ -19,7 +18,7 @@ import { isOperation } from '../../../../core/validator/is-operation.js'
  * - Generates type-safe route handlers using zod validation
  * - Combines all routes with proper spacing
  */
-export function generateRouteCode(openAPIPaths: OpenAPIPaths): string {
+export function routeCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []
   // 1. flattening and processing OpenAPI paths
   for (const [path, pathItem] of Object.entries(openAPIPaths)) {

@@ -1,5 +1,5 @@
 import type { Schema } from '../../../../../../openapi/index.js'
-import { isNullableSchema } from '../../../../../../core/validator/is-nullable-schema.js'
+import { isNullableSchema } from '../../../../../../core/validator/index.js'
 import { generateZodSchemaFromSubSchema } from '../../../../../zod/sub/generate-zod-schema-from-sub-schema.js'
 
 type Accumulator = {

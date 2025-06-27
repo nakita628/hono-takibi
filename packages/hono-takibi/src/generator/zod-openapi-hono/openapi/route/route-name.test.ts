@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { generateRouteName } from './generate-route-name'
+import { routeName } from '.'
 
-const generateRouteNameTestCases = [
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/route-name.test.ts
+
+const routeNameTestCases = [
   { method: 'get', path: '/posts', expected: 'getPostsRoute' },
   { method: 'get', path: '/posts/{id}', expected: 'getPostsIdRoute' },
   { method: 'get', path: '/user/profile', expected: 'getUserProfileRoute' },
@@ -48,13 +51,14 @@ const generateRouteNameTestCases = [
   { method: 'post', path: '/integration/discord', expected: 'postIntegrationDiscordRoute' },
   { method: 'post', path: '/integration/jira', expected: 'postIntegrationJiraRoute' },
   { method: 'post', path: '/integration/github', expected: 'postIntegrationGithubRoute' },
+  { method: 'get', path: '/emails/{email_id}', expected: 'getEmailsEmailIdRoute' },
 ]
 
-describe('generateRouteName', () => {
-  it.concurrent.each(generateRouteNameTestCases)(
-    'generateRouteName($method, $path) -> $expected',
+describe('routeName', () => {
+  it.concurrent.each(routeNameTestCases)(
+    'routeName($method, $path) -> $expected',
     async ({ method, path, expected }) => {
-      const result = generateRouteName(method, path)
+      const result = routeName(method, path)
       expect(result).toBe(expected)
     },
   )

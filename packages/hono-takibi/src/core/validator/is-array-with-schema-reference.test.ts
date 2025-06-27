@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isArrayWithSchemaReference } from './is-array-with-schema-reference'
+import { isArrayWithSchemaReference } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-array-with-schema-reference.test.ts

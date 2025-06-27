@@ -1,5 +1,5 @@
 import { handlerName } from '../../handler/generator/index.js'
-import { generateRouteName } from '../../openapi/route/generate-route-name.js'
+import { generateRouteName } from '../../openapi/route/route-name.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
 
 /**

@@ -2,7 +2,7 @@ import type { Operation } from '../../../../openapi/index.js'
 import { requestParameter } from './params/index.js'
 import { createRoute } from './create-route.js'
 import { generateResponseSchema } from './response/generate-response-schema.js'
-import { generateRouteName } from './generate-route-name.js'
+import { routeName } from './index.js'
 import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
 /**
  * Generates TypeScript code for a Hono route based on OpenAPI operation details
@@ -27,12 +27,11 @@ import { escapeStringLiteral } from '../../../../core/utils/escape-string-litera
 export function route(path: string, method: string, operation: Operation): string {
   const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
     operation
-  const routeName = generateRouteName(method, path)
   const tagList = tags ? JSON.stringify(tags) : '[]'
   const requestParams = requestParameter(parameters, requestBody)
 
   const create_args = {
-    routeName,
+    routeName: routeName(method, path),
     tagsCode: tags ? `tags:${tagList},` : '',
     methodCode: `method:'${method}',`,
     pathCode: `path:'${path}',`,

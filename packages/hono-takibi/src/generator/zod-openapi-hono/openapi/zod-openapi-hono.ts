@@ -1,6 +1,6 @@
 import type { OpenAPI } from '../../../openapi/index.js'
 import { generateComponentsCode } from './components/generate-components-code.js'
-import { generateRouteCode } from './route/generate-route-code.js'
+import { generateRouteCode } from './route/route-code.js'
 
 /**
  * Import statement for Hono's zod-openapi package

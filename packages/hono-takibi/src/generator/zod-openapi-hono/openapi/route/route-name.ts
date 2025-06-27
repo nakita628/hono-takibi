@@ -14,7 +14,7 @@ import { capitalize } from '../../../../core/utils/index.js'
  * 5. Join all words together
  * 6. Add HTTP method and Route suffix
  */
-export function generateRouteName(method: string, path: string) {
+export function routeName(method: string, path: string): string {
   // 1. api_path: `/user/createWithList`
   // 2. replace(/[\/{}-]/g, ' ') -> ` user createWithList`
   // 3. trim() -> `user createWithList`
@@ -23,7 +23,7 @@ export function generateRouteName(method: string, path: string) {
   // 6. join('') -> `UserCreateWithList`
 
   const api_path = path
-    .replace(/[\/{}-]/g, ' ')
+    .replace(/[\/{}_-]/g, ' ')
     .trim()
     .split(/\s+/)
     .map(capitalize)

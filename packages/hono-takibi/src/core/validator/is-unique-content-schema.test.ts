@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isUniqueContentSchema } from './is-unique-content-schema'
+import { isUniqueContentSchema } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-unique-content-schema.test.ts
