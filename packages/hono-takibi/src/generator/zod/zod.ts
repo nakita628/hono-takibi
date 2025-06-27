@@ -73,7 +73,7 @@ export function zod(schema: Schema): string {
       res.includes(`gt(${schema.minimum})`) &&
       schema.minimum
     ) {
-      return stripMinIfgTExist(res, schema.minimum)
+      return stripMinIfgtExist(res, schema.minimum)
     }
     // lt
     if (
