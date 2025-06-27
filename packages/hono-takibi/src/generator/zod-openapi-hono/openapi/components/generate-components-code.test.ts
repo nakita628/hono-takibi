@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateComponentsCode } from './generate-components-code'
+import { generateComponentsCode } from './generate-components-code.js'
 import type { Components } from '../../../../openapi/index.js'
 
 // Test run

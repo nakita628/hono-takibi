@@ -1,5 +1,5 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { generateComponentsCode } from './component/generate-components-code.js'
+import { generateComponentsCode } from './components/generate-components-code.js'
 import { generateRouteCode } from './route/generate-route-code.js'
 
 /**

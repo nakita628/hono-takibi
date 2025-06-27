@@ -3,10 +3,10 @@ import { string, number, array, _enum, integer, length, max, min, object } from 
 import { stripMinIfgTExistHelper } from './helper/strip-min-if-gt-exist-helper.js'
 import { stripMaxIfLtExistHelper } from './helper/strip-max-if-lt-exist-helper.js'
 import { stripMinMaxExistHelper } from './helper/strip-min-max-exist-helper.js'
-import { oneOf } from '../zod-openapi-hono/openapi/component/oneof/index.js'
-import { anyOf } from '../zod-openapi-hono/openapi/component/anyof/index.js'
-import { allOf } from '../zod-openapi-hono/openapi/component/allof/index.js'
-import { not } from '../zod-openapi-hono/openapi/component/not/index.js'
+import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
+import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
+import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
+import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
 import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
