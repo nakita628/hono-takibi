@@ -1,7 +1,7 @@
 import type { Schema } from '../../../openapi/index.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/index.js'
-import { generateReferenceSchema } from '../reference/generate-reference-schema.js'
-import { generateArrayReferenceSchema } from '../reference/generate-array-reference-schema.js'
+import { referenceSchema } from '../reference/reference-schema.js'
+import { arrayReferenceSchema } from '../reference/array-reference-schema.js'
 import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
@@ -12,11 +12,11 @@ import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
  */
 export function propertySchema(schema: Schema) {
   if (Boolean(schema.$ref) === true) {
-    return generateReferenceSchema(schema)
+    return referenceSchema(schema)
   }
 
   if (isArrayWithSchemaReference(schema)) {
-    return generateArrayReferenceSchema(schema)
+    return arrayReferenceSchema(schema)
   }
 
   return zodToOpenAPI(schema)

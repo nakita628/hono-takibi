@@ -7,7 +7,7 @@ import { array } from '../index.js'
  * @param { Schema } schema - The schema to generate the array reference schema for
  * @returns { string } The generated array reference schema
  */
-export function generateArrayReferenceSchema(schema: Schema): string {
+export function arrayReferenceSchema(schema: Schema): string {
   if (!schema.items?.$ref) {
     return 'z.array(z.any())'
   }

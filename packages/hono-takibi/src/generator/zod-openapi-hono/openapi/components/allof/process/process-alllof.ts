@@ -1,6 +1,6 @@
 import type { Schema } from '../../../../../../openapi/index.js'
 import { isNullableSchema } from '../../../../../../core/validator/index.js'
-import { generateZodSchemaFromSubSchema } from '../../../../../zod/sub/generate-zod-schema-from-sub-schema.js'
+import { zodSchemaFromSubSchema } from '../../../../../zod/sub/zod-schema-from-sub-schema.js'
 
 type Accumulator = {
   nullable: boolean
@@ -19,7 +19,7 @@ export function processAllOf(allOf: Schema[]): Accumulator {
         acc.nullable = true
         return acc
       }
-      const zodSchema = generateZodSchemaFromSubSchema(subSchema)
+      const zodSchema = zodSchemaFromSubSchema(subSchema)
       acc.schemas.push(zodSchema)
       return acc
     },
