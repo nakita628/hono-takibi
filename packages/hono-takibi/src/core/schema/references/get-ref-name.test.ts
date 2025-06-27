@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getRefName } from './get-ref-name'
+import { getRefName } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/get-ref-name.test.ts

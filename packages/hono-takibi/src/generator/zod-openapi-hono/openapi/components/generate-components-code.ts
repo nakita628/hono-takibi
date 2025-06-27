@@ -1,6 +1,6 @@
 import type { Components } from '../../../../openapi/index.js'
 import { generateZodToOpenAPISchemaDefinition } from '../../../zod-to-openapi/defining/generate-zod-to-openapi-schema-definition.js'
-import { resolveSchemasDependencies } from '../../../../core/schema/references/resolve-schemas-dependencies.js'
+import { resolveSchemasDependencies } from '../../../../core/schema/references/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**

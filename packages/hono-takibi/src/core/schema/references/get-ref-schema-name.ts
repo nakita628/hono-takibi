@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getRefName } from './get-ref-name.js'
+import { getRefName } from './index.js'
 
 /**
  * Retrieves the referenced schema name from a schema object.

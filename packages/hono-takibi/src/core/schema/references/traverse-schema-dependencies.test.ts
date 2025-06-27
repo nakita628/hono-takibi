@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { traverseSchemaDependencies } from './traverse-schema-dependencies'
+import { traverseSchemaDependencies } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/traverse-schema-dependencies.test.ts
