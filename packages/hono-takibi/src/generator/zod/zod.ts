@@ -1,6 +1,6 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
-import { stripMinIfgTExist, stripMaxIfLtExist, stripMinMaxExist } from './helper/index.js'
+import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from './helper/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
@@ -32,43 +32,6 @@ const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
  * Generates a Zod schema string from an OpenAPI/JSON Schema definition
  * @param { Schema } schema - The schema definition object
  * @returns { string } Generated Zod schema string
- * @example
- * // Enum type
- * generateZod({ enum: ['active', 'inactive'] })
- * // Returns: 'z.enum(["active","inactive"])'
- *
- * @example
- * // Object with properties
- * generateZod({
- *   type: 'object',
- *   properties: {
- *     name: { type: 'string' },
- *     age: { type: 'number' }
- *   },
- *   required: ['name']
- * })
- * // Returns: 'z.object({name: z.string(), age: z.number().optional()})'
- * @example
- * // String with validation
- * generateZod({
- *   type: 'string',
- *   minLength: 3,
- *   maxLength: 10,
- *   pattern: '^[a-z]+$'
- * })
- * // Returns: 'z.string().min(3).max(10).regex(/^[a-z]+$/)'
- *
- * @example
- * // Array with items
- * generateZod({
- *   type: 'array',
- *   items: { type: 'string' }
- * })
- * // Returns: 'z.array(z.string())'
- * @remarks
- * - Handles special cases first (enum, object, string with validation, array with items)
- * - Falls back to basic type mapping for simple types
- * - Returns z.any() for unknown types with a warning
  */
 export function zod(schema: Schema): string {
   // enum

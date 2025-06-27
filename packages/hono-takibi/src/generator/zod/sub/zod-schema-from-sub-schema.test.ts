@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { zodSchemaFromSubSchema } from './zod-schema-from-sub-schema'
+import { zodSchemaFromSubSchema } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/sub/zod-schema-from-sub-schema.test.ts

@@ -1,6 +1,6 @@
 import type { Schema } from '../../../../../../openapi/index.js'
 import { isNullableSchema } from '../../../../../../core/validator/index.js'
-import { zodSchemaFromSubSchema } from '../../../../../zod/sub/zod-schema-from-sub-schema.js'
+import { zodSchemaFromSubSchema } from '../../../../../zod/sub/index.js'
 
 type Accumulator = {
   nullable: boolean

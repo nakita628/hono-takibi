@@ -1,7 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/index.js'
-import { referenceSchema } from '../reference/reference-schema.js'
-import { arrayReferenceSchema } from '../reference/array-reference-schema.js'
+import { referenceSchema, arrayReferenceSchema } from '../reference/index.js'
 import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**

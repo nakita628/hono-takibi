@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { referenceSchema } from './reference-schema'
+import { referenceSchema } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/reference/reference-schema.test.ts
