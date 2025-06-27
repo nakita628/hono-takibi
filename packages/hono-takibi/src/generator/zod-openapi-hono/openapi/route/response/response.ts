@@ -20,7 +20,7 @@ import { escapeStringLiteral } from '../../../../../core/utils/index.js'
  * - Handles nested schema structures
  * - Automatically resolves schema references
  */
-export function generateResponseSchema(responses: Responses): string {
+export function response(responses: Responses): string {
   // 1. get response codes (200, 404, etc.)
   const responseCodes = Object.keys(responses)
   // 2. processing for each response code

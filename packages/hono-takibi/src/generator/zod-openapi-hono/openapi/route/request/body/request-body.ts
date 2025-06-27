@@ -8,11 +8,7 @@ import type { Content } from '../../../../../../openapi/index.js'
  * @param { string } zodSchema - Zod schema string for request body validation
  * @returns { string } Generated request body configuration string
  */
-export function generateRequestBody(
-  required: boolean,
-  content: Content,
-  zodSchema: string,
-): string {
+export function requestBody(required: boolean, content: Content, zodSchema: string): string {
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
 

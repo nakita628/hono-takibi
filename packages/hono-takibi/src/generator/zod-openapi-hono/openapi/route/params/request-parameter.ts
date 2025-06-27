@@ -1,9 +1,9 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { propertySchema } from '../../../../zod/property/property-schema.js'
-import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
-import { generateRequestBody } from '../request/body/generate-request-body.js'
-import { generateInsertRequestBody } from '../request/body/generate-insert-request-body.js'
+import { formatRequestObject } from '../request/object/format-request-object.js'
+import { generateRequestBody } from '../request/body/request-body.js'
+import { generateInsertRequestBody } from '../request/body/insert-request-body.js'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
@@ -36,7 +36,7 @@ export function requestParameter(
     ? (() => {
         const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
-        return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
+        return requestParamsArr.length ? formatRequestObject(requestParamsArr) : ''
       })()
     : ''
 

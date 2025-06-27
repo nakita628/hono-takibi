@@ -4,6 +4,6 @@
  * @param { string } requestBodyCode - Request body validation code to insert
  * @returns { string } Combined request validation string
  */
-export function generateInsertRequestBody(requestParams: string, requestBodyCode: string): string {
+export function insertRequestBody(requestParams: string, requestBodyCode: string): string {
   return requestParams.replace('request:{', `request:{${requestBodyCode}`)
 }

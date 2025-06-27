@@ -1,7 +1,7 @@
 import type { Operation } from '../../../../openapi/index.js'
 import { requestParameter } from './params/index.js'
 import { createRoute } from './create-route.js'
-import { generateResponseSchema } from './response/generate-response-schema.js'
+import { response } from './response/response.js'
 import { routeName } from './index.js'
 import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
 /**
@@ -40,7 +40,7 @@ export function route(path: string, method: string, operation: Operation): strin
     descriptionCode: description ? `description:'${escapeStringLiteral(description)}',` : '',
     securityCode: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
-    responsesCode: responses ? `responses:{${generateResponseSchema(responses)}}` : '',
+    responsesCode: responses ? `responses:{${response(responses)}}` : '',
   }
   return createRoute(create_args)
 }

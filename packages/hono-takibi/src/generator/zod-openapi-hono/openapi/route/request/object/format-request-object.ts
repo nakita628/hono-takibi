@@ -4,12 +4,12 @@
  * @returns { string } Formatted request validator object string
  * @example
  * // Single parameter
- * generateFormatRequestObject(['query:z.object({page:z.string()})'])
+ * formatRequestObject(['query:z.object({page:z.string()})'])
  * // Returns: 'request:{query:z.object({page:z.string()})}'
  *
  * @example
  * // Multiple parameters
- * generateFormatRequestObject([
+ * formatRequestObject([
  *   'query:z.object({page:z.string(),rows:z.string()})',
  *   'params:z.object({id:z.string()})'
  * ])
@@ -19,9 +19,9 @@
  * // }'
  * @example
  * // Empty array
- * generateFormatRequestObject([])
+ * formatRequestObject([])
  * // Returns: 'request:{}'
  */
-export function generateFormatRequestObject(requestParamsArray: string[]): string {
+export function formatRequestObject(requestParamsArray: string[]): string {
   return `request:{${requestParamsArray.join(',')}},`
 }
