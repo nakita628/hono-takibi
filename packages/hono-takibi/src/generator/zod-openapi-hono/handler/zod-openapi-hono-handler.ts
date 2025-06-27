@@ -1,6 +1,6 @@
 import type { OpenAPIPaths, OpenAPI } from '../../../openapi/index.js'
 import { handler, handlerName } from './generator/index.js'
-import { generateRouteName } from '../openapi/route/route-name.js'
+import { routeName } from '../openapi/route/route-name.js'
 import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
@@ -31,8 +31,7 @@ export async function zodOpenapiHonoHandler(
   const handlers: HandlerOutput[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
-      const routeName = generateRouteName(method, path)
-      const routeHandlerContent = handler(handlerName(method, path), routeName)
+      const routeHandlerContent = handler(handlerName(method, path), routeName(method, path))
 
       const path_name = path.replace(/^\/+/, '').split('/')[0]
 
@@ -45,7 +44,7 @@ export async function zodOpenapiHonoHandler(
         fileName,
         testFileName,
         routeHandlerContents: [routeHandlerContent],
-        routeNames: [routeName],
+        routeNames: [routeName(method, path)],
       })
     }
   }
