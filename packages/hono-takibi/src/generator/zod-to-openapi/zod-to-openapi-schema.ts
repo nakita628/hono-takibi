@@ -1,23 +1,13 @@
-import { sanitizeIdentifier } from '../../../core/utils/index.js'
-import { infer } from '../../zod/index.js'
+import { sanitizeIdentifier } from '../../core/utils/index.js'
+import { infer } from '../zod/index.js'
 
 /**
  * Creates a Zod schema constant declaration
  * @param { string } schemaName - Name of the schema constant
  * @param { string } zodSchema - Zod schema definition string
  * @returns { string } Generated constant declaration string
- * @example
- * generateZodSchemaDefinition('userSchema', 'z.object({ id: z.number(), name: z.string() })')
- * // Returns: 'const userSchema = z.object({ id: z.number(), name: z.string() })'
- * @example
- * generateZodSchemaDefinition('statusSchema', 'z.enum(["active", "inactive"])')
- * // Returns: 'const statusSchema = z.enum(["active", "inactive"])'
- * @remarks
- * - Used for generating Zod schema constant declarations
- * - Part of OpenAPI to Zod schema conversion process
- * - Creates reusable schema definitions
  */
-export function generateZodToOpenAPISchemaDefinition(
+export function zodToOpenAPISchema(
   schemaName: string,
   zodSchema: string,
   exportSchema: boolean,
