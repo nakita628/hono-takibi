@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isHttpMethod } from './is-http-method'
+import { isHttpMethod } from '.'
 
 const isHttpMethodTestCases = [
   { method: 'get', expected: true },

@@ -1,6 +1,6 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { generateComponentsCode } from './component/generate-components-code.js'
-import { generateRouteCode } from './route/generate-route-code.js'
+import { componentsCode } from './components/components-code.js'
+import { routeCode } from './route/route-code.js'
 
 /**
  * Import statement for Hono's zod-openapi package
@@ -19,10 +19,8 @@ export function zodOpenAPIHono(
   exportSchema: boolean,
   exportType: boolean,
 ): string {
-  const components = openapi.components ? openapi.components : undefined
-  const paths = openapi.paths
-  const componentsCode =
-    components === undefined ? '' : generateComponentsCode(components, exportSchema, exportType)
-  const routeCode = generateRouteCode(paths)
-  return `${IMPORT_CODE}\n\n${componentsCode}\n\n${routeCode}`.trimEnd()
+  const components = openapi.components
+    ? componentsCode(openapi.components, exportSchema, exportType)
+    : ''
+  return `${IMPORT_CODE}\n\n${components}\n\n${routeCode(openapi.paths)}`.trimEnd()
 }

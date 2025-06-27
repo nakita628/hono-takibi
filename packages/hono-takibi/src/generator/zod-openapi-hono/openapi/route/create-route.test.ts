@@ -1,0 +1,21 @@
+import { describe, it, expect } from 'vitest'
+import { createRoute } from '.'
+
+// Test run
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/create-route.test.ts
+
+describe('createRoute', () => {
+  it.concurrent('createRoute Test', () => {
+    const result = createRoute({
+      routeName: 'deletePostsId',
+      tagsCode: '["Post"]',
+      methodCode: 'delete',
+      pathCode: '/posts/{id}',
+      descriptionCode: 'delete post',
+      requestParams: 'request:{params:z.object({id:z.string().uuid()})},',
+      responsesCode: `204:{description:'No Content',},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message:z.string()}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema: z.object({message: z.string()}),},},},`,
+    })
+    const expected = `export const deletePostsId=createRoute({["Post"]delete/posts/{id}delete postrequest:{params:z.object({id:z.string().uuid()})},204:{description:'No Content',},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message:z.string()}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema: z.object({message: z.string()}),},},},})`
+    expect(result).toBe(expected)
+  })
+})

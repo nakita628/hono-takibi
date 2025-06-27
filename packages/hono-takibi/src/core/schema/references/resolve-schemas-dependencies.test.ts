@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { resolveSchemasDependencies } from './resolve-schemas-dependencies'
+import { resolveSchemasDependencies } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/resolve-schemas-dependencies.test.ts

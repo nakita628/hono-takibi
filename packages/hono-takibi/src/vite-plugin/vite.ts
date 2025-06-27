@@ -24,7 +24,7 @@ export async function vite(
     const hono = zodOpenAPIHono(openAPI, exportSchema, exportType)
     const code = await fmt(hono)
     if (!code.ok) {
-      console.error(`Error formatting code: ${code.error}`)
+      console.error(`${code.error}`)
       return false
     }
     await fsp.mkdir(path.dirname(output), { recursive: true })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isNullableSchema } from './is-nullable-schema'
+import { isNullableSchema } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-nullable-schema.test.ts

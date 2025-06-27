@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { traverseSchemaDependencies } from './traverse-schema-dependencies.js'
+import { traverseSchemaDependencies } from './index.js'
 
 /**
  * Resolves dependencies between schemas and returns them in topological order for safe processing

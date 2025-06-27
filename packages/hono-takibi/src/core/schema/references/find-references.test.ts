@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { findReferences } from './find-references'
+import { findReferences } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/find-references.test.ts

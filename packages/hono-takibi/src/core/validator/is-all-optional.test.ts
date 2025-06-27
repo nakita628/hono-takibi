@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isAllOptional } from './is-all-optional'
+import { isAllOptional } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-all-optional.test.ts

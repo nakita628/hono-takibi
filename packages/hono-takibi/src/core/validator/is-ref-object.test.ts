@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isRefObject } from './is-ref-object'
+import { isRefObject } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-ref-object.test.ts

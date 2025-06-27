@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { extractRefs } from './extract-refs.js'
+import { extractRefs } from './index.js'
 
 /**
  * Traverses the schema dependencies and returns them in topological order

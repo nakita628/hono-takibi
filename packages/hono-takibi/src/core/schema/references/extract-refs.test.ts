@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractRefs } from './extract-refs'
+import { extractRefs } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/extract-refs.test.ts

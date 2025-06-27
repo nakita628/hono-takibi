@@ -1,14 +1,14 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { propertySchema } from '../../../../zod/property/property-schema.js'
-import { generateFormatRequestObject } from '../request/object/generate-format-request-object.js'
-import { generateRequestBody } from '../request/body/generate-request-body.js'
-import { generateInsertRequestBody } from '../request/body/generate-insert-request-body.js'
+import { formatRequestObject } from '../request/object/format-request-object.js'
+import { requestBody } from '../request/body/request-body.js'
+import { insertRequestBody } from '../request/body/insert-request-body.js'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
  * @param { Parameters[] | undefined } parameters - Array of path parameters from OpenAPI specification
- * @param { RequestBody | undefined } requestBody - Request body definition from OpenAPI specification
+ * @param { RequestBody | undefined } body - Request body definition from OpenAPI specification
  * @returns { string } Generated TypeScript code string for request validation
  *
  * - Handles both path parameters and request body validation
@@ -23,46 +23,40 @@ import { generateInsertRequestBody } from '../request/body/generate-insert-reque
  */
 export function requestParameter(
   parameters: Parameters[] | undefined,
-  requestBody: RequestBody | undefined,
+  body: RequestBody | undefined,
 ): string {
   // Early return if no parameters or content
-  if (!(parameters || requestBody?.content)) {
+  if (!(parameters || body?.content)) {
     return ''
   }
 
-  const requestBodyContentTypes = Object.keys(requestBody?.content || {})
+  const requestBodyContentTypes = Object.keys(body?.content || {})
 
   const params = parameters
     ? (() => {
         const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
-        return requestParamsArr.length ? generateFormatRequestObject(requestParamsArr) : ''
+        return requestParamsArr.length ? formatRequestObject(requestParamsArr) : ''
       })()
     : ''
 
-  if (requestBodyContentTypes.length > 0 && requestBody?.content) {
+  if (requestBodyContentTypes.length > 0 && body?.content) {
     // Eliminate schema duplication
     const uniqueSchemas = new Map<string, string>()
 
     for (const contentType of requestBodyContentTypes) {
-      const { schema } = requestBody.content[contentType]
+      const { schema } = body.content[contentType]
       const zodSchema = propertySchema(schema)
 
       uniqueSchemas.set(zodSchema, zodSchema)
     }
 
-    const request_body_required = requestBody.required ?? false
+    const request_body_required = body.required ?? false
     const [firstSchema] = uniqueSchemas.values()
 
-    const requestBodyCode = generateRequestBody(
-      request_body_required,
-      requestBody.content,
-      firstSchema,
-    )
+    const requestBodyCode = requestBody(request_body_required, body.content, firstSchema)
 
-    return params
-      ? generateInsertRequestBody(params, requestBodyCode)
-      : requestParams(requestBodyCode)
+    return params ? insertRequestBody(params, requestBodyCode) : requestParams(requestBodyCode)
   }
 
   return params

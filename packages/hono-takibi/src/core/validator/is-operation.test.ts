@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isOperation } from './is-operation'
+import { isOperation } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/validator/is-operation.test.ts

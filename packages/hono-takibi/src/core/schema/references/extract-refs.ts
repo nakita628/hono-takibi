@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { isRefObject } from '../../validator/is-ref-object.js'
+import { isRefObject } from '../../validator/index.js'
 
 /**
  * Extracts all references from a given schema

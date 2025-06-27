@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { isAllOptional } from '../../../core/validator/is-all-optional.js'
+import { isAllOptional } from '../../../core/validator/index.js'
 import { partial } from '../index.js'
 import { propertySchema } from './property-schema.js'
 import { getToSafeIdentifier } from '../../../core/utils/index.js'

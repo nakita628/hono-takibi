@@ -1,5 +1,5 @@
 import { handlerName } from '../../handler/generator/index.js'
-import { generateRouteName } from '../../openapi/route/generate-route-name.js'
+import { routeName } from '../../openapi/route/index.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
 
 /**
@@ -14,7 +14,7 @@ export function getRouteMaps(
   const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {
     return Object.entries(pathItem).flatMap(([method]) => {
       return {
-        routeName: generateRouteName(method, path),
+        routeName: routeName(method, path),
         handlerName: handlerName(method, path),
         path,
       }

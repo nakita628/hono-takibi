@@ -1,4 +1,4 @@
-import { generateRouteName } from '../../openapi/route/generate-route-name.js'
+import { routeName } from '../../openapi/route/route-name.js'
 
 /**
  * Generate handler name
@@ -7,5 +7,5 @@ import { generateRouteName } from '../../openapi/route/generate-route-name.js'
  * @returns { string } Handler name
  */
 export function handlerName(method: string, path: string): string {
-  return `${generateRouteName(method, path)}Handler`
+  return `${routeName(method, path)}Handler`
 }

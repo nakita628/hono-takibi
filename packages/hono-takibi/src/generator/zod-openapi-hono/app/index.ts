@@ -1,10 +1,8 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { docs } from './docs/index.js'
 import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
 import { importHandlers } from '../handler/generator/index.js'
-import { generateRegisterComponent } from './register-component/generate-register-component.js'
-import { importRoutes, applyOpenapiRoutes } from './generator/index.js'
+import { importRoutes, applyOpenapiRoutes, registerComponent, docs } from './generator/index.js'
 import { processImportMap } from './helper/process-import-map.js'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
@@ -45,13 +43,13 @@ export function generateApp(
 
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
-  const { components } = openapi
+  const components = openapi.components
 
-  const registerComponent = components?.securitySchemes
-    ? generateRegisterComponent(components.securitySchemes)
+  const registerComponentCode = components?.securitySchemes
+    ? registerComponent(components.securitySchemes)
     : ''
 
-  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponent}\napp.doc('${'/doc'}',${JSON.stringify(document)}).get('/ui',swaggerUI({url:'${path}'}))}`
+  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(document)}).get('/ui',swaggerUI({url:'${path}'}))}`
 
   const sections = [
     // 1. imports
