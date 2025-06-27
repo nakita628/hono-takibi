@@ -1,6 +1,6 @@
 import type { Operation } from '../../../../openapi/index.js'
 import { requestParameter } from './params/index.js'
-import { generateCreateRoute } from './generate-create-route.js'
+import { createRoute } from './create-route.js'
 import { generateResponseSchema } from './response/generate-response-schema.js'
 import { generateRouteName } from './generate-route-name.js'
 import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
@@ -24,7 +24,7 @@ import { escapeStringLiteral } from '../../../../core/utils/escape-string-litera
  * - Integrates with Hono's createRoute function
  */
 
-export function generateRoute(path: string, method: string, operation: Operation): string {
+export function route(path: string, method: string, operation: Operation): string {
   const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
     operation
   const routeName = generateRouteName(method, path)
@@ -43,5 +43,5 @@ export function generateRoute(path: string, method: string, operation: Operation
     requestParams: requestParams ? `${requestParams}` : '',
     responsesCode: responses ? `responses:{${generateResponseSchema(responses)}}` : '',
   }
-  return generateCreateRoute(create_args)
+  return createRoute(create_args)
 }

@@ -1,6 +1,6 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
 import { isHttpMethod } from '../../../../core/validator/is-http-method.js'
-import { generateRoute } from './generate-route.js'
+import { route } from './index.js'
 import { isOperation } from '../../../../core/validator/is-operation.js'
 
 /**
@@ -36,7 +36,7 @@ export function generateRouteCode(openAPIPaths: OpenAPIPaths): string {
       // 3.4 at this point, pathItemValue is only a possibility for Operation
       if (!isOperation(pathItemValue)) continue
       // 3.5 generating the root code and adding it to the array
-      routes.push(generateRoute(path, method, pathItemValue))
+      routes.push(route(path, method, pathItemValue))
     }
   }
   // 4. exclude invalid routes and join them with a newline

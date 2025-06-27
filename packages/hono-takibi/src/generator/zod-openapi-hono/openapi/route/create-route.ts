@@ -53,7 +53,7 @@ type GenerateCreateRouteParams = {
  * - Undefined/empty properties are safely handled
  * - Creates a valid TypeScript export statement
  */
-export function generateCreateRoute(args: GenerateCreateRouteParams): string {
+export function createRoute(args: GenerateCreateRouteParams): string {
   const properties = [
     args.tagsCode,
     args.methodCode,

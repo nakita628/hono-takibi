@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     exclude: [
-      '**/route/*.ts',
+      '**/routes/*.ts',
       '**/dist/**',
       '**/src/data/*.ts',
       '**/src/vite-plugin/*.ts',
@@ -18,7 +18,7 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: [
         '**/src/**/*.test.ts',
-        '**/route/*.ts',
+        '**/routes/*.ts',
         '**/dist/**',
         '**/src/data/*.ts',
         '**/src/vite-plugin/*.ts',
