@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "name": "PascalCase",
+    "export": false
+  },
+  "type": {
+    "name": "PascalCase",
+    "export": false
+  }
+}

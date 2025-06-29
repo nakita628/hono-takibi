@@ -5,7 +5,7 @@
  * @param importsMap - A map of import paths to the names of the routes.
  * @returns An array of import statements.
  */
-export function importRoutes(importsMap: { [importPath: `${string}.ts`]: string[] }) {
+export function importRoutes(importsMap: { [importPath: string]: string[] }) {
   const importRoutes: string[] = []
   for (const [importPath, names] of Object.entries(importsMap)) {
     const uniqueNames = Array.from(new Set(names))

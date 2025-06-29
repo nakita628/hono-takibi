@@ -1,7 +1,7 @@
 import type { Operation } from '../../../../openapi/index.js'
 import { requestParameter } from './params/index.js'
 import { createRoute } from './create-route.js'
-import { response } from './response/index.js'
+import { response } from './response/response.js'
 import { routeName } from './index.js'
 import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { response } from '.'
+import { response } from './response'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/response/generate-response-schema.test.ts

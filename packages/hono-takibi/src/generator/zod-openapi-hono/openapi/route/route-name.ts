@@ -23,7 +23,7 @@ export function routeName(method: string, path: string): string {
   // 6. join('') -> `UserCreateWithList`
 
   const api_path = path
-    .replace(/[\/{}._-]/g, ' ')
+    .replace(/[\/{}_-]/g, ' ')
     .trim()
     .split(/\s+/)
     .map(capitalize)

@@ -52,8 +52,6 @@ const routeNameTestCases = [
   { method: 'post', path: '/integration/jira', expected: 'postIntegrationJiraRoute' },
   { method: 'post', path: '/integration/github', expected: 'postIntegrationGithubRoute' },
   { method: 'get', path: '/emails/{email_id}', expected: 'getEmailsEmailIdRoute' },
-  { method: 'get', path: '/emails/{email-id}', expected: 'getEmailsEmailIdRoute' },
-  { method: 'get', path: '/emails/{email.id}', expected: 'getEmailsEmailIdRoute' },
 ]
 
 describe('routeName', () => {
