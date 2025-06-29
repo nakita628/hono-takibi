@@ -14,13 +14,12 @@ const EXPORT_APP = 'export default app' as const
 /**
  * Generate app
  *
- * @function generateApp
  * @param { OpenAPI } openapi - OpenAPI spec
  * @param { `${string}.ts` } output - Output file name
  * @param { string | undefined } basePath - Base path
  * @returns { string } Generated app code
  */
-export function generateApp(
+export function app(
   openapi: OpenAPI,
   output: `${string}.ts`,
   basePath: string | undefined,
