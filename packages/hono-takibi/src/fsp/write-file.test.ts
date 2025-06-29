@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { writeFile } from './write-file'
+import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 
@@ -12,7 +13,9 @@ beforeEach(async () => {
   await fsp.mkdir(TEST_DIR, { recursive: true })
 })
 afterEach(async () => {
-  await fsp.rm(TEST_DIR, { recursive: true, force: true })
+  if (fs.existsSync(TEST_DIR)) {
+    await fsp.rm(TEST_DIR, { recursive: true, force: true })
+  }
 })
 
 describe('writeFile', () => {
