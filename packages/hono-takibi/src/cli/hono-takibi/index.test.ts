@@ -97,12 +97,16 @@ const openapi: OpenAPI = {
 
 describe('honoTakibi', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', 'openapi.yaml', '-o', 'zod-openapi-hono.ts']
     fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
+    process.argv = ['*/*/bin/node', '*/dist/index.js', 'openapi.yaml', '-o', 'zod-openapi-hono.ts']
   })
   afterAll(() => {
-    fs.rmSync('openapi.yaml', { force: true })
-    fs.rmSync('zod-openapi-hono.ts', { force: true })
+    if (fs.existsSync('openapi.yaml')) {
+      fs.rmSync('openapi.yaml', { force: true })
+    }
+    if (fs.existsSync('zod-openapi-hono.ts')) {
+      fs.rmSync('zod-openapi-hono.ts', { force: true })
+    }
   })
 
   it('honoTakibi generated', async () => {

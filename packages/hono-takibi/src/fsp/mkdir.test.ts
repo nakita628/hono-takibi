@@ -12,12 +12,11 @@ const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
 describe('mkdir', () => {
   afterEach(async () => {
     if (fs.existsSync(TEST_DIR)) {
-      await fsp.rmdir(TEST_DIR, { recursive: true })
+      await fsp.rm(TEST_DIR, { recursive: true, force: true })
     }
   })
 
   it('returns ok when directory is created', async () => {
-    console.log(process.cwd())
     const result = await mkdir(TEST_DIR)
     expect(result).toEqual({ ok: true, value: undefined })
     expect(fs.existsSync(TEST_DIR)).toBe(true)
@@ -30,8 +29,8 @@ describe('mkdir', () => {
   })
 
   it('returns err for invalid path', async () => {
-    const filePath = path.join(TEST_DIR, 'foo.txt')
     await fsp.mkdir(TEST_DIR, { recursive: true })
+    const filePath = path.join(TEST_DIR, 'foo.txt')
     await fsp.writeFile(filePath, 'dummy')
     const badPath = path.join(filePath, 'bar')
     const result = await mkdir(badPath)

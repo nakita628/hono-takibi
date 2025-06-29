@@ -33,12 +33,19 @@ export async function zodOpenapiHonoHandler(
     for (const [method] of Object.entries(pathItem)) {
       const routeHandlerContent = handler(handlerName(method, path), routeName(method, path))
 
-      const path_name = path.replace(/^\/+/, '').split('/')[0]
+      const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
 
-      const fileName = path_name.length === 0 ? 'index-handler.ts' : `${path_name}-handler.ts`
+      const pathName = (rawSegment === '' ? 'index' : rawSegment)
+        .replace(/\{([^}]+)\}/g, '$1')
+        .replace(/[^0-9A-Za-z._-]/g, '_')
+        .replace(/^[._-]+|[._-]+$/g, '')
+        .replace(/__+/g, '_')
+        .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+
+      const fileName = pathName.length === 0 ? 'indexHandler.ts' : `${pathName}Handler.ts`
 
       const testFileName =
-        path_name.length === 0 ? 'index-handler.test.ts' : `${path_name}-handler.test.ts`
+        pathName.length === 0 ? 'indexHandler.test.ts' : `${pathName}Handler.test.ts`
 
       handlers.push({
         fileName,

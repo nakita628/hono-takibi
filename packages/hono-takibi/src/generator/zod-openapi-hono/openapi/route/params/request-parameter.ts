@@ -1,9 +1,7 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { paramsObject, requestParams, requestParamsArray } from './index.js'
 import { propertySchema } from '../../../../zod/property/property-schema.js'
-import { formatRequestObject } from '../request/object/format-request-object.js'
-import { requestBody } from '../request/body/request-body.js'
-import { insertRequestBody } from '../request/body/insert-request-body.js'
+import { requestBody, insertRequestBody, formatRequestObject } from '../request/index.js'
 
 /**
  * Generates TypeScript code for request validation based on OpenAPI specification
