@@ -8,13 +8,13 @@ import {
   putPostsIdRoute,
   deletePostsIdRoute,
 } from './route.ts'
-import { getRouteHandler } from './handler/index-handler.ts'
+import { getRouteHandler } from './handler/indexHandler.ts'
 import {
   postPostsRouteHandler,
   getPostsRouteHandler,
   putPostsIdRouteHandler,
   deletePostsIdRouteHandler,
-} from './handler/posts-handler.ts'
+} from './handler/postsHandler.ts'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
 

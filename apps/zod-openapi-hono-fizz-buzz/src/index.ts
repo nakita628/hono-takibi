@@ -3,7 +3,7 @@ import { swaggerUI } from '@hono/swagger-ui'
 import { hc } from 'hono/client'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
-import { getFizzbuzzRouteHandler } from './handler/fizz-buzz-handler'
+import { getFizzbuzzRouteHandler } from './handler/fizzbuzzHandler'
 import { getFizzbuzzRoute } from './route'
 
 const app = new OpenAPIHono()
