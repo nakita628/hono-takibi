@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { response } from './response'
+import { response } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/response/generate-response-schema.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/response/response.test.ts
 
 describe('generateResponseSchema', () => {
   it.concurrent('generateResponseSchema Hono', () => {

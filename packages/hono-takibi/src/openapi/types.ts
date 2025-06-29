@@ -119,6 +119,12 @@ export type Content = {
   [key in ContentType]: {
     schema: Schema
     example?: ExampleValue
+    examples?: {
+      [exampleKey: string]: {
+        summary?: string
+        value?: unknown
+      }
+    }
   }
 }
 
