@@ -4,7 +4,7 @@ import { handlerName } from './handler-name'
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/handler/generator/handler-name.test.ts
 
-const generateHandlerNameTestCases: {
+const handlerNameTestCases: {
   method: string
   path: string
   expected: string
@@ -16,7 +16,7 @@ const generateHandlerNameTestCases: {
 ]
 
 describe('handlerName', () => {
-  it.concurrent.each(generateHandlerNameTestCases)(
+  it.concurrent.each(handlerNameTestCases)(
     'handlerName($method, $path) -> $expected',
     async ({ method, path, expected }) => {
       const result = handlerName(method, path)

@@ -1,50 +1,121 @@
 import { describe, it, expect } from 'vitest'
-import { generateApp } from './'
-import { honoRestOpenAPI } from '../../../../data/hono-rest-openapi'
+import { app } from './'
 import type { OpenAPI } from '../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/index.test.ts
 
-const generateAppTestCases: {
-  openAPI: OpenAPI
-  output: `${string}.ts`
-  basePath: string | undefined
-  expected: string
-}[] = [
-  {
-    openAPI: honoRestOpenAPI,
-    output: './hono-rest/openapi/hono-rest.ts',
-    basePath: 'api',
-    expected: `import { OpenAPIHono } from '@hono/zod-openapi'
+const openapi: OpenAPI = {
+  openapi: '3.1.0',
+  info: {
+    title: 'HonoTakibi🔥',
+    version: 'v1',
+  },
+  tags: [{ name: 'Hono' }, { name: 'HonoX' }, { name: 'ZodOpenAPIHono' }],
+  paths: {
+    '/hono': {
+      get: {
+        tags: ['Hono'],
+        summary: 'Hono',
+        description: 'Hono',
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Hono🔥',
+                    },
+                  },
+                  required: ['message'],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/hono-x': {
+      get: {
+        tags: ['HonoX'],
+        summary: 'HonoX',
+        description: 'HonoX',
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'HonoX🔥',
+                    },
+                  },
+                  required: ['message'],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/zod-openapi-hono': {
+      get: {
+        tags: ['ZodOpenAPIHono'],
+        summary: 'ZodOpenAPIHono',
+        description: 'ZodOpenAPIHono',
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'ZodOpenAPIHono🔥',
+                    },
+                  },
+                  required: ['message'],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+describe('app', () => {
+  it.concurrent('app Test', () => {
+    const result = app(openapi, 'app.ts', '/api')
+    const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
-import { getRoute,postPostsRoute,getPostsRoute,putPostsIdRoute,deletePostsIdRoute } from './hono-rest.ts';
-import { getRouteHandler } from './handler/index-handler.ts';
-import { postPostsRouteHandler,getPostsRouteHandler,putPostsIdRouteHandler,deletePostsIdRouteHandler } from './handler/posts-handler.ts';
+import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './app.ts';
+import { getHonoRouteHandler } from './handler/honoHandler.ts';
+import { getHonoXRouteHandler } from './handler/honoXHandler.ts';
+import { getZodOpenapiHonoRouteHandler } from './handler/zodOpenapiHonoHandler.ts';
 
-const app = new OpenAPIHono().basePath('api')
+const app = new OpenAPIHono().basePath('/api')
 
-export const api = app.openapi(getRoute,getRouteHandler)
-.openapi(postPostsRoute,postPostsRouteHandler)
-.openapi(getPostsRoute,getPostsRouteHandler)
-.openapi(putPostsIdRoute,putPostsIdRouteHandler)
-.openapi(deletePostsIdRoute,deletePostsIdRouteHandler)
+export const api = app.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
 
 if(process.env.NODE_ENV === 'development'){
-app.doc('/doc',{"openapi":"3.1.0","info":{"title":"Hono API","version":"v1"},"tags":[{"name":"Hono","description":"Endpoints related to general Hono operations"},{"name":"Post","description":"Endpoints for creating, retrieving, updating, and deleting posts"}]}).get('/ui',swaggerUI({url:'/api/doc'}))}
+app.doc('/doc',{"openapi":"3.1.0","info":{"title":"HonoTakibi🔥","version":"v1"},"tags":[{"name":"Hono"},{"name":"HonoX"},{"name":"ZodOpenAPIHono"}]}).get('/ui',swaggerUI({url:'//api/doc'}))}
 
 export type AddType = typeof api
 
-export default app`,
-  },
-]
-
-describe('generateApp', () => {
-  it.concurrent.each(generateAppTestCases)(
-    'generateApp($openAPI, $config) -> $expected',
-    ({ openAPI, output, basePath, expected }) => {
-      const result = generateApp(openAPI, output, basePath)
-      expect(result).toEqual(expected)
-    },
-  )
+export default app`
+    expect(result).toBe(expected)
+  })
 })

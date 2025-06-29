@@ -24,14 +24,18 @@ export function zodToOpenAPI(
     )
   }
 
-  if (Object.prototype.hasOwnProperty.call(schema, 'example') && schema.example !== undefined) {
+  // Add 'example' if defined
+  if ('example' in schema && schema.example !== undefined) {
     openapiProps.push(`example:${JSON.stringify(schema.example)}`)
   }
 
-  if (
-    Object.prototype.hasOwnProperty.call(schema, 'description') &&
-    schema.description !== undefined
-  ) {
+  // Add 'examples' if defined
+  if ('examples' in schema && Array.isArray(schema.examples) && schema.examples.length > 0) {
+    openapiProps.push(`examples:${JSON.stringify(schema.examples)}`)
+  }
+
+  // Add 'description' if defined
+  if ('description' in schema && schema.description !== undefined) {
     openapiProps.push(`description:${JSON.stringify(schema.description)}`)
   }
 

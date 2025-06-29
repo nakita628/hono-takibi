@@ -39,7 +39,22 @@ export function response(responses: Responses): string {
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
         const zodSchema = propertySchema(content.schema)
-        contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
+
+        const examples = content.examples
+        const exampleString =
+          examples && Object.keys(examples).length > 0
+            ? `,examples:{${Object.entries(examples)
+                .map(([key, example]) => {
+                  const parts = []
+                  if (example.summary) parts.push(`summary:${JSON.stringify(example.summary)}`)
+                  if (example.value !== undefined)
+                    parts.push(`value:${JSON.stringify(example.value)}`)
+                  return `${JSON.stringify(key)}:{${parts.join(',')}}`
+                })
+                .join(',')}}`
+            : ''
+
+        contentParts.push(`'${contentType}':{schema:${zodSchema}${exampleString}}`)
       }
       return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`
     }

@@ -119,6 +119,12 @@ export type Content = {
   [key in ContentType]: {
     schema: Schema
     example?: ExampleValue
+    examples?: {
+      [exampleKey: string]: {
+        summary?: string
+        value?: unknown
+      }
+    }
   }
 }
 
@@ -195,10 +201,11 @@ export type Schema = {
   maxItems?: number
   default?: DefaultValue
   example?: ExampleValue
+  examples?: ExampleValue[]
   properties?: Record<string, Schema>
   required?: string[] | boolean
   items?: Schema
-  enum?: string[]
+  enum?: string[] | number[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
   $ref?: string
@@ -234,6 +241,7 @@ export type Components = {
 export type SecuritySchemes = {
   [key: string]: {
     type?: string
+    name?: string
     scheme?: string
     bearerFormat?: string
   }

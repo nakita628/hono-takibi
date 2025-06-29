@@ -1,6 +1,6 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
-import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from './helper/index.js'
+import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from '../../core/utils/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
@@ -97,29 +97,24 @@ export function zod(schema: Schema): string {
       if (schema.minItems && schema.maxItems) {
         const minItemsSchema = min(schema.minItems)
         const maxItemsSchema = max(schema.maxItems)
-
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
-        return res
+        return `${zodArray}${minItemsSchema}${maxItemsSchema}`
       }
       if (schema.minItems) {
         const minItemsSchema = min(schema.minItems)
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${minItemsSchema}`
-        return res
+        return `${zodArray}${minItemsSchema}`
       }
       if (schema.maxItems) {
         const maxItemsSchema = max(schema.maxItems)
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${maxItemsSchema}`
-        return res
+        return `${zodArray}${maxItemsSchema}`
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = length(schema.minLength)
         const zodArray = array(zodToOpenAPI(schema.items))
-        const res = `${zodArray}${minLengthSchema}`
-        return res
+        return `${zodArray}${minLengthSchema}`
       }
       return array(zodToOpenAPI(schema.items))
     }
