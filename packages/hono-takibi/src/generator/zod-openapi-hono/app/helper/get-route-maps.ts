@@ -4,7 +4,7 @@ import type { OpenAPI } from '../../../../openapi/index.js'
 
 /**
  * Get route maps
- * @param { openAPI } OpenAPI - OpenAPI spec
+ * @param { openAPI } openapi - OpenAPI spec
  * @returns { { routeName: string, handlerName: string, path: string }[] } Route maps
  */
 export function getRouteMaps(

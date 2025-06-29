@@ -1,18 +1,21 @@
-import type { HandlerOutput } from '../zod-openapi-hono-handler.js'
-
-type HandlerMap = Map<string, HandlerOutput>
-
-/**
- * Group handlers by file name helper
- * @param { HandlerOutput[] } handlers - Handlers
- * @returns { HandlerOutput[] } Grouped handlers
- */
-export function groupHandlersByFileNameHelper(handlers: HandlerOutput[]): HandlerOutput[] {
+export function groupHandlersByFileNameHelper(
+  handlers: {
+    fileName: `${string}.ts`
+    testFileName: `${string}.ts`
+    routeHandlerContents: string[]
+    routeNames: string[]
+  }[],
+): {
+  fileName: `${string}.ts`
+  testFileName: `${string}.ts`
+  routeHandlerContents: string[]
+  routeNames: string[]
+}[] {
   return Array.from(
     handlers
-      .reduce<HandlerMap>((acc, handler) => {
+      .reduce((acc, handler) => {
         const existing = acc.get(handler.fileName)
-        const mergedHandler: HandlerOutput = {
+        const mergedHandler = {
           fileName: handler.fileName,
           testFileName: handler.testFileName,
           routeHandlerContents: existing

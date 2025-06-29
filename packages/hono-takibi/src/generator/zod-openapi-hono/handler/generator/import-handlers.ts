@@ -6,8 +6,8 @@
  */
 export function importHandlers(
   handlerImportsMap: { [fileName: string]: string[] },
-  output?: string,
-) {
+  output: `${string}.ts`,
+): string[] {
   const importHandlers: string[] = []
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))

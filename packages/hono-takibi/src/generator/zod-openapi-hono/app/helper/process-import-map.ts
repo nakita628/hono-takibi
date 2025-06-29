@@ -10,16 +10,11 @@ export function processImportMap(
     path: string
   }[],
   output: `${string}.ts`,
-) {
+): { [importPath: `${string}.ts`]: string[] } {
   const importsMap: { [importPath: string]: string[] } = {}
   for (const { routeName } of routeMappings) {
-    const path = output
-    if (!path) {
-      throw new Error('Output path is required')
-    }
-
-    const match = path.match(/[^/]+\.ts$/)
-    const importPath = match ? match[0] : path
+    const match = output.match(/[^/]+\.ts$/)
+    const importPath = match ? match[0] : output
 
     if (!importsMap[importPath]) {
       importsMap[importPath] = []
