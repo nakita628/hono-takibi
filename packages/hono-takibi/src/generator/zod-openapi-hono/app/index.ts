@@ -26,20 +26,6 @@ export function app(
 ): string {
   const routeMappings = getRouteMaps(openapi)
 
-  const importsMap = processImportMap(routeMappings, output)
-
-  const handlerImportsMap: { [fileName: string]: string[] } = getHandlerImports(routeMappings)
-
-  const importHandlersCode = importHandlers(handlerImportsMap, output).join('\n')
-
-  const openAPIHono = basePath ? `${APP}.basePath('${basePath}')` : APP
-
-  const app = `app${applyOpenapiRoutes(routeMappings)}`
-
-  const api = `export const api = ${app}`
-
-  const document = docs(openapi)
-
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
   const components = openapi.components
@@ -48,20 +34,20 @@ export function app(
     ? registerComponent(components.securitySchemes)
     : ''
 
-  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(document)}).get('/ui',swaggerUI({url:'${path}'}))}`
+  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
 
   const sections = [
     // 1. imports
     [
       OPENAPI_HONO_IMPORT,
       SWAGGER_UI_IMPORT,
-      importRoutes(importsMap).join(''),
-      importHandlersCode,
+      importRoutes(processImportMap(routeMappings, output)).join(''),
+      importHandlers(getHandlerImports(routeMappings), output).join('\n'),
     ].join('\n'),
     // 2. app initialization
-    openAPIHono,
+    basePath ? `${APP}.basePath('${basePath}')` : APP,
     // 3. api setup
-    api,
+    `export const api = ${`app${applyOpenapiRoutes(routeMappings)}`}`,
     // 4. swagger setup
     swagger,
     // 5. types and exports
