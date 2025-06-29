@@ -13,12 +13,19 @@ export function processImportMap(
 ) {
   const importsMap: { [importPath: string]: string[] } = {}
   for (const { routeName } of routeMappings) {
-    const match = output.match(/[^/]+\.ts$/)
-    const importPath = match ? match[0] : output
+    const path = output
+    if (!path) {
+      throw new Error('Output path is required')
+    }
+
+    const match = path.match(/[^/]+\.ts$/)
+    const importPath = match ? match[0] : path
+
     if (!importsMap[importPath]) {
       importsMap[importPath] = []
     }
     importsMap[importPath].push(routeName)
   }
+
   return importsMap
 }

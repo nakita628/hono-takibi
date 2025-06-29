@@ -12,16 +12,12 @@ export function getHandlerImports(
 ) {
   const getHandlerImports: { [fileName: string]: string[] } = {}
   for (const { handlerName, path } of handlerMaps) {
-    const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
+    const path_name = path
+      .replace(/[\/{}-]/g, ' ')
+      .trim()
+      .split(/\s+/)[0]
 
-    const pathName = (rawSegment === '' ? 'index' : rawSegment)
-      .replace(/\{([^}]+)\}/g, '$1')
-      .replace(/[^0-9A-Za-z._-]/g, '_')
-      .replace(/^[._-]+|[._-]+$/g, '')
-      .replace(/__+/g, '_')
-      .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
-
-    const fileName = pathName.length === 0 ? 'indexHandler.ts' : `${pathName}Handler.ts`
+    const fileName = path_name.length === 0 ? 'index-handler.ts' : `${path_name}-handler.ts`
 
     if (!getHandlerImports[fileName]) {
       getHandlerImports[fileName] = []

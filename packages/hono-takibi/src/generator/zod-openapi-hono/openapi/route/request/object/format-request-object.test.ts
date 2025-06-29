@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatRequestObject } from '.'
+import { formatRequestObject } from './format-request-object'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/request/object/format-request-object.test.ts

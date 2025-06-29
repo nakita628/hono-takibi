@@ -14,17 +14,32 @@ const EXPORT_APP = 'export default app' as const
 /**
  * Generate app
  *
+ * @function generateApp
  * @param { OpenAPI } openapi - OpenAPI spec
  * @param { `${string}.ts` } output - Output file name
  * @param { string | undefined } basePath - Base path
  * @returns { string } Generated app code
  */
-export function app(
+export function generateApp(
   openapi: OpenAPI,
   output: `${string}.ts`,
   basePath: string | undefined,
 ): string {
   const routeMappings = getRouteMaps(openapi)
+
+  const importsMap = processImportMap(routeMappings, output)
+
+  const handlerImportsMap: { [fileName: string]: string[] } = getHandlerImports(routeMappings)
+
+  const importHandlersCode = importHandlers(handlerImportsMap, output).join('\n')
+
+  const openAPIHono = basePath ? `${APP}.basePath('${basePath}')` : APP
+
+  const app = `app${applyOpenapiRoutes(routeMappings)}`
+
+  const api = `export const api = ${app}`
+
+  const document = docs(openapi)
 
   const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
 
@@ -34,20 +49,20 @@ export function app(
     ? registerComponent(components.securitySchemes)
     : ''
 
-  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
+  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(document)}).get('/ui',swaggerUI({url:'${path}'}))}`
 
   const sections = [
     // 1. imports
     [
       OPENAPI_HONO_IMPORT,
       SWAGGER_UI_IMPORT,
-      importRoutes(processImportMap(routeMappings, output)).join(''),
-      importHandlers(getHandlerImports(routeMappings), output).join('\n'),
+      importRoutes(importsMap).join(''),
+      importHandlersCode,
     ].join('\n'),
     // 2. app initialization
-    basePath ? `${APP}.basePath('${basePath}')` : APP,
+    openAPIHono,
     // 3. api setup
-    `export const api = ${`app${applyOpenapiRoutes(routeMappings)}`}`,
+    api,
     // 4. swagger setup
     swagger,
     // 5. types and exports

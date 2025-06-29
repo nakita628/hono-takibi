@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { requestBody } from '.'
+import { requestBody } from './request-body'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/request/body/request-body.test.ts
