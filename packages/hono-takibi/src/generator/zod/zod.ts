@@ -97,29 +97,25 @@ export function zod(schema: Schema): string {
       if (schema.minItems && schema.maxItems) {
         const minItemsSchema = min(schema.minItems)
         const maxItemsSchema = max(schema.maxItems)
-
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${minItemsSchema}${maxItemsSchema}`
-        return res
+        return `${zodArray}${minItemsSchema}${maxItemsSchema}`
       }
       if (schema.minItems) {
         const minItemsSchema = min(schema.minItems)
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${minItemsSchema}`
-        return res
+        return `${zodArray}${minItemsSchema}`
       }
       if (schema.maxItems) {
         const maxItemsSchema = max(schema.maxItems)
         const zodArray = array(zod(schema.items))
-        const res = `${zodArray}${maxItemsSchema}`
-        return res
+        return `${zodArray}${maxItemsSchema}`
       }
       // length
       if (schema.minLength && schema.maxLength && schema.minLength === schema.maxLength) {
         const minLengthSchema = length(schema.minLength)
         const zodArray = array(zodToOpenAPI(schema.items))
-        const res = `${zodArray}${minLengthSchema}`
-        return res
+        return `${zodArray}${minLengthSchema}`
+        
       }
       return array(zodToOpenAPI(schema.items))
     }

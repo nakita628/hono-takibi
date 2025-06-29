@@ -1,6 +1,6 @@
 import { getFlagValue, hasFlag } from '../utils/index.js'
 import type { Result } from '../../result/index.js'
-import type { CliFlags } from '../types/index.js'
+import type { CliFlags } from '../types.js'
 import { ok, andThen } from '../../result/index.js'
 import { parseIO } from './index.js'
 
