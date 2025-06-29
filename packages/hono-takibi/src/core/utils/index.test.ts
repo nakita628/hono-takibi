@@ -6,6 +6,9 @@ import {
   regexPattern,
   removeZodPrefix,
   sanitizeIdentifier,
+  stripMaxIfLtExist,
+  stripMinIfgtExist,
+  stripMinMaxExist,
 } from '.'
 
 // Test run
@@ -29,5 +32,14 @@ describe('string-utils barrel file exports', () => {
   })
   it('should export sanitizeIdentifier', () => {
     expect(typeof sanitizeIdentifier).toBe('function')
+  })
+  it('should export stripMaxIfLtExist', () => {
+    expect(typeof stripMaxIfLtExist).toBe('function')
+  })
+  it('should export stripMinIfgTExist', () => {
+    expect(typeof stripMinIfgtExist).toBe('function')
+  })
+  it('should export stripMinMaxExist', () => {
+    expect(typeof stripMinMaxExist).toBe('function')
   })
 })

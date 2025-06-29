@@ -1,6 +1,6 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './index.js'
-import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from './helper/index.js'
+import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from '../../core/utils/index.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
