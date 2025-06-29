@@ -115,7 +115,6 @@ export function zod(schema: Schema): string {
         const minLengthSchema = length(schema.minLength)
         const zodArray = array(zodToOpenAPI(schema.items))
         return `${zodArray}${minLengthSchema}`
-        
       }
       return array(zodToOpenAPI(schema.items))
     }
