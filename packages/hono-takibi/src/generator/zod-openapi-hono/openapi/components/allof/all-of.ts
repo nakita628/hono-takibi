@@ -1,6 +1,6 @@
 import type { Schema } from '../../../../../openapi/index.js'
 import { processAllOf } from './process/process-alllof.js'
-import { intersection } from '../../../../zod/index.js'
+import { intersection } from '../../../../zod/z/index.js'
 
 /**
  * Converts an `allOf` schema into a Zod schema.

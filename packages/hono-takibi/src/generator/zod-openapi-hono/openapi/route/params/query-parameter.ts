@@ -1,6 +1,5 @@
 import type { Parameters } from '../../../../../openapi/types.js'
-import { coerce } from '../../../../zod/coerce.js'
-import { stringbool } from '../../../../zod/stringbool.js'
+import { coerce, stringbool } from '../../../../zod/z/index.js'
 
 export function queryParameter(baseSchema: string, param: Parameters): string {
   if (param.in === 'query' && (param.schema.type === 'number' || param.schema.type === 'integer')) {
