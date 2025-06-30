@@ -1,5 +1,5 @@
 import { sanitizeIdentifier } from '../../core/utils/index.js'
-import { infer } from '../zod/index.js'
+import { infer } from '../zod/z/index.js'
 
 /**
  * Creates a Zod schema constant declaration

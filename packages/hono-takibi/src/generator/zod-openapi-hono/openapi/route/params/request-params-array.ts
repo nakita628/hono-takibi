@@ -1,5 +1,5 @@
 import type { ParamsObject } from '../../../../../openapi/index.js'
-import { schema } from '../../../../zod/index.js'
+import { schema } from '../../../../zod/z/index.js'
 
 /**
  * Generates an array of Zod schema strings for non-empty parameter sections

@@ -32,15 +32,15 @@ export function route(path: string, method: string, operation: Operation): strin
 
   const create_args = {
     routeName: routeName(method, path),
-    tagsCode: tags ? `tags:${tagList},` : '',
-    methodCode: `method:'${method}',`,
-    pathCode: `path:'${path}',`,
-    operationIdCode: operationId ? `operationId:'${operationId}',` : '',
-    summaryCode: summary ? `summary:'${escapeStringLiteral(summary)}',` : '',
-    descriptionCode: description ? `description:'${escapeStringLiteral(description)}',` : '',
-    securityCode: security ? `security:${JSON.stringify(security)},` : '',
+    tags: tags ? `tags:${tagList},` : '',
+    method: `method:'${method}',`,
+    path: `path:'${path}',`,
+    operationId: operationId ? `operationId:'${operationId}',` : '',
+    summary: summary ? `summary:'${escapeStringLiteral(summary)}',` : '',
+    description: description ? `description:'${escapeStringLiteral(description)}',` : '',
+    security: security ? `security:${JSON.stringify(security)},` : '',
     requestParams: requestParams ? `${requestParams}` : '',
-    responsesCode: responses ? `responses:{${response(responses)}}` : '',
+    responses: responses ? `responses:{${response(responses)}}` : '',
   }
   return createRoute(create_args)
 }

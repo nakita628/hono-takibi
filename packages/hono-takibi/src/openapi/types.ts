@@ -208,7 +208,7 @@ export type Schema = {
   enum?: string[] | number[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
-  $ref?: string
+  $ref?: `#/components/schemas/${string}`
   xml?: {
     name?: string
     wrapped?: boolean

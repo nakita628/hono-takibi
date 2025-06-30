@@ -6,12 +6,8 @@ import { getRefSchemaName } from '.'
 
 describe('getRefSchemaName', () => {
   it.concurrent('getRefSchemaName #/components/schemas/Test -> Test', () => {
-    const result = getRefSchemaName({ $ref: '#/components/schemas/Test' })
-
+    const result = getRefSchemaName('#/components/schemas/Test')
     const expected = 'TestSchema'
     expect(result).toBe(expected)
-  })
-  it.concurrent('should throw error when $ref is empty', () => {
-    expect(() => getRefSchemaName({ $ref: '' })).toThrow('refName is not found')
   })
 })

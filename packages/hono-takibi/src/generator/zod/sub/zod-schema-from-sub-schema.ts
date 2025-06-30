@@ -8,5 +8,5 @@ import { zod } from '../index.js'
  * @returns { string } The generated Zod schema as a string.
  */
 export function zodSchemaFromSubSchema(subSchema: Schema): string {
-  return subSchema.$ref ? getRefSchemaName(subSchema) : zod(subSchema)
+  return subSchema.$ref ? getRefSchemaName(subSchema.$ref) : zod(subSchema)
 }
