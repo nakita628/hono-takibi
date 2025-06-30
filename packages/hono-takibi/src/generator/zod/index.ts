@@ -1,11 +1,12 @@
 import type { Schema, Type } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './z/index.js'
 import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from '../../core/utils/index.js'
+import { zodToOpenAPI } from '../zod-to-openapi/index.js'
+import { getRefSchemaName } from '../../core/schema/references/get-ref-schema-name.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
-import { zodToOpenAPI } from '../zod-to-openapi/index.js'
 
 /**
  * Mapping of OpenAPI/JSON Schema types to Zod schema strings
@@ -142,9 +143,7 @@ export function zod(schema: Schema): string {
   }
 
   if (schema.$ref) {
-    const refParts = schema.$ref.split('/')
-    const refName = refParts[refParts.length - 1]
-    return `${refName}Schema`
+    return getRefSchemaName(schema.$ref)
   }
 
   // fallback

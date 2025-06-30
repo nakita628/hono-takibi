@@ -201,4 +201,11 @@ describe('zod', () => {
     const expected = 'z.array(z.string()).length(5)'
     expect(result).toBe(expected)
   })
+  it.concurrent('reference: Test', () => {
+    const result = zod({
+      $ref: '#/components/schemas/Test',
+    })
+    const expected = 'TestSchema'
+    expect(result).toBe(expected)
+  })
 })
