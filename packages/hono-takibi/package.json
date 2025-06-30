@@ -40,6 +40,8 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
+    "@typespec/compiler": "^1.1.0",
+    "@typespec/openapi3": "^1.1.0",
     "prettier": "^3.5.3"
   },
   "devDependencies": {
