@@ -1,4 +1,4 @@
-export function groupHandlersByFileNameHelper(
+export function groupHandlersByFileName(
   handlers: {
     fileName: `${string}.ts`
     testFileName: `${string}.ts`

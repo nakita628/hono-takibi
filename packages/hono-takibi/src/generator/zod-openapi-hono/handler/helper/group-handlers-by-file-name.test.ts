@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { groupHandlersByFileNameHelper } from './group-handlers-by-file-name-helper'
+import { groupHandlersByFileName } from './group-handlers-by-file-name'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/handler/helper/group-handlers-by-file-name-helper.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/handler/helper/group-handlers-by-file-name.test.ts
 
-describe('groupHandlersByFileNameHelper', () => {
-  it.concurrent('groupHandlersByFileNameHelper Test', () => {
-    const result = groupHandlersByFileNameHelper([
+describe('groupHandlersByFileName', () => {
+  it.concurrent('groupHandlersByFileName Test', () => {
+    const result = groupHandlersByFileName([
       {
         fileName: 'honoHandler.ts',
         testFileName: 'honoHandler.test.ts',

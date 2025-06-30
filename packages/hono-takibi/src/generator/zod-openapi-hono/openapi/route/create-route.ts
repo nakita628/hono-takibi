@@ -1,30 +1,30 @@
-type GenerateCreateRouteParams = {
+type CreateRouteParams = {
   routeName: string
-  tagsCode?: string
-  methodCode: string
-  pathCode: string
-  operationIdCode?: string
-  summaryCode?: string
-  descriptionCode?: string
-  securityCode?: string
+  tags?: string
+  method: string
+  path: string
+  operationId?: string
+  summary?: string
+  description?: string
+  security?: string
   requestParams: string
-  responsesCode: string
+  responses: string
 }
 
 /**
  * Generates TypeScript code for a Hono route definition
- * @param { GenerateCreateRouteParams } args - Object containing route definition properties
+ * @param { CreateRouteParams } args - Object containing route definition properties
  * @returns { string } Generated TypeScript code string for the route definition
  * @example
  * const args = {
  *   routeName: 'getUsersRoute',
- *   tagsCode: 'tags:["users"],',
- *   methodCode: 'method:"get",',
- *   pathCode: 'path:"/users",',
- *   descriptionCode: 'description:"Get all users",',
- *   securityCode: 'security:[{"bearerAuth":[]}],',
- *   requestParams: 'request:{query:z.object({limit:z.number()})},',
- *   responsesCode: 'responses:{200:{description:"Success",content:{"application/json":{schema:UserList}}}}'
+ *   tags: 'tags:["users"],',
+ *   method: 'method:"get",',
+ *   path: 'path:"/users",',
+ *   description: 'description:"Get all users",',
+ *   security: 'security:[{"bearerAuth":[]}],',
+ *   request: 'request:{query:z.object({limit:z.number()})},',
+ *   responses: 'responses:{200:{description:"Success",content:{"application/json":{schema:UserList}}}}'
  * }
  *
  * const code = generateCreateRoute(args)
@@ -53,17 +53,17 @@ type GenerateCreateRouteParams = {
  * - Undefined/empty properties are safely handled
  * - Creates a valid TypeScript export statement
  */
-export function createRoute(args: GenerateCreateRouteParams): string {
+export function createRoute(args: CreateRouteParams): string {
   const properties = [
-    args.tagsCode,
-    args.methodCode,
-    args.pathCode,
-    args.operationIdCode,
-    args.summaryCode,
-    args.descriptionCode,
-    args.securityCode,
+    args.tags,
+    args.method,
+    args.path,
+    args.operationId,
+    args.summary,
+    args.description,
+    args.security,
     args.requestParams,
-    args.responsesCode,
+    args.responses,
   ].join('')
   return `export const ${args.routeName}=createRoute({${properties}})`
 }

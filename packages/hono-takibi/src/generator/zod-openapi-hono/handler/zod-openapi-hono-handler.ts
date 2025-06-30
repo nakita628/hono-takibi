@@ -1,7 +1,7 @@
 import type { OpenAPIPaths, OpenAPI } from '../../../openapi/index.js'
 import { handler, handlerName } from './generator/index.js'
 import { routeName } from '../openapi/route/route-name.js'
-import { groupHandlersByFileNameHelper } from './helper/group-handlers-by-file-name-helper.js'
+import { groupHandlersByFileName } from './helper/group-handlers-by-file-name.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { Result } from '../../../result/types.js'
@@ -55,7 +55,7 @@ export async function zodOpenapiHonoHandler(
     }
   }
 
-  const mergedHandlers = groupHandlersByFileNameHelper(handlers)
+  const mergedHandlers = groupHandlersByFileName(handlers)
 
   for (const handler of mergedHandlers) {
     const dirPath = output?.replace(/\/[^/]+\.ts$/, '')
