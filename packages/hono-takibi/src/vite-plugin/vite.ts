@@ -32,7 +32,7 @@ export async function vite(
     console.log(`Generated code written to ${output}`)
     return true
   } catch (e) {
-    console.error('Usage: hono-takibi <input.{yaml,json}> -o <routes.ts> [options]')
+    console.error('Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]')
     return false
   }
 }
