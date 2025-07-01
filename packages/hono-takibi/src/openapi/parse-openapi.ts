@@ -11,7 +11,7 @@ import { typeSpecToOpenAPI } from '../typespec/index.js'
  */
 export async function parseOpenAPI(input: string): Promise<Result<OpenAPI, string>> {
   try {
-    if (input.endsWith('.tsp')) {
+    if (typeof input === 'string' && input.endsWith('.tsp')) {
       const tsp = await typeSpecToOpenAPI(input)
       const spec = (await SwaggerParser.parse(tsp as unknown as string)) as OpenAPI
       return ok(spec)
