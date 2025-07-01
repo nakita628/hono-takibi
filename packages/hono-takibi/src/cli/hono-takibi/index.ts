@@ -6,7 +6,7 @@ import { isHelpRequested, sliceArgv } from '../utils/index.js'
 
 const HELP_TEXT = `
 Usage:
-  hono-takibi <input.{yaml,json}> -o <routes.ts> [options]
+  hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type             Export TypeScript type aliases

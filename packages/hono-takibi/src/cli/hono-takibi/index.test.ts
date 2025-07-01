@@ -186,7 +186,7 @@ describe('honoTakibi --help', () => {
       ok: true,
       value: {
         message: `Usage:
-  hono-takibi <input.{yaml,json}> -o <routes.ts> [options]
+  hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type             Export TypeScript type aliases
@@ -216,7 +216,7 @@ describe('honoTakibi -h', () => {
       ok: true,
       value: {
         message: `Usage:
-  hono-takibi <input.{yaml,json}> -o <routes.ts> [options]
+  hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type             Export TypeScript type aliases

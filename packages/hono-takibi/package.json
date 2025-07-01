@@ -40,11 +40,16 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.1",
+    "@typespec/compiler": "^1.1.0",
+    "@typespec/openapi3": "^1.1.0",
     "prettier": "^3.5.3"
   },
   "devDependencies": {
     "@hono/zod-openapi": "1.0.0-beta.1",
     "@types/node": "^22.15.32",
+    "@typespec/http": "^1.1.0",
+    "@typespec/rest": "^0.71.0",
+    "@typespec/versioning": "^0.71.0",
     "@vitest/coverage-v8": "^3.2.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",

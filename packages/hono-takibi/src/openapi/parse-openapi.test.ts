@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { parseOpenAPI } from '.'
 
 // Test run
-// pnpm vitest run ./src/swagger/index.test.ts
+// pnpm vitest run ./src/openapi/parse-openapi.test.ts
 
 describe('safeParseOpenAPI', () => {
   it.concurrent('should return ok for a valid OpenAPI YAML string', async () => {

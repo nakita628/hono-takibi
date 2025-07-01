@@ -8,7 +8,7 @@ import { templateCode } from './template-code.js'
 import { mkdir, writeFile } from '../../fsp/index.js'
 
 export async function takibi(
-  input: `${string}.yaml` | `${string}.json`,
+  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
   exportSchema: boolean,
   exportType: boolean,
