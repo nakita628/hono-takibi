@@ -44,7 +44,11 @@ openapi: 3.1.0
 info:
   title: Hono API
   version: v1
-
+tags:
+  - name: Hono
+    description: Endpoints related to general Hono operations
+  - name: Post
+    description: Endpoints for creating, retrieving, updating, and deleting posts
 components:
   schemas:
     Error:
@@ -63,9 +67,9 @@ components:
           description: Unique identifier of the post
         post:
           type: string
-          description: Content of the post
           minLength: 1
           maxLength: 140
+          description: Content of the post
         createdAt:
           type: string
           format: date-time
@@ -79,13 +83,6 @@ components:
         - post
         - createdAt
         - updatedAt
-
-tags:
-  - name: Hono
-    description: Endpoints related to general Hono operations
-  - name: Post
-    description: Endpoints for creating, retrieving, updating, and deleting posts
-
 paths:
   /:
     get:
@@ -106,7 +103,6 @@ paths:
                     example: Hono🔥
                 required:
                   - message
-
   /posts:
     post:
       tags:
@@ -122,63 +118,52 @@ paths:
               properties:
                 post:
                   type: string
-                  description: Content of the post
                   minLength: 1
                   maxLength: 140
+                  description: Content of the post
               required:
                 - post
-            example:
-              post: "This is my first post!"
       responses:
         '201':
           description: Post successfully created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                message: Created
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Post created successfully.
+                required:
+                  - message
         '400':
           description: Invalid request due to bad input.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Post content is required and must be between 1 and 140 characters.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
     get:
       tags:
         - Post
       summary: Retrieve a list of posts
       description: Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
       parameters:
-        - in: query
-          name: page
+        - name: page
+          in: query
           required: true
           schema:
             type: integer
-            minimum: 0
-            default: 1
-            example: 1
-          description: The page number to retrieve. Must be a positive integer. Defaults to 1.
-        - in: query
-          name: rows
+        - name: rows
+          in: query
           required: true
           schema:
             type: integer
-            minimum: 0
-            default: 10
-            example: 10
-          description: The number of posts per page. Must be a positive integer. Defaults to 10.
       responses:
         '200':
           description: Successfully retrieved a list of posts.
@@ -188,28 +173,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-              example:
-                - id: "123e4567-e89b-12d3-a456-426614174000"
-                  post: "Hello world!"
-                  createdAt: "2024-12-01T12:34:56Z"
-                  updatedAt: "2024-12-02T14:20:00Z"
         '400':
           description: Invalid request due to bad input.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Invalid page or rows parameter. Both must be positive integers.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
   /posts/{id}:
     put:
       tags:
@@ -217,13 +192,13 @@ paths:
       summary: Update an existing post
       description: Update the content of an existing post identified by its unique ID.
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
             format: uuid
-          description: Unique identifier of the post.
+            description: Unique identifier of the post.
       requestBody:
         required: true
         content:
@@ -233,13 +208,11 @@ paths:
               properties:
                 post:
                   type: string
-                  description: Updated content for the post
                   minLength: 1
                   maxLength: 140
+                  description: Updated content for the post
               required:
                 - post
-            example:
-              post: "Updated post content."
       responses:
         '204':
           description: Post successfully updated.
@@ -249,31 +222,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Post content is required and must be between 1 and 140 characters.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
-
     delete:
       tags:
         - Post
       summary: Delete a post
       description: Delete an existing post identified by its unique ID.
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: string
             format: uuid
+            description: Unique identifier of the post.
             example: 123e4567-e89b-12d3-a456-426614174000
-          description: Unique identifier of the post.
       responses:
         '204':
           description: Post successfully deleted.
@@ -283,16 +251,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Invalid post ID.
         '500':
           description: Internal server error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: An unexpected error occurred. Please try again later.
 ```
 
 output:
@@ -304,10 +268,10 @@ const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
 const PostSchema = z
   .object({
-    id: z.string().uuid(),
-    post: z.string().min(1).max(140),
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
+    id: z.uuid().openapi({ description: 'Unique identifier of the post' }),
+    post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
+    createdAt: z.iso.date().openapi({ description: 'Timestamp when the post was created' }),
+    updatedAt: z.date().openapi({ description: 'Timestamp when the post was last updated' }),
   })
   .openapi('Post')
 
@@ -338,13 +302,25 @@ export const postPostsRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
+          }),
+        },
+      },
     },
   },
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string().openapi({ example: 'Post created successfully.' }),
+          }),
+        },
+      },
     },
     400: {
       description: 'Invalid request due to bad input.',
@@ -366,8 +342,17 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.string().pipe(z.coerce.number().int().min(0).default(1).openapi({ example: 1 })),
-      rows: z.string().pipe(z.coerce.number().int().min(0).default(10).openapi({ example: 10 })),
+      page: z.coerce
+        .number()
+        .int()
+        .min(0)
+        .openapi({ param: { in: 'query', name: 'page', required: false } }),
+
+      rows: z.coerce
+        .number()
+        .int()
+        .min(0)
+        .openapi({ param: { in: 'query', name: 'rows', required: false } }),
     }),
   },
   responses: {
@@ -395,9 +380,24 @@ export const putPostsIdRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { 'application/json': { schema: z.object({ post: z.string().min(1).max(140) }) } },
+      content: {
+        'application/json': {
+          schema: z.object({
+            post: z
+              .string()
+              .min(1)
+              .max(140)
+              .openapi({ description: 'Updated content for the post' }),
+          }),
+        },
+      },
     },
-    params: z.object({ id: z.string().uuid() }),
+    params: z.object({
+      id: z.uuid().openapi({
+        param: { in: 'path', name: 'id', required: true },
+        description: 'Unique identifier of the post.',
+      }),
+    }),
   },
   responses: {
     204: { description: 'Post successfully updated.' },
@@ -420,13 +420,11 @@ export const deletePostsIdRoute = createRoute({
   description: 'Delete an existing post identified by its unique ID.',
   request: {
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: { name: 'id', in: 'path' },
-          example: '123e4567-e89b-12d3-a456-426614174000',
-        }),
+      id: z.uuid().openapi({
+        param: { in: 'path', name: 'id', required: true },
+        example: '123e4567-e89b-12d3-a456-426614174000',
+        description: 'Unique identifier of the post.',
+      }),
     }),
   },
   responses: {
@@ -453,8 +451,6 @@ basic
 Options:
   --export-schema      exports all schema definitions
   --export-type        exports all type definitions
-  --naming-case-type   PascalCase or camelCase
-  --naming-case-schema PascalCase or camelCase
 ```
 
 template
@@ -465,68 +461,13 @@ template
 Options:
   --template            generation of application and handler files
   --test                automatic generation of test files
-  --base-path          base URL path for your API endpoints
+  --base-path           base URL path for your API endpoints
 ```
 
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o project/routes.ts --template -test --base-path 'api'
-```
-
-## Configuration
-
-You can customize the code generation behavior by creating a `hono-takibi.json` file in your project root.
-
-### Schema Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated schema variables |
-| `export` | `boolean` | `false` | When true, exports all schema definitions |
-
-### Type Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `name` | `"PascalCase"` \| `"camelCase"` | `"PascalCase"` | Naming convention for generated type definitions |
-| `export` | `boolean` | `false` | When true, exports all type definitions |
-
-## Input and Output
-
-You can specify input and output paths in two ways:
-
-1. Command line arguments:
-
-2. Configuration file (`hono-takibi.json`):
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `input` | `string` | `""` | Input file path |
-| `output` | `string` | `""` | Output file path |
-
-> **⚠️** When using a configuration file, command line arguments are not required. The configuration file settings take precedence over command line arguments.
->
-> **🔥** When you have configured `hono-takibi.json`, you can simply run:
-> ```bash
-> npx hono-takibi
-> ```
-
-### Examples
-
-* Default Behavior (PascalCase schemas, PascalCase types)
-
-```json
-{
-  "schema": {
-    "name": "PascalCase",
-    "export": false
-  },
-  "type": {
-    "name": "PascalCase",
-    "export": false
-  }
-}
+npx hono-takibi openapi.yaml -o src/routes.ts --template -test --base-path 'api'
 ```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
