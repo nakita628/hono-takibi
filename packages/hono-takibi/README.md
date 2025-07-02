@@ -451,8 +451,6 @@ basic
 Options:
   --export-schema      exports all schema definitions
   --export-type        exports all type definitions
-  --naming-case-type   PascalCase or camelCase
-  --naming-case-schema PascalCase or camelCase
 ```
 
 template
