@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const getFizzbuzzRoute = createRoute({
+export const getFizzBuzzRoute = createRoute({
   method: 'get',
-  path: '/fizzbuzz',
+  path: '/fizzBuzz',
   summary: 'Get FizzBuzz result',
   description: 'Returns the FizzBuzz result for the given number.',
   request: {
@@ -11,7 +11,11 @@ export const getFizzbuzzRoute = createRoute({
   responses: {
     200: {
       description: 'FizzBuzz result',
-      content: { 'application/json': { schema: z.object({ result: z.string() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ result: z.string(), number: z.number().optional() }),
+        },
+      },
     },
     400: {
       description: 'Invalid input',

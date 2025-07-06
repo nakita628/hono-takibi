@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "strict": true,
-    "verbatimModuleSyntax": true,
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "bundler",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "skipLibCheck": true,
     "types": ["node"]
   }

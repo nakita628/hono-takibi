@@ -80,9 +80,7 @@ if (process.env.NODE_ENV === 'development') {
 const port = 3000
 console.log(`Server is running on http://localhost:${port}`)
 
-if (process.env.NODE_ENV !== 'test') {
-  serve({
-    fetch: app.fetch,
-    port,
-  })
-}
+serve({
+  fetch: app.fetch,
+  port,
+})
