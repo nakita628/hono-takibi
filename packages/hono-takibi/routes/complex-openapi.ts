@@ -56,7 +56,7 @@ const OrderItemSchema = z
   .object({
     productId: z.string().openapi({ example: 'PROD-001' }),
     quantity: z.int().openapi({ example: 2 }),
-    price: z.float().openapi({ example: 49.99 }),
+    price: z.float32().openapi({ example: 49.99 }),
   })
   .openapi('OrderItem')
 
@@ -86,7 +86,7 @@ const OrderSchema = z
     orderId: z.string().openapi({ example: 'ORD-001' }),
     user: UserSchema,
     items: z.array(OrderItemSchema),
-    total: z.float().openapi({ example: 199.99 }),
+    total: z.float32().openapi({ example: 199.99 }),
     status: z
       .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
       .openapi({ example: 'pending' }),

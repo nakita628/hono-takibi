@@ -188,4 +188,69 @@ describe('zod', () => {
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
+
+  it.concurrent('z.string().nullable()', () => {
+    const result = zod({ type: 'string', nullable: true })
+    const expected = 'z.string().nullable()'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('z.int().nullable()', () => {
+    const result = zod({ type: ['integer', 'null'] })
+    const expected = 'z.int().nullable()'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('z.literal("fixed")', () => {
+    const result = zod({ type: 'string', const: 'fixed' })
+    const expected = 'z.literal("fixed")'
+    expect(result).toBe(expected)
+  })
+
+  // exclusiveMinimum
+  it.concurrent('z.number().gt(1)', () => {
+    const result = zod({ type: 'number', exclusiveMinimum: 1 })
+    const expected = 'z.number().gt(1)'
+    expect(result).toBe(expected)
+  })
+
+  // exclusiveMaximum
+  it.concurrent('z.number().lt(100)', () => {
+    expect(zod({ type: 'number', exclusiveMaximum: 100 })).toBe('z.number().lt(100)')
+  })
+
+  // int64
+  it.concurrent('int64 minimum rendered as bigint literal', () => {
+    expect(zod({ type: 'integer', format: 'int64', minimum: 0 })).toBe('z.int64().min(0n)')
+  })
+
+  // bigint
+  it.concurrent('bigint boundaries wrapped in BigInt()', () => {
+    expect(
+      zod({
+        type: 'integer',
+        format: 'bigint',
+        minimum: -1e38,
+        maximum: 1e38,
+      }),
+    ).toBe('z.bigint().min(BigInt(-1e+38)).max(BigInt(1e+38))')
+  })
+
+  it.concurrent('array with minItems / maxItems', () => {
+    expect(zod({ type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 4 })).toBe(
+      'z.array(z.string()).min(2).max(4)',
+    )
+  })
+
+  it.concurrent('array with minItems === maxItems → length()', () => {
+    expect(zod({ type: 'array', items: { type: 'number' }, minItems: 3, maxItems: 3 })).toBe(
+      'z.array(z.number()).length(3)',
+    )
+  })
+
+  it.concurrent('enum with nullable flag', () => {
+    expect(zod({ enum: ['A', 'B'], type: 'string', nullable: true })).toBe(
+      'z.enum(["A","B"]).nullable()',
+    )
+  })
 })

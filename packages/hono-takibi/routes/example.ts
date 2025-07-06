@@ -42,6 +42,14 @@ const DecimalSchema = z
   .openapi({ example: 12345.6789 })
   .openapi('Decimal')
 
+const NullableInt32Schema = z
+  .int32()
+  .min(-2147483648)
+  .max(2147483647)
+  .nullable()
+  .openapi({ example: null })
+  .openapi('NullableInt32')
+
 const JwtTokenSchema = z
   .jwt()
   .min(20)
@@ -74,6 +82,14 @@ const IsoDurationSchema = z.iso
 
 const ShortCodeSchema = z.string().min(3).max(8).openapi({ example: 'aB3x5' }).openapi('ShortCode')
 
+const NullableShortCodeSchema = z
+  .string()
+  .min(3)
+  .max(8)
+  .nullable()
+  .openapi({ example: null })
+  .openapi('NullableShortCode')
+
 const CustomFormatModelSchema = z
   .object({
     int32Value: Int32Schema,
@@ -87,13 +103,15 @@ const CustomFormatModelSchema = z
     base64UrlValue: Base64UrlSchema.optional(),
     durationValue: IsoDurationSchema.optional(),
     shortCode: ShortCodeSchema.optional(),
+    nullableInt32Value: NullableInt32Schema.optional(),
+    nullableShortCode: NullableShortCodeSchema.optional(),
   })
   .openapi('CustomFormatModel')
 
 export const getSampleRoute = createRoute({
   method: 'get',
   path: '/sample',
-  summary: 'Returns a payload exercising every custom format and constraint',
+  summary: 'Returns a payload exercising every custom format, constraint, and nullable case',
   responses: {
     200: {
       description: 'OK',

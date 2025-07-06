@@ -8,7 +8,7 @@ export const getNullableRoute = createRoute({
   responses: {
     200: {
       description: 'zod nullable',
-      content: { 'application/json': { schema: z.string().nullable() } },
+      content: { 'application/json': { schema: z.string().nullable().nullable() } },
     },
   },
 })

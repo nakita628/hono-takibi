@@ -24,11 +24,6 @@ export type OpenAPIPaths = {
 }
 
 /**
- * HTTP methods supported in OpenAPI
- */
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace'
-
-/**
  * Data types supported in OpenAPI schemas
  */
 export type Type = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'
@@ -121,6 +116,12 @@ export type Content = {
 /**
  * Path item definition with HTTP methods and parameters
  */
+
+/**
+ * HTTP methods supported in OpenAPI
+ */
+type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace'
+
 export type PathItem = {
   summary?: string
   description?: string
@@ -178,15 +179,15 @@ type Response = {
 export type Schema = {
   name?: string
   description?: string
-  type?: Type
+  type?: Type | [Type, ...Type[]]
   format?: Format | FormatString | FormatNumber
   pattern?: string
   minLength?: number
   maxLength?: number
   minimum?: number
   maximum?: number
-  exclusiveMinimum?: boolean
-  exclusiveMaximum?: boolean
+  exclusiveMinimum?: number | boolean
+  exclusiveMaximum?: number | boolean
   minItems?: number
   maxItems?: number
   default?: DefaultValue
@@ -216,6 +217,7 @@ export type Schema = {
   externalDocs?: {
     url?: string
   }
+  const?: unknown
 }
 
 /**
