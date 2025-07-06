@@ -6,8 +6,11 @@
     "takibi": "hono-takibi src/openapi.yaml -o src/route.ts",
     "vite": "vite --host",
     "push": "drizzle-kit push",
+    "push:test": "NODE_ENV=test drizzle-kit push",
     "generate": "drizzle-kit generate",
-    "test": "NODE_ENV=test vitest run",
+    "test:clean": "rm -f test.db",
+    "test:setup": "pnpm test:clean && pnpm push:test",
+    "test": "NODE_ENV=test pnpm test:setup && NODE_ENV=test vitest run",
     "coverage": "vitest run --coverage",
     "prepare": "cp .env.example .env"
   },

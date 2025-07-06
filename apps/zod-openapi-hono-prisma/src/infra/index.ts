@@ -1,16 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
-// 環境変数DATABASE_URLが設定されていない場合は、NODE_ENVに応じてデフォルト値を使用
-const databaseUrl = process.env.DATABASE_URL || (process.env.NODE_ENV === "test"
-  ? "file:../prisma/test.db"
-  : "file:../prisma/dev.db");
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set')
+}
+const databaseUrl = process.env.NODE_ENV === 'test' ? 'file:./test.db' : process.env.DATABASE_URL
 
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: databaseUrl
-    }
-  }
-});
+      url: databaseUrl,
+    },
+  },
+})
 
-export default prisma;
+export default prisma

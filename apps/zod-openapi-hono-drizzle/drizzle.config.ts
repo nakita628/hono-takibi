@@ -1,15 +1,15 @@
 import 'dotenv/config'
 import { defineConfig } from 'drizzle-kit'
 
-if (!process.env.DB_FILE_NAME) {
-  throw new Error('DB_FILE_NAME is not set')
-}
+// 環境変数に基づいてデータベースファイルを選択
+const dbFileName =
+  process.env.NODE_ENV === 'test' ? 'file:test.db' : process.env.DB_FILE_NAME || 'file:local.db'
 
 export default defineConfig({
   out: './drizzle/migrations',
   schema: './db/schema.ts',
   dialect: 'sqlite',
   dbCredentials: {
-    url: process.env.DB_FILE_NAME,
+    url: dbFileName,
   },
 })

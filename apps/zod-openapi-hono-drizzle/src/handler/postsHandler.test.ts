@@ -1,15 +1,28 @@
 import { testClient } from 'hono/testing'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
+import { execSync } from 'child_process'
 import { api } from '../index.ts'
 import db, { table } from '../infra/index.ts'
 import { eq } from 'drizzle-orm'
+import { createClient } from '@libsql/client'
 
 const test = testClient(api)
+const client = createClient({
+  url: process.env.NODE_ENV === 'test' ? 'file:test.db' : 'file:local.db',
+})
 
 describe('Hono Zod OpenAPI Test', () => {
+  beforeAll(async () => {
+    execSync('NODE_ENV=test drizzle-kit push')
+  })
+
   beforeEach(async () => {
     await db.delete(table.post)
+  })
+
+  afterAll(async () => {
+    client.close()
   })
 
   it('postPostsRouteHandler 201', async () => {

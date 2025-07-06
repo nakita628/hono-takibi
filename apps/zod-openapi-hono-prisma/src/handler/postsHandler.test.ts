@@ -1,7 +1,7 @@
 import { testClient } from 'hono/testing'
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest'
-import { randomUUID } from 'node:crypto'
 import { execSync } from 'child_process'
+import { randomUUID } from 'node:crypto'
 import prisma from '../infra/index.ts'
 import { api } from '../index.ts'
 
@@ -9,7 +9,7 @@ const test = testClient(api)
 
 describe('Hono Zod OpenAPI Test', () => {
   beforeAll(async () => {
-    execSync('DATABASE_URL=file:./prisma/test.db npx prisma migrate reset --force --skip-seed')
+    execSync('DATABASE_URL=file:./test.db prisma migrate reset --force --skip-seed')
   })
 
   beforeEach(async () => {
