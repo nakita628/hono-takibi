@@ -121,7 +121,7 @@ describe('requestParameter', () => {
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}},},params:z.object({petId:z.number().int().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}},},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
     expect(result).toBe(expected)
   })
 })

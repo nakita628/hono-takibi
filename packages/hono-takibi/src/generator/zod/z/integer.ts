@@ -8,9 +8,7 @@ import { regex, _default, max, min } from './index.js'
  */
 export function integer(schema: Schema): string {
   const validations = [
-    schema.format === 'int32' ? 'z.int32()' : '',
-    schema.format === 'int64' ? 'z.int64()' : '',
-    'z.int()',
+    schema.format === 'int32' ? 'z.int32()' : schema.format === 'int64' ? 'z.int64()' : 'z.int()',
   ].filter(Boolean)
 
   // pattern

@@ -7,7 +7,15 @@ import { regex, _default, gt, lt, min, max } from './index.js'
  * @returns { string } Generated Zod number schema string
  */
 export function number(schema: Schema): string {
-  const validations = ['z.number()']
+  const validations = [
+    schema.format === 'float'
+      ? 'z.float()'
+      : schema.format === 'float32'
+        ? 'z.float32()'
+        : schema.format === 'float64'
+          ? 'z.float64()'
+          : 'z.number()',
+  ]
   // pattern
   if (schema.pattern) {
     validations.push(regex(schema.pattern))

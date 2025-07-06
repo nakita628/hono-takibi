@@ -82,7 +82,7 @@ export type FormatString =
   | 'toUpperCase' // toUpperCase
   | 'trim' // trim whitespace
 
-export type FormatNumber = 'int32' | 'int64' | 'float' | 'double'
+export type FormatNumber = 'int32' | 'int64' | 'float' | 'float32' | 'float64' | 'double'
 
 /**
  * Primitive values allowed in examples

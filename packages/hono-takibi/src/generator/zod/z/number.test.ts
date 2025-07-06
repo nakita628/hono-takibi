@@ -56,15 +56,21 @@ describe('numberSchema Test', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('should throw an error when schema is null', () => {
-    // biome-ignore lint: test
-    const schema = null as any
-    expect(() => number(schema)).toThrow('Cannot read properties of null')
+  it.concurrent('number({ format: "float" }) -> z.float()', () => {
+    const result = number({ format: 'float' })
+    const expected = 'z.float()'
+    expect(result).toBe(expected)
   })
 
-  it.concurrent('should throw an error when schema is undefined', () => {
-    // biome-ignore lint: test
-    const schema = undefined as any
-    expect(() => number(schema)).toThrow('Cannot read properties of undefined')
+  it.concurrent('number({ format: "float32" }) -> z.float32()', () => {
+    const result = number({ format: 'float32' })
+    const expected = 'z.float32()'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('number({ format: "float64" }) -> z.float64()', () => {
+    const result = number({ format: 'float64' })
+    const expected = 'z.float64()'
+    expect(result).toBe(expected)
   })
 })
