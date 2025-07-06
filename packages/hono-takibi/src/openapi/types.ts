@@ -43,6 +43,7 @@ export type Type =
   | 'unknown'
   | 'array'
   | 'object'
+  | 'undefined'
 
 export type Format = FormatString | FormatNumber
 

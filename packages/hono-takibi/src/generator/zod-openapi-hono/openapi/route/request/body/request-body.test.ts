@@ -116,7 +116,7 @@ describe('requestBody', () => {
   })
 
   it.concurrent('should throw an error when content is null', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const content = null as any
     const required = true
     const schema = 'z.object({})'
@@ -127,7 +127,7 @@ describe('requestBody', () => {
   })
 
   it.concurrent('should throw an error when content is undefined', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const content = undefined as any
     const required = true
     const schema = 'z.object({})'

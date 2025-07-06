@@ -182,7 +182,7 @@ export const postTestRoute = createRoute({
 describe('cli test', () => {
   const exitSpy = vi
     .spyOn(process, 'exit')
-    .mockImplementation(((code?: number | string | null) => undefined) as never)
+    .mockImplementation((() => undefined) as never)
 
   const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

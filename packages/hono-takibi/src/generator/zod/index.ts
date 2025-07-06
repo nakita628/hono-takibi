@@ -1,4 +1,4 @@
-import type { Schema, Type } from '../../openapi/index.js'
+import type { Schema } from '../../openapi/index.js'
 import { string, number, array, _enum, integer, length, max, min, object } from './z/index.js'
 import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from '../../core/utils/index.js'
 import { zodToOpenAPI } from '../zod-to-openapi/index.js'
@@ -7,27 +7,6 @@ import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
-
-/**
- * Mapping of OpenAPI/JSON Schema types to Zod schema strings
- * @remarks
- * - Basic types are mapped directly to their Zod equivalents
- * - Complex types (object, string with validation, array with items) are handled separately
- * - Used as a fallback for simple type conversions
- */
-const TYPE_TO_ZOD_SCHEMA: Record<Type, string> = {
-  number: 'z.number()',
-  integer: 'z.number().int()',
-  bigint: 'z.bigint()',
-  boolean: 'z.boolean()',
-  date: 'z.date()',
-  null: 'z.null()',
-  any: 'z.any()',
-  unknown: 'z.unknown()',
-  string: 'z.string()',
-  object: 'z.object({})',
-  array: 'z.array()',
-} as const
 
 /**
  * Generates a Zod schema string from an OpenAPI/JSON Schema definition
@@ -122,6 +101,16 @@ export function zod(schema: Schema): string {
     return 'z.array(z.any())'
   }
 
+  // bigint
+  if (schema.type === 'bigint') {
+    return 'z.bigint()'
+  }
+
+  // boolean
+  if (schema.type === 'boolean') {
+    return 'z.boolean()'
+  }
+
   // oneOf
   if (schema.oneOf) {
     return oneOf(schema)
@@ -142,14 +131,31 @@ export function zod(schema: Schema): string {
     return not(schema)
   }
 
+  // $ref
   if (schema.$ref) {
     return getRefSchemaName(schema.$ref)
   }
 
-  // fallback
-  if (schema.type) {
-    return TYPE_TO_ZOD_SCHEMA[schema.type]
+  // date
+  if (schema.type === 'date') {
+    return 'z.date()'
   }
+
+  // null
+  if (schema.type === 'null') {
+    return 'z.null()'
+  }
+
+  // unknown
+  if (schema.type === 'unknown') {
+    return 'z.unknown()'
+  }
+
+  // undefined
+  if (schema.type === 'undefined') {
+    return 'z.undefined()'
+  }
+
   console.warn(`Unknown type: ${schema.type}, ${JSON.stringify(schema)} falling back to z.any()`)
   return 'z.any()'
 }

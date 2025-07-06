@@ -7,7 +7,12 @@ import { regex, _default, max, min } from './index.js'
  * @returns { string } Generated Zod integer schema string
  */
 export function integer(schema: Schema): string {
-  const validations = ['z.number().int()']
+  const validations = [
+    schema.format === 'int32' ? 'z.int32()' : '',
+    schema.format === 'int64' ? 'z.int64()' : '',
+    'z.int()',
+  ].filter(Boolean)
+
   // pattern
   if (schema.pattern) validations.push(regex(schema.pattern))
   // minLength

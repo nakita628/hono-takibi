@@ -57,13 +57,13 @@ describe('numberSchema Test', () => {
   })
 
   it.concurrent('should throw an error when schema is null', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const schema = null as any
     expect(() => number(schema)).toThrow('Cannot read properties of null')
   })
 
   it.concurrent('should throw an error when schema is undefined', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const schema = undefined as any
     expect(() => number(schema)).toThrow('Cannot read properties of undefined')
   })

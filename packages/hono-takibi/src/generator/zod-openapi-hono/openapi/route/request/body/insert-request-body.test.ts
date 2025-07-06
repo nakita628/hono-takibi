@@ -16,7 +16,7 @@ describe('insertRequestBody', () => {
   })
 
   it.concurrent('should throw an error when requestParams is undefined', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const requestParams = undefined as any
     const requestBodyCode = 'edge case'
 
