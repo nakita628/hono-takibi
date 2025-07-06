@@ -19,11 +19,6 @@ export function _enum(schema: Schema) {
     return `z.literal(${schema.enum[0]})`
   }
 
-  // bigint
-  if (schema.type === 'bigint' && schema.enum) {
-    return `z.literal(${schema.enum})`
-  }
-
   // array
   if (schema.type === 'array' && Array.isArray(schema.enum)) {
     if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {

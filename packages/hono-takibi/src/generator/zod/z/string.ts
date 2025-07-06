@@ -22,7 +22,7 @@ const FORMAT_STRING: Record<string, string> = {
   date: '.iso.date()',
   time: '.iso.time()',
   'date-time': '.iso.datetime()',
-  duration: 'iso.duration()',
+  duration: '.iso.duration()',
   binary: '.file()',
   toLowerCase: '.toLowerCase()',
   toUpperCase: '.toUpperCase()',

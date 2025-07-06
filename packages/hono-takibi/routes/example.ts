@@ -1,47 +1,103 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const BasicStringSchema = z.string().openapi({ example: 'hono-takibi' }).openapi('BasicString')
+const Int32Schema = z
+  .int32()
+  .min(-2147483648)
+  .max(2147483647)
+  .openapi({ example: 42 })
+  .openapi('Int32')
 
-const BasicNumberSchema = z.number().openapi({ example: 42.195 }).openapi('BasicNumber')
+const Int64Schema = z
+  .int64()
+  .min(-9223372036854776000n)
+  .max(9223372036854776000n)
+  .openapi({ example: '-9223372036854776000n' })
+  .openapi('Int64')
 
-const BasicIntegerSchema = z.int64().openapi({ example: 9876543210 }).openapi('BasicInteger')
+const BigIntSchema = z
+  .bigint()
+  .min(BigInt(-1e38))
+  .max(BigInt(1e38))
+  .openapi({ example: '123456789012345678901234567890n' })
+  .openapi('BigInt')
 
-const BasicBooleanSchema = z.boolean().openapi({ example: true }).openapi('BasicBoolean')
+const Float32Schema = z
+  .float32()
+  .min(-3.4e38)
+  .max(3.4e38)
+  .openapi({ example: 6.2831855 })
+  .openapi('Float32')
 
-const BasicArraySchema = z
-  .array(z.string())
-  .openapi({ example: ['foo', 'bar'] })
-  .openapi('BasicArray')
+const Float64Schema = z
+  .float64()
+  .min(-1.7e308)
+  .max(1.7e308)
+  .openapi({ example: 2.718281828459045 })
+  .openapi('Float64')
 
-const BasicObjectSchema = z
-  .object({ key: z.string(), value: z.number() })
-  .openapi({ example: { key: 'speed', value: 88.8 } })
-  .openapi('BasicObject')
+const DecimalSchema = z
+  .number()
+  .min(-9999999999.9999)
+  .max(9999999999.9999)
+  .openapi({ example: 12345.6789 })
+  .openapi('Decimal')
 
-const NullableStringSchema = z
-  .string()
-  .nullable()
-  .openapi({ example: null })
-  .openapi('NullableString')
-
-const ExampleModelSchema = z
-  .object({
-    id: BasicIntegerSchema,
-    name: BasicStringSchema,
-    price: BasicNumberSchema,
-    createdAt: z.iso.datetime().openapi({ example: '2025-07-06T12:34:56Z' }).optional(),
-    isActive: BasicBooleanSchema.optional(),
-    tags: BasicArraySchema.optional(),
-    metadata: BasicObjectSchema.optional(),
-    optionalNote: NullableStringSchema.optional(),
+const JwtTokenSchema = z
+  .jwt()
+  .min(20)
+  .max(4096)
+  .openapi({
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9. eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikpv aG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ. TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ\n',
   })
-  .openapi('ExampleModel')
+  .openapi('JwtToken')
 
-export const getExampleRoute = createRoute({
+const UuidV7Schema = z
+  .uuidv7()
+  .length(36)
+  .openapi({ example: '018f38a8-fa52-7d23-b2d4-c2bb9e9a8c2e' })
+  .openapi('UuidV7')
+
+const Base64UrlSchema = z
+  .base64url()
+  .min(4)
+  .max(8192)
+  .openapi({ example: 'U2l6dWt1LUVuY29kZWQ' })
+  .openapi('Base64Url')
+
+const IsoDurationSchema = z.iso
+  .duration()
+  .min(3)
+  .max(64)
+  .openapi({ example: 'P3Y6M4DT12H30M5S' })
+  .openapi('IsoDuration')
+
+const ShortCodeSchema = z.string().min(3).max(8).openapi({ example: 'aB3x5' }).openapi('ShortCode')
+
+const CustomFormatModelSchema = z
+  .object({
+    int32Value: Int32Schema,
+    int64Value: Int64Schema,
+    bigIntValue: BigIntSchema,
+    float32Value: Float32Schema,
+    float64Value: Float64Schema,
+    decimalValue: DecimalSchema.optional(),
+    jwtValue: JwtTokenSchema,
+    uuidV7Value: UuidV7Schema.optional(),
+    base64UrlValue: Base64UrlSchema.optional(),
+    durationValue: IsoDurationSchema.optional(),
+    shortCode: ShortCodeSchema.optional(),
+  })
+  .openapi('CustomFormatModel')
+
+export const getSampleRoute = createRoute({
   method: 'get',
-  path: '/example',
-  summary: 'Returns a sample document containing every primitive type',
+  path: '/sample',
+  summary: 'Returns a payload exercising every custom format and constraint',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: ExampleModelSchema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: CustomFormatModelSchema } },
+    },
   },
 })

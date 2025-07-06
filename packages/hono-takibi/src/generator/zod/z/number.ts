@@ -8,13 +8,11 @@ import { regex, _default, gt, lt, min, max } from './index.js'
  */
 export function number(schema: Schema): string {
   const validations = [
-    schema.format === 'float'
-      ? 'z.float()'
-      : schema.format === 'float32'
-        ? 'z.float32()'
-        : schema.format === 'float64'
-          ? 'z.float64()'
-          : 'z.number()',
+    schema.format === 'float' || schema.format === 'float32'
+      ? 'z.float32()'
+      : schema.format === 'float64'
+        ? 'z.float64()'
+        : 'z.number()',
   ]
   // pattern
   if (schema.pattern) {

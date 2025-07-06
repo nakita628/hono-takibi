@@ -22,4 +22,10 @@ describe('integer Test', () => {
     const expected = 'z.int().max(10)'
     expect(result).toBe(expected)
   })
+
+  it.concurrent('integer({ format: "bigint" }) -> z.bigint()', () => {
+    const result = integer({ format: 'bigint' })
+    const expected = 'z.bigint()'
+    expect(result).toBe(expected)
+  })
 })

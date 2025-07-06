@@ -58,7 +58,7 @@ describe('numberSchema Test', () => {
 
   it.concurrent('number({ format: "float" }) -> z.float()', () => {
     const result = number({ format: 'float' })
-    const expected = 'z.float()'
+    const expected = 'z.float32()'
     expect(result).toBe(expected)
   })
 

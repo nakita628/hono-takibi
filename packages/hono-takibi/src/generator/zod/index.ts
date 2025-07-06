@@ -68,7 +68,24 @@ export function zod(schema: Schema): string {
 
   // integer
   if (schema.type === 'integer') {
-    return integer(schema)
+    const res = integer(schema)
+    if (res.includes('z.int64()')) {
+      return res.replace(/(-?\d+)(?=\))/g, '$1n')
+    }
+    if (res.includes('z.bigint()')) {
+      const NUM = /-?\d+(?:\.\d+)?(?:e[+\-]?\d+)?/i
+
+      return res
+        .replace(
+          new RegExp(`\\.min\\(\\s*(${NUM.source})\\s*\\)`, 'gi'),
+          (_, n) => `.min(BigInt(${n}))`,
+        )
+        .replace(
+          new RegExp(`\\.max\\(\\s*(${NUM.source})\\s*\\)`, 'gi'),
+          (_, n) => `.max(BigInt(${n}))`,
+        )
+    }
+    return res
   }
 
   // array
@@ -99,11 +116,6 @@ export function zod(schema: Schema): string {
       return array(zodToOpenAPI(schema.items))
     }
     return 'z.array(z.any())'
-  }
-
-  // bigint
-  if (schema.type === 'bigint') {
-    return 'z.bigint()'
   }
 
   // boolean
@@ -137,9 +149,9 @@ export function zod(schema: Schema): string {
   }
 
   // date
-  if (schema.type === 'date') {
-    return 'z.date()'
-  }
+  // if (schema.type === 'date') {
+  //   return 'z.date()'
+  // }
 
   // null
   if (schema.type === 'null') {

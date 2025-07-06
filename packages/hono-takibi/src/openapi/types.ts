@@ -31,19 +31,7 @@ export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 
 /**
  * Data types supported in OpenAPI schemas
  */
-export type Type =
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'bigint'
-  | 'boolean'
-  | 'date'
-  | 'null'
-  | 'any'
-  | 'unknown'
-  | 'array'
-  | 'object'
-  | 'undefined'
+export type Type = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'
 
 export type Format = FormatString | FormatNumber
 
@@ -83,7 +71,7 @@ export type FormatString =
   | 'trim' // trim whitespace
   | 'jwt' // JSON Web Token
 
-export type FormatNumber = 'int32' | 'int64' | 'float' | 'float32' | 'float64' | 'double'
+export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
 /**
  * Primitive values allowed in examples
