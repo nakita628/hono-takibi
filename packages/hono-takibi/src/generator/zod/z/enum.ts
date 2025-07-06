@@ -48,7 +48,6 @@ export function _enum(schema: Schema) {
   }
 
   if (schema.enum) {
-    // enum.length > 1
     if (schema.enum.length > 1) {
       const allStrings = schema.enum.every((v) => typeof v === 'string')
       if (allStrings) {
