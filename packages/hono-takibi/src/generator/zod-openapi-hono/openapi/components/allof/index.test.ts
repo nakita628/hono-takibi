@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { allOf } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/allof/index.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/components/allof/index.test.ts
 
 describe('allOf', () => {
   it.concurrent('allOf with GeoJsonObject', () => {
@@ -87,7 +87,7 @@ describe('allOf', () => {
     })
 
     const expected =
-      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}),id:z.union([z.number(),z.string()]).optional()}))'
+      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))'
     expect(result).toBe(expected)
   })
 })

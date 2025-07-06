@@ -1,38 +1,18 @@
 import type { Schema } from '../../openapi/index.js'
+import { string, number, array, _enum, integer, length, max, min, object } from './z/index.js'
 import {
-  string,
-  number,
-  array,
-  _enum,
-  integer,
-  length,
-  max,
-  min,
-  object,
-  nullable,
-} from './z/index.js'
-import { stripMinIfgtExist, stripMaxIfLtExist, stripMinMaxExist } from '../../core/utils/index.js'
+  stripMinIfgtExist,
+  stripMaxIfLtExist,
+  stripMinMaxExist,
+  pickTypes,
+  wrapNullable,
+  exclusive,
+} from '../../core/utils/index.js'
 import { getRefSchemaName } from '../../core/schema/references/get-ref-schema-name.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
-
-// Allow `type` to be single value or non‑empty array
-const pickTypes = (t: Schema['type']): readonly string[] =>
-  t === undefined ? [] : Array.isArray(t) ? t : [t]
-
-// Apply .nullable() when nullable flag or "null" exists in type list
-const wrapNullable = (expr: string, schema: Schema): string => {
-  const types = pickTypes(schema.type)
-  return schema.nullable || types.includes('null') ? `${expr}${nullable()}` : expr
-}
-
-// Append .gt() / .lt() when exclusive* are numeric (3.1 style)
-const withExclusive = (expr: string, schema: Schema): string =>
-  expr +
-  (typeof schema.exclusiveMinimum === 'number' ? `.gt(${schema.exclusiveMinimum})` : '') +
-  (typeof schema.exclusiveMaximum === 'number' ? `.lt(${schema.exclusiveMaximum})` : '')
 
 export function zod(schema: Schema): string {
   /* $ref */
@@ -52,7 +32,9 @@ export function zod(schema: Schema): string {
   const types = pickTypes(schema.type)
 
   /* object */
-  if (types.includes('object')) return wrapNullable(object(schema), schema)
+  if (types.includes('object')) {
+    return wrapNullable(object(schema), schema)
+  }
 
   /* string */
   if (types.includes('string')) {
@@ -70,7 +52,7 @@ export function zod(schema: Schema): string {
 
   /* number */
   if (types.includes('number')) {
-    const numbered = withExclusive(number(schema), schema)
+    const numbered = exclusive(number(schema), schema)
     const afterGt =
       schema.minimum !== undefined &&
       numbered.includes(`min(${schema.minimum})`) &&
@@ -116,11 +98,11 @@ export function zod(schema: Schema): string {
   if (types.includes('array')) {
     if (schema.items === undefined) return wrapNullable('z.array(z.any())', schema)
 
-    const core = array(zod(schema.items))
+    const zodArray = array(zod(schema.items))
 
     // minItems/maxItems → .min()/ .max()
     const bounded =
-      (schema.minItems !== undefined ? `${core}${min(schema.minItems)}` : core) +
+      (schema.minItems !== undefined ? `${zodArray}${min(schema.minItems)}` : zodArray) +
       (schema.maxItems !== undefined ? max(schema.maxItems) : '')
 
     // minItems === maxItems → .length()
@@ -130,7 +112,7 @@ export function zod(schema: Schema): string {
 
     // legacy: minLength/maxLength on array (for existing tests)
     if (schema.minLength !== undefined && schema.maxLength === schema.minLength) {
-      return wrapNullable(`${core}${length(schema.minLength)}`, schema)
+      return wrapNullable(`${zodArray}${length(schema.minLength)}`, schema)
     }
 
     return wrapNullable(bounded, schema)
@@ -138,7 +120,7 @@ export function zod(schema: Schema): string {
 
   /* boolean */
   if (types.includes('boolean')) {
-    wrapNullable('z.boolean()', schema)
+    return wrapNullable('z.boolean()', schema)
   }
 
   /* combinators */
