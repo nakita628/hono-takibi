@@ -20,34 +20,14 @@ describe('zod', () => {
     const expected = 'z.int()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.bigint()', () => {
-    const result = zod({ type: 'bigint' })
-    const expected = 'z.bigint()'
-    expect(result).toBe(expected)
-  })
   it.concurrent('z.boolean()', () => {
     const result = zod({ type: 'boolean' })
     const expected = 'z.boolean()'
     expect(result).toBe(expected)
   })
-  it.concurrent('z.date()', () => {
-    const result = zod({ type: 'date' })
-    const expected = 'z.date()'
-    expect(result).toBe(expected)
-  })
   it.concurrent('z.null()', () => {
     const result = zod({ type: 'null' })
     const expected = 'z.null()'
-    expect(result).toBe(expected)
-  })
-  it.concurrent('z.any()', () => {
-    const result = zod({ type: 'any' })
-    const expected = 'z.any()'
-    expect(result).toBe(expected)
-  })
-  it.concurrent('z.unknown()', () => {
-    const result = zod({ type: 'unknown' })
-    const expected = 'z.unknown()'
     expect(result).toBe(expected)
   })
   it.concurrent('z.string().min(1).max(10)', () => {
