@@ -26,11 +26,7 @@ export const getArrayRoute = createRoute({
             unique_array: z.array(z.string()),
             mixed_array: z.array(z.union([z.string(), z.number(), z.boolean()])),
             object_array: z.array(
-              z.object({
-                id: z.number().int().min(0),
-                name: z.string(),
-                active: z.boolean().optional(),
-              }),
+              z.object({ id: z.int().min(0), name: z.string(), active: z.boolean().optional() }),
             ),
             fixed_values_array: z.array(z.enum(['small', 'medium', 'large'])),
             email_array: z.array(z.email()),

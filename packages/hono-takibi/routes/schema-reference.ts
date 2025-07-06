@@ -9,7 +9,7 @@ const BSchema = z
 
 const CSchema = z
   .object({
-    count: z.number().int().openapi({ description: 'Count value' }),
+    count: z.int().openapi({ description: 'Count value' }),
     flag: z.boolean().openapi({ description: 'A boolean flag' }),
   })
   .partial()

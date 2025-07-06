@@ -81,6 +81,7 @@ export type FormatString =
   | 'toLowerCase' // toLowerCase
   | 'toUpperCase' // toUpperCase
   | 'trim' // trim whitespace
+  | 'jwt' // JSON Web Token
 
 export type FormatNumber = 'int32' | 'int64' | 'float' | 'float32' | 'float64' | 'double'
 

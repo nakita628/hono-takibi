@@ -11,6 +11,4 @@ cache
 pet-store
 .DS_Store
 local.db
-route-type-schema-export
-route-case-schema-export
 /docs

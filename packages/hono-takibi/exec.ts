@@ -17,7 +17,7 @@ async function getOpenAPIFiles() {
 }
 
 async function honoTakibiNormal(openapiFile: string) {
-  const file = openapiFile.replace('.yaml', '').replace('.json', '')
+  const file = openapiFile.replace('.yaml', '').replace('.json', '').replace('.tsp', '')
   const command = `hono-takibi openapi/${openapiFile} -o routes/${file}.ts`
   exec(command, (error, stdout) => {
     if (error) {
@@ -34,9 +34,7 @@ async function HonoTakibis() {
     console.error('No openapi files found')
     return
   }
-  await Promise.all([
-    ...openapiFiles.map(honoTakibiNormal),
-  ])
+  await Promise.all([...openapiFiles.map(honoTakibiNormal)])
 }
 
 HonoTakibis()

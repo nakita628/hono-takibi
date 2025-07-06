@@ -27,6 +27,7 @@ const FORMAT_STRING: Record<string, string> = {
   toLowerCase: '.toLowerCase()',
   toUpperCase: '.toUpperCase()',
   trim: '.trim()',
+  jwt: '.jwt()',
 }
 
 /**

@@ -62,4 +62,10 @@ describe('string Test', () => {
     const expected = 'z.string().nullable()'
     expect(result).toBe(expected)
   })
+
+  it.concurrent('string({ format: "jwt" }) -> z.jwt()', () => {
+    const result = string({ format: 'jwt' })
+    const expected = 'z.jwt()'
+    expect(result).toBe(expected)
+  })
 })

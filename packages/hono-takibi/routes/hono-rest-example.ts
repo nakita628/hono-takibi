@@ -52,13 +52,7 @@ export const postPostsRoute = createRoute({
   responses: {
     201: {
       description: 'Post successfully created.',
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string().openapi({ example: 'Post created successfully.' }),
-          }),
-        },
-      },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     400: {
       description: 'Invalid request due to bad input.',
@@ -80,14 +74,16 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.coerce
-        .number()
+      page: z
         .int()
-        .openapi({ param: { in: 'query', name: 'page', required: false } }),
-      rows: z.coerce
-        .number()
+        .min(0)
+        .default(1)
+        .openapi({ param: { in: 'query', name: 'page', required: false }, example: 1 }),
+      rows: z
         .int()
-        .openapi({ param: { in: 'query', name: 'rows', required: false } }),
+        .min(0)
+        .default(10)
+        .openapi({ param: { in: 'query', name: 'rows', required: false }, example: 10 }),
     }),
   },
   responses: {
@@ -128,10 +124,7 @@ export const putPostsIdRoute = createRoute({
       },
     },
     params: z.object({
-      id: z.uuid().openapi({
-        param: { in: 'path', name: 'id', required: true },
-        description: 'Unique identifier of the post.',
-      }),
+      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
     }),
   },
   responses: {
@@ -158,7 +151,6 @@ export const deletePostsIdRoute = createRoute({
       id: z.uuid().openapi({
         param: { in: 'path', name: 'id', required: true },
         example: '123e4567-e89b-12d3-a456-426614174000',
-        description: 'Unique identifier of the post.',
       }),
     }),
   },

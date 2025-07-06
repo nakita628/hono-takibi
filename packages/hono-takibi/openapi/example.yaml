@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: Basic Types API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+
+paths:
+  /example:
+    get:
+      summary: Returns a sample document containing every primitive type
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExampleModel'
+
+components:
+  schemas:
+
+    # ---------- Primitive types ----------
+    BasicString:
+      type: string
+      example: "hono-takibi"
+
+    BasicNumber:
+      type: number          # Includes floating-point values
+      format: double        # Hint only; validation is unaffected
+      example: 42.195
+
+    BasicInteger:
+      type: integer
+      format: int64
+      example: 9876543210
+
+    BasicBoolean:
+      type: boolean
+      example: true
+
+    BasicArray:
+      type: array
+      items:
+        type: string
+      example: ["foo", "bar"]
+
+    BasicObject:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: number
+      required:
+        - key
+        - value
+      example:
+        key: speed
+        value: 88.8
+
+    # ---------- Allowing null (OpenAPI 3.0 style) ----------
+    NullableString:
+      type: string
+      nullable: true
+      example: null
+
+    # ---------- Composite model used by the endpoint ----------
+    ExampleModel:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/BasicInteger'
+        name:
+          $ref: '#/components/schemas/BasicString'
+        price:
+          $ref: '#/components/schemas/BasicNumber'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-07-06T12:34:56Z"
+        isActive:
+          $ref: '#/components/schemas/BasicBoolean'
+        tags:
+          $ref: '#/components/schemas/BasicArray'
+        metadata:
+          $ref: '#/components/schemas/BasicObject'
+        optionalNote:
+          $ref: '#/components/schemas/NullableString'
+      required:
+        - id
+        - name
+        - price
