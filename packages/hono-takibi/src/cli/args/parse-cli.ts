@@ -1,6 +1,5 @@
 import { getFlagValue, hasFlag } from '../utils/index.js'
 import type { Result } from '../../result/index.js'
-import type { CliFlags } from '../types.js'
 import { ok, andThen } from '../../result/index.js'
 import { parseIO } from './index.js'
 
@@ -10,7 +9,18 @@ import { parseIO } from './index.js'
  * @returns A Result containing the parsed flags or an error message.
  */
 
-export function parseCli(args: readonly string[]): Result<CliFlags, string> {
+export function parseCli(args: readonly string[]): Result<
+  {
+    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+    output: `${string}.ts`
+    exportType?: boolean
+    exportSchema?: boolean
+    template: boolean
+    test: boolean
+    basePath?: string
+  },
+  string
+> {
   return andThen(parseIO(args), (io) =>
     ok({
       input: io.input,
