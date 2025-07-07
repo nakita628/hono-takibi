@@ -41,6 +41,13 @@ describe('fsp', () => {
         expect(result.error.length).toBeGreaterThan(0)
       }
     })
+
+    it('creates deep nested directory (x/y/z)', async () => {
+      const deep = path.join(TEST_DIR, 'x', 'y', 'z')
+      const res = await mkdir(deep)
+      expect(res).toEqual({ ok: true, value: undefined })
+      expect(fs.existsSync(deep)).toBe(true)
+    })
   })
 
   describe('readdir', () => {

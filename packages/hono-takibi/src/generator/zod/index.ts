@@ -5,7 +5,7 @@ import {
   stripMaxIfLtExist,
   stripMinMaxExist,
   pickTypes,
-  wrapNullable,
+  maybeApplyNullability,
   exclusive,
 } from '../../core/utils/index.js'
 import { getRefSchemaName } from '../../core/schema/references/get-ref-schema-name.js'
@@ -20,20 +20,20 @@ export function zod(schema: Schema): string {
 
   /* const */
   if (schema.const !== undefined) {
-    return wrapNullable(`z.literal(${JSON.stringify(schema.const)})`, schema)
+    return maybeApplyNullability(`z.literal(${JSON.stringify(schema.const)})`, schema)
   }
 
   /* enum */
   if (schema.enum) {
     const out = _enum(schema)
-    return out !== undefined ? wrapNullable(out, schema) : 'z.any()'
+    return out !== undefined ? maybeApplyNullability(out, schema) : 'z.any()'
   }
 
   const types = pickTypes(schema.type)
 
   /* object */
   if (types.includes('object')) {
-    return wrapNullable(object(schema), schema)
+    return maybeApplyNullability(object(schema), schema)
   }
 
   /* string */
@@ -47,7 +47,7 @@ export function zod(schema: Schema): string {
       base.includes(`max(${schema.maxLength})`)
         ? `${stripMinMaxExist(base, schema.minLength, schema.maxLength)}${length(schema.minLength)}`
         : base
-    return wrapNullable(optimised, schema)
+    return maybeApplyNullability(optimised, schema)
   }
 
   /* number */
@@ -65,7 +65,7 @@ export function zod(schema: Schema): string {
       afterGt.includes(`lt(${schema.maximum})`)
         ? stripMaxIfLtExist(afterGt, schema.maximum)
         : afterGt
-    return wrapNullable(afterLt, schema)
+    return maybeApplyNullability(afterLt, schema)
   }
 
   /* integer & bigint */
@@ -91,12 +91,12 @@ export function zod(schema: Schema): string {
         })()
       : int64Fixed
 
-    return wrapNullable(bigintPatched, schema)
+    return maybeApplyNullability(bigintPatched, schema)
   }
 
   /* array */
   if (types.includes('array')) {
-    if (schema.items === undefined) return wrapNullable('z.array(z.any())', schema)
+    if (schema.items === undefined) return maybeApplyNullability('z.array(z.any())', schema)
 
     const zodArray = array(zod(schema.items))
 
@@ -107,20 +107,20 @@ export function zod(schema: Schema): string {
 
     // minItems === maxItems → .length()
     if (schema.minItems !== undefined && schema.maxItems === schema.minItems) {
-      return wrapNullable(`${array(zod(schema.items))}${length(schema.minItems)}`, schema)
+      return maybeApplyNullability(`${array(zod(schema.items))}${length(schema.minItems)}`, schema)
     }
 
     // legacy: minLength/maxLength on array (for existing tests)
     if (schema.minLength !== undefined && schema.maxLength === schema.minLength) {
-      return wrapNullable(`${zodArray}${length(schema.minLength)}`, schema)
+      return maybeApplyNullability(`${zodArray}${length(schema.minLength)}`, schema)
     }
 
-    return wrapNullable(bounded, schema)
+    return maybeApplyNullability(bounded, schema)
   }
 
   /* boolean */
   if (types.includes('boolean')) {
-    return wrapNullable('z.boolean()', schema)
+    return maybeApplyNullability('z.boolean()', schema)
   }
 
   /* combinators */

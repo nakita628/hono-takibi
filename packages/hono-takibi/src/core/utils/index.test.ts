@@ -10,7 +10,7 @@ import {
   stripMinIfgtExist,
   stripMinMaxExist,
   pickTypes,
-  wrapNullable,
+  maybeApplyNullability,
   exclusive,
 } from '.'
 
@@ -48,8 +48,8 @@ describe('string-utils barrel file exports', () => {
   it('should export pickTypes', () => {
     expect(typeof pickTypes).toBe('function')
   })
-  it('should export wrapNullable', () => {
-    expect(typeof wrapNullable).toBe('function')
+  it('should export maybeApplyNullability', () => {
+    expect(typeof maybeApplyNullability).toBe('function')
   })
   it('should export exclusive', () => {
     expect(typeof exclusive).toBe('function')

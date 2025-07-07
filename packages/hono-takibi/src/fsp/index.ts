@@ -1,7 +1,3 @@
-// export { mkdir } from './mkdir.js'
-// export { readdir } from './readdir.js'
-// export { writeFile } from './write-file.js'
-
 import fsp from 'node:fs/promises'
 import { ok, err } from '../result/index.js'
 import type { Result } from '../result/index.js'
