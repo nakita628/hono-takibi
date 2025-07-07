@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Result } from '../../result/types.js'
+import type { Result } from '../../result/index.js'
 import { ok, asyncAndThen } from '../../result/index.js'
 import { fmt } from '../../format/index.js'
 import { parseOpenAPI } from '../../openapi/parse-openapi.js'
