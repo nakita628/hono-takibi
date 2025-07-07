@@ -17,7 +17,6 @@ describe('fsp', () => {
   })
   describe('mkdir', () => {
     it('returns ok when directory is created', async () => {
-      console.log(process.cwd())
       const result = await mkdir(TEST_DIR)
       expect(result).toEqual({ ok: true, value: undefined })
       expect(fs.existsSync(TEST_DIR)).toBe(true)
