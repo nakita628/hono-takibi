@@ -39,7 +39,7 @@ describe('Hono Zod OpenAPI Test', () => {
       json: { post: '' },
     })
 
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
   it('getPostsRouteHandler 200', async () => {
@@ -73,7 +73,7 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(input).toEqual(expected)
   })
 
-  it('getPostsRouteHandler 400', async () => {
+  it('getPostsRouteHandler 422', async () => {
     const res = await test.posts.$get({
       query: {
         page: -1,
@@ -81,7 +81,7 @@ describe('Hono Zod OpenAPI Test', () => {
       },
     })
 
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
   it('putPostsIdRouteHandler 204', async () => {
@@ -115,7 +115,7 @@ describe('Hono Zod OpenAPI Test', () => {
 
     const input = await res.json()
 
-    expect(res.status).toEqual(400)
+    expect(res.status).toEqual(422)
   })
 
   it('deletePostsIdRouteHandler 204', async () => {

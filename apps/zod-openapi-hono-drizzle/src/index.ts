@@ -1,4 +1,4 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import {
   getRoute,
@@ -17,7 +17,19 @@ import {
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          ok: false,
+          errors: z.treeifyError(result.error),
+        },
+        422,
+      )
+    }
+  },
+})
 
 app.use('*', logger())
 app.use('*', (c, next) => {
