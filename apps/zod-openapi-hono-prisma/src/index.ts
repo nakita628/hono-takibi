@@ -31,7 +31,7 @@ z.config({
     }
     if (iss.code === 'invalid_format') {
       return {
-        message: `Invalid format`,
+        message: 'Invalid format',
       }
     }
     return 'Validation error'
