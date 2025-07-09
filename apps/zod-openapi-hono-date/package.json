@@ -1,5 +1,5 @@
 {
-  "name": "@apps/zod-openapi-hono-fizz-buzz",
+  "name": "@apps/zod-openapi-hono-date",
   "type": "module",
   "scripts": {
     "deps": "rm -rf node_modules && pnpm install",
@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.2",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.0.12",
     "@vitest/coverage-v8": "^3.2.4",
     "tsx": "^4.20.3",
     "vitest": "^3.2.4"
