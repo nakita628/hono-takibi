@@ -49,4 +49,23 @@ describe('Hono Zod OpenAPI Test', () => {
       expect(res.status).toBe(400)
     })
   })
+
+  describe('postDateHandler', () => {
+    it('should return 200 with valid date', async () => {
+      const res = await test.date.$post({
+        json: { date: new Date('2023-10-01') },
+      })
+      const input = await res.json()
+      expect(input).toStrictEqual({ date: '2023-10-01T00:00:00.000Z' })
+      expect(res.status).toBe(200)
+    })
+    it('should return 200 with valid date', async () => {
+      const res = await test.date.$post({
+        json: { date: '2022-01-12T06:15:00.000Z' },
+      })
+      const input = await res.json()
+      expect(input).toStrictEqual({ date: '2022-01-12T06:15:00.000Z' })
+      expect(res.status).toBe(200)
+    })
+  })
 })

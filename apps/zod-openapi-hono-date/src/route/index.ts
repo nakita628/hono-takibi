@@ -69,3 +69,38 @@ export const postIsoDatetimeRoute = createRoute({
     },
   },
 })
+
+export const dateRoute = createRoute({
+  method: 'post',
+  path: '/date',
+  summary: 'Post Date',
+  description: 'Accepts a date string and returns it.',
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: z.object({
+            date: z.coerce.date(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Successful response',
+      content: {
+        'application/json': {
+          schema: z.object({
+            date: z.string(),
+          }),
+        },
+      },
+    },
+    400: {
+      description: 'Invalid input',
+      content: { 'application/json': { schema: z.object({ error: z.string() }).partial() } },
+    },
+  },
+})
