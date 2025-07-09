@@ -36,6 +36,11 @@ export function zod(schema: Schema): string {
     return maybeApplyNullability(object(schema), schema)
   }
 
+  /* date */
+  if (types.includes('date')) {
+    return maybeApplyNullability('z.date()', schema)
+  }
+
   /* string */
   if (types.includes('string')) {
     const base = string(schema)
