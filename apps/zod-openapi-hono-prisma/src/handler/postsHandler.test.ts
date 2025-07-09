@@ -27,18 +27,18 @@ describe('Hono Zod OpenAPI Test', () => {
       },
     })
     const input = await res.json()
-    expect(input).toEqual({ message: 'Created' })
+    expect(input).toStrictEqual({ message: 'Created' })
     expect(res.status).toBe(201)
   })
 
-  it('postPostsHandler 400', async () => {
+  it('postPostsHandler 422', async () => {
     const res = await test.posts.$post({
       json: {
         post: '',
       },
     })
     const input = await res.json()
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
   it('getPostsRouteHandler 200', async () => {
@@ -77,18 +77,18 @@ describe('Hono Zod OpenAPI Test', () => {
         updatedAt: new Date(post.updatedAt).toISOString(),
       }))
 
-    expect(input).toEqual(expected)
-    expect(res.status).toEqual(200)
+    expect(input).toStrictEqual(expected)
+    expect(res.status).toBe(200)
   })
 
-  it('getPostsRouteHandler 400', async () => {
+  it('getPostsRouteHandler 422', async () => {
     const res = await test.posts.$get({
       query: {
         page: '-1',
         rows: '-1',
       },
     })
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
   it('putPostsIdRouteHandler 204', async () => {
@@ -117,11 +117,10 @@ describe('Hono Zod OpenAPI Test', () => {
         id: post.id,
       },
     })
-
-    expect(updatedPost?.post).toEqual('OpenAPIHono🔥🔥')
+    expect(updatedPost?.post).toStrictEqual('OpenAPIHono🔥🔥')
   })
 
-  it('putPostsIdRouteHandler 400', async () => {
+  it('putPostsIdRouteHandler 422', async () => {
     const post = await prisma.post.create({
       data: {
         id: randomUUID(),
@@ -139,11 +138,10 @@ describe('Hono Zod OpenAPI Test', () => {
         post: '',
       },
     })
-
-    expect(res.status).toEqual(400)
+    expect(res.status).toBe(422)
   })
 
-  it('putPostsIdRouteHandler 400', async () => {
+  it('putPostsIdRouteHandler 422', async () => {
     const res = await test.posts[':id'].$put({
       param: {
         id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
@@ -152,8 +150,7 @@ describe('Hono Zod OpenAPI Test', () => {
         post: 'test',
       },
     })
-
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
   it('deletePostsIdRouteHandler 204', async () => {
@@ -183,12 +180,12 @@ describe('Hono Zod OpenAPI Test', () => {
     expect(deletedPost).toBeNull()
   })
 
-  it('deletePostsIdRouteHandler 400', async () => {
+  it('deletePostsIdRouteHandler 422', async () => {
     const res = await test.posts[':id'].$delete({
       param: {
         id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
       },
     })
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 })

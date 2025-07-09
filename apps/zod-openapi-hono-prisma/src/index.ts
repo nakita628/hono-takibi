@@ -1,4 +1,4 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { apiReference } from '@scalar/hono-api-reference'
 import {
@@ -18,7 +18,39 @@ import {
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
 
-const app = new OpenAPIHono()
+// customError
+z.config({
+  customError: (iss) => {
+    if (iss.code === 'too_small') {
+      return {
+        message:
+          iss.minimum <= 0
+            ? 'No minimum length required'
+            : `At least ${iss.minimum} character${iss.minimum === 1 ? '' : 's'} are required`,
+      }
+    }
+    if (iss.code === 'invalid_format') {
+      return {
+        message: `Invalid format`,
+      }
+    }
+    return 'Validation error'
+  },
+})
+
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          ok: false,
+          errors: z.treeifyError(result.error),
+        },
+        422,
+      )
+    }
+  },
+})
 
 app.use('*', logger())
 app.use('*', (c, next) => {
@@ -40,14 +72,6 @@ export const api = app
   .openapi(getPostsRoute, getPostsRouteHandler)
   .openapi(putPostsIdRoute, putPostsIdRouteHandler)
   .openapi(deletePostsIdRoute, deletePostsIdRouteHandler)
-
-api.use('*', async (c, next) => {
-  try {
-    await next()
-  } catch (e) {
-    return c.json({ error: (e as Error).message }, 500)
-  }
-})
 
 if (process.env.NODE_ENV === 'development') {
   // swagger
@@ -79,8 +103,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const port = 3000
 
-if (require.main === module) {
-  console.log(`Server is running on http://localhost:${port}`)
+if (process.env.NODE_ENV !== 'test') {
   serve({
     fetch: app.fetch,
     port,
