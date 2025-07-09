@@ -26,7 +26,15 @@ export type OpenAPIPaths = {
 /**
  * Data types supported in OpenAPI schemas
  */
-export type Type = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null'
+export type Type =
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'date'
+  | 'boolean'
+  | 'array'
+  | 'object'
+  | 'null'
 
 export type Format = FormatString | FormatNumber
 

@@ -1,5 +1,6 @@
 import { isUniqueContentSchema } from '../../../../../../core/validator/index.js'
 import type { Content } from '../../../../../../openapi/index.js'
+import { coerce } from '../../../../../zod/z/coerce.js'
 
 /**
  * Generates a request body configuration for OpenAPI schema
@@ -19,7 +20,12 @@ export function requestBody(required: boolean, content: Content, zodSchema: stri
   if (isUniqueSchema) {
     const contentParts: string[] = []
     for (const contentType of contentTypes) {
-      contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
+      // z.date() → z.coerce.date()
+      if (zodSchema.includes('z.date()')) {
+        contentParts.push(`'${contentType}':{schema:${coerce(zodSchema)}}`)
+      } else {
+        contentParts.push(`'${contentType}':{schema:${zodSchema}}`)
+      }
     }
     return `body:{required:${required},content:{${contentParts.join(',')}},},`
   }
