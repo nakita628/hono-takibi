@@ -17,26 +17,10 @@ import {
 } from './handler/postsHandler.ts'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
+import { customError } from './custom-error'
 
-// customError
-z.config({
-  customError: (iss) => {
-    if (iss.code === 'too_small') {
-      return {
-        message:
-          iss.minimum <= 0
-            ? 'No minimum length required'
-            : `At least ${iss.minimum} character${iss.minimum === 1 ? '' : 's'} are required`,
-      }
-    }
-    if (iss.code === 'invalid_format') {
-      return {
-        message: 'Invalid format',
-      }
-    }
-    return 'Validation error'
-  },
-})
+// custom error
+// customError()
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {

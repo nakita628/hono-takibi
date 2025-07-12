@@ -38,6 +38,18 @@ describe('Hono Zod OpenAPI Test', () => {
       },
     })
     const input = await res.json()
+    const expected = {
+      ok: false,
+      errors: {
+        errors: [],
+        properties: {
+          post: {
+            errors: ['At least 1 character are required'],
+          },
+        },
+      },
+    }
+    expect(input).toStrictEqual(expected)
     expect(res.status).toBe(422)
   })
 
