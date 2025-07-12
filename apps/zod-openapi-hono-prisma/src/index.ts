@@ -20,7 +20,7 @@ import { serve } from '@hono/node-server'
 import { customError } from './custom-error'
 
 // custom error
-// customError()
+customError()
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
