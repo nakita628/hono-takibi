@@ -12,7 +12,7 @@ describe('Hono Zod OpenAPI Test', () => {
         json: { iso_date: '2023-10-01' },
       })
       const input = await res.json()
-      expect(input).toStrictEqual({ date: '2023-10-01' })
+      expect(input).toStrictEqual({ iso_date: '2023-10-01' })
       expect(res.status).toBe(200)
     })
 
@@ -38,7 +38,7 @@ describe('Hono Zod OpenAPI Test', () => {
         json: { iso_datetime: '2023-10-01T12:00:00Z' },
       })
       const input = await res.json()
-      expect(input).toStrictEqual({ datetime: '2023-10-01T12:00:00Z' })
+      expect(input).toStrictEqual({ iso_datetime: '2023-10-01T12:00:00Z' })
       expect(res.status).toBe(200)
     })
 

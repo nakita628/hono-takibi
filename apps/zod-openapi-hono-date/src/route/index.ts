@@ -1,5 +1,17 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+export const IsoDateSchema = z.object({
+  iso_date: z.iso.date(),
+})
+
+export const IsoDatetimeSchema = z.object({
+  iso_datetime: z.iso.datetime(),
+})
+
+export const DateSchema = z.object({
+  date: z.date(),
+})
+
 export const postIsoDateRoute = createRoute({
   method: 'post',
   path: '/date/iso-date',
@@ -22,9 +34,7 @@ export const postIsoDateRoute = createRoute({
       description: 'Successful response',
       content: {
         'application/json': {
-          schema: z.object({
-            date: z.string(),
-          }),
+          schema: IsoDateSchema,
         },
       },
     },
@@ -57,9 +67,7 @@ export const postIsoDatetimeRoute = createRoute({
       description: 'Successful response',
       content: {
         'application/json': {
-          schema: z.object({
-            datetime: z.string(),
-          }),
+          schema: IsoDatetimeSchema,
         },
       },
     },
@@ -92,9 +100,7 @@ export const dateRoute = createRoute({
       description: 'Successful response',
       content: {
         'application/json': {
-          schema: z.object({
-            date: z.string(),
-          }),
+          schema: DateSchema,
         },
       },
     },
