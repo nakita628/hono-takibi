@@ -113,7 +113,7 @@ Options:
 ### Example
 
 ```bash
-hono-takibi path/to/openapi.yaml -o path/to/hono.ts --export-type --export-schema --base-path /api/v1
+hono-takibi path/to/openapi.yaml -o path/to/hono.ts --export-type --export-schema --template --base-path api/v1
 ```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
