@@ -22,9 +22,9 @@ app.use('*', async (c, next) => {
 })
 
 export const api = app
+  .openapi(dateRoute, dateHandler)
   .openapi(postIsoDateRoute, postIsoDateHandler)
   .openapi(postIsoDatetimeRoute, postIsoDatetimeHandler)
-  .openapi(dateRoute, dateHandler)
 
 app
   .doc('/doc', {

@@ -19,9 +19,6 @@ import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
 import { customError } from './custom-error'
 
-// custom error
-customError()
-
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
     if (!result.success) {
@@ -93,3 +90,6 @@ if (process.env.NODE_ENV !== 'test') {
     port,
   })
 }
+
+// custom error
+customError()
