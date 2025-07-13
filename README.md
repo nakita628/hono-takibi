@@ -95,8 +95,8 @@ basic
 
 ```bash
 Options:
-  --export-schema      exports all schema definitions
-  --export-type        exports all type definitions
+  --export-type        export TypeScript type aliases
+  --export-schema      export Zod schema objects
 ```
 
 template
@@ -105,15 +105,15 @@ template
 
 ```bash
 Options:
-  --template            generation of application and handler files
-  --test                automatic generation of test files
-  --base-path           base URL path for your API endpoints
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
 ```
 
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o src/routes.ts --template -test --base-path 'api'
+hono-takibi openapi.yaml -o index.ts --export-type --export-schema --base-path /api/v1
 ```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:

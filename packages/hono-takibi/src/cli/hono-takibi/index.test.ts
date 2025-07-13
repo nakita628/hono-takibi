@@ -193,12 +193,7 @@ Options:
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command
-
-Examples:
-  hono-takibi api.yaml -o routes.ts
-  hono-takibi api.yaml -o routes.ts --export-schema --export-type --base-path /api/v1
-`,
+  -h, --help           display help for command`,
       },
     })
   })
@@ -222,12 +217,7 @@ Options:
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command
-
-Examples:
-  hono-takibi api.yaml -o routes.ts
-  hono-takibi api.yaml -o routes.ts --export-schema --export-type --base-path /api/v1
-`,
+  -h, --help           display help for command`,
       },
     })
   })
