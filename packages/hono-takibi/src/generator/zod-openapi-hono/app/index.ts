@@ -26,7 +26,7 @@ export function app(
   basePath: string | undefined,
 ): string {
   const routeMappings = getRouteMaps(openapi)
-  const path = basePath !== undefined ? `/${basePath}/doc` : '/doc'
+  const path = basePath !== undefined ? `${basePath}/doc` : '/doc'
   const registerComponentCode = openapi.components?.securitySchemes
     ? registerComponent(openapi.components.securitySchemes)
     : ''
