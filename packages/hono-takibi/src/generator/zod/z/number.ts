@@ -2,9 +2,9 @@ import type { Schema } from '../../../openapi/index.js'
 import { regex, _default, gt, lt, min, max } from './index.js'
 
 /**
- * Generates a Zod number schema string
  * @param { Schema } schema - OpenAPI schema definition for a number
  * @returns { string } Generated Zod number schema string
+ * @description Generates a Zod number schema string
  */
 export function number(schema: Schema): string {
   const validations = [

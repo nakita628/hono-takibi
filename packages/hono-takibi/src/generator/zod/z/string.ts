@@ -31,9 +31,9 @@ const FORMAT_STRING: Record<string, string> = {
 }
 
 /**
- * Generates a Zod string schema
  * @param { Schema } schema - The parameters to generate the zod string schema.
  * @returns { string } Generated Zod string schema string
+ * @description This function generates a Zod schema string for string types, including validations like pattern, minLength, maxLength, and default values.
  */
 export function string(schema: Schema): string {
   const validations: string[] = []

@@ -2,9 +2,9 @@ import type { Schema } from '../../../openapi/index.js'
 import { regex, _default, max, min } from './index.js'
 
 /**
- * Generates a zod schema for an integer.
  * @param { Schema } schema - OpenAPI schema definition for an integer
  * @returns { string } Generated Zod integer schema string
+ * @description Generates a Zod integer schema string
  */
 export function integer(schema: Schema): string {
   const validations = [
