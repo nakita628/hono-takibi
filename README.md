@@ -140,6 +140,8 @@ When defining an OpenAPI document, include only the `#/components/schemas/` sect
 Do not include `paths`, `tags`, or any other sections.
 ```
 
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/ai/hono-takibi-ai.gif)
+
 ## CLI
 
 ### Options
