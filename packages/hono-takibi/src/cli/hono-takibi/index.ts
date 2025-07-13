@@ -5,16 +5,15 @@ import { parseCli } from '../parse/parse-cli.js'
 import { isHelpRequested, sliceArgv } from '../utils/index.js'
 
 const HELP_TEXT = `
-Usage:
-  hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type             Export TypeScript type aliases
-  --export-schema           Export Zod schema objects
-  --template                Generate app file and handler stubs
-  --test                    Generate empty *.test.ts files
-  --base-path <path>        API prefix (default: /)
-  -h, --help                Show this help and exit
+  --export-type        export TypeScript type aliases
+  --export-schema      export Zod schema objects
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
+  -h, --help           display help for command
 
 Examples:
   hono-takibi api.yaml -o routes.ts
