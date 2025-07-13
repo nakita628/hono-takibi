@@ -1,7 +1,7 @@
 import type { Result } from '../../result/index.js'
 import { ok, asyncAndThen } from '../../result/index.js'
 import { takibi } from './takibi.js'
-import { parseCli } from '../args/parse-cli.js'
+import { parseCli } from '../parse/parse-cli.js'
 import { isHelpRequested, sliceArgv } from '../utils/index.js'
 
 const HELP_TEXT = `

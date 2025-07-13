@@ -4,11 +4,16 @@ import { ok, andThen } from '../../result/index.js'
 import { parseIO } from './index.js'
 
 /**
- * Parses command line arguments into a structured format.
- * @param args - The command line arguments.
- * @returns A Result containing the parsed flags or an error message.
+ * @param { readonly string[] } args
+ * @returns { Result<
+ *   {
+ *     input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+ *     output: `${string}.ts`
+ *   },
+ *   string
+ * > }
+ * @description Parses command line arguments for the CLI.
  */
-
 export function parseCli(args: readonly string[]): Result<
   {
     input: `${string}.yaml` | `${string}.json` | `${string}.tsp`

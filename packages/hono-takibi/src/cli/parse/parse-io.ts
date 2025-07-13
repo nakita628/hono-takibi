@@ -3,8 +3,9 @@ import { ok, err } from '../../result/index.js'
 import { isTs, isYamlOrJsonOrTsp } from '../validator/index.js'
 
 /**
- * @param args - The CLI arguments
- * @returns A Result containing the input and output file paths or an error message
+ * @param { readonly string[] } args - Command line arguments
+ * @returns { Result<{ input: `${string}.yaml` | `${string}.json` | `${string}.tsp`; output: `${string}.ts` }, string> } - Parses the input and output file paths from the command line arguments
+ * @description This function extracts the input and output file paths from the command line arguments and validates their formats.
  */
 export function parseIO(
   args: readonly string[],
