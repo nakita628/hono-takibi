@@ -98,6 +98,8 @@ export default defineConfig({
 })
 ```
 
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
+
 ## CLI
 
 ### Options
