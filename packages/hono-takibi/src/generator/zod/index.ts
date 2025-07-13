@@ -14,6 +14,12 @@ import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
 
+/**
+ * Converts an OpenAPI schema to a Zod schema string.
+ * @param { Schema } schema - The OpenAPI schema to convert.
+ * @returns { string } - The Zod schema string.
+ * @description This function handles various schema types, including objects, arrays, strings, numbers, enums, and more.
+ */
 export function zod(schema: Schema): string {
   /* $ref */
   if (schema.$ref) return getRefSchemaName(schema.$ref)

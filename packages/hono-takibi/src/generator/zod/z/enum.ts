@@ -1,10 +1,11 @@
 import type { Schema } from '../../../openapi/index.js'
 
 /**
- * Generates a Zod enum string
  * @param { Schema } schema - The schema definition
+ * @return { string | undefined } - The Zod enum string or undefined if not applicable
+ * @description This function generates a Zod enum string based on the provided schema.
  */
-export function _enum(schema: Schema) {
+export function _enum(schema: Schema): string | undefined {
   // number
   if (schema.type === 'number' && schema.enum) {
     if (schema.enum.length > 1) {
