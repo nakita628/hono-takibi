@@ -30,7 +30,7 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 ## Usage
 
 ```bash
-npx hono-takibi path/to/openapi.yaml -o path/to/hono.ts
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 ```
 
 input:
@@ -87,6 +87,17 @@ export const getRoute = createRoute({
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
 
+## HonoTakibiVite
+
+```ts
+import { defineConfig } from 'vite'
+import HonoTakibiVite from './src/vite-plugin'
+
+export default defineConfig({
+  plugins: [HonoTakibiVite('main.tsp', 'index.ts', true, true)],
+})
+```
+
 ## CLI
 
 ### Options
@@ -113,7 +124,7 @@ Options:
 ### Example
 
 ```bash
-hono-takibi path/to/openapi.yaml -o path/to/hono.ts --export-type --export-schema --template --base-path '/api/v1'
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
 ```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
