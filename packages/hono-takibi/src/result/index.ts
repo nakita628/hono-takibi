@@ -1,39 +1,36 @@
-export type Ok<T> = { ok: true; value: T }
-export type Err<E> = { ok: false; error: E }
-export type Result<T, E> = Ok<T> | Err<E>
+export type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E }
 
 /**
- * Creates a successful result.
- * @param value - The value of the successful result.
- * @returns An Ok object containing the value.
+ * @param { T } value - The value of the result.
+ * @returns { Result<T, never> } - An Ok object containing the value.
+ * @description Creates a successful result.
  */
-export function ok<T>(value: T): Ok<T> {
+export function ok<T>(value: T): Result<T, never> {
   return { ok: true, value }
 }
 
 /**
- * Creates an error result.
- * @param error - The error of the result.
- * @returns An Err object containing the error.
+ * @param { E } error - The error of the result.
+ * @returns { Result<never, E> } - An Err object containing the error.
+ * @description Creates an error result.
  */
-export function err<E>(error: E): Err<E> {
+export function err<E>(error: E): Result<never, E> {
   return { ok: false, error }
 }
 
 /**
- * Checks if the result is an error.
- * @param res - The result to check.
- * @returns True if the result is an error, false otherwise.
+ * @param { Result<A, E> } res - The result to check.
+ * @param { (a: A) => Result<B, E> } f - A function that takes the value of the result and returns a new result.
+ * @returns { Result<B, E> } - A new result that is either the result of the function or the original error.
  */
 export function andThen<A, E, B>(res: Result<A, E>, f: (a: A) => Result<B, E>): Result<B, E> {
   return res.ok ? f(res.value) : res
 }
 
 /**
- * Asynchronously applies a function to the value of a successful result.
- * @param res - The result to check.
- * @param f - The function to apply if the result is successful.
- * @returns A promise that resolves to a new result.
+ * @param { Result<A, E> } res - The result to check.
+ * @param { (a: A) => Promise<Result<B, E>> } f - A function that takes the value of the result and returns a promise of a new result.
+ * @returns { Promise<Result<B, E>> } - A promise that resolves to the result of applying the function or the original result.
  */
 export async function asyncAndThen<A, E, B>(
   res: Result<A, E>,

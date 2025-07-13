@@ -5,9 +5,9 @@ import { ok, err } from '../result/index.js'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
 
 /**
- * Parses an OpenAPI specification from a string input.
- * @param {string} input - The OpenAPI specification in YAML or JSON format.
- * @returns { Promise<Result<OpenAPI, string>> } - A promise that resolves to a Result containing the parsed OpenAPI spec or an error message.
+ * @param { string } input - The OpenAPI specification in YAML or JSON format, or a TypeSpec file.
+ * @returns { Promise<Result<OpenAPI, string>> } - A promise that resolves to the OpenAPI specification or an error message.
+ * @description Parses the OpenAPI specification from a YAML, JSON, or TypeSpec file.
  */
 export async function parseOpenAPI(input: string): Promise<Result<OpenAPI, string>> {
   try {

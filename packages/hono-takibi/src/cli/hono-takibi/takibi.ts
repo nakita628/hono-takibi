@@ -7,6 +7,17 @@ import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/zod-ope
 import { templateCode } from './template-code.js'
 import { mkdir, writeFile } from '../../fsp/index.js'
 
+/**
+ * @param { `${string}.yaml` | `${string}.json` | `${string}.tsp` } input - The input OpenAPI file.
+ * @param { `${string}.ts` } output - The output TypeScript file.
+ * @param { boolean } exportSchema - Whether to export the schema.
+ * @param { boolean } exportType - Whether to export the type.
+ * @param { boolean } template - Whether to generate a template.
+ * @param { boolean } test - Whether to generate test files.
+ * @param { string } [basePath] - The base path for the template.
+ * @returns { Promise<Result<{ message: string }, string>> }
+ * @description Generates TypeScript code from an OpenAPI specification and optionally creates template files.
+ */
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,

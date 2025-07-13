@@ -10,7 +10,9 @@ describe('result', () => {
       const result = ok('ok')
       expect(result).toEqual({ ok: true, value: 'ok' })
       expect(result.ok).toBe(true)
-      expect(result.value).toBe('ok')
+      if (result.ok) {
+        expect(result.value).toBe('ok')
+      }
     })
   })
 
@@ -19,7 +21,9 @@ describe('result', () => {
       const result = err('err')
       expect(result).toEqual({ ok: false, error: 'err' })
       expect(result.ok).toBe(false)
-      expect(result.error).toBe('err')
+      if (!result.ok) {
+        expect(result.error).toBe('err')
+      }
     })
   })
 
