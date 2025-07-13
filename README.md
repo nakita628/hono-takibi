@@ -89,9 +89,39 @@ export const getRoute = createRoute({
 
 ## HonoTakibiVite
 
+### Automatic Code Regeneration & HMR
+
+With **HonoTakibiVite**, saving your OpenAPI spec while the Vite dev server is running instantly regenerates the code.
+
+### OpenAPI Schema Requirements
+
+- Your OpenAPI definition must include **only the `#/components/schemas/` section**.
+- It must be fully compliant with **OpenAPI 3.0 or later (e.g., 3.0 or 3.1)**.
+- Do **not** include `paths`, `tags`, or any other OpenAPI sections.
+
+### Supported Input Formats
+
+You may specify the input file in one of the following formats:
+
+- `.yaml` — OpenAPI YAML (schemas only)
+- `.json` — OpenAPI JSON (schemas only)
+- `.tsp` — TypeSpec source file
+
+### TypeSpec Setup (if using `.tsp`)
+
+If you use a `.tsp` TypeSpec file, you must set up the TypeSpec environment and install required libraries:
+
+- @typespec/http
+- @typespec/rest
+- ...other
+
+### Example
+
+`vite.config.ts`
+
 ```ts
 import { defineConfig } from 'vite'
-import HonoTakibiVite from './src/vite-plugin'
+import HonoTakibiVite from 'hono-takibi/vite-plugin'
 
 export default defineConfig({
   plugins: [HonoTakibiVite('main.tsp', 'index.ts', true, true)],
@@ -99,6 +129,16 @@ export default defineConfig({
 ```
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
+
+
+### With AI Prompt
+
+Instruction to AI:
+
+```
+When defining an OpenAPI document, include only the `#/components/schemas/` section, and ensure compliance with OpenAPI 3.0 or higher.  
+Do not include `paths`, `tags`, or any other sections.
+```
 
 ## CLI
 
@@ -110,18 +150,14 @@ basic
 Options:
   --export-type        export TypeScript type aliases
   --export-schema      export Zod schema objects
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
 ```
 
 template
 
 > **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
-
-```bash
-Options:
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-```
 
 ### Example
 
