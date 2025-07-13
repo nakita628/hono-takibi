@@ -43,7 +43,7 @@ app.use('*', async (c, next) => {
   try {
     await next()
   } catch (e) {
-    return c.json({ error: (e as Error).message }, 500)
+    return c.json({ error: e instanceof Error ? e.message : String(e) }, 500)
   }
 })
 
