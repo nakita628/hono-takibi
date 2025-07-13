@@ -204,7 +204,7 @@ export type Schema = {
   properties?: Record<string, Schema>
   required?: string[] | boolean
   items?: Schema
-  enum?: string[] | number[]
+  enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
   $ref?: `#/components/schemas/${string}`

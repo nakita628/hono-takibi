@@ -7,7 +7,11 @@ import type { Schema } from '../../../openapi/index.js'
 export function _enum(schema: Schema) {
   // number
   if (schema.type === 'number' && schema.enum) {
-    return `z.literal(${schema.enum})`
+    if (schema.enum.length > 1) {
+      const literals = schema.enum.map((v) => `z.literal(${v})`).join(',')
+      return `z.union([${literals}])`
+    }
+    return `z.literal(${schema.enum[0]})`
   }
 
   // integer
@@ -39,7 +43,11 @@ export function _enum(schema: Schema) {
 
   // boolean
   if (schema.type === 'boolean' && schema.enum) {
-    return `z.literal(${schema.enum})`
+    if (schema.enum.length > 1) {
+      const literals = schema.enum.map((value) => `z.literal(${value})`).join(',')
+      return `z.union([${literals}])`
+    }
+    return `z.literal(${schema.enum[0]})`
   }
 
   if (schema.enum) {
