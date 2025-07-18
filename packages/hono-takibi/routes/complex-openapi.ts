@@ -11,10 +11,10 @@ const AddressSchema = z
   .openapi('Address')
 
 const UserProfileSchema = z
-  .object({
+  .strictObject({
     bio: z.string().openapi({ example: 'Software engineer with 10 years of experience.' }),
     social: z
-      .object({
+      .strictObject({
         twitter: z.string().openapi({ example: '@johndoe' }),
         linkedin: z.string().openapi({ example: 'john-doe' }),
       })
@@ -55,8 +55,8 @@ const UpdateUserSchema = z
 const OrderItemSchema = z
   .object({
     productId: z.string().openapi({ example: 'PROD-001' }),
-    quantity: z.number().int().openapi({ example: 2 }),
-    price: z.number().openapi({ example: 49.99 }),
+    quantity: z.int().openapi({ example: 2 }),
+    price: z.float32().openapi({ example: 49.99 }),
   })
   .openapi('OrderItem')
 
@@ -86,7 +86,7 @@ const OrderSchema = z
     orderId: z.string().openapi({ example: 'ORD-001' }),
     user: UserSchema,
     items: z.array(OrderItemSchema),
-    total: z.number().openapi({ example: 199.99 }),
+    total: z.float32().openapi({ example: 199.99 }),
     status: z
       .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
       .openapi({ example: 'pending' }),

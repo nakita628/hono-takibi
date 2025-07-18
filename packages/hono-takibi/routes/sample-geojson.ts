@@ -127,7 +127,7 @@ const FeatureSchema = z
     GeoJsonObjectSchema,
     z.object({
       geometry: GeometrySchema.nullable(),
-      properties: z.object({}),
+      properties: z.object({}).nullable(),
       id: z.union([z.number(), z.string()]).optional(),
     }),
   )

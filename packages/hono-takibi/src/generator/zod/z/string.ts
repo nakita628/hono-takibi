@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { regex, _default, min, max, nullable } from './index.js'
+import { regex, _default, min, max } from './index.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
@@ -22,42 +22,18 @@ const FORMAT_STRING: Record<string, string> = {
   date: '.iso.date()',
   time: '.iso.time()',
   'date-time': '.iso.datetime()',
-  duration: 'iso.duration()',
+  duration: '.iso.duration()',
   binary: '.file()',
   toLowerCase: '.toLowerCase()',
   toUpperCase: '.toUpperCase()',
   trim: '.trim()',
+  jwt: '.jwt()',
 }
 
 /**
- * Generates a Zod string schema
  * @param { Schema } schema - The parameters to generate the zod string schema.
  * @returns { string } Generated Zod string schema string
- * @example
- * // Basic string validation
- * generateZodString({})
- * // Returns: 'z.string()'
- * @example
- * // With regex pattern
- * generateZodString({ pattern: '^[A-Z]+$' })
- * // Returns: 'z.string().regex(/^[A-Z]+$/)'
- * @example
- * // With length constraints
- * generateZodString({ minLength: 3, maxLength: 10 })
- * // Returns: 'z.string().min(3).max(10)'
- * @example
- * // With format
- * generateZodString({ format: 'email' })
- * // Returns: 'z.string().email()'
- * @example
- * // Combined validations
- * generateZodString({
- *   pattern: '^[a-z]+$',
- *   minLength: 3,
- *   maxLength: 10,
- *   format: 'email'
- * })
- * // Returns: 'z.string().regex(/^[a-z]+$/).min(3).max(10).email()'
+ * @description This function generates a Zod schema string for string types, including validations like pattern, minLength, maxLength, and default values.
  */
 export function string(schema: Schema): string {
   const validations: string[] = []
@@ -76,10 +52,6 @@ export function string(schema: Schema): string {
   // maxLength
   if (schema.maxLength) {
     validations.push(max(schema.maxLength))
-  }
-  // nullable
-  if (schema.nullable) {
-    validations.push(nullable())
   }
   // default
   if (schema.default) {

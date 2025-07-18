@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: Custom-Format Showcase API
+  version: 1.0.6-3.1
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://api.example.com/v1
+
+paths:
+  /sample:
+    get:
+      summary: Returns a payload exercising every custom format, constraint, and nullable case
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomFormatModel'
+
+components:
+  schemas:
+    # ---------- Custom numeric formats (+ minimum / maximum) ----------
+    Int32:
+      type: integer
+      format: int32
+      minimum: -2147483648
+      maximum:  2147483647
+      example: 42
+
+    Int64:
+      type: integer
+      format: int64
+      minimum: -9223372036854775808
+      maximum:  9223372036854775807
+      example: "-9223372036854776000n"
+
+    BigInt:
+      type: integer
+      format: bigint
+      minimum: -99999999999999999999999999999999999999
+      maximum:  99999999999999999999999999999999999999
+      example:  "123456789012345678901234567890n"
+
+    Float32:
+      type: number
+      format: float32
+      minimum: -3.4e38
+      maximum:  3.4e38
+      example: 6.2831855
+
+    Float64:
+      type: number
+      format: float64
+      minimum: -1.7e308
+      maximum:  1.7e308
+      example: 2.718281828459045
+
+    Decimal:
+      type: number
+      format: decimal
+      minimum: -9999999999.9999
+      maximum:  9999999999.9999
+      example: 12345.6789
+
+    # ---------- Nullable numeric example (3.1 style) ----------
+    NullableInt32:
+      type: [integer, "null"]
+      format: int32
+      minimum: -2147483648
+      maximum: 2147483647
+      example: null
+
+
+    # ---------- Custom string formats (+ minLength / maxLength) ----------
+    JwtToken:
+      type: string
+      format: jwt
+      minLength: 20
+      maxLength: 4096
+      example: >
+        eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+        eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikpv
+        aG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+        TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ
+
+    UuidV7:
+      type: string
+      format: uuidv7
+      minLength: 36
+      maxLength: 36
+      example: "018f38a8-fa52-7d23-b2d4-c2bb9e9a8c2e"
+
+    Base64Url:
+      type: string
+      format: base64url
+      minLength: 4
+      maxLength: 8192
+      example: "U2l6dWt1LUVuY29kZWQ"
+
+    IsoDuration:
+      type: string
+      format: duration
+      minLength: 3
+      maxLength: 64
+      example: "P3Y6M4DT12H30M5S"
+
+    ShortCode:
+      type: string
+      minLength: 3
+      maxLength: 8
+      example: "aB3x5"
+
+    # ---------- Nullable string example (3.1 style) ----------
+    NullableShortCode:
+      type: [string, "null"]
+      minLength: 3
+      maxLength: 8
+      example: null
+
+    # ---------- Composite model exposed by /sample ----------
+    CustomFormatModel:
+      type: object
+      properties:
+        int32Value:         { $ref: '#/components/schemas/Int32' }
+        int64Value:         { $ref: '#/components/schemas/Int64' }
+        bigIntValue:        { $ref: '#/components/schemas/BigInt' }
+        float32Value:       { $ref: '#/components/schemas/Float32' }
+        float64Value:       { $ref: '#/components/schemas/Float64' }
+        decimalValue:       { $ref: '#/components/schemas/Decimal' }
+        jwtValue:           { $ref: '#/components/schemas/JwtToken' }
+        uuidV7Value:        { $ref: '#/components/schemas/UuidV7' }
+        base64UrlValue:     { $ref: '#/components/schemas/Base64Url' }
+        durationValue:      { $ref: '#/components/schemas/IsoDuration' }
+        shortCode:          { $ref: '#/components/schemas/ShortCode' }
+
+        # nullable fields
+        nullableInt32Value: { $ref: '#/components/schemas/NullableInt32' }
+        nullableShortCode:  { $ref: '#/components/schemas/NullableShortCode' }
+
+      required:
+        - int32Value
+        - int64Value
+        - bigIntValue
+        - float32Value
+        - float64Value
+        - jwtValue

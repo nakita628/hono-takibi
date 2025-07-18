@@ -1,13 +1,18 @@
 import type { Schema } from '../../../openapi/index.js'
 
 /**
- * Generates a Zod enum string
  * @param { Schema } schema - The schema definition
+ * @return { string | undefined } - The Zod enum string or undefined if not applicable
+ * @description This function generates a Zod enum string based on the provided schema.
  */
-export function _enum(schema: Schema) {
+export function _enum(schema: Schema): string | undefined {
   // number
   if (schema.type === 'number' && schema.enum) {
-    return `z.literal(${schema.enum})`
+    if (schema.enum.length > 1) {
+      const literals = schema.enum.map((v) => `z.literal(${v})`).join(',')
+      return `z.union([${literals}])`
+    }
+    return `z.literal(${schema.enum[0]})`
   }
 
   // integer
@@ -17,11 +22,6 @@ export function _enum(schema: Schema) {
       return `z.union([${literals}])`
     }
     return `z.literal(${schema.enum[0]})`
-  }
-
-  // bigint
-  if (schema.type === 'bigint' && schema.enum) {
-    return `z.literal(${schema.enum})`
   }
 
   // array
@@ -44,11 +44,14 @@ export function _enum(schema: Schema) {
 
   // boolean
   if (schema.type === 'boolean' && schema.enum) {
-    return `z.literal(${schema.enum})`
+    if (schema.enum.length > 1) {
+      const literals = schema.enum.map((value) => `z.literal(${value})`).join(',')
+      return `z.union([${literals}])`
+    }
+    return `z.literal(${schema.enum[0]})`
   }
 
   if (schema.enum) {
-    // enum.length > 1
     if (schema.enum.length > 1) {
       const allStrings = schema.enum.every((v) => typeof v === 'string')
       if (allStrings) {

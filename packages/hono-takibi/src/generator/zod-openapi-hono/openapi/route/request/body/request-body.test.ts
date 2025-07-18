@@ -115,8 +115,24 @@ describe('requestBody', () => {
     expect(result).toBe(expected)
   })
 
+  it.concurrent('z.date() → z.coerce.date()', () => {
+    const result = requestBody(
+      true,
+      {
+        'application/json': {
+          schema: {
+            type: 'date',
+          },
+        },
+      },
+      'z.date()',
+    )
+    const expected = `body:{required:true,content:{'application/json':{schema:z.coerce.date()}},},`
+    expect(result).toBe(expected)
+  })
+
   it.concurrent('should throw an error when content is null', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const content = null as any
     const required = true
     const schema = 'z.object({})'
@@ -127,7 +143,7 @@ describe('requestBody', () => {
   })
 
   it.concurrent('should throw an error when content is undefined', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const content = undefined as any
     const required = true
     const schema = 'z.object({})'

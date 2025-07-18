@@ -26,13 +26,13 @@ const LSchema = z.object({ label: z.string() }).partial().openapi('L')
 
 const MSchema = z.object({ meta: z.string() }).partial().openapi('M')
 
-const NSchema = z.object({ number: z.number().int() }).partial().openapi('N')
+const NSchema = z.object({ number: z.int() }).partial().openapi('N')
 
 const OSchema = z.object({ option: z.string() }).partial().openapi('O')
 
 const PSchema = z.object({ price: z.number() }).partial().openapi('P')
 
-const QSchema = z.object({ quantity: z.number().int() }).partial().openapi('Q')
+const QSchema = z.object({ quantity: z.int() }).partial().openapi('Q')
 
 const RSchema = z.object({ rating: z.number() }).partial().openapi('R')
 

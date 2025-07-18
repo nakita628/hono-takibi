@@ -12,7 +12,6 @@ import {
   lt,
   max,
   min,
-  nullable,
   number,
   object,
   partial,
@@ -63,9 +62,6 @@ describe('zod module barrel file exports', () => {
   })
   it('should export min', () => {
     expect(typeof min).toBe('function')
-  })
-  it('should export nullable', () => {
-    expect(typeof nullable).toBe('function')
   })
   it('should export number', () => {
     expect(typeof number).toBe('function')

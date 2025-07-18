@@ -4,7 +4,7 @@ import { routeName } from '../openapi/route/route-name.js'
 import { groupHandlersByFileName } from './helper/group-handlers-by-file-name.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
-import type { Result } from '../../../result/types.js'
+import type { Result } from '../../../result/index.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 

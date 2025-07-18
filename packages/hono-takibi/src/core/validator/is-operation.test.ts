@@ -13,7 +13,7 @@ describe('isOperation Test', () => {
     expect(result).toBe(expected)
   })
   it.concurrent('isOperation -> false', () => {
-    // biome-ignore lint:
+    // biome-ignore lint: test
     const result = isOperation('test' as any)
     const expected = false
     expect(result).toBe(expected)

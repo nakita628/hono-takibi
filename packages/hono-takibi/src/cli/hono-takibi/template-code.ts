@@ -7,6 +7,15 @@ import { fmt } from '../../format/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenapiHonoHandler } from '../../generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 
+/**
+ * @param { OpenAPI } openAPI - OpenAPI specification
+ * @param { `${string}.ts` } output - Output file path
+ * @param { boolean } template - Whether to generate a template
+ * @param { boolean } test - Whether to generate test files
+ * @param { string } basePath - Optional base path for the application
+ * @returns { Promise<Result<void, string>> }
+ * @description Generates a Hono Takibi application template code based on the OpenAPI specification.
+ */
 export async function templateCode(
   openAPI: OpenAPI,
   output: `${string}.ts`,

@@ -6,8 +6,11 @@
     "takibi": "hono-takibi src/openapi.yaml -o src/route.ts",
     "vite": "vite --host",
     "push": "drizzle-kit push",
+    "push:test": "NODE_ENV=test drizzle-kit push",
     "generate": "drizzle-kit generate",
-    "test": "NODE_ENV=test vitest run",
+    "test:clean": "rm -f test.db",
+    "test:setup": "pnpm test:clean && pnpm push:test",
+    "test": "NODE_ENV=test pnpm test:setup && NODE_ENV=test vitest run",
     "coverage": "vitest run --coverage",
     "prepare": "cp .env.example .env"
   },
@@ -16,7 +19,7 @@
     "@hono/swagger-ui": "^0.5.2",
     "@vitest/coverage-v8": "^2.1.9",
     "drizzle-kit": "^0.30.6",
-    "hono-takibi": "0.7.4",
+    "hono-takibi": "0.8.0-beta",
     "tsx": "^4.20.3",
     "vite": "^6.3.5",
     "vitest": "^2.1.9"

@@ -10,6 +10,6 @@
     "types": ["node"],
     "declaration": true
   },
-  "include": ["**/src/**/*"],
+  "include": ["**/src/**/*.ts"],
   "exclude": ["**/src/**/*.test.ts"]
 }

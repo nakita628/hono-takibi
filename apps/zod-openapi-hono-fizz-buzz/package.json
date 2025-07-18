@@ -2,10 +2,9 @@
   "name": "@apps/zod-openapi-hono-fizz-buzz",
   "type": "module",
   "scripts": {
-    "rpc": "tsx src/rpc.ts",
     "deps": "rm -rf node_modules && pnpm install",
     "dev": "tsx watch src/index.ts",
-    "test": "NODE_ENV=test vitest run",
+    "test": "vitest run",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {

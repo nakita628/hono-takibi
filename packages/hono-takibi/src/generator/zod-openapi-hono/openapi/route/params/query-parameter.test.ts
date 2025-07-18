@@ -34,4 +34,14 @@ describe('queryParameter', () => {
     const expected = 'z.string()'
     expect(schema).toBe(expected)
   })
+
+  it('should return a Zod schema with coercion for date type', () => {
+    const schema = queryParameter('z.date()', {
+      in: 'query',
+      schema: { type: 'date' },
+      name: 'createdAt',
+    })
+    const expected = 'z.coerce.date()'
+    expect(schema).toBe(expected)
+  })
 })

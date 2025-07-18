@@ -6,9 +6,9 @@ import { allOf } from '../../zod-openapi-hono/openapi/components/allof/index.js'
 import { oneOf } from '../../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../../zod-openapi-hono/openapi/components/anyof/index.js'
 /**
- * Generate Zod object schema
  * @param { Schema } schema - Schema definition
  * @returns { string } Zod object schema string
+ * @description Generates a Zod object schema from an OpenAPI schema definition.
  */
 export function object(schema: Schema): string {
   if (schema.additionalProperties) {

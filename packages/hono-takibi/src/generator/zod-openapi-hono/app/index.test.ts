@@ -111,7 +111,7 @@ export const api = app.openapi(getHonoRoute,getHonoRouteHandler)
 .openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
 
 if(process.env.NODE_ENV === 'development'){
-app.doc('/doc',{"openapi":"3.1.0","info":{"title":"HonoTakibi🔥","version":"v1"},"tags":[{"name":"Hono"},{"name":"HonoX"},{"name":"ZodOpenAPIHono"}]}).get('/ui',swaggerUI({url:'//api/doc'}))}
+app.doc('/doc',{"openapi":"3.1.0","info":{"title":"HonoTakibi🔥","version":"v1"},"tags":[{"name":"Hono"},{"name":"HonoX"},{"name":"ZodOpenAPIHono"}]}).get('/ui',swaggerUI({url:'/api/doc'}))}
 
 export type AddType = typeof api
 

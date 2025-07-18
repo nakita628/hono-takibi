@@ -3,7 +3,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 const AnimalSchema = z.object({ type: z.string() }).openapi('Animal')
 
 const CatSchema = z
-  .intersection(AnimalSchema, z.object({ livesLeft: z.number().int().min(0).max(9) }).partial())
+  .intersection(AnimalSchema, z.object({ livesLeft: z.int().min(0).max(9) }).partial())
   .openapi('Cat')
 
 const DogSchema = z
@@ -14,7 +14,7 @@ const DogSchema = z
   .openapi('Dog')
 
 const BaseSchema = z
-  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).optional() })
+  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).nullable().optional() })
   .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({
@@ -59,10 +59,7 @@ export const putMultiStepRoute = createRoute({
       required: false,
       content: {
         'application/json': {
-          schema: z.intersection(
-            BaseSchema,
-            z.object({ step: z.number().int().min(1).max(3) }).partial(),
-          ),
+          schema: z.intersection(BaseSchema, z.object({ step: z.int().min(1).max(3) }).partial()),
         },
       },
     },

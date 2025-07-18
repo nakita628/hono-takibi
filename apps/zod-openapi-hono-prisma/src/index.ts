@@ -1,4 +1,4 @@
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { apiReference } from '@scalar/hono-api-reference'
 import {
@@ -17,8 +17,21 @@ import {
 } from './handler/postsHandler.ts'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
+import { customError } from './custom-error'
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          ok: false,
+          errors: z.treeifyError(result.error),
+        },
+        422,
+      )
+    }
+  },
+})
 
 app.use('*', logger())
 app.use('*', (c, next) => {
@@ -30,7 +43,7 @@ app.use('*', async (c, next) => {
   try {
     await next()
   } catch (e) {
-    return c.json({ error: (e as Error).message }, 500)
+    return c.json({ error: e instanceof Error ? e.message : String(e) }, 500)
   }
 })
 
@@ -40,14 +53,6 @@ export const api = app
   .openapi(getPostsRoute, getPostsRouteHandler)
   .openapi(putPostsIdRoute, putPostsIdRouteHandler)
   .openapi(deletePostsIdRoute, deletePostsIdRouteHandler)
-
-api.use('*', async (c, next) => {
-  try {
-    await next()
-  } catch (e) {
-    return c.json({ error: (e as Error).message }, 500)
-  }
-})
 
 if (process.env.NODE_ENV === 'development') {
   // swagger
@@ -78,7 +83,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
 
 if (process.env.NODE_ENV !== 'test') {
   serve({
@@ -86,3 +90,6 @@ if (process.env.NODE_ENV !== 'test') {
     port,
   })
 }
+
+// custom error
+customError()

@@ -2,9 +2,9 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
-    id: z.number().int().openapi({ example: 10 }),
-    petId: z.number().int().openapi({ example: 198772 }),
-    quantity: z.number().int().openapi({ example: 7 }),
+    id: z.int64().openapi({ example: 10 }),
+    petId: z.int64().openapi({ example: 198772 }),
+    quantity: z.int32().openapi({ example: 7 }),
     shipDate: z.iso.datetime(),
     status: z
       .enum(['placed', 'approved', 'delivered'])
@@ -26,7 +26,7 @@ const AddressSchema = z
 
 const CustomerSchema = z
   .object({
-    id: z.number().int().openapi({ example: 100000 }),
+    id: z.int64().openapi({ example: 100000 }),
     username: z.string().openapi({ example: 'fehguy' }),
     address: z.array(AddressSchema),
   })
@@ -34,32 +34,29 @@ const CustomerSchema = z
   .openapi('Customer')
 
 const CategorySchema = z
-  .object({
-    id: z.number().int().openapi({ example: 1 }),
-    name: z.string().openapi({ example: 'Dogs' }),
-  })
+  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
   .partial()
   .openapi('Category')
 
 const UserSchema = z
   .object({
-    id: z.number().int().openapi({ example: 10 }),
+    id: z.int64().openapi({ example: 10 }),
     username: z.string().openapi({ example: 'theUser' }),
     firstName: z.string().openapi({ example: 'John' }),
     lastName: z.string().openapi({ example: 'James' }),
     email: z.string().openapi({ example: 'john@email.com' }),
     password: z.string().openapi({ example: '12345' }),
     phone: z.string().openapi({ example: '12345' }),
-    userStatus: z.number().int().openapi({ example: 1, description: 'User Status' }),
+    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
   })
   .partial()
   .openapi('User')
 
-const TagSchema = z.object({ id: z.number().int(), name: z.string() }).partial().openapi('Tag')
+const TagSchema = z.object({ id: z.int64(), name: z.string() }).partial().openapi('Tag')
 
 const PetSchema = z
   .object({
-    id: z.number().int().openapi({ example: 10 }).optional(),
+    id: z.int64().openapi({ example: 10 }).optional(),
     name: z.string().openapi({ example: 'doggie' }),
     category: CategorySchema.optional(),
     photoUrls: z.array(z.string()),
@@ -72,7 +69,7 @@ const PetSchema = z
   .openapi('Pet')
 
 const ApiResponseSchema = z
-  .object({ code: z.number().int(), type: z.string(), message: z.string() })
+  .object({ code: z.int32(), type: z.string(), message: z.string() })
   .partial()
   .openapi('ApiResponse')
 
@@ -206,10 +203,7 @@ export const getPetPetIdRoute = createRoute({
   security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     params: z.object({
-      petId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
     }),
   },
   responses: {
@@ -234,10 +228,7 @@ export const postPetPetIdRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     params: z.object({
-      petId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
     }),
     query: z.object({
       name: z
@@ -269,10 +260,7 @@ export const deletePetPetIdRoute = createRoute({
         .optional(),
     }),
     params: z.object({
-      petId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
     }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
@@ -288,10 +276,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   request: {
     body: { required: false, content: { 'application/octet-stream': { schema: z.file() } } },
     params: z.object({
-      petId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
     }),
     query: z.object({
       additionalMetadata: z
@@ -319,7 +304,7 @@ export const getStoreInventoryRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.record(z.string(), z.number().int()) } },
+      content: { 'application/json': { schema: z.record(z.string(), z.int32()) } },
     },
   },
 })
@@ -361,10 +346,7 @@ export const getStoreOrderOrderIdRoute = createRoute({
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
   request: {
     params: z.object({
-      orderId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'orderId', required: true } }),
+      orderId: z.int64().openapi({ param: { in: 'path', name: 'orderId', required: true } }),
     }),
   },
   responses: {
@@ -390,10 +372,7 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
   request: {
     params: z.object({
-      orderId: z
-        .number()
-        .int()
-        .openapi({ param: { in: 'path', name: 'orderId', required: true } }),
+      orderId: z.int64().openapi({ param: { in: 'path', name: 'orderId', required: true } }),
     }),
   },
   responses: {

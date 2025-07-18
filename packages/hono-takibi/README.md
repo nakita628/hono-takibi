@@ -30,415 +30,7 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 ## Usage
 
 ```bash
-npx hono-takibi path/to/openapi.yaml -o path/to/output_hono.ts
-```
-
-## Demo 
-
-![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
-
-input:
-
-```yaml
-openapi: 3.1.0
-info:
-  title: Hono API
-  version: v1
-tags:
-  - name: Hono
-    description: Endpoints related to general Hono operations
-  - name: Post
-    description: Endpoints for creating, retrieving, updating, and deleting posts
-components:
-  schemas:
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-      required:
-        - message
-    Post:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier of the post
-        post:
-          type: string
-          minLength: 1
-          maxLength: 140
-          description: Content of the post
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp when the post was created
-        updatedAt:
-          type: string
-          format: date-time
-          description: Timestamp when the post was last updated
-      required:
-        - id
-        - post
-        - createdAt
-        - updatedAt
-paths:
-  /:
-    get:
-      tags:
-        - Hono
-      summary: Welcome message
-      description: Retrieve a simple welcome message from the Hono API.
-      responses:
-        '200':
-          description: Successful response with a welcome message.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hono🔥
-                required:
-                  - message
-  /posts:
-    post:
-      tags:
-        - Post
-      summary: Create a new post
-      description: Submit a new post with a maximum length of 140 characters.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                post:
-                  type: string
-                  minLength: 1
-                  maxLength: 140
-                  description: Content of the post
-              required:
-                - post
-      responses:
-        '201':
-          description: Post successfully created.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Post created successfully.
-                required:
-                  - message
-        '400':
-          description: Invalid request due to bad input.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    get:
-      tags:
-        - Post
-      summary: Retrieve a list of posts
-      description: Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
-      parameters:
-        - name: page
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: rows
-          in: query
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Successfully retrieved a list of posts.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Post'
-        '400':
-          description: Invalid request due to bad input.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /posts/{id}:
-    put:
-      tags:
-        - Post
-      summary: Update an existing post
-      description: Update the content of an existing post identified by its unique ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier of the post.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                post:
-                  type: string
-                  minLength: 1
-                  maxLength: 140
-                  description: Updated content for the post
-              required:
-                - post
-      responses:
-        '204':
-          description: Post successfully updated.
-        '400':
-          description: Invalid input.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      tags:
-        - Post
-      summary: Delete a post
-      description: Delete an existing post identified by its unique ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-            description: Unique identifier of the post.
-            example: 123e4567-e89b-12d3-a456-426614174000
-      responses:
-        '204':
-          description: Post successfully deleted.
-        '400':
-          description: Invalid input.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-```
-
-output:
-
-```ts
-import { createRoute, z } from '@hono/zod-openapi'
-
-const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
-
-const PostSchema = z
-  .object({
-    id: z.uuid().openapi({ description: 'Unique identifier of the post' }),
-    post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
-    createdAt: z.iso.date().openapi({ description: 'Timestamp when the post was created' }),
-    updatedAt: z.date().openapi({ description: 'Timestamp when the post was last updated' }),
-  })
-  .openapi('Post')
-
-export const getRoute = createRoute({
-  tags: ['Hono'],
-  method: 'get',
-  path: '/',
-  summary: 'Welcome message',
-  description: 'Retrieve a simple welcome message from the Hono API.',
-  responses: {
-    200: {
-      description: 'Successful response with a welcome message.',
-      content: {
-        'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'Hono🔥' }) }),
-        },
-      },
-    },
-  },
-})
-
-export const postPostsRoute = createRoute({
-  tags: ['Post'],
-  method: 'post',
-  path: '/posts',
-  summary: 'Create a new post',
-  description: 'Submit a new post with a maximum length of 140 characters.',
-  request: {
-    body: {
-      required: true,
-      content: {
-        'application/json': {
-          schema: z.object({
-            post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
-          }),
-        },
-      },
-    },
-  },
-  responses: {
-    201: {
-      description: 'Post successfully created.',
-      content: {
-        'application/json': {
-          schema: z.object({
-            message: z.string().openapi({ example: 'Post created successfully.' }),
-          }),
-        },
-      },
-    },
-    400: {
-      description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-  },
-})
-
-export const getPostsRoute = createRoute({
-  tags: ['Post'],
-  method: 'get',
-  path: '/posts',
-  summary: 'Retrieve a list of posts',
-  description:
-    'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
-  request: {
-    query: z.object({
-      page: z.coerce
-        .number()
-        .int()
-        .min(0)
-        .openapi({ param: { in: 'query', name: 'page', required: false } }),
-
-      rows: z.coerce
-        .number()
-        .int()
-        .min(0)
-        .openapi({ param: { in: 'query', name: 'rows', required: false } }),
-    }),
-  },
-  responses: {
-    200: {
-      description: 'Successfully retrieved a list of posts.',
-      content: { 'application/json': { schema: z.array(PostSchema) } },
-    },
-    400: {
-      description: 'Invalid request due to bad input.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-  },
-})
-
-export const putPostsIdRoute = createRoute({
-  tags: ['Post'],
-  method: 'put',
-  path: '/posts/{id}',
-  summary: 'Update an existing post',
-  description: 'Update the content of an existing post identified by its unique ID.',
-  request: {
-    body: {
-      required: true,
-      content: {
-        'application/json': {
-          schema: z.object({
-            post: z
-              .string()
-              .min(1)
-              .max(140)
-              .openapi({ description: 'Updated content for the post' }),
-          }),
-        },
-      },
-    },
-    params: z.object({
-      id: z.uuid().openapi({
-        param: { in: 'path', name: 'id', required: true },
-        description: 'Unique identifier of the post.',
-      }),
-    }),
-  },
-  responses: {
-    204: { description: 'Post successfully updated.' },
-    400: {
-      description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-  },
-})
-
-export const deletePostsIdRoute = createRoute({
-  tags: ['Post'],
-  method: 'delete',
-  path: '/posts/{id}',
-  summary: 'Delete a post',
-  description: 'Delete an existing post identified by its unique ID.',
-  request: {
-    params: z.object({
-      id: z.uuid().openapi({
-        param: { in: 'path', name: 'id', required: true },
-        example: '123e4567-e89b-12d3-a456-426614174000',
-        description: 'Unique identifier of the post.',
-      }),
-    }),
-  },
-  responses: {
-    204: { description: 'Post successfully deleted.' },
-    400: {
-      description: 'Invalid input.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-    500: {
-      description: 'Internal server error.',
-      content: { 'application/json': { schema: ErrorSchema } },
-    },
-  },
-})
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 ```
 
 ## CLI
@@ -449,26 +41,159 @@ basic
 
 ```bash
 Options:
-  --export-schema      exports all schema definitions
-  --export-type        exports all type definitions
+  --export-type        export TypeScript type aliases
+  --export-schema      export Zod schema objects
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
 ```
 
 template
 
 > **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
 
-```bash
-Options:
-  --template            generation of application and handler files
-  --test                automatic generation of test files
-  --base-path           base URL path for your API endpoints
-```
-
 ### Example
 
 ```bash
-npx hono-takibi openapi.yaml -o src/routes.ts --template -test --base-path 'api'
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
 ```
+
+input:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Hono Takibi API
+  version: "1.0.0"
+paths:
+  /:
+    get:
+      summary: Welcome
+      description: Returns a welcome message from Hono Takibi.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hono Takibi🔥
+                required:
+                  - message
+```
+
+output:
+
+```ts
+import { createRoute, z } from '@hono/zod-openapi'
+
+export const getRoute = createRoute({
+  method: 'get',
+  path: '/',
+  summary: 'Welcome',
+  description: 'Returns a welcome message from Hono Takibi.',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z.object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) }),
+        },
+      },
+    },
+  },
+})
+```
+
+## Demo 
+
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
+
+## HonoTakibiVite
+
+### Automatic Code Regeneration & HMR
+
+With **HonoTakibiVite**, saving your OpenAPI spec while the Vite dev server is running instantly regenerates the code.
+
+### OpenAPI Schema Requirements
+
+- Your OpenAPI definition must include **only the `#/components/schemas/` section**.
+- It must be fully compliant with **OpenAPI 3.0 or later (e.g., 3.0 or 3.1)**.
+- Do **not** include `paths`, `tags`, or any other OpenAPI sections.
+
+### Supported Input Formats
+
+You may specify the input file in one of the following formats:
+
+- `.yaml` — OpenAPI YAML (schemas only)
+- `.json` — OpenAPI JSON (schemas only)
+- `.tsp` — TypeSpec source file
+
+### TypeSpec Setup (if using `.tsp`)
+
+If you use a `.tsp` TypeSpec file, you must set up the TypeSpec environment and install required libraries:
+
+- @typespec/http
+- @typespec/rest
+- ...other
+
+### Example
+
+`vite.config.ts`
+
+```ts
+import { defineConfig } from 'vite'
+import HonoTakibiVite from 'hono-takibi/vite-plugin'
+
+export default defineConfig({
+  plugins: [HonoTakibiVite('main.tsp', 'index.ts', true, true)],
+})
+```
+
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
+
+
+## With AI Prompt
+
+### Sample Prompt — Schemas-Only Extractor (OpenAPI 3+)
+
+A copy‑and‑paste prompt for **any LLM** that extracts **only** the contents of `#/components/schemas/` from an OpenAPI document.
+
+## Prompt　Example
+
+```md
+You are a **Schemas‑Only Extractor** for OpenAPI 3+.
+
+## 1. Version
+- Accept files that start with `openapi: "3.0.0"` or newer.
+- Otherwise reply with: `Unsupported OpenAPI version (must be 3.0+).`
+
+## 2. Scope
+- Look **only** inside `#/components/schemas/`. Ignore everything else.
+- `$ref` must also point inside that section.
+
+## 3. Schemas section present?
+- If `components.schemas` is missing, reply with: `Missing '#/components/schemas/' section. Cannot proceed.`
+
+## 4. File type
+- Accept **.yaml**, **.json**, or **.tsp** files.
+- Otherwise reply with: `Unsupported input file extension.`
+
+## Format tips
+- `format: uuid` usually means **UUID v4**.
+- Other accepted identifiers include `uuidv6`, `uuidv7`, `ulid`, `cuid`, etc.
+- With **hono‑takibi**, you can generate **Zod schemas** directly from a custom OpenAPI file.
+
+## What the LLM should do
+1. Validate the file with the four rules above.
+2. If it passes, output **only** the YAML/JSON fragment under `#/components/schemas/` (preserve indentation).
+3. Otherwise, output the exact error message above—nothing more.
+```
+
+![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/ai/hono-takibi-ai.gif)
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
@@ -495,27 +220,6 @@ We welcome feedback and contributions to improve the tool!
    - Complex schemas might not convert correctly
    - Limited support for certain response types
    - Some OpenAPI validations may not be perfectly converted to Zod validations
-
-### 🙏 Seeking Advice
-
-As a relatively new developer, I would greatly appreciate feedback on:
-
-- Code architecture and best practices
-- Error handling approaches
-- Testing strategies
-- Performance improvements
-- Security considerations
-- Naming convention flexibility
-- OpenAPI to Zod conversion strategies
-
-I welcome any feedback, suggestions, or contributions that could help make this tool more robust and reliable. Feel free to:
-- Open issues for bugs or suggestions
-- Submit PRs with improvements
-- Share your experience using the tool
-- Provide guidance on better coding practices
-- Report any conversion inconsistencies you find
-
-Let's make this tool better together! 🔥
 
 ## License
 

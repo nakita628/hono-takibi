@@ -1,0 +1,22 @@
+{
+  "name": "@apps/zod-openapi-hono-date",
+  "type": "module",
+  "scripts": {
+    "deps": "rm -rf node_modules && pnpm install",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "@hono/zod-openapi": "1.0.0-beta.1",
+    "hono": "^4.8.2"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@types/node": "^24.0.12",
+    "@vitest/coverage-v8": "^3.2.4",
+    "tsx": "^4.20.3",
+    "vitest": "^3.2.4"
+  }
+}

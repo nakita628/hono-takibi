@@ -55,11 +55,11 @@ describe('paramsObject', () => {
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('paramsObject integer', () => {
+  it.concurrent('paramsObject number', () => {
     const result = paramsObject([
       {
         schema: {
-          type: 'integer',
+          type: 'number',
           minimum: 0,
           default: 1,
           example: 1,
@@ -72,18 +72,18 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().int().min(0).default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
+        page: 'z.coerce.number().default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
       },
     }
 
     expect(result).toStrictEqual(expected)
   })
 
-  it.concurrent('paramsObject integer example 10', () => {
+  it.concurrent('paramsObject number example 10', () => {
     const result = paramsObject([
       {
         schema: {
-          type: 'integer',
+          type: 'number',
           maximum: 10,
           default: 10,
           example: 10,
@@ -96,10 +96,9 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().int().max(10).default(10).openapi({param:{in:"query",name:"page",required:false},example:10})',
+        page: 'z.coerce.number().default(10).openapi({param:{in:"query",name:"page",required:false},example:10})',
       },
     }
-
     expect(result).toStrictEqual(expected)
   })
 
