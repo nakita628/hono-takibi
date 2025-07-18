@@ -3,12 +3,17 @@ import { viteTsp } from './vite-tsp.js'
 import type { PluginOption, ViteDevServer } from 'vite'
 import path from 'node:path'
 
-export default function HonoTakibiVite(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-  output: `${string}.ts`,
+export default function HonoTakibiVite({
+  input,
+  output,
   exportType = true,
   exportSchema = true,
-): PluginOption {
+}: {
+  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+  output: `${string}.ts`
+  exportType?: boolean
+  exportSchema?: boolean
+}): PluginOption {
   const run = async (): Promise<void> => {
     if (
       typeof input === 'string' &&
