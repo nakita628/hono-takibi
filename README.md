@@ -108,7 +108,7 @@ export const getRoute = createRoute({
 })
 ```
 
-## Demo 
+### Demo 
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
 
@@ -153,6 +153,8 @@ export default defineConfig({
 })
 ```
 
+### Demo
+
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
 
@@ -192,10 +194,6 @@ You are a **Schemas‑Only Extractor** for OpenAPI 3+.
 2. If it passes, output **only** the YAML/JSON fragment under `#/components/schemas/` (preserve indentation).
 3. Otherwise, output the exact error message above—nothing more.
 ```
-
-![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/ai/hono-takibi-ai.gif)
-
-This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
 ### ⚠️ WARNING: Potential Breaking Changes Without Notice
 
