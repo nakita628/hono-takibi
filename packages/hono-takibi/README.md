@@ -146,10 +146,17 @@ If you use a `.tsp` TypeSpec file, you must set up the TypeSpec environment and 
 
 ```ts
 import { defineConfig } from 'vite'
-import HonoTakibiVite from 'hono-takibi/vite-plugin'
+import HonoTakibiVite from './src/vite-plugin'
 
 export default defineConfig({
-  plugins: [HonoTakibiVite('main.tsp', 'index.ts', true, true)],
+  plugins: [
+    HonoTakibiVite({
+      input: 'main.tsp',
+      output: 'index.ts',
+      exportType: true,
+      exportSchema: true,
+    }),
+  ],
 })
 ```
 
