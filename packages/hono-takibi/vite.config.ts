@@ -4,7 +4,7 @@ import HonoTakibiVite from './src/vite-plugin'
 export default defineConfig({
   plugins: [
     HonoTakibiVite({
-      input: 'openapi/main.tsp',
+      input: 'openapi/typespec.tsp',
       output: 'routes/tsp.ts',
       exportType: true,
       exportSchema: true,
