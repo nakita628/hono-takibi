@@ -33,6 +33,31 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 ```
 
+## CLI
+
+### Options
+
+basic
+
+```bash
+Options:
+  --export-type        export TypeScript type aliases
+  --export-schema      export Zod schema objects
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
+```
+
+template
+
+> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+
+### Example
+
+```bash
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
+```
+
 input:
 
 ```yaml
@@ -131,41 +156,44 @@ export default defineConfig({
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
 
-### With AI Prompt
+## With AI Prompt
 
-Instruction to AI:
+### Sample Prompt — Schemas-Only Extractor (OpenAPI 3+)
 
-```
-When defining an OpenAPI document, include only the `#/components/schemas/` section, and ensure compliance with OpenAPI 3.0 or higher.  
-Do not include `paths`, `tags`, or any other sections.
+A copy‑and‑paste prompt for **any LLM** that extracts **only** the contents of `#/components/schemas/` from an OpenAPI document.
+
+## Prompt　Example
+
+```md
+You are a **Schemas‑Only Extractor** for OpenAPI 3+.
+
+## 1. Version
+- Accept files that start with `openapi: "3.0.0"` or newer.
+- Otherwise reply with: `Unsupported OpenAPI version (must be 3.0+).`
+
+## 2. Scope
+- Look **only** inside `#/components/schemas/`. Ignore everything else.
+- `$ref` must also point inside that section.
+
+## 3. Schemas section present?
+- If `components.schemas` is missing, reply with: `Missing '#/components/schemas/' section. Cannot proceed.`
+
+## 4. File type
+- Accept **.yaml**, **.json**, or **.tsp** files.
+- Otherwise reply with: `Unsupported input file extension.`
+
+## Format tips
+- `format: uuid` usually means **UUID v4**.
+- Other accepted identifiers include `uuidv6`, `uuidv7`, `ulid`, `cuid`, etc.
+- With **hono‑takibi**, you can generate **Zod schemas** directly from a custom OpenAPI file.
+
+## What the LLM should do
+1. Validate the file with the four rules above.
+2. If it passes, output **only** the YAML/JSON fragment under `#/components/schemas/` (preserve indentation).
+3. Otherwise, output the exact error message above—nothing more.
 ```
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/ai/hono-takibi-ai.gif)
-
-## CLI
-
-### Options
-
-basic
-
-```bash
-Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-```
-
-template
-
-> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
-
-### Example
-
-```bash
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
-```
 
 This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
