@@ -1,7 +1,7 @@
 import { testClient } from 'hono/testing'
 import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import { execSync } from 'child_process'
+import { execSync } from 'node:child_process'
 import { api } from '../index.ts'
 import db, { table } from '../infra/index.ts'
 import { eq } from 'drizzle-orm'

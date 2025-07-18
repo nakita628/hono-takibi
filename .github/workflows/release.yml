@@ -1,0 +1,31 @@
+name: release
+
+on:
+  push:
+    paths: [ "packages/hono-takibi/package.json" ]
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+
+      - id: ver
+        run: |
+          FILE=packages/hono-takibi/package.json
+          CUR=$(jq -r .version "$FILE")
+          PRE=$(git show HEAD~1:"$FILE" 2>/dev/null | jq -r .version || echo "")
+          echo "curr=$CUR" >> $GITHUB_OUTPUT
+          echo "prev=$PRE" >> $GITHUB_OUTPUT
+
+      - uses: ncipollo/release-action@v1
+        if: ${{ steps.ver.outputs.curr != steps.ver.outputs.prev }}
+        with:
+          tag:  v${{ steps.ver.outputs.curr }}
+          name: v${{ steps.ver.outputs.curr }}
+          generateReleaseNotes: true

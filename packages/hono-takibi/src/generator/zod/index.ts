@@ -89,7 +89,7 @@ export function zod(schema: Schema): string {
     // bigint bounds to BigInt()
     const bigintPatched = int64Fixed.includes('z.bigint()')
       ? (() => {
-          const NUM = /-?\d+(?:\.\d+)?(?:e[+\-]?\d+)?/i
+          const NUM = /-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/i
           return int64Fixed
             .replace(
               new RegExp(`\\.min\\(\\s*(${NUM.source})\\s*\\)`, 'gi'),

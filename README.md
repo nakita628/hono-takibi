@@ -108,7 +108,7 @@ export const getRoute = createRoute({
 })
 ```
 
-## Demo 
+### Demo 
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
 
@@ -146,12 +146,21 @@ If you use a `.tsp` TypeSpec file, you must set up the TypeSpec environment and 
 
 ```ts
 import { defineConfig } from 'vite'
-import HonoTakibiVite from 'hono-takibi/vite-plugin'
+import HonoTakibiVite from './src/vite-plugin'
 
 export default defineConfig({
-  plugins: [HonoTakibiVite('main.tsp', 'index.ts', true, true)],
+  plugins: [
+    HonoTakibiVite({
+      input: 'main.tsp',
+      output: 'index.ts',
+      exportType: true,
+      exportSchema: true,
+    }),
+  ],
 })
 ```
+
+### Demo
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
@@ -192,10 +201,6 @@ You are a **Schemas‑Only Extractor** for OpenAPI 3+.
 2. If it passes, output **only** the YAML/JSON fragment under `#/components/schemas/` (preserve indentation).
 3. Otherwise, output the exact error message above—nothing more.
 ```
-
-![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/ai/hono-takibi-ai.gif)
-
-This project is in **early development** and being maintained by a developer with about 2 years of experience. While I'm doing my best to create a useful tool:
 
 ### ⚠️ WARNING: Potential Breaking Changes Without Notice
 
