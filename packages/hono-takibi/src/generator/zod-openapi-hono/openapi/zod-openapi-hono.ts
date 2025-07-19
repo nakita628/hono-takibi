@@ -22,5 +22,5 @@ export function zodOpenAPIHono(
   const components = openapi.components
     ? componentsCode(openapi.components, exportSchema, exportType)
     : ''
-  return `${IMPORT_CODE}\n\n${components}\n\n${routeCode(openapi.paths)}`.trimEnd()
+  return `${IMPORT_CODE}\n\n${components}\n\n${routeCode(openapi.paths)}`
 }

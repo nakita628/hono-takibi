@@ -2,9 +2,9 @@ import type { Schema } from '../../../openapi/index.js'
 import { getRefName } from '../../../core/schema/references/index.js'
 
 /**
- * Generates a Zod schema string for a reference
  * @param { Schema } schema - The schema to generate the reference schema for
  * @returns { string } The generated reference schema
+ * @description Generates a Zod schema string for a reference schema.
  */
 export function referenceSchema(schema: Schema): string {
   if (!schema.$ref) {

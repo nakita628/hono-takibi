@@ -3,9 +3,9 @@ import { getRefName } from '../../../core/schema/references/index.js'
 import { array } from '../z/index.js'
 
 /**
- * Generates a Zod schema string for an array reference
  * @param { Schema } schema - The schema to generate the array reference schema for
  * @returns { string } The generated array reference schema
+ * @description Generates a Zod schema string for an array reference schema.
  */
 export function arrayReferenceSchema(schema: Schema): string {
   if (!schema.items?.$ref) {
