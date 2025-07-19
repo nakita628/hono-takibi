@@ -4,8 +4,7 @@ import { takibi } from './takibi.js'
 import { parseCli } from '../parse/parse-cli.js'
 import { isHelpRequested, sliceArgv } from '../utils/index.js'
 
-const HELP_TEXT = `
-Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type        export TypeScript type aliases
@@ -13,7 +12,7 @@ Options:
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`.trimStart()
+  -h, --help           display help for command`
 
 export async function honoTakibi(): Promise<Result<{ message: string }, string>> {
   const args = sliceArgv(process.argv)
