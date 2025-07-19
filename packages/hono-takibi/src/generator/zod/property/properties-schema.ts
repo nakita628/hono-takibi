@@ -5,10 +5,10 @@ import { propertySchema } from './property-schema.js'
 import { getToSafeIdentifier } from '../../../core/utils/index.js'
 
 /**
- * Generates a Zod object schema with properties and their requirements
  * @param { Record<string, Schema> } properties - Record of property names to their schema definitions
  * @param { string[] } required - Array of property names that are required
  * @returns { string } Generated Zod object schema string
+ * @description Generates a Zod object schema with properties and their requirements
  * @example
  * // Order schema with optional fields
  * propertiesSchema(

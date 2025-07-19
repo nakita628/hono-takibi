@@ -29,9 +29,9 @@ export async function readdir(dir: string): Promise<Result<string[], string>> {
 }
 
 /**
- * @param {string} path - The path to the file.
- * @param {string} data - The data to write to the file.
- * @returns {Promise<Result<void, string>>} - A promise that resolves to a Result indicating success or an error message.
+ * @param { string } path - The path to the file.
+ * @param { string } data - The data to write to the file.
+ * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or an error message.
  */
 export async function writeFile(path: string, data: string): Promise<Result<void, string>> {
   try {
