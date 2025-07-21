@@ -1,18 +1,14 @@
 import { capitalize } from '../../../../core/utils/index.js'
 
 /**
- * Generates a route name from HTTP method and path
- * @param { string } method - HTTP method (e.g., 'get', 'post', 'put')
- * @param { string } path - URL path pattern (e.g., '/users/{id}/posts')
- * @returns { string } Formatted route name string
- * @remarks
- * Transformation process:
- * 1. Replace special characters (/{}-)  with spaces
- * 2. Remove leading and trailing spaces
- * 3. Split string by consecutive spaces
- * 4. Capitalize each word
- * 5. Join all words together
- * 6. Add HTTP method and Route suffix
+ * Generates a PascalCase route name from HTTP method and path.
+ *
+ * @param method - HTTP method (e.g., 'get', 'post').
+ * @param path - URL path (e.g., '/users/{id}/posts').
+ * @returns A route name string (e.g., 'getUsersIdPostsRoute').
+ *
+ * @example
+ * routeName('get', '/users/{id}/posts') // 'getUsersIdPostsRoute'
  */
 export function routeName(method: string, path: string): string {
   // 1. api_path: `/user/createWithList`

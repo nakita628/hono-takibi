@@ -3,9 +3,16 @@ import { processAllOf } from './process/process-alllof.js'
 import { intersection } from '../../../../zod/z/index.js'
 
 /**
- * Converts an `allOf` schema into a Zod schema.
- * @param { Schema } schema - The OpenAPI schema object.
- * @returns { string } The generated Zod schema as a string.
+ * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
+ *
+ * @param schema - The OpenAPI schema object potentially containing an `allOf` composition.
+ * @returns A string representing the generated Zod schema.
+ *
+ * @remarks
+ * - If `schema.allOf` is missing or empty, returns `z.any()` or `z.any().nullable()` depending on nullability.
+ * - If `allOf` contains a single schema, it is returned directly (with optional `.nullable()`).
+ * - If multiple schemas exist, they are combined using `z.intersection(...)`.
+ * - Nullability is determined by analyzing all constituent schemas via `processAllOf`.
  */
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {

@@ -2,11 +2,16 @@ import type { Parameters } from '../../../../../openapi/types.js'
 import { coerce, stringbool } from '../../../../zod/z/index.js'
 
 /**
- * @param { string } baseSchema - The base Zod schema to be used for query parameters
- * @param { string } baseSchema - The base Zod schema to be used for query parameters
- * @param { Parameters } param - The OpenAPI parameter definition
- * @returns { string } - The Zod schema string for the query parameter
- * @description This function generates a Zod schema string for query parameters, applying coercion for
+ * Generates a Zod schema string for a query parameter, with coercion applied based on its type.
+ *
+ * @param baseSchema - The base Zod schema string.
+ * @param param - The OpenAPI parameter object.
+ * @returns The transformed Zod schema string.
+ *
+ * @remarks
+ * - Applies `z.coerce` to numbers and dates.
+ * - Applies `stringbool` to booleans to support string-based boolean input.
+ * - Returns the base schema unchanged for other types or locations.
  */
 export function queryParameter(baseSchema: string, param: Parameters): string {
   if (param.in === 'query' && param.schema.type === 'number') {
