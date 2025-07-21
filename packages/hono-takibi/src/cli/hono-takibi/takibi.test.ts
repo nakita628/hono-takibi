@@ -184,7 +184,7 @@ describe('takibi generate', () => {
   afterAll(() => {
     fs.rmSync('openapi.yaml', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
-    fs.rmdirSync('tmp', { recursive: true})
+    fs.rmdirSync('tmp', { recursive: true })
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {

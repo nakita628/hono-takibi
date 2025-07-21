@@ -1,18 +1,13 @@
-import { getFlagValue, hasFlag } from '../utils/index.js'
 import type { Result } from '../../result/index.js'
+import { getFlagValue, hasFlag } from '../utils/index.js'
 import { ok, andThen } from '../../result/index.js'
 import { parseIO } from './index.js'
 
 /**
- * @param { readonly string[] } args
- * @returns { Result<
- *   {
- *     input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
- *     output: `${string}.ts`
- *   },
- *   string
- * > }
- * @description Parses command line arguments for the CLI.
+ * Parses CLI arguments into structured options.
+ *
+ * @param args - Raw CLI arguments.
+ * @returns A `Result` containing parsed CLI options or an error message.
  */
 export function parseCli(args: readonly string[]): Result<
   {

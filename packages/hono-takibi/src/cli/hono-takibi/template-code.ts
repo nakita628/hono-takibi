@@ -12,7 +12,6 @@ import { zodOpenapiHonoHandler } from '../../generator/zod-openapi-hono/handler/
  *
  * @param openAPI - The OpenAPI document to generate from.
  * @param output - Path to the main `.ts` output file.
- * @param template - Whether to generate application code.
  * @param test - Whether to include test code.
  * @param basePath - Optional base path for the generated app.
  * @returns A `Result` indicating success or an error message.
