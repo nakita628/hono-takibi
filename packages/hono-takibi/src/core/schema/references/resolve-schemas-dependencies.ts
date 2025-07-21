@@ -2,61 +2,45 @@ import type { Schema } from '../../../openapi/index.js'
 import { traverseSchemaDependencies } from './index.js'
 
 /**
- * Resolves dependencies between schemas and returns them in topological order for safe processing
- * @param { Record<string, Schema> } schemas - Record mapping schema names to their Schema objects
- * @returns { string[] } Array of schema names ordered by their dependencies
+ * Resolves schema dependencies and returns their names in topological order.
+ *
+ * Ensures that each schema appears after all its dependencies,
+ * making it suitable for generating code where types must be defined in order.
+ *
+ * @param schemas - A map of schema names to their corresponding schema definitions.
+ * @returns An array of schema names ordered by dependency resolution.
+ *
  * @example
+ * ```ts
+ * import { resolveSchemasDependencies } from './resolve'
+ *
  * const schemas: Record<string, Schema> = {
  *   A: {
  *     type: 'object',
  *     properties: {
- *       b: {
- *         $ref: '#/components/schemas/B',
- *       },
- *       c: {
- *         $ref: '#/components/schemas/C',
- *       },
- *     },
- *     required: ['b', 'c'],
+ *       b: { $ref: '#/components/schemas/B' },
+ *       c: { $ref: '#/components/schemas/C' }
+ *     }
  *   },
  *   B: {
  *     type: 'object',
  *     properties: {
- *       id: {
- *         type: 'string',
- *         description: 'Identifier for schema B',
- *       },
- *       message: {
- *         type: 'string',
- *         description: 'Message from schema B',
- *       },
- *       required: ['id'],
- *     },
- *     C: {
- *       type: 'object',
- *       properties: {
- *         count: {
- *           type: 'integer',
- *           description: 'Count value',
- *         },
- *         flag: {
- *           type: 'boolean',
- *           description: 'A boolean flag',
- *         },
- *       },
- *     },
+ *       id: { type: 'string' },
+ *       message: { type: 'string' }
+ *     }
+ *   },
+ *   C: {
+ *     type: 'object',
+ *     properties: {
+ *       count: { type: 'integer' },
+ *       flag: { type: 'boolean' }
+ *     }
  *   }
  * }
  *
- * const orderedSchemas = resolveSchemasDependencies(schemas)
- * // Returns: ['B', 'C', 'A']
- *
- * - Performs topological sorting of schemas based on their dependencies
- * - Ensures each schema appears after all its dependencies
- * - Handles multi-level dependency chains correctly
- * - Essential for generating valid code where dependent types must be defined first
- * - Uses depth-first search for dependency resolution
- * - Automatically handles circular dependencies by preventing infinite recursion
+ * const ordered = resolveSchemasDependencies(schemas)
+ * console.log(ordered) // → ['B', 'C', 'A']
+ * ```
  */
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): string[] {
   const visited = new Set<string>()

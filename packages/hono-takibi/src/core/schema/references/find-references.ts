@@ -2,10 +2,16 @@ import type { Schema } from '../../../openapi/index.js'
 import { traverseSchema } from './index.js'
 
 /**
- * Collects all $ref references from an OpenAPI schema by recursively traversing it
- * @param { Schema } schema - The schema to search for references
- * @returns { Set<string> } A Set of strings containing all schema names referenced via $ref
+ * Collects all `$ref` schema names from a given OpenAPI schema.
+ *
+ * Recursively traverses the schema and extracts every `$ref` path,
+ * returning their final segment (e.g., `#/components/schemas/Tag` → `Tag`).
+ *
+ * @param schema - The OpenAPI schema object to search.
+ * @returns A `Set` containing all referenced schema names.
+ *
  * @example
+ * ```ts
  * const schema = {
  *   type: 'object',
  *   properties: {
@@ -22,7 +28,8 @@ import { traverseSchema } from './index.js'
  * }
  *
  * const refs = findReferences(schema)
- * // refs contains: Set { 'Tag', 'Category' }
+ * console.log(refs) // → Set { 'Tag', 'Category' }
+ * ```
  */
 export function findReferences(schema: Schema): Set<string> {
   const refs = new Set<string>()

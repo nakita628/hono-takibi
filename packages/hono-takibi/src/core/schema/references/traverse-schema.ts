@@ -2,47 +2,40 @@ import type { Schema } from '../../../openapi/index.js'
 import { getRefName } from './get-ref-name.js'
 
 /**
- * Recursively traverses an OpenAPI schema to collect all $ref references
- * @param { Schema } schema - The OpenAPI schema object to traverse
- * @param { Set<string> } refs - Set to collect found reference names
+ * Recursively collects all `$ref` schema names from an OpenAPI schema.
+ *
+ * This function walks through the schema tree and extracts reference names
+ * (e.g., `#/components/schemas/User` → `User`) into the provided `Set`.
+ *
+ * @param schema - The OpenAPI schema object to traverse.
+ * @param refs - A `Set` that will be mutated to contain found reference names.
  *
  * @example
- * const refs = new Set<string>()
+ * ```ts
+ * import { traverseSchema } from './traverse-schema'
+ *
  * const schema = {
  *   type: 'object',
  *   properties: {
- *     user: {
- *       $ref: '#/components/schemas/User'
- *     },
+ *     user: { $ref: '#/components/schemas/User' },
  *     orders: {
  *       type: 'array',
- *       items: {
- *         $ref: '#/components/schemas/Order'
- *       }
+ *       items: { $ref: '#/components/schemas/Order' }
  *     },
  *     address: {
  *       type: 'object',
  *       properties: {
- *         country: {
- *           $ref: '#/components/schemas/Country'
- *         }
+ *         country: { $ref: '#/components/schemas/Country' }
  *       }
  *     }
  *   }
  * }
  *
+ * const refs = new Set<string>()
  * traverseSchema(schema, refs)
- * // refs contains: Set { 'User', 'Order', 'Country' }
  *
- * - Mutates the provided refs Set by adding found references
- * - Handles nested references in:
- *   - Object properties
- *   - Array items
- *   - Nested objects
- * - Skips invalid or non-object schemas
- * - Extracts only the schema name from $ref paths
- *   (e.g., '#/components/schemas/User' → 'User')
- * - Performs depth-first traversal of the schema structure
+ * console.log(refs) // → Set { 'User', 'Order', 'Country' }
+ * ```
  */
 export function traverseSchema(schema: Schema, refs: Set<string>): void {
   // Exit if schema is undefined or not an object

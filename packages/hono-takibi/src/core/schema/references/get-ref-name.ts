@@ -1,34 +1,25 @@
 /**
- * Extracts the type name from an OpenAPI schema reference ($ref)
- * @param { string } ref - OpenAPI schema reference path (e.g., '#/components/schemas/Address')
- * @returns { string | undefined } The referenced type name, or undefined if the reference is invalid
+ * Extracts the type name from an OpenAPI `$ref` string.
+ *
+ * Returns the last segment of the path, typically the schema name.
+ *
+ * @param $ref - A reference path like `#/components/schemas/Address`.
+ * @returns The extracted type name, or `undefined` if invalid.
+ *
  * @example
- * // Basic usage with Address schema
+ * ```ts
  * getRefName('#/components/schemas/Address')
- * // Returns: 'Address'
+ * // → 'Address'
  *
- * // Nested Address schema
  * getRefName('#/components/schemas/Location/Address')
- * // Returns: 'Address'
+ * // → 'Address'
  *
- * // Complex Address reference
  * getRefName('#/components/schemas/Shipping/Address/Details')
- * // Returns: 'Details'
+ * // → 'Details'
  *
- * // Invalid path
  * getRefName('')
- * // Returns: undefined
- *
- * - Expects standard OpenAPI reference paths (e.g., '#/components/schemas/Address')
- * - Extracts the last segment of the path as the type name
- * - Returns undefined for empty strings or invalid paths
- * - Used when processing Address and other schema references in OpenAPI
- *
- * Processes OpenAPI $ref strings to extract schema type names.
- * For example, when processing an Address schema reference:
- * Input: '#/components/schemas/Address'
- * Process: Splits by '/' -> ['#', 'components', 'schemas', 'Address']
- * Output: Returns 'Address'
+ * // → undefined
+ * ```
  */
 export function getRefName($ref: `#/components/schemas/${string}`): string | undefined {
   // split('/'): Split a string into an array using slashes

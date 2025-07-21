@@ -7,12 +7,13 @@ import path from 'node:path'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
 
 /**
- * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
- * @param { `${string}.tsp` } input - Path to the OpenAPI specification file
- * @param { `${string}.ts` } output - Path to the output TypeScript file
- * @param { boolean } exportType - Whether to export types
- * @param { boolean } exportSchema - Whether to export schemas
- * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
+ * Compiles a TypeSpec file and generates Hono + zod-openapi bindings.
+ *
+ * @param input  - Path to the `.tsp` file.
+ * @param output - Destination `.ts` file.
+ * @param exportType   - Emit TypeScript types when `true`.
+ * @param exportSchema - Emit zod schemas when `true`.
+ * @returns `true` on success, `false` on failure, otherwise `undefined`.
  */
 export async function viteTsp(
   input: `${string}.tsp`,
