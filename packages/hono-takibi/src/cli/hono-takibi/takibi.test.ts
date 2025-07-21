@@ -184,6 +184,9 @@ describe('takibi generate', () => {
   afterAll(() => {
     fs.rmSync('openapi.yaml', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
+    fs.rmSync('tmp/zod-openapi-hono.ts', { force: true })
+    fs.rmSync('tmp/main.ts', { force: true })
+    fs.rmSync('src/handler', { recursive: true, force: true })
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
@@ -196,7 +199,7 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes and template files', async () => {
-    const result = await takibi('openapi.yaml', 'src/zod-openapi-hono.ts', true, true, true, true)
+    const result = await takibi('openapi.yaml', 'tmp/zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
       ok: true,
