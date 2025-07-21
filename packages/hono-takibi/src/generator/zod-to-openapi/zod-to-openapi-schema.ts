@@ -2,12 +2,17 @@ import { sanitizeIdentifier } from '../../core/utils/index.js'
 import { infer } from '../zod/z/index.js'
 
 /**
- * @param { string } schemaName - Name of the schema constant
- * @param { string } zodSchema - Zod schema definition string
- * @returns { string } Generated constant declaration string
- * @param { boolean } exportSchema - Whether to export the schema constant
- * @param { boolean } exportType - Whether to export the TypeScript type alias
- * @description Creates a Zod schema constant declaration
+ * Generates a Zod schema constant and optional inferred type alias.
+ *
+ * @param schemaName - The base name of the schema (used for variable and type names)
+ * @param zodSchema - The Zod schema string to assign
+ * @param exportSchema - Whether to `export` the Zod schema constant
+ * @param exportType - Whether to `export` the inferred type alias
+ * @returns The generated code string containing the schema and optional type alias
+ *
+ * @example
+ * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
+ * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  */
 export function zodToOpenAPISchema(
   schemaName: string,
@@ -23,8 +28,7 @@ export function zodToOpenAPISchema(
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
-  const typeVariableName = schemaName
-  const safeTypeVariableName = sanitizeIdentifier(typeVariableName)
+  const safeTypeVariableName = sanitizeIdentifier(schemaName)
 
   const zodInferCode = exportType ? infer(safeTypeVariableName, safeVariableName) : ''
   // return code
