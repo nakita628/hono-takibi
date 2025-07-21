@@ -5,46 +5,48 @@ import { propertySchema } from './property-schema.js'
 import { getToSafeIdentifier } from '../../../core/utils/index.js'
 
 /**
- * @param { Record<string, Schema> } properties - Record of property names to their schema definitions
- * @param { string[] } required - Array of property names that are required
- * @returns { string } Generated Zod object schema string
- * @description Generates a Zod object schema with properties and their requirements
+ * Generates a Zod object schema string from a set of OpenAPI properties.
+ *
+ * - Handles required and optional fields
+ * - Supports primitive types, arrays, and `$ref`-based references
+ * - Automatically wraps in `.partial()` if all properties are optional
+ *
+ * @param properties - Object mapping property names to their schema definitions
+ * @param required - List of required property names
+ * @returns A Zod schema string representing the object
+ *
  * @example
- * // Order schema with optional fields
+ * // 1. All fields optional
  * propertiesSchema(
  *   {
- *     id: { type: 'integer', format: 'int64' },
- *     status: { type: 'string', enum: ['placed', 'approved', 'delivered'] }
+ *     id: { type: 'integer' },
+ *     status: { type: 'string', enum: ['active', 'inactive'] },
  *   },
  *   []
  * )
- * // Returns: 'z.object({id: z.number().int().optional(),status: z.enum(["placed","approved","delivered"]).optional()})'
+ * // → 'z.object({id:z.number().int().optional(),status:z.enum(["active","inactive"]).optional()}).partial()'
+ *
  * @example
- * // Pet schema with required fields
+ * // 2. All fields required
  * propertiesSchema(
  *   {
  *     name: { type: 'string' },
- *     photoUrls: { type: 'array', items: { type: 'string' } }
+ *     items: { type: 'array', items: { type: 'string' } },
  *   },
- *   ['name', 'photoUrls']
+ *   ['name', 'items']
  * )
- * // Returns: 'z.object({name: z.string(),photoUrls: z.array(z.string())})'
+ * // → 'z.object({name:z.string(),items:z.array(z.string())})'
+ *
  * @example
- * // Address schema with references
+ * // 3. With schema references
  * propertiesSchema(
  *   {
- *     category: { '$ref': '#/components/schemas/Category' },
- *     tags: { type: 'array', items: { '$ref': '#/components/schemas/Tag' } }
+ *     user: { $ref: '#/components/schemas/User' },
+ *     tags: { type: 'array', items: { $ref: '#/components/schemas/Tag' } },
  *   },
  *   []
  * )
- * // Returns: 'z.object({category: categorySchema.optional(),tags: z.array(tagSchema).optional()})'
- * @remarks
- * - Generates Zod schema strings for object properties
- * - Handles required and optional properties
- * - Supports primitive types, arrays, and references
- * - Uses .partial() when no properties are required
- * - Maintains property order from input
+ * // → 'z.object({user:userSchema.optional(),tags:z.array(tagSchema).optional()}).partial()'
  */
 export function propertiesSchema(properties: Record<string, Schema>, required: string[]): string {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {

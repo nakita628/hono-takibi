@@ -4,9 +4,29 @@ import { referenceSchema, arrayReferenceSchema } from '../reference/index.js'
 import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
- * @param { Schema } schema - The schema to generate the property schema for
- * @returns { string } - The generated property schema string
- * @description Generates a Zod schema string for a property schema.
+ * Generates a Zod-compatible schema string for a given property.
+ *
+ * - Delegates `$ref` schemas to `referenceSchema`
+ * - Handles arrays with referenced items via `arrayReferenceSchema`
+ * - Falls back to `zodToOpenAPI` for primitives or complex inline schemas
+ *
+ * @param schema - The OpenAPI schema object for the property
+ * @returns The corresponding Zod schema string
+ *
+ * @example
+ * // Primitive string type
+ * propertySchema({ type: 'string' })
+ * // → 'z.string()'
+ *
+ * @example
+ * // Reference to another schema
+ * propertySchema({ $ref: '#/components/schemas/User' })
+ * // → 'userSchema'
+ *
+ * @example
+ * // Array of referenced items
+ * propertySchema({ type: 'array', items: { $ref: '#/components/schemas/Tag' } })
+ * // → 'z.array(tagSchema)'
  */
 export function propertySchema(schema: Schema): string {
   if (Boolean(schema.$ref) === true) {

@@ -2,9 +2,28 @@ import type { Schema } from '../../../openapi/index.js'
 import { getRefName } from '../../../core/schema/references/index.js'
 
 /**
- * @param { Schema } schema - The schema to generate the reference schema for
- * @returns { string } The generated reference schema
- * @description Generates a Zod schema string for a reference schema.
+ * Generates a Zod schema string for a referenced schema.
+ *
+ * If the schema contains a `$ref`, it extracts the reference name and appends `Schema`.
+ * Falls back to `'z.any()'` if the `$ref` is missing or invalid.
+ *
+ * @param schema - The OpenAPI schema object containing a `$ref`
+ * @returns The Zod schema string referencing another schema
+ *
+ * @example
+ * // Reference to Category schema
+ * referenceSchema({ $ref: '#/components/schemas/Category' })
+ * // → 'CategorySchema'
+ *
+ * @example
+ * // Invalid reference
+ * referenceSchema({})
+ * // → 'z.any()'
+ *
+ * @example
+ * // Malformed $ref
+ * referenceSchema({ $ref: '#/components/schemas/' })
+ * // → 'z.any()'
  */
 export function referenceSchema(schema: Schema): string {
   if (!schema.$ref) {

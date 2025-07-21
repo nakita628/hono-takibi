@@ -15,9 +15,56 @@ import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
 
 /**
- * @param { Schema } schema - The OpenAPI schema to convert.
- * @returns { string } - The Zod schema string.
- * @description This function handles various schema types, including objects, arrays, strings, numbers, enums, and more.
+ * Converts an OpenAPI `Schema` object into a Zod schema string.
+ *
+ * Handles primitives (`string`, `number`, `boolean`, `array`, `object`, `integer`),
+ * references (`$ref`), constants (`const`), enums, combinators (`oneOf`, `anyOf`, `allOf`, `not`),
+ * and other schema metadata (`nullable`, `minLength`, `maxLength`, `exclusiveMinimum`, etc).
+ *
+ * If the schema is unrecognized or empty, defaults to `'z.any()'`.
+ *
+ * @param schema - The OpenAPI schema object to convert
+ * @returns A string representing the corresponding Zod schema
+ *
+ * @example
+ * // String schema
+ * zod({ type: 'string' })
+ * // → 'z.string()'
+ *
+ * @example
+ * // Enum schema
+ * zod({ type: 'string', enum: ['A', 'B'] })
+ * // → 'z.enum(["A","B"])'
+ *
+ * @example
+ * // Nullable number with exclusiveMinimum
+ * zod({ type: 'number', exclusiveMinimum: 3, nullable: true })
+ * // → 'z.number().gt(3).nullable()'
+ *
+ * @example
+ * // Object with properties
+ * zod({
+ *   type: 'object',
+ *   properties: { name: { type: 'string' } },
+ *   required: ['name']
+ * })
+ * // → 'z.object({name:z.string()})'
+ *
+ * @example
+ * // Reference schema
+ * zod({ $ref: '#/components/schemas/User' })
+ * // → 'userSchema'
+ *
+ * @example
+ * // Unknown schema
+ * zod({})
+ * // → 'z.any()'
+ *
+ * @remarks
+ * - Automatically applies `.nullable()` if applicable
+ * - Combines `.min()` / `.max()` into `.length()` where appropriate
+ * - Optimizes out redundant `.min()` when `.gt()` is used
+ * - Logs unhandled cases to `console.warn`
  */
 export function zod(schema: Schema): string {
   /* $ref */
