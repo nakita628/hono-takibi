@@ -1,7 +1,8 @@
 /**
- * Escape text for use in TypeScript code
- * @param { string } text - The text to escape
- * @returns { string } The escaped text
+ * Escapes a string for safe use in TypeScript string literals.
+ *
+ * @param text - The input text to escape.
+ * @returns The escaped string.
  */
 export function escapeStringLiteral(text: string): string {
   return (
