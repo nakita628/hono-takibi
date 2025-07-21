@@ -3,8 +3,7 @@ import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
 import { importHandlers } from '../handler/generator/index.js'
 import { applyOpenapiRoutes } from './generator/apply-openapi-routes.js'
-import { importRoutes, registerComponent } from './generator/utils/index.js'
-import { processImportMap } from './helper/process-import-map.js'
+import { importMap, importRoutes, registerComponent } from './utils/index.js'
 import { docs } from './generator/docs/index.js'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
@@ -14,13 +13,12 @@ const ADD_TYPE = 'export type AddType = typeof api' as const
 const EXPORT_APP = 'export default app' as const
 
 /**
- * Generate app
+ * Generates a Hono app with OpenAPI and Swagger UI integration.
  *
- * @function app
- * @param { OpenAPI } openapi - OpenAPI spec
- * @param { `${string}.ts` } output - Output file name
- * @param { string | undefined } basePath - Base path
- * @returns { string } Generated app code
+ * @param openapi - The OpenAPI specification.
+ * @param output - The output file name (e.g., 'user.ts').
+ * @param basePath - Optional base path for the app.
+ * @returns The generated application code as a string.
  */
 export function app(
   openapi: OpenAPI,
@@ -38,7 +36,7 @@ export function app(
     [
       OPENAPI_HONO_IMPORT,
       SWAGGER_UI_IMPORT,
-      importRoutes(processImportMap(routeMappings, output)).join(''),
+      importRoutes(importMap(routeMappings, output)).join(''),
       importHandlers(getHandlerImports(routeMappings), output).join('\n'),
     ].join('\n'),
     // 2. app initialization

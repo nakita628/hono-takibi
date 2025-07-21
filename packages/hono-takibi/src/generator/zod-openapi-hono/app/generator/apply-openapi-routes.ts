@@ -1,4 +1,4 @@
-import { appRouteHandler } from './utils/index.js'
+import { appRouteHandler } from '../utils/index.js'
 
 /**
  * Generates the application route handlers.

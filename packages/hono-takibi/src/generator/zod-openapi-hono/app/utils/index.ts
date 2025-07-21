@@ -49,3 +49,35 @@ export function registerComponent(securitySchemes: {
     })
     .join('\n')
 }
+
+/**
+ * Generates an import map that associates route names with their corresponding import file path.
+ *
+ * This is useful for dynamically constructing import statements in code generation,
+ * ensuring that each route is grouped under its appropriate file.
+ *
+ * @param routeMappings - An array of route mapping objects containing route name, handler name, and path.
+ * @param output - The output TypeScript file name (e.g., 'user.ts'). Used to determine the import path.
+ * @returns A record where each key is an import path (e.g., 'user.ts') and the value is an array of route names imported from that path.
+ */
+export function importMap(
+  routeMappings: {
+    routeName: string
+    handlerName: string
+    path: string
+  }[],
+  output: `${string}.ts`,
+): { [importPath: `${string}.ts`]: string[] } {
+  const importsMap: { [importPath: string]: string[] } = {}
+  for (const { routeName } of routeMappings) {
+    const match = output.match(/[^/]+\.ts$/)
+    const importPath = match ? match[0] : output
+
+    if (!importsMap[importPath]) {
+      importsMap[importPath] = []
+    }
+    importsMap[importPath].push(routeName)
+  }
+
+  return importsMap
+}
