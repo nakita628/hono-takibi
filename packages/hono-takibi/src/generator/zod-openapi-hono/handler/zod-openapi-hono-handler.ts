@@ -1,19 +1,19 @@
 import type { OpenAPIPaths, OpenAPI } from '../../../openapi/index.js'
-import { handler, handlerName } from './generator/index.js'
 import { routeName } from '../openapi/route/route-name.js'
-import { groupHandlersByFileName } from './helper/group-handlers-by-file-name.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { Result } from '../../../result/index.js'
+import { groupHandlersByFileName, handler, handlerName } from './utils/index.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
 
 /**
- * Generates the Zod OpenAPI Hono handler.
- * @param { OpenAPI } openapi - The OpenAPI specification.
- * @param { output } output - The output directory or file path.
- * @param { boolean } test - Whether to generate the test file.
- * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or failure.
+ * Generates route handler files for a Hono app using Zod and OpenAPI.
+ *
+ * @param openapi - The OpenAPI specification object.
+ * @param output - The output directory or file path for generated handlers.
+ * @param test - Whether to generate corresponding empty test files.
+ * @returns A `Result` indicating success or error with message.
  */
 export async function zodOpenapiHonoHandler(
   openapi: OpenAPI,

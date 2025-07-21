@@ -1,9 +1,8 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
-import { importHandlers } from '../handler/generator/index.js'
 import { applyOpenapiRoutes } from './generator/apply-openapi-routes.js'
 import { importMap, importRoutes, registerComponent } from './utils/index.js'
+import { getHandlerImports, importHandlers } from '../handler/utils/index.js'
 import { docs } from './generator/docs/index.js'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const

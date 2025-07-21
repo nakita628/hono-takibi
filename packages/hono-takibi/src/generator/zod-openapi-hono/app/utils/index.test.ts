@@ -81,5 +81,4 @@ describe('utils', () => {
       expect(result).toStrictEqual(expected)
     })
   })
-
 })

@@ -1,6 +1,6 @@
-import { handlerName } from '../../handler/generator/index.js'
-import { routeName } from '../../openapi/route/index.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
+import { routeName } from '../../openapi/route/index.js'
+import { handlerName } from '../../handler/utils/index.js'
 
 /**
  * Extracts route mappings from an OpenAPI specification.
