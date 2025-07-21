@@ -53,7 +53,7 @@ import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
  * @example
  * // Reference schema
  * zod({ $ref: '#/components/schemas/User' })
- * // → 'userSchema'
+ * // → 'UserSchema'
  *
  * @example
  * // Unknown schema
