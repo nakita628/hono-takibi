@@ -235,15 +235,13 @@ export type Components = {
   schemas?: Record<string, Schema>
   parameters?: Record<string, Parameters>
   requestBodies?: Record<string, RequestBody>
-  securitySchemes?: SecuritySchemes
-}
-
-export type SecuritySchemes = {
-  [key: string]: {
-    type?: string
-    name?: string
-    scheme?: string
-    bearerFormat?: string
+  securitySchemes?: {
+    [key: string]: {
+      type?: string
+      name?: string
+      scheme?: string
+      bearerFormat?: string
+    }
   }
 }
 

@@ -1,5 +1,11 @@
-import type { OpenAPI } from '../../../../openapi/index.js'
+import type { OpenAPI } from '../../../../../openapi/index.js'
 
+/**
+ * Extracts top-level OpenAPI document metadata.
+ *
+ * @param openapi - The OpenAPI object.
+ * @returns A partial object containing `openapi`, `info`, `servers`, `externalDocs`, and `tags` if present.
+ */
 export function docs(openapi: OpenAPI): Partial<{
   openapi: string
   info: OpenAPI['info']

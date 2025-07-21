@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { applyOpenapiRoutes } from '.'
+import { applyOpenapiRoutes } from './apply-openapi-routes.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/generator/apply-openapi-routes.test.ts

@@ -2,8 +2,10 @@ import type { OpenAPI } from '../../../openapi/index.js'
 import { getHandlerImports } from '../handler/import/get-handler-imports.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
 import { importHandlers } from '../handler/generator/index.js'
-import { importRoutes, applyOpenapiRoutes, registerComponent, docs } from './generator/index.js'
+import { applyOpenapiRoutes } from './generator/apply-openapi-routes.js'
+import { importRoutes, registerComponent } from './generator/utils/index.js'
 import { processImportMap } from './helper/process-import-map.js'
+import { docs } from './generator/docs/index.js'
 
 const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
