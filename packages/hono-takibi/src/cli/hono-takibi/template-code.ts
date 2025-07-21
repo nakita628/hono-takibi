@@ -8,22 +8,21 @@ import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenapiHonoHandler } from '../../generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 
 /**
- * @param { OpenAPI } openAPI - OpenAPI specification
- * @param { `${string}.ts` } output - Output file path
- * @param { boolean } template - Whether to generate a template
- * @param { boolean } test - Whether to generate test files
- * @param { string } basePath - Optional base path for the application
- * @returns { Promise<Result<void, string>> }
- * @description Generates a Hono Takibi application template code based on the OpenAPI specification.
+ * Generates Hono Takibi application and handler templates.
+ *
+ * @param openAPI - The OpenAPI document to generate from.
+ * @param output - Path to the main `.ts` output file.
+ * @param template - Whether to generate application code.
+ * @param test - Whether to include test code.
+ * @param basePath - Optional base path for the generated app.
+ * @returns A `Result` indicating success or an error message.
  */
 export async function templateCode(
   openAPI: OpenAPI,
   output: `${string}.ts`,
-  template: boolean,
   test: boolean,
   basePath?: string,
 ): Promise<Result<void, string>> {
-  if (!(template && output.includes('/'))) return ok(undefined)
   const dir = path.dirname(output)
   return await asyncAndThen(await fmt(app(openAPI, output, basePath)), async (appCode) =>
     asyncAndThen(await readdir(dir), async (files) => {

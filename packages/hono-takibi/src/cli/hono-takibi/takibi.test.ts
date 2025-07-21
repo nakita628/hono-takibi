@@ -191,6 +191,15 @@ describe('takibi generate', () => {
 
     expect(result).toStrictEqual({
       ok: true,
+      value: { message: 'Generated code written to zod-openapi-hono.ts' },
+    })
+  })
+
+  it('should generate Hono app with OpenAPI routes and template files', async () => {
+    const result = await takibi('openapi.yaml', 'src/zod-openapi-hono.ts', true, true, true, true)
+
+    expect(result).toStrictEqual({
+      ok: true,
       value: { message: 'Generated code and template files written' },
     })
   })

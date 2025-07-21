@@ -8,15 +8,16 @@ import { templateCode } from './template-code.js'
 import { mkdir, writeFile } from '../../fsp/index.js'
 
 /**
- * @param { `${string}.yaml` | `${string}.json` | `${string}.tsp` } input - The input OpenAPI file.
- * @param { `${string}.ts` } output - The output TypeScript file.
- * @param { boolean } exportSchema - Whether to export the schema.
- * @param { boolean } exportType - Whether to export the type.
- * @param { boolean } template - Whether to generate a template.
- * @param { boolean } test - Whether to generate test files.
- * @param { string } [basePath] - The base path for the template.
- * @returns { Promise<Result<{ message: string }, string>> }
- * @description Generates TypeScript code from an OpenAPI specification and optionally creates template files.
+ * Generates TypeScript code from an OpenAPI spec and optional templates.
+ *
+ * @param input - Input OpenAPI file (`.yaml`, `.json`, or `.tsp`).
+ * @param output - Output `.ts` file path.
+ * @param exportSchema - Whether to export schemas.
+ * @param exportType - Whether to export types.
+ * @param template - Whether to generate templates.
+ * @param test - Whether to generate test files.
+ * @param basePath - Optional base path for template output.
+ * @returns A `Result` containing a success message or an error string.
  */
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -31,13 +32,15 @@ export async function takibi(
     asyncAndThen(await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType)), async (code) =>
       asyncAndThen(await mkdir(path.dirname(output)), async () =>
         asyncAndThen(await writeFile(output, code), async () =>
-          asyncAndThen(await templateCode(openAPI, output, template, test, basePath), async () =>
-            ok({
-              message: template
-                ? 'Generated code and template files written'
-                : `Generated code written to ${output}`,
-            }),
-          ),
+          template && output.includes('/')
+            ? asyncAndThen(await templateCode(openAPI, output, test, basePath), async () =>
+                ok({
+                  message: 'Generated code and template files written',
+                }),
+              )
+            : ok({
+                message: `Generated code written to ${output}`,
+              }),
         ),
       ),
     ),
