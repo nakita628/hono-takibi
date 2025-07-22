@@ -1,4 +1,4 @@
-import { getRefName } from './index.js'
+import { getRefName } from '../../utils/index.js'
 
 /**
  * Returns the schema name with "Schema" suffix from a `$ref` string.

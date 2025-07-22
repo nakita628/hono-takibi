@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   extractRefs,
   findReferences,
-  getRefName,
   getRefSchemaName,
   resolveSchemasDependencies,
   traverseSchemaDependencies,
@@ -19,10 +18,6 @@ describe('schema module barrel file exports', () => {
 
   it('should export findReferences', () => {
     expect(typeof findReferences).toBe('function')
-  })
-
-  it('should export getRefName', () => {
-    expect(typeof getRefName).toBe('function')
   })
 
   it('should export getRefSchemaName', () => {

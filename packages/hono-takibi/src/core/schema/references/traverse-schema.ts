@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getRefName } from './get-ref-name.js'
+import { getRefName } from '../../utils/index.js'
 
 /**
  * Recursively collects all `$ref` schema names from an OpenAPI schema.

@@ -9,6 +9,7 @@ import {
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
+  getRefName,
 } from '.'
 
 // Test run
@@ -211,6 +212,15 @@ describe('utils', () => {
     it.concurrent(`stripMinMaxExist('z.string().min(1).max(1)', 1, 1) -> 'z.string()'`, () => {
       const result = stripMinMaxExist('z.string().min(1).max(1)', 1, 1)
       const expected = 'z.string()'
+      expect(result).toBe(expected)
+    })
+  })
+
+  // getRefName
+  describe('getRefName Test', () => {
+    it.concurrent(`getRefName('#/components/schemas/Test') -> 'Test'`, () => {
+      const result = getRefName('#/components/schemas/Test')
+      const expected = 'Test'
       expect(result).toBe(expected)
     })
   })
