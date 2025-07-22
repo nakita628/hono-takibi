@@ -221,4 +221,16 @@ Options:
       },
     })
   })
+
+  describe('honoTakibi missing output', () => {
+    beforeAll(() => {
+      process.argv = ['node', 'dist/index.js', 'openapi.yaml']
+    })
+
+    it('should fail if output is not specified', async () => {
+      fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
+      const result = await honoTakibi()
+      expect(result.ok).toBe(false)
+    })
+  })
 })

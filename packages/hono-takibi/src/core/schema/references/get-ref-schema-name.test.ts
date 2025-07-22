@@ -10,4 +10,9 @@ describe('getRefSchemaName', () => {
     const expected = 'TestSchema'
     expect(result).toBe(expected)
   })
+
+  it('throws if $ref is empty', () => {
+    // biome-ignore lint: test
+    expect(() => getRefSchemaName('' as any)).toThrow('refName is not found')
+  })
 })
