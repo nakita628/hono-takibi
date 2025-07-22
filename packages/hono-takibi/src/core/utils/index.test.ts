@@ -11,7 +11,6 @@ import {
   stripMinMaxExist,
   pickTypes,
   maybeApplyNullability,
-  exclusive,
 } from '.'
 
 // Test run
@@ -50,8 +49,5 @@ describe('string-utils barrel file exports', () => {
   })
   it('should export maybeApplyNullability', () => {
     expect(typeof maybeApplyNullability).toBe('function')
-  })
-  it('should export exclusive', () => {
-    expect(typeof exclusive).toBe('function')
   })
 })

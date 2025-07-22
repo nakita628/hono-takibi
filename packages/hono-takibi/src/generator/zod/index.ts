@@ -6,7 +6,6 @@ import {
   stripMinMaxExist,
   pickTypes,
   maybeApplyNullability,
-  exclusive,
 } from '../../core/utils/index.js'
 import { getRefSchemaName } from '../../core/schema/references/get-ref-schema-name.js'
 import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
@@ -109,7 +108,9 @@ export function zod(schema: Schema): string {
 
   /* number */
   if (types.includes('number')) {
-    const numbered = exclusive(number(schema), schema)
+    const gt = typeof schema.exclusiveMinimum === 'number' ? `.gt(${schema.exclusiveMinimum})` : ''
+    const lt = typeof schema.exclusiveMaximum === 'number' ? `.lt(${schema.exclusiveMaximum})` : ''
+    const numbered = `${number(schema)}${gt}${lt}`
     const afterGt =
       schema.minimum !== undefined &&
       numbered.includes(`min(${schema.minimum})`) &&
