@@ -97,16 +97,16 @@ const openapi: OpenAPI = {
 
 describe('takibi generate', () => {
   beforeAll(() => {
-    fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
+    fs.writeFileSync('openapi.json', JSON.stringify(openapi))
   })
 
   afterAll(() => {
-    fs.rmSync('openapi.yaml', { force: true })
+    fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi('openapi.yaml', 'zod-openapi-hono.ts', true, true, false, false)
+    const result = await takibi('openapi.json', 'zod-openapi-hono.ts', true, true, false, false)
 
     expect(result).toStrictEqual({
       ok: true,
@@ -176,13 +176,13 @@ export const getZodOpenapiHonoRoute = createRoute({
 
 describe('takibi generate', () => {
   beforeAll(() => {
-    if (!fs.existsSync('openapi.yaml')) {
-      fs.writeFileSync('openapi.yaml', JSON.stringify(openapi))
+    if (!fs.existsSync('openapi.json')) {
+      fs.writeFileSync('openapi.json', JSON.stringify(openapi))
     }
   })
 
   afterAll(() => {
-    fs.rmSync('openapi.yaml', { force: true })
+    fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
     if (fs.existsSync('tmp')) {
       fs.rmdirSync('tmp', { recursive: true })
@@ -190,7 +190,7 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
-    const result = await takibi('openapi.yaml', 'zod-openapi-hono.ts', true, true, true, true)
+    const result = await takibi('openapi.json', 'zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
       ok: true,
@@ -199,7 +199,7 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes and template files', async () => {
-    const result = await takibi('openapi.yaml', 'tmp/zod-openapi-hono.ts', true, true, true, true)
+    const result = await takibi('openapi.json', 'tmp/zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
       ok: true,
