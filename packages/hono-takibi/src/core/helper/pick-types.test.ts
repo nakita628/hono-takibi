@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { pickTypes } from './pick-types.js'
 
 // Test run
-// pnpm vitest run ./src/core/utils/pick-types.test.ts
+// pnpm vitest run ./src/core/helper/pick-types.test.ts
 describe('pickTypes', () => {
   it('returns empty array for undefined', () => {
     // biome-ignore lint: test
