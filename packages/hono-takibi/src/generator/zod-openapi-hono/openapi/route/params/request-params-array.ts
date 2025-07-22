@@ -2,9 +2,14 @@ import type { ParamsObject } from '../../../../../openapi/index.js'
 import { schema } from '../../../../zod/z/index.js'
 
 /**
- * Generates an array of Zod schema strings for non-empty parameter sections
- * @param { ParamsObject } paramsObj - Object containing query, path, and header parameter schemas
- * @returns { string[] } Array of Zod schema strings
+ * Generates an array of Zod validator strings from OpenAPI parameter objects.
+ *
+ * @param paramsObj - An object containing `query`, `path`, and `header` parameters.
+ * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
+ *
+ * @remarks
+ * - Skips empty parameter sections.
+ * - Converts `path` section to `params` (Hono convention).
  */
 export function requestParamsArray(paramsObj: ParamsObject): string[] {
   // 1.  define sections to be processed

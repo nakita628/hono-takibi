@@ -95,8 +95,8 @@ const openapi: OpenAPI = {
   },
 }
 
-// template true, test false
-describe('templateCode template true test true', () => {
+// test true
+describe('test true', () => {
   beforeAll(() => {
     fs.mkdirSync('tmp-template/src', { recursive: true })
   })
@@ -108,19 +108,19 @@ describe('templateCode template true test true', () => {
     const cwd = process.cwd()
     const path = `${cwd}/tmp-template/src/`
 
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', true)
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoHandler.test.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.test.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
   })
 })
 
-describe('templateCode template true test true exists main.ts', () => {
+describe('test true exists main.ts', () => {
   beforeAll(() => {
     fs.mkdirSync('tmp-template/src', { recursive: true })
   })
@@ -133,24 +133,24 @@ describe('templateCode template true test true exists main.ts', () => {
     const path = `${cwd}/tmp-template/src/`
 
     // 1st run
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', true)
 
     // 2nd run
     // exists main.ts
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', true)
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoHandler.test.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.test.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
   })
 })
 
-// template true, test false
-describe('templateCode template true', () => {
+// test false
+describe('test false', () => {
   beforeAll(() => {
     fs.mkdirSync('tmp-template/src', { recursive: true })
   })
@@ -161,12 +161,12 @@ describe('templateCode template true', () => {
   it('--template', async () => {
     const cwd = process.cwd()
     const path = `${cwd}/tmp-template/src/`
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', false)
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
   })
 })
 
@@ -182,20 +182,20 @@ describe('templateCode template true exists main.ts', () => {
     const cwd = process.cwd()
     const path = `${cwd}/tmp-template/src/`
     // 1st run
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', true)
     // 2nd run
     // exists main.ts
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true)
+    await templateCode(openapi, 'tmp-template/src/route.ts', true)
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
   })
 })
 
 // basePath test
-describe('templateCode template true basePath', () => {
+describe('basePath api', () => {
   beforeAll(() => {
     fs.mkdirSync('tmp-template/src', { recursive: true })
   })
@@ -206,19 +206,19 @@ describe('templateCode template true basePath', () => {
   it(`--template basePath 'api'`, async () => {
     const cwd = process.cwd()
     const path = `${cwd}/tmp-template/src/`
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true, 'api')
+    await templateCode(openapi, 'tmp-template/src/route.ts', false, 'api')
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
     // contain basePath
     const appCode = fs.readFileSync(`${path}/index.ts`, 'utf-8')
     expect(appCode).toContain("new OpenAPIHono().basePath('api')")
   })
 })
 
-describe('templateCode template true basePath', () => {
+describe('test ture basePath api', () => {
   beforeAll(() => {
     fs.mkdirSync('tmp-template/src', { recursive: true })
   })
@@ -226,43 +226,26 @@ describe('templateCode template true basePath', () => {
     fs.rmSync('tmp-template', { recursive: true, force: true })
   })
 
-  it(`--template basePath 'api'`, async () => {
+  it(`basePath 'api'`, async () => {
     const cwd = process.cwd()
     const path = `${cwd}/tmp-template/src/`
 
     // 1st run
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true, 'api')
+    await templateCode(openapi, 'tmp-template/src/route.ts', true, 'api')
     // 2nd run
-    // exists main.t
-    await templateCode(openapi, 'tmp-template/src/route.ts', true, true, 'api')
+    // exists main.ts
+    await templateCode(openapi, 'tmp-template/src/route.ts', true, 'api')
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(true)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+
     // contain basePath
     const appCode = fs.readFileSync(`${path}/main.ts`, 'utf-8')
     expect(appCode).toContain("new OpenAPIHono().basePath('api')")
-  })
-})
-
-// template false
-describe('templateCode template false', () => {
-  beforeAll(() => {
-    fs.mkdirSync('tmp-template/src', { recursive: true })
-  })
-  afterAll(() => {
-    fs.rmSync('tmp-template', { recursive: true, force: true })
-  })
-
-  it('--no-template', async () => {
-    const cwd = process.cwd()
-    const path = `${cwd}/tmp-template/src/`
-    await templateCode(openapi, 'tmp-template/src/route.ts', false, false)
-    expect(fs.existsSync(`${path}/index.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/honoHandler.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/honoXHandler.ts`)).toBe(false)
-    expect(fs.existsSync(`${path}/handler/zodOpenapiHonoHandler.ts`)).toBe(false)
   })
 })

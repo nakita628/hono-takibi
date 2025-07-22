@@ -1,4 +1,20 @@
-type CreateRouteParams = {
+/**
+ * Generates a Hono route definition as a TypeScript export string.
+ *
+ * @param args - Route metadata and OpenAPI-compliant fields.
+ * @returns A string representing a `createRoute` export statement.
+ *
+ * @example
+ * createRoute({
+ *   routeName: 'getUserRoute',
+ *   method: 'method:"get",',
+ *   path: 'path:"/user",',
+ *   requestParams: 'request:{query:z.object({ id: z.string() })},',
+ *   responses: 'responses:{200:{description:"OK"}}'
+ * })
+ * // => export const getUserRoute = createRoute({method:"get",path:"/user",request:{query:...},responses:{...}})
+ */
+export function createRoute(args: {
   routeName: string
   tags?: string
   method: string
@@ -9,51 +25,7 @@ type CreateRouteParams = {
   security?: string
   requestParams: string
   responses: string
-}
-
-/**
- * Generates TypeScript code for a Hono route definition
- * @param { CreateRouteParams } args - Object containing route definition properties
- * @returns { string } Generated TypeScript code string for the route definition
- * @example
- * const args = {
- *   routeName: 'getUsersRoute',
- *   tags: 'tags:["users"],',
- *   method: 'method:"get",',
- *   path: 'path:"/users",',
- *   description: 'description:"Get all users",',
- *   security: 'security:[{"bearerAuth":[]}],',
- *   request: 'request:{query:z.object({limit:z.number()})},',
- *   responses: 'responses:{200:{description:"Success",content:{"application/json":{schema:UserList}}}}'
- * }
- *
- * const code = generateCreateRoute(args)
- * // Returns:
- * // export const getUsersRoute = createRoute({
- * //   tags:["users"],
- * //   method:"get",
- * //   path:"/users",
- * //   description:"Get all users",
- * //   security:[{"bearerAuth":[]}],
- * //   request:{query:z.object({limit:z.number()})},
- * //   responses:{200:{description:"Success",content:{"application/json":{schema:UserList}}}}
- * // })
- *
- * - Combines all route properties into a single createRoute call
- * - Handles:
- *   - Route name export
- *   - OpenAPI tags
- *   - HTTP method
- *   - Path definition
- *   - Route description
- *   - Security requirements
- *   - Request parameters and validation
- *   - Response definitions
- * - Properties are joined without additional spacing
- * - Undefined/empty properties are safely handled
- * - Creates a valid TypeScript export statement
- */
-export function createRoute(args: CreateRouteParams): string {
+}): string {
   const properties = [
     args.tags,
     args.method,

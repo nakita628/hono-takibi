@@ -2,8 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
-import { getFizzBuzzRouteHandler } from './handler/fizzBuzzHandler'
-import { getFizzBuzzRoute } from './route'
+import { getFizzBuzzRoute } from './routes'
+import { getFizzBuzzRouteHandler } from './handlers/fizzbuzzHandler'
 
 const app = new OpenAPIHono()
 

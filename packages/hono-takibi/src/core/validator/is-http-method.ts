@@ -1,7 +1,22 @@
 /**
- * Check if a string is a valid HTTP method
- * @param { string } method - The string to check against valid HTTP methods
- * @returns { boolean } True if the string is a valid HTTP method, with type narrowing to HttpMethod
+ * Checks if a given string is a valid HTTP method.
+ *
+ * Narrows the type to one of the standard lowercase HTTP methods if matched.
+ *
+ * @param method - The string to check.
+ * @returns `true` if the string is a valid HTTP method (e.g., `'get'`, `'post'`), otherwise `false`.
+ *
+ * @example
+ * ```ts
+ * isHttpMethod('get')     // true
+ * isHttpMethod('POST')    // false (case-sensitive)
+ * isHttpMethod('delete')  // true
+ * isHttpMethod('foobar')  // false
+ * ```
+ *
+ * @remarks
+ * - This check is case-sensitive; `'GET'` will return `false`.
+ * - Returns a type predicate for narrowing: `method is HttpMethod`.
  */
 export function isHttpMethod(
   method: string,

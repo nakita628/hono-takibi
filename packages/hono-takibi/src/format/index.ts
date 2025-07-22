@@ -2,9 +2,10 @@ import { format } from 'prettier'
 import type { Result } from '../result/index.js'
 
 /**
- * Formats TypeScript code using Prettier
- * @param { string } code - The TypeScript code to format
- * @returns { Promise<Result<string, string>> } - A promise that resolves to a Result containing the formatted code or an error message
+ * Formats TypeScript source with Prettier.
+ *
+ * @param code - Source code to format.
+ * @returns A `Result` containing the formatted code or an error message.
  */
 export async function fmt(code: string): Promise<Result<string, string>> {
   try {

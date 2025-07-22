@@ -6,12 +6,13 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 
 /**
- * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
- * @param { `${string}.yaml` | `${string}.json` } input - Path to the OpenAPI specification file
- * @param { `${string}.ts` } output - Path to the output TypeScript file
- * @param { boolean } exportType - Whether to export types
- * @param { boolean } exportSchema - Whether to export schemas
- * @returns { Promise<boolean | undefined> } True if code is generated, false otherwise
+ * Generates Hono + zod-openapi bindings from an OpenAPI file.
+ *
+ * @param input  - Path to the `.yaml` or `.json` spec file.
+ * @param output - Destination `.ts` file.
+ * @param exportType   - Emit TypeScript types when `true`.
+ * @param exportSchema - Emit zod schemas when `true`.
+ * @returns `true` on success, `false` on failure, otherwise `undefined`.
  */
 export async function vite(
   input: `${string}.yaml` | `${string}.json`,

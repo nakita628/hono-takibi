@@ -3,20 +3,16 @@ import { route } from './index.js'
 import { isHttpMethod, isOperation } from '../../../../core/validator/index.js'
 
 /**
- * Generates TypeScript code for all valid routes based on OpenAPI paths
- * @param { OpenAPIPaths } openAPIPaths - OpenAPI paths object containing route definitions
- * @returns { string } Generated TypeScript code string for all valid routes
+ * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
  *
- * - Processes each path and HTTP method combination
- * - Validates HTTP methods and operation objects
- * - Skips invalid or unsupported route definitions
- * - Handles:
- *   - Path parameters
- *   - Query parameters
- *   - Request bodies
- *   - Response schemas
- * - Generates type-safe route handlers using zod validation
- * - Combines all routes with proper spacing
+ * @param openAPIPaths - The OpenAPI paths object.
+ * @returns A string containing all generated route definitions.
+ *
+ * @remarks
+ * - Filters only valid HTTP methods and OpenAPI operations.
+ * - Ignores `parameters` keys, undefined values, strings, and arrays.
+ * - Uses `route(...)` to generate code for each valid route.
+ * - Returns all generated routes joined by newlines.
  */
 export function routeCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []

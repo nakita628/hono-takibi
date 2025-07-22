@@ -2,9 +2,10 @@ import type { Schema } from '../../../openapi/index.js'
 import { isRefObject } from '../../validator/index.js'
 
 /**
- * Extracts all references from a given schema
- * @param { Schema } schema - The schema to extract references from
- * @returns { string[] } An array of reference names
+ * Extracts all `$ref` names from a schema.
+ *
+ * @param schema - Schema to extract references from.
+ * @returns Array of referenced schema names.
  */
 export function extractRefs(schema: Schema): string[] {
   const refs: string[] = []

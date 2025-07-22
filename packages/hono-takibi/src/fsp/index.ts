@@ -3,8 +3,10 @@ import { ok, err } from '../result/index.js'
 import type { Result } from '../result/index.js'
 
 /**
- * @param { string } dir - The directory to create.
- * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or an error message.
+ * Creates a directory if it does not already exist.
+ *
+ * @param dir - Directory path to create.
+ * @returns A `Result` that is `ok` on success, otherwise an error message.
  */
 export async function mkdir(dir: string): Promise<Result<void, string>> {
   try {
@@ -16,8 +18,10 @@ export async function mkdir(dir: string): Promise<Result<void, string>> {
 }
 
 /**
- * @param { string } dir - The directory to read.
- * @returns { Promise<Result<string[], string>> } - A promise that resolves to a Result containing an array of file names or an error message.
+ * Reads the contents of a directory.
+ *
+ * @param dir - Directory to read.
+ * @returns A `Result` with the file list on success, otherwise an error message.
  */
 export async function readdir(dir: string): Promise<Result<string[], string>> {
   try {
@@ -29,9 +33,11 @@ export async function readdir(dir: string): Promise<Result<string[], string>> {
 }
 
 /**
- * @param { string } path - The path to the file.
- * @param { string } data - The data to write to the file.
- * @returns { Promise<Result<void, string>> } - A promise that resolves to a Result indicating success or an error message.
+ * Writes UTF-8 text to a file, creating it if necessary.
+ *
+ * @param path - File path to write.
+ * @param data - Text data to write.
+ * @returns A `Result` that is `ok` on success, otherwise an error message.
  */
 export async function writeFile(path: string, data: string): Promise<Result<void, string>> {
   try {

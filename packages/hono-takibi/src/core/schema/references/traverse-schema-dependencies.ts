@@ -2,12 +2,13 @@ import type { Schema } from '../../../openapi/index.js'
 import { extractRefs } from './index.js'
 
 /**
- * Traverses the schema dependencies and returns them in topological order
- * @param { string } schemaName - The name of the schema to traverse
- * @param { Record<string, Schema> } schemas - The schemas to traverse
- * @param { Set<string> } visited - The visited schemas
- * @param { Set<string> } recursionStack - The recursion stack
- * @param { string[] } orderedSchemas - The ordered schemas
+ * Resolves schema dependencies in topological order.
+ *
+ * @param schemaName - Entry point schema name.
+ * @param schemas - All available schemas.
+ * @param visited - Tracks processed schemas.
+ * @param recursionStack - Detects circular references.
+ * @param orderedSchemas - Output list of resolved schema names.
  */
 export function traverseSchemaDependencies(
   schemaName: string,

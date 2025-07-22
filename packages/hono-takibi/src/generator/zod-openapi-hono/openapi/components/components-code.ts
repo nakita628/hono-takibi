@@ -3,19 +3,17 @@ import { resolveSchemasDependencies } from '../../../../core/schema/references/i
 import { zodToOpenAPI, zodToOpenAPISchema } from '../../../zod-to-openapi/index.js'
 
 /**
- * Generates TypeScript code for OpenAPI components, converting them to Zod schemas.
- * If no schemas are present, returns an empty string.
- * @param { Components } components - OpenAPI components object containing schema definitions
- * @param { boolean } exportSchema - Whether to export the schema definitions
- * @param { boolean } exportType - Whether to export the type definitions
- * @returns { string } Generated TypeScript code string containing Zod schema definitions and exports, or empty string if no schemas
+ * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
  *
- * 1. Extracts schemas from components
- * 2. Resolves dependencies between schemas to determine correct generation order
- * 3. Returns empty string if no schemas are present
- * 4. Generates Zod schema definitions for each schema
- * 5. Creates exports for all schemas
- * 6. Returns the complete code with proper ordering to avoid reference errors
+ * @param components - The OpenAPI components object.
+ * @param exportSchema - Whether to export the Zod schema variables.
+ * @param exportType - Whether to export the inferred Zod types.
+ * @returns A string of TypeScript code with Zod schema and type definitions, or an empty string if no schemas exist.
+ *
+ * @remarks
+ * - Resolves schema dependency order to avoid reference errors.
+ * - Skips generation if no schemas are defined.
+ * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
  */
 export function componentsCode(
   components: Components,

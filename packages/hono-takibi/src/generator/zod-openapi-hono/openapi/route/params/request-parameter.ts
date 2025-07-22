@@ -6,20 +6,16 @@ import { requestBody } from '../request/body/request-body.js'
 import { insertRequestBody } from '../request/body/insert-request-body.js'
 
 /**
- * Generates TypeScript code for request validation based on OpenAPI specification
- * @param { Parameters[] | undefined } parameters - Array of path parameters from OpenAPI specification
- * @param { RequestBody | undefined } body - Request body definition from OpenAPI specification
- * @returns { string } Generated TypeScript code string for request validation
+ * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.
  *
- * - Handles both path parameters and request body validation
- * - Supports:
- *   - Path parameters with Zod validation
- *   - JSON request bodies with schema references
- *   - Array type request bodies
- *   - Required/optional request bodies
- * - Returns empty string if no parameters or body are defined
- * - Properly combines parameters and body when both are present
- * - Handles schema references and inline schemas
+ * @param parameters - OpenAPI `parameters` array (query, path, header).
+ * @param body - OpenAPI `requestBody` object.
+ * @returns A formatted `request:{ ... }` string or empty string if neither is defined.
+ *
+ * @remarks
+ * - Combines parameters and request body into a single object.
+ * - Deduplicates schemas if multiple content types share the same body schema.
+ * - Uses `params` instead of `path` for Hono compatibility.
  */
 export function requestParameter(
   parameters: Parameters[] | undefined,

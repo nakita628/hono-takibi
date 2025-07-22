@@ -4,21 +4,16 @@ import { propertySchema } from '../../../../zod/property/property-schema.js'
 import { escapeStringLiteral } from '../../../../../core/utils/index.js'
 
 /**
- * Generates a response schema for different status codes
- * @param { Responses } responses - OpenAPI response definitions for different status codes
- * @returns { string } Generated TypeScript code string for response validation
+ * Generates a Zod-compatible response schema definition from OpenAPI responses.
  *
- * - Handles multiple response status codes
- * - Supports:
- *   - JSON response bodies
- *   - Schema references
- *   - Array responses
- *   - No-content responses
- *   - Inline schema definitions
- * - Generates Zod validation schemas for each response
- * - Preserves response descriptions
- * - Handles nested schema structures
- * - Automatically resolves schema references
+ * @param responses - OpenAPI response object keyed by HTTP status code.
+ * @returns A string of TypeScript code representing the response schema.
+ *
+ * @remarks
+ * - Supports JSON content with `schema`, `examples`, and `description`.
+ * - Skips responses without `content` (e.g., 204 No Content).
+ * - Deduplicates content types if all share the same schema.
+ * - Escapes all descriptions safely for inline code.
  */
 export function response(responses: Responses): string {
   // 1. get response codes (200, 404, etc.)

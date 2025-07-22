@@ -4,9 +4,14 @@ import { union } from '../../../../zod/z/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
- * Generates the Zod code for a `oneOf` schema.
- * @param { Schema } schema - The OpenAPI schema object.
- * @returns { string } The generated Zod code as a string.
+ * Converts an OpenAPI `oneOf` schema to a Zod union expression.
+ *
+ * @param schema - The OpenAPI schema containing a `oneOf` definition.
+ * @returns A Zod `z.union()` expression as a string. If `oneOf` is empty or missing, returns `'z.any()'`.
+ *
+ * @remarks
+ * - Resolves `$ref` schemas and inline schemas uniformly.
+ * - Falls back to `z.any()` if `oneOf` is not defined or empty.
  */
 export function oneOf(schema: Schema): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {

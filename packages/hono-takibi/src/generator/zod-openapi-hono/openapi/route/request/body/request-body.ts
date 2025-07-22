@@ -3,11 +3,12 @@ import type { Content } from '../../../../../../openapi/index.js'
 import { coerce } from '../../../../../zod/z/coerce.js'
 
 /**
- * Generates a request body configuration for OpenAPI schema
- * @param { boolean } required - Whether the request body is required
- * @param { Content } content - Content of the request body
- * @param { string } zodSchema - Zod schema string for request body validation
- * @returns { string } Generated request body configuration string
+ * Generates a request body configuration string for a route.
+ *
+ * @param required - Indicates if the request body is required.
+ * @param content - OpenAPI content object describing media types and schemas.
+ * @param zodSchema - Zod schema string used for validation.
+ * @returns A formatted request body definition string, or an empty string if unsupported.
  */
 export function requestBody(required: boolean, content: Content, zodSchema: string): string {
   const contentTypes = Object.keys(content)

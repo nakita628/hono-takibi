@@ -14,6 +14,11 @@ Options:
   --base-path <path>   api prefix (default: /)
   -h, --help           display help for command`
 
+/**
+ * CLI entry point for `hono-takibi`.
+ *
+ * @returns A `Result` containing help text or CLI execution result.
+ */
 export async function honoTakibi(): Promise<Result<{ message: string }, string>> {
   const args = sliceArgv(process.argv)
 

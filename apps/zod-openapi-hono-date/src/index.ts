@@ -2,8 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
-import { postIsoDateRoute, postIsoDatetimeRoute, dateRoute } from './route'
-import { postIsoDateHandler, postIsoDatetimeHandler, dateHandler } from './handler/dateHandler'
+import { postIsoDateRoute, postIsoDatetimeRoute, dateRoute } from './routes'
+import { postIsoDateHandler, postIsoDatetimeHandler, dateHandler } from './handlers/dateHandler'
 
 const app = new OpenAPIHono()
 

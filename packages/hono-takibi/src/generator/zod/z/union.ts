@@ -1,7 +1,8 @@
 /**
- * @param { string[] } schemas - An array of Zod schema strings
- * @returns { string } Generated Zod union schema string
- * @description Generates a Zod union schema
+ * Generates a Zod union schema.
+ *
+ * @param schemas - An array of Zod schema strings.
+ * @returns A Zod union schema string.
  */
 export function union(schemas: string[]): string {
   return `z.union([${schemas.join(',')}])`

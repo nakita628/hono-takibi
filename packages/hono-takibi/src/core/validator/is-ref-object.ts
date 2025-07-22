@@ -1,13 +1,19 @@
-type RefObject = {
+/**
+ * Checks if a value is a non-null object (e.g., a potential `$ref` object).
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a non-null object.
+ *
+ * @example
+ * ```ts
+ * isRefObject({ $ref: '#/components/schemas/User' }) // true
+ * isRefObject(null)                                  // false
+ * isRefObject('text')                                // false
+ * ```
+ */
+export function isRefObject(value: unknown): value is {
   $ref?: string
   [key: string]: unknown
-}
-
-/**
- * Check if the value is a reference object
- * @param { unknown } value - The value to check
- * @returns { boolean } true if the value is a reference object, false otherwise
- */
-export function isRefObject(value: unknown): value is RefObject {
+} {
   return typeof value === 'object' && value !== null
 }

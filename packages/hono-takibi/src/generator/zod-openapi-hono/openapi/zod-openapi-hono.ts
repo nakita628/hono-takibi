@@ -8,11 +8,12 @@ import { routeCode } from './route/route-code.js'
 const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as const
 
 /**
- * Generates TypeScript code from OpenAPI specification for Hono/zod-openapi
- * @param { openapi } openapi - OpenAPI specification object containing components and paths
- * @param { exportSchema } exportSchema - Flag to indicate if schema should be exported
- * @param { exportType } exportType - Flag to indicate if type should be exported
- * @returns { string } Generated TypeScript code
+ * Generates Hono-compatible TypeScript code from an OpenAPI object.
+ *
+ * @param openapi - The OpenAPI specification object
+ * @param exportSchema - Whether to export schema constants
+ * @param exportType - Whether to export inferred TypeScript types
+ * @returns The generated TypeScript code string
  */
 export function zodOpenAPIHono(
   openapi: OpenAPI,

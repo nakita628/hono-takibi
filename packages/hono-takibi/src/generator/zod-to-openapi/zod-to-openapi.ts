@@ -2,11 +2,20 @@ import type { Schema } from '../../openapi/index.js'
 import { zod } from '../zod/index.js'
 
 /**
- * Converts a Zod schema to an OpenAPI schema string with optional parameters.
- * @param { Schema } schema - The Zod schema to convert.
- * @param { string } paramName - The name of the parameter (optional).
- * @param { 'path' | 'query' | 'header' | 'cookie' } paramIn - The location of the parameter (optional).
- * @returns { string } The OpenAPI schema string.
+ * Converts an OpenAPI schema to a Zod schema string with `.openapi()` metadata.
+ *
+ * @param schema - The OpenAPI schema to convert
+ * @param paramName - Optional name of the parameter (used for OpenAPI param metadata)
+ * @param paramIn - Optional location of the parameter: 'path' | 'query' | 'header' | 'cookie'
+ * @returns A string representing the Zod schema, optionally with `.openapi({...})` metadata
+ *
+ * @example
+ * zodToOpenAPI({ type: 'string', example: 'hello' })
+ * // → 'z.string().openapi({example:"hello"})'
+ *
+ * @example
+ * zodToOpenAPI({ type: 'integer' }, 'userId', 'path')
+ * // → 'z.number().int().openapi({param:{in:"path",name:"userId",required:true}})'
  */
 export function zodToOpenAPI(
   schema: Schema,

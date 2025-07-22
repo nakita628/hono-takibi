@@ -1,23 +1,23 @@
 import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { apiReference } from '@scalar/hono-api-reference'
+import { logger } from 'hono/logger'
+import { serve } from '@hono/node-server'
+import { customError } from './custom-error'
 import {
   getRoute,
   postPostsRoute,
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from './route.ts'
-import { getRouteHandler } from './handler/indexHandler.ts'
+} from './routes'
+import { getRouteHandler } from './handlers/indexHandler'
 import {
   postPostsRouteHandler,
   getPostsRouteHandler,
   putPostsIdRouteHandler,
   deletePostsIdRouteHandler,
-} from './handler/postsHandler.ts'
-import { logger } from 'hono/logger'
-import { serve } from '@hono/node-server'
-import { customError } from './custom-error'
+} from './handlers/postsHandler'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {

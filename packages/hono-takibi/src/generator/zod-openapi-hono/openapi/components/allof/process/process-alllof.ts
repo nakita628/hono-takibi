@@ -2,18 +2,27 @@ import type { Schema } from '../../../../../../openapi/index.js'
 import { isNullableSchema } from '../../../../../../core/validator/index.js'
 import { zodSchemaFromSubSchema } from '../../../../../zod/sub/index.js'
 
-type Accumulator = {
+/**
+ * Processes an OpenAPI `allOf` array by extracting nullable status and converting subschemas to Zod schemas.
+ *
+ * @param allOf - The array of OpenAPI schemas from the `allOf` field.
+ * @returns An object with:
+ * - `nullable`: Whether any of the subschemas is marked as nullable.
+ * - `schemas`: An array of Zod schema strings generated from each subschema.
+ *
+ * @remarks
+ * - Uses `isNullableSchema` to detect if any subschema is nullable.
+ * - Converts each subschema using `zodSchemaFromSubSchema`.
+ * - Ignores subschemas that are nullable-only (i.e., do not contain a structural schema).
+ */
+export function processAllOf(allOf: Schema[]): {
   nullable: boolean
   schemas: string[]
-}
-
-/**
- * Processes the `allOf` array, separating the `nullable` flag and the array of schemas.
- * @param { Schema[] } allOf - The `allOf` array.
- * @returns { Accumulator } An object containing the `nullable` flag and the generated array of schemas.
- */
-export function processAllOf(allOf: Schema[]): Accumulator {
-  return allOf.reduce<Accumulator>(
+} {
+  return allOf.reduce<{
+    nullable: boolean
+    schemas: string[]
+  }>(
     (acc, subSchema) => {
       if (isNullableSchema(subSchema)) {
         acc.nullable = true

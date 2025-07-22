@@ -1,11 +1,10 @@
-import { appRouteHandler } from './index.js'
+import { appRouteHandler } from '../utils/index.js'
 
 /**
  * Generates the application route handlers.
  *
- * @function applyOpenapiRoutes
- * @param routeMappings - An array of objects containing route name, handler name, and path.
- * @returns A string of application route handlers.
+ * @param routeMappings - An array of route definitions with route and handler names.
+ * @returns A string of `.openapi(...)` calls joined by newline.
  */
 export function applyOpenapiRoutes(
   routeMappings: {

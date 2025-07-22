@@ -1,11 +1,12 @@
-import { handlerName } from '../../handler/generator/index.js'
-import { routeName } from '../../openapi/route/index.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
+import { routeName } from '../../openapi/route/index.js'
+import { handlerName } from '../../handler/utils/index.js'
 
 /**
- * Get route maps
- * @param { openAPI } openapi - OpenAPI spec
- * @returns { { routeName: string, handlerName: string, path: string }[] } Route maps
+ * Extracts route mappings from an OpenAPI specification.
+ *
+ * @param openapi - The OpenAPI specification object.
+ * @returns An array of route mappings, each with route name, handler name, and path.
  */
 export function getRouteMaps(
   openapi: OpenAPI,
