@@ -1,7 +1,8 @@
 /**
- * @param { Record<string, string> } object - Record of property names and their Zod type strings
- * @returns { string } Generated Zod object schema string
- * @description Generates a Zod object schema from a record of property types
+ * Generates a Zod object schema from a record of property types.
+ * 
+ * @param object - Record of property names and their Zod type strings.
+ * @returns The generated Zod object schema string.
  */
 export function schema(object: Record<string, string>): string {
   return `z.object({${Object.entries(object)

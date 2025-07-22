@@ -1,9 +1,17 @@
 import type { Schema } from '../../../openapi/index.js'
 
 /**
- * @param { Schema } schema - The schema definition
- * @return { string | undefined } - The Zod enum string or undefined if not applicable
- * @description This function generates a Zod enum string based on the provided schema.
+ * Generate a Zod enum schema string from an OpenAPI Schema object.
+ *
+ * @param schema - The OpenAPI schema definition.
+ * @returns The Zod enum schema string, or `undefined` if the schema is not an enum.
+ *
+ * @example
+ * _enum({ type: 'string', enum: ['A', 'B'] })
+ * // => "z.enum(['A','B'])"
+ *
+ * _enum({ type: 'number', enum: [1, 2, 3] })
+ * // => "z.union([z.literal(1),z.literal(2),z.literal(3)])"
  */
 export function _enum(schema: Schema): string | undefined {
   // number

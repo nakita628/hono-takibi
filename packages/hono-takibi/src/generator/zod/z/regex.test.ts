@@ -4,7 +4,7 @@ import { regex } from './regex'
 // Test run
 // pnpm vitest run ./src/generator/zod/z/regex.test.ts
 
-describe('regex Test', () => {
+describe('regex', () => {
   it.concurrent(`regex('^[a-z]+$') -> .regex(/^[a-z]+$/)`, () => {
     const result = regex('^[a-z]+$')
     const expected = '.regex(/^[a-z]+$/)'
@@ -44,6 +44,12 @@ describe('regex Test', () => {
   it.concurrent(`regex('^\\d{2}/\\d{2}$') -> '.regex(/^\\d{2}\\/\\d{2}$/)'`, () => {
     const result = regex('^\\d{2}/\\d{2}$')
     const expected = '.regex(/^\\d{2}\\/\\d{2}$/)'
+    expect(result).toBe(expected)
+  })
+
+  it(`regex('^/api/users$') → '.regex(/^\\/api\\/users$/)'`, () => {
+    const result = regex('^/api/users$')
+    const expected = '.regex(/^\\/api\\/users$/)'
     expect(result).toBe(expected)
   })
 })

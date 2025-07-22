@@ -1,7 +1,12 @@
 /**
- * @param { number } length - The length value to validate against
- * @returns { string } Generated Zod length validation string
- * @description Generates a Zod length validation string
+ * Generate Zod `.length()` validation string.
+ *
+ * @param length - The exact length to validate against.
+ * @returns The Zod `.length()` string.
+ *
+ * @example
+ * length(5) // => ".length(5)"
+ * length(10) // => ".length(10)"
  */
 export function length(length: number): string {
   return `.length(${length})`
