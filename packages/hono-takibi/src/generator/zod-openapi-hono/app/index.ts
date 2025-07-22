@@ -5,8 +5,8 @@ import { docs } from './generator/docs/index.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
 import { importMap, importRoutes, registerComponent } from './utils/index.js'
 
-const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
+const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
 const APP = 'const app = new OpenAPIHono()' as const
 const ADD_TYPE = 'export type AddType = typeof api' as const
 const EXPORT_APP = 'export default app' as const
@@ -31,22 +31,16 @@ export function app(
     : ''
   const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
   const sections = [
-    // 1. imports
     [
-      OPENAPI_HONO_IMPORT,
       SWAGGER_UI_IMPORT,
-      importRoutes(importMap(routeMappings, output)).join(''),
+      OPENAPI_HONO_IMPORT,
       importHandlers(getHandlerImports(routeMappings), output).join('\n'),
+      importRoutes(importMap(routeMappings, output)).join(''),
     ].join('\n'),
-    // 2. app initialization
     basePath ? `${APP}.basePath('${basePath}')` : APP,
-    // 3. api setup
     `export const api = ${`app${applyOpenapiRoutes(routeMappings)}`}`,
-    // 4. swagger setup
     swagger,
-    // 5. types and exports
     ADD_TYPE,
-    // 6. export app
     EXPORT_APP,
   ]
   return sections.join('\n\n')

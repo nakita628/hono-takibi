@@ -42,11 +42,11 @@ export function importHandlers(
     const handlerPath = 'handlers'
     if (dirPath === '.') {
       importHandlers.push(
-        `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}';`,
+        `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}'`,
       )
     } else {
       importHandlers.push(
-        `import { ${uniqueHandlers.join(',')} } from './${handlerPath}/${fileName}';`,
+        `import { ${uniqueHandlers.join(',')} } from './${handlerPath}/${fileName}'`,
       )
     }
   }

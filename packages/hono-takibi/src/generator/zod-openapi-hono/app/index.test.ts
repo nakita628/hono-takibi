@@ -97,12 +97,12 @@ const openapi: OpenAPI = {
 describe('app', () => {
   it.concurrent('app Test', () => {
     const result = app(openapi, 'app.ts', '/api')
-    const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
-import { swaggerUI } from '@hono/swagger-ui'
-import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './app.ts';
-import { getHonoRouteHandler } from './handlers/honoHandler.ts';
-import { getHonoXRouteHandler } from './handlers/honoXHandler.ts';
-import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts';
+    const expected = `import { swaggerUI } from '@hono/swagger-ui'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHonoRouteHandler } from './handlers/honoHandler.ts'
+import { getHonoXRouteHandler } from './handlers/honoXHandler.ts'
+import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts'
+import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './app.ts'
 
 const app = new OpenAPIHono().basePath('/api')
 

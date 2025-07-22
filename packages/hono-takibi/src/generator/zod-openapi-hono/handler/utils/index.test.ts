@@ -50,9 +50,9 @@ describe('utils', () => {
         'src/routes.ts',
       )
       const expected = [
-        "import { getHonoRouteHandler } from './handlers/honoHandler.ts';",
-        "import { getHonoXRouteHandler } from './handlers/honoXHandler.ts';",
-        "import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts';",
+        "import { getHonoRouteHandler } from './handlers/honoHandler.ts'",
+        "import { getHonoXRouteHandler } from './handlers/honoXHandler.ts'",
+        "import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts'",
       ]
       expect(result).toStrictEqual(expected)
     })

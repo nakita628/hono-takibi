@@ -24,7 +24,7 @@ describe('utils', () => {
         'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
       })
       const expected = [
-        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts';",
+        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts'",
       ]
       expect(result).toStrictEqual(expected)
     })
