@@ -100,9 +100,9 @@ describe('app', () => {
     const expected = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './app.ts';
-import { getHonoRouteHandler } from './handler/honoHandler.ts';
-import { getHonoXRouteHandler } from './handler/honoXHandler.ts';
-import { getZodOpenapiHonoRouteHandler } from './handler/zodOpenapiHonoHandler.ts';
+import { getHonoRouteHandler } from './handlers/honoHandler.ts';
+import { getHonoXRouteHandler } from './handlers/honoXHandler.ts';
+import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts';
 
 const app = new OpenAPIHono().basePath('/api')
 

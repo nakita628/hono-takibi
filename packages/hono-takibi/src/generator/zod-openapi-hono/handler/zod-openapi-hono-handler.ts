@@ -59,7 +59,7 @@ export async function zodOpenapiHonoHandler(
 
   for (const handler of mergedHandlers) {
     const dirPath = output?.replace(/\/[^/]+\.ts$/, '')
-    const handlerPath = dirPath === 'index.ts' ? 'handler' : `${dirPath}/handler`
+    const handlerPath = dirPath === 'index.ts' ? 'handlers' : `${dirPath}/handlers`
 
     const mkdirResult = await mkdir(handlerPath)
 

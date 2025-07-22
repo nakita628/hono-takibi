@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getRefName } from '../../../core/schema/references/index.js'
+import { getRefName } from '../../../core/utils/index.js'
 import { array } from '../z/index.js'
 
 /**

@@ -39,7 +39,7 @@ export function importHandlers(
 
     const replacePath = output?.replace(/\/[^/]+\.ts$/, '')
     const dirPath = replacePath === undefined ? '.' : replacePath
-    const handlerPath = 'handler'
+    const handlerPath = 'handlers'
     if (dirPath === '.') {
       importHandlers.push(
         `import { ${uniqueHandlers.join(',')} } from '${handlerPath}/${fileName}';`,

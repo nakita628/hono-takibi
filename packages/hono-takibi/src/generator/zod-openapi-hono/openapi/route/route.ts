@@ -3,7 +3,7 @@ import { requestParameter } from './params/index.js'
 import { createRoute } from './create-route.js'
 import { response } from './response/index.js'
 import { routeName } from './index.js'
-import { escapeStringLiteral } from '../../../../core/utils/escape-string-literal.js'
+import { escapeStringLiteral } from '../../../../core/utils/index.js'
 
 /**
  * Generates TypeScript code for a Hono route from OpenAPI operation details.
