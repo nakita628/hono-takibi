@@ -4,8 +4,8 @@ import type {
   getPostsRoute,
   putPostsIdRoute,
   deletePostsIdRoute,
-} from '../route.ts'
-import { postPosts, getPosts, putPostsId, deletePostsId } from '../service/postsService.ts'
+} from '../routes'
+import { postPosts, getPosts, putPostsId, deletePostsId } from '../services/postsService'
 
 export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
   const { post } = c.req.valid('json')

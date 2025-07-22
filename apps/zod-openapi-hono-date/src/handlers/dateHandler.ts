@@ -1,5 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type { dateRoute, postIsoDateRoute, postIsoDatetimeRoute } from '../route'
+import type { dateRoute, postIsoDateRoute, postIsoDatetimeRoute } from '../routes'
 
 export const dateHandler: RouteHandler<typeof dateRoute> = async (c) => {
   const { date } = c.req.valid('json')

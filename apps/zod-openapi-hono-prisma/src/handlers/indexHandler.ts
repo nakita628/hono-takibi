@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type { getRoute } from '../route.ts'
+import type { getRoute } from '../routes'
 
 export const getRouteHandler: RouteHandler<typeof getRoute> = async (c) => {
-  return c.json({ message: 'Hono🔥 Drizzle' })
+  return c.json({ message: 'Hono🔥' }, 200)
 }

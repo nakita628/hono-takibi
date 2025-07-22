@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "takibi": "hono-takibi src/openapi.yaml -o src/route.ts",
+    "takibi": "hono-takibi src/openapi.yaml -o src/routes/index.ts",
     "vite": "vite --host",
     "push": "drizzle-kit push",
     "push:test": "NODE_ENV=test drizzle-kit push",
