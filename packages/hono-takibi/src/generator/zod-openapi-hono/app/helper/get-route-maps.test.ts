@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { getRouteMaps } from './get-route-maps'
+import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../../../openapi'
+import { getRouteMaps } from './get-route-maps'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/helper/get-route-maps.test.ts

@@ -10,7 +10,7 @@
     "packages/hono-takibi/routes/*.ts",
     "**/test/**",
     "**/tests/**",
-    "**/coverage/**",
+    "**/coverage/**"
   ],
-  "skipErrorChecking": true,
+  "skipErrorChecking": true
 }

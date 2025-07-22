@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { zodToOpenAPI } from '.'
+import { describe, expect, it } from 'vitest'
 import type { Schema } from '../../openapi/index.js'
+import { zodToOpenAPI } from '.'
 
 // Test Run
 // pnpm vitest run ./src/generator/zod-to-openapi/zod-to-openapi.test.ts

@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { regex, _default, max, min } from './index.js'
+import { _default, max, min, regex } from './index.js'
 
 /**
  * Generate a Zod integer schema string from an OpenAPI schema.

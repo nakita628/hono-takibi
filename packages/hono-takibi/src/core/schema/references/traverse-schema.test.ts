@@ -1,6 +1,6 @@
-import { beforeEach, describe, it, expect } from 'vitest'
-import { traverseSchema } from './traverse-schema'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { traverseSchemaDependencies } from '.'
+import { traverseSchema } from './traverse-schema'
 
 // Test run
 // pnpm vitest run ./src/core/schema/references/traverse-schema.test.ts

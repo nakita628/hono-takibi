@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { regex, _default, min, max } from './index.js'
+import { _default, max, min, regex } from './index.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',

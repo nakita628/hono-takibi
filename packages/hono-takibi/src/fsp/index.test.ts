@@ -1,8 +1,8 @@
-import { beforeAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { mkdir, readdir, writeFile } from '.'
-import fsp from 'node:fs/promises'
 import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import path from 'node:path'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { mkdir, readdir, writeFile } from '.'
 
 // Test run
 // pnpm vitest run ./src/fsp/index.test.ts

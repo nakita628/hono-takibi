@@ -1,11 +1,11 @@
-import { testClient } from 'hono/testing'
-import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest'
-import { randomUUID } from 'node:crypto'
 import { execSync } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
+import { createClient } from '@libsql/client'
+import { eq } from 'drizzle-orm'
+import { testClient } from 'hono/testing'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { api } from '../index.ts'
 import db, { table } from '../infra/index.ts'
-import { eq } from 'drizzle-orm'
-import { createClient } from '@libsql/client'
 
 const test = testClient(api)
 const client = createClient({

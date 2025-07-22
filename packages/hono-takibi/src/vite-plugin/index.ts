@@ -1,7 +1,7 @@
+import path from 'node:path'
+import type { PluginOption, ViteDevServer } from 'vite'
 import { vite } from './vite.js'
 import { viteTsp } from './vite-tsp.js'
-import type { PluginOption, ViteDevServer } from 'vite'
-import path from 'node:path'
 
 export default function HonoTakibiVite({
   input,

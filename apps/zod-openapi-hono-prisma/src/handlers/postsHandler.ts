@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type { postPostsRoute, getPostsRoute, putPostsIdRoute, deletePostsIdRoute } from '../routes'
-import { postPosts, getPosts, putPostsId, deletePostsId } from '../services/postsService'
+import type { deletePostsIdRoute, getPostsRoute, postPostsRoute, putPostsIdRoute } from '../routes'
+import { deletePostsId, getPosts, postPosts, putPostsId } from '../services/postsService'
 
 export const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {
   const { post } = c.req.valid('json')

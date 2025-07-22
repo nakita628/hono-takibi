@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { createRoute, route, routeName, routeCode } from '.'
+import { describe, expect, it } from 'vitest'
+import { createRoute, route, routeCode, routeName } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/index.test.ts

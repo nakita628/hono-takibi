@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   extractRefs,
   findReferences,
   getRefSchemaName,
   resolveSchemasDependencies,
-  traverseSchemaDependencies,
   traverseSchema,
+  traverseSchemaDependencies,
 } from './index.js'
 
 // Test run

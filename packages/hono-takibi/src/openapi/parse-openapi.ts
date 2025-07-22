@@ -1,8 +1,8 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { OpenAPI } from './index.js'
 import type { Result } from '../result/index.js'
-import { ok, err } from '../result/index.js'
+import { err, ok } from '../result/index.js'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
+import type { OpenAPI } from './index.js'
 
 /**
  * Parses an OpenAPI document from a file path (YAML, JSON, or TypeSpec).

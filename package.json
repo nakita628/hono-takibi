@@ -6,8 +6,7 @@
   "scripts": {
     "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
-    "fmt": "pnpm biome format --write ./",
-    "lint": "pnpm biome lint",
+    "check": "pnpm biome check --write ./",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",

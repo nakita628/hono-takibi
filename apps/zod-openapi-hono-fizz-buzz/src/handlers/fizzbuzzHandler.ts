@@ -1,6 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
-import type { getFizzBuzzRoute } from '../routes'
 import { fizzBuzz } from '../domain/fizzBuzz'
+import type { getFizzBuzzRoute } from '../routes'
 
 export const getFizzBuzzRouteHandler: RouteHandler<typeof getFizzBuzzRoute> = async (c) => {
   const { number, details } = c.req.valid('query')

@@ -4,7 +4,10 @@
   "version": "0.8.0",
   "type": "module",
   "license": "MIT",
-  "keywords": ["hono", "openapi"],
+  "keywords": [
+    "hono",
+    "openapi"
+  ],
   "homepage": "https://github.com/nakita628/hono-takibi",
   "publishConfig": {
     "access": "public"
@@ -18,7 +21,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "bin": {
     "hono-takibi": "dist/index.js"
   },

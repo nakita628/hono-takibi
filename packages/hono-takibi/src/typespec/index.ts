@@ -1,7 +1,7 @@
-import type { SupportedOpenAPIDocuments } from '@typespec/openapi3'
-import { compile, logDiagnostics, NodeHost } from '@typespec/compiler'
-import { getOpenAPI3 } from '@typespec/openapi3'
 import path from 'node:path'
+import { compile, logDiagnostics, NodeHost } from '@typespec/compiler'
+import type { SupportedOpenAPIDocuments } from '@typespec/openapi3'
+import { getOpenAPI3 } from '@typespec/openapi3'
 
 /**
  * Compiles a TypeSpec file and returns the generated OpenAPI documents.

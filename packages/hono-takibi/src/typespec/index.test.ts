@@ -1,6 +1,6 @@
-import { afterAll, describe, it, expect } from 'vitest'
-import { typeSpecToOpenAPI } from '.'
 import fs from 'node:fs'
+import { afterAll, describe, expect, it } from 'vitest'
+import { typeSpecToOpenAPI } from '.'
 
 // Test run
 // pnpm vitest run ./src/typespec/index.test.ts

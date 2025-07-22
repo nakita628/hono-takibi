@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { appRouteHandler, importRoutes, registerComponent, importMap } from './index.js'
+import { describe, expect, it } from 'vitest'
+import { appRouteHandler, importMap, importRoutes, registerComponent } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/utils/index.test.ts
@@ -24,7 +24,7 @@ describe('utils', () => {
         'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
       })
       const expected = [
-        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts';",
+        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts'",
       ]
       expect(result).toStrictEqual(expected)
     })

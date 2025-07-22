@@ -1,14 +1,14 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   capitalize,
   escapeStringLiteral,
+  getRefName,
   getToSafeIdentifier,
   removeZodPrefix,
   sanitizeIdentifier,
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-  getRefName,
 } from '.'
 
 // Test run
@@ -70,6 +70,45 @@ describe('utils', () => {
     it.concurrent(`escapeStringLiteral("Santa's wishlist.") -> "Santa\\'s wishlist."`, () => {
       const result = escapeStringLiteral("Santa's wishlist.")
       const expected = "Santa\\'s wishlist."
+      expect(result).toBe(expected)
+    })
+    it.concurrent(`escapeStringLiteral("back\\\\slash") -> "back\\\\\\\\slash"`, () => {
+      const result = escapeStringLiteral('back\\slash')
+      const expected = 'back\\\\slash'
+      expect(result).toBe(expected)
+    })
+
+    it.concurrent(`escapeStringLiteral("full　width　space") -> "full width space"`, () => {
+      const result = escapeStringLiteral('full　width　space')
+      const expected = 'full width space'
+      expect(result).toBe(expected)
+    })
+    it.concurrent(`escapeStringLiteral("multi\\nline\\ntext") -> "multi line text"`, () => {
+      const result = escapeStringLiteral('multi\nline\ntext')
+      const expected = 'multi line text'
+      expect(result).toBe(expected)
+    })
+    it.concurrent(`escapeStringLiteral("\\u200Bhidden") -> "hidden"`, () => {
+      const result = escapeStringLiteral('\u200Bhidden')
+      const expected = 'hidden'
+      expect(result).toBe(expected)
+    })
+
+    it.concurrent(`escapeStringLiteral("   trim me   ") -> "trim me"`, () => {
+      const result = escapeStringLiteral('   trim me   ')
+      const expected = 'trim me'
+      expect(result).toBe(expected)
+    })
+
+    it.concurrent(`escapeStringLiteral("\\t tabbed") -> "tabbed"`, () => {
+      const result = escapeStringLiteral('\t tabbed')
+      const expected = 'tabbed'
+      expect(result).toBe(expected)
+    })
+
+    it.concurrent(`escapeStringLiteral("a\\nb\\tc\\u200Bd\\uFEFF") -> "a b c d"`, () => {
+      const result = escapeStringLiteral('a\nb\tc\u200Bd\uFEFF')
+      const expected = 'a b c d'
       expect(result).toBe(expected)
     })
   })

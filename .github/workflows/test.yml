@@ -25,9 +25,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm -F hono-takibi deps
 
-      - name: Lint
-        run: pnpm lint
-      
+      - name: Check
+        run: pnpm check
+
       - name: Typecheck
         run: pnpm -F hono-takibi typecheck
 

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { ok, err, andThen, asyncAndThen } from '.'
+import { describe, expect, it } from 'vitest'
+import { andThen, asyncAndThen, err, ok } from '.'
 
 // Test run
 // pnpm vitest run ./src/result/index.test.ts

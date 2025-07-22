@@ -1,5 +1,5 @@
+import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../../../../openapi'
-import { describe, it, expect } from 'vitest'
 import { docs } from '.'
 
 // Test run

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { handlerName, handler, importHandlers, groupHandlersByFileName, getHandlerImports } from '.'
+import { describe, expect, it } from 'vitest'
+import { getHandlerImports, groupHandlersByFileName, handler, handlerName, importHandlers } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/handler/utils/index.test.ts
@@ -50,9 +50,9 @@ describe('utils', () => {
         'src/routes.ts',
       )
       const expected = [
-        "import { getHonoRouteHandler } from './handlers/honoHandler.ts';",
-        "import { getHonoXRouteHandler } from './handlers/honoXHandler.ts';",
-        "import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts';",
+        "import { getHonoRouteHandler } from './handlers/honoHandler.ts'",
+        "import { getHonoXRouteHandler } from './handlers/honoXHandler.ts'",
+        "import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts'",
       ]
       expect(result).toStrictEqual(expected)
     })
