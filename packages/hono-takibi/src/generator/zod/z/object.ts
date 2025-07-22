@@ -7,7 +7,7 @@ import { anyOf } from '../../zod-openapi-hono/openapi/components/anyof/index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.
- * 
+ *
  * @param schema - Schema definition.
  * @returns The Zod object schema string.
  */

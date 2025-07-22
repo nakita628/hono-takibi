@@ -3,7 +3,7 @@ import { regex, _default, gt, lt, min, max } from './index.js'
 
 /**
  * Generates a Zod number schema string.
- * 
+ *
  * @param schema - OpenAPI schema definition for a number.
  * @returns The generated Zod number schema string.
  */

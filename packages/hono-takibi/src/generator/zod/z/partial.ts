@@ -1,6 +1,6 @@
 /**
  * Generates a Zod partial schema.
- * 
+ *
  * @param objectProperties - Object properties.
  * @returns The generated Zod partial schema string.
  */

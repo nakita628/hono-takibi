@@ -1,6 +1,6 @@
 /**
  * Generates a Zod regex validation string.
- * 
+ *
  * @param pattern - Regex pattern.
  * @returns The generated Zod regex schema string.
  */

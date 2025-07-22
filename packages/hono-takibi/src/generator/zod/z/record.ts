@@ -3,7 +3,7 @@ import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 
 /**
  * Generates a Zod record schema for objects with additional properties.
- * 
+ *
  * @param additionalProperties - Schema definition for the record values.
  * @returns The generated Zod record schema string.
  */

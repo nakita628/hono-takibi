@@ -32,7 +32,7 @@ const FORMAT_STRING: Record<string, string> = {
 
 /**
  * Generates a Zod schema string for string types.
- * 
+ *
  * @param schema - The parameters to generate the Zod string schema.
  * @returns The generated Zod schema string.
  */
