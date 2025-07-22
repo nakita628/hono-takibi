@@ -17,7 +17,7 @@ export function capitalize(str: string): string {
 export function escapeStringLiteral(text: string): string {
   return text
     .replace(/[\n\t]/g, ' ')
-    .replace(/[\u200B\u200C\u200D\uFEFF]/g, ' ')
+    .replace(/\u200B|\u200C|\u200D|\uFEFF/g, ' ')
     .replace(/　/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/\\/g, '\\\\')

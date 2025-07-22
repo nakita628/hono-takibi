@@ -1,6 +1,6 @@
 import fsp from 'node:fs/promises'
-import { ok, err } from '../result/index.js'
 import type { Result } from '../result/index.js'
+import { err, ok } from '../result/index.js'
 
 /**
  * Creates a directory if it does not already exist.

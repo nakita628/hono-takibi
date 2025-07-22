@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { isYamlOrJsonOrTsp, isTs } from '.'
+import { describe, expect, it } from 'vitest'
+import { isTs, isYamlOrJsonOrTsp } from '.'
 
 // Test run
 // pnpm vitest run ./src/cli/validator/index.test.ts

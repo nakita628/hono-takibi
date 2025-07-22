@@ -1,5 +1,5 @@
-import type { Components } from '../../../../openapi/index.js'
 import { resolveSchemasDependencies } from '../../../../core/schema/references/index.js'
+import type { Components } from '../../../../openapi/index.js'
 import { zodToOpenAPI, zodToOpenAPISchema } from '../../../zod-to-openapi/index.js'
 
 /**

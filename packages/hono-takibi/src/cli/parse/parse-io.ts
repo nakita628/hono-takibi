@@ -1,5 +1,5 @@
 import type { Result } from '../../result/index.js'
-import { ok, err } from '../../result/index.js'
+import { err, ok } from '../../result/index.js'
 import { isTs, isYamlOrJsonOrTsp } from '../validator/index.js'
 
 /**

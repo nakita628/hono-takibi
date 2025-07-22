@@ -1,7 +1,7 @@
-import type { Schema } from '../../../openapi/index.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/index.js'
-import { referenceSchema, arrayReferenceSchema } from '../reference/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
+import { arrayReferenceSchema, referenceSchema } from '../reference/index.js'
 
 /**
  * Generates a Zod-compatible schema string for a given property.

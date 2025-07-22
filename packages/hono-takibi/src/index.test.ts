@@ -1,8 +1,8 @@
-import { vi, beforeEach, beforeAll, afterAll, describe, it, expect } from 'vitest'
-import type { OpenAPI } from './openapi/index.js'
 import { execSync } from 'node:child_process'
-import path from 'node:path'
 import fs from 'node:fs'
+import path from 'node:path'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { OpenAPI } from './openapi/index.js'
 
 // Test run
 // pnpm vitest run ./src/index.test.ts

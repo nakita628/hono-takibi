@@ -1,7 +1,7 @@
-import { beforeAll, afterAll, describe, it, expect } from 'vitest'
+import fs from 'node:fs'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../openapi/index.js'
 import { templateCode } from './template-code.js'
-import fs from 'node:fs'
 
 // Test run
 // pnpm vitest run ./src/cli/hono-takibi/template-code.test.ts

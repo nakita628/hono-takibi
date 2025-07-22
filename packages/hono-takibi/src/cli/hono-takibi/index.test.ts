@@ -1,7 +1,7 @@
-import { beforeAll, afterAll, describe, it, expect } from 'vitest'
-import { honoTakibi } from '.'
-import type { OpenAPI } from '../../openapi/index.js'
 import fs from 'node:fs'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { OpenAPI } from '../../openapi/index.js'
+import { honoTakibi } from '.'
 
 // Test run
 // pnpm vitest run ./src/cli/hono-takibi/index.test.ts

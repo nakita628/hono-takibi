@@ -1,9 +1,9 @@
 import type { Schema } from '../../../openapi/index.js'
-import { record } from './index.js'
-import { propertiesSchema } from '../property/properties-schema.js'
 import { allOf } from '../../zod-openapi-hono/openapi/components/allof/index.js'
-import { oneOf } from '../../zod-openapi-hono/openapi/components/oneof/index.js'
 import { anyOf } from '../../zod-openapi-hono/openapi/components/anyof/index.js'
+import { oneOf } from '../../zod-openapi-hono/openapi/components/oneof/index.js'
+import { propertiesSchema } from '../property/properties-schema.js'
+import { record } from './index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.

@@ -1,9 +1,9 @@
-import { testClient } from 'hono/testing'
-import { beforeAll, beforeEach, afterAll, describe, expect, it } from 'vitest'
 import { execSync } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
-import prisma from '../infra/index.ts'
+import { testClient } from 'hono/testing'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { api } from '../index.ts'
+import prisma from '../infra/index.ts'
 
 const test = testClient(api)
 

@@ -1,7 +1,7 @@
-import type { Responses } from '../../../../../openapi/index.js'
-import { isUniqueContentSchema } from '../../../../../core/validator/index.js'
-import { propertySchema } from '../../../../zod/property/property-schema.js'
 import { escapeStringLiteral } from '../../../../../core/utils/index.js'
+import { isUniqueContentSchema } from '../../../../../core/validator/index.js'
+import type { Responses } from '../../../../../openapi/index.js'
+import { propertySchema } from '../../../../zod/property/property-schema.js'
 
 /**
  * Generates a Zod-compatible response schema definition from OpenAPI responses.

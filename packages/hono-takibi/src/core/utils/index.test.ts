@@ -1,14 +1,14 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   capitalize,
   escapeStringLiteral,
+  getRefName,
   getToSafeIdentifier,
   removeZodPrefix,
   sanitizeIdentifier,
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-  getRefName,
 } from '.'
 
 // Test run

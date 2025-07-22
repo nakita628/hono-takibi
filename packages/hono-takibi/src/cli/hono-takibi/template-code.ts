@@ -1,11 +1,11 @@
 import path from 'node:path'
-import type { OpenAPI } from '../../openapi/index.js'
-import type { Result } from '../../result/index.js'
-import { ok, asyncAndThen } from '../../result/index.js'
-import { readdir, writeFile } from '../../fsp/index.js'
 import { fmt } from '../../format/index.js'
+import { readdir, writeFile } from '../../fsp/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { zodOpenapiHonoHandler } from '../../generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
+import type { OpenAPI } from '../../openapi/index.js'
+import type { Result } from '../../result/index.js'
+import { asyncAndThen, ok } from '../../result/index.js'
 
 /**
  * Generates Hono Takibi application and handler templates.

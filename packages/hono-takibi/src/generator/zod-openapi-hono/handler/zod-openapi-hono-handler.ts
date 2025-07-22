@@ -1,8 +1,8 @@
-import type { OpenAPIPaths, OpenAPI } from '../../../openapi/index.js'
-import { routeName } from '../openapi/route/route-name.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
+import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'
 import type { Result } from '../../../result/index.js'
+import { routeName } from '../openapi/route/route-name.js'
 import { groupHandlersByFileName, handler, handlerName } from './utils/index.js'
 
 const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const

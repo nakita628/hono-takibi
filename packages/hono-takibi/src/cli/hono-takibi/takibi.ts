@@ -1,11 +1,11 @@
 import path from 'node:path'
-import type { Result } from '../../result/index.js'
-import { ok, asyncAndThen } from '../../result/index.js'
 import { fmt } from '../../format/index.js'
-import { parseOpenAPI } from '../../openapi/parse-openapi.js'
-import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
-import { templateCode } from './template-code.js'
 import { mkdir, writeFile } from '../../fsp/index.js'
+import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
+import { parseOpenAPI } from '../../openapi/parse-openapi.js'
+import type { Result } from '../../result/index.js'
+import { asyncAndThen, ok } from '../../result/index.js'
+import { templateCode } from './template-code.js'
 
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.

@@ -1,8 +1,8 @@
-import type { Schema } from '../../../openapi/index.js'
+import { getToSafeIdentifier } from '../../../core/utils/index.js'
 import { isAllOptional } from '../../../core/validator/index.js'
+import type { Schema } from '../../../openapi/index.js'
 import { partial } from '../z/index.js'
 import { propertySchema } from './property-schema.js'
-import { getToSafeIdentifier } from '../../../core/utils/index.js'
 
 /**
  * Generates a Zod object schema string from a set of OpenAPI properties.

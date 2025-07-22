@@ -1,13 +1,15 @@
 export { parseOpenAPI } from './parse-openapi.js'
-export type { Components } from './types.js'
-export type { Content } from './types.js'
-export type { DefaultValue } from './types.js'
-export type { OpenAPI } from './types.js'
-export type { OpenAPIPaths } from './types.js'
-export type { Operation } from './types.js'
-export type { Parameters } from './types.js'
-export type { ParamsObject } from './types.js'
-export type { RequestBody } from './types.js'
-export type { Responses } from './types.js'
-export type { Schema } from './types.js'
-export type { Type } from './types.js'
+export type {
+  Components,
+  Content,
+  DefaultValue,
+  OpenAPI,
+  OpenAPIPaths,
+  Operation,
+  Parameters,
+  ParamsObject,
+  RequestBody,
+  Responses,
+  Schema,
+  Type,
+} from './types.js'

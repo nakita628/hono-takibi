@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  array,
-  coerce,
   _default,
   _enum,
+  array,
+  coerce,
   gt,
   infer,
   integer,
@@ -19,8 +19,8 @@ import {
   regex,
   schema,
   string,
-  union,
   stringbool,
+  union,
 } from '.'
 
 // Test run

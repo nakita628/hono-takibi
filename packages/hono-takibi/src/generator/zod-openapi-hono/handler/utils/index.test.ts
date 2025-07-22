@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { handlerName, handler, importHandlers, groupHandlersByFileName, getHandlerImports } from '.'
+import { describe, expect, it } from 'vitest'
+import { getHandlerImports, groupHandlersByFileName, handler, handlerName, importHandlers } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/handler/utils/index.test.ts

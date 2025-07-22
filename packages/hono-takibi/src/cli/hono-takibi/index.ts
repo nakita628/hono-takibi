@@ -1,8 +1,8 @@
 import type { Result } from '../../result/index.js'
-import { ok, asyncAndThen } from '../../result/index.js'
-import { takibi } from './takibi.js'
+import { asyncAndThen, ok } from '../../result/index.js'
 import { parseCli } from '../parse/parse-cli.js'
 import { isHelpRequested, sliceArgv } from '../utils/index.js'
+import { takibi } from './takibi.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 

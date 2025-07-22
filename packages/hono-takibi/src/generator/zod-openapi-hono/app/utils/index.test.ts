@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { appRouteHandler, importRoutes, registerComponent, importMap } from './index.js'
+import { describe, expect, it } from 'vitest'
+import { appRouteHandler, importMap, importRoutes, registerComponent } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/utils/index.test.ts

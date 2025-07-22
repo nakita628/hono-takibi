@@ -1,6 +1,6 @@
 import type { Result } from '../../result/index.js'
+import { andThen, ok } from '../../result/index.js'
 import { getFlagValue, hasFlag } from '../utils/index.js'
-import { ok, andThen } from '../../result/index.js'
 import { parseIO } from './index.js'
 
 /**

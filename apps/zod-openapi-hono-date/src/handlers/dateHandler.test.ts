@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { testClient } from 'hono/testing'
+import { describe, expect, it } from 'vitest'
 import { api } from '..'
 
 // test client

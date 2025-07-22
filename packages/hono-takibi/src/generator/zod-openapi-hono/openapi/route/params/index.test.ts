@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   paramsObject,
+  queryParameter,
   requestParameter,
   requestParams,
   requestParamsArray,
-  queryParameter,
 } from '.'
 
 // Test run

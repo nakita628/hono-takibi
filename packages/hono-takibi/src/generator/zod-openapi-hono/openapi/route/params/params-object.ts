@@ -1,6 +1,6 @@
+import { getToSafeIdentifier } from '../../../../../core/utils/index.js'
 import type { Parameters, ParamsObject } from '../../../../../openapi/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
-import { getToSafeIdentifier } from '../../../../../core/utils/index.js'
 import { queryParameter } from './index.js'
 
 /**

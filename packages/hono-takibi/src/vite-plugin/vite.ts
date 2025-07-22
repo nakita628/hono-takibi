@@ -1,9 +1,9 @@
-import type { OpenAPI } from '../openapi/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
-import { fmt } from '../format/index.js'
-import SwaggerParser from '@apidevtools/swagger-parser'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import { fmt } from '../format/index.js'
+import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
+import type { OpenAPI } from '../openapi/index.js'
 
 /**
  * Generates Hono + zod-openapi bindings from an OpenAPI file.

@@ -1,5 +1,4 @@
-import { describe, it, expect } from 'vitest'
-import { parseOpenAPI } from './index.js'
+import { describe, expect, it } from 'vitest'
 import type {
   Components,
   Content,
@@ -15,6 +14,7 @@ import type {
   SecuritySchemes,
   Type,
 } from './index.js'
+import { parseOpenAPI } from './index.js'
 
 // Test run:
 // pnpm vitest run ./src/openapi/index.test.ts

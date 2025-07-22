@@ -1,6 +1,6 @@
+import { isHttpMethod, isOperation } from '../../../../core/validator/index.js'
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
 import { route } from './index.js'
-import { isHttpMethod, isOperation } from '../../../../core/validator/index.js'
 
 /**
  * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
