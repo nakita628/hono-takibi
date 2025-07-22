@@ -233,7 +233,7 @@ describe('test ture basePath api', () => {
     // 1st run
     await templateCode(openapi, 'tmp-template/src/route.ts', true, 'api')
     // 2nd run
-    // exists main.t
+    // exists main.ts
     await templateCode(openapi, 'tmp-template/src/route.ts', true, 'api')
     expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
     expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
