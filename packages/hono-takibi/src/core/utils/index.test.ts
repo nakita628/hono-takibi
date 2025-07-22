@@ -9,7 +9,6 @@ import {
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-  maybeApplyNullability,
 } from '.'
 
 // Test run
@@ -42,8 +41,5 @@ describe('string-utils barrel file exports', () => {
   })
   it('should export stripMinMaxExist', () => {
     expect(typeof stripMinMaxExist).toBe('function')
-  })
-  it('should export maybeApplyNullability', () => {
-    expect(typeof maybeApplyNullability).toBe('function')
   })
 })
