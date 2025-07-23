@@ -5,7 +5,6 @@ import {
   array,
   coerce,
   gt,
-  infer,
   integer,
   intersection,
   length,

@@ -1,28 +1,30 @@
 import type { Schema } from '../../openapi/index.js'
-import { zod } from '../zod/index.js'
 
 /**
- * Converts an OpenAPI schema to a Zod schema string with `.openapi()` metadata.
+ * Adds OpenAPI metadata to a Zod schema string based on the provided Schema object.
  *
- * @param schema - The OpenAPI schema to convert
- * @param paramName - Optional name of the parameter (used for OpenAPI param metadata)
- * @param paramIn - Optional location of the parameter: 'path' | 'query' | 'header' | 'cookie'
- * @returns A string representing the Zod schema, optionally with `.openapi({...})` metadata
+ * If `paramIn` and `paramName` are provided, this will attach parameter-level metadata such as
+ * `in`, `name`, and `required` as part of the `.openapi()` object. It also includes
+ * `example`, `examples`, and `description` if available in the schema.
+ *
+ * @param zod - The Zod schema string representation (e.g., `"z.string()"`)
+ * @param schema - The OpenAPI schema metadata to extract information like description, examples, etc.
+ * @param paramName - The parameter name, required when `paramIn` is provided
+ * @param paramIn - The location of the parameter (`path`, `query`, `header`, or `cookie`)
+ * @returns The Zod string augmented with `.openapi(...)` metadata if applicable
  *
  * @example
- * zodToOpenAPI({ type: 'string', example: 'hello' })
- * // → 'z.string().openapi({example:"hello"})'
- *
- * @example
- * zodToOpenAPI({ type: 'integer' }, 'userId', 'path')
- * // → 'z.number().int().openapi({param:{in:"path",name:"userId",required:true}})'
+ * ```ts
+ * zodToOpenAPI("z.string().min(1)", { description: "User name", example: "Alice" })
+ * // => 'z.string().min(1).openapi({example:"Alice",description:"User name"})'
+ * ```
  */
 export function zodToOpenAPI(
+  zod: string,
   schema: Schema,
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
-  const z = zod(schema)
   const openapiProps: string[] = []
 
   if (paramIn && paramName) {
@@ -47,5 +49,5 @@ export function zodToOpenAPI(
     openapiProps.push(`description:${JSON.stringify(schema.description)}`)
   }
 
-  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  return openapiProps.length === 0 ? zod : `${zod}.openapi({${openapiProps.join(',')}})`
 }
