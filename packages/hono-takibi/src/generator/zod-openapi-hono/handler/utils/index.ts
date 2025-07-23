@@ -1,4 +1,4 @@
-import { routeName } from '../../openapi/route/route-name.js'
+import { routeName } from '../../../../core/utils/index.js'
 
 /**
  * Generates a handler name based on the HTTP method and path.

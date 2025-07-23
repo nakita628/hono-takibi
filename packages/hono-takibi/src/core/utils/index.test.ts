@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  capitalize,
   escapeStringLiteral,
   getRefName,
   getToSafeIdentifier,
@@ -9,26 +8,13 @@ import {
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
+  routeName
 } from '.'
 
 // Test run
 // pnpm vitest run ./src/core/utils/index.test.ts
 
 describe('utils', () => {
-  // capitalize
-  describe('capitalize', () => {
-    it.concurrent(`capitalize('test') -> 'Test'`, () => {
-      const result = capitalize('test')
-      const expected = 'Test'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`capitalize('Test') -> 'Test'`, () => {
-      const result = capitalize('Test')
-      const expected = 'Test'
-      expect(result).toBe(expected)
-    })
-  })
-
   // escapeStringLiteral
   describe('escapeStringLiteralingLiteral', () => {
     it.concurrent(`escapeStringLiteral('') -> ''`, () => {
@@ -215,11 +201,162 @@ describe('utils', () => {
   })
 
   // getRefName
-  describe('getRefName Test', () => {
+  describe('getRefName', () => {
     it.concurrent(`getRefName('#/components/schemas/Test') -> 'Test'`, () => {
       const result = getRefName('#/components/schemas/Test')
       const expected = 'Test'
       expect(result).toBe(expected)
+    })
+  })
+
+  // routeName
+  describe('routeName', () => {
+    it('routeName("get", "/posts") -> getPostsRoute', () => {
+      expect(routeName('get', '/posts')).toBe('getPostsRoute')
+    })
+    it('routeName("get", "/posts/{id}") -> getPostsIdRoute', () => {
+      expect(routeName('get', '/posts/{id}')).toBe('getPostsIdRoute')
+    })
+    it('routeName("get", "/user/profile") -> getUserProfileRoute', () => {
+      expect(routeName('get', '/user/profile')).toBe('getUserProfileRoute')
+    })
+    it('routeName("put", "/user/settings") -> putUserSettingsRoute', () => {
+      expect(routeName('put', '/user/settings')).toBe('putUserSettingsRoute')
+    })
+    it('routeName("get", "/user/preferences") -> getUserPreferencesRoute', () => {
+      expect(routeName('get', '/user/preferences')).toBe('getUserPreferencesRoute')
+    })
+    it('routeName("put", "/user/avatar") -> putUserAvatarRoute', () => {
+      expect(routeName('put', '/user/avatar')).toBe('putUserAvatarRoute')
+    })
+    it('routeName("get", "/user/followers") -> getUserFollowersRoute', () => {
+      expect(routeName('get', '/user/followers')).toBe('getUserFollowersRoute')
+    })
+    it('routeName("get", "/user/following") -> getUserFollowingRoute', () => {
+      expect(routeName('get', '/user/following')).toBe('getUserFollowingRoute')
+    })
+    it('routeName("get", "/user/blocked") -> getUserBlockedRoute', () => {
+      expect(routeName('get', '/user/blocked')).toBe('getUserBlockedRoute')
+    })
+    it('routeName("post", "/auth/google") -> postAuthGoogleRoute', () => {
+      expect(routeName('post', '/auth/google')).toBe('postAuthGoogleRoute')
+    })
+    it('routeName("post", "/auth/facebook") -> postAuthFacebookRoute', () => {
+      expect(routeName('post', '/auth/facebook')).toBe('postAuthFacebookRoute')
+    })
+    it('routeName("post", "/auth/twitter") -> postAuthTwitterRoute', () => {
+      expect(routeName('post', '/auth/twitter')).toBe('postAuthTwitterRoute')
+    })
+    it('routeName("post", "/auth/github") -> postAuthGithubRoute', () => {
+      expect(routeName('post', '/auth/github')).toBe('postAuthGithubRoute')
+    })
+    it('routeName("post", "/auth/2fa/enable") -> postAuth2faEnableRoute', () => {
+      expect(routeName('post', '/auth/2fa/enable')).toBe('postAuth2faEnableRoute')
+    })
+    it('routeName("post", "/auth/2fa/verify") -> postAuth2faVerifyRoute', () => {
+      expect(routeName('post', '/auth/2fa/verify')).toBe('postAuth2faVerifyRoute')
+    })
+    it('routeName("post", "/articles/draft") -> postArticlesDraftRoute', () => {
+      expect(routeName('post', '/articles/draft')).toBe('postArticlesDraftRoute')
+    })
+    it('routeName("get", "/articles/published") -> getArticlesPublishedRoute', () => {
+      expect(routeName('get', '/articles/published')).toBe('getArticlesPublishedRoute')
+    })
+    it('routeName("get", "/articles/archived") -> getArticlesArchivedRoute', () => {
+      expect(routeName('get', '/articles/archived')).toBe('getArticlesArchivedRoute')
+    })
+    it('routeName("post", "/media/upload") -> postMediaUploadRoute', () => {
+      expect(routeName('post', '/media/upload')).toBe('postMediaUploadRoute')
+    })
+    it('routeName("get", "/media/gallery") -> getMediaGalleryRoute', () => {
+      expect(routeName('get', '/media/gallery')).toBe('getMediaGalleryRoute')
+    })
+    it('routeName("post", "/notifications/email") -> postNotificationsEmailRoute', () => {
+      expect(routeName('post', '/notifications/email')).toBe('postNotificationsEmailRoute')
+    })
+    it('routeName("post", "/notifications/push") -> postNotificationsPushRoute', () => {
+      expect(routeName('post', '/notifications/push')).toBe('postNotificationsPushRoute')
+    })
+    it('routeName("put", "/notifications/settings") -> putNotificationsSettingsRoute', () => {
+      expect(routeName('put', '/notifications/settings')).toBe('putNotificationsSettingsRoute')
+    })
+    it('routeName("post", "/payment/method") -> postPaymentMethodRoute', () => {
+      expect(routeName('post', '/payment/method')).toBe('postPaymentMethodRoute')
+    })
+    it('routeName("get", "/payment/history") -> getPaymentHistoryRoute', () => {
+      expect(routeName('get', '/payment/history')).toBe('getPaymentHistoryRoute')
+    })
+    it('routeName("get", "/subscription/plan") -> getSubscriptionPlanRoute', () => {
+      expect(routeName('get', '/subscription/plan')).toBe('getSubscriptionPlanRoute')
+    })
+    it('routeName("post", "/subscription/cancel") -> postSubscriptionCancelRoute', () => {
+      expect(routeName('post', '/subscription/cancel')).toBe('postSubscriptionCancelRoute')
+    })
+    it('routeName("get", "/billing/address") -> getBillingAddressRoute', () => {
+      expect(routeName('get', '/billing/address')).toBe('getBillingAddressRoute')
+    })
+    it('routeName("get", "/invoice/download/{id}") -> getInvoiceDownloadIdRoute', () => {
+      expect(routeName('get', '/invoice/download/{id}')).toBe('getInvoiceDownloadIdRoute')
+    })
+    it('routeName("get", "/analytics/daily") -> getAnalyticsDailyRoute', () => {
+      expect(routeName('get', '/analytics/daily')).toBe('getAnalyticsDailyRoute')
+    })
+    it('routeName("get", "/analytics/weekly") -> getAnalyticsWeeklyRoute', () => {
+      expect(routeName('get', '/analytics/weekly')).toBe('getAnalyticsWeeklyRoute')
+    })
+    it('routeName("get", "/analytics/monthly") -> getAnalyticsMonthlyRoute', () => {
+      expect(routeName('get', '/analytics/monthly')).toBe('getAnalyticsMonthlyRoute')
+    })
+    it('routeName("get", "/stats/overview") -> getStatsOverviewRoute', () => {
+      expect(routeName('get', '/stats/overview')).toBe('getStatsOverviewRoute')
+    })
+    it('routeName("get", "/admin/dashboard") -> getAdminDashboardRoute', () => {
+      expect(routeName('get', '/admin/dashboard')).toBe('getAdminDashboardRoute')
+    })
+    it('routeName("get", "/admin/users") -> getAdminUsersRoute', () => {
+      expect(routeName('get', '/admin/users')).toBe('getAdminUsersRoute')
+    })
+    it('routeName("get", "/admin/roles") -> getAdminRolesRoute', () => {
+      expect(routeName('get', '/admin/roles')).toBe('getAdminRolesRoute')
+    })
+    it('routeName("get", "/admin/permissions") -> getAdminPermissionsRoute', () => {
+      expect(routeName('get', '/admin/permissions')).toBe('getAdminPermissionsRoute')
+    })
+    it('routeName("get", "/admin/logs") -> getAdminLogsRoute', () => {
+      expect(routeName('get', '/admin/logs')).toBe('getAdminLogsRoute')
+    })
+    it('routeName("get", "/api/keys") -> getApiKeysRoute', () => {
+      expect(routeName('get', '/api/keys')).toBe('getApiKeysRoute')
+    })
+    it('routeName("get", "/api/usage") -> getApiUsageRoute', () => {
+      expect(routeName('get', '/api/usage')).toBe('getApiUsageRoute')
+    })
+    it('routeName("get", "/api/docs") -> getApiDocsRoute', () => {
+      expect(routeName('get', '/api/docs')).toBe('getApiDocsRoute')
+    })
+    it('routeName("post", "/webhooks") -> postWebhooksRoute', () => {
+      expect(routeName('post', '/webhooks')).toBe('postWebhooksRoute')
+    })
+    it('routeName("post", "/integration/slack") -> postIntegrationSlackRoute', () => {
+      expect(routeName('post', '/integration/slack')).toBe('postIntegrationSlackRoute')
+    })
+    it('routeName("post", "/integration/discord") -> postIntegrationDiscordRoute', () => {
+      expect(routeName('post', '/integration/discord')).toBe('postIntegrationDiscordRoute')
+    })
+    it('routeName("post", "/integration/jira") -> postIntegrationJiraRoute', () => {
+      expect(routeName('post', '/integration/jira')).toBe('postIntegrationJiraRoute')
+    })
+    it('routeName("post", "/integration/github") -> postIntegrationGithubRoute', () => {
+      expect(routeName('post', '/integration/github')).toBe('postIntegrationGithubRoute')
+    })
+    it('routeName("get", "/emails/{email_id}") -> getEmailsEmailIdRoute', () => {
+      expect(routeName('get', '/emails/{email_id}')).toBe('getEmailsEmailIdRoute')
+    })
+    it('routeName("get", "/emails/{email-id}") -> getEmailsEmailIdRoute', () => {
+      expect(routeName('get', '/emails/{email-id}')).toBe('getEmailsEmailIdRoute')
+    })
+    it('routeName("get", "/emails/{email.id}") -> getEmailsEmailIdRoute', () => {
+      expect(routeName('get', '/emails/{email.id}')).toBe('getEmailsEmailIdRoute')
     })
   })
 })
