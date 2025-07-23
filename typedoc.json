@@ -1,7 +1,7 @@
 {
   "name": "Hono Takibi",
   "entryPoints": ["packages/**/*.ts"],
-  "out": "./docs/typedoc/",
+  "out": "./docs",
   "exclude": [
     "**/node_modules/**",
     "**/dist/**",
