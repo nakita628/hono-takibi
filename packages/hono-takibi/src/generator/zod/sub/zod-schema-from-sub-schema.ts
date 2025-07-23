@@ -1,4 +1,4 @@
-import { getRefSchemaName } from '../../../core/schema/references/index.js'
+import { refName } from '../../../core/utils/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { zod } from '../index.js'
 
@@ -23,5 +23,5 @@ import { zod } from '../index.js'
  * ```
  */
 export function zodSchemaFromSubSchema(subSchema: Schema): string {
-  return subSchema.$ref ? getRefSchemaName(subSchema.$ref) : zod(subSchema)
+  return subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zod(subSchema)
 }

@@ -1,11 +1,9 @@
+import { routeName } from '../../../core/utils/index.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'
 import type { Result } from '../../../result/index.js'
-import { routeName } from '../openapi/route/route-name.js'
-import { groupHandlersByFileName, handler, handlerName } from './utils/index.js'
-
-const ROUTE_HANDLER = `import type { RouteHandler } from '@hono/zod-openapi'` as const
+import { groupHandlersByFileName, handler } from './utils/index.js'
 
 /**
  * Generates route handler files for a Hono app using Zod and OpenAPI.
@@ -29,7 +27,10 @@ export async function zodOpenapiHonoHandler(
   }[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
-      const routeHandlerContent = handler(handlerName(method, path), routeName(method, path))
+      const routeHandlerContent = handler(
+        `${routeName(method, path)}Handler`,
+        routeName(method, path),
+      )
 
       const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
 
@@ -77,7 +78,7 @@ export async function zodOpenapiHonoHandler(
 
     const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
 
-    const importStatements = `${ROUTE_HANDLER}\n${importRouteTypes}`
+    const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
 
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 

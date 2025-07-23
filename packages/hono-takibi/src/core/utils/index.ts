@@ -163,20 +163,20 @@ export function stripMinMaxExist(str: string, min: number, max: number): string 
  *
  * @example
  * ```ts
- * getRefName('#/components/schemas/Address')
+ * refName('#/components/schemas/Address')
  * // → 'Address'
  *
- * getRefName('#/components/schemas/Location/Address')
+ * refName('#/components/schemas/Location/Address')
  * // → 'Address'
  *
- * getRefName('#/components/schemas/Shipping/Address/Details')
+ * refName('#/components/schemas/Shipping/Address/Details')
  * // → 'Details'
  *
- * getRefName('')
+ * refName('')
  * // → undefined
  * ```
  */
-export function getRefName($ref: `#/components/schemas/${string}`): string | undefined {
+export function refName($ref: `#/components/schemas/${string}`): string | undefined {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element

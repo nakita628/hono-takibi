@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   escapeStringLiteral,
-  getRefName,
   getToSafeIdentifier,
+  refName,
   removeZodPrefix,
   routeName,
   sanitizeIdentifier,
@@ -200,10 +200,10 @@ describe('utils', () => {
     })
   })
 
-  // getRefName
-  describe('getRefName', () => {
-    it.concurrent(`getRefName('#/components/schemas/Test') -> 'Test'`, () => {
-      const result = getRefName('#/components/schemas/Test')
+  // refName
+  describe('refName', () => {
+    it.concurrent(`refName('#/components/schemas/Test') -> 'Test'`, () => {
+      const result = refName('#/components/schemas/Test')
       const expected = 'Test'
       expect(result).toBe(expected)
     })

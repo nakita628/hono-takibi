@@ -1,4 +1,3 @@
-import { getRefSchemaName } from '../../../../../core/schema/references/index.js'
 import type { Schema } from '../../../../../openapi/index.js'
 import { union } from '../../../../zod/z/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
@@ -20,7 +19,7 @@ export function oneOf(schema: Schema): string {
   }
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema.$ref) : zodToOpenAPI(subSchema)
+    subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(subSchema)
     return zodToOpenAPI(subSchema)
   })
 
