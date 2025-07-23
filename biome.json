@@ -1,9 +1,19 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-  "files": { "ignoreUnknown": true },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**/*.ts",
+      "**/*.json",
+      "!**/.pnpm-store/**",
+      "!**/*.d.ts",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/*.js"
+    ]
+  },
   "formatter": {
     "enabled": true,
-    "includes": ["**/*.ts", "**/*.json"],
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 100
@@ -24,7 +34,6 @@
   },
   "linter": {
     "enabled": true,
-    "includes": ["**/*.ts", "!**/*.d.ts"],
     "rules": {
       "complexity": {
         "noBannedTypes": "warn",

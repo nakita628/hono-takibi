@@ -1,4 +1,4 @@
-import { getRefName } from '../../../core/utils/index.js'
+import { refName } from '../../../core/utils/index.js'
 import type { Schema } from '../../../openapi/index.js'
 
 /**
@@ -29,10 +29,10 @@ export function referenceSchema(schema: Schema): string {
   if (!schema.$ref) {
     return 'z.any()'
   }
-  const refName = getRefName(schema.$ref)
-  if (!refName) {
+  const ref = refName(schema.$ref)
+  if (!ref) {
     return 'z.any()'
   }
 
-  return `${refName}Schema` || 'z.any()'
+  return `${ref}Schema` || 'z.any()'
 }

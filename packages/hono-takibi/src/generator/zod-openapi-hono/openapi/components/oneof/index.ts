@@ -1,7 +1,7 @@
-import { getRefSchemaName } from '../../../../../core/schema/references/index.js'
+import { zodToOpenAPI } from '../../../../../core/helper/zod-to-openapi.js'
 import type { Schema } from '../../../../../openapi/index.js'
+import { zod } from '../../../../zod/index.js'
 import { union } from '../../../../zod/z/index.js'
-import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Converts an OpenAPI `oneOf` schema to a Zod union expression.
@@ -20,8 +20,9 @@ export function oneOf(schema: Schema): string {
   }
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
-    subSchema.$ref ? getRefSchemaName(subSchema.$ref) : zodToOpenAPI(subSchema)
-    return zodToOpenAPI(subSchema)
+    const z = zod(subSchema)
+    subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(z, subSchema)
+    return zodToOpenAPI(z, subSchema)
   })
 
   return union(zodSchemas)

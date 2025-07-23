@@ -1,4 +1,4 @@
-import { getRefName } from '../../../core/utils/index.js'
+import { refName } from '../../../core/utils/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { array } from '../z/index.js'
 
@@ -35,10 +35,10 @@ export function arrayReferenceSchema(schema: Schema): string {
   if (!schema.items?.$ref) {
     return 'z.array(z.any())'
   }
-  const refName = getRefName(schema.items?.$ref)
-  if (!refName) {
+  const ref = refName(schema.items?.$ref)
+  if (!ref) {
     return 'z.array(z.any())'
   }
 
-  return array(`${refName}Schema`)
+  return array(`${ref}Schema`)
 }

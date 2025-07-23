@@ -1,14 +1,4 @@
 /**
- * Capitalizes the first letter of a string.
- *
- * @param str - Input string.
- * @returns A new string with the first letter in uppercase.
- */
-export function capitalize(str: string): string {
-  return `${str.charAt(0).toUpperCase()}${str.slice(1)}`
-}
-
-/**
  * Escapes a string for safe use in TypeScript string literals.
  *
  * @param text - The input text to escape.
@@ -173,23 +163,50 @@ export function stripMinMaxExist(str: string, min: number, max: number): string 
  *
  * @example
  * ```ts
- * getRefName('#/components/schemas/Address')
+ * refName('#/components/schemas/Address')
  * // → 'Address'
  *
- * getRefName('#/components/schemas/Location/Address')
+ * refName('#/components/schemas/Location/Address')
  * // → 'Address'
  *
- * getRefName('#/components/schemas/Shipping/Address/Details')
+ * refName('#/components/schemas/Shipping/Address/Details')
  * // → 'Details'
  *
- * getRefName('')
+ * refName('')
  * // → undefined
  * ```
  */
-export function getRefName($ref: `#/components/schemas/${string}`): string | undefined {
+export function refName($ref: `#/components/schemas/${string}`): string | undefined {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
   // 2. "Address"
   return $ref.split('/').pop()
+}
+
+/**
+ * Generates a PascalCase route name from HTTP method and path.
+ *
+ * @param method - HTTP method (e.g., 'get', 'post').
+ * @param path - URL path (e.g., '/users/{id}/posts').
+ * @returns A route name string (e.g., 'getUsersIdPostsRoute').
+ *
+ * @example
+ * routeName('get', '/users/{id}/posts') // 'getUsersIdPostsRoute'
+ */
+export function routeName(method: string, path: string): string {
+  // 1. api_path: `/user/createWithList`
+  // 2. replace(/[\/{}-]/g, ' ') -> ` user createWithList`
+  // 3. trim() -> `user createWithList`
+  // 4. split(/\s+/) -> `['user', 'createWithList']`
+  // 5. map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`) -> `['User', 'CreateWithList']`
+  // 6. join('') -> `UserCreateWithList`
+
+  const api_path = path
+    .replace(/[/{}._-]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
+    .join('')
+  return `${method}${api_path}Route`
 }

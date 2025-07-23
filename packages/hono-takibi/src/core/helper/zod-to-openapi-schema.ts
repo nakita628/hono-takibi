@@ -1,5 +1,4 @@
 import { sanitizeIdentifier } from '../../core/utils/index.js'
-import { infer } from '../zod/z/index.js'
 
 /**
  * Generates a Zod schema constant and optional inferred type alias.
@@ -30,7 +29,9 @@ export function zodToOpenAPISchema(
   // zod infer code
   const safeTypeVariableName = sanitizeIdentifier(schemaName)
 
-  const zodInferCode = exportType ? infer(safeTypeVariableName, safeVariableName) : ''
+  const zodInferCode = exportType
+    ? `export type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
+    : ''
   // return code
   return `${schemaCode}\n\n${zodInferCode}`
 }

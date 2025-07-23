@@ -50,7 +50,7 @@
     "prettier": "^3.5.3"
   },
   "devDependencies": {
-    "@hono/zod-openapi": "1.0.0-beta.1",
+    "@hono/zod-openapi": "1.0.2",
     "@types/node": "^22.15.32",
     "@typespec/http": "^1.1.0",
     "@typespec/rest": "^0.71.0",

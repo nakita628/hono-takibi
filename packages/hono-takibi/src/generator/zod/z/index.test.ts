@@ -5,7 +5,6 @@ import {
   array,
   coerce,
   gt,
-  infer,
   integer,
   intersection,
   length,
@@ -41,9 +40,6 @@ describe('zod module barrel file exports', () => {
   })
   it('should export gt', () => {
     expect(typeof gt).toBe('function')
-  })
-  it('should export infer', () => {
-    expect(typeof infer).toBe('function')
   })
   it('should export integer', () => {
     expect(typeof integer).toBe('function')

@@ -1,16 +1,3 @@
-import { routeName } from '../../openapi/route/route-name.js'
-
-/**
- * Generates a handler name based on the HTTP method and path.
- *
- * @param method - The HTTP method (e.g., 'get', 'post').
- * @param path - The API path (e.g., '/users/{id}').
- * @returns The generated handler name (e.g., 'getUserByIdHandler').
- */
-export function handlerName(method: string, path: string): string {
-  return `${routeName(method, path)}Handler`
-}
-
 /**
  * Generates a route handler function declaration.
  *

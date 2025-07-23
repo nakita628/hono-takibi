@@ -1,6 +1,10 @@
 import { maybeApplyNullability, pickTypes } from '../../core/helper/index.js'
-import { getRefSchemaName } from '../../core/schema/references/get-ref-schema-name.js'
-import { stripMaxIfLtExist, stripMinIfgtExist, stripMinMaxExist } from '../../core/utils/index.js'
+import {
+  refName,
+  stripMaxIfLtExist,
+  stripMinIfgtExist,
+  stripMinMaxExist,
+} from '../../core/utils/index.js'
 import type { Schema } from '../../openapi/index.js'
 import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
 import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
@@ -62,7 +66,7 @@ import { _enum, array, integer, length, max, min, number, object, string } from 
  */
 export function zod(schema: Schema): string {
   /* $ref */
-  if (schema.$ref) return getRefSchemaName(schema.$ref)
+  if (schema.$ref) return `${refName(schema.$ref)}Schema`
 
   /* const */
   if (schema.const !== undefined) {

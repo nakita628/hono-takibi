@@ -3,11 +3,6 @@ import { componentsCode } from './components/components-code.js'
 import { routeCode } from './route/route-code.js'
 
 /**
- * Import statement for Hono's zod-openapi package
- */
-const IMPORT_CODE = "import { createRoute, z } from '@hono/zod-openapi';" as const
-
-/**
  * Generates Hono-compatible TypeScript code from an OpenAPI object.
  *
  * @param openapi - The OpenAPI specification object
@@ -23,5 +18,5 @@ export function zodOpenAPIHono(
   const components = openapi.components
     ? componentsCode(openapi.components, exportSchema, exportType)
     : ''
-  return `${IMPORT_CODE}\n\n${components}\n\n${routeCode(openapi.paths)}`
+  return `import { createRoute, z } from '@hono/zod-openapi'\n\n${components}\n\n${routeCode(openapi.paths)}`
 }
