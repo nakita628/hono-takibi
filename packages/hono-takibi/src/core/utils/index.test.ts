@@ -4,11 +4,11 @@ import {
   getRefName,
   getToSafeIdentifier,
   removeZodPrefix,
+  routeName,
   sanitizeIdentifier,
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-  routeName
 } from '.'
 
 // Test run

@@ -1,34 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { getHandlerImports, groupHandlersByFileName, handler, handlerName, importHandlers } from '.'
+import { getHandlerImports, groupHandlersByFileName, handler, importHandlers } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/handler/utils/index.test.ts
 
 describe('utils', () => {
-  // handlerName
-  describe('handlerName', () => {
-    it.concurrent(`handlerName('get', '/') -> 'getRouteHandler'`, () => {
-      const result = handlerName('get', '/')
-      const expected = 'getRouteHandler'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`handlerName('post', '/posts') -> 'postPostsRouteHandler'`, () => {
-      const result = handlerName('post', '/posts')
-      const expected = 'postPostsRouteHandler'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`handlerName('put', '/posts/{id}') -> 'putPostsIdRouteHandler'`, () => {
-      const result = handlerName('put', '/posts/{id}')
-      const expected = 'putPostsIdRouteHandler'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`handlerName('delete', '/posts/{id}') -> 'deletePostsIdRouteHandler'`, () => {
-      const result = handlerName('delete', '/posts/{id}')
-      const expected = 'deletePostsIdRouteHandler'
-      expect(result).toBe(expected)
-    })
-  })
-
   // handler
   describe('handler', () => {
     it.concurrent('generateHandler Test', () => {
