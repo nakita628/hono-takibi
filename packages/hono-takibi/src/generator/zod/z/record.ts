@@ -1,5 +1,6 @@
+import { zodToOpenAPI } from '../../../core/helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
-import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
+import { zod } from '../index.js'
 
 /**
  * Generates a Zod record schema for objects with additional properties.
@@ -8,6 +9,6 @@ import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
  * @returns The generated Zod record schema string.
  */
 export function record(additionalProperties: Schema): string {
-  const schema = zodToOpenAPI(additionalProperties)
+  const schema = zodToOpenAPI(zod(additionalProperties), additionalProperties)
   return `z.record(z.string(),${schema})`
 }

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { zodToOpenAPI } from '.'
+import { zodToOpenAPI } from './zod-to-openapi.js'
 
 // Test Run
-// pnpm vitest run ./src/generator/zod-to-openapi/zod-to-openapi.test.ts
+// pnpm vitest run ./src/core/helper/zod-to-openapi.test.ts
 
 describe('zodToOpenAPI Test', () => {
   it('zodToOpenAPI not exists openapi()', () => {

@@ -1,6 +1,6 @@
+import { zodToOpenAPI } from '../../../core/helper/zod-to-openapi.js'
 import { isArrayWithSchemaReference } from '../../../core/validator/index.js'
 import type { Schema } from '../../../openapi/index.js'
-import { zodToOpenAPI } from '../../zod-to-openapi/index.js'
 import { zod } from '../index.js'
 import { arrayReferenceSchema, referenceSchema } from '../reference/index.js'
 
