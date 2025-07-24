@@ -1,5 +1,34 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+const AddressSchema = z
+  .object({
+    street: z.string().openapi({ example: '437 Lytton' }),
+    city: z.string().openapi({ example: 'Palo Alto' }),
+    state: z.string().openapi({ example: 'CA' }),
+    zip: z.string().openapi({ example: '94301' }),
+  })
+  .partial()
+  .openapi('Address')
+
+const ApiResponseSchema = z
+  .object({ code: z.int32(), type: z.string(), message: z.string() })
+  .partial()
+  .openapi('ApiResponse')
+
+const CategorySchema = z
+  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
+  .partial()
+  .openapi('Category')
+
+const CustomerSchema = z
+  .object({
+    id: z.int64().openapi({ example: 100000 }),
+    username: z.string().openapi({ example: 'fehguy' }),
+    address: z.array(AddressSchema),
+  })
+  .partial()
+  .openapi('Customer')
+
 const OrderSchema = z
   .object({
     id: z.int64().openapi({ example: 10 }),
@@ -13,44 +42,6 @@ const OrderSchema = z
   })
   .partial()
   .openapi('Order')
-
-const AddressSchema = z
-  .object({
-    street: z.string().openapi({ example: '437 Lytton' }),
-    city: z.string().openapi({ example: 'Palo Alto' }),
-    state: z.string().openapi({ example: 'CA' }),
-    zip: z.string().openapi({ example: '94301' }),
-  })
-  .partial()
-  .openapi('Address')
-
-const CustomerSchema = z
-  .object({
-    id: z.int64().openapi({ example: 100000 }),
-    username: z.string().openapi({ example: 'fehguy' }),
-    address: z.array(AddressSchema),
-  })
-  .partial()
-  .openapi('Customer')
-
-const CategorySchema = z
-  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
-  .partial()
-  .openapi('Category')
-
-const UserSchema = z
-  .object({
-    id: z.int64().openapi({ example: 10 }),
-    username: z.string().openapi({ example: 'theUser' }),
-    firstName: z.string().openapi({ example: 'John' }),
-    lastName: z.string().openapi({ example: 'James' }),
-    email: z.string().openapi({ example: 'john@email.com' }),
-    password: z.string().openapi({ example: '12345' }),
-    phone: z.string().openapi({ example: '12345' }),
-    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
-  })
-  .partial()
-  .openapi('User')
 
 const TagSchema = z.object({ id: z.int64(), name: z.string() }).partial().openapi('Tag')
 
@@ -68,10 +59,19 @@ const PetSchema = z
   })
   .openapi('Pet')
 
-const ApiResponseSchema = z
-  .object({ code: z.int32(), type: z.string(), message: z.string() })
+const UserSchema = z
+  .object({
+    id: z.int64().openapi({ example: 10 }),
+    username: z.string().openapi({ example: 'theUser' }),
+    firstName: z.string().openapi({ example: 'John' }),
+    lastName: z.string().openapi({ example: 'James' }),
+    email: z.string().openapi({ example: 'john@email.com' }),
+    password: z.string().openapi({ example: '12345' }),
+    phone: z.string().openapi({ example: '12345' }),
+    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
+  })
   .partial()
-  .openapi('ApiResponse')
+  .openapi('User')
 
 export const putPetRoute = createRoute({
   tags: ['pet'],

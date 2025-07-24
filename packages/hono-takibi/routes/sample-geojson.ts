@@ -49,6 +49,23 @@ const GeometrySchema = z
   })
   .openapi('Geometry')
 
+const FeatureSchema = z
+  .intersection(
+    GeoJsonObjectSchema,
+    z.object({
+      geometry: GeometrySchema.nullable(),
+      properties: z.object({}).nullable(),
+      id: z.union([z.number(), z.string()]).optional(),
+    }),
+  )
+  .openapi({ description: "GeoJSon 'Feature' object" })
+  .openapi('Feature')
+
+const FeatureCollectionSchema = z
+  .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
+  .openapi({ description: "GeoJSon 'FeatureCollection' object" })
+  .openapi('FeatureCollection')
+
 const GeometryElementSchema = z
   .intersection(
     GeometrySchema,
@@ -69,6 +86,14 @@ const GeometryElementSchema = z
   })
   .openapi('GeometryElement')
 
+const GeometryCollectionSchema = z
+  .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema) }))
+  .openapi({
+    description:
+      'GeoJSon geometry collection\nGeometryCollections composed of a single part or a number of parts of a single type SHOULD be avoided when that single part or a single object of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could be used instead.\n',
+  })
+  .openapi('GeometryCollection')
+
 const PositionSchema = z
   .array(z.number())
   .min(2)
@@ -79,6 +104,19 @@ const PositionSchema = z
   })
   .openapi('Position')
 
+const LineStringCoordinatesSchema = z
+  .array(PositionSchema)
+  .min(2)
+  .openapi({
+    description: 'GeoJSon fundamental geometry construct, array of two or more positions.\n',
+  })
+  .openapi('LineStringCoordinates')
+
+const LineStringSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: LineStringCoordinatesSchema }))
+  .openapi({ description: 'GeoJSon geometry' })
+  .openapi('LineString')
+
 const LinearRingSchema = z
   .array(PositionSchema)
   .min(4)
@@ -88,6 +126,19 @@ const LinearRingSchema = z
   })
   .openapi('LinearRing')
 
+const MultiLineStringSchema = z
+  .intersection(
+    GeometryElementSchema,
+    z.object({ coordinates: z.array(LineStringCoordinatesSchema) }),
+  )
+  .openapi({ description: 'GeoJSon geometry' })
+  .openapi('MultiLineString')
+
+const MultiPointSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
+  .openapi({ description: 'GeoJSon geometry' })
+  .openapi('MultiPoint')
+
 const MultiPolygonSchema = z
   .intersection(
     GeometryElementSchema,
@@ -96,11 +147,6 @@ const MultiPolygonSchema = z
   .openapi({ description: 'GeoJSon geometry' })
   .openapi('MultiPolygon')
 
-const PolygonSchema = z
-  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(LinearRingSchema) }))
-  .openapi({ description: 'GeoJSon geometry' })
-  .openapi('Polygon')
-
 const PointSchema = z
   .intersection(
     GeometryElementSchema,
@@ -108,6 +154,11 @@ const PointSchema = z
   )
   .openapi({ description: 'GeoJSon geometry' })
   .openapi('Point')
+
+const PolygonSchema = z
+  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(LinearRingSchema) }))
+  .openapi({ description: 'GeoJSon geometry' })
+  .openapi('Polygon')
 
 const ProjectSchema = z
   .object({
@@ -121,57 +172,6 @@ const ProjectSchema = z
     updatedAt: z.iso.datetime().openapi({ description: 'Site last updated date and time' }),
   })
   .openapi('Project')
-
-const FeatureSchema = z
-  .intersection(
-    GeoJsonObjectSchema,
-    z.object({
-      geometry: GeometrySchema.nullable(),
-      properties: z.object({}).nullable(),
-      id: z.union([z.number(), z.string()]).optional(),
-    }),
-  )
-  .openapi({ description: "GeoJSon 'Feature' object" })
-  .openapi('Feature')
-
-const FeatureCollectionSchema = z
-  .intersection(GeoJsonObjectSchema, z.object({ features: z.array(FeatureSchema) }))
-  .openapi({ description: "GeoJSon 'FeatureCollection' object" })
-  .openapi('FeatureCollection')
-
-const LineStringCoordinatesSchema = z
-  .array(PositionSchema)
-  .min(2)
-  .openapi({
-    description: 'GeoJSon fundamental geometry construct, array of two or more positions.\n',
-  })
-  .openapi('LineStringCoordinates')
-
-const MultiPointSchema = z
-  .intersection(GeometryElementSchema, z.object({ coordinates: z.array(PositionSchema) }))
-  .openapi({ description: 'GeoJSon geometry' })
-  .openapi('MultiPoint')
-
-const LineStringSchema = z
-  .intersection(GeometryElementSchema, z.object({ coordinates: LineStringCoordinatesSchema }))
-  .openapi({ description: 'GeoJSon geometry' })
-  .openapi('LineString')
-
-const MultiLineStringSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z.object({ coordinates: z.array(LineStringCoordinatesSchema) }),
-  )
-  .openapi({ description: 'GeoJSon geometry' })
-  .openapi('MultiLineString')
-
-const GeometryCollectionSchema = z
-  .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema) }))
-  .openapi({
-    description:
-      'GeoJSon geometry collection\nGeometryCollections composed of a single part or a number of parts of a single type SHOULD be avoided when that single part or a single object of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could be used instead.\n',
-  })
-  .openapi('GeometryCollection')
 
 export const getRoute = createRoute({
   tags: ['Utility'],

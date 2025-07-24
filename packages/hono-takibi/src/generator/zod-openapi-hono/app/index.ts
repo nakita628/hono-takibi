@@ -1,15 +1,8 @@
 import type { OpenAPI } from '../../../openapi/index.js'
 import { getHandlerImports, importHandlers } from '../handler/utils/index.js'
-import { applyOpenapiRoutes } from './generator/apply-openapi-routes.js'
-import { docs } from './generator/docs/index.js'
+import { docs } from './helper/docs.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
-import { importMap, importRoutes, registerComponent } from './utils/index.js'
-
-const SWAGGER_UI_IMPORT = `import { swaggerUI } from '@hono/swagger-ui'` as const
-const OPENAPI_HONO_IMPORT = `import { OpenAPIHono } from '@hono/zod-openapi'` as const
-const APP = 'const app = new OpenAPIHono()' as const
-const ADD_TYPE = 'export type AddType = typeof api' as const
-const EXPORT_APP = 'export default app' as const
+import { applyOpenapiRoutes, importMap, importRoutes, registerComponent } from './utils/index.js'
 
 /**
  * Generates a Hono app with OpenAPI and Swagger UI integration.
@@ -32,16 +25,18 @@ export function app(
   const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
   const sections = [
     [
-      SWAGGER_UI_IMPORT,
-      OPENAPI_HONO_IMPORT,
+      `import { swaggerUI } from '@hono/swagger-ui'`,
+      `import { OpenAPIHono } from '@hono/zod-openapi'`,
       importHandlers(getHandlerImports(routeMappings), output).join('\n'),
       importRoutes(importMap(routeMappings, output)).join(''),
     ].join('\n'),
-    basePath ? `${APP}.basePath('${basePath}')` : APP,
+    basePath
+      ? `${'const app = new OpenAPIHono()'}.basePath('${basePath}')`
+      : 'const app = new OpenAPIHono()',
     `export const api = ${`app${applyOpenapiRoutes(routeMappings)}`}`,
     swagger,
-    ADD_TYPE,
-    EXPORT_APP,
+    'export type AddType = typeof api',
+    'export default app',
   ]
   return sections.join('\n\n')
 }

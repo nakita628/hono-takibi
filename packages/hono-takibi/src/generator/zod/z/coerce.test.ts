@@ -19,7 +19,6 @@ describe('coerce Test', () => {
 
   it.concurrent(`coerce('z.number().max(10)') -> z.coerce.number().max(10))`, () => {
     const result = coerce('z.number().max(10)')
-    console.log(result)
     const expected = 'z.coerce.number().max(10)'
     expect(result).toBe(expected)
   })

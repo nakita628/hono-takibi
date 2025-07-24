@@ -2,6 +2,10 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const AnimalSchema = z.object({ type: z.string() }).openapi('Animal')
 
+const BaseSchema = z
+  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).nullable().optional() })
+  .openapi('Base')
+
 const CatSchema = z
   .intersection(AnimalSchema, z.object({ livesLeft: z.int().min(0).max(9) }).partial())
   .openapi('Cat')
@@ -12,10 +16,6 @@ const DogSchema = z
     z.object({ barkLevel: z.enum(['quiet', 'normal', 'loud']) }).partial(),
   )
   .openapi('Dog')
-
-const BaseSchema = z
-  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).nullable().optional() })
-  .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({
   method: 'post',

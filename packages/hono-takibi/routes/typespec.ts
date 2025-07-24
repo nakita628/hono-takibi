@@ -1,12 +1,14 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+const ErrorSchema = z.object({ code: z.int32(), message: z.string() }).openapi('Error')
+
 const WidgetBaseSchema = z
   .object({ id: z.string(), weight: z.int32(), color: z.enum(['red', 'blue']) })
   .openapi('WidgetBase')
 
-const LightWidgetSchema = WidgetBaseSchema.openapi('LightWidget')
-
 const HeavyWidgetSchema = WidgetBaseSchema.openapi('HeavyWidget')
+
+const LightWidgetSchema = WidgetBaseSchema.openapi('LightWidget')
 
 const WidgetHeavySchema = z
   .object({ kind: z.literal('heavy'), value: HeavyWidgetSchema })
@@ -17,8 +19,6 @@ const WidgetLightSchema = z
   .openapi('WidgetLight')
 
 const WidgetSchema = z.union([WidgetHeavySchema, WidgetLightSchema]).openapi('Widget')
-
-const ErrorSchema = z.object({ code: z.int32(), message: z.string() }).openapi('Error')
 
 const WidgetKindSchema = z.enum(['Heavy', 'Light']).openapi('WidgetKind')
 

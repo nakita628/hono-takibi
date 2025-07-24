@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { OpenAPI } from '../../../../../openapi'
-import { docs } from '.'
+import type { OpenAPI } from '../../../../openapi'
+import { docs } from './docs.js'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/app/generator/docs/index.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/app/helper/docs.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',
@@ -95,7 +95,7 @@ const openapi: OpenAPI = {
 }
 
 describe('docs', () => {
-  it.concurrent('docs Test', () => {
+  it.concurrent('docs', () => {
     const result = docs(openapi)
     const expected = {
       openapi: '3.1.0',
