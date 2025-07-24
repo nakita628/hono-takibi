@@ -3,7 +3,7 @@ import type { Components } from '../../../../openapi/index.js'
 import { componentsCode } from './components-code.js'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/generate-components-code.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/components/components-code.test.ts
 
 const testComponents: Components = {
   schemas: {
