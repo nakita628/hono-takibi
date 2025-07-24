@@ -43,7 +43,7 @@ export function componentsCode(
       // 4.3 generate zod schema definition
       return zodToOpenAPISchema(schemaName, zodSchema, exportSchema, exportType)
     })
-    .join('')
+    .join('\n\n')
   // 5. return code
   return schemaDefinitions
 }
