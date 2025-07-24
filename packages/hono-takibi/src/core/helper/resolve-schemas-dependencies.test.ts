@@ -4,8 +4,8 @@ import { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
 // Test run
 // pnpm vitest run ./src/core/helper/resolve-schemas-dependencies.test.ts
 
-describe('resolveSchemasDependencies Test', () => {
-  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['C', 'B', 'A']`, () => {
+describe('resolveSchemasDependencies', () => {
+  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
     const result = resolveSchemasDependencies({
       A: {
         type: 'object',
@@ -36,7 +36,7 @@ describe('resolveSchemasDependencies Test', () => {
       },
     })
 
-    const expected = ['C', 'B', 'A']
+    const expected = ['B', 'C', 'A']
     expect(result).toStrictEqual(expected)
   })
 })

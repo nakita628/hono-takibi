@@ -1,15 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const AddressSchema = z
-  .object({
-    street: z.string().openapi({ example: '123 Main St' }),
-    city: z.string().openapi({ example: 'Anytown' }),
-    state: z.string().openapi({ example: 'CA' }),
-    postalCode: z.string().openapi({ example: '12345' }),
-    country: z.string().openapi({ example: 'USA' }),
-  })
-  .openapi('Address')
-
 const UserProfileSchema = z
   .strictObject({
     bio: z.string().openapi({ example: 'Software engineer with 10 years of experience.' }),
@@ -22,6 +12,16 @@ const UserProfileSchema = z
   })
   .partial()
   .openapi('UserProfile')
+
+const AddressSchema = z
+  .object({
+    street: z.string().openapi({ example: '123 Main St' }),
+    city: z.string().openapi({ example: 'Anytown' }),
+    state: z.string().openapi({ example: 'CA' }),
+    postalCode: z.string().openapi({ example: '12345' }),
+    country: z.string().openapi({ example: 'USA' }),
+  })
+  .openapi('Address')
 
 const UserSchema = z
   .object({
@@ -52,13 +52,9 @@ const UpdateUserSchema = z
   .partial()
   .openapi('UpdateUser')
 
-const OrderItemSchema = z
-  .object({
-    productId: z.string().openapi({ example: 'PROD-001' }),
-    quantity: z.int().openapi({ example: 2 }),
-    price: z.float32().openapi({ example: 49.99 }),
-  })
-  .openapi('OrderItem')
+const PaypalPaymentSchema = z
+  .object({ method: z.literal('paypal'), email: z.email().openapi({ example: 'user@paypal.com' }) })
+  .openapi('PaypalPayment')
 
 const CreditCardPaymentSchema = z
   .object({
@@ -72,14 +68,18 @@ const CreditCardPaymentSchema = z
   })
   .openapi('CreditCardPayment')
 
-const PaypalPaymentSchema = z
-  .object({ method: z.literal('paypal'), email: z.email().openapi({ example: 'user@paypal.com' }) })
-  .openapi('PaypalPayment')
-
 const PaymentMethodSchema = z
   .union([CreditCardPaymentSchema, PaypalPaymentSchema])
   .openapi({ description: 'A polymorphic payment method' })
   .openapi('PaymentMethod')
+
+const OrderItemSchema = z
+  .object({
+    productId: z.string().openapi({ example: 'PROD-001' }),
+    quantity: z.int().openapi({ example: 2 }),
+    price: z.float32().openapi({ example: 49.99 }),
+  })
+  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({

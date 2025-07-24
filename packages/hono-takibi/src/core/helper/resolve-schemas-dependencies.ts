@@ -14,7 +14,7 @@ import type { Schema } from '../../openapi/types.js'
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): readonly string[] {
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
-  const collectRefs = (schema: Schema): Set<string> => {
+  const collectRefs = (schema: Schema): string[] => {
     const refs = new Set<string>()
     const stack = [schema]
 
@@ -22,19 +22,16 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
       const node = stack.pop()
       if (!isRecord(node)) continue
 
-      if ('$ref' in node && typeof node['$ref'] === 'string') {
-        const ref = node['$ref']
-        const name = ref.slice(ref.lastIndexOf('/') + 1)
-        if (name) refs.add(name)
+      if ('$ref' in node && typeof node.$ref === 'string') {
+        const refName = node.$ref.slice(node.$ref.lastIndexOf('/') + 1)
+        if (refName) refs.add(refName)
       }
 
       for (const value of Object.values(node)) {
-        if (isRecord(value)) {
-          stack.push(value)
-        }
+        if (isRecord(value)) stack.push(value)
       }
     }
-    return refs
+    return Array.from(refs).sort()
   }
 
   const sorted: string[] = []
@@ -58,7 +55,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
     sorted.push(name)
   }
 
-  for (const name of Object.keys(schemas)) {
+  for (const name of Object.keys(schemas).sort()) {
     visit(name)
   }
 
