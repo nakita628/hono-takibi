@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { appRouteHandler, importMap, importRoutes, registerComponent } from './index.js'
+import {
+  applyOpenapiRoutes,
+  appRouteHandler,
+  importMap,
+  importRoutes,
+  registerComponent,
+} from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/app/utils/index.test.ts
@@ -79,6 +85,34 @@ describe('utils', () => {
         'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
       }
       expect(result).toStrictEqual(expected)
+    })
+  })
+
+  // applyOpenapiRoutes
+  describe('applyOpenapiRoutes', () => {
+    it.concurrent('applyOpenapiRoutes Test', () => {
+      const result = applyOpenapiRoutes([
+        {
+          routeName: 'getHonoRoute',
+          handlerName: 'getHonoRouteHandler',
+          path: '/hono',
+        },
+        {
+          routeName: 'getHonoXRoute',
+          handlerName: 'getHonoXRouteHandler',
+          path: '/hono-x',
+        },
+        {
+          routeName: 'getZodOpenapiHonoRoute',
+          handlerName: 'getZodOpenapiHonoRouteHandler',
+          path: '/zod-openapi-hono',
+        },
+      ])
+      const expected = `.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)`
+
+      expect(result).toBe(expected)
     })
   })
 })
