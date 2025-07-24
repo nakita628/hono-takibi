@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { resolveSchemasDependencies } from '.'
+import { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
 
 // Test run
-// pnpm vitest run ./src/core/schema/references/resolve-schemas-dependencies.test.ts
+// pnpm vitest run ./src/core/helper/resolve-schemas-dependencies.test.ts
 
 describe('resolveSchemasDependencies Test', () => {
-  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
+  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['C', 'B', 'A']`, () => {
     const result = resolveSchemasDependencies({
       A: {
         type: 'object',
@@ -36,7 +36,7 @@ describe('resolveSchemasDependencies Test', () => {
       },
     })
 
-    const expected = ['B', 'C', 'A']
+    const expected = ['C', 'B', 'A']
     expect(result).toStrictEqual(expected)
   })
 })
