@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { anyOf } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/component/anyof/index.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/components/anyof/index.test.ts
 
 describe('generateAnyOfCode', () => {
   it.concurrent('generateAnyOfCode with anyOf', () => {

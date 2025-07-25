@@ -23,7 +23,6 @@ export function anyOf(schema: Schema): string {
 
   const zodSchemas = schema.anyOf.map((subSchema) => {
     const z = zod(subSchema)
-    subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(z, subSchema)
     return zodToOpenAPI(z, subSchema)
   })
 
