@@ -21,8 +21,7 @@ export function oneOf(schema: Schema): string {
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
     const z = zod(subSchema)
-    subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(z, subSchema)
-    return zodToOpenAPI(z, subSchema)
+    return subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(z, subSchema)
   })
 
   return union(zodSchemas)
