@@ -1,4 +1,4 @@
-import { zodToOpenAPI } from '../../../../../core/helper/zod-to-openapi.js'
+import { zodToOpenAPI } from '../../../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../../../openapi/index.js'
 import { zod } from '../../../../zod/index.js'
 import { union } from '../../../../zod/z/index.js'

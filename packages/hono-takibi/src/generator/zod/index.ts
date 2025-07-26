@@ -1,4 +1,4 @@
-import { maybeApplyNullability, pickTypes } from '../../core/helper/index.js'
+import { maybeApplyNullability, pickTypes } from '../../helper/index.js'
 import {
   refName,
   stripMaxIfLtExist,

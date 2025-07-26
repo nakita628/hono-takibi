@@ -1,6 +1,6 @@
-import { resolveSchemasDependencies } from '../../../../core/helper/resolve-schemas-dependencies.js'
-import { zodToOpenAPI } from '../../../../core/helper/zod-to-openapi.js'
-import { zodToOpenAPISchema } from '../../../../core/helper/zod-to-openapi-schema.js'
+import { resolveSchemasDependencies } from '../../../../helper/resolve-schemas-dependencies.js'
+import { zodToOpenAPI } from '../../../../helper/zod-to-openapi.js'
+import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
 import { zod } from '../../../zod/index.js'
 

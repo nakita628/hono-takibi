@@ -1,0 +1,54 @@
+import type { Schema } from '../../schema/index.js'
+import { allOf } from '../zod-to-openapi/components/allof.js'
+import { anyOf } from '../zod-to-openapi/components/anyof.js'
+import { oneOf } from '../zod-to-openapi/components/oneof.js'
+import { propertiesSchema } from './property/properties-schema.js'
+import { record } from './record.js'
+
+/**
+ * Generates a Zod object schema from an OpenAPI schema definition.
+ *
+ * @param schema - Schema definition.
+ * @returns The Zod object schema string.
+ */
+export function object(schema: Schema): string {
+  if (schema.additionalProperties) {
+    if (typeof schema.additionalProperties === 'boolean') {
+      if (schema.properties) {
+        const zodSchema = propertiesSchema(
+          schema.properties,
+          Array.isArray(schema.required) ? schema.required : [],
+        )
+        if (schema.additionalProperties === true) {
+          return zodSchema.replace('object', 'looseObject')
+        }
+      }
+      return 'z.any()'
+    }
+    return record(schema.additionalProperties)
+  }
+
+  if (schema.properties) {
+    const zodSchema = propertiesSchema(
+      schema.properties,
+      Array.isArray(schema.required) ? schema.required : [],
+    )
+    if (schema.additionalProperties === false) {
+      return zodSchema.replace('object', 'strictObject')
+    }
+  }
+
+  if (schema.allOf) {
+    return allOf(schema)
+  }
+  if (schema.oneOf) {
+    return oneOf(schema)
+  }
+  if (schema.anyOf) {
+    return anyOf(schema)
+  }
+  if (!schema.properties) {
+    return 'z.object({})'
+  }
+  return propertiesSchema(schema.properties, Array.isArray(schema.required) ? schema.required : [])
+}
