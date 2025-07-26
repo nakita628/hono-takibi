@@ -6,11 +6,17 @@ import {
   stripMinMaxExist,
 } from '../../core/utils/index.js'
 import type { Schema } from '../../openapi/index.js'
-import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
-import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
-import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
-import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
-import { _enum, array, integer, length, max, min, number, object, string } from './z/index.js'
+
+import { _enum } from './z/enum.js'
+import { object } from './z/object.js'
+import { number } from './z/number.js'
+import { integer } from './z/integer.js'
+import { array, length, max, min } from './utils/index.js'
+import { oneOf } from '../../helper/oneof.js'
+import { anyOf } from '../../helper/anyof.js'
+import { allOf } from '../../helper/allof.js'
+import { not } from '../../helper/not.js'
+import { string } from './z/string.js'
 
 /**
  * Converts an OpenAPI `Schema` object into a Zod schema string.

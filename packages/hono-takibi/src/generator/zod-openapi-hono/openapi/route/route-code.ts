@@ -1,4 +1,4 @@
-import { isHttpMethod, isOperation } from '../../../../core/validator/index.js'
+import { isHttpMethod, isOperation } from '../../../../validator/index.js'
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
 import { route } from './index.js'
 
