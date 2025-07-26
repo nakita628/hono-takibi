@@ -1,6 +1,7 @@
 import { zod } from '../generator/zod/index.js'
 import { union } from '../generator/zod/utils/index.js'
 import type { Schema } from '../openapi/types.js'
+import { refName } from '../utils/index.js'
 import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
@@ -21,7 +22,7 @@ export function oneOf(schema: Schema): string {
 
   const zodSchemas = schema.oneOf.map((subSchema) => {
     const z = zod(subSchema)
-    return subSchema.$ref ? `${subSchema.$ref}Schema` : zodToOpenAPI(z, subSchema)
+    return subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zodToOpenAPI(z, subSchema)
   })
 
   return union(zodSchemas)
