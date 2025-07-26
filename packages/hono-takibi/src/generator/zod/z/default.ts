@@ -1,5 +1,3 @@
-import type { DefaultValue } from '../../../openapi/index.js'
-
 /**
  * Generate a Zod `.default()` validation string.
  *
@@ -11,6 +9,6 @@ import type { DefaultValue } from '../../../openapi/index.js'
  * _default(0) // => '.default(0)'
  * _default(true) // => '.default(true)'
  */
-export function _default(defaultValue: DefaultValue): string {
+export function _default(defaultValue: unknown): string {
   return `.default(${JSON.stringify(defaultValue)})`
 }

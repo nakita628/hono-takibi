@@ -2,16 +2,13 @@ import { describe, expect, it } from 'vitest'
 import type {
   Components,
   Content,
-  DefaultValue,
   OpenAPI,
   OpenAPIPaths,
   Operation,
   Parameters,
-  ParamsObject,
   RequestBody,
   Responses,
   Schema,
-  SecuritySchemes,
   Type,
 } from './index.js'
 import { parseOpenAPI } from './index.js'
@@ -28,16 +25,13 @@ describe('swagger/index exports', () => {
     const _: [
       Components?,
       Content?,
-      DefaultValue?,
       OpenAPI?,
       OpenAPIPaths?,
       Operation?,
       Parameters?,
-      ParamsObject?,
       RequestBody?,
       Responses?,
       Schema?,
-      SecuritySchemes?,
       Type?,
     ] = []
 
