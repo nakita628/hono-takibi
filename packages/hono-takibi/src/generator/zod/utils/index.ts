@@ -74,29 +74,29 @@ export function stripMinMaxExist(str: string, min: number, max: number): string 
 /**
  * Generate a Zod array schema string using `z.array()`.
  *
- * @param zodSchema - The schema string for array elements (e.g., `'Address'`, `'z.string().min(3)'`).
+ * @param schema - The schema string for array elements (e.g., `'Address'`, `'z.string().min(3)'`).
  * @returns The Zod `z.array()` schema string.
  *
  * @example
  * array('z.string()') // => 'z.array(z.string())'
  * array('User') // => 'z.array(User)'
  */
-export function array(zodSchema: string): string {
-  return `z.array(${zodSchema})`
+export function array(schema: string): string {
+  return `z.array(${schema})`
 }
 
 /**
  * Generate a Zod `z.coerce.*` schema string.
  *
- * @param zodSchema - The Zod schema string to coerce to.
+ * @param schema - The Zod schema string to coerce to.
  * @returns The Zod coercion string.
  *
  * @example
  * coerce('z.string()') // => 'z.coerce.string()'
  * coerce('z.number().min(1)') // => 'z.coerce.number().min(1)'
  */
-export function coerce(zodSchema: string): string {
-  return `z.coerce.${zodSchema.replace('z.', '')}`
+export function coerce(schema: string): string {
+  return `z.coerce.${schema.replace('z.', '')}`
 }
 
 /**
@@ -234,11 +234,11 @@ export function schema(object: Record<string, string>): string {
 /**
  * Replaces 'boolean' with 'stringbool' in a Zod schema string.
  *
- * @param zodSchema - The Zod schema string to convert.
+ * @param schema - The Zod schema string to convert.
  * @returns The converted Zod schema string.
  */
-export function stringbool(zodSchema: string): string {
-  return zodSchema.replace('boolean', 'stringbool')
+export function stringbool(schema: string): string {
+  return schema.replace('boolean', 'stringbool')
 }
 
 /**

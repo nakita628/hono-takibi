@@ -20,7 +20,7 @@ import {
 } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/pure/index.test.ts
+// pnpm vitest run ./src/generator/zod/utils/index.test.ts
 
 describe('utils', () => {
   // stripMaxIfLtExist
