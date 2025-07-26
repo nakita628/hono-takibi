@@ -1,4 +1,4 @@
-import { sanitizeIdentifier } from '../core/utils/index.js'
+import { sanitizeIdentifier } from '../utils/index.js'
 
 /**
  * Generates a Zod schema constant and optional inferred type alias.

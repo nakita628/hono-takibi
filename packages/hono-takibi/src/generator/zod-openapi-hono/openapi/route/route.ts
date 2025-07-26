@@ -1,4 +1,4 @@
-import { escapeStringLiteral, routeName } from '../../../../core/utils/index.js'
+import { escapeStringLiteral, routeName } from '../../../../utils/index.js'
 import type { Operation } from '../../../../openapi/index.js'
 import { createRoute } from './create-route.js'
 import { requestParameter } from './params/index.js'

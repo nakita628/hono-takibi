@@ -3,7 +3,7 @@ import {
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-} from '../../core/utils/index.js'
+} from '../../utils/index.js'
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
 import { maybeApplyNullability, pickTypes } from '../../helper/index.js'

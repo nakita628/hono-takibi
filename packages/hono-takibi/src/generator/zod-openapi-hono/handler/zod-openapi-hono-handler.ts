@@ -1,4 +1,4 @@
-import { routeName } from '../../../core/utils/index.js'
+import { routeName } from '../../../utils/index.js'
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'

@@ -1,4 +1,4 @@
-import { getToSafeIdentifier } from '../../../core/utils/index.js'
+import { getToSafeIdentifier } from '../../../utils/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { isAllOptional } from '../../../validator/index.js'
 import { partial } from '../utils/index.js'

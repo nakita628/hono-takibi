@@ -11,7 +11,7 @@ import {
 } from '.'
 
 // Test run
-// pnpm vitest run ./src/core/utils/index.test.ts
+// pnpm vitest run ./src/utils/index.test.ts
 
 describe('utils', () => {
   // escapeStringLiteral

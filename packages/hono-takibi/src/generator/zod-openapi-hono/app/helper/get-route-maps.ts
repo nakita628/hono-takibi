@@ -1,4 +1,4 @@
-import { routeName } from '../../../../core/utils/index.js'
+import { routeName } from '../../../../utils/index.js'
 import type { OpenAPI } from '../../../../openapi/index.js'
 
 /**
