@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { object } from '.'
+import { object } from './object'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/z/object.test.ts

@@ -77,33 +77,6 @@ export type FormatString =
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
 /**
- * Primitive values allowed in examples
- */
-type PrimitiveExample = string | number | boolean | null
-
-/**
- * Object values allowed in examples
- */
-type ObjectExample = {
-  [key: string]: PrimitiveExample | ObjectExample | ArrayExample
-}
-
-/**
- * Array values allowed in examples
- */
-type ArrayExample = Array<PrimitiveExample | ObjectExample>
-
-/**
- * Combined example type
- */
-export type ExampleValue = PrimitiveExample | ObjectExample | ArrayExample
-
-/**
- * Default value type
- */
-export type DefaultValue = PrimitiveExample | ObjectExample | ArrayExample
-
-/**
  * Content type definitions with their schemas
  */
 type ContentType = string
@@ -111,7 +84,7 @@ type ContentType = string
 export type Content = {
   [key in ContentType]: {
     schema: Schema
-    example?: ExampleValue
+    example?: unknown
     examples?: {
       [exampleKey: string]: {
         summary?: string
@@ -125,24 +98,12 @@ export type Content = {
  * Path item definition with HTTP methods and parameters
  */
 
-/**
- * HTTP methods supported in OpenAPI
- */
-type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace'
-
 export type PathItem = {
   summary?: string
   description?: string
   parameters?: string[]
 } & {
-  [Method in HttpMethod]?: Operation
-}
-
-/**
- * Security requirement object definition
- */
-type SecurityRequirementObject = {
-  [key: string]: string[]
+  [Method in 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace']?: Operation
 }
 
 /**
@@ -153,7 +114,9 @@ export type Operation = {
   summary?: string
   description?: string
   operationId?: string
-  security?: SecurityRequirementObject[]
+  security?: {
+    [key: string]: string[]
+  }[]
   parameters?: Parameters[]
   requestBody?: RequestBody
   responses: Response
@@ -198,9 +161,9 @@ export type Schema = {
   exclusiveMaximum?: number | boolean
   minItems?: number
   maxItems?: number
-  default?: DefaultValue
-  example?: ExampleValue
-  examples?: ExampleValue[]
+  default?: unknown
+  example?: unknown
+  examples?: unknown[]
   properties?: Record<string, Schema>
   required?: string[] | boolean
   items?: Schema
@@ -212,7 +175,9 @@ export type Schema = {
     name?: string
     wrapped?: boolean
   }
-  security?: SecurityRequirementObject[]
+  security?: {
+    [key: string]: string[]
+  }[]
   oneOf?: Schema[]
   allOf?: Schema[]
   anyOf?: Schema[]
@@ -243,18 +208,6 @@ export type Components = {
       bearerFormat?: string
     }
   }
-}
-
-/**
- * Dynamic parameter section type
- */
-export type ParamSection = Record<string, string>
-
-/**
- * Flexible parameters object type that can handle any section name
- */
-export type ParamsObject = {
-  [section: string]: ParamSection
 }
 
 /**

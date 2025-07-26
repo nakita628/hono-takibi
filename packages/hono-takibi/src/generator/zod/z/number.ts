@@ -1,5 +1,5 @@
-import type { Schema } from '../../../openapi/index.js'
-import { _default, gt, lt, max, min, regex } from './index.js'
+import type { Schema } from '../../../openapi/types.js'
+import { _default, gt, lt, max, min, regex } from '../utils/index.js'
 
 /**
  * Generates a Zod number schema string.

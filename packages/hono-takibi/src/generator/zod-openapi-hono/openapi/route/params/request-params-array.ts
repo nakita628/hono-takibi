@@ -1,5 +1,4 @@
-import type { ParamsObject } from '../../../../../openapi/index.js'
-import { schema } from '../../../../zod/z/index.js'
+import { schema } from '../../../../zod/utils/index.js'
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
@@ -11,7 +10,9 @@ import { schema } from '../../../../zod/z/index.js'
  * - Skips empty parameter sections.
  * - Converts `path` section to `params` (Hono convention).
  */
-export function requestParamsArray(paramsObj: ParamsObject): string[] {
+export function requestParamsArray(paramsObj: {
+  [section: string]: Record<string, string>
+}): string[] {
   // 1.  define sections to be processed
   const sections = Object.entries(paramsObj)
     .filter(([_, obj]) => obj && Object.keys(obj).length > 0)

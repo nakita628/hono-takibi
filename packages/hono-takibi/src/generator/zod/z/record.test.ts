@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { record } from '.'
+import { record } from './record.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/z/record.test.ts

@@ -1,6 +1,6 @@
-import { zodToOpenAPI } from '../../../../../core/helper/zod-to-openapi.js'
-import { getToSafeIdentifier } from '../../../../../core/utils/index.js'
-import type { Parameters, ParamsObject } from '../../../../../openapi/index.js'
+import { zodToOpenAPI } from '../../../../../helper/zod-to-openapi.js'
+import type { Parameters } from '../../../../../openapi/index.js'
+import { getToSafeIdentifier } from '../../../../../utils/index.js'
 import { zod } from '../../../../zod/index.js'
 import { queryParameter } from './index.js'
 
@@ -17,25 +17,35 @@ import { queryParameter } from './index.js'
  * - Uses `zodToOpenAPI` for schema conversion and `zodToOpenAPISchema` for output generation.
  * - Supports conditional `export` statements for both schemas and types.
  */
-export function paramsObject(parameters: Parameters[]): ParamsObject {
-  return parameters.reduce((acc: ParamsObject, param) => {
-    const z = zod(param.schema)
-    const optionalSuffix = param.required ? '' : '.optional()'
-    // path params are generated with the param name
-    const baseSchema = param.in
-      ? zodToOpenAPI(z, param.schema, param.name, param.in)
-      : zodToOpenAPI(z, param.schema, param.name)
+export function paramsObject(parameters: Parameters[]): {
+  [section: string]: Record<string, string>
+} {
+  return parameters.reduce(
+    (
+      acc: {
+        [section: string]: Record<string, string>
+      },
+      param,
+    ) => {
+      const z = zod(param.schema)
+      const optionalSuffix = param.required ? '' : '.optional()'
+      // path params are generated with the param name
+      const baseSchema = param.in
+        ? zodToOpenAPI(z, param.schema, param.name, param.in)
+        : zodToOpenAPI(z, param.schema, param.name)
 
-    // Initialize section if it doesn't exist
-    if (!acc[param.in]) {
-      acc[param.in] = {}
-    }
+      // Initialize section if it doesn't exist
+      if (!acc[param.in]) {
+        acc[param.in] = {}
+      }
 
-    // queryParameter check
-    const zodSchema = queryParameter(baseSchema, param)
+      // queryParameter check
+      const zodSchema = queryParameter(baseSchema, param)
 
-    // Add parameter to its section
-    acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`
-    return acc
-  }, {})
+      // Add parameter to its section
+      acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`
+      return acc
+    },
+    {},
+  )
 }

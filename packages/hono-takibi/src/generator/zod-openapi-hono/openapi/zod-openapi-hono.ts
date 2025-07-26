@@ -1,5 +1,5 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { componentsCode } from './components/components-code.js'
+import { componentsCode } from './components/index.js'
 import { routeCode } from './route/route-code.js'
 
 /**

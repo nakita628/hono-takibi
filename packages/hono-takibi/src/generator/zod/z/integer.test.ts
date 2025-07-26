@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { integer } from '.'
+import { integer } from './integer'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/z/integer.test.ts

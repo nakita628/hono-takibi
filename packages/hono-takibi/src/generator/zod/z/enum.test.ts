@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { _enum } from '.'
+import { _enum } from './enum'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/z/enum.test.ts

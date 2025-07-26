@@ -1,9 +1,8 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
-import { propertySchema } from '../../../../zod/property/property-schema.js'
-import { insertRequestBody } from '../request/body/insert-request-body.js'
-import { requestBody } from '../request/body/request-body.js'
-import { formatRequestObject } from '../request/object/format-request-object.js'
-import { paramsObject, requestParams, requestParamsArray } from './index.js'
+import { propertySchema } from '../../../../zod/helper/property-schema.js'
+import { requestBody } from '../request/body/index.js'
+import { formatRequestObject, insertRequestBody, requestParams } from '../utils/index.js'
+import { paramsObject, requestParamsArray } from './index.js'
 
 /**
  * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.

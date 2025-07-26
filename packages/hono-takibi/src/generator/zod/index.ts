@@ -1,16 +1,21 @@
-import { maybeApplyNullability, pickTypes } from '../../core/helper/index.js'
+import { allOf } from '../../helper/allof.js'
+import { anyOf } from '../../helper/anyof.js'
+import { maybeApplyNullability, pickTypes } from '../../helper/index.js'
+import { not } from '../../helper/not.js'
+import { oneOf } from '../../helper/oneof.js'
+import type { Schema } from '../../openapi/index.js'
 import {
   refName,
   stripMaxIfLtExist,
   stripMinIfgtExist,
   stripMinMaxExist,
-} from '../../core/utils/index.js'
-import type { Schema } from '../../openapi/index.js'
-import { allOf } from '../zod-openapi-hono/openapi/components/allof/index.js'
-import { anyOf } from '../zod-openapi-hono/openapi/components/anyof/index.js'
-import { not } from '../zod-openapi-hono/openapi/components/not/index.js'
-import { oneOf } from '../zod-openapi-hono/openapi/components/oneof/index.js'
-import { _enum, array, integer, length, max, min, number, object, string } from './z/index.js'
+} from '../../utils/index.js'
+import { array, length, max, min } from './utils/index.js'
+import { _enum } from './z/enum.js'
+import { integer } from './z/integer.js'
+import { number } from './z/number.js'
+import { object } from './z/object.js'
+import { string } from './z/string.js'
 
 /**
  * Converts an OpenAPI `Schema` object into a Zod schema string.
