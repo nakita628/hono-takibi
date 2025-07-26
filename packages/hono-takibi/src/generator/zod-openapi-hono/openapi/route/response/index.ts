@@ -1,5 +1,5 @@
-import { escapeStringLiteral } from '../../../../../utils/index.js'
 import type { Responses } from '../../../../../openapi/index.js'
+import { escapeStringLiteral } from '../../../../../utils/index.js'
 import { isUniqueContentSchema } from '../../../../../validator/index.js'
 import { propertySchema } from '../../../../zod/helper/property-schema.js'
 

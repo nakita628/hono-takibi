@@ -1,5 +1,5 @@
-import { refName } from '../../../utils/index.js'
 import type { Schema } from '../../../openapi/index.js'
+import { refName } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema string for a referenced schema.

@@ -3,7 +3,6 @@ import {
   paramsObject,
   queryParameter,
   requestParameter,
-  requestParams,
   requestParamsArray,
 } from '.'
 
@@ -18,11 +17,6 @@ describe('request module barrel file exports', () => {
   it('should export requestParameter', () => {
     expect(typeof requestParameter).toBe('function')
   })
-
-  it('should export requestParams', () => {
-    expect(typeof requestParams).toBe('function')
-  })
-
   it('should export requestParamsArray', () => {
     expect(typeof requestParamsArray).toBe('function')
   })
