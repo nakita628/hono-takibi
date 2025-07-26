@@ -1,4 +1,3 @@
-
 import { allOf } from '../../../helper/allof.js'
 import { anyOf } from '../../../helper/anyof.js'
 import { oneOf } from '../../../helper/oneof.js'

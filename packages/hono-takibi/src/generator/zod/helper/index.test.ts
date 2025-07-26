@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { propertiesSchema, propertySchema, arrayReferenceSchema, referenceSchema, zodSchemaFromSubSchema } from './index.js'
+import {
+  arrayReferenceSchema,
+  propertiesSchema,
+  propertySchema,
+  referenceSchema,
+  zodSchemaFromSubSchema,
+} from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/helper/index.test.ts

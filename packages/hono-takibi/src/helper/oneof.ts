@@ -1,7 +1,7 @@
-import { zod } from "../generator/zod/index.js"
-import { union } from "../generator/zod/utils/index.js"
-import type { Schema } from "../openapi/types.js"
-import { zodToOpenAPI } from "./zod-to-openapi.js"
+import { zod } from '../generator/zod/index.js'
+import { union } from '../generator/zod/utils/index.js'
+import type { Schema } from '../openapi/types.js'
+import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
  * Converts an OpenAPI `oneOf` schema to a Zod union expression.

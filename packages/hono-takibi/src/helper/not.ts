@@ -1,4 +1,4 @@
-import type { Schema } from "../openapi/types.js"
+import type { Schema } from '../openapi/types.js'
 
 /**
  * Converts an OpenAPI `not` schema to a Zod expression.

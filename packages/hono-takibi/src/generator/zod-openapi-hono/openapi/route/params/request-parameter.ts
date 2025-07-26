@@ -1,5 +1,5 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
-import { propertySchema } from '../../../../zod/property/property-schema.js'
+import { propertySchema } from '../../../../zod/helper/property-schema.js'
 import { insertRequestBody } from '../request/body/insert-request-body.js'
 import { requestBody } from '../request/body/request-body.js'
 import { formatRequestObject } from '../request/object/format-request-object.js'

@@ -1,4 +1,3 @@
-
 import type { Schema } from '../../../openapi/types.js'
 import { _default, max, min, regex } from '../utils/index.js'
 

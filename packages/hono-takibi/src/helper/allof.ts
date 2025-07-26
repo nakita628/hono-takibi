@@ -1,7 +1,7 @@
-import { zodSchemaFromSubSchema } from "../generator/zod/helper/zod-schema-from-sub-schema.js"
-import { intersection } from "../generator/zod/utils/index.js"
-import type { Schema } from "../openapi/types.js"
-import { isNullableSchema } from "../validator/is-nullable-schema.js"
+import { zodSchemaFromSubSchema } from '../generator/zod/helper/zod-schema-from-sub-schema.js'
+import { intersection } from '../generator/zod/utils/index.js'
+import type { Schema } from '../openapi/types.js'
+import { isNullableSchema } from '../validator/is-nullable-schema.js'
 
 /**
  * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
