@@ -3,7 +3,6 @@ import type { Responses } from '../../../../../openapi/index.js'
 import { isUniqueContentSchema } from '../../../../../validator/index.js'
 import { propertySchema } from '../../../../zod/helper/property-schema.js'
 
-
 /**
  * Generates a Zod-compatible response schema definition from OpenAPI responses.
  *

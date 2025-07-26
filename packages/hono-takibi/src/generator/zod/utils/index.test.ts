@@ -11,7 +11,6 @@ import {
   min,
   partial,
   regex,
-  removeZodPrefix,
   schema,
   stringbool,
   stripMaxIfLtExist,
@@ -92,20 +91,6 @@ describe('utils', () => {
     it.concurrent(`coerce('z.number().max(10)') -> z.coerce.number().max(10))`, () => {
       const result = coerce('z.number().max(10)')
       const expected = 'z.coerce.number().max(10)'
-      expect(result).toBe(expected)
-    })
-  })
-
-  // removeZodPrefix
-  describe('removeZodPrefix', () => {
-    it.concurrent(`removeZodPrefix('z.string().min(1)') -> 'string().min(1)'`, () => {
-      const result = removeZodPrefix('z.string().min(1)')
-      const expected = 'string().min(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`removeZodPrefix('z.number().min(1)') -> 'number().min(1)'`, () => {
-      const result = removeZodPrefix('z.number().min(1)')
-      const expected = 'number().min(1)'
       expect(result).toBe(expected)
     })
   })
