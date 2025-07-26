@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { requestBody } from './request-body'
+import { requestBody } from './'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/request/body/request-body.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/request/body/index.test.ts
 
 describe('requestBody', () => {
   it.concurrent('requestBody 1', () => {

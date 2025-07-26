@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  paramsObject,
-  queryParameter,
-  requestParameter,
-  requestParamsArray,
-} from '.'
+import { paramsObject, queryParameter, requestParameter, requestParamsArray } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/index.test.ts
