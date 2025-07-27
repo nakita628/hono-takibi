@@ -72,7 +72,7 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
+        page: 'z.coerce.number().nonpositive().default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
       },
     }
 

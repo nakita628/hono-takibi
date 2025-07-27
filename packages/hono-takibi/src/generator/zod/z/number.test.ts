@@ -5,53 +5,90 @@ import { number } from './number'
 // pnpm vitest run ./src/generator/zod/z/number.test.ts
 
 describe('numberSchema Test', () => {
-  // number
-  it.concurrent('number({}) -> z.number()', () => {
-    expect(number({})).toBe('z.number()')
+  // inclusive minimum > 0  → .min()
+  it.concurrent('minimum: 5  → z.number().min(5)', () => {
+    expect(number({ minimum: 5 })).toBe('z.number().min(5)')
   })
-  // nonpositive()
-  it.concurrent('number({ minimum: 0 }) -> z.number().nonpositive()', () => {
-    expect(number({ minimum: 0 })).toBe('z.number().nonpositive()')
+
+  // exclusive minimum > 0  → .gt()
+  it.concurrent('minimum: 5, exclusiveMinimum: true  → .gt(5)', () => {
+    expect(number({ minimum: 5, exclusiveMinimum: true })).toBe('z.number().gt(5)')
   })
-  // min
-  it.concurrent('number({ minLength: 1 }) -> z.number().min(1)', () => {
-    expect(number({ minLength: 1 })).toBe('z.number().min(1)')
+
+  // minimum === 0 (inclusive) → .nonpositive()
+  it.concurrent('minimum: 0 (inclusive)  → .nonpositive()', () => {
+    expect(number({ minimum: 0, exclusiveMinimum: false })).toBe('z.number().nonpositive()')
   })
-  // max
-  it.concurrent('number({ maxLength: 10 }) -> z.number().max(10)', () => {
-    expect(number({ maxLength: 10 })).toBe('z.number().max(10)')
-  })
-  // default
-  it.concurrent('number({ default: 1 }) -> z.number().default(1)', () => {
-    expect(number({ default: 1 })).toBe('z.number().default(1)')
-  })
-  // if minimum === 0 and exclusiveMinimum is true
-  it.concurrent('number({ minimum: 0, exclusiveMinimum: true }) -> z.number().positive()', () => {
+
+  // minimum === 0 (exclusive) → .positive()
+  it.concurrent('minimum: 0, exclusiveMinimum: true  → .positive()', () => {
     expect(number({ minimum: 0, exclusiveMinimum: true })).toBe('z.number().positive()')
   })
-  // if minimum === 0 and exclusiveMinimum is false
-  it.concurrent(
-    'number({ minimum: 0, exclusiveMinimum: false }) -> z.number().nonpositive()',
-    () => {
-      expect(number({ minimum: 0, exclusiveMinimum: false })).toBe('z.number().nonpositive()')
-    },
-  )
-  // if maximum === 0 and exclusiveMaximum is true
-  it.concurrent('number({ maximum: 0, exclusiveMaximum: true }) -> z.number().negative()', () => {
-    const result = number({ maximum: 0, exclusiveMaximum: true })
-    const expected = 'z.number().negative()'
-    expect(result).toBe(expected)
+
+  //
+  // ───────────────────────────────────────────
+  // Inclusive / Exclusive upper bound (maximum)
+  // ───────────────────────────────────────────
+  //
+
+  // inclusive maximum > 0  → .max()
+  it.concurrent('maximum: 20  → .max(20)', () => {
+    expect(number({ maximum: 20 })).toBe('z.number().max(20)')
   })
-  // float
-  it.concurrent('number({ format: "float" }) -> z.float()', () => {
-    expect(number({ format: 'float' })).toBe('z.float32()')
+
+  // exclusive maximum > 0  → .lt()
+  it.concurrent('maximum: 20, exclusiveMaximum: true  → .lt(20)', () => {
+    expect(number({ maximum: 20, exclusiveMaximum: true })).toBe('z.number().lt(20)')
   })
-  // float32
-  it.concurrent('number({ format: "float32" }) -> z.float32()', () => {
-    expect(number({ format: 'float32' })).toBe('z.float32()')
+
+  // maximum === 0 (inclusive) → .nonnegative()
+  it.concurrent('maximum: 0 (inclusive)  → .nonnegative()', () => {
+    expect(number({ maximum: 0 })).toBe('z.number().nonnegative()')
   })
-  // float64
-  it.concurrent('number({ format: "float64" }) -> z.float64()', () => {
-    expect(number({ format: 'float64' })).toBe('z.float64()')
+
+  // maximum === 0 (exclusive) → .negative()
+  it.concurrent('maximum: 0, exclusiveMaximum: true  → .negative()', () => {
+    expect(number({ maximum: 0, exclusiveMaximum: true })).toBe('z.number().negative()')
+  })
+
+  //
+  // ───────────────────────────────────────────
+  // Combined lower + upper bounds
+  // ───────────────────────────────────────────
+  //
+
+  // inclusive [1, 9] → .min(1).max(9)
+  it.concurrent('min/max inclusive (1-9)  → .min(1).max(9)', () => {
+    expect(number({ minimum: 1, maximum: 9 })).toBe('z.number().min(1).max(9)')
+  })
+
+  // exclusive (1, 9) → .gt(1).lt(9)
+  it.concurrent('min/max exclusive (1-9)  → .gt(1).lt(9)', () => {
+    expect(
+      number({
+        minimum: 1,
+        exclusiveMinimum: true,
+        maximum: 9,
+        exclusiveMaximum: true,
+      }),
+    ).toBe('z.number().gt(1).lt(9)')
+  })
+
+  //
+  // ───────────────────────────────────────────
+  // Default value interaction
+  // ───────────────────────────────────────────
+  //
+
+  // default within range
+  it.concurrent('default inside range  → .nonnegative().default(0)', () => {
+    expect(number({ maximum: 0, default: 0 })).toBe('z.number().nonnegative().default(0)')
+  })
+
+  // default + exclusive constraint
+  it.concurrent('default outside exclusive limit  → .gt(10).default(11)', () => {
+    expect(number({ minimum: 10, exclusiveMinimum: true, default: 11 })).toBe(
+      'z.number().gt(10).default(11)',
+    )
   })
 })

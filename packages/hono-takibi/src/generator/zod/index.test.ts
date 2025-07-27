@@ -167,7 +167,7 @@ describe('zod', () => {
         },
       })
       const expected =
-        'z.array(z.object({id:z.int().min(0).positive(),name:z.string(),active:z.boolean().optional()}))'
+        'z.array(z.object({id:z.int().positive(),name:z.string(),active:z.boolean().optional()}))'
       expect(result).toBe(expected)
     },
   )
@@ -233,7 +233,7 @@ describe('zod', () => {
         minimum: -1e38,
         maximum: 1e38,
       }),
-    ).toBe('z.bigint().min(BigInt(-1e+38)).max(BigInt(1e+38))')
+    ).toBe('z.bigint().min(-1e+38n).max(1e+38n)')
   })
 
   it.concurrent('array with minItems / maxItems', () => {

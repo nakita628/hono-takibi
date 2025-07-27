@@ -1,73 +1,51 @@
 import type { Schema } from '../../../openapi/types.js'
 import { _default, gt, lt, max, min, regex } from '../../../utils/index.js'
 
-/**
- * Generates a Zod number schema string.
- *
- * @param schema - OpenAPI schema definition for a number.
- * @returns The generated Zod number schema string.
- */
 export function number(schema: Schema): string {
-  const validations = [
+  const parts: string[] = [
     schema.format === 'float' || schema.format === 'float32'
       ? 'z.float32()'
       : schema.format === 'float64'
         ? 'z.float64()'
         : 'z.number()',
   ]
-  // pattern
-  if (schema.pattern) {
-    validations.push(regex(schema.pattern))
-  }
-  // minLength
-  if (schema.minLength) {
-    validations.push(min(schema.minLength))
-  }
-  // maxLength
-  if (schema.maxLength) {
-    validations.push(max(schema.maxLength))
-  }
-  // minimum
-  if (schema.minimum) {
-    validations.push(min(schema.minimum))
-  }
-  // maximum
-  if (schema.maximum) {
-    validations.push(max(schema.maximum))
-  }
-  // default
-  if (schema.default) {
-    validations.push(_default(schema.default))
-  }
-  // 0 falsy value
-  // minimum === 0
-  // positive
-  if (schema.minimum === 0 && schema.exclusiveMinimum) {
-    validations.push('.positive()')
-  }
-  // nonpositive
-  if (schema.minimum === 0 && !schema.exclusiveMinimum) {
-    if (!schema.default) {
-      validations.push('.nonpositive()')
+
+  if (schema.pattern) parts.push(regex(schema.pattern))
+  if (schema.minLength !== undefined) parts.push(min(schema.minLength))
+  if (schema.maxLength !== undefined) parts.push(max(schema.maxLength))
+
+  /* -------- lower bound -------- */
+  if (schema.minimum !== undefined) {
+    if (schema.minimum === 0) {
+      parts.push(schema.exclusiveMinimum ? '.positive()' : '.nonpositive()')
+    } else if (schema.exclusiveMinimum === true) {
+      parts.push(gt(schema.minimum))
+    } else {
+      parts.push(min(schema.minimum))
     }
+  } else if (typeof schema.exclusiveMinimum === 'number') {
+    // numeric exclusiveMinimum without minimum
+    parts.push(gt(schema.exclusiveMinimum))
   }
-  // negative
-  if (schema.maximum === 0 && schema.exclusiveMaximum) {
-    if (!schema.default) {
-      validations.push('.negative()')
+
+  /* -------- upper bound -------- */
+  if (schema.maximum !== undefined) {
+    if (schema.maximum === 0) {
+      parts.push(schema.exclusiveMaximum ? '.negative()' : '.nonnegative()')
+    } else if (schema.exclusiveMaximum === true) {
+      parts.push(lt(schema.maximum))
+    } else {
+      parts.push(max(schema.maximum))
     }
+  } else if (typeof schema.exclusiveMaximum === 'number') {
+    // numeric exclusiveMaximum without maximum
+    parts.push(lt(schema.exclusiveMaximum))
   }
-  // gt
-  if (schema.minimum) {
-    if (schema.minimum > 0 && schema.exclusiveMinimum) {
-      validations.push(gt(schema.minimum))
-    }
+
+  /* -------- default (always last) -------- */
+  if (schema.default !== undefined) {
+    parts.push(_default(schema.default))
   }
-  // lt
-  if (schema.maximum) {
-    if (schema.maximum > 0 && schema.exclusiveMaximum) {
-      validations.push(lt(schema.maximum))
-    }
-  }
-  return validations.join('')
+
+  return parts.join('')
 }

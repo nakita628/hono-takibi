@@ -116,172 +116,13 @@ export function zod(schema: Schema): string {
 
   /* number */
   if (types.includes('number')) {
-    /**
-     * Generate the base Zod schema using .min() / .max() if defined.
-     * This must NOT include .gt() or .lt(); they are handled separately below.
-     *
-     * Example:
-     *   schema: { type: 'number', minimum: 1, maximum: 5 }
-     *   → base = 'z.number().min(1).max(5)'
-     */
-    const base = number(schema)
-
-    /**
-     * Append .gt(n) only if exclusiveMinimum is defined and not already present in base.
-     *
-     * Example:
-     *   schema: { type: 'number', exclusiveMinimum: 10 }
-     *   → needsGt = '.gt(10)'
-     */
-    const needsGt =
-      typeof schema.exclusiveMinimum === 'number' &&
-      !base.includes(`.gt(${schema.exclusiveMinimum})`)
-        ? `.gt(${schema.exclusiveMinimum})`
-        : ''
-
-    /**
-     * Append .lt(n) only if exclusiveMaximum is defined and not already present in base.
-     *
-     * Example:
-     *   schema: { type: 'number', exclusiveMaximum: 20 }
-     *   → needsLt = '.lt(20)'
-     */
-    const needsLt =
-      typeof schema.exclusiveMaximum === 'number' &&
-      !base.includes(`.lt(${schema.exclusiveMaximum})`)
-        ? `.lt(${schema.exclusiveMaximum})`
-        : ''
-
-    /**
-     * Combine base with any .gt() or .lt() modifiers.
-     *
-     * Example:
-     *   base: 'z.number().min(10).max(20)', needsGt: '.gt(10)', needsLt: '.lt(20)'
-     *   → numbered = 'z.number().min(10).max(20).gt(10).lt(20)'
-     */
-    const numbered = `${base}${needsGt}${needsLt}`
-
-    /**
-     * Optimization step:
-     * If both .min(x) and .gt(x) are present with the same value,
-     * remove .min(x) to avoid redundancy.
-     *
-     * Example:
-     *   input: 'z.number().min(10).gt(10)' → output: 'z.number().gt(10)'
-     */
-    const afterGt =
-      schema.minimum !== undefined &&
-      numbered.includes(`.min(${schema.minimum})`) &&
-      numbered.includes(`.gt(${schema.minimum})`)
-        ? removeMinIfGtExists(numbered, schema.minimum)
-        : numbered
-
-    /**
-     * Same optimization for .max(x) and .lt(x):
-     * If both are present with the same value, drop .max(x).
-     *
-     * Example:
-     *   input: 'z.number().max(20).lt(20)' → output: 'z.number().lt(20)'
-     */
-    const afterLt =
-      schema.maximum !== undefined &&
-      afterGt.includes(`.max(${schema.maximum})`) &&
-      afterGt.includes(`.lt(${schema.maximum})`)
-        ? removeMaxIfLtExists(afterGt, schema.maximum)
-        : afterGt
-
-    /**
-     * If the schema is marked as nullable: append .nullable()
-     *
-     * Example:
-     *   input: z.number().gt(10) + nullable: true
-     *   → output: z.number().gt(10).nullable()
-     */
-    return maybeApplyNullability(afterLt, schema)
-  }
+  // Apply .nullable() if schema is nullable
+  return maybeApplyNullability(number(schema), schema)
+}
 
   /* integer & bigint */
   if (types.includes('integer')) {
-    /**
-     * Generate base Zod expression from the schema.
-     * This may return z.number(), z.bigint(), or z.int64() based on the format.
-     */
-    const base = integer(schema)
-
-    /**
-     * Add .gt() only if exclusiveMinimum is defined AND not already included.
-     *
-     * Example:
-     *   exclusiveMinimum: 10 → append `.gt(10)`
-     */
-    const needsGt =
-      typeof schema.exclusiveMinimum === 'number' &&
-      !base.includes(`.gt(${schema.exclusiveMinimum})`)
-        ? `.gt(${schema.exclusiveMinimum})`
-        : ''
-
-    /**
-     * Add .lt() only if exclusiveMaximum is defined AND not already included.
-     *
-     * Example:
-     *   exclusiveMaximum: 100 → append `.lt(100)`
-     */
-    const needsLt =
-      typeof schema.exclusiveMaximum === 'number' &&
-      !base.includes(`.lt(${schema.exclusiveMaximum})`)
-        ? `.lt(${schema.exclusiveMaximum})`
-        : ''
-
-    // Combine base with .gt() / .lt() modifiers
-    const raw = `${base}${needsGt}${needsLt}`
-
-    /**
-     * Optimization:
-     * If both .min(x) and .gt(x) exist with the same value, remove .min(x)
-     * If both .max(x) and .lt(x) exist with the same value, remove .max(x)
-     */
-    const afterGt =
-      schema.minimum !== undefined &&
-      raw.includes(`.min(${schema.minimum})`) &&
-      raw.includes(`.gt(${schema.minimum})`)
-        ? removeMinIfGtExists(raw, schema.minimum)
-        : raw
-
-    const afterLt =
-      schema.maximum !== undefined &&
-      afterGt.includes(`.max(${schema.maximum})`) &&
-      afterGt.includes(`.lt(${schema.maximum})`)
-        ? removeMaxIfLtExists(afterGt, schema.maximum)
-        : afterGt
-
-    /**
-     * Handle z.int64(): add `n` suffix to number literals (e.g., 100n)
-     */
-    const int64Fixed = afterLt.includes('z.int64()')
-      ? afterLt.replace(/(-?\d+)(?=\))/g, '$1n')
-      : afterLt
-
-    /**
-     * Handle z.bigint(): convert .min(123) → .min(BigInt(123))
-     * and .max(999) → .max(BigInt(999)) using regex
-     */
-    const bigintPatched = int64Fixed.includes('z.bigint()')
-      ? (() => {
-          const NUM = /-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/i
-          return int64Fixed
-            .replace(
-              new RegExp(`\\.min\\(\\s*(${NUM.source})\\s*\\)`, 'gi'),
-              (_, n) => `.min(BigInt(${n}))`,
-            )
-            .replace(
-              new RegExp(`\\.max\\(\\s*(${NUM.source})\\s*\\)`, 'gi'),
-              (_, n) => `.max(BigInt(${n}))`,
-            )
-        })()
-      : int64Fixed
-
-    // Apply .nullable() if schema is nullable
-    return maybeApplyNullability(bigintPatched, schema)
+    return maybeApplyNullability(integer(schema), schema)
   }
 
   /* array */
@@ -329,7 +170,6 @@ export function zod(schema: Schema): string {
 
   /* null only */
   if (types.length === 1 && types[0] === 'null') return 'z.null()'
-
   console.warn(`Unknown schema: ${JSON.stringify(schema)} - fallback to z.any()`)
   return 'z.any()'
 }
