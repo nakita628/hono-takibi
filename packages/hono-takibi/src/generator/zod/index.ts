@@ -5,12 +5,16 @@ import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import {
+  array,
+  length,
+  max,
+  min,
   refName,
-  stripMaxIfLtExist,
-  stripMinIfgtExist,
-  stripMinMaxExist,
+  removeMaxIfLtExists,
+  removeMinIfGtExists,
+  removeMinMaxIfEqual,
 } from '../../utils/index.js'
-import { array, length, max, min } from './utils/index.js'
+
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
@@ -105,7 +109,7 @@ export function zod(schema: Schema): string {
       schema.minLength === schema.maxLength &&
       base.includes(`min(${schema.minLength})`) &&
       base.includes(`max(${schema.maxLength})`)
-        ? `${stripMinMaxExist(base, schema.minLength, schema.maxLength)}${length(schema.minLength)}`
+        ? `${removeMinMaxIfEqual(base, schema.minLength, schema.maxLength)}${length(schema.minLength)}`
         : base
     return maybeApplyNullability(optimised, schema)
   }
@@ -119,13 +123,13 @@ export function zod(schema: Schema): string {
       schema.minimum !== undefined &&
       numbered.includes(`min(${schema.minimum})`) &&
       numbered.includes(`gt(${schema.minimum})`)
-        ? stripMinIfgtExist(numbered, schema.minimum)
+        ? removeMinIfGtExists(numbered, schema.minimum)
         : numbered
     const afterLt =
       schema.maximum !== undefined &&
       afterGt.includes(`max(${schema.maximum})`) &&
       afterGt.includes(`lt(${schema.maximum})`)
-        ? stripMaxIfLtExist(afterGt, schema.maximum)
+        ? removeMaxIfLtExists(afterGt, schema.maximum)
         : afterGt
     return maybeApplyNullability(afterLt, schema)
   }

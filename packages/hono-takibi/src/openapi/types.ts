@@ -79,10 +79,9 @@ export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 
 /**
  * Content type definitions with their schemas
  */
-type ContentType = string
 
 export type Content = {
-  [key in ContentType]: {
+  [key: string]: {
     schema: Schema
     example?: unknown
     examples?: {
@@ -163,7 +162,7 @@ export type Schema = {
   maxItems?: number
   default?: unknown
   example?: unknown
-  examples?: unknown[]
+  examples?: unknown
   properties?: Record<string, Schema>
   required?: string[] | boolean
   items?: Schema

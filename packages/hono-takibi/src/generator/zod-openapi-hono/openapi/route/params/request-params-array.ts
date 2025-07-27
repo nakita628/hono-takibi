@@ -1,4 +1,4 @@
-import { schema } from '../../../../zod/utils/index.js'
+import { schema } from '../../../../../utils/index.js'
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.

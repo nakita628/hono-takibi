@@ -2,7 +2,7 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { fmt } from '../format/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
+import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
 

@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { OpenAPI } from '../../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { templateCode } from './template-code.js'
 
 // Test run
-// pnpm vitest run ./src/cli/hono-takibi/template-code.test.ts
+// pnpm vitest run ./src/cli/template-code.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',

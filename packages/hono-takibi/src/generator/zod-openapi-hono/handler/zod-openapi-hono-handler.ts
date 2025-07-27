@@ -2,8 +2,7 @@ import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'
 import type { Result } from '../../../result/index.js'
-import { routeName } from '../../../utils/index.js'
-import { groupHandlersByFileName, handler } from './utils/index.js'
+import { groupHandlersByFileName, handler, routeName } from '../../../utils/index.js'
 
 /**
  * Generates route handler files for a Hono app using Zod and OpenAPI.
@@ -61,37 +60,23 @@ export async function zodOpenapiHonoHandler(
   for (const handler of mergedHandlers) {
     const dirPath = output?.replace(/\/[^/]+\.ts$/, '')
     const handlerPath = dirPath === 'index.ts' ? 'handlers' : `${dirPath}/handlers`
-
     const mkdirResult = await mkdir(handlerPath)
-
     if (!mkdirResult.ok) {
       return { ok: false, error: mkdirResult.error }
     }
-
     const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
-
     const match = output?.match(/[^/]+\.ts$/)
-
     const matchPath = match ? match[0] : ''
-
     const path = output === '.' || output === './' ? output : `../${matchPath}`
-
     const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
-
     const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
-
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
-
     const formatCode = await fmt(fileContent)
-
     if (!formatCode.ok) {
       return { ok: false, error: formatCode.error }
     }
-
     const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, formatCode.value)
-
     if (!writeResult.ok) writeResult
-
     if (test) {
       const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
       if (!writeResult.ok) {

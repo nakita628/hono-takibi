@@ -1,7 +1,11 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
+import {
+  formatRequestObject,
+  insertRequestBody,
+  requestParams,
+} from '../../../../../utils/index.js'
 import { propertySchema } from '../../../../zod/helper/property-schema.js'
 import { requestBody } from '../request/body/index.js'
-import { formatRequestObject, insertRequestBody, requestParams } from '../utils/index.js'
 import { paramsObject, requestParamsArray } from './index.js'
 
 /**
@@ -24,9 +28,7 @@ export function requestParameter(
   if (!(parameters || body?.content)) {
     return ''
   }
-
   const requestBodyContentTypes = Object.keys(body?.content || {})
-
   const params = parameters
     ? (() => {
         const paramsObj = paramsObject(parameters)
@@ -34,23 +36,17 @@ export function requestParameter(
         return requestParamsArr.length ? formatRequestObject(requestParamsArr) : ''
       })()
     : ''
-
   if (requestBodyContentTypes.length > 0 && body?.content) {
     // Eliminate schema duplication
     const uniqueSchemas = new Map<string, string>()
-
     for (const contentType of requestBodyContentTypes) {
       const { schema } = body.content[contentType]
       const zodSchema = propertySchema(schema)
-
       uniqueSchemas.set(zodSchema, zodSchema)
     }
-
     const request_body_required = body.required ?? false
     const [firstSchema] = uniqueSchemas.values()
-
     const requestBodyCode = requestBody(request_body_required, body.content, firstSchema)
-
     return params ? insertRequestBody(params, requestBodyCode) : requestParams(requestBodyCode)
   }
 

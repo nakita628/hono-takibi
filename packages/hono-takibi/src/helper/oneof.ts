@@ -1,7 +1,6 @@
 import { zod } from '../generator/zod/index.js'
-import { union } from '../generator/zod/utils/index.js'
 import type { Schema } from '../openapi/types.js'
-import { refName } from '../utils/index.js'
+import { refName, union } from '../utils/index.js'
 import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
