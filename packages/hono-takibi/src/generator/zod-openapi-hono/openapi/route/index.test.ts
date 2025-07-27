@@ -1,15 +1,40 @@
 import { describe, expect, it } from 'vitest'
-import { route, routeCode } from '.'
+import { routeCode } from '.'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/index.test.ts
 
-describe('route module barrel file exports', () => {
-  it('should export route', () => {
-    expect(typeof route).toBe('function')
-  })
-
-  it('should export routeCode', () => {
-    expect(typeof routeCode).toBe('function')
+describe('routeCode', () => {
+  it.concurrent('routeCode Test', () => {
+    const result = routeCode({
+      '/hono': {
+        get: {
+          tags: ['Hono'],
+          summary: 'Hono',
+          description: 'Hono',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: {
+                        type: 'string',
+                        example: 'Hono🔥',
+                      },
+                    },
+                    required: ['message'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const expected = `export const getHonoRoute=createRoute({tags:["Hono"],method:'get',path:'/hono',summary:'Hono',description:'Hono',responses:{200:{description:'OK',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})`
+    expect(result).toBe(expected)
   })
 })

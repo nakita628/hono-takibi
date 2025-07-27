@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/zod-openapi-hono.js'
+import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { parseOpenAPI } from '../openapi/parse-openapi.js'
 import type { Result } from '../result/index.js'
 import { asyncAndThen, ok } from '../result/index.js'

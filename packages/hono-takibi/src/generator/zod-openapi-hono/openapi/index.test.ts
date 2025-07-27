@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../../openapi'
-import { zodOpenAPIHono } from './zod-openapi-hono'
+import { zodOpenAPIHono } from './index.js'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/zod-openapi-hono.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/index.test.ts
 
 const abcdeOpenAPI: OpenAPI = {
   openapi: '3.1.0',

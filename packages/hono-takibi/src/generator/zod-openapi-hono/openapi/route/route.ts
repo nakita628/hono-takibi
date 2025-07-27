@@ -1,8 +1,7 @@
 import type { Operation } from '../../../../openapi/index.js'
-import { escapeStringLiteral, routeName } from '../../../../utils/index.js'
+import { createRoute, escapeStringLiteral, routeName } from '../../../../utils/index.js'
 import { requestParameter } from './params/index.js'
 import { response } from './response/index.js'
-import { createRoute } from './utils/index.js'
 
 /**
  * Generates TypeScript code for a Hono route from OpenAPI operation details.
