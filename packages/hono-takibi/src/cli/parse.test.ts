@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { parseCli } from '.'
+import { parseCli } from './parse'
 
 // Test run
-// pnpm vitest run ./src/cli/args/parse-cli.test.ts
+// pnpm vitest run ./src/cli/parse.test.ts
 
 describe('parseCli', () => {
   it('parses minimal valid input', () => {

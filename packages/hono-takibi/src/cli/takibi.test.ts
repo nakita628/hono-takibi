@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { OpenAPI } from '../../openapi/index.js'
-import { honoTakibi } from '.'
+import type { OpenAPI } from '../openapi/index.js'
+import { takibi } from './takibi.js'
 
 // Test run
-// pnpm vitest run ./src/cli/hono-takibi/index.test.ts
+// pnpm vitest run ./src/cli/takibi.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',
@@ -95,20 +95,20 @@ const openapi: OpenAPI = {
   },
 }
 
-describe('honoTakibi', () => {
+describe('takibi generate', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', 'openapi.json', '-o', 'zod-openapi-hono.ts']
     fs.writeFileSync('openapi.json', JSON.stringify(openapi))
   })
+
   afterAll(() => {
     fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
   })
 
-  it('honoTakibi generated', async () => {
-    const result = await honoTakibi()
+  it('should generate Hono app with OpenAPI routes', async () => {
+    const result = await takibi('openapi.json', 'zod-openapi-hono.ts', true, true, false, false)
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       ok: true,
       value: { message: 'Generated code written to zod-openapi-hono.ts' },
     })
@@ -174,62 +174,36 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 })
 
-describe('honoTakibi --help', () => {
+describe('takibi generate', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', '--help']
+    if (!fs.existsSync('openapi.json')) {
+      fs.writeFileSync('openapi.json', JSON.stringify(openapi))
+    }
   })
 
-  it('honoTakibi help requested --help', async () => {
-    const result = await honoTakibi()
+  afterAll(() => {
+    fs.rmSync('openapi.json', { force: true })
+    fs.rmSync('zod-openapi-hono.ts', { force: true })
+    if (fs.existsSync('tmp')) {
+      fs.rmdirSync('tmp', { recursive: true })
+    }
+  })
+
+  it('should generate Hono app with OpenAPI routes', async () => {
+    const result = await takibi('openapi.json', 'zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
       ok: true,
-      value: {
-        message: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
-
-Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`,
-      },
+      value: { message: 'Generated code written to zod-openapi-hono.ts' },
     })
   })
-})
 
-describe('honoTakibi -h', () => {
-  beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', '-h']
-  })
+  it('should generate Hono app with OpenAPI routes and template files', async () => {
+    const result = await takibi('openapi.json', 'tmp/zod-openapi-hono.ts', true, true, true, true)
 
-  it('honoTakibi help requested -h', async () => {
-    const result = await honoTakibi()
     expect(result).toStrictEqual({
       ok: true,
-      value: {
-        message: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
-
-Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`,
-      },
-    })
-  })
-
-  describe('honoTakibi missing output', () => {
-    beforeAll(() => {
-      process.argv = ['node', 'dist/index.js', 'openapi.yaml']
-    })
-
-    it('should fail if output is not specified', async () => {
-      const result = await honoTakibi()
-      expect(result.ok).toBe(false)
+      value: { message: 'Generated code and template files written' },
     })
   })
 })
