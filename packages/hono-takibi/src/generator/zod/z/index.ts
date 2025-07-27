@@ -1,3 +1,4 @@
+export { array } from './array.js'
 export { _enum } from './enum.js'
 export { integer } from './integer.js'
 export { number } from './number.js'

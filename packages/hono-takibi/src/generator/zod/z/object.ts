@@ -37,7 +37,6 @@ export function object(schema: Schema): string {
       return zodSchema.replace('object', 'strictObject')
     }
   }
-
   if (schema.allOf) {
     return allOf(schema)
   }

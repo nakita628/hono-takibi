@@ -19,7 +19,7 @@ export const getNumberRoute = createRoute({
             positive_number: z.number().positive(),
             nonnegative_number: z.number().nonpositive(),
             negative_number: z.number().negative(),
-            nonpositive_number: z.number(),
+            nonpositive_number: z.number().nonnegative(),
             multipleOf5_number: z.int(),
             finite_number: z.number(),
             safe_number: z.number().min(-9007199254740991).max(9007199254740991),

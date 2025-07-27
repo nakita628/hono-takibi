@@ -35,6 +35,21 @@ describe('zod', () => {
     const expected = 'z.string().min(1).max(10)'
     expect(result).toBe(expected)
   })
+  it.concurrent('z.string().default("test")', () => {
+    const result = zod({ type: 'string', default: 'test' })
+    const expected = 'z.string().default("test")'
+    expect(result).toBe(expected)
+  })
+  it.concurrent('z.string().nullable()', () => {
+    const result = zod({ type: 'string', nullable: true })
+    const expected = 'z.string().nullable()'
+    expect(result).toBe(expected)
+  })
+  it.concurrent('z.length(5)', () => {
+    const result = zod({ type: 'string', minLength: 5, maxLength: 5 })
+    const expected = 'z.string().length(5)'
+    expect(result).toBe(expected)
+  })
   it.concurrent('z.email()', () => {
     const result = zod({ type: 'string', format: 'email' })
     const expected = 'z.email()'
@@ -144,7 +159,7 @@ describe('zod', () => {
     expect(result).toBe(expected)
   })
   it.concurrent(
-    'z.array(z.object({id:z.int().min(0),name:z.string(),active:z.boolean().optional()}))',
+    'z.array(z.object({id:z.int().min(0).positive(),name:z.string(),active:z.boolean().optional()}))',
     () => {
       const result = zod({
         type: 'array',
@@ -167,7 +182,7 @@ describe('zod', () => {
         },
       })
       const expected =
-        'z.array(z.object({id:z.int().min(0),name:z.string(),active:z.boolean().optional()}))'
+        'z.array(z.object({id:z.int().positive(),name:z.string(),active:z.boolean().optional()}))'
       expect(result).toBe(expected)
     },
   )
