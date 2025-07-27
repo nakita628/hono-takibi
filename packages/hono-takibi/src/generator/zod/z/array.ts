@@ -3,7 +3,6 @@ import { length, max, min } from '../../../utils/index.js'
 import { zod } from '../index.js'
 
 export function array(schema: Schema): string {
-  // fall back to any[] if items が無い
   const z = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
 
   // minItems / maxItems → .min() / .max()
