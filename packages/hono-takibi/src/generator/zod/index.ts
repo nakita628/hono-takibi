@@ -116,21 +116,87 @@ export function zod(schema: Schema): string {
 
   /* number */
   if (types.includes('number')) {
-    const gt = typeof schema.exclusiveMinimum === 'number' ? `.gt(${schema.exclusiveMinimum})` : ''
-    const lt = typeof schema.exclusiveMaximum === 'number' ? `.lt(${schema.exclusiveMaximum})` : ''
-    const numbered = `${number(schema)}${gt}${lt}`
+    /**
+     * Generate the base Zod schema using .min() / .max() if defined.
+     * This must NOT include .gt() or .lt(); they are handled separately below.
+     *
+     * Example:
+     *   schema: { type: 'number', minimum: 1, maximum: 5 }
+     *   → base = 'z.number().min(1).max(5)'
+     */
+    const base = number(schema)
+
+    /**
+     * Append .gt(n) only if exclusiveMinimum is defined and not already present in base.
+     *
+     * Example:
+     *   schema: { type: 'number', exclusiveMinimum: 10 }
+     *   → needsGt = '.gt(10)'
+     */
+    const needsGt =
+      typeof schema.exclusiveMinimum === 'number' &&
+      !base.includes(`.gt(${schema.exclusiveMinimum})`)
+        ? `.gt(${schema.exclusiveMinimum})`
+        : ''
+
+    /**
+     * Append .lt(n) only if exclusiveMaximum is defined and not already present in base.
+     *
+     * Example:
+     *   schema: { type: 'number', exclusiveMaximum: 20 }
+     *   → needsLt = '.lt(20)'
+     */
+    const needsLt =
+      typeof schema.exclusiveMaximum === 'number' &&
+      !base.includes(`.lt(${schema.exclusiveMaximum})`)
+        ? `.lt(${schema.exclusiveMaximum})`
+        : ''
+
+    /**
+     * Combine base with any .gt() or .lt() modifiers.
+     *
+     * Example:
+     *   base: 'z.number().min(10).max(20)', needsGt: '.gt(10)', needsLt: '.lt(20)'
+     *   → numbered = 'z.number().min(10).max(20).gt(10).lt(20)'
+     */
+    const numbered = `${base}${needsGt}${needsLt}`
+
+    /**
+     * Optimization step:
+     * If both .min(x) and .gt(x) are present with the same value,
+     * remove .min(x) to avoid redundancy.
+     *
+     * Example:
+     *   input: 'z.number().min(10).gt(10)' → output: 'z.number().gt(10)'
+     */
     const afterGt =
       schema.minimum !== undefined &&
-      numbered.includes(`min(${schema.minimum})`) &&
-      numbered.includes(`gt(${schema.minimum})`)
+      numbered.includes(`.min(${schema.minimum})`) &&
+      numbered.includes(`.gt(${schema.minimum})`)
         ? removeMinIfGtExists(numbered, schema.minimum)
         : numbered
+
+    /**
+     * Same optimization for .max(x) and .lt(x):
+     * If both are present with the same value, drop .max(x).
+     *
+     * Example:
+     *   input: 'z.number().max(20).lt(20)' → output: 'z.number().lt(20)'
+     */
     const afterLt =
       schema.maximum !== undefined &&
-      afterGt.includes(`max(${schema.maximum})`) &&
-      afterGt.includes(`lt(${schema.maximum})`)
+      afterGt.includes(`.max(${schema.maximum})`) &&
+      afterGt.includes(`.lt(${schema.maximum})`)
         ? removeMaxIfLtExists(afterGt, schema.maximum)
         : afterGt
+
+    /**
+     * If the schema is marked as nullable: append .nullable()
+     *
+     * Example:
+     *   input: z.number().gt(10) + nullable: true
+     *   → output: z.number().gt(10).nullable()
+     */
     return maybeApplyNullability(afterLt, schema)
   }
 

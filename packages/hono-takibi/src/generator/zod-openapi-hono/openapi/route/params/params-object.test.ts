@@ -96,7 +96,7 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().default(10).openapi({param:{in:"query",name:"page",required:false},example:10})',
+        page: 'z.coerce.number().max(10).default(10).openapi({param:{in:"query",name:"page",required:false},example:10})',
       },
     }
     expect(result).toStrictEqual(expected)
