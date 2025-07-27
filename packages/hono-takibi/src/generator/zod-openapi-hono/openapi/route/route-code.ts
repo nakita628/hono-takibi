@@ -1,5 +1,5 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
-import { isHttpMethod, isOperation } from '../../../../validator/index.js'
+import { isHttpMethod } from '../../../../validator/index.js'
 import { route } from './index.js'
 
 /**
@@ -29,7 +29,8 @@ export function routeCode(openAPIPaths: OpenAPIPaths): string {
       // 3.3 exclude the possibility of string or Parameter[]
       if (typeof pathItemValue === 'string' || Array.isArray(pathItemValue)) continue
       // 3.4 at this point, pathItemValue is only a possibility for Operation
-      if (!isOperation(pathItemValue)) continue
+      // if (!isOperation(pathItemValue)) continue
+      if (!('responses' in pathItemValue)) continue
       // 3.5 generating the root code and adding it to the array
       routes.push(route(path, method, pathItemValue))
     }

@@ -1,6 +1,5 @@
 import type { Responses } from '../../../../../openapi/index.js'
-import { escapeStringLiteral } from '../../../../../utils/index.js'
-import { isUniqueContentSchema } from '../../../../../validator/index.js'
+import { escapeStringLiteral, isUniqueContentSchema } from '../../../../../utils/index.js'
 import { propertySchema } from '../../../../zod/helper/property-schema.js'
 
 /**
@@ -27,7 +26,6 @@ export function response(responses: Responses): string {
     // check duplication
     const contentTypes = Object.keys(response.content)
     const isUniqueSchema = isUniqueContentSchema(contentTypes, response.content)
-
     // all duplication same schema
     if (isUniqueSchema) {
       const contentParts: string[] = []
@@ -48,7 +46,6 @@ export function response(responses: Responses): string {
                 })
                 .join(',')}}`
             : ''
-
         contentParts.push(`'${contentType}':{schema:${zodSchema}${exampleString}}`)
       }
       return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`
