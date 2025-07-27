@@ -1,7 +1,7 @@
 import type { Result } from '../../result/index.js'
 import { asyncAndThen, ok } from '../../result/index.js'
+import { isHelpRequested, sliceArgv } from '../../utils/index.js'
 import { parseCli } from '../parse/parse-cli.js'
-import { isHelpRequested, sliceArgv } from '../utils/index.js'
 import { takibi } from './takibi.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
@@ -21,7 +21,6 @@ Options:
  */
 export async function honoTakibi(): Promise<Result<{ message: string }, string>> {
   const args = sliceArgv(process.argv)
-
   return isHelpRequested(sliceArgv(process.argv))
     ? ok({ message: HELP_TEXT })
     : await asyncAndThen(parseCli(args), async (cli) =>

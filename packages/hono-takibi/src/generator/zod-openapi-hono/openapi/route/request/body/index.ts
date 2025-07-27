@@ -1,6 +1,6 @@
 import type { Content } from '../../../../../../openapi/index.js'
+import { coerce } from '../../../../../../utils/index.js'
 import { isUniqueContentSchema } from '../../../../../../validator/index.js'
-import { coerce } from '../../../../../zod/utils/index.js'
 
 /**
  * Generates a request body configuration string for a route.
@@ -13,10 +13,8 @@ import { coerce } from '../../../../../zod/utils/index.js'
 export function requestBody(required: boolean, content: Content, zodSchema: string): string {
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
-
   // check duplication
   const isUniqueSchema = isUniqueContentSchema(contentTypes, content)
-
   // all duplication same schema
   if (isUniqueSchema) {
     const contentParts: string[] = []

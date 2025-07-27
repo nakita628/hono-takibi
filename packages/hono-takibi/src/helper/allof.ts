@@ -1,6 +1,6 @@
 import { zodSchemaFromSubSchema } from '../generator/zod/helper/zod-schema-from-sub-schema.js'
-import { intersection } from '../generator/zod/utils/index.js'
 import type { Schema } from '../openapi/types.js'
+import { intersection } from '../utils/index.js'
 import { isNullableSchema } from '../validator/is-nullable-schema.js'
 
 /**
@@ -20,7 +20,6 @@ export function allOf(schema: Schema): string {
     console.warn('not exists allOf')
     return 'z.any()'
   }
-
   const { nullable, schemas } = schema.allOf.reduce<{
     nullable: boolean
     schemas: string[]
@@ -36,14 +35,11 @@ export function allOf(schema: Schema): string {
     },
     { nullable: false, schemas: [] },
   )
-
   if (schemas.length === 0) {
     return nullable ? 'z.any().nullable()' : 'z.any()'
   }
-
   if (schemas.length === 1) {
     return nullable ? `${schemas[0]}.nullable()` : schemas[0]
   }
-
   return `${intersection(schemas)}${nullable ? '.nullable()' : ''}`
 }
