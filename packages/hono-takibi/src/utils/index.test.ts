@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   _default,
+  applyOpenapiRoutes,
+  appRouteHandler,
   array,
   coerce,
   escapeStringLiteral,
@@ -12,6 +14,8 @@ import {
   handler,
   hasFlag,
   importHandlers,
+  importMap,
+  importRoutes,
   intersection,
   isAllOptional,
   isArrayWithSchemaReference,
@@ -29,6 +33,7 @@ import {
   partial,
   refName,
   regex,
+  registerComponent,
   removeMaxIfLtExists,
   removeMinIfGtExists,
   removeMinMaxIfEqual,
@@ -182,13 +187,114 @@ describe('utils', () => {
     })
   })
   /* ========================================================================== *
+   *  Handler-Generation Utilities
+   * ========================================================================== */
+  // appRouteHandler
+  describe('appRouteHandler', () => {
+    it.concurrent(
+      `appRouteHandler('getRoute', 'getRouteHandler') -> .openapi(getRoute,getRouteHandler)`,
+      () => {
+        const result = appRouteHandler('getRoute', 'getRouteHandler')
+        const expected = '.openapi(getRoute,getRouteHandler)'
+        expect(result).toBe(expected)
+      },
+    )
+  })
+  // importRoutes
+  describe('importRoutes', () => {
+    it.concurrent('importRoutes Test', () => {
+      const result = importRoutes({
+        'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
+      })
+      const expected = [
+        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts'",
+      ]
+      expect(result).toStrictEqual(expected)
+    })
+  })
+  // registerComponent
+  describe('registerComponent', () => {
+    it.concurrent('registerComponent success', () => {
+      const result = registerComponent({
+        jwt: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      })
+      const expected = `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      )})`
+      expect(result).toBe(expected)
+    })
+  })
+  // importMap
+  describe('processImportMap', () => {
+    it.concurrent('processImportMap Test', () => {
+      const result = importMap(
+        [
+          {
+            routeName: 'getHonoRoute',
+            handlerName: 'getHonoRouteHandler',
+            path: '/hono',
+          },
+          {
+            routeName: 'getHonoXRoute',
+            handlerName: 'getHonoXRouteHandler',
+            path: '/hono-x',
+          },
+          {
+            routeName: 'getZodOpenapiHonoRoute',
+            handlerName: 'getZodOpenapiHonoRouteHandler',
+            path: '/zod-openapi-hono',
+          },
+        ],
+        'src/routes.ts',
+      )
+      const expected = {
+        'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
+      }
+      expect(result).toStrictEqual(expected)
+    })
+  })
+  // applyOpenapiRoutes
+  describe('applyOpenapiRoutes', () => {
+    it.concurrent('applyOpenapiRoutes', () => {
+      const result = applyOpenapiRoutes([
+        {
+          routeName: 'getHonoRoute',
+          handlerName: 'getHonoRouteHandler',
+          path: '/hono',
+        },
+        {
+          routeName: 'getHonoXRoute',
+          handlerName: 'getHonoXRouteHandler',
+          path: '/hono-x',
+        },
+        {
+          routeName: 'getZodOpenapiHonoRoute',
+          handlerName: 'getZodOpenapiHonoRouteHandler',
+          path: '/zod-openapi-hono',
+        },
+      ])
+      const expected = `.openapi(getHonoRoute,getHonoRouteHandler)
+.openapi(getHonoXRoute,getHonoXRouteHandler)
+.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)`
+      expect(result).toBe(expected)
+    })
+  })
+  /* ========================================================================== *
    *  Handler Utilities
    *    └─ Everything below relates to generating, grouping, or importing route
    *       handler functions.
    * ========================================================================== */
   // handler
   describe('handler', () => {
-    it.concurrent('generateHandler Test', () => {
+    it.concurrent('generateHandler', () => {
       const result = handler('getRouteHandler', 'getRoute')
       const expected = 'export const getRouteHandler:RouteHandler<typeof getRoute>=async(c)=>{}'
       expect(result).toBe(expected)
@@ -196,7 +302,7 @@ describe('utils', () => {
   })
   // importHandlers
   describe('importHandlers', () => {
-    it.concurrent('importHandlers Test', () => {
+    it.concurrent('importHandlers', () => {
       const result = importHandlers(
         {
           'honoHandler.ts': ['getHonoRouteHandler'],
