@@ -5,12 +5,16 @@ import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import {
+  array,
+  length,
+  max,
+  min,
   refName,
   removeMaxIfLtExists,
   removeMinIfGtExists,
   removeMinMaxIfEqual,
 } from '../../utils/index.js'
-import { array, length, max, min } from './utils/index.js'
+
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
