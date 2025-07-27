@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { arrayReferenceSchema } from './array-reference-schema'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/reference/array-reference-schema.test.ts
+// pnpm vitest run ./src/generator/zod/helper/array-reference-schema.test.ts
 
 describe('arrayReferenceSchema', () => {
   it.concurrent('arrayReferenceSchema -> z.array(TestSchema)', () => {

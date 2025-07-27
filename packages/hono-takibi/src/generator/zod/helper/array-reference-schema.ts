@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { array, refName } from '../../../utils/index.js'
+import { refName } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema string for an array of referenced schemas.
@@ -38,5 +38,5 @@ export function arrayReferenceSchema(schema: Schema): string {
   if (!ref) {
     return 'z.array(z.any())'
   }
-  return array(`${ref}Schema`)
+  return `z.array(${ref}Schema)`
 }
