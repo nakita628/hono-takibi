@@ -679,66 +679,25 @@ export function sanitizeIdentifier(str: string): string {
 }
 
 /* ========================================================================== *
- *  Zod Chain Optimisation
+ *  Zod Schema
  * ========================================================================== */
 
 /**
- * Removes the redundant `.max(<n>)` segment **when the same numeric value
- * is already enforced via a stricter `.lt(<n>)`** within the same
- * string-encoded Zod (or similar) validation chain.
+ * Returns a string literal representing a Zod array schema.
  *
- * @param chain    - The validation chain as a string
- * @param maximum  - The numeric argument supplied to `.max()`
- * @returns A new string with the matching `.max(maximum)` removed.
- *
- * @example
- * ```ts
- * removeMaxIfLtExists("z.number().max(1).lt(1)", 1)
- * // → "z.number().lt(1)"
- * ```
- */
-export function removeMaxIfLtExists(chain: string, maximum: number): string {
-  return chain.replace(`.max(${maximum})`, '')
-}
-
-/**
- * Removes the redundant `.min(<n>)` segment **when the same numeric value
- * is already enforced via a stricter `.gt(<n>)`** within the same
- * string-encoded validation chain.
- *
- * @param chain    - The validation chain as a string
- * @param minimum  - The numeric argument supplied to `.min()`
- * @returns A new string with the matching `.min(minimum)` removed.
+ * @param itemSchema - A stringified Zod schema for the array elements
+ *                     (e.g. `'Address'`, `'z.string().min(3)'`).
+ * @returns A string such as `'z.array(Address)'` or
+ *          `'z.array(z.string().min(3))'`.
  *
  * @example
  * ```ts
- * removeMinIfGtExists("z.number().min(1).gt(1)", 1)
- * // → "z.number().gt(1)"
+ * array('z.string()');       // → 'z.array(z.string())'
+ * array('User');             // → 'z.array(User)'
  * ```
  */
-export function removeMinIfGtExists(chain: string, minimum: number): string {
-  return chain.replace(`.min(${minimum})`, '')
-}
-
-/**
- * Removes both `.min(<n>).max(<n>)` segments **when the lower and upper
- * bounds are identical**, because a single `.length(<n>)` conveys the same
- * constraint more concisely for strings, or the bounds are otherwise
- * redundant.
- *
- * @param chain - The validation chain as a string
- * @param min   - The numeric argument supplied to `.min()`
- * @param max   - The numeric argument supplied to `.max()` (should equal `min`)
- * @returns A new string without the matched `.min(min)` and `.max(max)`.
- *
- * @example
- * ```ts
- * removeMinMaxIfEqual("z.string().min(1).max(1)", 1, 1)
- * // → "z.string()"
- * ```
- */
-export function removeMinMaxIfEqual(chain: string, min: number, max: number): string {
-  return chain.replace(`.min(${min})`, '').replace(`.max(${max})`, '')
+export function array(itemSchema: string): string {
+  return `z.array(${itemSchema})`
 }
 
 /**

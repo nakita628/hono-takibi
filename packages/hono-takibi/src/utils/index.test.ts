@@ -3,6 +3,7 @@ import {
   _default,
   applyOpenapiRoutes,
   appRouteHandler,
+  array,
   coerce,
   createRoute,
   escapeStringLiteral,
@@ -36,9 +37,6 @@ import {
   refName,
   regex,
   registerComponent,
-  removeMaxIfLtExists,
-  removeMinIfGtExists,
-  removeMinMaxIfEqual,
   requestParams,
   routeName,
   sanitizeIdentifier,
@@ -846,35 +844,29 @@ describe('utils', () => {
     })
   })
   /* ========================================================================== *
-   *  Zod Chain Optimisation
-   * ========================================================================== */
-  // removeMaxIfLtExists
-  describe('removeMaxIfLtExists', () => {
-    it.concurrent(`removeMaxIfLtExists('z.number().max(1).lt(1)', 1) -> 'z.number().lt(1)'`, () => {
-      const result = removeMaxIfLtExists('z.number().max(1).lt(1)', 1)
-      const expected = 'z.number().lt(1)'
-      expect(result).toBe(expected)
-    })
-  })
-  // removeMinIfGtExists
-  describe('removeMinIfGtExists', () => {
-    it.concurrent(`removeMinIfGtExists('z.number().min(1).gt(1)', 1) -> 'z.number().gt(1)'`, () => {
-      const result = removeMinIfGtExists('z.number().min(1).gt(1)', 1)
-      const expected = 'z.number().gt(1)'
-      expect(result).toBe(expected)
-    })
-  })
-  // removeMinMaxIfEqual
-  describe('removeMinMaxIfEqual', () => {
-    it.concurrent(`removeMinMaxIfEqual('z.string().min(1).max(1)', 1, 1) -> 'z.string()'`, () => {
-      const result = removeMinMaxIfEqual('z.string().min(1).max(1)', 1, 1)
-      const expected = 'z.string()'
-      expect(result).toBe(expected)
-    })
-  })
-  /* ========================================================================== *
    *  Zod Schema
    * ========================================================================== */
+  // array
+  describe('array', () => {
+    it.concurrent(`array('Test') -> z.array(Test)`, () => {
+      const result = array('Test')
+      const expected = 'z.array(Test)'
+      expect(result).toBe(expected)
+    })
+    it.concurrent(`array('z.string()') -> z.array(z.string())`, () => {
+      const result = array('z.string()')
+      const expected = 'z.array(z.string())'
+      expect(result).toBe(expected)
+    })
+    it.concurrent(
+      `array('z.object({ name: z.string() })') -> z.array(z.object({ name: z.string() }))`,
+      () => {
+        const result = array('z.object({ name: z.string() })')
+        const expected = 'z.array(z.object({ name: z.string() }))'
+        expect(result).toBe(expected)
+      },
+    )
+  })
   // coerce
   describe('coerce', () => {
     it.concurrent(`coerce('z.number()') -> z.coerce.number())`, () => {
