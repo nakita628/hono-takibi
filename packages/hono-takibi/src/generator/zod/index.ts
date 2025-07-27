@@ -202,12 +202,69 @@ export function zod(schema: Schema): string {
 
   /* integer & bigint */
   if (types.includes('integer')) {
-    const raw = integer(schema)
+    /**
+     * Generate base Zod expression from the schema.
+     * This may return z.number(), z.bigint(), or z.int64() based on the format.
+     */
+    const base = integer(schema)
 
-    // int64 → bigint literal suffix
-    const int64Fixed = raw.includes('z.int64()') ? raw.replace(/(-?\d+)(?=\))/g, '$1n') : raw
+    /**
+     * Add .gt() only if exclusiveMinimum is defined AND not already included.
+     *
+     * Example:
+     *   exclusiveMinimum: 10 → append `.gt(10)`
+     */
+    const needsGt =
+      typeof schema.exclusiveMinimum === 'number' &&
+      !base.includes(`.gt(${schema.exclusiveMinimum})`)
+        ? `.gt(${schema.exclusiveMinimum})`
+        : ''
 
-    // bigint bounds to BigInt()
+    /**
+     * Add .lt() only if exclusiveMaximum is defined AND not already included.
+     *
+     * Example:
+     *   exclusiveMaximum: 100 → append `.lt(100)`
+     */
+    const needsLt =
+      typeof schema.exclusiveMaximum === 'number' &&
+      !base.includes(`.lt(${schema.exclusiveMaximum})`)
+        ? `.lt(${schema.exclusiveMaximum})`
+        : ''
+
+    // Combine base with .gt() / .lt() modifiers
+    const raw = `${base}${needsGt}${needsLt}`
+
+    /**
+     * Optimization:
+     * If both .min(x) and .gt(x) exist with the same value, remove .min(x)
+     * If both .max(x) and .lt(x) exist with the same value, remove .max(x)
+     */
+    const afterGt =
+      schema.minimum !== undefined &&
+      raw.includes(`.min(${schema.minimum})`) &&
+      raw.includes(`.gt(${schema.minimum})`)
+        ? removeMinIfGtExists(raw, schema.minimum)
+        : raw
+
+    const afterLt =
+      schema.maximum !== undefined &&
+      afterGt.includes(`.max(${schema.maximum})`) &&
+      afterGt.includes(`.lt(${schema.maximum})`)
+        ? removeMaxIfLtExists(afterGt, schema.maximum)
+        : afterGt
+
+    /**
+     * Handle z.int64(): add `n` suffix to number literals (e.g., 100n)
+     */
+    const int64Fixed = afterLt.includes('z.int64()')
+      ? afterLt.replace(/(-?\d+)(?=\))/g, '$1n')
+      : afterLt
+
+    /**
+     * Handle z.bigint(): convert .min(123) → .min(BigInt(123))
+     * and .max(999) → .max(BigInt(999)) using regex
+     */
     const bigintPatched = int64Fixed.includes('z.bigint()')
       ? (() => {
           const NUM = /-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/i
@@ -223,6 +280,7 @@ export function zod(schema: Schema): string {
         })()
       : int64Fixed
 
+    // Apply .nullable() if schema is nullable
     return maybeApplyNullability(bigintPatched, schema)
   }
 

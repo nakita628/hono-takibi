@@ -144,7 +144,7 @@ describe('zod', () => {
     expect(result).toBe(expected)
   })
   it.concurrent(
-    'z.array(z.object({id:z.int().min(0),name:z.string(),active:z.boolean().optional()}))',
+    'z.array(z.object({id:z.int().min(0).positive(),name:z.string(),active:z.boolean().optional()}))',
     () => {
       const result = zod({
         type: 'array',
@@ -167,7 +167,7 @@ describe('zod', () => {
         },
       })
       const expected =
-        'z.array(z.object({id:z.int().min(0),name:z.string(),active:z.boolean().optional()}))'
+        'z.array(z.object({id:z.int().min(0).positive(),name:z.string(),active:z.boolean().optional()}))'
       expect(result).toBe(expected)
     },
   )
