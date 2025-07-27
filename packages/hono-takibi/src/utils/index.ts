@@ -406,26 +406,6 @@ export function isHttpMethod(
 }
 
 /**
- * Checks if a schema is exactly `{ nullable: true }`.
- *
- * @param schema - The schema object to evaluate.
- * @returns `true` if the schema has only `nullable: true`, otherwise `false`.
- *
- * @example
- * ```ts
- * isNullableSchema({ nullable: true })                // true
- * isNullableSchema({ nullable: true, type: 'string' }) // false
- * isNullableSchema({})                                 // false
- * ```
- */
-export function isNullableSchema(schema: unknown): boolean {
-  if (typeof schema !== 'object' || schema === null) {
-    return false
-  }
-  return 'nullable' in schema && schema.nullable === true && Object.keys(schema).length === 1
-}
-
-/**
  * Checks if a value is a non-null object (e.g., a potential `$ref` object).
  *
  * @param value - The value to check.
@@ -723,22 +703,6 @@ export function _default(value: unknown): string {
  */
 export function gt(exclusiveMin: number): string {
   return `.gt(${exclusiveMin})`
-}
-
-/**
- * Builds `z.intersection(schemaA, schemaB, …)` for two or more schemas.
- *
- * @param schemas - Stringified schemas to be intersected.
- * @returns A single `z.intersection()` expression.
- *
- * @example
- * ```ts
- * intersection(['SchemaA', 'SchemaB']);
- * // → 'z.intersection(SchemaA,SchemaB)'
- * ```
- */
-export function intersection(schemas: string[]): string {
-  return `z.intersection(${schemas.join(',')})`
 }
 
 /**

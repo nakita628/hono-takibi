@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { allOf } from './allof.js'
 
 // Test run
-// pnpm vitest run ./src/helper/zod-to-openapi/components/allof.test.ts
+// pnpm vitest run ./src/helper/allof.test.ts
 
 describe('allOf', () => {
   it.concurrent('allOf with GeoJsonObject', () => {

@@ -3,7 +3,6 @@ import {
   allOf,
   anyOf,
   maybeApplyNullability,
-  not,
   oneOf,
   pickTypes,
   resolveSchemasDependencies,
@@ -23,9 +22,6 @@ describe('helper barrel file exports', () => {
   })
   it('should export maybeApplyNullability', () => {
     expect(typeof maybeApplyNullability).toBe('function')
-  })
-  it('should export not', () => {
-    expect(typeof not).toBe('function')
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')

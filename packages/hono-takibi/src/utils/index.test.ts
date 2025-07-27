@@ -18,12 +18,10 @@ import {
   importMap,
   importRoutes,
   insertRequestBody,
-  intersection,
   isAllOptional,
   isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
-  isNullableSchema,
   isRefObject,
   isTs,
   isUniqueContentSchema,
@@ -467,28 +465,6 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  // isNullableSchema
-  describe('isNullableSchema Test', () => {
-    it.concurrent('isNullableSchema -> true', () => {
-      const result = isNullableSchema({
-        nullable: true,
-      })
-      const expected = true
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isNullableSchema -> false', () => {
-      const result = isNullableSchema({
-        type: 'object',
-        properties: {
-          test: {
-            type: 'string',
-          },
-        },
-      })
-      const expected = false
-      expect(result).toBe(expected)
-    })
-  })
   // isRefObject
   describe('isRefObject Test', () => {
     it.concurrent('isRefObject -> true', () => {
@@ -893,17 +869,6 @@ describe('utils', () => {
       const expected = '.gt(100)'
       expect(result).toBe(expected)
     })
-  })
-  // intersection
-  describe('intersection', () => {
-    it.concurrent(
-      `intersection(['TestSchema', 'z.object({type:z.enum(["A","B","C"])})']) -> z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))`,
-      () => {
-        const result = intersection(['TestSchema', 'z.object({type:z.enum(["A","B","C"])})'])
-        const expected = 'z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))'
-        expect(result).toBe(expected)
-      },
-    )
   })
   // length
   describe('length', () => {
