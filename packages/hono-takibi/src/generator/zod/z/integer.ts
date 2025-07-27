@@ -2,27 +2,37 @@ import type { Schema } from '../../../openapi/types.js'
 import { regex } from '../../../utils/index.js'
 
 /**
- * Convert an OpenAPI integer schema to a Zod schema string
- * with `.default()` appended last.
+ * Generates a Zod schema for integer types based on OpenAPI schema.
+ * Supports int32, int64, and bigint formats.
+ *
+ * @param schema - The OpenAPI schema object
+ * @returns The Zod schema string
  */
 export function integer(schema: Schema): string {
+  /* ─────────────── 1. base type ─────────────── */
   const isInt32 = schema.format === 'int32'
   const isInt64 = schema.format === 'int64'
   const isBigInt = schema.format === 'bigint'
 
-  /* -------- base type -------- */
   const out: string[] = [
     isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
 
-  /* -------- helpers -------- */
-  const lit = (n: number, forceBigInt = false): string =>
-    forceBigInt || isInt64 || isBigInt ? `${n}n` : `${n}`
+  /* ─────────────── 2. helpers ─────────────── */
+  /**
+   * Converts a numeric literal into the correct representation
+   * for int64 / bigint boundaries and defaults.
+   */
+  const lit = (n: number, forceCtor = false): string => {
+    if (isBigInt || forceCtor) return `BigInt(${n})`
+    if (isInt64) return `${n}n`
+    return `${n}`
+  }
 
-  /* -------- pattern -------- */
+  /* ─────────────── 3. pattern ─────────────── */
   if (schema.pattern) out.push(regex(schema.pattern))
 
-  /* -------- lower bound -------- */
+  /* ─────────────── 4. lower bound ─────────────── */
   if (typeof schema.exclusiveMinimum === 'number') {
     out.push(`.gt(${lit(schema.exclusiveMinimum)})`)
   } else if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
@@ -31,7 +41,7 @@ export function integer(schema: Schema): string {
     out.push(`.min(${lit(schema.minimum)})`)
   }
 
-  /* -------- upper bound -------- */
+  /* ─────────────── 5. upper bound ─────────────── */
   if (typeof schema.exclusiveMaximum === 'number') {
     out.push(`.lt(${lit(schema.exclusiveMaximum)})`)
   } else if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
@@ -40,14 +50,15 @@ export function integer(schema: Schema): string {
     out.push(`.max(${lit(schema.maximum)})`)
   }
 
-  /* -------- default (always last) -------- */
+  /* ─────────────── 6. default (always last) ─────────────── */
   if (schema.default !== undefined) {
     const def =
       typeof schema.default === 'number'
-        ? lit(schema.default, /* forceBigInt */ true)
+        ? lit(schema.default, /* forceCtor: BigInt as needed */ true)
         : JSON.stringify(schema.default)
     out.push(`.default(${def})`)
   }
 
+  /* ─────────────── 7. finish ─────────────── */
   return out.join('')
 }

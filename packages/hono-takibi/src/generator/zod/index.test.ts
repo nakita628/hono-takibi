@@ -248,7 +248,7 @@ describe('zod', () => {
         minimum: -1e38,
         maximum: 1e38,
       }),
-    ).toBe('z.bigint().min(-1e+38n).max(1e+38n)')
+    ).toBe('z.bigint().min(BigInt(-1e+38)).max(BigInt(1e+38))')
   })
 
   it.concurrent('array with minItems / maxItems', () => {

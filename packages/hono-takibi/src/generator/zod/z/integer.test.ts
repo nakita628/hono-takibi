@@ -80,13 +80,13 @@ describe('integer Test', () => {
   // ───────────────────────────────────
   //
   it('numeric default always ends with n', () => {
-    expect(integer({ default: 10 })).toBe('z.int().default(10n)')
+    expect(integer({ default: 10 })).toBe('z.int().default(BigInt(10))')
   })
 
   it('bigint default keeps n and preceding validators', () => {
     console.log(integer({ format: 'bigint', minimum: 1, default: 5 }))
     expect(integer({ format: 'bigint', minimum: 1, default: 5 })).toBe(
-      'z.bigint().min(1n).default(5n)',
+      'z.bigint().min(BigInt(1)).default(BigInt(5))',
     )
   })
 
@@ -114,6 +114,6 @@ describe('integer Test', () => {
         maximum: 100,
         exclusiveMaximum: 100, // numeric → .lt()
       }),
-    ).toBe('z.bigint().gt(5n).lt(100n)')
+    ).toBe('z.bigint().gt(BigInt(5)).lt(BigInt(100))')
   })
 })
