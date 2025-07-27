@@ -6,16 +6,13 @@ import { regex } from '../../../utils/index.js'
  * with `.default()` appended last.
  */
 export function integer(schema: Schema): string {
-  const isInt32  = schema.format === 'int32'
-  const isInt64  = schema.format === 'int64'
+  const isInt32 = schema.format === 'int32'
+  const isInt64 = schema.format === 'int64'
   const isBigInt = schema.format === 'bigint'
 
   /* -------- base type -------- */
   const out: string[] = [
-    isInt32 ? 'z.int32()'
-    : isInt64 ? 'z.int64()'
-    : isBigInt ? 'z.bigint()'
-    : 'z.int()',
+    isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
 
   /* -------- helpers -------- */

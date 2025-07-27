@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/types.js'
-import { _default, max, min, regex } from '../../../utils/index.js'
+import { _default, length, max, min, regex } from '../../../utils/index.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
@@ -30,33 +30,30 @@ const FORMAT_STRING: Record<string, string> = {
   jwt: '.jwt()',
 }
 
-/**
- * Generates a Zod schema string for string types.
- *
- * @param schema - The parameters to generate the Zod string schema.
- * @returns The generated Zod schema string.
- */
+/** Build a Zod string schema from an OpenAPI string schema. */
 export function string(schema: Schema): string {
-  const validations: string[] = []
+  const parts: string[] = []
 
-  const base = schema.format && FORMAT_STRING[schema.format]
-  validations.push(base ? `z${base}` : 'z.string()')
+  /* ---------- base / format ---------- */
+  const fmt = schema.format && FORMAT_STRING[schema.format]
+  parts.push(fmt ? `z${fmt}` : 'z.string()')
 
-  // pattern
-  if (schema.pattern) {
-    validations.push(regex(schema.pattern))
+  /* ---------- pattern ---------- */
+  if (schema.pattern) parts.push(regex(schema.pattern))
+
+  /* ---------- length constraints ---------- */
+  const { minLength, maxLength } = schema
+
+  // special-case: equal min & max  → .length()
+  if (minLength !== undefined && maxLength !== undefined && minLength === maxLength) {
+    parts.push(length(minLength)) // utils.length() -> '.length(n)'
+  } else {
+    if (minLength !== undefined) parts.push(min(minLength))
+    if (maxLength !== undefined) parts.push(max(maxLength))
   }
-  // minLength
-  if (schema.minLength) {
-    validations.push(min(schema.minLength))
-  }
-  // maxLength
-  if (schema.maxLength) {
-    validations.push(max(schema.maxLength))
-  }
-  // default
-  if (schema.default) {
-    validations.push(_default(schema.default))
-  }
-  return validations.join('')
+
+  /* ---------- default (always last) ---------- */
+  if (schema.default !== undefined) parts.push(_default(schema.default))
+
+  return parts.join('')
 }

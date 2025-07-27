@@ -741,28 +741,6 @@ export function removeMinMaxIfEqual(chain: string, min: number, max: number): st
   return chain.replace(`.min(${min})`, '').replace(`.max(${max})`, '')
 }
 
-/* ========================================================================== *
- *  Zod Schema
- * ========================================================================== */
-
-/**
- * Returns a string literal representing a Zod array schema.
- *
- * @param itemSchema - A stringified Zod schema for the array elements
- *                     (e.g. `'Address'`, `'z.string().min(3)'`).
- * @returns A string such as `'z.array(Address)'` or
- *          `'z.array(z.string().min(3))'`.
- *
- * @example
- * ```ts
- * array('z.string()');       // → 'z.array(z.string())'
- * array('User');             // → 'z.array(User)'
- * ```
- */
-export function array(itemSchema: string): string {
-  return `z.array(${itemSchema})`
-}
-
 /**
  * Prepends `z.coerce.` to a stringified Zod schema, transforming
  * `z.type()` into `z.coerce.type()`.
