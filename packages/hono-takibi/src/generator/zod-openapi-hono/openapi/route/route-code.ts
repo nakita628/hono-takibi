@@ -1,5 +1,6 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
-import { isHttpMethod } from '../../../../validator/index.js'
+import { isHttpMethod } from '../../../../utils/index.js'
+
 import { route } from './index.js'
 
 /**

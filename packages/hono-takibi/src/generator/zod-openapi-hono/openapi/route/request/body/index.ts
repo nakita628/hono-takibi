@@ -1,6 +1,5 @@
 import type { Content } from '../../../../../../openapi/index.js'
-import { coerce } from '../../../../../../utils/index.js'
-import { isUniqueContentSchema } from '../../../../../../validator/index.js'
+import { coerce, isUniqueContentSchema } from '../../../../../../utils/index.js'
 
 /**
  * Generates a request body configuration string for a route.

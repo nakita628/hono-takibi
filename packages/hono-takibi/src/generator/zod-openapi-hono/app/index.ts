@@ -1,5 +1,6 @@
 import type { OpenAPI } from '../../../openapi/index.js'
-import { getHandlerImports, importHandlers } from '../handler/utils/index.js'
+import { getHandlerImports, importHandlers } from '../../../utils/index.js'
+
 import { docs } from './helper/docs.js'
 import { getRouteMaps } from './helper/get-route-maps.js'
 import { applyOpenapiRoutes, importMap, importRoutes, registerComponent } from './utils/index.js'
