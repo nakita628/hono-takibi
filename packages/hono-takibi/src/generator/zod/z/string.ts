@@ -47,7 +47,7 @@ export function string(schema: Schema): string {
     if (schema.minLength !== undefined) parts.push(`.min(${schema.minLength})`)
     if (schema.maxLength !== undefined) parts.push(`.max(${schema.maxLength})`)
   }
-  /* ---------- default (always last) ---------- */
+  /* default (always last)*/
   if (schema.default !== undefined) parts.push(`.default(${JSON.stringify(schema.default)})`)
   return parts.join('')
 }
