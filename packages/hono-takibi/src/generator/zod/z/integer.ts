@@ -14,73 +14,96 @@ export function integer(schema: Schema): string {
   const o: string[] = [
     isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
-  // positive
-  // z.int().positive().safeParse(1) // { success: true }
-  // z.int().positive().safeParse(0) // { success: false }
-  // > 0
-  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === true) {
-    o.push('.positive()')
+
+  const lit = (n: number): string => {
+    if (isBigInt) return `BigInt(${n})`
+    if (isInt64) return `${n}n`
+    return `${n}`
   }
-  // nonnegative === minimum === 0
-  // >= 0
-  // z.int().nonnegative().safeParse(0) // { success: true }
-  // z.int().nonnegative().safeParse(-1) // { success: false }
-  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === false) {
-    o.push('.nonnegative()')
-  }
-  // negative
-  // z.int().negative().safeParse(-1) // { success: true }
-  // z.int().negative().safeParse(0) // { success: false }
-  // < 0
-  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === true) {
-    o.push('.negative()')
-  }
-  // nonpositive === maximum === 0
-  // <= 0
-  // z.int().nonpositive().safeParse(1) // { success: true }
-  // z.int().nonpositive().safeParse(0) // { success: false }
-  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === false) {
-    o.push('.nonpositive()')
-  }
-  // min
-  // z.int().min(100) // value >= 100
-  // z.int().min(100).safeParse(100) // { success: true }
-  // z.int().min(100).safeParse(99) // { success: false }
-  if (schema.minimum !== undefined && schema.minimum !== 0) {
-    if (schema.exclusiveMinimum === true) {
-      // gt
-      // z.int().gt(100) // value > 100
-      // z.int().gt(100).safeParse(101) // { success: true }
-      // z.int().gt(100).safeParse(100) // { success: false }
-      o.push(`.gt(${schema.minimum})`)
-    } else {
-      o.push(`.min(${schema.minimum})`)
+
+  // minimum
+  if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
+    // > 0
+    // z.int().positive().safeParse(1) // { success: true }
+    // z.int().positive().safeParse(0) // { success: false }
+    if ((schema.minimum ?? schema.exclusiveMinimum) === 0 && schema.exclusiveMinimum === true) {
+      o.push('.positive()')
+    }
+    // >= 0
+    // z.int().nonnegative().safeParse(0) // { success: true }
+    // z.int().nonnegative().safeParse(-1) // { success: false }
+    else if (
+      (schema.minimum ?? schema.exclusiveMinimum) === 0 &&
+      schema.exclusiveMinimum === false
+    ) {
+      o.push('.nonnegative()')
+    }
+    // > value
+    // z.int().gt(100) // value > 100
+    // z.int().gt(100).safeParse(101) // { success: true }
+    // z.int().gt(100).safeParse(100) // { success: false }
+    else if (
+      (schema.exclusiveMinimum === true || schema.minimum === undefined) &&
+      typeof (schema.minimum ?? schema.exclusiveMinimum) === 'number'
+    ) {
+      o.push(`.gt(${lit((schema.minimum ?? schema.exclusiveMinimum) as number)})`)
+    }
+    // >= value
+    // z.int().min(100) // value >= 100
+    // z.int().min(100).safeParse(100) // { success: true }
+    // z.int().min(100).safeParse(99) // { success: false }
+    else if (typeof schema.minimum === 'number') {
+      o.push(`.min(${lit(schema.minimum)})`)
     }
   }
-  // max
-  // z.int().max(100) // value <= 100
-  // z.int().max(100).safeParse(100) -> { success: true }
-  // z.int().max(100).safeParse(101) -> { success: false }
-  if (schema.maximum !== undefined && schema.maximum !== 0) {
-    // lt
+
+  // maximum
+  if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
+    // < 0
+    // z.int().negative().safeParse(-1) // { success: true }
+    // z.int().negative().safeParse(0) // { success: false }
+    if ((schema.maximum ?? schema.exclusiveMaximum) === 0 && schema.exclusiveMaximum === true) {
+      o.push('.negative()')
+    }
+    // <= 0
+    // z.int().nonpositive().safeParse(0) // { success: true }
+    // z.int().nonpositive().safeParse(1) // { success: false }
+    else if (
+      (schema.maximum ?? schema.exclusiveMaximum) === 0 &&
+      schema.exclusiveMaximum === false
+    ) {
+      o.push('.nonpositive()')
+    }
+    // < value
     // z.int().lt(100) // value < 100
     // z.int().lt(100).safeParse(99) -> { success: true }
     // z.int().lt(100).safeParse(100) -> { success: false }
-    if (schema.exclusiveMaximum === true) {
-      o.push(`.lt(${schema.maximum})`)
-    } else {
-      o.push(`.max(${schema.maximum})`)
+    else if (
+      (schema.exclusiveMaximum === true || schema.maximum === undefined) &&
+      typeof (schema.maximum ?? schema.exclusiveMaximum) === 'number'
+    ) {
+      o.push(`.lt(${lit((schema.maximum ?? schema.exclusiveMaximum) as number)})`)
+    }
+    // <= value
+    // z.int().max(100) // value <= 100
+    // z.int().max(100).safeParse(100) -> { success: true }
+    // z.int().max(100).safeParse(101) -> { success: false }
+    else if (typeof schema.maximum === 'number') {
+      o.push(`.max(${lit(schema.maximum)})`)
     }
   }
+
   // multipleOf
   // z.int().multipleOf(2).safeParse(2) // { success: true }
   // z.int().multipleOf(2).safeParse(1) // { success: false }
-  if (schema.multipleOf !== undefined) {
-    o.push(`.multipleOf(${schema.multipleOf})`)
+  if (schema.multipleOf !== undefined && typeof schema.multipleOf === 'number') {
+    o.push(`.multipleOf(${lit(schema.multipleOf)})`)
   }
+
   // default (always last)
-  if (schema.default !== undefined) {
-    o.push(`.default(${JSON.stringify(schema.default)})`)
+  if (schema.default !== undefined && typeof schema.default === 'number') {
+    o.push(`.default(${lit(schema.default)})`)
   }
+
   return o.join('')
 }

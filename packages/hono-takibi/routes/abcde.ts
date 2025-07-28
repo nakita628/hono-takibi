@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ASchema = z.object({ a: z.number() }).openapi('A')
+const ASchema = z.object({ a: z.string().openapi({ example: 'a' }) }).openapi('A')
 
 const BSchema = z.object({ b: z.string().openapi({ example: 'b' }) }).openapi('B')
 

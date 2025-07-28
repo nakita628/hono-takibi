@@ -60,7 +60,9 @@ import { _enum, array, integer, number, object, string } from './z/index.js'
  */
 export function zod(schema: Schema): string {
   /* $ref */
-  if (schema.$ref) return `${refName(schema.$ref)}Schema`
+  if (schema.$ref) {
+    return `${refName(schema.$ref)}Schema`
+  }
   /* const */
   if (schema.const !== undefined) {
     return maybeApplyNullability(`z.literal(${JSON.stringify(schema.const)})`, schema)
@@ -114,7 +116,9 @@ export function zod(schema: Schema): string {
     return 'z.unknown()'
   }
   /* null only */
-  if (types.length === 1 && types[0] === 'null') return 'z.null()'
+  if (types.length === 1 && types[0] === 'null') {
+    return 'z.null()'
+  }
   console.warn(`Unknown schema: ${JSON.stringify(schema)} - fallback to z.any()`)
   return 'z.any()'
 }

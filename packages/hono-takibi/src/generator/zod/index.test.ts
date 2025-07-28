@@ -154,8 +154,8 @@ describe('zod', () => {
       zod({
         type: 'array',
         items: { type: 'string' },
-        minLength: 5,
-        maxLength: 5,
+        minItems: 5,
+        maxItems: 5,
       }),
     ).toBe('z.array(z.string()).length(5)')
   })

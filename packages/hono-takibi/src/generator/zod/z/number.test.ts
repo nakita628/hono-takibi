@@ -35,6 +35,10 @@ describe('numberSchema', () => {
   it.concurrent('minimum: 100 → z.number().min(100)', () => {
     expect(number({ minimum: 100 })).toBe('z.number().min(100)')
   })
+  // min 0
+  it.concurrent('minimum: 0, exclusiveMinimum: true → z.number().min(0)', () => {
+    expect(number({ minimum: 0 })).toBe('z.number().min(0)')
+  })
   // gt
   it.concurrent('minimum: 100, exclusiveMinimum: true → z.number().gt(100)', () => {
     expect(number({ minimum: 100, exclusiveMinimum: true })).toBe('z.number().gt(100)')
@@ -42,6 +46,10 @@ describe('numberSchema', () => {
   // max
   it.concurrent('maximum: 100 → z.number().max(100)', () => {
     expect(number({ maximum: 100 })).toBe('z.number().max(100)')
+  })
+  // max 0
+  it.concurrent('maximum: 0, exclusiveMaximum: true → z.number().max(0)', () => {
+    expect(number({ maximum: 0 })).toBe('z.number().max(0)')
   })
   // lt
   it.concurrent('maximum: 100, exclusiveMaximum: true → z.number().lt(100)', () => {
