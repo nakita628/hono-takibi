@@ -1,6 +1,5 @@
 import { zodSchemaFromSubSchema } from '../generator/zod/helper/zod-schema-from-sub-schema.js'
-import type { Schema } from '../openapi/types.js'
-import { intersection, isNullableSchema } from '../utils/index.js'
+import type { Schema } from '../openapi/index.js'
 
 /**
  * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
@@ -24,7 +23,14 @@ export function allOf(schema: Schema): string {
     schemas: string[]
   }>(
     (acc, subSchema) => {
-      if (isNullableSchema(subSchema)) {
+      const isNullable =
+        typeof subSchema === 'object' &&
+        subSchema !== null &&
+        'nullable' in subSchema &&
+        subSchema.nullable === true &&
+        Object.keys(subSchema).length === 1
+
+      if (isNullable) {
         acc.nullable = true
         return acc
       }
@@ -40,5 +46,5 @@ export function allOf(schema: Schema): string {
   if (schemas.length === 1) {
     return nullable ? `${schemas[0]}.nullable()` : schemas[0]
   }
-  return `${intersection(schemas)}${nullable ? '.nullable()' : ''}`
+  return `z.intersection(${schemas.join(',')})${nullable ? '.nullable()' : ''}`
 }

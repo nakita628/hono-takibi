@@ -5,6 +5,12 @@ import { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
 // pnpm vitest run ./src/helper/resolve-schemas-dependencies.test.ts
 
 describe('resolveSchemasDependencies', () => {
+  it('returns single schema with no refs', () => {
+    const result = resolveSchemasDependencies({
+      A: { type: 'string' },
+    })
+    expect(result).toStrictEqual(['A'])
+  })
   it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
     const result = resolveSchemasDependencies({
       A: {

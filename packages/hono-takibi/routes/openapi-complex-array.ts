@@ -21,7 +21,7 @@ export const getArrayRoute = createRoute({
             optional_elements_array: z.array(z.string()),
             min5_array: z.array(z.string()).min(5),
             max5_array: z.array(z.string()).max(5),
-            length5_array: z.array(z.string()).length(5),
+            length5_array: z.array(z.string()),
             nonempty_array: z.array(z.string()).min(1),
             unique_array: z.array(z.string()),
             mixed_array: z.array(z.union([z.string(), z.number(), z.boolean()])),

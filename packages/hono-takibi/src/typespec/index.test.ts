@@ -1,12 +1,16 @@
 import fs from 'node:fs'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { typeSpecToOpenAPI } from '.'
 
 // Test run
 // pnpm vitest run ./src/typespec/index.test.ts
 
 describe('typeSpecToOpenAPI', () => {
-  afterAll(() => {
+  beforeEach(() => {
+    fs.rmSync('tmp-spec.tsp', { force: true })
+    fs.rmSync('tmp', { recursive: true, force: true })
+  })
+  afterEach(() => {
     fs.rmSync('tmp-spec.tsp', { force: true })
     fs.rmSync('tmp', { recursive: true, force: true })
   })
@@ -55,7 +59,8 @@ model Error {
 @get op read(@path id: string): Widget | Error;
 `
     fs.writeFileSync('tmp-spec.tsp', tmpTsp)
-    await expect(typeSpecToOpenAPI('tmp-spec.tsp')).resolves.not.toThrow()
+    const result = await typeSpecToOpenAPI('tmp-spec.tsp')
+    expect(result.ok).toBe(true)
   })
 
   it('typeSpecToOpenAPI dir not Error', async () => {
@@ -104,12 +109,14 @@ model Error {
 `
     fs.mkdirSync('tmp', { recursive: true })
     fs.writeFileSync('tmp/tmp-spec.tsp', tmpTsp)
-    await expect(typeSpecToOpenAPI('tmp/tmp-spec.tsp')).resolves.not.toThrow()
+    const result = await typeSpecToOpenAPI('tmp/tmp-spec.tsp')
+    expect(result.ok).toBe(true)
   })
 
   it('typeSpecToOpenAPI Error', async () => {
     const tmpTsp = `import "@typespec`
     fs.writeFileSync('tmp-spec.tsp', tmpTsp)
-    await expect(typeSpecToOpenAPI('tmp-spec.tsp')).rejects.toThrow('TypeSpec compile failed')
+    const result = await typeSpecToOpenAPI('tmp-spec.tsp')
+    expect(result.ok).toBe(false)
   })
 })

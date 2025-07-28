@@ -48,8 +48,8 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().nonpositive().openapi({param:{in:"query",name:"page",required:false}})',
-        rows: 'z.coerce.number().nonpositive().openapi({param:{in:"query",name:"rows",required:false}})',
+        page: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"page",required:false}})',
+        rows: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"rows",required:false}})',
       },
     }
     expect(result).toStrictEqual(expected)
@@ -72,7 +72,7 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().nonpositive().default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
+        page: 'z.coerce.number().min(0).default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
       },
     }
 

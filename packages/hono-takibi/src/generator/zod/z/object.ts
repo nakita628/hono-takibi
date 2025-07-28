@@ -1,9 +1,10 @@
 import { allOf } from '../../../helper/allof.js'
 import { anyOf } from '../../../helper/anyof.js'
 import { oneOf } from '../../../helper/oneof.js'
-import type { Schema } from '../../../openapi/types.js'
+import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
+import type { Schema } from '../../../openapi/index.js'
 import { propertiesSchema } from '../helper/properties-schema.js'
-import { record } from './record.js'
+import { zod } from '../index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.
@@ -25,7 +26,7 @@ export function object(schema: Schema): string {
       }
       return 'z.any()'
     }
-    return record(schema.additionalProperties)
+    return `z.record(z.string(),${zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)})`
   }
 
   if (schema.properties) {

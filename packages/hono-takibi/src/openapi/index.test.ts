@@ -1,40 +1,61 @@
 import { describe, expect, it } from 'vitest'
-import type {
-  Components,
-  Content,
-  OpenAPI,
-  OpenAPIPaths,
-  Operation,
-  Parameters,
-  RequestBody,
-  Responses,
-  Schema,
-  Type,
-} from './index.js'
-import { parseOpenAPI } from './index.js'
+import { parseOpenAPI } from '.'
 
-// Test run:
+// Test run
 // pnpm vitest run ./src/openapi/index.test.ts
 
-describe('swagger/index exports', () => {
-  it('should export parseOpenAPI function', () => {
-    expect(typeof parseOpenAPI).toBe('function')
+describe('safeParseOpenAPI', () => {
+  it.concurrent('should return ok for a valid OpenAPI YAML string', async () => {
+    const result = await parseOpenAPI({
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Test: {
+            type: 'object',
+            required: ['test'],
+            properties: {
+              test: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/test': {
+          post: {
+            summary: 'Test endpoint',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/Test',
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Successful test',
+              },
+            },
+          },
+        },
+      },
+    } as unknown as string)
+    expect(result.ok).toBe(true)
   })
 
-  it('should export all expected types (type-only test)', () => {
-    const _: [
-      Components?,
-      Content?,
-      OpenAPI?,
-      OpenAPIPaths?,
-      Operation?,
-      Parameters?,
-      RequestBody?,
-      Responses?,
-      Schema?,
-      Type?,
-    ] = []
-
-    expect(Array.isArray(_)).toBe(true)
+  it.concurrent('should return err for a completely invalid input', async () => {
+    const result = await parseOpenAPI('not yaml nor json')
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(typeof result.error).toBe('string')
+    }
   })
 })

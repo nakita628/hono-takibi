@@ -1,7 +1,6 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
 import { maybeApplyNullability, pickTypes } from '../../helper/index.js'
-import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import { refName } from '../../utils/index.js'
@@ -61,7 +60,9 @@ import { _enum, array, integer, number, object, string } from './z/index.js'
  */
 export function zod(schema: Schema): string {
   /* $ref */
-  if (schema.$ref) return `${refName(schema.$ref)}Schema`
+  if (schema.$ref) {
+    return `${refName(schema.$ref)}Schema`
+  }
   /* const */
   if (schema.const !== undefined) {
     return maybeApplyNullability(`z.literal(${JSON.stringify(schema.const)})`, schema)
@@ -112,10 +113,12 @@ export function zod(schema: Schema): string {
     return allOf(schema)
   }
   if (schema.not) {
-    return not(schema)
+    return 'z.unknown()'
   }
   /* null only */
-  if (types.length === 1 && types[0] === 'null') return 'z.null()'
+  if (types.length === 1 && types[0] === 'null') {
+    return 'z.null()'
+  }
   console.warn(`Unknown schema: ${JSON.stringify(schema)} - fallback to z.any()`)
   return 'z.any()'
 }

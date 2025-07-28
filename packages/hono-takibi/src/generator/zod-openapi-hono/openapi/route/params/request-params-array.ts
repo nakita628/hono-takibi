@@ -1,5 +1,3 @@
-import { schema } from '../../../../../utils/index.js'
-
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
  *
@@ -17,7 +15,6 @@ export function requestParamsArray(paramsObj: {
   const sections = Object.entries(paramsObj)
     .filter(([_, obj]) => obj && Object.keys(obj).length > 0)
     .map(([section]) => section)
-
   // 2. processing of each section
   return (
     sections
@@ -25,7 +22,9 @@ export function requestParamsArray(paramsObj: {
         const obj = paramsObj[section]
         // 2.1 process only if object is not empty
         if (Object.keys(obj).length) {
-          const s = schema(obj)
+          const s = `z.object({${Object.entries(obj)
+            .map(([key, val]) => `${key}:${val}`)
+            .join(',')}})`
           // path is params convention
           if (section === 'path') {
             return `params:${s}`

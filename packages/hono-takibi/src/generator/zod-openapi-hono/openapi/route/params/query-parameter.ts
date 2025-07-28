@@ -1,10 +1,9 @@
-import type { Parameters } from '../../../../../openapi/types.js'
-import { coerce, stringbool } from '../../../../../utils/index.js'
+import type { Parameters } from '../../../../../openapi/index.js'
 
 /**
  * Generates a Zod schema string for a query parameter, with coercion applied based on its type.
  *
- * @param baseSchema - The base Zod schema string.
+ * @param schema - The base Zod schema string.
  * @param param - The OpenAPI parameter object.
  * @returns The transformed Zod schema string.
  *
@@ -13,15 +12,15 @@ import { coerce, stringbool } from '../../../../../utils/index.js'
  * - Applies `stringbool` to booleans to support string-based boolean input.
  * - Returns the base schema unchanged for other types or locations.
  */
-export function queryParameter(baseSchema: string, param: Parameters): string {
+export function queryParameter(schema: string, param: Parameters): string {
   if (param.in === 'query' && param.schema.type === 'number') {
-    return coerce(baseSchema)
+    return `z.coerce.${schema.replace('z.', '')}`
   }
   if (param.in === 'query' && param.schema.type === 'boolean') {
-    return stringbool(baseSchema)
+    return schema.replace('boolean', 'stringbool')
   }
   if (param.in === 'query' && param.schema.type === 'date') {
-    return coerce(baseSchema)
+    return `z.coerce.${schema.replace('z.', '')}`
   }
-  return baseSchema
+  return schema
 }

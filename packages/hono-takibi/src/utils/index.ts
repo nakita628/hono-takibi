@@ -406,26 +406,6 @@ export function isHttpMethod(
 }
 
 /**
- * Checks if a schema is exactly `{ nullable: true }`.
- *
- * @param schema - The schema object to evaluate.
- * @returns `true` if the schema has only `nullable: true`, otherwise `false`.
- *
- * @example
- * ```ts
- * isNullableSchema({ nullable: true })                // true
- * isNullableSchema({ nullable: true, type: 'string' }) // false
- * isNullableSchema({})                                 // false
- * ```
- */
-export function isNullableSchema(schema: unknown): boolean {
-  if (typeof schema !== 'object' || schema === null) {
-    return false
-  }
-  return 'nullable' in schema && schema.nullable === true && Object.keys(schema).length === 1
-}
-
-/**
  * Checks if a value is a non-null object (e.g., a potential `$ref` object).
  *
  * @param value - The value to check.
@@ -683,105 +663,6 @@ export function sanitizeIdentifier(str: string): string {
  * ========================================================================== */
 
 /**
- * Prepends `z.coerce.` to a stringified Zod schema, transforming
- * `z.type()` into `z.coerce.type()`.
- *
- * @param rawSchema - Any string that starts with `'z.'`.
- * @returns The coerced schema string.
- *
- * @example
- * ```ts
- * coerce('z.string()');            // → 'z.coerce.string()'
- * coerce('z.number().min(1)');     // → 'z.coerce.number().min(1)'
- * ```
- */
-export function coerce(rawSchema: string): string {
-  return `z.coerce.${rawSchema.replace('z.', '')}`
-}
-
-/**
- * Appends a `.default()` clause to a Zod validation chain.
- *
- * @param value - The default value. It is JSON-stringified verbatim.
- * @returns A string like `'.default("guest")'` or `'.default(0)'`.
- *
- * @example
- * ```ts
- * _default('guest');   // → '.default("guest")'
- * _default(0);         // → '.default(0)'
- * ```
- */
-export function _default(value: unknown): string {
-  return `.default(${JSON.stringify(value)})`
-}
-
-/**
- * Appends `.gt(<n>)` ( exclusive “greater than” ) to a validation chain.
- *
- * @param exclusiveMin - The lower bound (exclusive).
- * @returns A string such as `'.gt(42)'`.
- */
-export function gt(exclusiveMin: number): string {
-  return `.gt(${exclusiveMin})`
-}
-
-/**
- * Builds `z.intersection(schemaA, schemaB, …)` for two or more schemas.
- *
- * @param schemas - Stringified schemas to be intersected.
- * @returns A single `z.intersection()` expression.
- *
- * @example
- * ```ts
- * intersection(['SchemaA', 'SchemaB']);
- * // → 'z.intersection(SchemaA,SchemaB)'
- * ```
- */
-export function intersection(schemas: string[]): string {
-  return `z.intersection(${schemas.join(',')})`
-}
-
-/**
- * Appends `.length(<n>)` ( exact length ) to a validation chain.
- *
- * @param len - The required length.
- * @returns A string like `'.length(5)'`.
- */
-export function length(len: number): string {
-  return `.length(${len})`
-}
-
-/**
- * Appends `.lt(<n>)` ( exclusive “less than” ) to a validation chain.
- *
- * @param exclusiveMax - The upper bound (exclusive).
- * @returns A string such as `'.lt(99)'`.
- */
-export function lt(exclusiveMax: number): string {
-  return `.lt(${exclusiveMax})`
-}
-
-/**
- * Appends `.max(<n>)` ( inclusive maximum ) to a validation chain.
- *
- * @param maxValue - The upper bound (inclusive).
- * @returns A string like `'.max(100)'`.
- */
-export function max(maxValue: number): string {
-  return `.max(${maxValue})`
-}
-
-/**
- * Appends `.min(<n>)` ( inclusive minimum ) to a validation chain.
- *
- * @param minValue - The lower bound (inclusive).
- * @returns A string like `'.min(1)'`.
- */
-export function min(minValue: number): string {
-  return `.min(${minValue})`
-}
-
-/**
  * Produces `z.object({ … }).partial()` while stripping pre-existing
  * `.optional()` from individual property strings.
  *
@@ -804,42 +685,4 @@ export function partial(properties: string[]): string {
  */
 export function regex(pattern: string): string {
   return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
-}
-
-/**
- * Builds a `z.object({ … })` expression from a plain record.
- *
- * @param properties - Key/value pairs where each value is a Zod type string.
- * @returns A string such as `'z.object({name:z.string(),age:z.number()})'`.
- */
-export function schema(properties: Record<string, string>): string {
-  return `z.object({${Object.entries(properties)
-    .map(([key, val]) => `${key}:${val}`)
-    .join(',')}})`
-}
-
-/**
- * Replaces occurrences of `'boolean'` with `'stringbool'` inside a schema
- * string. Useful when generating “boolean‐as‐string” validations.
- *
- * @param source - The original Zod schema string.
- * @returns The transformed schema string.
- */
-export function stringbool(schema: string): string {
-  return schema.replace('boolean', 'stringbool')
-}
-
-/**
- * Builds `z.union([schemaA, schemaB, …])` from multiple schemas.
- *
- * @param schemas - Stringified Zod schemas.
- * @returns A union schema string.
- *
- * @example
- * ```ts
- * union(['A', 'B']);  // → 'z.union([A,B])'
- * ```
- */
-export function union(schemas: string[]): string {
-  return `z.union([${schemas.join(',')}])`
 }

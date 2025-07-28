@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  _default,
   applyOpenapiRoutes,
   appRouteHandler,
-  coerce,
   createRoute,
   escapeStringLiteral,
   formatRequestObject,
@@ -11,27 +9,20 @@ import {
   getHandlerImports,
   getToSafeIdentifier,
   groupHandlersByFileName,
-  gt,
   handler,
   hasFlag,
   importHandlers,
   importMap,
   importRoutes,
   insertRequestBody,
-  intersection,
   isAllOptional,
   isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
-  isNullableSchema,
   isRefObject,
   isTs,
   isUniqueContentSchema,
   isYamlOrJsonOrTsp,
-  length,
-  lt,
-  max,
-  min,
   partial,
   refName,
   regex,
@@ -39,10 +30,7 @@ import {
   requestParams,
   routeName,
   sanitizeIdentifier,
-  schema,
   sliceArgv,
-  stringbool,
-  union,
 } from '.'
 
 // Test run
@@ -467,28 +455,6 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  // isNullableSchema
-  describe('isNullableSchema Test', () => {
-    it.concurrent('isNullableSchema -> true', () => {
-      const result = isNullableSchema({
-        nullable: true,
-      })
-      const expected = true
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isNullableSchema -> false', () => {
-      const result = isNullableSchema({
-        type: 'object',
-        properties: {
-          test: {
-            type: 'string',
-          },
-        },
-      })
-      const expected = false
-      expect(result).toBe(expected)
-    })
-  })
   // isRefObject
   describe('isRefObject Test', () => {
     it.concurrent('isRefObject -> true', () => {
@@ -845,125 +811,6 @@ describe('utils', () => {
   /* ========================================================================== *
    *  Zod Schema
    * ========================================================================== */
-  // coerce
-  describe('coerce', () => {
-    it.concurrent(`coerce('z.number()') -> z.coerce.number())`, () => {
-      const result = coerce('z.number()')
-      const expected = 'z.coerce.number()'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`coerce('z.number().min(1)') -> z.coerce.number().min(1))`, () => {
-      const result = coerce('z.number().min(1)')
-      const expected = 'z.coerce.number().min(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`coerce('z.number().max(10)') -> z.coerce.number().max(10))`, () => {
-      const result = coerce('z.number().max(10)')
-      const expected = 'z.coerce.number().max(10)'
-      expect(result).toBe(expected)
-    })
-  })
-  // _default
-  describe('_default Test', () => {
-    it.concurrent('_default(1) -> .default(1)', () => {
-      const result = _default(1)
-      const expected = '.default(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('_default(10) -> .default(10)', () => {
-      const result = _default(10)
-      const expected = '.default(10)'
-      expect(result).toBe(expected)
-    })
-  })
-  // gt
-  describe('gt', () => {
-    it.concurrent('gt(0) -> .gt(0)', () => {
-      const result = gt(0)
-      const expected = '.gt(0)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('gt(10) -> .gt(10)', () => {
-      const result = gt(10)
-      const expected = '.gt(10)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('gt(100) -> .gt(100)', () => {
-      const result = gt(100)
-      const expected = '.gt(100)'
-      expect(result).toBe(expected)
-    })
-  })
-  // intersection
-  describe('intersection', () => {
-    it.concurrent(
-      `intersection(['TestSchema', 'z.object({type:z.enum(["A","B","C"])})']) -> z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))`,
-      () => {
-        const result = intersection(['TestSchema', 'z.object({type:z.enum(["A","B","C"])})'])
-        const expected = 'z.intersection(TestSchema,z.object({type:z.enum(["A","B","C"])}))'
-        expect(result).toBe(expected)
-      },
-    )
-  })
-  // length
-  describe('length', () => {
-    it.concurrent('length(1) -> .length(1)', () => {
-      const result = length(1)
-      const expected = '.length(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('length(10) -> .length(10)', () => {
-      const result = length(10)
-      const expected = '.length(10)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('length(100) -> .length(100)', () => {
-      const result = length(100)
-      const expected = '.length(100)'
-      expect(result).toBe(expected)
-    })
-  })
-  // lt
-  describe('lt', () => {
-    it.concurrent('lt(1) -> .lt(1)', () => {
-      const result = lt(1)
-      const expected = '.lt(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('lt(10) -> .lt(10)', () => {
-      const result = lt(10)
-      const expected = '.lt(10)'
-      expect(result).toBe(expected)
-    })
-  })
-
-  // max
-  describe('max', () => {
-    it.concurrent('max(1) -> .max(1)', () => {
-      const result = max(1)
-      const expected = '.max(1)'
-      expect(result).toBe(expected)
-    })
-
-    it.concurrent('max(10) -> .max(10)', () => {
-      const result = max(10)
-      const expected = '.max(10)'
-      expect(result).toBe(expected)
-    })
-  })
-  // min
-  describe('min', () => {
-    it.concurrent('min(1) -> .min(1)', () => {
-      const result = min(1)
-      const expected = '.min(1)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('min(10) -> .min(10)', () => {
-      const result = min(10)
-      const expected = '.min(10)'
-      expect(result).toBe(expected)
-    })
-  })
   // partial
   describe('partial', () => {
     it.concurrent(
@@ -1016,39 +863,6 @@ describe('utils', () => {
     it(`regex('^/api/users$') → '.regex(/^\\/api\\/users$/)'`, () => {
       const result = regex('^/api/users$')
       const expected = '.regex(/^\\/api\\/users$/)'
-      expect(result).toBe(expected)
-    })
-  })
-  // schema
-  describe('schema', () => {
-    it.concurrent('schema -> z.object({name:string})', () => {
-      const result = schema({
-        name: 'string',
-      })
-      const expected = 'z.object({name:string})'
-      expect(result).toBe(expected)
-    })
-    it.concurrent('schema -> z.object({name:string,age:number})', () => {
-      const result = schema({
-        name: 'string',
-        age: 'number',
-      })
-      const expected = 'z.object({name:string,age:number})'
-      expect(result).toBe(expected)
-    })
-  })
-  // stringBool
-  describe('stringBool', () => {
-    it.concurrent(`stringbool('z.boolean().optional()') -> 'z.stringbool().optional()'`, () => {
-      const result = stringbool('z.boolean().optional()')
-      const expected = 'z.stringbool().optional()'
-      expect(result).toBe(expected)
-    })
-  })
-  describe('union Test', () => {
-    it.concurrent(`union(['A', 'B']) -> z.union([A,B])`, () => {
-      const result = union(['A', 'B'])
-      const expected = 'z.union([A,B])'
       expect(result).toBe(expected)
     })
   })

@@ -6,123 +6,85 @@ import { zod } from '.'
 
 describe('zod', () => {
   it.concurrent('z.string()', () => {
-    const result = zod({ type: 'string' })
-    const expected = 'z.string()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string' })).toBe('z.string()')
   })
   it.concurrent('z.number()', () => {
-    const result = zod({ type: 'number' })
-    const expected = 'z.number()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'number' })).toBe('z.number()')
   })
   it.concurrent('z.number().int()', () => {
-    const result = zod({ type: 'integer' })
-    const expected = 'z.int()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'integer' })).toBe('z.int()')
   })
   it.concurrent('z.boolean()', () => {
-    const result = zod({ type: 'boolean' })
-    const expected = 'z.boolean()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'boolean' })).toBe('z.boolean()')
   })
   it.concurrent('z.null()', () => {
-    const result = zod({ type: 'null' })
-    const expected = 'z.null()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'null' })).toBe('z.null()')
   })
   it.concurrent('z.string().min(1).max(10)', () => {
-    const result = zod({ type: 'string', minLength: 1, maxLength: 10 })
-    const expected = 'z.string().min(1).max(10)'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', minLength: 1, maxLength: 10 })).toBe('z.string().min(1).max(10)')
   })
   it.concurrent('z.string().default("test")', () => {
-    const result = zod({ type: 'string', default: 'test' })
-    const expected = 'z.string().default("test")'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', default: 'test' })).toBe('z.string().default("test")')
   })
   it.concurrent('z.string().nullable()', () => {
-    const result = zod({ type: 'string', nullable: true })
-    const expected = 'z.string().nullable()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', nullable: true })).toBe('z.string().nullable()')
   })
   it.concurrent('z.length(5)', () => {
-    const result = zod({ type: 'string', minLength: 5, maxLength: 5 })
-    const expected = 'z.string().length(5)'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', minLength: 5, maxLength: 5 })).toBe('z.string().length(5)')
   })
   it.concurrent('z.email()', () => {
-    const result = zod({ type: 'string', format: 'email' })
-    const expected = 'z.email()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'email' })).toBe('z.email()')
   })
   it.concurrent('z.url()', () => {
-    const result = zod({ type: 'string', format: 'uri' })
-    const expected = 'z.url()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'uri' })).toBe('z.url()')
   })
   it.concurrent('z.uuid()', () => {
-    const result = zod({ type: 'string', format: 'uuid' })
-    const expected = 'z.uuid()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'uuid' })).toBe('z.uuid()')
   })
   it.concurrent('z.cuid()', () => {
-    const result = zod({ type: 'string', format: 'cuid' })
-    const expected = 'z.cuid()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'cuid' })).toBe('z.cuid()')
   })
   it.concurrent('z.cuid2()', () => {
-    const result = zod({ type: 'string', format: 'cuid2' })
-    const expected = 'z.cuid2()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'cuid2' })).toBe('z.cuid2()')
   })
   it.concurrent('z.ulid()', () => {
-    const result = zod({ type: 'string', format: 'ulid' })
-    const expected = 'z.ulid()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'ulid' })).toBe('z.ulid()')
   })
   it.concurrent('z.string().regex(/^[a-zA-Z]+$/)', () => {
-    const result = zod({ type: 'string', pattern: '^[a-zA-Z]+$' })
-    const expected = 'z.string().regex(/^[a-zA-Z]+$/)'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', pattern: '^[a-zA-Z]+$' })).toBe('z.string().regex(/^[a-zA-Z]+$/)')
   })
   it.concurrent('z.iso().datetime()', () => {
-    const result = zod({ type: 'string', format: 'date-time' })
-    const expected = 'z.iso.datetime()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'date-time' })).toBe('z.iso.datetime()')
   })
   it.concurrent('z.ipv4()', () => {
-    const result = zod({ type: 'string', format: 'ipv4' })
-    const expected = 'z.ipv4()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', format: 'ipv4' })).toBe('z.ipv4()')
   })
   it.concurrent('z.string().length(5)', () => {
-    const result = zod({ type: 'string', minLength: 5, maxLength: 5 })
-    const expected = 'z.string().length(5)'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', minLength: 5, maxLength: 5 })).toBe('z.string().length(5)')
   })
   it.concurrent('z.array(z.string())', () => {
-    const result = zod({
-      type: 'array',
-      items: { type: 'string' },
-    })
-    const expected = 'z.array(z.string())'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        type: 'array',
+        items: { type: 'string' },
+      }),
+    ).toBe('z.array(z.string())')
   })
   it.concurrent('z.array(z.number())', () => {
-    const result = zod({
-      type: 'array',
-      items: { type: 'number' },
-    })
-    const expected = 'z.array(z.number())'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        type: 'array',
+        items: { type: 'number' },
+      }),
+    ).toBe('z.array(z.number())')
   })
   it.concurrent('z.array(z.boolean())', () => {
-    const result = zod({
-      type: 'array',
-      items: { type: 'boolean' },
-    })
-    const expected = 'z.array(z.boolean())'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        type: 'array',
+        items: { type: 'boolean' },
+      }),
+    ).toBe('z.array(z.boolean())')
   })
   it.concurrent('z.array(z.array(z.array(z.number())))', () => {
     const result = zod({
@@ -139,94 +101,87 @@ describe('zod', () => {
     expect(result).toBe(expected)
   })
   it.concurrent('z.array(z.union([z.string(),z.number(),z.boolean()]))', () => {
-    const result = zod({
-      type: 'array',
-      items: {
-        anyOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'number',
-          },
-          {
-            type: 'boolean',
-          },
-        ],
-      },
-    })
-    const expected = 'z.array(z.union([z.string(),z.number(),z.boolean()]))'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        type: 'array',
+        items: {
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+            {
+              type: 'boolean',
+            },
+          ],
+        },
+      }),
+    ).toBe('z.array(z.union([z.string(),z.number(),z.boolean()]))')
   })
   it.concurrent(
     'z.array(z.object({id:z.int().min(0).positive(),name:z.string(),active:z.boolean().optional()}))',
     () => {
-      const result = zod({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'integer',
-              minimum: 0,
-              exclusiveMinimum: true,
+      expect(
+        zod({
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'integer',
+                minimum: 0,
+                exclusiveMinimum: true,
+              },
+              name: {
+                type: 'string',
+              },
+              active: {
+                type: 'boolean',
+              },
             },
-            name: {
-              type: 'string',
-            },
-            active: {
-              type: 'boolean',
-            },
+            required: ['id', 'name'],
           },
-          required: ['id', 'name'],
-        },
-      })
-      const expected =
-        'z.array(z.object({id:z.int().positive(),name:z.string(),active:z.boolean().optional()}))'
-      expect(result).toBe(expected)
+        }),
+      ).toBe(
+        'z.array(z.object({id:z.int().positive(),name:z.string(),active:z.boolean().optional()}))',
+      )
     },
   )
   it.concurrent('z.array(z.string()).length(5)', () => {
-    const result = zod({
-      type: 'array',
-      items: { type: 'string' },
-      minLength: 5,
-      maxLength: 5,
-    })
-    const expected = 'z.array(z.string()).length(5)'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        type: 'array',
+        items: { type: 'string' },
+        minItems: 5,
+        maxItems: 5,
+      }),
+    ).toBe('z.array(z.string()).length(5)')
   })
   it.concurrent('reference: Test', () => {
-    const result = zod({
-      $ref: '#/components/schemas/Test',
-    })
-    const expected = 'TestSchema'
-    expect(result).toBe(expected)
+    expect(
+      zod({
+        $ref: '#/components/schemas/Test',
+      }),
+    ).toBe('TestSchema')
   })
 
   it.concurrent('z.string().nullable()', () => {
-    const result = zod({ type: 'string', nullable: true })
-    const expected = 'z.string().nullable()'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', nullable: true })).toBe('z.string().nullable()')
   })
 
   it.concurrent('z.int().nullable()', () => {
-    const result = zod({ type: ['integer', 'null'] })
-    const expected = 'z.int().nullable()'
-    expect(result).toBe(expected)
+    expect(zod({ type: ['integer', 'null'] })).toBe('z.int().nullable()')
   })
 
   it.concurrent('z.literal("fixed")', () => {
-    const result = zod({ type: 'string', const: 'fixed' })
-    const expected = 'z.literal("fixed")'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'string', const: 'fixed' })).toBe('z.literal("fixed")')
   })
 
   // exclusiveMinimum
   it.concurrent('z.number().gt(1)', () => {
-    const result = zod({ type: 'number', exclusiveMinimum: 1 })
-    const expected = 'z.number().gt(1)'
-    expect(result).toBe(expected)
+    expect(zod({ type: 'number', exclusiveMinimum: 1 })).toBe('z.number().gt(1)')
   })
 
   // exclusiveMaximum
@@ -267,5 +222,15 @@ describe('zod', () => {
     expect(zod({ enum: ['A', 'B'], type: 'string', nullable: true })).toBe(
       'z.enum(["A","B"]).nullable()',
     )
+  })
+  // not
+  it.concurrent('not schema', () => {
+    const result = zod({
+      not: {
+        type: 'string',
+      },
+    })
+    const expected = 'z.unknown()'
+    expect(result).toBe(expected)
   })
 })

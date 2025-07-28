@@ -1,5 +1,5 @@
-import type { Schema } from '../../../openapi/types.js'
-import { _default, length, max, min, regex } from '../../../utils/index.js'
+import type { Schema } from '../../../openapi/index.js'
+import { regex } from '../../../utils/index.js'
 
 const FORMAT_STRING: Record<string, string> = {
   email: '.email()',
@@ -33,27 +33,21 @@ const FORMAT_STRING: Record<string, string> = {
 /** Build a Zod string schema from an OpenAPI string schema. */
 export function string(schema: Schema): string {
   const parts: string[] = []
-
-  /* ---------- base / format ---------- */
-  const fmt = schema.format && FORMAT_STRING[schema.format]
-  parts.push(fmt ? `z${fmt}` : 'z.string()')
-
-  /* ---------- pattern ---------- */
+  const format = schema.format && FORMAT_STRING[schema.format]
+  parts.push(format ? `z${format}` : 'z.string()')
   if (schema.pattern) parts.push(regex(schema.pattern))
-
-  /* ---------- length constraints ---------- */
-  const { minLength, maxLength } = schema
-
   // special-case: equal min & max  → .length()
-  if (minLength !== undefined && maxLength !== undefined && minLength === maxLength) {
-    parts.push(length(minLength)) // utils.length() -> '.length(n)'
+  if (
+    schema.minLength !== undefined &&
+    schema.maxLength !== undefined &&
+    schema.minLength === schema.maxLength
+  ) {
+    parts.push(`.length(${schema.minLength})`)
   } else {
-    if (minLength !== undefined) parts.push(min(minLength))
-    if (maxLength !== undefined) parts.push(max(maxLength))
+    if (schema.minLength !== undefined) parts.push(`.min(${schema.minLength})`)
+    if (schema.maxLength !== undefined) parts.push(`.max(${schema.maxLength})`)
   }
-
-  /* ---------- default (always last) ---------- */
-  if (schema.default !== undefined) parts.push(_default(schema.default))
-
+  /* default (always last)*/
+  if (schema.default !== undefined) parts.push(`.default(${JSON.stringify(schema.default)})`)
   return parts.join('')
 }

@@ -1,4 +1,4 @@
-import type { OpenAPI } from '../../../../openapi/types.js'
+import type { OpenAPI } from '../../../../openapi/index.js'
 
 /**
  * Extracts top-level OpenAPI document metadata.

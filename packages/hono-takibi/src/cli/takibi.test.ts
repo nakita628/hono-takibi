@@ -175,12 +175,6 @@ export const getZodOpenapiHonoRoute = createRoute({
 })
 
 describe('takibi generate', () => {
-  beforeAll(() => {
-    if (!fs.existsSync('openapi.json')) {
-      fs.writeFileSync('openapi.json', JSON.stringify(openapi))
-    }
-  })
-
   afterAll(() => {
     fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
@@ -190,6 +184,9 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes', async () => {
+    if (!fs.existsSync('openapi.json')) {
+      fs.writeFileSync('openapi.json', JSON.stringify(openapi))
+    }
     const result = await takibi('openapi.json', 'zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({
@@ -199,6 +196,9 @@ describe('takibi generate', () => {
   })
 
   it('should generate Hono app with OpenAPI routes and template files', async () => {
+    if (!fs.existsSync('openapi.json')) {
+      fs.writeFileSync('openapi.json', JSON.stringify(openapi))
+    }
     const result = await takibi('openapi.json', 'tmp/zod-openapi-hono.ts', true, true, true, true)
 
     expect(result).toStrictEqual({

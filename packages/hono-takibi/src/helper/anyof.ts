@@ -1,7 +1,5 @@
 import { zod } from '../generator/zod/index.js'
-
-import type { Schema } from '../openapi/types.js'
-import { union } from '../utils/index.js'
+import type { Schema } from '../openapi/index.js'
 import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
@@ -21,11 +19,9 @@ export function anyOf(schema: Schema): string {
     console.warn('not exists anyOf')
     return 'z.any()'
   }
-
-  const zodSchemas = schema.anyOf.map((subSchema) => {
+  const schemas = schema.anyOf.map((subSchema) => {
     const z = zod(subSchema)
     return zodToOpenAPI(z, subSchema)
   })
-
-  return union(zodSchemas)
+  return `z.union([${schemas.join(',')}])`
 }
