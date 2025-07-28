@@ -5,6 +5,10 @@ import { integer } from './integer'
 // pnpm vitest run ./src/generator/zod/z/integer.test.ts
 
 describe('integer', () => {
+  // integer
+  it.concurrent('z.int() → .int()', () => {
+    expect(integer({})).toBe('z.int()')
+  })
   // int
   it.concurrent('z.int() → .int()', () => {
     expect(integer({ type: 'integer' })).toBe('z.int()')
@@ -37,6 +41,9 @@ describe('integer', () => {
   it.concurrent('minimum: 100, exclusiveMinimum: true → z.int().gt(100)', () => {
     expect(integer({ minimum: 100, exclusiveMinimum: true })).toBe('z.int().gt(100)')
   })
+  it.concurrent('exclusiveMinimum: 100 → z.int().gt(100)', () => {
+    expect(integer({ exclusiveMinimum: 100 })).toBe('z.int().gt(100)')
+  })
   // max
   it.concurrent('maximum: 100 → z.int().max(100)', () => {
     expect(integer({ maximum: 100 })).toBe('z.int().max(100)')
@@ -48,6 +55,12 @@ describe('integer', () => {
   // lt
   it.concurrent('maximum: 100, exclusiveMaximum: true → z.int().lt(100)', () => {
     expect(integer({ maximum: 100, exclusiveMaximum: true })).toBe('z.int().lt(100)')
+  })
+  it.concurrent('exclusiveMaximum: 100 → z.int().lt(100)', () => {
+    expect(integer({ exclusiveMaximum: 100 })).toBe('z.int().lt(100)')
+  })
+  it.concurrent('maximum: 0 → z.int().max(0)', () => {
+    expect(integer({ maximum: 0 })).toBe('z.int().max(0)')
   })
   // multipleOf
   it.concurrent('z.int().multipleOf(2)', () => {
