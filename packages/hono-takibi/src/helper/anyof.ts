@@ -1,5 +1,5 @@
 import { zod } from '../generator/zod/index.js'
-import type { Schema } from '../openapi/types.js'
+import type { Schema } from '../openapi/index.js'
 import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**

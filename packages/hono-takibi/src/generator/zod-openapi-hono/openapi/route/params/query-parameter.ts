@@ -1,4 +1,4 @@
-import type { Parameters } from '../../../../../openapi/types.js'
+import type { Parameters } from "../../../../../openapi/index.js"
 
 /**
  * Generates a Zod schema string for a query parameter, with coercion applied based on its type.

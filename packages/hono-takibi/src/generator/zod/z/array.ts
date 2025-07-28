@@ -1,4 +1,5 @@
-import type { Schema } from '../../../openapi/types.js'
+
+import type { Schema } from '../../../openapi/index.js'
 import { zod } from '../index.js'
 
 export function array(schema: Schema): string {
