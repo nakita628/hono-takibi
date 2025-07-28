@@ -1,5 +1,4 @@
 import type { Schema } from '../../../openapi/types.js'
-import { regex } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema for integer types based on OpenAPI schema.
@@ -9,56 +8,79 @@ import { regex } from '../../../utils/index.js'
  * @returns The Zod schema string
  */
 export function integer(schema: Schema): string {
-  /* ─────────────── 1. base type ─────────────── */
   const isInt32 = schema.format === 'int32'
   const isInt64 = schema.format === 'int64'
   const isBigInt = schema.format === 'bigint'
-
-  const out: string[] = [
+  const o: string[] = [
     isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
-
-  /* ─────────────── 2. helpers ─────────────── */
-  /**
-   * Converts a numeric literal into the correct representation
-   * for int64 / bigint boundaries and defaults.
-   */
-  const lit = (n: number, forceCtor = false): string => {
-    if (isBigInt || forceCtor) return `BigInt(${n})`
-    if (isInt64) return `${n}n`
-    return `${n}`
+  // positive
+  // z.int().positive().safeParse(1) // { success: true }
+  // z.int().positive().safeParse(0) // { success: false }
+  // > 0
+  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === true) {
+    o.push('.positive()')
   }
-
-  /* ─────────────── 3. pattern ─────────────── */
-  if (schema.pattern) out.push(regex(schema.pattern))
-
-  /* ─────────────── 4. lower bound ─────────────── */
-  if (typeof schema.exclusiveMinimum === 'number') {
-    out.push(`.gt(${lit(schema.exclusiveMinimum)})`)
-  } else if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
-    out.push('.positive()')
-  } else if (typeof schema.minimum === 'number') {
-    out.push(`.min(${lit(schema.minimum)})`)
+  // nonnegative === minimum === 0
+  // >= 0
+  // z.int().nonnegative().safeParse(0) // { success: true }
+  // z.int().nonnegative().safeParse(-1) // { success: false }
+  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === false) {
+    o.push('.nonnegative()')
   }
-
-  /* ─────────────── 5. upper bound ─────────────── */
-  if (typeof schema.exclusiveMaximum === 'number') {
-    out.push(`.lt(${lit(schema.exclusiveMaximum)})`)
-  } else if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
-    out.push('.negative()')
-  } else if (typeof schema.maximum === 'number') {
-    out.push(`.max(${lit(schema.maximum)})`)
+  // negative
+  // z.int().negative().safeParse(-1) // { success: true }
+  // z.int().negative().safeParse(0) // { success: false }
+  // < 0
+  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === true) {
+    o.push('.negative()')
   }
-
-  /* ─────────────── 6. default (always last) ─────────────── */
+  // nonpositive === maximum === 0
+  // <= 0
+  // z.int().nonpositive().safeParse(1) // { success: true }
+  // z.int().nonpositive().safeParse(0) // { success: false }
+  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === false) {
+    o.push('.nonpositive()')
+  }
+  // min
+  // z.int().min(100) // value >= 100
+  // z.int().min(100).safeParse(100) // { success: true }
+  // z.int().min(100).safeParse(99) // { success: false }
+  if (schema.minimum !== undefined && schema.minimum !== 0) {
+    if (schema.exclusiveMinimum === true) {
+      // gt
+      // z.int().gt(100) // value > 100
+      // z.int().gt(100).safeParse(101) // { success: true }
+      // z.int().gt(100).safeParse(100) // { success: false }
+      o.push(`.gt(${schema.minimum})`)
+    } else {
+      o.push(`.min(${schema.minimum})`)
+    }
+  }
+  // max
+  // z.int().max(100) // value <= 100
+  // z.int().max(100).safeParse(100) -> { success: true }
+  // z.int().max(100).safeParse(101) -> { success: false }
+  if (schema.maximum !== undefined && schema.maximum !== 0) {
+    // lt
+    // z.int().lt(100) // value < 100
+    // z.int().lt(100).safeParse(99) -> { success: true }
+    // z.int().lt(100).safeParse(100) -> { success: false }
+    if (schema.exclusiveMaximum === true) {
+      o.push(`.lt(${schema.maximum})`)
+    } else {
+      o.push(`.max(${schema.maximum})`)
+    }
+  }
+  // multipleOf
+  // z.int().multipleOf(2).safeParse(2) // { success: true }
+  // z.int().multipleOf(2).safeParse(1) // { success: false }
+  if (schema.multipleOf !== undefined) {
+    o.push(`.multipleOf(${schema.multipleOf})`)
+  }
+  // default (always last)
   if (schema.default !== undefined) {
-    const def =
-      typeof schema.default === 'number'
-        ? lit(schema.default, /* forceCtor: BigInt as needed */ true)
-        : JSON.stringify(schema.default)
-    out.push(`.default(${def})`)
+    o.push(`.default(${JSON.stringify(schema.default)})`)
   }
-
-  /* ─────────────── 7. finish ─────────────── */
-  return out.join('')
+  return o.join('')
 }

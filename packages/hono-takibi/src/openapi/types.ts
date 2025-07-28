@@ -158,6 +158,7 @@ export type Schema = {
   maximum?: number
   exclusiveMinimum?: number | boolean
   exclusiveMaximum?: number | boolean
+  multipleOf?: number
   minItems?: number
   maxItems?: number
   default?: unknown

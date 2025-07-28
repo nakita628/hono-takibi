@@ -1,51 +1,87 @@
 import type { Schema } from '../../../openapi/types.js'
-import { regex } from '../../../utils/index.js'
 
+/**
+ * Generates a Zod schema for number types based on OpenAPI schema.
+ * Supports float, float32, float64, and number formats.
+ *
+ * @param schema - The OpenAPI schema object
+ * @returns The Zod schema string
+ */
 export function number(schema: Schema): string {
-  const parts: string[] = [
+  const o: string[] = [
     schema.format === 'float' || schema.format === 'float32'
       ? 'z.float32()'
       : schema.format === 'float64'
         ? 'z.float64()'
         : 'z.number()',
   ]
-
-  if (schema.pattern) parts.push(regex(schema.pattern))
-  if (schema.minLength !== undefined) parts.push(`.min(${schema.minLength})`)
-  if (schema.maxLength !== undefined) parts.push(`.max(${schema.maxLength})`)
-
-  /* -------- lower bound -------- */
-  if (schema.minimum !== undefined) {
-    if (schema.minimum === 0) {
-      parts.push(schema.exclusiveMinimum ? '.positive()' : '.nonpositive()')
-    } else if (schema.exclusiveMinimum === true) {
-      parts.push(`.gt(${schema.minimum})`)
-    } else {
-      parts.push(`.min(${schema.minimum})`)
-    }
-  } else if (typeof schema.exclusiveMinimum === 'number') {
-    // numeric exclusiveMinimum without minimum
-    parts.push(`.gt(${schema.exclusiveMinimum})`)
+  // positive
+  // z.number().positive().safeParse(1) // { success: true }
+  // z.number().positive().safeParse(0) // { success: false }
+  // > 0
+  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === true) {
+    o.push('.positive()')
   }
-
-  /* -------- upper bound -------- */
-  if (schema.maximum !== undefined) {
-    if (schema.maximum === 0) {
-      parts.push(schema.exclusiveMaximum ? '.negative()' : '.nonnegative()')
-    } else if (schema.exclusiveMaximum === true) {
-      parts.push(`.lt(${schema.maximum})`)
-    } else {
-      parts.push(`.max(${schema.maximum})`)
-    }
-  } else if (typeof schema.exclusiveMaximum === 'number') {
-    // numeric exclusiveMaximum without maximum
-    parts.push(`.lt(${schema.exclusiveMaximum})`)
+  // nonnegative === minimum === 0
+  // >= 0
+  // z.number().nonnegative().safeParse(0) // { success: true }
+  // z.number().nonnegative().safeParse(-1) // { success: false }
+  if (schema.minimum !== undefined && schema.minimum === 0 && schema.exclusiveMinimum === false) {
+    o.push('.nonnegative()')
   }
-
-  /* -------- default (always last) -------- */
+  // negative
+  // z.number().negative().safeParse(-1) // { success: true }
+  // z.number().negative().safeParse(0) // { success: false }
+  // < 0
+  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === true) {
+    o.push('.negative()')
+  }
+  // nonpositive === maximum === 0
+  // <= 0
+  // z.number().nonpositive().safeParse(1) // { success: true }
+  // z.number().nonpositive().safeParse(0) // { success: false }
+  if (schema.maximum !== undefined && schema.maximum === 0 && schema.exclusiveMaximum === false) {
+    o.push('.nonpositive()')
+  }
+  // min
+  // z.number().min(100) // value >= 100
+  // z.number().min(100).safeParse(100) // { success: true }
+  // z.number().min(100).safeParse(99) // { success: false }
+  if (schema.minimum !== undefined && schema.minimum !== 0) {
+    if (schema.exclusiveMinimum === true) {
+      // gt
+      // z.number().gt(100) // value > 100
+      // z.number().gt(100).safeParse(101) // { success: true }
+      // z.number().gt(100).safeParse(100) // { success: false }
+      o.push(`.gt(${schema.minimum})`)
+    } else {
+      o.push(`.min(${schema.minimum})`)
+    }
+  }
+  // max
+  // z.number().max(100) // value <= 100
+  // z.number().max(100).safeParse(100) -> { success: true }
+  // z.number().max(100).safeParse(101) -> { success: false }
+  if (schema.maximum !== undefined && schema.maximum !== 0) {
+    // lt
+    // z.number().lt(100) // value < 100
+    // z.number().lt(100).safeParse(99) -> { success: true }
+    // z.number().lt(100).safeParse(100) -> { success: false }
+    if (schema.exclusiveMaximum === true) {
+      o.push(`.lt(${schema.maximum})`)
+    } else {
+      o.push(`.max(${schema.maximum})`)
+    }
+  }
+  // multipleOf
+  // z.number().multipleOf(2).safeParse(2) // { success: true }
+  // z.number().multipleOf(2).safeParse(1) // { success: false }
+  if (schema.multipleOf !== undefined) {
+    o.push(`.multipleOf(${schema.multipleOf})`)
+  }
+  // default (always last)
   if (schema.default !== undefined) {
-    parts.push(`.default(${JSON.stringify(schema.default)})`)
+    o.push(`.default(${JSON.stringify(schema.default)})`)
   }
-
-  return parts.join('')
+  return o.join('')
 }

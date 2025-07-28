@@ -4,116 +4,59 @@ import { integer } from './integer'
 // Test run
 // pnpm vitest run ./src/generator/zod/z/integer.test.ts
 
-describe('integer Test', () => {
-  //
-  // ───────────────────────────────────
-  // Base type selection
-  // ───────────────────────────────────
-  //
-  it('returns z.int() for plain integer', () => {
-    expect(integer({})).toBe('z.int()')
+describe('integer', () => {
+  // int
+  it.concurrent('z.int32() → .int32()', () => {
+    expect(integer({ type: 'integer', format: 'int32' })).toBe('z.int32()')
   })
-
-  it('returns z.int32() when format=int32', () => {
-    expect(integer({ format: 'int32' })).toBe('z.int32()')
+  it.concurrent('z.int64() → .int64()', () => {
+    expect(integer({ type: 'integer', format: 'int64' })).toBe('z.int64()')
   })
-
-  it('returns z.int64() when format=int64', () => {
-    expect(integer({ format: 'int64' })).toBe('z.int64()')
+  it.concurrent('z.bigint() → .bigint()', () => {
+    expect(integer({ type: 'integer', format: 'bigint' })).toBe('z.bigint()')
   })
-
-  it('returns z.bigint() when format=bigint', () => {
-    expect(integer({ format: 'bigint' })).toBe('z.bigint()')
+  // int
+  it.concurrent('z.int() → .int()', () => {
+    expect(integer({ type: 'integer' })).toBe('z.int()')
   })
-
-  //
-  // ───────────────────────────────────
-  // Inclusive bounds (.min / .max)
-  // ───────────────────────────────────
-  //
-  it('adds .min() when minimum is given (inclusive)', () => {
-    expect(integer({ minimum: 1 })).toBe('z.int().min(1)')
-  })
-
-  it('adds .max() when maximum is given (inclusive)', () => {
-    expect(integer({ maximum: 10 })).toBe('z.int().max(10)')
-  })
-
-  //
-  // ───────────────────────────────────
-  // Exclusive bounds – numeric form
-  // ───────────────────────────────────
-  //
-  it('adds .gt() when exclusiveMinimum is a number', () => {
-    expect(integer({ exclusiveMinimum: 5 })).toBe('z.int().gt(5)')
-  })
-
-  it('adds .lt() when exclusiveMaximum is a number', () => {
-    expect(integer({ exclusiveMaximum: 100 })).toBe('z.int().lt(100)')
-  })
-
-  //
-  // ───────────────────────────────────
-  // Exclusive flags (boolean true)
-  // ───────────────────────────────────
-  //
-  it('minimum=0 & exclusiveMinimum=true ⇒ .positive()', () => {
+  // positive
+  it.concurrent('z.int().positive() → .positive()', () => {
     expect(integer({ minimum: 0, exclusiveMinimum: true })).toBe('z.int().positive()')
   })
-
-  it('maximum=0 & exclusiveMaximum=true ⇒ .negative()', () => {
+  // nonnegative
+  it.concurrent('z.int().nonnegative() → .nonnegative()', () => {
+    expect(integer({ minimum: 0, exclusiveMinimum: false })).toBe('z.int().nonnegative()')
+  })
+  // negative
+  it.concurrent('z.integer().negative() → .negative()', () => {
     expect(integer({ maximum: 0, exclusiveMaximum: true })).toBe('z.int().negative()')
   })
-
-  it('minimum>0 & exclusiveMinimum=true keeps .min()', () => {
-    // because code only converts to .gt() when exclusiveMinimum is *number*
-    expect(integer({ minimum: 5, exclusiveMinimum: true })).toBe('z.int().min(5)')
+  // nonpositive
+  it.concurrent('z.integer().nonpositive() → .nonpositive()', () => {
+    expect(integer({ maximum: 0, exclusiveMaximum: false })).toBe('z.int().nonpositive()')
   })
-
-  it('maximum>0 & exclusiveMaximum=true keeps .max()', () => {
-    expect(integer({ maximum: 20, exclusiveMaximum: true })).toBe('z.int().max(20)')
+  // min
+  it.concurrent('minimum: 100 → z.int().min(100)', () => {
+    expect(integer({ minimum: 100 })).toBe('z.int().min(100)')
   })
-
-  //
-  // ───────────────────────────────────
-  // Defaults
-  // ───────────────────────────────────
-  //
-  it('numeric default always ends with n', () => {
-    expect(integer({ default: 10 })).toBe('z.int().default(BigInt(10))')
+  // gt
+  it.concurrent('minimum: 100, exclusiveMinimum: true → z.int().gt(100)', () => {
+    expect(integer({ minimum: 100, exclusiveMinimum: true })).toBe('z.int().gt(100)')
   })
-
-  it('bigint default keeps n and preceding validators', () => {
-    console.log(integer({ format: 'bigint', minimum: 1, default: 5 }))
-    expect(integer({ format: 'bigint', minimum: 1, default: 5 })).toBe(
-      'z.bigint().min(BigInt(1)).default(BigInt(5))',
-    )
+  // max
+  it.concurrent('maximum: 100 → z.int().max(100)', () => {
+    expect(integer({ maximum: 100 })).toBe('z.int().max(100)')
   })
-
-  //
-  // ───────────────────────────────────
-  // Suffix “n” handling for int64/bigint
-  // ───────────────────────────────────
-  //
-  it('int64: .min() appends n', () => {
-    expect(integer({ format: 'int64', minimum: 10 })).toBe('z.int64().min(10n)')
+  // lt
+  it.concurrent('maximum: 100, exclusiveMaximum: true → z.int().lt(100)', () => {
+    expect(integer({ maximum: 100, exclusiveMaximum: true })).toBe('z.int().lt(100)')
   })
-
-  it('int64: .max() with exclusive flag keeps .max() and n-suffix', () => {
-    expect(integer({ format: 'int64', maximum: 100, exclusiveMaximum: true })).toBe(
-      'z.int64().max(100n)',
-    )
+  // multipleOf
+  it.concurrent('z.int().multipleOf(2)', () => {
+    expect(integer({ type: 'integer', multipleOf: 2 })).toBe('z.int().multipleOf(2)')
   })
-
-  it('bigint: numeric exclusive bounds use n-suffix in .gt() / .lt()', () => {
-    expect(
-      integer({
-        format: 'bigint',
-        minimum: 5,
-        exclusiveMinimum: 5, // numeric → .gt()
-        maximum: 100,
-        exclusiveMaximum: 100, // numeric → .lt()
-      }),
-    ).toBe('z.bigint().gt(BigInt(5)).lt(BigInt(100))')
+  // default
+  it.concurrent('default: 100 → z.int().default(100)', () => {
+    expect(integer({ default: 100 })).toBe('z.int().default(100)')
   })
 })
