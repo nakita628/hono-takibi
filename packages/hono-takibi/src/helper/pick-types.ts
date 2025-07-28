@@ -1,4 +1,4 @@
-import type { Schema } from "../openapi/index.js";
+import type { Schema } from '../openapi/index.js'
 
 /**
  * Normalizes a `type` field to a string array.

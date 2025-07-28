@@ -1,5 +1,4 @@
-import type { Schema } from "../../../openapi/index.js"
-
+import type { Schema } from '../../../openapi/index.js'
 
 /**
  * Generate a Zod enum schema string from an OpenAPI Schema object.

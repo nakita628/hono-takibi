@@ -1,5 +1,4 @@
-import type { Schema } from "../openapi/index.js"
-
+import type { Schema } from '../openapi/index.js'
 
 /**
  * Appends `.nullable()` to an expression if the schema allows null.

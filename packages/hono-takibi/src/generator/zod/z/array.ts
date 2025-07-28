@@ -1,4 +1,3 @@
-
 import type { Schema } from '../../../openapi/index.js'
 import { zod } from '../index.js'
 

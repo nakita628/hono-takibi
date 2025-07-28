@@ -1,7 +1,6 @@
 import { zodSchemaFromSubSchema } from '../generator/zod/helper/zod-schema-from-sub-schema.js'
 import type { Schema } from '../openapi/index.js'
 
-
 /**
  * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
  *
