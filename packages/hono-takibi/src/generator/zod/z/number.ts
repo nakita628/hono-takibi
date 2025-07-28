@@ -1,4 +1,4 @@
-import type { Schema } from '../../../openapi/types.js'
+import type { Schema } from '../../../openapi/index.js'
 
 /**
  * Generates a Zod schema for number types based on OpenAPI schema.
