@@ -31,25 +31,34 @@ describe('array()', () => {
       'z.array(z.array(z.string()))',
     )
   })
-  // z.array(z.any()).min(1)
-  it.concurrent('returns z.array(z.any()).min(1) when minItems is defined', () => {
-    expect(array({ type: 'array', minItems: 1 })).toBe('z.array(z.any()).min(1)')
+  // z.array(z.string()).min(1)
+  it.concurrent('returns z.array(z.string()).min(1) when minItems is defined', () => {
+    expect(array({ type: 'array', items: { type: 'string' }, minItems: 1 })).toBe(
+      'z.array(z.string()).min(1)',
+    )
   })
-  // z.array(z.any()).max(10)
-  it.concurrent('returns z.array(z.any()).max(10) when maxItems is defined', () => {
-    expect(array({ type: 'array', maxItems: 10 })).toBe('z.array(z.any()).max(10)')
+  // z.array(z.string()).max(10)
+  it.concurrent('returns z.array(z.string()).max(10) when maxItems is defined', () => {
+    expect(array({ type: 'array', items: { type: 'string' }, maxItems: 10 })).toBe(
+      'z.array(z.string()).max(10)',
+    )
   })
-  // z.array(z.any()).min(1).max(10)
+  // z.array(z.string()).min(1).max(10)
   it.concurrent(
-    'returns z.array(z.any()).min(1).max(10) when minItems and maxItems are defined',
+    'returns z.array(z.string()).min(1).max(10) when minItems and maxItems are defined',
     () => {
-      expect(array({ type: 'array', minItems: 1, maxItems: 10 })).toBe(
-        'z.array(z.any()).min(1).max(10)',
+      expect(array({ type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 })).toBe(
+        'z.array(z.string()).min(1).max(10)',
       )
     },
   )
-  // z.array(z.any()).length(5)
-  it.concurrent('returns z.array(z.any()).length(5) when minItems and maxItems are equal', () => {
-    expect(array({ type: 'array', minItems: 5, maxItems: 5 })).toBe('z.array(z.any()).length(5)')
-  })
+  // z.array(z.string()).length(5)
+  it.concurrent(
+    'returns z.array(z.string()).length(5) when minItems and maxItems are equal',
+    () => {
+      expect(array({ type: 'array', items: { type: 'string' }, minItems: 5, maxItems: 5 })).toBe(
+        'z.array(z.string()).length(5)',
+      )
+    },
+  )
 })
