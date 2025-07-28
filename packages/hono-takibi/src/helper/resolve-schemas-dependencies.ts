@@ -1,4 +1,4 @@
-import type { Schema } from '../openapi/types.js'
+import type { Schema } from '../openapi/index.js'
 
 /**
  * Resolves schema dependencies in topological order based on `$ref` links.

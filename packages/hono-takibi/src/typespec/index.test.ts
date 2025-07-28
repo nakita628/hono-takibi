@@ -1,12 +1,16 @@
 import fs from 'node:fs'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { typeSpecToOpenAPI } from '.'
 
 // Test run
 // pnpm vitest run ./src/typespec/index.test.ts
 
 describe('typeSpecToOpenAPI', () => {
-  afterAll(() => {
+  beforeEach(() => {
+    fs.rmSync('tmp-spec.tsp', { force: true })
+    fs.rmSync('tmp', { recursive: true, force: true })
+  })
+  afterEach(() => {
     fs.rmSync('tmp-spec.tsp', { force: true })
     fs.rmSync('tmp', { recursive: true, force: true })
   })
