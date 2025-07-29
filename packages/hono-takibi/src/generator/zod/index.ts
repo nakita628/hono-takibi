@@ -132,6 +132,12 @@ export function zod(schema: Schema): string {
     return allOf(schema)
   }
   if (schema.not) {
+    const isNullable =
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+    if (isNullable) {
+      return 'z.unknown().nullable()'
+    }
     return 'z.unknown()'
   }
   /* null only */

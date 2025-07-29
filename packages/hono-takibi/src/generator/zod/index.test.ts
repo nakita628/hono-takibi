@@ -746,6 +746,37 @@ describe('zod', () => {
         }),
       ).toBe('z.union([ExampleSchemaSchema,AnotherSchemaSchema])')
     })
+
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          nullable: true,
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          type: ['null'],
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
   })
 
   // not support zod-to-openapi
@@ -764,6 +795,38 @@ describe('zod', () => {
           description: 'Center coordinates',
         }),
       ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()]).nullabel()', () => {
+      expect(
+        zod({
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          nullable: true,
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          type: ['null'],
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
     })
   })
 
@@ -860,16 +923,104 @@ describe('zod', () => {
         )
       },
     )
+
+    it.concurrent(
+      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+      () => {
+        expect(
+          zod({
+            allOf: [
+              {
+                type: 'object',
+                required: ['test'],
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                required: ['test2'],
+                properties: {
+                  test2: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            nullable: true,
+          }),
+        ).toBe(
+          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+        )
+      },
+    )
+
+    it.concurrent(
+      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()}).nullable())',
+      () => {
+        expect(
+          zod({
+            allOf: [
+              {
+                type: 'object',
+                required: ['test'],
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                required: ['test2'],
+                properties: {
+                  test2: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            type: ['null'],
+          }),
+        ).toBe(
+          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+        )
+      },
+    )
   })
 
-  // not
-  it.concurrent('not schema', () => {
-    const result = zod({
-      not: {
-        type: 'string',
-      },
+  describe('not', () => {
+    it.concurrent('z.unknown()', () => {
+      expect(
+        zod({
+          not: {
+            type: 'string',
+          },
+        }),
+      ).toBe('z.unknown()')
     })
-    const expected = 'z.unknown()'
-    expect(result).toBe(expected)
+  })
+
+  it.concurrent('z.unknown().nullable()', () => {
+    expect(
+      zod({
+        not: {
+          type: 'string',
+        },
+        nullable: true,
+      }),
+    ).toBe('z.unknown().nullable()')
+  })
+  it.concurrent('z.unknown().nullable()', () => {
+    expect(
+      zod({
+        not: {
+          type: 'string',
+        },
+        type: ['null'],
+      }),
+    ).toBe('z.unknown().nullable()')
   })
 })

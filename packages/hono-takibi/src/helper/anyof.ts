@@ -23,5 +23,15 @@ export function anyOf(schema: Schema): string {
     const z = zod(subSchema)
     return zodToOpenAPI(z, subSchema)
   })
-  return `z.union([${schemas.join(',')}])`
+
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+  const z = `z.union([${schemas.join(',')}])`
+
+  if (isNullable) {
+    return `${z}.nullable()`
+  }
+  return z
 }

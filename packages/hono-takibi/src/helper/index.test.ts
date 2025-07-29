@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   allOf,
   anyOf,
-  maybeApplyNullability,
   oneOf,
   pickTypes,
   resolveSchemasDependencies,
@@ -19,9 +18,6 @@ describe('helper barrel file exports', () => {
   })
   it('should export anyOf', () => {
     expect(typeof anyOf).toBe('function')
-  })
-  it('should export maybeApplyNullability', () => {
-    expect(typeof maybeApplyNullability).toBe('function')
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')

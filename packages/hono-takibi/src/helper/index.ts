@@ -1,6 +1,5 @@
 export { allOf } from './allof.js'
 export { anyOf } from './anyof.js'
-export { maybeApplyNullability } from './maybe-apply-nullability.js'
 export { oneOf } from './oneof.js'
 export { pickTypes } from './pick-types.js'
 export { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
