@@ -15,7 +15,6 @@ import {
   importMap,
   importRoutes,
   insertRequestBody,
-  isAllOptional,
   isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
@@ -23,7 +22,6 @@ import {
   isTs,
   isUniqueContentSchema,
   isYamlOrJsonOrTsp,
-  partial,
   refName,
   regex,
   registerComponent,
@@ -392,22 +390,6 @@ describe('utils', () => {
         'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
       }
       expect(result).toStrictEqual(expected)
-    })
-  })
-  /* ========================================================================== *
-   *  Schema / Type Predicates
-   * ========================================================================== */
-  // isAllOptional
-  describe('isAllOptional', () => {
-    it.concurrent(`isAllOptional(['id:z.string().optional()']) -> true`, () => {
-      const result = isAllOptional(['id:z.string().optional()'])
-      const expected = true
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`isAllOptional(['id:z.string()']) -> false`, () => {
-      const result = isAllOptional(['id:z.string()'])
-      const expected = false
-      expect(result).toBe(expected)
     })
   })
   // isArrayWithSchemaReference
@@ -811,17 +793,6 @@ describe('utils', () => {
   /* ========================================================================== *
    *  Zod Schema
    * ========================================================================== */
-  // partial
-  describe('partial', () => {
-    it.concurrent(
-      `partial(['test:z.string().optional()']) -> z.object({test:z.string()}).partial()`,
-      () => {
-        const result = partial(['test:z.string().optional()'])
-        const expected = 'z.object({test:z.string()}).partial()'
-        expect(result).toBe(expected)
-      },
-    )
-  })
   // regex
   describe('regex', () => {
     it.concurrent(`regex('^[a-z]+$') -> .regex(/^[a-z]+$/)`, () => {

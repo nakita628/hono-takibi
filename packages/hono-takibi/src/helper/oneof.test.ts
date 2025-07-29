@@ -5,51 +5,80 @@ import { oneOf } from './oneof.js'
 // pnpm vitest run ./src/helper/oneof.test.ts
 
 describe('oneOf', () => {
-  it.concurrent('oneOf with oneOf', () => {
-    const result = oneOf({
-      oneOf: [
-        {
-          type: 'number',
-        },
-        {
-          type: 'string',
-        },
-      ],
-    })
-
-    const expected = 'z.union([z.number(),z.string()])'
-    expect(result).toBe(expected)
+  it.concurrent('z.union([z.number(),z.string()])', () => {
+    expect(
+      oneOf({
+        oneOf: [
+          {
+            type: 'number',
+          },
+          {
+            type: 'string',
+          },
+        ],
+      }),
+    ).toBe('z.union([z.number(),z.string()])')
   })
 
-  it.concurrent('oneOf with $ref', () => {
-    const result = oneOf({
-      oneOf: [
-        {
-          $ref: '#/components/schemas/ExampleSchema',
-        },
-        {
-          type: 'boolean',
-        },
-      ],
-    })
-
-    const expected = 'z.union([ExampleSchemaSchema,z.boolean()])'
-    expect(result).toBe(expected)
+  it.concurrent('z.union([ExampleSchemaSchema,z.boolean()])', () => {
+    expect(
+      oneOf({
+        oneOf: [
+          {
+            $ref: '#/components/schemas/ExampleSchema',
+          },
+          {
+            type: 'boolean',
+          },
+        ],
+      }),
+    ).toBe('z.union([ExampleSchemaSchema,z.boolean()])')
   })
 
-  it.concurrent('oneOf with $ref many', () => {
-    const result = oneOf({
-      oneOf: [
-        {
-          $ref: '#/components/schemas/ExampleSchema',
-        },
-        {
-          $ref: '#/components/schemas/AnotherSchema',
-        },
-      ],
-    })
+  it.concurrent('z.union([ExampleSchemaSchema,AnotherSchemaSchema])', () => {
+    expect(
+      oneOf({
+        oneOf: [
+          {
+            $ref: '#/components/schemas/ExampleSchema',
+          },
+          {
+            $ref: '#/components/schemas/AnotherSchema',
+          },
+        ],
+      }),
+    ).toBe('z.union([ExampleSchemaSchema,AnotherSchemaSchema])')
+  })
 
-    const expected = 'z.union([ExampleSchemaSchema,AnotherSchemaSchema])'
-    expect(result).toBe(expected)
+  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+    expect(
+      oneOf({
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+        ],
+        nullable: true,
+      }),
+    ).toBe('z.union([z.string(),z.number()]).nullable()')
+  })
+
+  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+    expect(
+      oneOf({
+        oneOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+        ],
+        type: ['null'],
+      }),
+    ).toBe('z.union([z.string(),z.number()]).nullable()')
   })
 })

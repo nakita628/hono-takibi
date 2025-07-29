@@ -105,5 +105,13 @@ export function integer(schema: Schema): string {
     o.push(`.default(${lit(schema.default)})`)
   }
 
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+  if (isNullable) {
+    o.push('.nullable()')
+  }
+
   return o.join('')
 }

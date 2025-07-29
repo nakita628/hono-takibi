@@ -22,5 +22,14 @@ export function oneOf(schema: Schema): string {
     const z = zod(subSchema)
     return subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zodToOpenAPI(z, subSchema)
   })
-  return `z.union([${schemas.join(',')}])`
+  const z = `z.union([${schemas.join(',')}])`
+
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+  if (isNullable) {
+    return `${z}.nullable()`
+  }
+  return z
 }

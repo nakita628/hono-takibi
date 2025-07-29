@@ -1,44 +1,17 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ErrorSchema = z.object({ code: z.int32(), message: z.string() }).openapi('Error')
+const HonoSchema = z.object({ hono: z.enum(['Hono', 'HonoX', 'ZodOpenAPIHono']) }).openapi('Hono')
 
-const WidgetBaseSchema = z
-  .object({ id: z.string(), weight: z.int32(), color: z.enum(['red', 'blue']) })
-  .openapi('WidgetBase')
-
-const HeavyWidgetSchema = WidgetBaseSchema.openapi('HeavyWidget')
-
-const LightWidgetSchema = WidgetBaseSchema.openapi('LightWidget')
-
-const WidgetHeavySchema = z
-  .object({ kind: z.literal('heavy'), value: HeavyWidgetSchema })
-  .openapi('WidgetHeavy')
-
-const WidgetLightSchema = z
-  .object({ kind: z.literal('light'), value: LightWidgetSchema })
-  .openapi('WidgetLight')
-
-const WidgetSchema = z.union([WidgetHeavySchema, WidgetLightSchema]).openapi('Widget')
-
-const WidgetKindSchema = z.enum(['Heavy', 'Light']).openapi('WidgetKind')
-
-export const getIdRoute = createRoute({
-  method: 'get',
-  path: '/{id}',
-  operationId: 'read',
-  request: {
-    params: z.object({
-      id: z.string().openapi({ param: { in: 'path', name: 'id', required: true } }),
-    }),
-  },
+export const postHonoRoute = createRoute({
+  tags: ['Hono'],
+  method: 'post',
+  path: '/hono',
+  operationId: 'HonoService_create',
+  request: { body: { required: true, content: { 'application/json': { schema: HonoSchema } } } },
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: WidgetSchema } },
-    },
-    default: {
-      description: 'An unexpected error response.',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: HonoSchema } },
     },
   },
 })

@@ -81,9 +81,18 @@ export function number(schema: Schema): string {
     o.push(`.multipleOf(${schema.multipleOf})`)
   }
 
-  // default (always last)
+  // default
   if (schema.default !== undefined) {
     o.push(`.default(${JSON.stringify(schema.default)})`)
+  }
+
+  // nullable
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+  if (isNullable) {
+    o.push('.nullable()')
   }
 
   return o.join('')

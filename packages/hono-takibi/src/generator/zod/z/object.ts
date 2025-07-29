@@ -13,20 +13,28 @@ import { zod } from '../index.js'
  * @returns The Zod object schema string.
  */
 export function object(schema: Schema): string {
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+  const addNullable = (expr: string) => (isNullable ? `${expr}.nullable()` : expr)
+
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
-        const zodSchema = propertiesSchema(
+        const z = propertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
         )
         if (schema.additionalProperties === true) {
-          return zodSchema.replace('object', 'looseObject')
+          return addNullable(z.replace('object', 'looseObject'))
         }
       }
-      return 'z.any()'
+      return addNullable('z.any()')
     }
-    return `z.record(z.string(),${zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)})`
+
+    const value = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
+    return addNullable(`z.record(z.string(),${value})`)
   }
 
   if (schema.properties) {
@@ -35,9 +43,12 @@ export function object(schema: Schema): string {
       Array.isArray(schema.required) ? schema.required : [],
     )
     if (schema.additionalProperties === false) {
-      return zodSchema.replace('object', 'strictObject')
+      return addNullable(zodSchema.replace('object', 'strictObject'))
     }
+    return addNullable(zodSchema)
   }
+
+  // call allOf, oneOf, anyOf, or not use addNullable
   if (schema.allOf) {
     return allOf(schema)
   }
@@ -47,8 +58,12 @@ export function object(schema: Schema): string {
   if (schema.anyOf) {
     return anyOf(schema)
   }
-  if (!schema.properties) {
-    return 'z.object({})'
+  if (schema.not) {
+    if (isNullable) {
+      return 'z.unknown().nullable()'
+    }
+    return 'z.unknown()'
   }
-  return propertiesSchema(schema.properties, Array.isArray(schema.required) ? schema.required : [])
+
+  return addNullable('z.object({})')
 }

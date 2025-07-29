@@ -16,7 +16,8 @@ describe('referenceSchema Test', () => {
 
   it.concurrent('referenceSchema -> z.any()', () => {
     const result = referenceSchema({
-      $ref: '',
+      // biome-ignore lint: test
+      $ref: '' as any,
     })
 
     const expected = 'z.any()'

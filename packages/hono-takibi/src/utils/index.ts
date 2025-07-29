@@ -294,36 +294,6 @@ export function getHandlerImports(
   return getHandlerImports
 }
 
-/* ========================================================================== *
- *  Schema / Type Predicates
- * ========================================================================== */
-
-/* ---------- Zod property strings ---------------------------------------- */
-
-/**
- * Checks if all object properties are marked as optional.
- *
- * Expects each property string to include `.optional()` if it is optional.
- *
- * @param objectProperties - List of property expressions (e.g., Zod property strings).
- * @returns `true` if all properties contain `.optional()`, otherwise `false`.
- *
- * @example
- * ```ts
- * isAllOptional(['z.string().optional()', 'z.number().optional()'])
- * // → true
- *
- * isAllOptional(['z.string()', 'z.number().optional()'])
- * // → false
- *
- * isAllOptional([])
- * // → true
- * ```
- */
-export function isAllOptional(objectProperties: string[]): boolean {
-  return objectProperties.every((prop) => prop.includes('.optional()'))
-}
-
 /* ---------- OpenAPI schema structures ----------------------------------- */
 
 /**
@@ -661,18 +631,6 @@ export function sanitizeIdentifier(str: string): string {
 /* ========================================================================== *
  *  Zod Schema
  * ========================================================================== */
-
-/**
- * Produces `z.object({ … }).partial()` while stripping pre-existing
- * `.optional()` from individual property strings.
- *
- * @param properties - Array entries in the form `'key: z.string().optional()'`.
- * @returns A string such as `'z.object({key:z.string()}).partial()'`.
- */
-export function partial(properties: string[]): string {
-  const cleanProperties = properties.map((prop) => prop.replace('.optional()', ''))
-  return `z.object({${cleanProperties}}).partial()`
-}
 
 /**
  * Appends a properly escaped `.regex(/pattern/)` clause.

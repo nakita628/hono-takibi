@@ -4,65 +4,121 @@ import { object } from './object'
 // Test run
 // pnpm vitest run ./src/generator/zod/z/object.test.ts
 
-describe('object Test', () => {
-  it.concurrent('object -> z.object({}))', () => {
-    const result = object({
-      type: 'object',
-      nullable: true,
-    })
+describe('object', () => {
+  it.concurrent('object({}) -> z.object({}))', () => {
+    expect(object({})).toBe('z.object({})')
+  })
 
-    const expected = 'z.object({})'
-    expect(result).toBe(expected)
+  it.concurrent('object({ nullable: true }) -> z.object({}).nullable())', () => {
+    expect(object({ nullable: true })).toBe('z.object({}).nullable()')
+  })
+
+  it.concurrent('object({ type: "null" }) -> z.object({}).nullable()', () => {
+    expect(object({ type: 'null' })).toBe('z.object({}).nullable()')
   })
 
   it.concurrent('object -> z.object({type:z.enum(["A","B","C"])})', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: ['A', 'B', 'C'],
+    expect(
+      object({
+        properties: {
+          type: {
+            type: 'string',
+            enum: ['A', 'B', 'C'],
+          },
         },
-      },
-      required: ['type'],
-      discriminator: {
-        propertyName: 'type',
-      },
-    })
-
-    const expected = 'z.object({type:z.enum(["A","B","C"])})'
-    expect(result).toBe(expected)
+        required: ['type'],
+        discriminator: {
+          propertyName: 'type',
+        },
+      }),
+    ).toBe('z.object({type:z.enum(["A","B","C"])})')
   })
 
-  it.concurrent('zod looseObject', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        test: {
-          type: 'string',
+  it.concurrent('looseObject', () => {
+    expect(
+      object({
+        properties: {
+          test: {
+            type: 'string',
+          },
         },
-      },
-      required: ['test'],
-      additionalProperties: true,
-    })
-
-    const expected = 'z.looseObject({test:z.string()})'
-    expect(result).toBe(expected)
+        required: ['test'],
+        additionalProperties: true,
+      }),
+    ).toBe('z.looseObject({test:z.string()})')
   })
 
-  it.concurrent('zod strictObject', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        test: {
-          type: 'string',
+  it.concurrent('strictObject', () => {
+    expect(
+      object({
+        properties: {
+          test: {
+            type: 'string',
+          },
         },
-      },
-      required: ['test'],
-      additionalProperties: false,
-    })
+        required: ['test'],
+        additionalProperties: false,
+      }),
+    ).toBe('z.strictObject({test:z.string()})')
+  })
 
-    const expected = 'z.strictObject({test:z.string()})'
-    expect(result).toBe(expected)
+  it('z.record(z.string(),z.uuid())', () => {
+    expect(
+      object({
+        additionalProperties: { type: 'string', format: 'uuid' },
+      }),
+    ).toBe('z.record(z.string(),z.uuid())')
+  })
+
+  it('allOf', () => {
+    expect(
+      object({
+        allOf: [
+          {
+            properties: { a: { type: 'string' } },
+            required: ['a'],
+          },
+          {
+            properties: { b: { type: 'integer' } },
+            required: ['b'],
+          },
+        ],
+        nullable: true,
+      }),
+    ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
+  })
+
+  it('oneOf', () => {
+    expect(
+      object({
+        oneOf: [
+          {
+            properties: { kind: { const: 'A' } },
+            required: ['kind'],
+          },
+          {
+            properties: { kind: { const: 'B' } },
+            required: ['kind'],
+          },
+        ],
+      }),
+    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+  })
+
+  it('anyOf', () => {
+    expect(
+      object({
+        anyOf: [
+          {
+            properties: { kind: { const: 'A' } },
+            required: ['kind'],
+          },
+          {
+            properties: { kind: { const: 'B' } },
+            required: ['kind'],
+          },
+        ],
+      }),
+    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
   })
 })
