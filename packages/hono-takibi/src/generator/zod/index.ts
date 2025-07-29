@@ -74,16 +74,22 @@ export function zod(schema: Schema): string {
   }
   const types = pickTypes(schema.type)
   /* object */
-  if (types.includes('object')) {
-    return maybeApplyNullability(object(schema), schema)
+  if (schema.type === 'object') {
+    return object(schema)
   }
   /* date */
-  if (types.includes('date')) {
-    return maybeApplyNullability('z.date()', schema)
+  if (schema.type === 'date') {
+    const addNullable = (expr: string): string =>
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+        ? `${expr}.nullable()`
+        : expr
+
+    return addNullable('z.date()')
   }
   /* string */
-  if (types.includes('string')) {
-    return maybeApplyNullability(string(schema), schema)
+  if (schema.type === 'string') {
+    return string(schema)
   }
   /* number */
   if (types.includes('number')) {

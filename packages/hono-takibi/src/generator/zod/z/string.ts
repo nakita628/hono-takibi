@@ -33,10 +33,14 @@ const FORMAT_STRING: Record<string, string> = {
 /** Build a Zod string schema from an OpenAPI string schema. */
 export function string(schema: Schema): string {
   const parts: string[] = []
+
   const format = schema.format && FORMAT_STRING[schema.format]
   parts.push(format ? `z${format}` : 'z.string()')
-  if (schema.pattern) parts.push(regex(schema.pattern))
-  // special-case: equal min & max  → .length()
+
+  if (schema.pattern) {
+    parts.push(regex(schema.pattern))
+  }
+
   if (
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
@@ -44,10 +48,24 @@ export function string(schema: Schema): string {
   ) {
     parts.push(`.length(${schema.minLength})`)
   } else {
-    if (schema.minLength !== undefined) parts.push(`.min(${schema.minLength})`)
-    if (schema.maxLength !== undefined) parts.push(`.max(${schema.maxLength})`)
+    if (schema.minLength !== undefined) {
+      parts.push(`.min(${schema.minLength})`)
+    }
+    if (schema.maxLength !== undefined) {
+      parts.push(`.max(${schema.maxLength})`)
+    }
   }
-  /* default (always last)*/
-  if (schema.default !== undefined) parts.push(`.default(${JSON.stringify(schema.default)})`)
+
+  if (schema.default !== undefined) {
+    parts.push(`.default(${JSON.stringify(schema.default)})`)
+  }
+
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+  if (isNullable) {
+    parts.push('.nullable()')
+  }
+
   return parts.join('')
 }

@@ -4,10 +4,22 @@ import { string } from './string'
 // Test run
 // pnpm vitest run ./src/generator/zod/z/string.test.ts
 
-describe('string Test', () => {
+describe('string', () => {
   it.concurrent('string({}) -> z.string()', () => {
     const result = string({})
     const expected = 'z.string()'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('string({ nullable: true }) -> z.string().nullable()', () => {
+    const result = string({ nullable: true })
+    const expected = 'z.string().nullable()'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent('string({ type: "null" }) -> z.string().nullable()', () => {
+    const result = string({ type: 'null' })
+    const expected = 'z.string().nullable()'
     expect(result).toBe(expected)
   })
 
