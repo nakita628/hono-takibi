@@ -4,65 +4,58 @@ import { object } from './object'
 // Test run
 // pnpm vitest run ./src/generator/zod/z/object.test.ts
 
-describe('object Test', () => {
+describe('object', () => {
+  // TODO nullable fix
   it.concurrent('object -> z.object({}))', () => {
-    const result = object({
-      type: 'object',
-      nullable: true,
-    })
-
-    const expected = 'z.object({})'
-    expect(result).toBe(expected)
+    expect(
+      object({
+        nullable: true,
+      }),
+    ).toBe('z.object({})')
   })
 
   it.concurrent('object -> z.object({type:z.enum(["A","B","C"])})', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: ['A', 'B', 'C'],
+    expect(
+      object({
+        properties: {
+          type: {
+            type: 'string',
+            enum: ['A', 'B', 'C'],
+          },
         },
-      },
-      required: ['type'],
-      discriminator: {
-        propertyName: 'type',
-      },
-    })
-
-    const expected = 'z.object({type:z.enum(["A","B","C"])})'
-    expect(result).toBe(expected)
+        required: ['type'],
+        discriminator: {
+          propertyName: 'type',
+        },
+      }),
+    ).toBe('z.object({type:z.enum(["A","B","C"])})')
   })
 
-  it.concurrent('zod looseObject', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        test: {
-          type: 'string',
+  it.concurrent('looseObject', () => {
+    expect(
+      object({
+        properties: {
+          test: {
+            type: 'string',
+          },
         },
-      },
-      required: ['test'],
-      additionalProperties: true,
-    })
-
-    const expected = 'z.looseObject({test:z.string()})'
-    expect(result).toBe(expected)
+        required: ['test'],
+        additionalProperties: true,
+      }),
+    ).toBe('z.looseObject({test:z.string()})')
   })
 
-  it.concurrent('zod strictObject', () => {
-    const result = object({
-      type: 'object',
-      properties: {
-        test: {
-          type: 'string',
+  it.concurrent('strictObject', () => {
+    expect(
+      object({
+        properties: {
+          test: {
+            type: 'string',
+          },
         },
-      },
-      required: ['test'],
-      additionalProperties: false,
-    })
-
-    const expected = 'z.strictObject({test:z.string()})'
-    expect(result).toBe(expected)
+        required: ['test'],
+        additionalProperties: false,
+      }),
+    ).toBe('z.strictObject({test:z.string()})')
   })
 })
