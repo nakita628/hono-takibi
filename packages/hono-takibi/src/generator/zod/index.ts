@@ -81,7 +81,13 @@ export function zod(schema: Schema): string {
     }
     return 'z.any()'
   }
+
+  if (schema.properties) {
+    return object(schema)
+  }
+
   const types = pickTypes(schema.type)
+
   /* object */
   if (pickTypes(schema.type).includes('object')) {
     return object(schema)

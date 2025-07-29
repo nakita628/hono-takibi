@@ -22,12 +22,12 @@ export function object(schema: Schema): string {
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
-        const zodSchema = propertiesSchema(
+        const z = propertiesSchema(
           schema.properties,
           Array.isArray(schema.required) ? schema.required : [],
         )
         if (schema.additionalProperties === true) {
-          return addNullable(zodSchema.replace('object', 'looseObject'))
+          return addNullable(z.replace('object', 'looseObject'))
         }
       }
       return addNullable('z.any()')
