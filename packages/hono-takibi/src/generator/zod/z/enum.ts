@@ -3,7 +3,7 @@ import type { Schema } from '../../../openapi/index.js'
 /**
  * Generate a Zod enum schema string from an OpenAPI Schema object (nullable対応含む).
  */
-export function _enum(schema: Schema): string | undefined {
+export function _enum(schema: Schema): string {
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
@@ -74,5 +74,5 @@ export function _enum(schema: Schema): string | undefined {
     return wrapNullable(expr)
   }
 
-  return undefined
+  return 'z.any()'
 }

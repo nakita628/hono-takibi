@@ -78,11 +78,7 @@ export function zod(schema: Schema): string {
   }
   /* enum */
   if (schema.enum) {
-    const out = _enum(schema)
-    if (out !== undefined) {
-      return out
-    }
-    return 'z.any()'
+    return _enum(schema)
   }
 
   if (schema.properties) {

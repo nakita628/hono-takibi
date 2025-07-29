@@ -28,10 +28,8 @@ describe('zod', () => {
   })
 
   describe('enum', () => {
-    it.concurrent('z.enum(["A","B"]).nullable()', () => {
-      expect(zod({ enum: ['A', 'B'], type: 'string', nullable: true })).toBe(
-        'z.enum(["A","B"]).nullable()',
-      )
+    it.concurrent('z.enum(["A","B"])', () => {
+      expect(zod({ enum: ['A', 'B'], type: 'string' })).toBe('z.enum(["A","B"])')
     })
     // nullable
     it.concurrent('z.enum(["A","B"]).nullable()', () => {
