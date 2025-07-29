@@ -1,6 +1,5 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
-import { pickTypes } from '../../helper/index.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import { refName } from '../../utils/index.js'
@@ -83,6 +82,10 @@ export function zod(schema: Schema): string {
 
   if (schema.properties) {
     return object(schema)
+  }
+
+  const pickTypes = (t: Schema['type']): readonly string[] => {
+    return t === undefined ? [] : Array.isArray(t) ? t : [t]
   }
 
   const types = pickTypes(schema.type)
