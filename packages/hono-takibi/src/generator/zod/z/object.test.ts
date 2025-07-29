@@ -61,4 +61,64 @@ describe('object', () => {
       }),
     ).toBe('z.strictObject({test:z.string()})')
   })
+
+  it('z.record(z.string(),z.uuid())', () => {
+    expect(
+      object({
+        additionalProperties: { type: 'string', format: 'uuid' },
+      }),
+    ).toBe('z.record(z.string(),z.uuid())')
+  })
+
+  it('allOf', () => {
+    expect(
+      object({
+        allOf: [
+          {
+            properties: { a: { type: 'string' } },
+            required: ['a'],
+          },
+          {
+            properties: { b: { type: 'integer' } },
+            required: ['b'],
+          },
+        ],
+        nullable: true,
+      }),
+    ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
+  })
+
+  it('oneOf', () => {
+    expect(
+      object({
+        oneOf: [
+          {
+            properties: { kind: { const: 'A' } },
+            required: ['kind'],
+          },
+          {
+            properties: { kind: { const: 'B' } },
+            required: ['kind'],
+          },
+        ],
+      }),
+    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+  })
+
+  it('anyOf', () => {
+    expect(
+      object({
+        anyOf: [
+          {
+            properties: { kind: { const: 'A' } },
+            required: ['kind'],
+          },
+          {
+            properties: { kind: { const: 'B' } },
+            required: ['kind'],
+          },
+        ],
+      }),
+    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+  })
 })

@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getToSafeIdentifier, isAllOptional, partial } from '../../../utils/index.js'
+import { getToSafeIdentifier } from '../../../utils/index.js'
 import { propertySchema } from './property-schema.js'
 
 /**
@@ -54,11 +54,12 @@ export function propertiesSchema(properties: Record<string, Schema>, required: s
   })
 
   // Check if all properties are optional
-  const allOptional = isAllOptional(objectProperties)
+  const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))
 
   // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
-    return partial(objectProperties)
+    const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))
+    return `z.object({${cleanProperties}}).partial()`
   }
 
   return `z.object({${objectProperties}})`

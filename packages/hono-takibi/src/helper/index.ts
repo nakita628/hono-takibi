@@ -1,7 +1,6 @@
 export { allOf } from './allof.js'
 export { anyOf } from './anyof.js'
 export { oneOf } from './oneof.js'
-export { pickTypes } from './pick-types.js'
 export { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
 export { zodToOpenAPI } from './zod-to-openapi.js'
 export { zodToOpenAPISchema } from './zod-to-openapi-schema.js'

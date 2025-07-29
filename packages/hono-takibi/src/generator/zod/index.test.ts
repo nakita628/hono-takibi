@@ -147,6 +147,70 @@ describe('zod', () => {
         }),
       ).toBe('z.looseObject({test:z.string()})')
     })
+    // allOf
+    it.concurrent(
+      'z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()',
+      () => {
+        expect(
+          zod({
+            type: 'object',
+            allOf: [
+              {
+                properties: { a: { type: 'string' } },
+                required: ['a'],
+              },
+              {
+                properties: { b: { type: 'integer' } },
+                required: ['b'],
+              },
+            ],
+            nullable: true,
+          }),
+        ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
+      },
+    )
+    // oneOf
+    it.concurrent(
+      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+      () => {
+        expect(
+          zod({
+            type: 'object',
+            oneOf: [
+              {
+                properties: { kind: { const: 'A' } },
+                required: ['kind'],
+              },
+              {
+                properties: { kind: { const: 'B' } },
+                required: ['kind'],
+              },
+            ],
+          }),
+        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+      },
+    )
+    // anyOf
+    it.concurrent(
+      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+      () => {
+        expect(
+          zod({
+            type: 'object',
+            anyOf: [
+              {
+                properties: { kind: { const: 'A' } },
+                required: ['kind'],
+              },
+              {
+                properties: { kind: { const: 'B' } },
+                required: ['kind'],
+              },
+            ],
+          }),
+        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+      },
+    )
   })
 
   describe('date', () => {

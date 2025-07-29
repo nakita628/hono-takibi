@@ -3,7 +3,6 @@ import {
   allOf,
   anyOf,
   oneOf,
-  pickTypes,
   resolveSchemasDependencies,
   zodToOpenAPI,
   zodToOpenAPISchema,
@@ -21,9 +20,6 @@ describe('helper barrel file exports', () => {
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')
-  })
-  it('should export pickTypes', () => {
-    expect(typeof pickTypes).toBe('function')
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')

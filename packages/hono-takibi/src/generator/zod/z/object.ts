@@ -34,7 +34,7 @@ export function object(schema: Schema): string {
     }
 
     const value = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
-    return addNullable(`z.record(z.string(), ${value})`)
+    return addNullable(`z.record(z.string(),${value})`)
   }
 
   if (schema.properties) {
@@ -48,9 +48,22 @@ export function object(schema: Schema): string {
     return addNullable(zodSchema)
   }
 
-  if (schema.allOf) return addNullable(allOf(schema))
-  if (schema.oneOf) return addNullable(oneOf(schema))
-  if (schema.anyOf) return addNullable(anyOf(schema))
+  // call allOf, oneOf, anyOf, or not use addNullable
+  if (schema.allOf) {
+    return allOf(schema)
+  }
+  if (schema.oneOf) {
+    return oneOf(schema)
+  }
+  if (schema.anyOf) {
+    return anyOf(schema)
+  }
+  if (schema.not) {
+    if (isNullable) {
+      return 'z.unknown().nullable()'
+    }
+    return 'z.unknown()'
+  }
 
   return addNullable('z.object({})')
 }
