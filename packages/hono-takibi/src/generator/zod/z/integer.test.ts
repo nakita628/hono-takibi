@@ -9,6 +9,13 @@ describe('integer', () => {
   it.concurrent('z.int()', () => {
     expect(integer({})).toBe('z.int()')
   })
+  // nullable
+  it.concurrent('z.int().nullable()', () => {
+    expect(integer({ nullable: true })).toBe('z.int().nullable()')
+  })
+  it.concurrent('z.int().nullable() if type: ["integer", "null"]', () => {
+    expect(integer({ type: ['integer', 'null'] })).toBe('z.int().nullable()')
+  })
   // positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int().positive()', () => {
     expect(integer({ minimum: 0, exclusiveMinimum: true })).toBe('z.int().positive()')
@@ -69,6 +76,13 @@ describe('integer', () => {
   // int32
   it.concurrent(' ormat: int32 → z.int32()', () => {
     expect(integer({ format: 'int32' })).toBe('z.int32()')
+  })
+  // int32 nullable
+  it.concurrent('format: int32, nullable: true → z.int32().nullable()', () => {
+    expect(integer({ format: 'int32', nullable: true })).toBe('z.int32().nullable()')
+  })
+  it.concurrent('format: int32, type: ["integer", "null"] → z.int32().nullable()', () => {
+    expect(integer({ format: 'int32', type: ['integer', 'null'] })).toBe('z.int32().nullable()')
   })
   // int32 positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int32().positive()', () => {
@@ -134,6 +148,13 @@ describe('integer', () => {
   it.concurrent('type: integer, format: int64 → z.int64()', () => {
     expect(integer({ format: 'int64' })).toBe('z.int64()')
   })
+  // int64 nullable
+  it.concurrent('format: int64, nullable: true → z.int64().nullable()', () => {
+    expect(integer({ format: 'int64', nullable: true })).toBe('z.int64().nullable()')
+  })
+  it.concurrent('format: int64, type: ["integer", "null"] → z.int64().nullable()', () => {
+    expect(integer({ format: 'int64', type: ['integer', 'null'] })).toBe('z.int64().nullable()')
+  })
   // int64 positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int64().positive()', () => {
     expect(integer({ format: 'int64', minimum: 0, exclusiveMinimum: true })).toBe(
@@ -197,6 +218,13 @@ describe('integer', () => {
   // bigint
   it.concurrent('type: integer, format: bigint → z.bigint()', () => {
     expect(integer({ format: 'bigint' })).toBe('z.bigint()')
+  })
+  // bigint nullable
+  it.concurrent('format: bigint, nullable: true → z.bigint().nullable()', () => {
+    expect(integer({ format: 'bigint', nullable: true })).toBe('z.bigint().nullable()')
+  })
+  it.concurrent('format: bigint, type: ["integer", "null"] → z.bigint().nullable()', () => {
+    expect(integer({ format: 'bigint', type: ['integer', 'null'] })).toBe('z.bigint().nullable()')
   })
   // bigint positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.bigint().positive()', () => {

@@ -1,6 +1,6 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
-import { maybeApplyNullability, pickTypes } from '../../helper/index.js'
+import { pickTypes } from '../../helper/index.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import { refName } from '../../utils/index.js'
@@ -65,20 +65,29 @@ export function zod(schema: Schema): string {
   }
   /* const */
   if (schema.const !== undefined) {
-    return maybeApplyNullability(`z.literal(${JSON.stringify(schema.const)})`, schema)
+    const base = `z.literal(${JSON.stringify(schema.const)})`
+
+    const isNullable =
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
+    return isNullable ? `${base}.nullable()` : base
   }
   /* enum */
   if (schema.enum) {
     const out = _enum(schema)
-    return out !== undefined ? maybeApplyNullability(out, schema) : 'z.any()'
+    if (out !== undefined) {
+      return out
+    }
+    return 'z.any()'
   }
   const types = pickTypes(schema.type)
   /* object */
-  if (schema.type === 'object') {
+  if (pickTypes(schema.type).includes('object')) {
     return object(schema)
   }
   /* date */
-  if (schema.type === 'date') {
+  if (types.includes('date')) {
     const addNullable = (expr: string): string =>
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
@@ -88,25 +97,29 @@ export function zod(schema: Schema): string {
     return addNullable('z.date()')
   }
   /* string */
-  if (schema.type === 'string') {
+  if (types.includes('string')) {
     return string(schema)
   }
   /* number */
   if (types.includes('number')) {
-    // Apply .nullable() if schema is nullable
-    return maybeApplyNullability(number(schema), schema)
+    return number(schema)
   }
   /* integer & bigint */
   if (types.includes('integer')) {
-    return maybeApplyNullability(integer(schema), schema)
+    return integer(schema)
   }
   /* array */
   if (types.includes('array')) {
-    return maybeApplyNullability(array(schema), schema)
+    return array(schema)
   }
   /* boolean */
   if (types.includes('boolean')) {
-    return maybeApplyNullability('z.boolean()', schema)
+    const addNullable = (expr: string): string =>
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+        ? `${expr}.nullable()`
+        : expr
+    return addNullable('z.boolean()')
   }
   /* combinators */
   if (schema.oneOf) {
@@ -125,6 +138,8 @@ export function zod(schema: Schema): string {
   if (types.length === 1 && types[0] === 'null') {
     return 'z.null()'
   }
+
   console.warn(`Unknown schema: ${JSON.stringify(schema)} - fallback to z.any()`)
+
   return 'z.any()'
 }

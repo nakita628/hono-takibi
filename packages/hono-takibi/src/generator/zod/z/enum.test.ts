@@ -12,6 +12,23 @@ describe('_enum', () => {
       }),
     ).toBe('z.enum(["a","b","c"])')
   })
+  // nullable
+  it.concurrent('z.enum(["a","b","c"]).nullable()', () => {
+    expect(
+      _enum({
+        enum: ['a', 'b', 'c'],
+        nullable: true,
+      }),
+    ).toBe('z.enum(["a","b","c"]).nullable()')
+  })
+  it.concurrent('z.enum(["a","b","c"]).nullable()', () => {
+    expect(
+      _enum({
+        enum: ['a', 'b', 'c'],
+        type: ['null'],
+      }),
+    ).toBe('z.enum(["a","b","c"]).nullable()')
+  })
 
   it.concurrent("z.literal('test')", () => {
     expect(

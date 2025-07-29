@@ -15,11 +15,32 @@ describe('zod', () => {
     it.concurrent('z.literal("test")', () => {
       expect(zod({ type: 'string', const: 'fixed' })).toBe('z.literal("fixed")')
     })
+    it.concurrent('z.literal("test").nullable()', () => {
+      expect(zod({ type: 'string', const: 'fixed', nullable: true })).toBe(
+        'z.literal("fixed").nullable()',
+      )
+    })
+    it.concurrent('z.literal("test").nullable()', () => {
+      expect(zod({ type: ['string', 'null'], const: 'fixed' })).toBe(
+        'z.literal("fixed").nullable()',
+      )
+    })
   })
 
   describe('enum', () => {
     it.concurrent('z.enum(["A","B"]).nullable()', () => {
       expect(zod({ enum: ['A', 'B'], type: 'string', nullable: true })).toBe(
+        'z.enum(["A","B"]).nullable()',
+      )
+    })
+    // nullable
+    it.concurrent('z.enum(["A","B"]).nullable()', () => {
+      expect(zod({ enum: ['A', 'B'], type: ['string'], nullable: true })).toBe(
+        'z.enum(["A","B"]).nullable()',
+      )
+    })
+    it.concurrent('z.enum(["A","B"]).nullable() if type: ["string", "null"]', () => {
+      expect(zod({ enum: ['A', 'B'], type: ['string', 'null'] })).toBe(
         'z.enum(["A","B"]).nullable()',
       )
     })
@@ -80,6 +101,9 @@ describe('zod', () => {
     it.concurrent('z.object({}).nullable()', () => {
       expect(zod({ type: 'object', nullable: true })).toBe('z.object({}).nullable()')
     })
+    it.concurrent('z.object({}).nullable() if type: ["object", "null"]', () => {
+      expect(zod({ type: ['object', 'null'] })).toBe('z.object({}).nullable()')
+    })
     it.concurrent('z.object({type:z.enum(["A","B","C"])})', () => {
       expect(
         zod({
@@ -134,6 +158,9 @@ describe('zod', () => {
     it.concurrent('z.date().nullable()', () => {
       expect(zod({ type: 'date', nullable: true })).toBe('z.date().nullable()')
     })
+    it.concurrent('z.date().nullable() if type: ["date", "null"]', () => {
+      expect(zod({ type: ['date', 'null'] })).toBe('z.date().nullable()')
+    })
   })
 
   describe('string', () => {
@@ -148,6 +175,9 @@ describe('zod', () => {
     })
     it.concurrent('z.string().nullable()', () => {
       expect(zod({ type: 'string', nullable: true })).toBe('z.string().nullable()')
+    })
+    it.concurrent("z.string().nullable() if type: ['string', 'null']", () => {
+      expect(zod({ type: ['string', 'null'] })).toBe('z.string().nullable()')
     })
     it.concurrent('z.length(5)', () => {
       expect(zod({ type: 'string', minLength: 5, maxLength: 5 })).toBe('z.string().length(5)')
@@ -195,7 +225,10 @@ describe('zod', () => {
       expect(zod({ type: 'number' })).toBe('z.number()')
     })
     // nullable
-    it.concurrent('type: [number, null] → z.number().nullable()', () => {
+    it.concurrent('type: number, nullable: true → z.number().nullable()', () => {
+      expect(zod({ type: 'number', nullable: true })).toBe('z.number().nullable()')
+    })
+    it.concurrent("type: ['number', 'null'] → z.number().nullable()", () => {
       expect(zod({ type: ['number', 'null'] })).toBe('z.number().nullable()')
     })
     // positive

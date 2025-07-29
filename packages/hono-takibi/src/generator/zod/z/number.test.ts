@@ -15,6 +15,13 @@ describe('number', () => {
   it.concurrent('{} → z.number()', () => {
     expect(number({})).toBe('z.number()')
   })
+  // nullable
+  it.concurrent('nullable: true → z.number().nullable()', () => {
+    expect(number({ nullable: true })).toBe('z.number().nullable()')
+  })
+  it.concurrent('type: null → z.number().nullable()', () => {
+    expect(number({ type: ['number', 'null'] })).toBe('z.number().nullable()')
+  })
   // positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.number().positive()', () => {
     expect(number({ minimum: 0, exclusiveMinimum: true })).toBe('z.number().positive()')

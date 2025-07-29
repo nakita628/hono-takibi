@@ -9,6 +9,17 @@ describe('array()', () => {
   it.concurrent('returns z.array(z.any()) when items is missing', () => {
     expect(array({})).toBe('z.array(z.any())')
   })
+  // nullable
+  it.concurrent('returns z.array(z.string()).nullable() when nullable is true', () => {
+    expect(array({ items: { type: 'string' }, nullable: true })).toBe(
+      'z.array(z.string()).nullable()',
+    )
+  })
+  it.concurrent('returns z.array(z.string()).nullable() when type is ["array", "null"]', () => {
+    expect(array({ items: { type: 'string' }, type: ['array', 'null'] })).toBe(
+      'z.array(z.string()).nullable()',
+    )
+  })
   // z.array(z.string())
   it.concurrent('returns z.array(z.string()) when items is string', () => {
     expect(array({ items: { type: 'string' } })).toBe('z.array(z.string())')
@@ -55,6 +66,42 @@ describe('array()', () => {
       expect(array({ items: { type: 'string' }, minItems: 5, maxItems: 5 })).toBe(
         'z.array(z.string()).length(5)',
       )
+    },
+  )
+  // z.array(z.string()).min(1).max(10).nullable()
+  it.concurrent(
+    'returns z.array(z.string()).min(1).max(10).nullable() when minItems and maxItems are defined and nullable is true',
+    () => {
+      expect(array({ items: { type: 'string' }, minItems: 1, maxItems: 10, nullable: true })).toBe(
+        'z.array(z.string()).min(1).max(10).nullable()',
+      )
+    },
+  )
+  // z.array(z.string()).min(1).max(10).nullable()
+  it.concurrent(
+    'returns z.array(z.string()).min(1).max(10).nullable() when minItems and maxItems are defined and type is ["array", "null"]',
+    () => {
+      expect(
+        array({ items: { type: 'string' }, minItems: 1, maxItems: 10, type: ['array', 'null'] }),
+      ).toBe('z.array(z.string()).min(1).max(10).nullable()')
+    },
+  )
+  // z.array(z.string()).length(5).nullable()
+  it.concurrent(
+    'returns z.array(z.string()).length(5).nullable() when minItems and maxItems are equal and nullable is true',
+    () => {
+      expect(array({ items: { type: 'string' }, minItems: 5, maxItems: 5, nullable: true })).toBe(
+        'z.array(z.string()).length(5).nullable()',
+      )
+    },
+  )
+  // z.array(z.string()).length(5).nullable()
+  it.concurrent(
+    'returns z.array(z.string()).length(5).nullable() when minItems and maxItems are equal and type is ["array", "null"]',
+    () => {
+      expect(
+        array({ items: { type: 'string' }, minItems: 5, maxItems: 5, type: ['array', 'null'] }),
+      ).toBe('z.array(z.string()).length(5).nullable()')
     },
   )
 })

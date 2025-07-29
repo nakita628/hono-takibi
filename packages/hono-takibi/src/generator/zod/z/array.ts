@@ -3,20 +3,29 @@ import { zod } from '../index.js'
 
 export function array(schema: Schema): string {
   const z = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
-  // minItems / maxItems → .length() / .min() / .max()
+
+  const isNullable =
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
+
   if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
-    // minItems === maxItems → .length(n)
     if (schema.minItems === schema.maxItems) {
-      return `${z}.length(${schema.minItems})`
+      return isNullable
+        ? `${z}.length(${schema.minItems}).nullable()`
+        : `${z}.length(${schema.minItems})`
     }
-    // minItems ≠ maxItems → .min(n).max(n)
-    return `${z}.min(${schema.minItems}).max(${schema.maxItems})`
+    return isNullable
+      ? `${z}.min(${schema.minItems}).max(${schema.maxItems}).nullable()`
+      : `${z}.min(${schema.minItems}).max(${schema.maxItems})`
   }
+
   if (typeof schema.minItems === 'number') {
-    return `${z}.min(${schema.minItems})`
+    return isNullable ? `${z}.min(${schema.minItems}).nullable()` : `${z}.min(${schema.minItems})`
   }
+
   if (typeof schema.maxItems === 'number') {
-    return `${z}.max(${schema.maxItems})`
+    return isNullable ? `${z}.max(${schema.maxItems}).nullable()` : `${z}.max(${schema.maxItems})`
   }
-  return z
+
+  return isNullable ? `${z}.nullable()` : z
 }

@@ -17,8 +17,8 @@ describe('string', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('string({ type: "null" }) -> z.string().nullable()', () => {
-    const result = string({ type: 'null' })
+  it.concurrent("string({ type: ['string', 'null'] }) -> z.string().nullable()", () => {
+    const result = string({ type: ['string', 'null'] })
     const expected = 'z.string().nullable()'
     expect(result).toBe(expected)
   })
