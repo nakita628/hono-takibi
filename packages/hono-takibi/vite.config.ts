@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [
     HonoTakibiVite({
       input: 'openapi/typespec.tsp',
-      output: 'routes/tsp.ts',
+      output: 'routes/typespec.ts',
       exportType: true,
       exportSchema: true,
     }),

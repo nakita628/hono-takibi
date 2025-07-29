@@ -1,7 +1,7 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { PluginOption, ViteDevServer } from 'vite'
+import type { ViteDevServer } from 'vite'
 import { fmt } from '../format/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import type { OpenAPI } from '../openapi/index.js'
@@ -17,7 +17,7 @@ export default async function HonoTakibiVite({
   output: `${string}.ts`
   exportType?: boolean
   exportSchema?: boolean
-}): Promise<PluginOption> {
+}) {
   const run = async () => {
     if (
       typeof input === 'string' &&
@@ -26,18 +26,22 @@ export default async function HonoTakibiVite({
     ) {
       try {
         const tsp = await typeSpecToOpenAPI(input)
-        const openAPI = (await SwaggerParser.parse(tsp as unknown as string)) as OpenAPI
+        if (!tsp.ok) {
+          console.error(tsp.error)
+          return false
+        }
+        const openAPI = (await SwaggerParser.parse(tsp.value as unknown as string)) as OpenAPI
         const hono = zodOpenAPIHono(openAPI, exportSchema, exportType)
         const code = await fmt(hono)
         if (!code.ok) {
-          console.error(`${code.error}`)
+          console.error(code.error)
           return false
         }
         await fsp.mkdir(path.dirname(output), { recursive: true })
         await fsp.writeFile(output, code.value, 'utf-8')
         return true
       } catch (e) {
-        return false
+        throw new Error(String(e))
       }
     } else {
       try {
@@ -51,7 +55,7 @@ export default async function HonoTakibiVite({
         await fsp.mkdir(path.dirname(output), { recursive: true })
         await fsp.writeFile(output, code.value, 'utf-8')
       } catch (e) {
-        return false
+        throw new Error(String(e))
       }
     }
   }

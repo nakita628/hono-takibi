@@ -1,42 +1,12 @@
 import "@typespec/http";
-import "@typespec/rest";
-import "@typespec/openapi3";
-
-@service(#{ title: "Widget Service" })
-namespace DemoService;
-using Rest;
 using Http;
-using OpenAPI;
 
-model WidgetBase {
-  @key id: string;
-  weight: int32;
-  color: "red" | "blue";
+model Hono {
+  hono: "Hono" | "HonoX" | "ZodOpenAPIHono";
 }
 
-enum WidgetKind {
-  Heavy,
-  Light,
+@route("/hono")
+@tag("Hono")
+interface HonoService {
+  @post create(@body hono: Hono): Hono;
 }
-
-model HeavyWidget extends WidgetBase {
-  kind: WidgetKind.Heavy;
-}
-
-model LightWidget extends WidgetBase {
-  kind: WidgetKind.Light;
-}
-
-@discriminated
-union Widget {
-  heavy: HeavyWidget,
-  light: LightWidget,
-}
-
-@error
-model Error {
-  code: int32;
-  message: string;
-}
-
-@get op read(@path id: string): Widget | Error;
