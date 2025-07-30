@@ -60,7 +60,7 @@ export function object(schema: Schema): string {
     return z
   }
 
-  // call oneOf, anyOf, allOf or not use addNullable
+  // call oneOf, anyOf, allOf or not use nullable
   if (schema.oneOf) {
     return oneOf(schema)
   }
