@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { propertySchema } from './property-schema'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/property/property-schema.test.ts
+// pnpm vitest run ./src/generator/zod/helper/property-schema.test.ts
 
 describe('propertySchema', () => {
   it.concurrent('propertySchema -> TestSchema', () => {
@@ -34,7 +34,8 @@ describe('propertySchema', () => {
 
   it.concurrent('propertySchema -> z.any', () => {
     const result = propertySchema({
-      $ref: '',
+      // biome-ignore lint: test
+      $ref: '' as any,
     })
 
     const expected = 'z.any()'
@@ -45,7 +46,8 @@ describe('propertySchema', () => {
     const result = propertySchema({
       type: 'array',
       items: {
-        $ref: '',
+        // biome-ignore lint: test
+        $ref: '' as any,
       },
     })
 

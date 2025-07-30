@@ -1,19 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyOpenapiRoutes,
-  appRouteHandler,
   createRoute,
   escapeStringLiteral,
   getFlagValue,
   getHandlerImports,
   getToSafeIdentifier,
   groupHandlersByFileName,
-  handler,
   hasFlag,
   importHandlers,
   importMap,
   importRoutes,
-  isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
   isRefObject,
@@ -173,17 +169,6 @@ describe('utils', () => {
   /* ========================================================================== *
    *  Handler-Generation Utilities
    * ========================================================================== */
-  // appRouteHandler
-  describe('appRouteHandler', () => {
-    it.concurrent(
-      `appRouteHandler('getRoute', 'getRouteHandler') -> .openapi(getRoute,getRouteHandler)`,
-      () => {
-        const result = appRouteHandler('getRoute', 'getRouteHandler')
-        const expected = '.openapi(getRoute,getRouteHandler)'
-        expect(result).toBe(expected)
-      },
-    )
-  })
   // importRoutes
   describe('importRoutes', () => {
     it.concurrent('importRoutes Test', () => {
@@ -206,7 +191,7 @@ describe('utils', () => {
           bearerFormat: 'JWT',
         },
       })
-      const expected = `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify(
+      const expected = `app.openAPIRegistry.registerComponent('securitySchemes','jwt',${JSON.stringify(
         {
           type: 'http',
           scheme: 'bearer',
@@ -245,45 +230,11 @@ describe('utils', () => {
       expect(result).toStrictEqual(expected)
     })
   })
-  // applyOpenapiRoutes
-  describe('applyOpenapiRoutes', () => {
-    it.concurrent('applyOpenapiRoutes', () => {
-      const result = applyOpenapiRoutes([
-        {
-          routeName: 'getHonoRoute',
-          handlerName: 'getHonoRouteHandler',
-          path: '/hono',
-        },
-        {
-          routeName: 'getHonoXRoute',
-          handlerName: 'getHonoXRouteHandler',
-          path: '/hono-x',
-        },
-        {
-          routeName: 'getZodOpenapiHonoRoute',
-          handlerName: 'getZodOpenapiHonoRouteHandler',
-          path: '/zod-openapi-hono',
-        },
-      ])
-      const expected = `.openapi(getHonoRoute,getHonoRouteHandler)
-.openapi(getHonoXRoute,getHonoXRouteHandler)
-.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)`
-      expect(result).toBe(expected)
-    })
-  })
   /* ========================================================================== *
    *  Handler Utilities
    *    └─ Everything below relates to generating, grouping, or importing route
    *       handler functions.
    * ========================================================================== */
-  // handler
-  describe('handler', () => {
-    it.concurrent('generateHandler', () => {
-      const result = handler('getRouteHandler', 'getRoute')
-      const expected = 'export const getRouteHandler:RouteHandler<typeof getRoute>=async(c)=>{}'
-      expect(result).toBe(expected)
-    })
-  })
   // importHandlers
   describe('importHandlers', () => {
     it.concurrent('importHandlers', () => {
@@ -388,27 +339,6 @@ describe('utils', () => {
         'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
       }
       expect(result).toStrictEqual(expected)
-    })
-  })
-  // isArrayWithSchemaReference
-  describe('isArrayWithSchemaReference', () => {
-    it.concurrent('isArrayWithSchemaReference -> true', () => {
-      const result = isArrayWithSchemaReference({
-        type: 'array',
-        items: { $ref: '#/components/schemas/Test' },
-      })
-      expect(result).toBe(true)
-    })
-    it.concurrent('isArrayWithSchemaReference -> false', () => {
-      const result = isArrayWithSchemaReference({ type: 'string', format: 'binary' })
-      expect(result).toBe(false)
-    })
-    it.concurrent('isArrayWithSchemaReference -> false', () => {
-      const result = isArrayWithSchemaReference({
-        type: 'array',
-        items: undefined,
-      })
-      expect(result).toBe(false)
     })
   })
   // isHttpMethod

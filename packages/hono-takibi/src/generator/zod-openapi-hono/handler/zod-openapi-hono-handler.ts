@@ -2,7 +2,7 @@ import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'
 import type { Result } from '../../../result/index.js'
-import { groupHandlersByFileName, handler, routeName } from '../../../utils/index.js'
+import { groupHandlersByFileName, routeName } from '../../../utils/index.js'
 
 /**
  * Generates route handler files for a Hono app using Zod and OpenAPI.
@@ -26,26 +26,18 @@ export async function zodOpenapiHonoHandler(
   }[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
-      const routeHandlerContent = handler(
-        `${routeName(method, path)}Handler`,
-        routeName(method, path),
-      )
-
+      const routeHandlerContent = `export const ${routeName(method, path)}Handler:RouteHandler<typeof ${routeName(method, path)}>=async(c)=>{}`
       const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
-
       const pathName = (rawSegment === '' ? 'index' : rawSegment)
         .replace(/\{([^}]+)\}/g, '$1')
         .replace(/[^0-9A-Za-z._-]/g, '_')
         .replace(/^[._-]+|[._-]+$/g, '')
         .replace(/__+/g, '_')
         .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
-
       const fileName: `${string}.ts` =
         pathName.length === 0 ? 'indexHandler.ts' : `${pathName}Handler.ts`
-
       const testFileName: `${string}.ts` =
         pathName.length === 0 ? 'indexHandler.test.ts' : `${pathName}Handler.test.ts`
-
       handlers.push({
         fileName,
         testFileName,

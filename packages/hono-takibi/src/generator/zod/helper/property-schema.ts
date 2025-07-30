@@ -1,7 +1,5 @@
 import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
-import { isArrayWithSchemaReference } from '../../../utils/index.js'
-
 import { zod } from '../index.js'
 import { arrayReferenceSchema } from './array-reference-schema.js'
 import { referenceSchema } from './reference-schema.js'
@@ -35,7 +33,7 @@ export function propertySchema(schema: Schema): string {
   if (Boolean(schema.$ref) === true) {
     return referenceSchema(schema)
   }
-  if (isArrayWithSchemaReference(schema)) {
+  if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
     return arrayReferenceSchema(schema)
   }
   return zodToOpenAPI(zod(schema), schema)

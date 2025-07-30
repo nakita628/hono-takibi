@@ -73,17 +73,6 @@ export function isYamlOrJsonOrTsp(
  * ========================================================================== */
 
 /**
- * Generate app route handler
- *
- * @param routeName - Route name
- * @param handlerName - Handler function name
- * @returns A string representing the `.openapi()` route handler call
- */
-export function appRouteHandler(routeName: string, handlerName: string) {
-  return `.openapi(${routeName},${handlerName})`
-}
-
-/**
  * Generates import statements for route handler modules.
  *
  * @param importsMap - A map where keys are file paths (ending with `.ts`) and values are arrays of exported identifiers.
@@ -119,7 +108,7 @@ export function registerComponent(securitySchemes: {
 }): string {
   return Object.entries(securitySchemes)
     .map(([name, scheme]) => {
-      return `app.openAPIRegistry.registerComponent('securitySchemes', '${name}', ${JSON.stringify(scheme)})`
+      return `app.openAPIRegistry.registerComponent('securitySchemes','${name}',${JSON.stringify(scheme)})`
     })
     .join('\n')
 }
@@ -146,7 +135,6 @@ export function importMap(
   for (const { routeName } of routeMappings) {
     const match = output.match(/[^/]+\.ts$/)
     const importPath = match ? match[0] : output
-
     if (!importsMap[importPath]) {
       importsMap[importPath] = []
     }
@@ -156,42 +144,11 @@ export function importMap(
   return importsMap
 }
 
-/**
- * Generates the application route handlers.
- *
- * @param routeMappings - An array of route definitions with route and handler names.
- * @returns A string of `.openapi(...)` calls joined by newline.
- */
-export function applyOpenapiRoutes(
-  routeMappings: {
-    routeName: string
-    handlerName: string
-    path: string
-  }[],
-) {
-  return routeMappings
-    .map(({ routeName, handlerName }) => {
-      return `.openapi(${routeName},${handlerName})`
-    })
-    .join('\n')
-}
-
 /* ========================================================================== *
  *  Handler Utilities
  *    └─ Everything below relates to generating, grouping, or importing route
  *       handler functions.
  * ========================================================================== */
-
-/**
- * Generates a route handler function declaration.
- *
- * @param handlerName - The name of the handler function.
- * @param routeName - The name of the route definition.
- * @returns The TypeScript code string for the handler function.
- */
-export function handler(handlerName: string, routeName: string): string {
-  return `export const ${handlerName}:RouteHandler<typeof ${routeName}>=async(c)=>{}`
-}
 
 /**
  * Generates import statements for handler functions.
@@ -207,7 +164,6 @@ export function importHandlers(
   const importHandlers: string[] = []
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))
-
     const replacePath = output?.replace(/\/[^/]+\.ts$/, '')
     const dirPath = replacePath === undefined ? '.' : replacePath
     const handlerPath = 'handlers'
@@ -292,50 +248,6 @@ export function getHandlerImports(
     getHandlerImports[fileName].push(handlerName)
   }
   return getHandlerImports
-}
-
-/* ---------- OpenAPI schema structures ----------------------------------- */
-
-/**
- * Checks whether a schema represents an array whose items are a `$ref` reference.
- *
- * @param schema - The OpenAPI schema object to check.
- * @returns `true` if the schema is an array with `$ref` in its `items` field, otherwise `false`.
- *
- * @example
- * ```ts
- * isArrayWithSchemaReference({
- *   type: 'array',
- *   items: { $ref: '#/components/schemas/User' }
- * })
- * // → true
- *
- * isArrayWithSchemaReference({
- *   type: 'array',
- *   items: { type: 'string' }
- * })
- * // → false
- *
- * isArrayWithSchemaReference({
- *   type: 'object'
- * })
- * // → false
- * ```
- */
-export function isArrayWithSchemaReference(schema: unknown): boolean {
-  if (typeof schema !== 'object' || schema === null) {
-    return false
-  }
-  if (!('type' in schema) || schema.type !== 'array') {
-    return false
-  }
-  if (!('items' in schema) || typeof schema.items !== 'object') {
-    return false
-  }
-  if (schema.items !== null && typeof schema.items === 'object' && !('$ref' in schema.items)) {
-    return false
-  }
-  return schema.type === 'array' && Boolean(schema.items?.$ref)
 }
 
 /* ---------- HTTP-specific ----------------------------------------------- */

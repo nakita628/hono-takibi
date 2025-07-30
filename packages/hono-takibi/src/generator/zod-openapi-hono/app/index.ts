@@ -2,7 +2,6 @@ import { docs } from '../../../helper/docs.js'
 import { getRouteMaps } from '../../../helper/get-route-maps.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import {
-  applyOpenapiRoutes,
   getHandlerImports,
   importHandlers,
   importMap,
@@ -39,7 +38,11 @@ export function app(
     basePath
       ? `${'const app = new OpenAPIHono()'}.basePath('${basePath}')`
       : 'const app = new OpenAPIHono()',
-    `export const api = ${`app${applyOpenapiRoutes(routeMappings)}`}`,
+    `export const api = ${`app${routeMappings
+      .map(({ routeName, handlerName }) => {
+        return `.openapi(${routeName},${handlerName})`
+      })
+      .join('\n')}`}`,
     swagger,
     'export type AddType = typeof api',
     'export default app',
