@@ -1,21 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyOpenapiRoutes,
-  appRouteHandler,
   createRoute,
   escapeStringLiteral,
-  formatRequestObject,
   getFlagValue,
   getHandlerImports,
   getToSafeIdentifier,
   groupHandlersByFileName,
-  handler,
   hasFlag,
   importHandlers,
   importMap,
   importRoutes,
-  insertRequestBody,
-  isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
   isRefObject,
@@ -25,7 +19,7 @@ import {
   refName,
   regex,
   registerComponent,
-  requestParams,
+  requestParamsArray,
   routeName,
   sanitizeIdentifier,
   sliceArgv,
@@ -175,17 +169,6 @@ describe('utils', () => {
   /* ========================================================================== *
    *  Handler-Generation Utilities
    * ========================================================================== */
-  // appRouteHandler
-  describe('appRouteHandler', () => {
-    it.concurrent(
-      `appRouteHandler('getRoute', 'getRouteHandler') -> .openapi(getRoute,getRouteHandler)`,
-      () => {
-        const result = appRouteHandler('getRoute', 'getRouteHandler')
-        const expected = '.openapi(getRoute,getRouteHandler)'
-        expect(result).toBe(expected)
-      },
-    )
-  })
   // importRoutes
   describe('importRoutes', () => {
     it.concurrent('importRoutes Test', () => {
@@ -208,7 +191,7 @@ describe('utils', () => {
           bearerFormat: 'JWT',
         },
       })
-      const expected = `app.openAPIRegistry.registerComponent('securitySchemes', 'jwt', ${JSON.stringify(
+      const expected = `app.openAPIRegistry.registerComponent('securitySchemes','jwt',${JSON.stringify(
         {
           type: 'http',
           scheme: 'bearer',
@@ -247,45 +230,11 @@ describe('utils', () => {
       expect(result).toStrictEqual(expected)
     })
   })
-  // applyOpenapiRoutes
-  describe('applyOpenapiRoutes', () => {
-    it.concurrent('applyOpenapiRoutes', () => {
-      const result = applyOpenapiRoutes([
-        {
-          routeName: 'getHonoRoute',
-          handlerName: 'getHonoRouteHandler',
-          path: '/hono',
-        },
-        {
-          routeName: 'getHonoXRoute',
-          handlerName: 'getHonoXRouteHandler',
-          path: '/hono-x',
-        },
-        {
-          routeName: 'getZodOpenapiHonoRoute',
-          handlerName: 'getZodOpenapiHonoRouteHandler',
-          path: '/zod-openapi-hono',
-        },
-      ])
-      const expected = `.openapi(getHonoRoute,getHonoRouteHandler)
-.openapi(getHonoXRoute,getHonoXRouteHandler)
-.openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)`
-      expect(result).toBe(expected)
-    })
-  })
   /* ========================================================================== *
    *  Handler Utilities
    *    └─ Everything below relates to generating, grouping, or importing route
    *       handler functions.
    * ========================================================================== */
-  // handler
-  describe('handler', () => {
-    it.concurrent('generateHandler', () => {
-      const result = handler('getRouteHandler', 'getRoute')
-      const expected = 'export const getRouteHandler:RouteHandler<typeof getRoute>=async(c)=>{}'
-      expect(result).toBe(expected)
-    })
-  })
   // importHandlers
   describe('importHandlers', () => {
     it.concurrent('importHandlers', () => {
@@ -390,27 +339,6 @@ describe('utils', () => {
         'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
       }
       expect(result).toStrictEqual(expected)
-    })
-  })
-  // isArrayWithSchemaReference
-  describe('isArrayWithSchemaReference', () => {
-    it.concurrent('isArrayWithSchemaReference -> true', () => {
-      const result = isArrayWithSchemaReference({
-        type: 'array',
-        items: { $ref: '#/components/schemas/Test' },
-      })
-      expect(result).toBe(true)
-    })
-    it.concurrent('isArrayWithSchemaReference -> false', () => {
-      const result = isArrayWithSchemaReference({ type: 'string', format: 'binary' })
-      expect(result).toBe(false)
-    })
-    it.concurrent('isArrayWithSchemaReference -> false', () => {
-      const result = isArrayWithSchemaReference({
-        type: 'array',
-        items: undefined,
-      })
-      expect(result).toBe(false)
     })
   })
   // isHttpMethod
@@ -578,75 +506,34 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  // requestParams
-  describe('requestParams', () => {
-    it.concurrent('requestParams("") -> "request:{},",', () => {
-      const result = requestParams('')
-      const expected = 'request:{},'
-      expect(result).toBe(expected)
-    })
-
-    it.concurrent(`requestParams("key:'value',") -> "request:{key:'value',},"`, () => {
-      const result = requestParams("key:'value',")
-      const expected = "request:{key:'value',},"
-      expect(result).toBe(expected)
-    })
-
+  /* ========================================================================== *
+   *  Request Parameters
+   * ========================================================================== */
+  describe('requestParamsArray', () => {
     it.concurrent(
-      `requestParams("key1:'value1',key2:'value2',") -> "request:{key1:'value1',key2:'value2',},"`,
+      `requestParamsArray({
+        query: { id: 'z.string()' },
+        params: { id: 'z.string()' },
+      },) -> ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']`,
       () => {
-        const result = requestParams("key1:'value1',key2:'value2',")
-        const expected = "request:{key1:'value1',key2:'value2',},"
-        expect(result).toBe(expected)
+        const result = requestParamsArray({
+          query: { id: 'z.string()' },
+          params: { id: 'z.string()' },
+        })
+        const expected = ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']
+        expect(result).toStrictEqual(expected)
       },
     )
     it.concurrent(
-      `requestParams("key:'value', // comment") -> "request:{key:'value', // comment},"`,
+      `requestParamsArray({ path: { petId: 'z.number().int()' } }) -> ['params:z.object({petId:z.number().int()})']`,
       () => {
-        const result = requestParams("key:'value', // comment")
-        const expected = "request:{key:'value', // comment},"
-        expect(result).toBe(expected)
-      },
-    )
-
-    it.concurrent(
-      `requestParams("specialChars:'!@#$%^&*()',") -> "request:{specialChars:'!@#$%^&*()',},"`,
-      () => {
-        const result = requestParams("specialChars:'!@#$%^&*()',")
-        const expected = "request:{specialChars:'!@#$%^&*()',},"
-        expect(result).toBe(expected)
+        const result = requestParamsArray({ path: { petId: 'z.number().int()' } })
+        const expected = ['params:z.object({petId:z.number().int()})']
+        expect(result).toStrictEqual(expected)
       },
     )
   })
-  // insertRequestBody
-  describe('insertRequestBody', () => {
-    it.concurrent('insertRequestBody Test', () => {
-      const result = insertRequestBody(
-        'request:{params:z.object({id:z.string().uuid()})},',
-        "body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},",
-      )
-      const expected =
-        "request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},params:z.object({id:z.string().uuid()})},"
-      expect(result).toBe(expected)
-    })
-    it.concurrent('should throw an error when requestParams is undefined', () => {
-      // biome-ignore lint: test
-      const requestParams = undefined as any
-      const requestBodyCode = 'edge case'
 
-      expect(() => insertRequestBody(requestParams, requestBodyCode)).toThrow(
-        `Cannot read properties of undefined (reading 'replace')`,
-      )
-    })
-  })
-  // formatRequestObject
-  describe('formatRequestObject', () => {
-    it.concurrent('formatRequestObject Test', () => {
-      const result = formatRequestObject(['params:z.object({id:z.string().uuid()})'])
-      const expected = 'request:{params:z.object({id:z.string().uuid()})},'
-      expect(result).toBe(expected)
-    })
-  })
   /* ========================================================================== *
    *  String Escaping
    * ========================================================================== */

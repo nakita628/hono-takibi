@@ -52,15 +52,12 @@ export function propertiesSchema(properties: Record<string, Schema>, required: s
     const safeKey = getToSafeIdentifier(key)
     return `${safeKey}:${propertySchema(schema)}${isRequired ? '' : '.optional()'}`
   })
-
   // Check if all properties are optional
   const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))
-
   // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
     const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))
     return `z.object({${cleanProperties}}).partial()`
   }
-
   return `z.object({${objectProperties}})`
 }

@@ -33,15 +33,12 @@ export function paramsObject(parameters: Parameters[]): {
       const baseSchema = param.in
         ? zodToOpenAPI(z, param.schema, param.name, param.in)
         : zodToOpenAPI(z, param.schema, param.name)
-
       // Initialize section if it doesn't exist
       if (!acc[param.in]) {
         acc[param.in] = {}
       }
-
       // queryParameter check
       const zodSchema = queryParameter(baseSchema, param)
-
       // Add parameter to its section
       acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`
       return acc

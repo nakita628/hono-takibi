@@ -1,5 +1,6 @@
-import { zodSchemaFromSubSchema } from '../generator/zod/helper/zod-schema-from-sub-schema.js'
+import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
+import { refName } from '../utils/index.js'
 
 /**
  * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
@@ -34,8 +35,8 @@ export function allOf(schema: Schema): string {
         acc.nullable = true
         return acc
       }
-      const zodSchema = zodSchemaFromSubSchema(subSchema)
-      acc.schemas.push(zodSchema)
+      const z = subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zod(subSchema)
+      acc.schemas.push(z)
       return acc
     },
     { nullable: false, schemas: [] },

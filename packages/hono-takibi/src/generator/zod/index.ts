@@ -67,13 +67,16 @@ export function zod(schema: Schema): string {
   }
   /* const */
   if (schema.const !== undefined) {
-    const base = `z.literal(${JSON.stringify(schema.const)})`
+    const z = `z.literal(${JSON.stringify(schema.const)})`
 
     const isNullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
-    return isNullable ? `${base}.nullable()` : base
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
   /* enum */
   if (schema.enum) {
@@ -96,13 +99,13 @@ export function zod(schema: Schema): string {
   }
   /* date */
   if (types.includes('date')) {
-    const addNullable = (expr: string): string =>
+    const isNullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-        ? `${expr}.nullable()`
-        : expr
-
-    return addNullable('z.date()')
+    if (isNullable) {
+      return 'z.date().nullable()'
+    }
+    return 'z.date()'
   }
   /* string */
   if (types.includes('string')) {
@@ -122,12 +125,13 @@ export function zod(schema: Schema): string {
   }
   /* boolean */
   if (types.includes('boolean')) {
-    const addNullable = (expr: string): string =>
+    const isNullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-        ? `${expr}.nullable()`
-        : expr
-    return addNullable('z.boolean()')
+    if (isNullable) {
+      return 'z.boolean().nullable()'
+    }
+    return 'z.boolean()'
   }
   /* combinators */
   if (schema.oneOf) {

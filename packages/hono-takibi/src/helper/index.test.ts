@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   allOf,
   anyOf,
+  docs,
+  getRouteMaps,
   oneOf,
   resolveSchemasDependencies,
   zodToOpenAPI,
@@ -17,6 +19,12 @@ describe('helper barrel file exports', () => {
   })
   it('should export anyOf', () => {
     expect(typeof anyOf).toBe('function')
+  })
+  it('should export docs', () => {
+    expect(typeof docs).toBe('function')
+  })
+  it('should export getRouteMaps', () => {
+    expect(typeof getRouteMaps).toBe('function')
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')

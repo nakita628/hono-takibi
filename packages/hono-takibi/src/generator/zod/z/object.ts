@@ -17,8 +17,6 @@ export function object(schema: Schema): string {
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
-  const addNullable = (expr: string) => (isNullable ? `${expr}.nullable()` : expr)
-
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
@@ -27,36 +25,50 @@ export function object(schema: Schema): string {
           Array.isArray(schema.required) ? schema.required : [],
         )
         if (schema.additionalProperties === true) {
-          return addNullable(z.replace('object', 'looseObject'))
+          if (isNullable) {
+            return `${z.replace('object', 'looseObject')}.nullable()`
+          }
+          return z.replace('object', 'looseObject')
         }
       }
-      return addNullable('z.any()')
+      if (isNullable) {
+        return 'z.any().nullable()'
+      }
+      return 'z.any()'
     }
-
     const value = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
-    return addNullable(`z.record(z.string(),${value})`)
+    if (isNullable) {
+      return `z.record(z.string(),${value}).nullable()`
+    }
+    return `z.record(z.string(),${value})`
   }
 
   if (schema.properties) {
-    const zodSchema = propertiesSchema(
+    const z = propertiesSchema(
       schema.properties,
       Array.isArray(schema.required) ? schema.required : [],
     )
     if (schema.additionalProperties === false) {
-      return addNullable(zodSchema.replace('object', 'strictObject'))
+      if (isNullable) {
+        return `${z.replace('object', 'strictObject')}.nullable()`
+      }
+      return z.replace('object', 'strictObject')
     }
-    return addNullable(zodSchema)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
 
-  // call allOf, oneOf, anyOf, or not use addNullable
-  if (schema.allOf) {
-    return allOf(schema)
-  }
+  // call oneOf, anyOf, allOf or not use nullable
   if (schema.oneOf) {
     return oneOf(schema)
   }
   if (schema.anyOf) {
     return anyOf(schema)
+  }
+  if (schema.allOf) {
+    return allOf(schema)
   }
   if (schema.not) {
     if (isNullable) {
@@ -65,5 +77,8 @@ export function object(schema: Schema): string {
     return 'z.unknown()'
   }
 
-  return addNullable('z.object({})')
+  if (isNullable) {
+    return 'z.object({}).nullable()'
+  }
+  return 'z.object({})'
 }

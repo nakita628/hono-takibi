@@ -1,12 +1,8 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
-import {
-  formatRequestObject,
-  insertRequestBody,
-  requestParams,
-} from '../../../../../utils/index.js'
+import { requestParamsArray } from '../../../../../utils/index.js'
 import { propertySchema } from '../../../../zod/helper/property-schema.js'
 import { requestBody } from '../request/body/index.js'
-import { paramsObject, requestParamsArray } from './index.js'
+import { paramsObject } from './index.js'
 
 /**
  * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.
@@ -33,7 +29,10 @@ export function requestParameter(
     ? (() => {
         const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
-        return requestParamsArr.length ? formatRequestObject(requestParamsArr) : ''
+        if (requestParamsArr.length) {
+          return `request:{${requestParamsArr.join(',')}},`
+        }
+        return ''
       })()
     : ''
   if (requestBodyContentTypes.length > 0 && body?.content) {
@@ -41,14 +40,16 @@ export function requestParameter(
     const uniqueSchemas = new Map<string, string>()
     for (const contentType of requestBodyContentTypes) {
       const { schema } = body.content[contentType]
-      const zodSchema = propertySchema(schema)
-      uniqueSchemas.set(zodSchema, zodSchema)
+      const z = propertySchema(schema)
+      uniqueSchemas.set(z, z)
     }
     const request_body_required = body.required ?? false
     const [firstSchema] = uniqueSchemas.values()
     const requestBodyCode = requestBody(request_body_required, body.content, firstSchema)
-    return params ? insertRequestBody(params, requestBodyCode) : requestParams(requestBodyCode)
+    if (params) {
+      return params.replace('request:{', `request:{${requestBodyCode}`)
+    }
+    return `request:{${requestBodyCode}},`
   }
-
   return params
 }
