@@ -1,3 +1,5 @@
+import { docs } from '../../../helper/docs.js'
+import { getRouteMaps } from '../../../helper/get-route-maps.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import {
   applyOpenapiRoutes,
@@ -7,8 +9,6 @@ import {
   importRoutes,
   registerComponent,
 } from '../../../utils/index.js'
-import { docs } from './helper/docs.js'
-import { getRouteMaps } from './helper/get-route-maps.js'
 
 /**
  * Generates a Hono app with OpenAPI and Swagger UI integration.

@@ -15,7 +15,6 @@ export function number(schema: Schema): string {
         ? 'z.float64()'
         : 'z.number()',
   ]
-
   // minimum
   if (schema.minimum !== undefined) {
     // > 0
@@ -44,7 +43,6 @@ export function number(schema: Schema): string {
     // > value (no minimum)
     o.push(`.gt(${schema.exclusiveMinimum})`)
   }
-
   // maximum
   if (schema.maximum !== undefined) {
     // < 0
@@ -73,27 +71,22 @@ export function number(schema: Schema): string {
     // < value (no maximum)
     o.push(`.lt(${schema.exclusiveMaximum})`)
   }
-
   // multipleOf
   // z.number().multipleOf(2).safeParse(2) // { success: true }
   // z.number().multipleOf(2).safeParse(1) // { success: false }
   if (schema.multipleOf !== undefined) {
     o.push(`.multipleOf(${schema.multipleOf})`)
   }
-
   // default
   if (schema.default !== undefined) {
     o.push(`.default(${JSON.stringify(schema.default)})`)
   }
-
   // nullable
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   if (isNullable) {
     o.push('.nullable()')
   }
-
   return o.join('')
 }

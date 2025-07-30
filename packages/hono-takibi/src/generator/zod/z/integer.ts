@@ -14,13 +14,11 @@ export function integer(schema: Schema): string {
   const o: string[] = [
     isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
-
   const lit = (n: number): string => {
     if (isBigInt) return `BigInt(${n})`
     if (isInt64) return `${n}n`
     return `${n}`
   }
-
   // minimum
   if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
     // > 0
@@ -56,7 +54,6 @@ export function integer(schema: Schema): string {
       o.push(`.min(${lit(schema.minimum)})`)
     }
   }
-
   // maximum
   if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
     // < 0
@@ -92,26 +89,21 @@ export function integer(schema: Schema): string {
       o.push(`.max(${lit(schema.maximum)})`)
     }
   }
-
   // multipleOf
   // z.int().multipleOf(2).safeParse(2) // { success: true }
   // z.int().multipleOf(2).safeParse(1) // { success: false }
   if (schema.multipleOf !== undefined && typeof schema.multipleOf === 'number') {
     o.push(`.multipleOf(${lit(schema.multipleOf)})`)
   }
-
   // default (always last)
   if (schema.default !== undefined && typeof schema.default === 'number') {
     o.push(`.default(${lit(schema.default)})`)
   }
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   if (isNullable) {
     o.push('.nullable()')
   }
-
   return o.join('')
 }

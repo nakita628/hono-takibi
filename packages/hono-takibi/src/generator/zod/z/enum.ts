@@ -7,30 +7,31 @@ export function _enum(schema: Schema): string {
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
-  const wrapNullable = (expr: string): string => (isNullable ? `${expr}.nullable()` : expr)
-
   // number
   if (schema.type === 'number' && schema.enum) {
-    const expr =
+    const z =
       schema.enum.length > 1
         ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
         : `z.literal(${schema.enum[0]})`
-    return wrapNullable(expr)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
-
   // integer
   if (schema.type === 'integer' && schema.enum) {
-    const expr =
+    const z =
       schema.enum.length > 1
         ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
         : `z.literal(${schema.enum[0]})`
-    return wrapNullable(expr)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
-
   // array
   if (schema.type === 'array' && Array.isArray(schema.enum)) {
-    const expr = (() => {
+    const z = (() => {
       if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
         const tupleItems = schema.enum[0].map((item) => `z.literal(${item})`).join(', ')
         return `z.tuple([${tupleItems}])`
@@ -44,20 +45,25 @@ export function _enum(schema: Schema): string {
       })
       return `z.union([${unionParts.join(',')}])`
     })()
-    return wrapNullable(expr)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
-
   // boolean
   if (schema.type === 'boolean' && schema.enum) {
-    const expr =
+    const z =
       schema.enum.length > 1
         ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
         : `z.literal(${schema.enum[0]})`
-    return wrapNullable(expr)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
-
+  // enum
   if (schema.enum) {
-    const expr = (() => {
+    const z = (() => {
       if (schema.enum.length > 1) {
         const allStrings = schema.enum.every((v) => typeof v === 'string')
         if (allStrings) {
@@ -71,8 +77,14 @@ export function _enum(schema: Schema): string {
       const v = schema.enum[0]
       return `z.literal(${typeof v === 'string' ? `'${v}'` : v})`
     })()
-    return wrapNullable(expr)
+    if (isNullable) {
+      return `${z}.nullable()`
+    }
+    return z
   }
 
+  if (isNullable) {
+    return 'z.any().nullable()'
+  }
   return 'z.any()'
 }
