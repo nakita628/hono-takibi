@@ -4,7 +4,6 @@ import {
   appRouteHandler,
   createRoute,
   escapeStringLiteral,
-  formatRequestObject,
   getFlagValue,
   getHandlerImports,
   getToSafeIdentifier,
@@ -14,7 +13,6 @@ import {
   importHandlers,
   importMap,
   importRoutes,
-  insertRequestBody,
   isArrayWithSchemaReference,
   isHelpRequested,
   isHttpMethod,
@@ -25,7 +23,7 @@ import {
   refName,
   regex,
   registerComponent,
-  requestParams,
+  requestParamsArray,
   routeName,
   sanitizeIdentifier,
   sliceArgv,
@@ -578,75 +576,34 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  // requestParams
-  describe('requestParams', () => {
-    it.concurrent('requestParams("") -> "request:{},",', () => {
-      const result = requestParams('')
-      const expected = 'request:{},'
-      expect(result).toBe(expected)
-    })
-
-    it.concurrent(`requestParams("key:'value',") -> "request:{key:'value',},"`, () => {
-      const result = requestParams("key:'value',")
-      const expected = "request:{key:'value',},"
-      expect(result).toBe(expected)
-    })
-
+  /* ========================================================================== *
+   *  Request Parameters
+   * ========================================================================== */
+  describe('requestParamsArray', () => {
     it.concurrent(
-      `requestParams("key1:'value1',key2:'value2',") -> "request:{key1:'value1',key2:'value2',},"`,
+      `requestParamsArray({
+        query: { id: 'z.string()' },
+        params: { id: 'z.string()' },
+      },) -> ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']`,
       () => {
-        const result = requestParams("key1:'value1',key2:'value2',")
-        const expected = "request:{key1:'value1',key2:'value2',},"
-        expect(result).toBe(expected)
+        const result = requestParamsArray({
+          query: { id: 'z.string()' },
+          params: { id: 'z.string()' },
+        })
+        const expected = ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']
+        expect(result).toStrictEqual(expected)
       },
     )
     it.concurrent(
-      `requestParams("key:'value', // comment") -> "request:{key:'value', // comment},"`,
+      `requestParamsArray({ path: { petId: 'z.number().int()' } }) -> ['params:z.object({petId:z.number().int()})']`,
       () => {
-        const result = requestParams("key:'value', // comment")
-        const expected = "request:{key:'value', // comment},"
-        expect(result).toBe(expected)
-      },
-    )
-
-    it.concurrent(
-      `requestParams("specialChars:'!@#$%^&*()',") -> "request:{specialChars:'!@#$%^&*()',},"`,
-      () => {
-        const result = requestParams("specialChars:'!@#$%^&*()',")
-        const expected = "request:{specialChars:'!@#$%^&*()',},"
-        expect(result).toBe(expected)
+        const result = requestParamsArray({ path: { petId: 'z.number().int()' } })
+        const expected = ['params:z.object({petId:z.number().int()})']
+        expect(result).toStrictEqual(expected)
       },
     )
   })
-  // insertRequestBody
-  describe('insertRequestBody', () => {
-    it.concurrent('insertRequestBody Test', () => {
-      const result = insertRequestBody(
-        'request:{params:z.object({id:z.string().uuid()})},',
-        "body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},",
-      )
-      const expected =
-        "request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)}),},},},params:z.object({id:z.string().uuid()})},"
-      expect(result).toBe(expected)
-    })
-    it.concurrent('should throw an error when requestParams is undefined', () => {
-      // biome-ignore lint: test
-      const requestParams = undefined as any
-      const requestBodyCode = 'edge case'
 
-      expect(() => insertRequestBody(requestParams, requestBodyCode)).toThrow(
-        `Cannot read properties of undefined (reading 'replace')`,
-      )
-    })
-  })
-  // formatRequestObject
-  describe('formatRequestObject', () => {
-    it.concurrent('formatRequestObject Test', () => {
-      const result = formatRequestObject(['params:z.object({id:z.string().uuid()})'])
-      const expected = 'request:{params:z.object({id:z.string().uuid()})},'
-      expect(result).toBe(expected)
-    })
-  })
   /* ========================================================================== *
    *  String Escaping
    * ========================================================================== */

@@ -24,7 +24,6 @@ describe('requestParameter', () => {
         },
       },
     })
-
     const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`
     expect(result).toBe(expected)
   })

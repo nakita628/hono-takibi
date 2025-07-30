@@ -524,40 +524,48 @@ export function createRoute(args: {
   return `export const ${args.routeName}=createRoute({${properties}})`
 }
 
-/**
- * Wraps the request body code in a `request:{...}` block.
- *
- * @param requestBodyCode - Zod schema string for the request body.
- * @returns A string representing the wrapped request object.
- */
-export function requestParams(requestBodyCode: string): string {
-  return `request:{${requestBodyCode}},`
-}
+/* ========================================================================== *
+ *  Request Parameters
+ * ========================================================================== */
 
 /**
- * Inserts request body validation code into an existing request parameter string.
+ * Generates an array of Zod validator strings from OpenAPI parameter objects.
  *
- * @param requestParams - The existing request parameter string (e.g., 'request:{...}').
- * @param requestBodyCode - The request body code to insert.
- * @returns The combined request validation string with the body inserted.
+ * @param parameters - An object containing `query`, `path`, and `header` parameters.
+ * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
+ *
+ * @remarks
+ * - Skips empty parameter sections.
+ * - Converts `path` section to `params` (Hono convention).
  */
-
-export function insertRequestBody(requestParams: string, requestBodyCode: string): string {
-  return requestParams.replace('request:{', `request:{${requestBodyCode}`)
-}
-
-/**
- * Formats request validation parameters into a `request:{...}` object string.
- *
- * @param requestParamsArray - An array of Zod schema strings (e.g., `query`, `params`, etc.).
- * @returns A TypeScript code string representing the `request` object.
- *
- * @example
- * formatRequestObject(['query:z.object({ page: z.string() })'])
- * // → 'request:{query:z.object({ page: z.string() })},'
- */
-export function formatRequestObject(requestParamsArray: string[]): string {
-  return `request:{${requestParamsArray.join(',')}},`
+export function requestParamsArray(parameters: {
+  [section: string]: Record<string, string>
+}): string[] {
+  // 1.  define sections to be processed
+  const sections = Object.entries(parameters)
+    .filter(([_, obj]) => obj && Object.keys(obj).length > 0)
+    .map(([section]) => section)
+  // 2. processing of each section
+  return (
+    sections
+      .map((section) => {
+        const obj = parameters[section]
+        // 2.1 process only if object is not empty
+        if (Object.keys(obj).length) {
+          const s = `z.object({${Object.entries(obj)
+            .map(([key, val]) => `${key}:${val}`)
+            .join(',')}})`
+          // path is params convention
+          if (section === 'path') {
+            return `params:${s}`
+          }
+          return `${section}:${s}`
+        }
+        return null
+      })
+      // 3. exclude null and return only an array of strings
+      .filter((item): item is string => item !== null)
+  )
 }
 
 /* ========================================================================== *
