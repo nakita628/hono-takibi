@@ -85,7 +85,7 @@ export function zod(schema: Schema): string {
   }
   const types = pickTypes(schema.type)
   /* object */
-  if (pickTypes(schema.type).includes('object')) {
+  if (types.includes('object')) {
     return object(schema)
   }
   /* date */
