@@ -77,16 +77,16 @@ export function number(schema: Schema): string {
   if (schema.multipleOf !== undefined) {
     o.push(`.multipleOf(${schema.multipleOf})`)
   }
-  // default
-  if (schema.default !== undefined) {
-    o.push(`.default(${JSON.stringify(schema.default)})`)
-  }
   // nullable
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   if (isNullable) {
     o.push('.nullable()')
+  }
+  // default (always last)
+  if (schema.default !== undefined) {
+    o.push(`.default(${JSON.stringify(schema.default)})`)
   }
   return o.join('')
 }

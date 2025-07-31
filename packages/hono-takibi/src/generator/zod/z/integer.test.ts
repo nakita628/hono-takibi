@@ -73,6 +73,10 @@ describe('integer', () => {
   it.concurrent('default: 100 → z.int().default(100)', () => {
     expect(integer({ default: 100 })).toBe('z.int().default(100)')
   })
+  // default nullable
+  it.concurrent('default: 100, nullable: true → z.int().nullable().default(100)', () => {
+    expect(integer({ default: 100, nullable: true })).toBe('z.int().nullable().default(100)')
+  })
   // int32
   it.concurrent(' ormat: int32 → z.int32()', () => {
     expect(integer({ format: 'int32' })).toBe('z.int32()')

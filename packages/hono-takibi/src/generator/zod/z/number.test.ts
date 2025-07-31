@@ -70,4 +70,8 @@ describe('number', () => {
   it.concurrent('default: 100 → z.number().default(100)', () => {
     expect(number({ default: 100 })).toBe('z.number().default(100)')
   })
+  // default nullable
+  it.concurrent('default: 100, nullable: true → z.number().nullable().default(100)', () => {
+    expect(number({ default: 100, nullable: true })).toBe('z.number().nullable().default(100)')
+  })
 })
