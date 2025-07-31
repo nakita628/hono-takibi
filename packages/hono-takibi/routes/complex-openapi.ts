@@ -50,7 +50,7 @@ const PaypalPaymentSchema = z
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z
-  .union([CreditCardPaymentSchema, PaypalPaymentSchema])
+  .discriminatedUnion('method', [CreditCardPaymentSchema, PaypalPaymentSchema])
   .openapi({ description: 'A polymorphic payment method' })
   .openapi('PaymentMethod')
 

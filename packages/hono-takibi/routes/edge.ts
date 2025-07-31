@@ -24,7 +24,9 @@ export const postPolymorphicRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: { 'application/json': { schema: z.union([CatSchema, DogSchema]) } },
+      content: {
+        'application/json': { schema: z.discriminatedUnion('type', [CatSchema, DogSchema]) },
+      },
     },
   },
   responses: { 200: { description: 'OK' } },
@@ -42,7 +44,8 @@ export const getSearchRoute = createRoute({
         .openapi({ param: { in: 'query', name: 'filter', required: false } })
         .optional(),
       exclude: z
-        .unknown()
+        .any()
+        .refine((v) => typeof v !== 'number')
         .openapi({ param: { in: 'query', name: 'exclude', required: false } })
         .optional(),
     }),
