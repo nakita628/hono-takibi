@@ -1,5 +1,6 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
+import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import { refName } from '../../utils/index.js'
@@ -128,13 +129,7 @@ export function zod(schema: Schema): string {
     return allOf(schema)
   }
   if (schema.not) {
-    const isNullable =
-      schema.nullable === true ||
-      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-    if (isNullable) {
-      return 'z.unknown().nullable()'
-    }
-    return 'z.unknown()'
+    return not(schema)
   }
   /* null only */
   if (types.length === 1 && types[0] === 'null') {

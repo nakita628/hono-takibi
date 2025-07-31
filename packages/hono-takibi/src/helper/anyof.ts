@@ -16,20 +16,16 @@ import { zodToOpenAPI } from './zod-to-openapi.js'
  */
 export function anyOf(schema: Schema): string {
   if (!schema.anyOf || schema.anyOf.length === 0) {
-    console.warn('not exists anyOf')
     return 'z.any()'
   }
   const schemas = schema.anyOf.map((subSchema) => {
     const z = zod(subSchema)
     return zodToOpenAPI(z, subSchema)
   })
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   const z = `z.union([${schemas.join(',')}])`
-
   if (isNullable) {
     return `${z}.nullable()`
   }

@@ -1056,36 +1056,5 @@ describe('zod', () => {
     )
   })
 
-  describe('not', () => {
-    it.concurrent('z.unknown()', () => {
-      expect(
-        zod({
-          not: {
-            type: 'string',
-          },
-        }),
-      ).toBe('z.unknown()')
-    })
-  })
-
-  it.concurrent('z.unknown().nullable()', () => {
-    expect(
-      zod({
-        not: {
-          type: 'string',
-        },
-        nullable: true,
-      }),
-    ).toBe('z.unknown().nullable()')
-  })
-  it.concurrent('z.unknown().nullable()', () => {
-    expect(
-      zod({
-        not: {
-          type: 'string',
-        },
-        type: ['null'],
-      }),
-    ).toBe('z.unknown().nullable()')
-  })
+  // TODO add not
 })

@@ -72,6 +72,9 @@ export function _enum(schema: Schema): string {
         const unionLiterals = schema.enum.map((v) =>
           v === null ? 'z.null()' : `z.literal(${typeof v === 'string' ? `'${v}'` : v})`,
         )
+        // if (schema.discriminator?.propertyName) {
+        //   return `z.discriminatedUnion('${schema.discriminator.propertyName}',[${unionLiterals.join(',')}])`
+        // }
         return `z.union([${unionLiterals.join(',')}])`
       }
       const v = schema.enum[0]

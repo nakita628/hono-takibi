@@ -16,7 +16,6 @@ import { refName } from '../utils/index.js'
  */
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
-    console.warn('not exists allOf')
     return 'z.any()'
   }
   const { nullable, schemas } = schema.allOf.reduce<{
@@ -45,6 +44,9 @@ export function allOf(schema: Schema): string {
   }
   if (schemas.length === 1) {
     return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+  }
+  if (schema.discriminator) {
+    console.log(schema.discriminator)
   }
   const isNullable =
     schema.nullable === true ||
