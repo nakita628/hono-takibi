@@ -11,6 +11,21 @@ describe('string', () => {
     expect(result).toBe(expected)
   })
 
+  it.concurrent('string({ default: "test" }) -> z.string().default("test")', () => {
+    const result = string({ default: 'test' })
+    const expected = 'z.string().default("test")'
+    expect(result).toBe(expected)
+  })
+
+  it.concurrent(
+    'string({ default: "test", nullable: true }) -> z.string().nullable().default("test")',
+    () => {
+      const result = string({ default: 'test', nullable: true })
+      const expected = 'z.string().nullable().default("test")'
+      expect(result).toBe(expected)
+    },
+  )
+
   it.concurrent('string({ nullable: true }) -> z.string().nullable()', () => {
     const result = string({ nullable: true })
     const expected = 'z.string().nullable()'
