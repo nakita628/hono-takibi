@@ -24,9 +24,7 @@ export const postPolymorphicRoute = createRoute({
   request: {
     body: {
       required: true,
-      content: {
-        'application/json': { schema: z.discriminatedUnion('type', [CatSchema, DogSchema]) },
-      },
+      content: { 'application/json': { schema: z.union([CatSchema, DogSchema]) } },
     },
   },
   responses: { 200: { description: 'OK' } },

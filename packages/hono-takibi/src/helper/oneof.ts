@@ -23,9 +23,12 @@ export function oneOf(schema: Schema): string {
     return zodToOpenAPI(z, sub)
   })
   const discriminator = schema.discriminator?.propertyName
-  const z = discriminator
-    ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
-    : `z.union([${schemas.join(',')}])`
+  // discriminatedUnion Support hesitant
+  // This is because using intersection causes a type error.
+  // const z = discriminator
+  //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
+  //   : `z.union([${schemas.join(',')}])`
+  const z = `z.union([${schemas.join(',')}])`
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
