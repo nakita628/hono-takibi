@@ -1,5 +1,6 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
+import { _const } from '../../helper/const.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
@@ -59,6 +60,7 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
  * - Logs unhandled cases to `console.warn`
  */
 export function zod(schema: Schema): string {
+  // console.log(schema.discriminator)
   if (schema === undefined) {
     throw new Error('hono-takibi: only #/components/schemas/* is supported')
   }
@@ -68,15 +70,7 @@ export function zod(schema: Schema): string {
   }
   /* const */
   if (schema.const !== undefined) {
-    const z = `z.literal(${JSON.stringify(schema.const)})`
-    const isNullable =
-      schema.nullable === true ||
-      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
-    if (isNullable) {
-      return `${z}.nullable()`
-    }
-    return z
+    return _const(schema)
   }
   /* enum */
   if (schema.enum) {
@@ -135,6 +129,6 @@ export function zod(schema: Schema): string {
   if (types.length === 1 && types[0] === 'null') {
     return 'z.null()'
   }
-  console.warn(`Unknown schema: ${JSON.stringify(schema)} - fallback to z.any()`)
+  console.warn('fallback to z.any()')
   return 'z.any()'
 }

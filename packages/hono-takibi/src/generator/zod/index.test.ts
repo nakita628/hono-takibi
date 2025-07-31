@@ -13,17 +13,13 @@ describe('zod', () => {
 
   describe('const', () => {
     it.concurrent('z.literal("test")', () => {
-      expect(zod({ type: 'string', const: 'fixed' })).toBe('z.literal("fixed")')
+      expect(zod({ const: 'fixed' })).toBe('z.literal("fixed")')
     })
     it.concurrent('z.literal("test").nullable()', () => {
-      expect(zod({ type: 'string', const: 'fixed', nullable: true })).toBe(
-        'z.literal("fixed").nullable()',
-      )
+      expect(zod({ const: 'fixed', nullable: true })).toBe('z.literal("fixed").nullable()')
     })
     it.concurrent('z.literal("test").nullable()', () => {
-      expect(zod({ type: ['string', 'null'], const: 'fixed' })).toBe(
-        'z.literal("fixed").nullable()',
-      )
+      expect(zod({ type: ['null'], const: 'fixed' })).toBe('z.literal("fixed").nullable()')
     })
   })
 
