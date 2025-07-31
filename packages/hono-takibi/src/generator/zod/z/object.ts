@@ -1,5 +1,6 @@
 import { allOf } from '../../../helper/allof.js'
 import { anyOf } from '../../../helper/anyof.js'
+import { not } from '../../../helper/not.js'
 import { oneOf } from '../../../helper/oneof.js'
 import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
@@ -36,28 +37,28 @@ export function object(schema: Schema): string {
       }
       return 'z.any()'
     }
-    const value = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
+    const s = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
     if (isNullable) {
-      return `z.record(z.string(),${value}).nullable()`
+      return `z.record(z.string(),${s}).nullable()`
     }
-    return `z.record(z.string(),${value})`
+    return `z.record(z.string(),${s})`
   }
 
   if (schema.properties) {
-    const z = propertiesSchema(
+    const s = propertiesSchema(
       schema.properties,
       Array.isArray(schema.required) ? schema.required : [],
     )
     if (schema.additionalProperties === false) {
       if (isNullable) {
-        return `${z.replace('object', 'strictObject')}.nullable()`
+        return `${s.replace('object', 'strictObject')}.nullable()`
       }
-      return z.replace('object', 'strictObject')
+      return s.replace('object', 'strictObject')
     }
     if (isNullable) {
-      return `${z}.nullable()`
+      return `${s}.nullable()`
     }
-    return z
+    return s
   }
 
   // call oneOf, anyOf, allOf or not use nullable
@@ -71,14 +72,8 @@ export function object(schema: Schema): string {
     return allOf(schema)
   }
   if (schema.not) {
-    if (isNullable) {
-      return 'z.unknown().nullable()'
-    }
-    return 'z.unknown()'
+    return not(schema)
   }
-
-  if (isNullable) {
-    return 'z.object({}).nullable()'
-  }
-  return 'z.object({})'
+  const z = isNullable ? 'z.object({}).nullable()' : 'z.object({})'
+  return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
 }
