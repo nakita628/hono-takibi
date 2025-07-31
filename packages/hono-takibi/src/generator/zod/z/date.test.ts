@@ -14,4 +14,9 @@ describe('date', () => {
   it.concurrent('z.date().nullable()', () => {
     expect(date({ type: ['null'] })).toBe('z.date().nullable()')
   })
+  it.concurrent('z.date().default(new Date("2023-01-01"))', () => {
+    expect(date({ type: 'date', default: '2023-01-01' })).toBe(
+      'z.date().default(new Date("2023-01-01"))',
+    )
+  })
 })

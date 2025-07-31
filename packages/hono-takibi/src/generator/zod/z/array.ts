@@ -2,30 +2,34 @@ import type { Schema } from '../../../openapi/index.js'
 import { zod } from '../index.js'
 
 export function array(schema: Schema): string {
-  const z = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
-
+  const array = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
     if (schema.minItems === schema.maxItems) {
-      return isNullable
-        ? `${z}.length(${schema.minItems}).nullable()`
-        : `${z}.length(${schema.minItems})`
+      const z = isNullable
+        ? `${array}.length(${schema.minItems}).nullable()`
+        : `${array}.length(${schema.minItems})`
+      return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
     }
-    return isNullable
-      ? `${z}.min(${schema.minItems}).max(${schema.maxItems}).nullable()`
-      : `${z}.min(${schema.minItems}).max(${schema.maxItems})`
+    const z = isNullable
+      ? `${array}.min(${schema.minItems}).max(${schema.maxItems}).nullable()`
+      : `${array}.min(${schema.minItems}).max(${schema.maxItems})`
+    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
   }
-
   if (typeof schema.minItems === 'number') {
-    return isNullable ? `${z}.min(${schema.minItems}).nullable()` : `${z}.min(${schema.minItems})`
+    const z = isNullable
+      ? `${array}.min(${schema.minItems}).nullable()`
+      : `${array}.min(${schema.minItems})`
+    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
   }
-
   if (typeof schema.maxItems === 'number') {
-    return isNullable ? `${z}.max(${schema.maxItems}).nullable()` : `${z}.max(${schema.maxItems})`
+    const z = isNullable
+      ? `${array}.max(${schema.maxItems}).nullable()`
+      : `${array}.max(${schema.maxItems})`
+    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
   }
-
-  return isNullable ? `${z}.nullable()` : z
+  const z = isNullable ? `${array}.nullable()` : array
+  return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
 }

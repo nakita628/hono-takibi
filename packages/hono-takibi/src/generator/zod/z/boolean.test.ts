@@ -14,4 +14,7 @@ describe('boolean', () => {
   it.concurrent('z.boolean().nullable()', () => {
     expect(boolean({ type: ['null'] })).toBe('z.boolean().nullable()')
   })
+  it.concurrent('z.boolean().default(true)', () => {
+    expect(boolean({ default: true })).toBe('z.boolean().default(true)')
+  })
 })

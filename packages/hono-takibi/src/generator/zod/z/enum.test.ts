@@ -97,4 +97,13 @@ describe('_enum', () => {
   it.concurrent('z.enum(["x","y"])', () => {
     expect(_enum({ enum: ['x', 'y'] })).toBe(`z.enum(["x","y"])`)
   })
+  // default value
+  it.concurrent('z.enum(["a","b","c"]).default("a")', () => {
+    expect(
+      _enum({
+        enum: ['a', 'b', 'c'],
+        default: 'a',
+      }),
+    ).toBe('z.enum(["a","b","c"]).default("a")')
+  })
 })
