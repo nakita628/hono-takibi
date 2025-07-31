@@ -30,7 +30,6 @@ export function allOf(schema: Schema): string {
         'nullable' in subSchema &&
         subSchema.nullable === true &&
         Object.keys(subSchema).length === 1
-
       if (isNullable) {
         acc.nullable = true
         return acc
@@ -47,17 +46,13 @@ export function allOf(schema: Schema): string {
   if (schemas.length === 1) {
     return nullable ? `${schemas[0]}.nullable()` : schemas[0]
   }
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) && schema.type.includes('null')) ||
     schema.type === 'null'
-
   const z = `z.intersection(${schemas.join(',')})${nullable ? '.nullable()' : ''}`
-
   if (isNullable) {
     return `${z}.nullable()`
   }
-
   return z
 }

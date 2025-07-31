@@ -775,6 +775,9 @@ describe('zod', () => {
     it.concurrent('z.boolean().nullable()', () => {
       expect(zod({ type: 'boolean', nullable: true })).toBe('z.boolean().nullable()')
     })
+    it.concurrent('z.boolean().nullable()', () => {
+      expect(zod({ type: ['boolean', 'null'] })).toBe('z.boolean().nullable()')
+    })
   })
 
   describe('null', () => {
