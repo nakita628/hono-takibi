@@ -1,6 +1,4 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
-import type { Result } from '../result/index.js'
-import { err, ok } from '../result/index.js'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
 
 /**
@@ -9,20 +7,29 @@ import { typeSpecToOpenAPI } from '../typespec/index.js'
  * @param input - File path to the OpenAPI or TypeSpec document
  * @returns A promise resolving to a Result with the parsed OpenAPI or error string
  */
-export async function parseOpenAPI(input: string): Promise<Result<OpenAPI, string>> {
+export async function parseOpenAPI(input: string): Promise<
+  | {
+      ok: true
+      value: OpenAPI
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   try {
     if (typeof input === 'string' && input.endsWith('.tsp')) {
       const tsp = await typeSpecToOpenAPI(input)
       if (!tsp.ok) {
-        return err(tsp.error)
+        return { ok: false, error: tsp.error }
       }
       const spec = (await SwaggerParser.parse(tsp.value as unknown as string)) as OpenAPI
-      return ok(spec)
+      return { ok: true, value: spec }
     }
     const spec = (await SwaggerParser.parse(input)) as OpenAPI
-    return ok(spec)
+    return { ok: true, value: spec }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e))
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
 

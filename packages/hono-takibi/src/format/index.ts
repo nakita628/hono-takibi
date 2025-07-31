@@ -1,5 +1,4 @@
 import { format } from 'prettier'
-import type { Result } from '../result/index.js'
 
 /**
  * Formats TypeScript source with Prettier.
@@ -7,7 +6,18 @@ import type { Result } from '../result/index.js'
  * @param code - Source code to format.
  * @returns A `Result` containing the formatted code or an error message.
  */
-export async function fmt(code: string): Promise<Result<string, string>> {
+export async function fmt(code: string): Promise<
+  | {
+      ok: true
+      value: string
+      error?: undefined
+    }
+  | {
+      ok: false
+      error: string
+      value?: undefined
+    }
+> {
   try {
     const formatted = await format(code, {
       parser: 'typescript',

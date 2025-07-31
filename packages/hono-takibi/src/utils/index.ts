@@ -3,69 +3,61 @@
  * ========================================================================== */
 
 /**
- * Gets the value following a CLI flag.
+ * Parses CLI arguments into structured options.
  *
- * @param args - CLI arguments.
- * @param flag - The flag to look for.
- * @returns The flag's value, or `undefined` if not found.
+ * @param args - Raw CLI arguments.
+ * @returns A `Result` containing parsed CLI options or an error message.
  */
-export function getFlagValue(args: readonly string[], flag: string): string | undefined {
-  const idx = args.indexOf(flag)
-  if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
-  return undefined
-}
-
-/**
- * Checks if a CLI flag is present.
- *
- * @param args - CLI arguments.
- * @param f - The flag to check.
- * @returns `true` if present, `false` otherwise.
- */
-export function hasFlag(args: readonly string[], f: string): boolean {
-  return args.includes(f)
-}
-
-/**
- * Determines whether help was requested.
- *
- * @param args - CLI arguments.
- * @returns `true` if `--help` or `-h` is the only argument.
- */
-export function isHelpRequested(args: readonly string[]): boolean {
-  return args.length === 1 && (args[0] === '--help' || args[0] === '-h')
-}
-
-/**
- * Slices off the first two CLI arguments (`node` and script path).
- *
- * @param argv - Full process arguments.
- * @returns User-supplied arguments.
- */
-export function sliceArgv(argv: readonly string[]): string[] {
-  return argv.slice(2)
-}
-
-/**
- * Checks if a string is a valid `.ts` file (excluding `.d.ts`).
- *
- * @param o - The file path to check.
- * @returns `true` if the path ends with `.ts` and not `.d.ts`.
- */
-export function isTs(o: string): o is `${string}.ts` {
-  return o.endsWith('.ts') && !o.endsWith('.d.ts')
-}
-
-/**
- * Checks if a string ends with `.yaml`, `.json`, or `.tsp`.
- *
- * @param i - The file path to check.
- * @returns `true` if the path is a supported input format.
- */
-export function isYamlOrJsonOrTsp(
-  i: string,
-): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` {
-  return i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
+export function parseCli(args: readonly string[]):
+  | {
+      ok: true
+      value: {
+        input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+        output: `${string}.ts`
+        exportType: boolean
+        exportSchema: boolean
+        template: boolean
+        test: boolean
+        basePath?: string
+      }
+      error?: undefined
+    }
+  | {
+      ok: false
+      error: string
+      value?: undefined
+    } {
+  const input = args[0]
+  const oIdx = args.indexOf('-o')
+  const output = oIdx !== -1 ? args[oIdx + 1] : undefined
+  const isYamlOrJsonOrTsp = (
+    i: string,
+  ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+    i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
+  const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
+  const getFlagValue = (args: readonly string[], flag: string): string | undefined => {
+    const idx = args.indexOf(flag)
+    if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
+    return undefined
+  }
+  if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
+    return {
+      ok: false,
+      error: 'Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]',
+    }
+  }
+  return {
+    ok: true,
+    value: {
+      input,
+      output,
+      exportType: args.includes('--export-type'),
+      exportSchema: args.includes('--export-schema'),
+      template: args.includes('--template'),
+      test: args.includes('--test'),
+      basePath: getFlagValue(args, '--base-path'),
+    },
+  }
 }
 
 /* ========================================================================== *
