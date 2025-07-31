@@ -11,7 +11,7 @@ describe('not', () => {
   it.concurrent("z.any().refine((v) => typeof v !== 'number')", () => {
     expect(not({ not: { type: 'number' } })).toBe("z.any().refine((v) => typeof v !== 'number')")
   })
-  it.concurrent("z.any().refine((v) => !['a', 'b'].includes(v))", () => {
-    expect(not({ not: { enum: ['a', 'b'] } })).toBe("z.any().refine((v) => !['a','b'].includes(v))")
+  it.concurrent('z.any().refine((v) => !["a","b"].includes(v))', () => {
+    expect(not({ not: { enum: ['a', 'b'] } })).toBe('z.any().refine((v) => !["a","b"].includes(v))')
   })
 })
