@@ -42,7 +42,8 @@ export const getSearchRoute = createRoute({
         .openapi({ param: { in: 'query', name: 'filter', required: false } })
         .optional(),
       exclude: z
-        .unknown()
+        .any()
+        .refine((v) => typeof v !== 'number')
         .openapi({ param: { in: 'query', name: 'exclude', required: false } })
         .optional(),
     }),

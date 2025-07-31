@@ -66,7 +66,7 @@ describe('oneOf', () => {
     ).toBe('z.union([z.string(),z.number()]).nullable()')
   })
 
-  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+  it.concurrent("z.discriminatedUnion('petType',[CatSchema,DogSchema])", () => {
     expect(
       oneOf({
         oneOf: [
@@ -81,4 +81,15 @@ describe('oneOf', () => {
       }),
     ).toBe('z.union([z.string(),z.number()]).nullable()')
   })
+
+  // discriminatedUnion Support hesitant
+  // This is because using intersection causes a type error.
+  // it.concurrent("z.discriminatedUnion('petType',[CatSchema,DogSchema])", () => {
+  //   expect(
+  //     oneOf({
+  //       oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+  //       discriminator: { propertyName: 'petType' },
+  //     }),
+  //   ).toBe("z.discriminatedUnion('petType',[CatSchema,DogSchema])")
+  // })
 })

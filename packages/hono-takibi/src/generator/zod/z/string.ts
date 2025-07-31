@@ -33,14 +33,13 @@ const FORMAT_STRING: Record<string, string> = {
 /** Build a Zod string schema from an OpenAPI string schema. */
 export function string(schema: Schema): string {
   const o: string[] = []
-
   const format = schema.format && FORMAT_STRING[schema.format]
   o.push(format ? `z.${format}` : 'z.string()')
-
+  // pattern
   if (schema.pattern) {
     o.push(regex(schema.pattern))
   }
-
+  // length
   if (
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
@@ -55,17 +54,14 @@ export function string(schema: Schema): string {
       o.push(`.max(${schema.maxLength})`)
     }
   }
-
-  if (schema.default !== undefined) {
-    o.push(`.default(${JSON.stringify(schema.default)})`)
-  }
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   if (isNullable) {
     o.push('.nullable()')
   }
-
+  if (schema.default !== undefined) {
+    o.push(`.default(${JSON.stringify(schema.default)})`)
+  }
   return o.join('')
 }

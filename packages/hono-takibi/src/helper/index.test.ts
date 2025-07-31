@@ -4,6 +4,7 @@ import {
   anyOf,
   docs,
   getRouteMaps,
+  not,
   oneOf,
   resolveSchemasDependencies,
   zodToOpenAPI,
@@ -25,6 +26,9 @@ describe('helper barrel file exports', () => {
   })
   it('should export getRouteMaps', () => {
     expect(typeof getRouteMaps).toBe('function')
+  })
+  it('should export not', () => {
+    expect(typeof not).toBe('function')
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')

@@ -15,15 +15,20 @@ import { zodToOpenAPI } from './zod-to-openapi.js'
  */
 export function oneOf(schema: Schema): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
-    console.warn('not exists oneOf')
-    return 'z.any()'
+    return schema.nullable ? 'z.any().nullable()' : 'z.any()'
   }
-  const schemas = schema.oneOf.map((subSchema) => {
-    const z = zod(subSchema)
-    return subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zodToOpenAPI(z, subSchema)
+  const schemas = schema.oneOf.map((sub) => {
+    if (sub.$ref) return `${refName(sub.$ref)}Schema`
+    const z = zod(sub)
+    return zodToOpenAPI(z, sub)
   })
+  const discriminator = schema.discriminator?.propertyName
+  // discriminatedUnion Support hesitant
+  // This is because using intersection causes a type error.
+  // const z = discriminator
+  //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
+  //   : `z.union([${schemas.join(',')}])`
   const z = `z.union([${schemas.join(',')}])`
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')

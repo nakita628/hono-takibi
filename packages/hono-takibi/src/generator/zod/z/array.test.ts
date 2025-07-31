@@ -104,4 +104,10 @@ describe('array()', () => {
       ).toBe('z.array(z.string()).length(5).nullable()')
     },
   )
+  // z.array(z.string()).default(["a", "b"])
+  it.concurrent('z.array(z.string()).default(["a","b"])', () => {
+    expect(array({ items: { type: 'string' }, default: ['a', 'b'] })).toBe(
+      'z.array(z.string()).default(["a","b"])',
+    )
+  })
 })

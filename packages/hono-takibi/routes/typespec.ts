@@ -1,10 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const HonoSchema = z
-  .object({ hono: z.enum(['Hono', 'HonoX', 'ZodOpenAPIHono']) })
-  .openapi('Hono')
-
-export type Hono = z.infer<typeof HonoSchema>
+const HonoSchema = z.object({ hono: z.enum(['Hono', 'HonoX', 'ZodOpenAPIHono']) }).openapi('Hono')
 
 export const postHonoRoute = createRoute({
   tags: ['Hono'],

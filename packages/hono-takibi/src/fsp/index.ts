@@ -1,6 +1,4 @@
 import fsp from 'node:fs/promises'
-import type { Result } from '../result/index.js'
-import { err, ok } from '../result/index.js'
 
 /**
  * Creates a directory if it does not already exist.
@@ -8,12 +6,27 @@ import { err, ok } from '../result/index.js'
  * @param dir - Directory path to create.
  * @returns A `Result` that is `ok` on success, otherwise an error message.
  */
-export async function mkdir(dir: string): Promise<Result<void, string>> {
+export async function mkdir(dir: string): Promise<
+  | {
+      ok: false
+      error: string
+    }
+  | {
+      ok: true
+      value: undefined
+    }
+> {
   try {
     await fsp.mkdir(dir, { recursive: true })
-    return ok(undefined)
+    return {
+      ok: true,
+      value: undefined,
+    }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e))
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+    }
   }
 }
 
@@ -23,12 +36,25 @@ export async function mkdir(dir: string): Promise<Result<void, string>> {
  * @param dir - Directory to read.
  * @returns A `Result` with the file list on success, otherwise an error message.
  */
-export async function readdir(dir: string): Promise<Result<string[], string>> {
+export async function readdir(dir: string): Promise<
+  | {
+      ok: false
+      error: string
+    }
+  | {
+      ok: true
+      value: string[]
+    }
+> {
   try {
     const files = await fsp.readdir(dir)
-    return ok(files)
+    // return ok(files)
+    return { ok: true, value: files }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e))
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+    }
   }
 }
 
@@ -39,11 +65,23 @@ export async function readdir(dir: string): Promise<Result<string[], string>> {
  * @param data - Text data to write.
  * @returns A `Result` that is `ok` on success, otherwise an error message.
  */
-export async function writeFile(path: string, data: string): Promise<Result<void, string>> {
+export async function writeFile(
+  path: string,
+  data: string,
+): Promise<
+  | {
+      ok: true
+      value: undefined
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   try {
     await fsp.writeFile(path, data, 'utf-8')
-    return ok(undefined)
+    return { ok: true, value: undefined }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e))
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
