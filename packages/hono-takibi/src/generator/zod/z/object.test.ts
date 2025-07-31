@@ -132,6 +132,23 @@ describe('object', () => {
         required: ['a'],
         default: { a: 1 },
       }),
-    ).toBe('z.object({a:z.number()}).default({a:1})')
+    ).toBe('z.object({a:z.number()}).default({"a":1})')
   })
+
+  // nullable default
+  it.concurrent(
+    'default: { a: 1 }, nullable: true -> z.object({a:z.number()}).nullable().default({a:1})',
+    () => {
+      expect(
+        object({
+          properties: {
+            a: { type: 'number' },
+          },
+          required: ['a'],
+          default: { a: 1 },
+          nullable: true,
+        }),
+      ).toBe('z.object({a:z.number()}).nullable().default({"a":1})')
+    },
+  )
 })

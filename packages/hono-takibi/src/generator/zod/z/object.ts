@@ -17,7 +17,6 @@ export function object(schema: Schema): string {
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
@@ -32,16 +31,12 @@ export function object(schema: Schema): string {
           return z.replace('object', 'looseObject')
         }
       }
-      if (isNullable) {
-        return 'z.any().nullable()'
-      }
-      return 'z.any()'
+      const z = isNullable ? 'z.any().nullable()' : 'z.any()'
+      return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
     }
     const s = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
-    if (isNullable) {
-      return `z.record(z.string(),${s}).nullable()`
-    }
-    return `z.record(z.string(),${s})`
+    const z = isNullable ? `z.record(z.string(),${s}).nullable()` : `z.record(z.string(),${s})`
+    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
   }
 
   if (schema.properties) {
@@ -50,18 +45,15 @@ export function object(schema: Schema): string {
       Array.isArray(schema.required) ? schema.required : [],
     )
     if (schema.additionalProperties === false) {
-      if (isNullable) {
-        return `${s.replace('object', 'strictObject')}.nullable()`
-      }
-      return s.replace('object', 'strictObject')
+      const z = isNullable
+        ? `${s.replace('object', 'strictObject')}.nullable()`
+        : s.replace('object', 'strictObject')
+      return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
     }
-    if (isNullable) {
-      return `${s}.nullable()`
-    }
-    return s
+    const z = isNullable ? `${s}.nullable()` : s
+    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
   }
-
-  // call oneOf, anyOf, allOf or not use nullable
+  // allOf, oneOf, anyOf, not
   if (schema.oneOf) {
     return oneOf(schema)
   }
