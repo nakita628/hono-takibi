@@ -38,7 +38,6 @@ export function parseCli(args: readonly string[]):
   const getFlagValue = (args: readonly string[], flag: string): string | undefined => {
     const idx = args.indexOf(flag)
     if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
-    return undefined
   }
   if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
     return {
