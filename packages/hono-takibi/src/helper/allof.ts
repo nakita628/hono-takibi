@@ -14,14 +14,14 @@ export function allOf(schema: Schema): string {
   }>(
     (acc, s) => {
       const isOnlyNullable =
-        typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1
+        (typeof s === 'object' && s.type === 'null') ||
+        (typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1)
+
       if (isOnlyNullable) {
         return { ...acc, nullable: true }
       }
 
-      const z = '$ref' in s
-        ? refSchema(s.$ref!)
-        : zod(s)
+      const z = '$ref' in s ? refSchema(s.$ref!) : zod(s)
 
       return {
         nullable: acc.nullable,
