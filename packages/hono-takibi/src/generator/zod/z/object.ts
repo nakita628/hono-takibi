@@ -14,9 +14,6 @@ import { zod } from '../index.js'
  * @returns The Zod object schema string.
  */
 export function object(schema: Schema): string {
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
@@ -25,33 +22,23 @@ export function object(schema: Schema): string {
           Array.isArray(schema.required) ? schema.required : [],
         )
         if (schema.additionalProperties === true) {
-          if (isNullable) {
-            return `${z.replace('object', 'looseObject')}.nullable()`
-          }
           return z.replace('object', 'looseObject')
         }
       }
-      const z = isNullable ? 'z.any().nullable()' : 'z.any()'
-      return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
+      return 'z.any()'
     }
-    const s = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
-    const z = isNullable ? `z.record(z.string(),${s}).nullable()` : `z.record(z.string(),${s})`
-    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
+    const z = zodToOpenAPI(zod(schema.additionalProperties), schema.additionalProperties)
+    return `z.record(z.string(),${z})`
   }
-
   if (schema.properties) {
-    const s = propertiesSchema(
+    const z = propertiesSchema(
       schema.properties,
       Array.isArray(schema.required) ? schema.required : [],
     )
     if (schema.additionalProperties === false) {
-      const z = isNullable
-        ? `${s.replace('object', 'strictObject')}.nullable()`
-        : s.replace('object', 'strictObject')
-      return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
+      return z.replace('object', 'strictObject')
     }
-    const z = isNullable ? `${s}.nullable()` : s
-    return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
+    return z
   }
   // allOf, oneOf, anyOf, not
   if (schema.oneOf) {
@@ -66,6 +53,5 @@ export function object(schema: Schema): string {
   if (schema.not) {
     return not(schema)
   }
-  const z = isNullable ? 'z.object({}).nullable()' : 'z.object({})'
-  return schema.default ? `${z}.default(${JSON.stringify(schema.default)})` : z
+  return 'z.object({})'
 }

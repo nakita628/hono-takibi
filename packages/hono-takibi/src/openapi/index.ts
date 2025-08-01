@@ -59,22 +59,14 @@ export type OpenAPIPaths = {
 /**
  * Data types supported in OpenAPI schemas
  */
-export type Type =
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'date'
-  | 'boolean'
-  | 'array'
-  | 'object'
-  | 'null'
+type Type = 'string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null'
 
-export type Format = FormatString | FormatNumber
+type Format = FormatString | FormatNumber
 
 /**
  * Format specifications for string types
  */
-export type FormatString =
+type FormatString =
   // validations
   // | 'max'
   // | 'min'

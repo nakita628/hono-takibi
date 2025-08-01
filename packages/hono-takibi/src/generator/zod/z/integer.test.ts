@@ -9,13 +9,6 @@ describe('integer', () => {
   it.concurrent('z.int()', () => {
     expect(integer({})).toBe('z.int()')
   })
-  // nullable
-  it.concurrent('z.int().nullable()', () => {
-    expect(integer({ nullable: true })).toBe('z.int().nullable()')
-  })
-  it.concurrent('z.int().nullable() if type: ["integer", "null"]', () => {
-    expect(integer({ type: ['integer', 'null'] })).toBe('z.int().nullable()')
-  })
   // positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int().positive()', () => {
     expect(integer({ minimum: 0, exclusiveMinimum: true })).toBe('z.int().positive()')
@@ -66,27 +59,12 @@ describe('integer', () => {
     expect(integer({ maximum: 0 })).toBe('z.int().max(0)')
   })
   // multipleOf
-  it.concurrent('type: integer, multipleOf: 2 → z.int().multipleOf(2)', () => {
-    expect(integer({ type: 'integer', multipleOf: 2 })).toBe('z.int().multipleOf(2)')
-  })
-  // default
-  it.concurrent('default: 100 → z.int().default(100)', () => {
-    expect(integer({ default: 100 })).toBe('z.int().default(100)')
-  })
-  // default nullable
-  it.concurrent('default: 100, nullable: true → z.int().nullable().default(100)', () => {
-    expect(integer({ default: 100, nullable: true })).toBe('z.int().nullable().default(100)')
+  it.concurrent('multipleOf: 2 → z.int().multipleOf(2)', () => {
+    expect(integer({ multipleOf: 2 })).toBe('z.int().multipleOf(2)')
   })
   // int32
   it.concurrent(' ormat: int32 → z.int32()', () => {
     expect(integer({ format: 'int32' })).toBe('z.int32()')
-  })
-  // int32 nullable
-  it.concurrent('format: int32, nullable: true → z.int32().nullable()', () => {
-    expect(integer({ format: 'int32', nullable: true })).toBe('z.int32().nullable()')
-  })
-  it.concurrent('format: int32, type: ["integer", "null"] → z.int32().nullable()', () => {
-    expect(integer({ format: 'int32', type: ['integer', 'null'] })).toBe('z.int32().nullable()')
   })
   // int32 positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int32().positive()', () => {
@@ -144,20 +122,9 @@ describe('integer', () => {
   it.concurrent('format: int32, multipleOf: 2 → z.int32().multipleOf(2)', () => {
     expect(integer({ format: 'int32', multipleOf: 2 })).toBe('z.int32().multipleOf(2)')
   })
-  // int32 default
-  it.concurrent('default: 100 → z.int32().default(100)', () => {
-    expect(integer({ format: 'int32', default: 100 })).toBe('z.int32().default(100)')
-  })
   // int64
   it.concurrent('type: integer, format: int64 → z.int64()', () => {
     expect(integer({ format: 'int64' })).toBe('z.int64()')
-  })
-  // int64 nullable
-  it.concurrent('format: int64, nullable: true → z.int64().nullable()', () => {
-    expect(integer({ format: 'int64', nullable: true })).toBe('z.int64().nullable()')
-  })
-  it.concurrent('format: int64, type: ["integer", "null"] → z.int64().nullable()', () => {
-    expect(integer({ format: 'int64', type: ['integer', 'null'] })).toBe('z.int64().nullable()')
   })
   // int64 positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.int64().positive()', () => {
@@ -215,20 +182,9 @@ describe('integer', () => {
   it.concurrent('type: integer, format: int64, multipleOf: 2 → z.int64().multipleOf(2n)', () => {
     expect(integer({ format: 'int64', multipleOf: 2 })).toBe('z.int64().multipleOf(2n)')
   })
-  // int64 default
-  it.concurrent('default: 100 → z.int64().default(100n)', () => {
-    expect(integer({ format: 'int64', default: 100 })).toBe('z.int64().default(100n)')
-  })
   // bigint
   it.concurrent('type: integer, format: bigint → z.bigint()', () => {
     expect(integer({ format: 'bigint' })).toBe('z.bigint()')
-  })
-  // bigint nullable
-  it.concurrent('format: bigint, nullable: true → z.bigint().nullable()', () => {
-    expect(integer({ format: 'bigint', nullable: true })).toBe('z.bigint().nullable()')
-  })
-  it.concurrent('format: bigint, type: ["integer", "null"] → z.bigint().nullable()', () => {
-    expect(integer({ format: 'bigint', type: ['integer', 'null'] })).toBe('z.bigint().nullable()')
   })
   // bigint positive
   it.concurrent('minimum: 0, exclusiveMinimum: true → z.bigint().positive()', () => {
@@ -274,9 +230,9 @@ describe('integer', () => {
   })
   // bigint lt
   it.concurrent('maximum: 100, exclusiveMaximum: true → z.bigint().lt(BigInt(100))', () => {
-    expect(
-      integer({ type: 'integer', format: 'bigint', maximum: 100, exclusiveMaximum: true }),
-    ).toBe('z.bigint().lt(BigInt(100))')
+    expect(integer({ format: 'bigint', maximum: 100, exclusiveMaximum: true })).toBe(
+      'z.bigint().lt(BigInt(100))',
+    )
   })
   // bigint max 0
   it.concurrent('maximum: 0, exclusiveMaximum: true → z.bigint().max(BigInt(0))', () => {
@@ -289,8 +245,4 @@ describe('integer', () => {
       expect(integer({ format: 'bigint', multipleOf: 2 })).toBe('z.bigint().multipleOf(BigInt(2))')
     },
   )
-  // bigint default
-  it.concurrent('default: 100 → z.bigint().default(BigInt(100))', () => {
-    expect(integer({ format: 'bigint', default: 100 })).toBe('z.bigint().default(BigInt(100))')
-  })
 })

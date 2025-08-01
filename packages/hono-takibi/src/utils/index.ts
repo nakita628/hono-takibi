@@ -350,7 +350,7 @@ export function refSchema($ref: `#/components/schemas/${string}`): string {
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
   // 2. "Address"
-  const ref =  $ref.split('/').pop()
+  const ref = $ref.split('/').pop()
   return `${ref}Schema`
 }
 
@@ -538,21 +538,4 @@ export function getToSafeIdentifier(str: string): string {
  */
 export function sanitizeIdentifier(str: string): string {
   return str.replace(/[^A-Za-z0-9_$]/g, '_')
-}
-
-/* ========================================================================== *
- *  Zod Schema
- * ========================================================================== */
-
-/**
- * Appends a properly escaped `.regex(/pattern/)` clause.
- *
- * Any unescaped forward-slash within the pattern is escaped so the final
- * string remains a valid JavaScript RegExp literal.
- *
- * @param pattern - A raw regex pattern **without** the surrounding slashes.
- * @returns A string like `'.regex(/^[a-z]+$/)'`.
- */
-export function regex(pattern: string): string {
-  return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
 }

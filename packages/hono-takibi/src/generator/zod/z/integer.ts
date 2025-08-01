@@ -1,5 +1,3 @@
-import type { Schema } from '../../../openapi/index.js'
-
 /**
  * Generates a Zod schema for integer types based on OpenAPI schema.
  * Supports int32, int64, and bigint formats.
@@ -7,10 +5,17 @@ import type { Schema } from '../../../openapi/index.js'
  * @param schema - The OpenAPI schema object
  * @returns The Zod schema string
  */
-export function integer(schema: Schema): string {
-  const isInt32 = schema.format === 'int32'
-  const isInt64 = schema.format === 'int64'
-  const isBigInt = schema.format === 'bigint'
+export function integer(args: {
+  format?: string
+  minimum?: number
+  exclusiveMinimum?: number | boolean
+  maximum?: number
+  exclusiveMaximum?: number | boolean
+  multipleOf?: number
+}): string {
+  const isInt32 = args.format === 'int32'
+  const isInt64 = args.format === 'int64'
+  const isBigInt = args.format === 'bigint'
   const o: string[] = [
     isInt32 ? 'z.int32()' : isInt64 ? 'z.int64()' : isBigInt ? 'z.bigint()' : 'z.int()',
   ]
@@ -20,20 +25,17 @@ export function integer(schema: Schema): string {
     return `${n}`
   }
   // minimum
-  if (schema.minimum !== undefined || schema.exclusiveMinimum !== undefined) {
+  if (args.minimum !== undefined || args.exclusiveMinimum !== undefined) {
     // > 0
     // z.int().positive().safeParse(1) // { success: true }
     // z.int().positive().safeParse(0) // { success: false }
-    if ((schema.minimum ?? schema.exclusiveMinimum) === 0 && schema.exclusiveMinimum === true) {
+    if ((args.minimum ?? args.exclusiveMinimum) === 0 && args.exclusiveMinimum === true) {
       o.push('.positive()')
     }
     // >= 0
     // z.int().nonnegative().safeParse(0) // { success: true }
     // z.int().nonnegative().safeParse(-1) // { success: false }
-    else if (
-      (schema.minimum ?? schema.exclusiveMinimum) === 0 &&
-      schema.exclusiveMinimum === false
-    ) {
+    else if ((args.minimum ?? args.exclusiveMinimum) === 0 && args.exclusiveMinimum === false) {
       o.push('.nonnegative()')
     }
     // > value
@@ -41,34 +43,37 @@ export function integer(schema: Schema): string {
     // z.int().gt(100).safeParse(101) // { success: true }
     // z.int().gt(100).safeParse(100) // { success: false }
     else if (
-      (schema.exclusiveMinimum === true || schema.minimum === undefined) &&
-      typeof (schema.minimum ?? schema.exclusiveMinimum) === 'number'
+      (args.exclusiveMinimum === true || args.minimum === undefined) &&
+      typeof (args.minimum ?? args.exclusiveMinimum) === 'number'
     ) {
-      o.push(`.gt(${lit((schema.minimum ?? schema.exclusiveMinimum) as number)})`)
+      const val = args.minimum ?? args.exclusiveMinimum
+      if (
+        (args.exclusiveMinimum === true || args.minimum === undefined) &&
+        typeof val === 'number'
+      ) {
+        o.push(`.gt(${lit(val)})`)
+      }
     }
     // >= value
     // z.int().min(100) // value >= 100
     // z.int().min(100).safeParse(100) // { success: true }
     // z.int().min(100).safeParse(99) // { success: false }
-    else if (typeof schema.minimum === 'number') {
-      o.push(`.min(${lit(schema.minimum)})`)
+    else if (typeof args.minimum === 'number') {
+      o.push(`.min(${lit(args.minimum)})`)
     }
   }
   // maximum
-  if (schema.maximum !== undefined || schema.exclusiveMaximum !== undefined) {
+  if (args.maximum !== undefined || args.exclusiveMaximum !== undefined) {
     // < 0
     // z.int().negative().safeParse(-1) // { success: true }
     // z.int().negative().safeParse(0) // { success: false }
-    if ((schema.maximum ?? schema.exclusiveMaximum) === 0 && schema.exclusiveMaximum === true) {
+    if ((args.maximum ?? args.exclusiveMaximum) === 0 && args.exclusiveMaximum === true) {
       o.push('.negative()')
     }
     // <= 0
     // z.int().nonpositive().safeParse(0) // { success: true }
     // z.int().nonpositive().safeParse(1) // { success: false }
-    else if (
-      (schema.maximum ?? schema.exclusiveMaximum) === 0 &&
-      schema.exclusiveMaximum === false
-    ) {
+    else if ((args.maximum ?? args.exclusiveMaximum) === 0 && args.exclusiveMaximum === false) {
       o.push('.nonpositive()')
     }
     // < value
@@ -76,35 +81,24 @@ export function integer(schema: Schema): string {
     // z.int().lt(100).safeParse(99) -> { success: true }
     // z.int().lt(100).safeParse(100) -> { success: false }
     else if (
-      (schema.exclusiveMaximum === true || schema.maximum === undefined) &&
-      typeof (schema.maximum ?? schema.exclusiveMaximum) === 'number'
+      (args.exclusiveMaximum === true || args.maximum === undefined) &&
+      typeof (args.maximum ?? args.exclusiveMaximum) === 'number'
     ) {
-      o.push(`.lt(${lit((schema.maximum ?? schema.exclusiveMaximum) as number)})`)
+      o.push(`.lt(${lit((args.maximum ?? args.exclusiveMaximum) as number)})`)
     }
     // <= value
     // z.int().max(100) // value <= 100
     // z.int().max(100).safeParse(100) -> { success: true }
     // z.int().max(100).safeParse(101) -> { success: false }
-    else if (typeof schema.maximum === 'number') {
-      o.push(`.max(${lit(schema.maximum)})`)
+    else if (typeof args.maximum === 'number') {
+      o.push(`.max(${lit(args.maximum)})`)
     }
   }
   // multipleOf
   // z.int().multipleOf(2).safeParse(2) // { success: true }
   // z.int().multipleOf(2).safeParse(1) // { success: false }
-  if (schema.multipleOf !== undefined && typeof schema.multipleOf === 'number') {
-    o.push(`.multipleOf(${lit(schema.multipleOf)})`)
-  }
-  // nullable
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  if (isNullable) {
-    o.push('.nullable()')
-  }
-  // default (always last)
-  if (schema.default !== undefined && typeof schema.default === 'number') {
-    o.push(`.default(${lit(schema.default)})`)
+  if (args.multipleOf !== undefined && typeof args.multipleOf === 'number') {
+    o.push(`.multipleOf(${lit(args.multipleOf)})`)
   }
   return o.join('')
 }

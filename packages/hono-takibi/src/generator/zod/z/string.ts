@@ -1,67 +1,62 @@
-import type { Schema } from '../../../openapi/index.js'
-import { regex } from '../../../utils/index.js'
-
-const FORMAT_STRING: Record<string, string> = {
-  email: 'email()',
-  uuid: 'uuid()',
-  uuidv4: 'uuidv4()',
-  uuidv6: 'uuidv6()',
-  uuidv7: 'uuidv7()',
-  uri: 'url()',
-  emoji: 'emoji()',
-  base64: 'base64()',
-  base64url: 'base64url()',
-  nanoid: 'nanoid()',
-  cuid: 'cuid()',
-  cuid2: 'cuid2()',
-  ulid: 'ulid()',
-  ipv4: 'ipv4()',
-  ipv6: 'ipv6()',
-  cidrv4: 'cidrv4()',
-  cidrv6: 'cidrv6()',
-  date: 'iso.date()',
-  time: 'iso.time()',
-  'date-time': 'iso.datetime()',
-  duration: 'iso.duration()',
-  binary: 'file()',
-  toLowerCase: 'toLowerCase()',
-  toUpperCase: 'toUpperCase()',
-  trim: 'trim()',
-  jwt: 'jwt()',
-}
-
 /** Build a Zod string schema from an OpenAPI string schema. */
-export function string(schema: Schema): string {
+export function string(args: {
+  format?: string
+  pattern?: string
+  minLength?: number
+  maxLength?: number
+}): string {
+  const FORMAT_STRING: Record<string, string> = {
+    email: 'email()',
+    uuid: 'uuid()',
+    uuidv4: 'uuidv4()',
+    uuidv6: 'uuidv6()',
+    uuidv7: 'uuidv7()',
+    uri: 'url()',
+    emoji: 'emoji()',
+    base64: 'base64()',
+    base64url: 'base64url()',
+    nanoid: 'nanoid()',
+    cuid: 'cuid()',
+    cuid2: 'cuid2()',
+    ulid: 'ulid()',
+    ipv4: 'ipv4()',
+    ipv6: 'ipv6()',
+    cidrv4: 'cidrv4()',
+    cidrv6: 'cidrv6()',
+    date: 'iso.date()',
+    time: 'iso.time()',
+    'date-time': 'iso.datetime()',
+    duration: 'iso.duration()',
+    binary: 'file()',
+    toLowerCase: 'toLowerCase()',
+    toUpperCase: 'toUpperCase()',
+    trim: 'trim()',
+    jwt: 'jwt()',
+  } as const
+
   const o: string[] = []
-  const format = schema.format && FORMAT_STRING[schema.format]
-  o.push(format ? `z.${format}` : 'z.string()')
+  const f = args.format && FORMAT_STRING[args.format]
+  o.push(f ? `z.${f}` : 'z.string()')
   // pattern
-  if (schema.pattern) {
-    o.push(regex(schema.pattern))
+  if (args.pattern) {
+    o.push(`.regex(/${args.pattern.replace(/(?<!\\)\//g, '\\/')}/)`)
   }
   // length
   if (
-    schema.minLength !== undefined &&
-    schema.maxLength !== undefined &&
-    schema.minLength === schema.maxLength
+    args.minLength !== undefined &&
+    args.maxLength !== undefined &&
+    args.minLength === args.maxLength
   ) {
-    o.push(`.length(${schema.minLength})`)
+    o.push(`.length(${args.minLength})`)
   } else {
-    if (schema.minLength !== undefined) {
-      o.push(`.min(${schema.minLength})`)
+    // min
+    if (args.minLength !== undefined) {
+      o.push(`.min(${args.minLength})`)
     }
-    if (schema.maxLength !== undefined) {
-      o.push(`.max(${schema.maxLength})`)
+    // max
+    if (args.maxLength !== undefined) {
+      o.push(`.max(${args.maxLength})`)
     }
-  }
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  if (isNullable) {
-    o.push('.nullable()')
-  }
-  if (schema.default !== undefined) {
-    o.push(`.default(${JSON.stringify(schema.default)})`)
   }
   return o.join('')
 }

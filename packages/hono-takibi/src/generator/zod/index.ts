@@ -1,11 +1,10 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
-import { _const } from '../../helper/const.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
 import { refSchema } from '../../utils/index.js'
-import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
+import { _enum, integer, number, object, string } from './z/index.js'
 
 /**
  * Converts an OpenAPI `Schema` object into a Zod schema string.
@@ -69,15 +68,21 @@ export function zod(schema: Schema): string {
   }
   /* const */
   if (schema.const !== undefined) {
-    return _const(schema)
+    const z = `z.literal(${JSON.stringify(schema.const)})`
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* enum */
   if (schema.enum) {
-    return _enum(schema)
-  }
-  /* properties */
-  if (schema.properties) {
-    return object(schema)
+    const z = _enum(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   const pickTypes = (t: Schema['type']): readonly string[] => {
     return t === undefined ? [] : Array.isArray(t) ? t : [t]
@@ -85,44 +90,151 @@ export function zod(schema: Schema): string {
   const types = pickTypes(schema.type)
   /* object */
   if (types.includes('object')) {
-    return object(schema)
+    const z = object(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* date */
   if (types.includes('date')) {
-    return date(schema)
+    const z = 'z.date()'
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   /* string */
   if (types.includes('string')) {
-    return string(schema)
+    const z = string({
+      format: schema.format,
+      pattern: schema.pattern,
+      minLength: schema.minLength,
+      maxLength: schema.maxLength,
+    })
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* number */
   if (types.includes('number')) {
-    return number(schema)
+    const z = number({
+      format: schema.format,
+      minimum: schema.minimum,
+      exclusiveMinimum: schema.exclusiveMinimum,
+      maximum: schema.maximum,
+      exclusiveMaximum: schema.exclusiveMaximum,
+      multipleOf: schema.multipleOf,
+    })
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   /* integer & bigint */
   if (types.includes('integer')) {
-    return integer(schema)
+    const z = integer({
+      format: schema.format,
+      minimum: schema.minimum,
+      exclusiveMinimum: schema.exclusiveMinimum,
+      maximum: schema.maximum,
+      exclusiveMaximum: schema.exclusiveMaximum,
+      multipleOf: schema.multipleOf,
+    })
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   /* array */
   if (types.includes('array')) {
-    return array(schema)
+    const array = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
+    if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
+      if (schema.minItems === schema.maxItems) {
+        const z = `${array}.length(${schema.minItems})`
+        return applyModifiers(z, {
+          _default: schema.default,
+          nullable: schema.nullable,
+          type: schema.type,
+        })
+      }
+      return `${array}.min(${schema.minItems}).max(${schema.maxItems})`
+    }
+    if (typeof schema.minItems === 'number') {
+      const z = `${array}.min(${schema.minItems})`
+      return applyModifiers(z, {
+        _default: schema.default,
+        nullable: schema.nullable,
+        type: schema.type,
+      })
+    }
+    if (typeof schema.maxItems === 'number') {
+      const z = `${array}.max(${schema.maxItems})`
+      return applyModifiers(z, {
+        _default: schema.default,
+        nullable: schema.nullable,
+        type: schema.type,
+      })
+    }
+    return applyModifiers(array, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* boolean */
   if (types.includes('boolean')) {
-    return boolean(schema)
+    const z = 'z.boolean()'
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* combinators */
   if (schema.oneOf) {
-    return oneOf(schema)
+    const z = oneOf(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   if (schema.anyOf) {
-    return anyOf(schema)
+    const z = anyOf(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   if (schema.allOf) {
-    return allOf(schema)
+    const z = allOf(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+      format: schema.format,
+    })
   }
   if (schema.not) {
-    return not(schema)
+    const z = not(schema)
+    return applyModifiers(z, {
+      _default: schema.default,
+      nullable: schema.nullable,
+      type: schema.type,
+    })
   }
   /* null only */
   if (types.length === 1 && types[0] === 'null') {
@@ -130,4 +242,49 @@ export function zod(schema: Schema): string {
   }
   console.warn('fallback to z.any()')
   return 'z.any()'
+}
+
+export function applyModifiers(
+  z: string,
+  args: {
+    _default?: unknown
+    nullable?: boolean
+    type?:
+      | 'string'
+      | 'number'
+      | 'integer'
+      | 'date'
+      | 'boolean'
+      | 'array'
+      | 'object'
+      | 'null'
+      | [
+          'string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null',
+          ...('string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null')[],
+        ]
+    format?: string
+  },
+): string {
+  const o = [z]
+  const defaultVal =
+    args._default === undefined
+      ? undefined
+      : args.type === 'date'
+        ? `new Date(${JSON.stringify(args._default)})`
+        : args.type === 'integer' && args.format === 'int64'
+          ? `${JSON.stringify(args._default)}n`
+          : args.type === 'integer' && args.format === 'bigint'
+            ? `BigInt(${JSON.stringify(args._default)})`
+            : JSON.stringify(args._default)
+
+  if (defaultVal !== undefined) {
+    o.push(`.default(${defaultVal})`)
+  }
+  const isNullable =
+    args.nullable === true ||
+    (Array.isArray(args.type) ? args.type.includes('null') : args.type === 'null')
+  if (isNullable) {
+    o.push('.nullable()')
+  }
+  return o.join('')
 }

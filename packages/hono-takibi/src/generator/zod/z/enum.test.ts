@@ -12,15 +12,6 @@ describe('_enum', () => {
       }),
     ).toBe('z.enum(["a","b","c"])')
   })
-  // nullable
-  it.concurrent('z.enum(["a","b","c"]).nullable()', () => {
-    expect(
-      _enum({
-        enum: ['a', 'b', 'c'],
-        nullable: true,
-      }),
-    ).toBe('z.enum(["a","b","c"]).nullable()')
-  })
   it.concurrent('z.enum(["a","b","c"]).nullable()', () => {
     expect(
       _enum({
@@ -96,14 +87,5 @@ describe('_enum', () => {
   // fallback: z.enum when type is omitted but all strings
   it.concurrent('z.enum(["x","y"])', () => {
     expect(_enum({ enum: ['x', 'y'] })).toBe(`z.enum(["x","y"])`)
-  })
-  // default value
-  it.concurrent('z.enum(["a","b","c"]).default("a")', () => {
-    expect(
-      _enum({
-        enum: ['a', 'b', 'c'],
-        default: 'a',
-      }),
-    ).toBe('z.enum(["a","b","c"]).default("a")')
   })
 })

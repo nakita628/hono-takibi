@@ -40,21 +40,11 @@ export function allOf(schema: Schema): string {
     { nullable: false, schemas: [] },
   )
   if (schemas.length === 0) {
-    return nullable ? 'z.any().nullable()' : 'z.any()'
+    return 'z.any()'
+    // return nullable ? 'z.any().nullable()' : 'z.any()'
   }
   if (schemas.length === 1) {
-    return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+    return schemas[0]
   }
-  if (schema.discriminator) {
-    console.log(schema.discriminator)
-  }
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) && schema.type.includes('null')) ||
-    schema.type === 'null'
-  const z = `z.intersection(${schemas.join(',')})${nullable ? '.nullable()' : ''}`
-  if (isNullable) {
-    return `${z}.nullable()`
-  }
-  return z
+  return `z.intersection(${schemas.join(',')})`
 }

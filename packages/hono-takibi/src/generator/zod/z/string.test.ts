@@ -11,33 +11,6 @@ describe('string', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('string({ default: "test" }) -> z.string().default("test")', () => {
-    const result = string({ default: 'test' })
-    const expected = 'z.string().default("test")'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent(
-    'string({ default: "test", nullable: true }) -> z.string().nullable().default("test")',
-    () => {
-      const result = string({ default: 'test', nullable: true })
-      const expected = 'z.string().nullable().default("test")'
-      expect(result).toBe(expected)
-    },
-  )
-
-  it.concurrent('string({ nullable: true }) -> z.string().nullable()', () => {
-    const result = string({ nullable: true })
-    const expected = 'z.string().nullable()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent("string({ type: ['string', 'null'] }) -> z.string().nullable()", () => {
-    const result = string({ type: ['string', 'null'] })
-    const expected = 'z.string().nullable()'
-    expect(result).toBe(expected)
-  })
-
   it.concurrent(`string({ pattern: '^[a-z]+$' }) -> z.string().regex(/^[a-z]+$/)`, () => {
     const result = string({ pattern: '^[a-z]+$' })
     const expected = 'z.string().regex(/^[a-z]+$/)'
@@ -71,14 +44,6 @@ describe('string', () => {
   it.concurrent(`string({ format: 'uuid' }) -> z.uuid()`, () => {
     const result = string({ format: 'uuid' })
     const expected = 'z.uuid()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent(`string({ default: 'test' }) -> z.string().default("test")`, () => {
-    const result = string({
-      default: 'test',
-    })
-    const expected = `z.string().default("test")`
     expect(result).toBe(expected)
   })
 

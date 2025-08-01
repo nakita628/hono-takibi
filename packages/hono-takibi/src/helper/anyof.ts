@@ -1,6 +1,5 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
  * Converts an OpenAPI `anyOf` schema into a Zod union expression.
@@ -19,15 +18,7 @@ export function anyOf(schema: Schema): string {
     return 'z.any()'
   }
   const schemas = schema.anyOf.map((subSchema) => {
-    const z = zod(subSchema)
-    return zodToOpenAPI(z, subSchema)
+    return zod(subSchema)
   })
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  const z = `z.union([${schemas.join(',')}])`
-  if (isNullable) {
-    return `${z}.nullable()`
-  }
-  return z
+  return `z.union([${schemas.join(',')}])`
 }

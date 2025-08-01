@@ -1,6 +1,3 @@
-export { array } from './array.js'
-export { boolean } from './boolean.js'
-export { date } from './date.js'
 export { _enum } from './enum.js'
 export { integer } from './integer.js'
 export { number } from './number.js'
