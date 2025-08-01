@@ -18,10 +18,10 @@ describe('string', () => {
   })
 
   it.concurrent(
-    'string({ default: "test", nullable: true }) -> z.string().nullable().default("test")',
+    'string({ default: "test", nullable: true }) -> z.string().default("test").nullable().default("test")',
     () => {
       const result = string({ default: 'test', nullable: true })
-      const expected = 'z.string().nullable().default("test")'
+      const expected = 'z.string().default("test").nullable()'
       expect(result).toBe(expected)
     },
   )

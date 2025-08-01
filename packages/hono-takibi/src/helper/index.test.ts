@@ -7,6 +7,7 @@ import {
   not,
   oneOf,
   resolveSchemasDependencies,
+  wrap,
   zodToOpenAPI,
   zodToOpenAPISchema,
 } from './index.js'
@@ -35,6 +36,9 @@ describe('helper barrel file exports', () => {
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')
+  })
+  it('should export wrap', () => {
+    expect(typeof wrap).toBe('function')
   })
   it('should export zodToOpenAPISchema', () => {
     expect(typeof zodToOpenAPISchema).toBe('function')

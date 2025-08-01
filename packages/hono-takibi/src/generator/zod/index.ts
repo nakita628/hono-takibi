@@ -60,74 +60,40 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
  * - Logs unhandled cases to `console.warn`
  */
 export function zod(schema: Schema): string {
-  if (schema === undefined) {
-    throw new Error('hono-takibi: only #/components/schemas/* is supported')
-  }
+  if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
-  if (schema.$ref) {
-    return `${refName(schema.$ref)}Schema`
-  }
+  if (schema.$ref) return `${refName(schema.$ref)}Schema`
   /* const */
-  if (schema.const !== undefined) {
-    return _const(schema)
-  }
+  if (schema.const !== undefined) return _const(schema)
   /* enum */
-  if (schema.enum) {
-    return _enum(schema)
-  }
+  if (schema.enum) return _enum(schema)
   /* properties */
-  if (schema.properties) {
-    return object(schema)
-  }
+  if (schema.properties) return object(schema)
   const pickTypes = (t: Schema['type']): readonly string[] => {
     return t === undefined ? [] : Array.isArray(t) ? t : [t]
   }
   const types = pickTypes(schema.type)
   /* object */
-  if (types.includes('object')) {
-    return object(schema)
-  }
+  if (types.includes('object')) return object(schema)
   /* date */
-  if (types.includes('date')) {
-    return date(schema)
-  }
+  if (types.includes('date')) return date(schema)
   /* string */
-  if (types.includes('string')) {
-    return string(schema)
-  }
+  if (types.includes('string')) return string(schema)
   /* number */
-  if (types.includes('number')) {
-    return number(schema)
-  }
+  if (types.includes('number')) return number(schema)
   /* integer & bigint */
-  if (types.includes('integer')) {
-    return integer(schema)
-  }
+  if (types.includes('integer')) return integer(schema)
   /* array */
-  if (types.includes('array')) {
-    return array(schema)
-  }
+  if (types.includes('array')) return array(schema)
   /* boolean */
-  if (types.includes('boolean')) {
-    return boolean(schema)
-  }
+  if (types.includes('boolean')) return boolean(schema)
   /* combinators */
-  if (schema.oneOf) {
-    return oneOf(schema)
-  }
-  if (schema.anyOf) {
-    return anyOf(schema)
-  }
-  if (schema.allOf) {
-    return allOf(schema)
-  }
-  if (schema.not) {
-    return not(schema)
-  }
+  if (schema.oneOf) return oneOf(schema)
+  if (schema.anyOf) return anyOf(schema)
+  if (schema.allOf) return allOf(schema)
+  if (schema.not) return not(schema)
   /* null only */
-  if (types.length === 1 && types[0] === 'null') {
-    return 'z.null()'
-  }
+  if (types.length === 1 && types[0] === 'null') return 'z.null()'
   console.warn('fallback to z.any()')
   return 'z.any()'
 }
