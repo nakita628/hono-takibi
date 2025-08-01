@@ -49,7 +49,7 @@ describe('allOf', () => {
   )
 
   it.concurrent(
-    'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
+    'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema,properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
     () => {
       expect(
         allOf({
@@ -94,7 +94,7 @@ describe('allOf', () => {
           ],
         }),
       ).toBe(
-        'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
+        'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema,properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
       )
     },
   )

@@ -3,53 +3,29 @@ import type { Schema } from '../openapi/index.js'
 import { refSchema } from '../utils/index.js'
 import { wrap } from './wrap.js'
 
-/**
- * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
- *
- * @param schema - The OpenAPI schema object potentially containing an `allOf` composition.
- * @returns A string representing the generated Zod schema.
- *
- * @remarks
- * - If `schema.allOf` is missing or empty, returns `z.any()` or `z.any().nullable()` depending on nullability.
- * - If `allOf` contains a single schema, it is returned directly (with optional `.nullable()`).
- * - If multiple schemas exist, they are combined using `z.intersection(...)`.
- * - Nullability is determined by analyzing all constituent schemas.
- */
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
-    const z = 'z.any()'
-    return wrap(z, schema)
+    return wrap('z.any()', schema)
   }
-  const { nullable, schemas } = schema.allOf.reduce<{
-    nullable: boolean
-    schemas: string[]
-  }>(
-    (acc, subSchema) => {
-      const isNullable =
-        typeof subSchema === 'object' &&
-        subSchema !== null &&
-        'nullable' in subSchema &&
-        subSchema.nullable === true &&
-        Object.keys(subSchema).length === 1
-      if (isNullable) {
-        acc.nullable = true
-        return acc
-      }
-      const z = subSchema.$ref ? refSchema(subSchema.$ref) : zod(subSchema)
-      acc.schemas.push(z)
-      return acc
-    },
-    { nullable: false, schemas: [] },
+
+  const schemas = schema.allOf
+  .filter((s) => !(typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1))
+  .map((subSchema) =>
+    subSchema.$ref ? refSchema(subSchema.$ref) : wrap(zod(subSchema), subSchema)
   )
+
   if (schemas.length === 0) {
-    return nullable ? 'z.any().nullable()' : 'z.any()'
+    return wrap('z.any()', schema)
   }
+
   if (schemas.length === 1) {
-    return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+    return wrap(schemas[0], schema)
   }
+
   if (schema.discriminator) {
-    console.log(schema.discriminator)
+    console.log(schema.discriminator) // TODO: implement later
   }
+
   const z = `z.intersection(${schemas.join(',')})`
   return wrap(z, schema)
 }
