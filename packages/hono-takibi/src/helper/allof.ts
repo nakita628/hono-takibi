@@ -1,6 +1,7 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refName } from '../utils/index.js'
+import { refSchema } from '../utils/index.js'
+import { wrap } from './wrap.js'
 
 /**
  * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
@@ -16,7 +17,8 @@ import { refName } from '../utils/index.js'
  */
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
-    return 'z.any()'
+    const z = 'z.any()'
+    return wrap(z, schema)
   }
   const { nullable, schemas } = schema.allOf.reduce<{
     nullable: boolean
@@ -33,7 +35,7 @@ export function allOf(schema: Schema): string {
         acc.nullable = true
         return acc
       }
-      const z = subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zod(subSchema)
+      const z = subSchema.$ref ? refSchema(subSchema.$ref) : zod(subSchema)
       acc.schemas.push(z)
       return acc
     },
@@ -48,13 +50,6 @@ export function allOf(schema: Schema): string {
   if (schema.discriminator) {
     console.log(schema.discriminator)
   }
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) && schema.type.includes('null')) ||
-    schema.type === 'null'
-  const z = `z.intersection(${schemas.join(',')})${nullable ? '.nullable()' : ''}`
-  if (isNullable) {
-    return `${z}.nullable()`
-  }
-  return z
+  const z = `z.intersection(${schemas.join(',')})`
+  return wrap(z, schema)
 }

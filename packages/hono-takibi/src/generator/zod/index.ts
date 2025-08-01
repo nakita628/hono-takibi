@@ -4,7 +4,7 @@ import { _const } from '../../helper/const.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
-import { refName } from '../../utils/index.js'
+import { refSchema } from '../../utils/index.js'
 import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
 
 /**
@@ -62,7 +62,7 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
 export function zod(schema: Schema): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
-  if (schema.$ref) return `${refName(schema.$ref)}Schema`
+  if (schema.$ref) return refSchema(schema.$ref)
   /* const */
   if (schema.const !== undefined) return _const(schema)
   /* enum */
