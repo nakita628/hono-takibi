@@ -19,9 +19,9 @@ export function anyOf(schema: Schema): string {
     const z = 'z.any()'
     return wrap(z, schema)
   }
+  // self-reference not call wrap
   const schemas = schema.anyOf.map((subSchema) => {
-    const z = zod(subSchema)
-    return wrap(z, subSchema)
+    return zod(subSchema)
   })
   const z = `z.union([${schemas.join(',')}])`
   return wrap(z, schema)

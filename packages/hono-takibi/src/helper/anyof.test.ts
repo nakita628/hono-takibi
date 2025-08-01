@@ -52,23 +52,23 @@ describe('anyOf', () => {
     ).toBe('z.union([z.string(),z.number()]).nullable()')
   })
 
-  it.concurrent('z.union([z.string().nullable().nullable(),FooSchema])', () => {
+  it.concurrent('z.union([z.string().nullable(),FooSchema])', () => {
     expect(
       anyOf({
         anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
       }),
-    ).toBe('z.union([z.string().nullable().nullable(),FooSchema])')
+    ).toBe('z.union([z.string().nullable(),FooSchema])')
   })
 
-  it.concurrent('z.union([z.string(),z.number(),z.string().nullable().nullable()])', () => {
+  it.concurrent('z.union([z.string(),z.number(),z.string().nullable()])', () => {
     expect(
       anyOf({
         anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
       }),
-    ).toBe('z.union([z.string(),z.number(),z.string().nullable().nullable()])')
+    ).toBe('z.union([z.string(),z.number(),z.string().nullable()])')
   })
 
-  it.concurrent('z.union([z.string(),z.number()]) from anyOf without nullable', () => {
+  it.concurrent('z.union([z.string(),z.number()])', () => {
     expect(
       anyOf({
         anyOf: [{ type: 'string' }, { type: 'number' }],
@@ -76,7 +76,7 @@ describe('anyOf', () => {
     ).toBe('z.union([z.string(),z.number()])')
   })
 
-  it.concurrent('z.union([z.string().nullable().nullable(),FooSchema,BarSchema])', () => {
+  it.concurrent('z.union([z.string().nullable(),FooSchema,BarSchema])', () => {
     expect(
       anyOf({
         anyOf: [
@@ -85,6 +85,6 @@ describe('anyOf', () => {
           { $ref: '#/components/schemas/Bar' },
         ],
       }),
-    ).toBe('z.union([z.string().nullable().nullable(),FooSchema,BarSchema])')
+    ).toBe('z.union([z.string().nullable(),FooSchema,BarSchema])')
   })
 })
