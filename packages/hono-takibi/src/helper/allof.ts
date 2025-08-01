@@ -1,6 +1,5 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refSchema } from '../utils/index.js'
 import { wrap } from './wrap.js'
 
 export function allOf(schema: Schema): string {
@@ -18,14 +17,16 @@ export function allOf(schema: Schema): string {
         (typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1)
 
       if (isOnlyNullable) {
-        return { ...acc, nullable: true }
+        return {
+          schemas: acc.schemas,
+          nullable: true,
+        }
       }
 
-      const z = '$ref' in s ? refSchema(s.$ref!) : zod(s)
-
+      const z = zod(s)
       return {
-        nullable: acc.nullable,
         schemas: [...acc.schemas, wrap(z, s)],
+        nullable: acc.nullable,
       }
     },
     {

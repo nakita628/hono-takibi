@@ -945,23 +945,23 @@ describe('zod', () => {
       ).toBe('z.union([z.string(),z.number()]).nullable()')
     })
     it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
-        expect(
-          zod({
-            oneOf: [
-              {
-                type: 'string',
-              },
-              {
-                type: 'number',
-              },
-              {
-                type: ['string', 'null'],
-              },
-            ],
-            type: ['null'],
-          }),
-        ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
-      })
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+            {
+              type: ['string', 'null'],
+            },
+          ],
+          type: ['null'],
+        }),
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
+    })
   })
 
   // not support zod-to-openapi
