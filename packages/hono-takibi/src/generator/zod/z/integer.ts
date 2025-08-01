@@ -1,3 +1,4 @@
+import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 
 /**
@@ -95,16 +96,7 @@ export function integer(schema: Schema): string {
   if (schema.multipleOf !== undefined && typeof schema.multipleOf === 'number') {
     o.push(`.multipleOf(${lit(schema.multipleOf)})`)
   }
-  // nullable
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  if (isNullable) {
-    o.push('.nullable()')
-  }
-  // default (always last)
-  if (schema.default !== undefined && typeof schema.default === 'number') {
-    o.push(`.default(${lit(schema.default)})`)
-  }
-  return o.join('')
+
+  const z = o.join('')
+  return wrap(z, schema)
 }

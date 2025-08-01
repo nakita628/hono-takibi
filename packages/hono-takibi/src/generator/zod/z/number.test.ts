@@ -71,7 +71,7 @@ describe('number', () => {
     expect(number({ default: 100 })).toBe('z.number().default(100)')
   })
   // default nullable
-  it.concurrent('default: 100, nullable: true → z.number().nullable().default(100)', () => {
-    expect(number({ default: 100, nullable: true })).toBe('z.number().nullable().default(100)')
+  it.concurrent('default: 100, nullable: true → z.number().default(100).nullable()', () => {
+    expect(number({ default: 100, nullable: true })).toBe('z.number().default(100).nullable()')
   })
 })
