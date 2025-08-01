@@ -2,7 +2,7 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import type { ViteDevServer } from 'vite'
 import { fmt } from '../format/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
+import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
 export default async function HonoTakibiVite({

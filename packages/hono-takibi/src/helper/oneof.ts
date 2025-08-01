@@ -1,4 +1,4 @@
-import { zod } from '../generator/zod/index.js'
+import zod from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
 import { wrap } from './wrap.js'
 

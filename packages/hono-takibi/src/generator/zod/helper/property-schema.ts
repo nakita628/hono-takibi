@@ -2,7 +2,7 @@ import { wrap } from '../../../helper/wrap.js'
 import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
 import { refSchema } from '../../../utils/index.js'
-import { zod } from '../index.js'
+import zod from '../index.js'
 
 /**
  * Generates a Zod-compatible schema string for a given property.
