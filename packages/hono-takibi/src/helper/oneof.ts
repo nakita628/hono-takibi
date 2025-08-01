@@ -1,6 +1,6 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refName } from '../utils/index.js'
+import { refSchema } from '../utils/index.js'
 import { zodToOpenAPI } from './zod-to-openapi.js'
 
 /**
@@ -18,7 +18,7 @@ export function oneOf(schema: Schema): string {
     return schema.nullable ? 'z.any().nullable()' : 'z.any()'
   }
   const schemas = schema.oneOf.map((sub) => {
-    if (sub.$ref) return `${refName(sub.$ref)}Schema`
+    if (sub.$ref) return refSchema(sub.$ref)
     const z = zod(sub)
     return zodToOpenAPI(z, sub)
   })

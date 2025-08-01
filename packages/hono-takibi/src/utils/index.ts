@@ -345,12 +345,13 @@ export function isUniqueContentSchema(
  * // → 'Address'
  * ```
  */
-export function refName($ref: `#/components/schemas/${string}`): string | undefined {
+export function refSchema($ref: `#/components/schemas/${string}`): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
   // 2. "Address"
-  return $ref.split('/').pop()
+  const ref =  $ref.split('/').pop()
+  return `${ref}Schema`
 }
 
 /* ========================================================================== *

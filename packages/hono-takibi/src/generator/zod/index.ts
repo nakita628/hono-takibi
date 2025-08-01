@@ -4,7 +4,7 @@ import { _const } from '../../helper/const.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import type { Schema } from '../../openapi/index.js'
-import { refName } from '../../utils/index.js'
+import { refSchema } from '../../utils/index.js'
 import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
 
 /**
@@ -65,7 +65,7 @@ export function zod(schema: Schema): string {
   }
   /* $ref */
   if (schema.$ref) {
-    return `${refName(schema.$ref)}Schema`
+    return refSchema(schema.$ref)
   }
   /* const */
   if (schema.const !== undefined) {

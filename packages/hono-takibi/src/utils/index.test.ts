@@ -12,7 +12,7 @@ import {
   isRefObject,
   isUniqueContentSchema,
   parseCli,
-  refName,
+  refSchema,
   regex,
   registerComponent,
   requestParamsArray,
@@ -323,12 +323,10 @@ describe('utils', () => {
   /* ========================================================================== *
    *  OpenAPI $ref
    * ========================================================================== */
-  // refName
-  describe('refName', () => {
-    it.concurrent(`refName('#/components/schemas/Test') -> 'Test'`, () => {
-      const result = refName('#/components/schemas/Test')
-      const expected = 'Test'
-      expect(result).toBe(expected)
+  // refSchema
+  describe('refSchema', () => {
+    it.concurrent(`refSchema('#/components/schemas/Test') -> 'TestSchema'`, () => {
+      expect(refSchema('#/components/schemas/Test')).toBe('TestSchema')
     })
   })
   /* ========================================================================== *
