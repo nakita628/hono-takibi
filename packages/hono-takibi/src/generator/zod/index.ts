@@ -62,7 +62,7 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
  * - Logs unhandled cases to `console.warn`
  */
 
-export function zod(schema: Schema): string {
+export default function zod(schema: Schema): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
   if (schema.$ref) return wrap(refSchema(schema.$ref), schema)

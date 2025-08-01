@@ -1,6 +1,6 @@
 import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
-import { zod } from '../index.js'
+import zod from '../index.js'
 
 export function array(schema: Schema): string {
   const array = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`

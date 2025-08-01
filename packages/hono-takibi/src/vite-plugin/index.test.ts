@@ -11,7 +11,7 @@ vi.mock('../format/index.js', () => ({
 }))
 
 vi.mock('../generator/zod-openapi-hono/openapi/index.js', () => ({
-  zodOpenAPIHono: vi.fn(() => 'export const dummy = true'),
+  default: vi.fn(() => 'export const dummy = true'),
 }))
 
 vi.mock('../openapi/index.js', () => ({
