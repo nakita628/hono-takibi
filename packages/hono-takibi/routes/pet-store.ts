@@ -148,6 +148,7 @@ export const getPetFindByStatusRoute = createRoute({
     query: z.object({
       status: z
         .enum(['available', 'pending', 'sold'])
+        .default('available')
         .openapi({ param: { in: 'query', name: 'status', required: false } })
         .optional(),
     }),

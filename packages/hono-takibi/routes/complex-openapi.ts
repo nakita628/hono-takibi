@@ -27,7 +27,7 @@ const ComplexTypeSchema = z
 
 const CreditCardPaymentSchema = z
   .object({
-    method: z.literal('credit_card'),
+    method: z.literal('credit_card').default('credit_card'),
     cardNumber: z.string().openapi({ example: '4111111111111111' }),
     cardHolder: z.string().openapi({ example: 'John Doe' }),
     expirationDate: z
@@ -46,7 +46,10 @@ const OrderItemSchema = z
   .openapi('OrderItem')
 
 const PaypalPaymentSchema = z
-  .object({ method: z.literal('paypal'), email: z.email().openapi({ example: 'user@paypal.com' }) })
+  .object({
+    method: z.literal('paypal').default('paypal'),
+    email: z.email().openapi({ example: 'user@paypal.com' }),
+  })
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z

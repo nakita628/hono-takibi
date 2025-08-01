@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import HonoTakibiVite from './index.js'
 
 // Test run
@@ -15,7 +15,7 @@ vi.mock('../generator/zod-openapi-hono/openapi/index.js', () => ({
 }))
 
 vi.mock('../openapi/index.js', () => ({
-  parseOpenAPI: vi.fn(async (input) => ({
+  parseOpenAPI: vi.fn(async (_input) => ({
     ok: true,
     value: { info: { title: 'Mock' } },
   })),
