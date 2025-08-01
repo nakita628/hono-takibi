@@ -4,6 +4,7 @@ import {
   anyOf,
   docs,
   getRouteMaps,
+  normalizeTypes,
   not,
   oneOf,
   resolveSchemasDependencies,
@@ -27,6 +28,9 @@ describe('helper barrel file exports', () => {
   })
   it('should export getRouteMaps', () => {
     expect(typeof getRouteMaps).toBe('function')
+  })
+  it('should export normalizeTypes', () => {
+    expect(typeof normalizeTypes).toBe('function')
   })
   it('should export not', () => {
     expect(typeof not).toBe('function')
