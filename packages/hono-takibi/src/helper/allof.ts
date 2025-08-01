@@ -1,60 +1,50 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refName } from '../utils/index.js'
+import { wrap } from './wrap.js'
 
-/**
- * Converts an OpenAPI `allOf` schema into a Zod intersection schema.
- *
- * @param schema - The OpenAPI schema object potentially containing an `allOf` composition.
- * @returns A string representing the generated Zod schema.
- *
- * @remarks
- * - If `schema.allOf` is missing or empty, returns `z.any()` or `z.any().nullable()` depending on nullability.
- * - If `allOf` contains a single schema, it is returned directly (with optional `.nullable()`).
- * - If multiple schemas exist, they are combined using `z.intersection(...)`.
- * - Nullability is determined by analyzing all constituent schemas.
- */
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
-    return 'z.any()'
+    return wrap('z.any()', schema)
   }
-  const { nullable, schemas } = schema.allOf.reduce<{
-    nullable: boolean
+
+  const { schemas, nullable } = schema.allOf.reduce<{
     schemas: string[]
+    nullable: boolean
   }>(
-    (acc, subSchema) => {
-      const isNullable =
-        typeof subSchema === 'object' &&
-        subSchema !== null &&
-        'nullable' in subSchema &&
-        subSchema.nullable === true &&
-        Object.keys(subSchema).length === 1
-      if (isNullable) {
-        acc.nullable = true
-        return acc
+    (acc, s) => {
+      const isOnlyNullable =
+        (typeof s === 'object' && s.type === 'null') ||
+        (typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1)
+
+      if (isOnlyNullable) {
+        return {
+          schemas: acc.schemas,
+          nullable: true,
+        }
       }
-      const z = subSchema.$ref ? `${refName(subSchema.$ref)}Schema` : zod(subSchema)
-      acc.schemas.push(z)
-      return acc
+
+      const z = zod(s)
+      return {
+        schemas: [...acc.schemas, wrap(z, s)],
+        nullable: acc.nullable,
+      }
     },
-    { nullable: false, schemas: [] },
+    {
+      schemas: [],
+      nullable:
+        schema.nullable === true ||
+        (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null'),
+    },
   )
+
   if (schemas.length === 0) {
-    return nullable ? 'z.any().nullable()' : 'z.any()'
+    return wrap('z.any()', { ...schema, nullable })
   }
+
   if (schemas.length === 1) {
-    return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+    return wrap(schemas[0], { ...schema, nullable })
   }
-  if (schema.discriminator) {
-    console.log(schema.discriminator)
-  }
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) && schema.type.includes('null')) ||
-    schema.type === 'null'
-  const z = `z.intersection(${schemas.join(',')})${nullable ? '.nullable()' : ''}`
-  if (isNullable) {
-    return `${z}.nullable()`
-  }
-  return z
+
+  const z = `z.intersection(${schemas.join(',')})`
+  return wrap(z, { ...schema, nullable })
 }

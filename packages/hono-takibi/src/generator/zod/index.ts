@@ -1,10 +1,12 @@
 import { allOf } from '../../helper/allof.js'
 import { anyOf } from '../../helper/anyof.js'
 import { _const } from '../../helper/const.js'
+import { normalizeTypes } from '../../helper/normalize-types.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
+import { wrap } from '../../helper/wrap.js'
 import type { Schema } from '../../openapi/index.js'
-import { refName } from '../../utils/index.js'
+import { refSchema } from '../../utils/index.js'
 import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
 
 /**
@@ -59,75 +61,39 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
  * - Optimizes out redundant `.min()` when `.gt()` is used
  * - Logs unhandled cases to `console.warn`
  */
+
 export function zod(schema: Schema): string {
-  if (schema === undefined) {
-    throw new Error('hono-takibi: only #/components/schemas/* is supported')
-  }
+  if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
-  if (schema.$ref) {
-    return `${refName(schema.$ref)}Schema`
-  }
-  /* const */
-  if (schema.const !== undefined) {
-    return _const(schema)
-  }
-  /* enum */
-  if (schema.enum) {
-    return _enum(schema)
-  }
-  /* properties */
-  if (schema.properties) {
-    return object(schema)
-  }
-  const pickTypes = (t: Schema['type']): readonly string[] => {
-    return t === undefined ? [] : Array.isArray(t) ? t : [t]
-  }
-  const types = pickTypes(schema.type)
-  /* object */
-  if (types.includes('object')) {
-    return object(schema)
-  }
-  /* date */
-  if (types.includes('date')) {
-    return date(schema)
-  }
-  /* string */
-  if (types.includes('string')) {
-    return string(schema)
-  }
-  /* number */
-  if (types.includes('number')) {
-    return number(schema)
-  }
-  /* integer & bigint */
-  if (types.includes('integer')) {
-    return integer(schema)
-  }
-  /* array */
-  if (types.includes('array')) {
-    return array(schema)
-  }
-  /* boolean */
-  if (types.includes('boolean')) {
-    return boolean(schema)
-  }
+  if (schema.$ref) return wrap(refSchema(schema.$ref), schema)
   /* combinators */
-  if (schema.oneOf) {
-    return oneOf(schema)
-  }
-  if (schema.anyOf) {
-    return anyOf(schema)
-  }
-  if (schema.allOf) {
-    return allOf(schema)
-  }
-  if (schema.not) {
-    return not(schema)
-  }
+  if (schema.oneOf) return oneOf(schema)
+  if (schema.anyOf) return anyOf(schema)
+  if (schema.allOf) return allOf(schema)
+  if (schema.not) return not(schema)
+  /* const */
+  if (schema.const !== undefined) return _const(schema)
+  /* enum */
+  if (schema.enum) return _enum(schema)
+  /* properties */
+  if (schema.properties) return object(schema)
+  const types = normalizeTypes(schema.type)
+  /* string */
+  if (types.includes('string')) return string(schema)
+  /* number */
+  if (types.includes('number')) return number(schema)
+  /* integer & bigint */
+  if (types.includes('integer')) return integer(schema)
+  /* boolean */
+  if (types.includes('boolean')) return boolean(schema)
+  /* array */
+  if (types.includes('array')) return array(schema)
+  /* object */
+  if (types.includes('object')) return object(schema)
+  /* date */
+  if (types.includes('date')) return date(schema)
   /* null only */
-  if (types.length === 1 && types[0] === 'null') {
-    return 'z.null()'
-  }
-  console.warn('fallback to z.any()')
+  if (types.length === 1 && types[0] === 'null') return 'z.null()'
+  console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return 'z.any()'
 }

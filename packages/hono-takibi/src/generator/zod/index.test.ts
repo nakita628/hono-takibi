@@ -143,70 +143,191 @@ describe('zod', () => {
         }),
       ).toBe('z.looseObject({test:z.string()})')
     })
+
     // allOf
-    it.concurrent(
-      'z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()',
-      () => {
+    describe('allOf', () => {
+      it.concurrent('z.intersection(z.object({a:z.string()}),z.object({b:z.number()}))', () => {
         expect(
           zod({
-            type: 'object',
             allOf: [
               {
-                properties: { a: { type: 'string' } },
+                type: 'object',
                 required: ['a'],
+                properties: {
+                  a: { type: 'string' },
+                },
               },
               {
-                properties: { b: { type: 'integer' } },
+                type: 'object',
                 required: ['b'],
+                properties: {
+                  b: { type: 'number' },
+                },
               },
             ],
-            nullable: true,
           }),
-        ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
-      },
-    )
+        ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()}))')
+      })
+
+      it.concurrent(
+        'z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()',
+        () => {
+          expect(
+            zod({
+              allOf: [
+                {
+                  type: 'object',
+                  required: ['a'],
+                  properties: {
+                    a: { type: 'string' },
+                  },
+                },
+                {
+                  type: 'object',
+                  required: ['b'],
+                  properties: {
+                    b: { type: 'number' },
+                  },
+                },
+              ],
+              nullable: true,
+            }),
+          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()')
+        },
+      )
+
+      it.concurrent(
+        'z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()',
+        () => {
+          expect(
+            zod({
+              allOf: [
+                {
+                  type: 'object',
+                  required: ['a'],
+                  properties: {
+                    a: { type: 'string' },
+                  },
+                },
+                {
+                  type: 'object',
+                  required: ['b'],
+                  properties: {
+                    b: { type: 'number' },
+                  },
+                },
+              ],
+              type: ['null'],
+            }),
+          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()')
+        },
+      )
+
+      it.concurrent('z.intersection(FooSchema,z.object({b:z.number()}))', () => {
+        expect(
+          zod({
+            allOf: [
+              {
+                $ref: '#/components/schemas/Foo',
+              },
+              {
+                type: 'object',
+                required: ['b'],
+                properties: {
+                  b: { type: 'number' },
+                },
+              },
+            ],
+          }),
+        ).toBe('z.intersection(FooSchema,z.object({b:z.number()}))')
+      })
+
+      it.concurrent('FooSchema.nullable()', () => {
+        expect(
+          zod({
+            allOf: [{ nullable: true }, { $ref: '#/components/schemas/Foo' }],
+          }),
+        ).toBe('FooSchema.nullable()')
+      })
+
+      it.concurrent('FooSchema.nullable()', () => {
+        expect(
+          zod({
+            allOf: [{ type: 'null' }, { $ref: '#/components/schemas/Foo' }],
+          }),
+        ).toBe('FooSchema.nullable()')
+      })
+
+      it.concurrent(
+        'z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()',
+        () => {
+          expect(
+            zod({
+              type: 'object',
+              allOf: [
+                {
+                  properties: { a: { type: 'string' } },
+                  required: ['a'],
+                },
+                {
+                  properties: { b: { type: 'integer' } },
+                  required: ['b'],
+                },
+              ],
+              nullable: true,
+            }),
+          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
+        },
+      )
+    })
+
     // oneOf
-    it.concurrent(
-      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
-      () => {
-        expect(
-          zod({
-            type: 'object',
-            oneOf: [
-              {
-                properties: { kind: { const: 'A' } },
-                required: ['kind'],
-              },
-              {
-                properties: { kind: { const: 'B' } },
-                required: ['kind'],
-              },
-            ],
-          }),
-        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-      },
-    )
+    describe('oneOf', () => {
+      it.concurrent(
+        'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+        () => {
+          expect(
+            zod({
+              type: 'object',
+              oneOf: [
+                {
+                  properties: { kind: { const: 'A' } },
+                  required: ['kind'],
+                },
+                {
+                  properties: { kind: { const: 'B' } },
+                  required: ['kind'],
+                },
+              ],
+            }),
+          ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+        },
+      )
+    })
+
     // anyOf
-    it.concurrent(
-      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
-      () => {
-        expect(
-          zod({
-            type: 'object',
-            anyOf: [
-              {
-                properties: { kind: { const: 'A' } },
-                required: ['kind'],
-              },
-              {
-                properties: { kind: { const: 'B' } },
-                required: ['kind'],
-              },
-            ],
-          }),
-        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-      },
-    )
+    describe('anyOf', () => {
+      it.concurrent(
+        'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+        () => {
+          expect(
+            zod({
+              type: 'object',
+              anyOf: [
+                {
+                  properties: { kind: { const: 'A' } },
+                  required: ['kind'],
+                },
+                {
+                  properties: { kind: { const: 'B' } },
+                  required: ['kind'],
+                },
+              ],
+            }),
+          ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+        },
+      )
+    })
   })
 
   describe('date', () => {
@@ -823,7 +944,7 @@ describe('zod', () => {
         }),
       ).toBe('z.union([z.string(),z.number()]).nullable()')
     })
-    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
       expect(
         zod({
           oneOf: [
@@ -833,10 +954,13 @@ describe('zod', () => {
             {
               type: 'number',
             },
+            {
+              type: ['string', 'null'],
+            },
           ],
           type: ['null'],
         }),
-      ).toBe('z.union([z.string(),z.number()]).nullable()')
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
     })
   })
 
@@ -857,8 +981,7 @@ describe('zod', () => {
         }),
       ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
     })
-
-    it.concurrent('z.union([z.string(),z.number()]).nullabel()', () => {
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
       expect(
         zod({
           anyOf: [
@@ -888,6 +1011,42 @@ describe('zod', () => {
           type: ['null'],
         }),
       ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+
+    it.concurrent('z.union([z.string().nullable(),FooSchema])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
+        }),
+      ).toBe('z.union([z.string().nullable(),FooSchema])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
+        }),
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable()])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }],
+        }),
+      ).toBe('z.union([z.string(),z.number()])')
+    })
+
+    it.concurrent('z.union([z.string().nullable(),FooSchema,BarSchema])', () => {
+      expect(
+        zod({
+          anyOf: [
+            { type: ['string', 'null'] },
+            { $ref: '#/components/schemas/Foo' },
+            { $ref: '#/components/schemas/Bar' },
+          ],
+        }),
+      ).toBe('z.union([z.string().nullable(),FooSchema,BarSchema])')
     })
   })
 
@@ -1019,7 +1178,7 @@ describe('zod', () => {
     )
 
     it.concurrent(
-      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()}).nullable())',
+      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
       () => {
         expect(
           zod({

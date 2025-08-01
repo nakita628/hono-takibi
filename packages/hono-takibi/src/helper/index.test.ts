@@ -4,9 +4,11 @@ import {
   anyOf,
   docs,
   getRouteMaps,
+  normalizeTypes,
   not,
   oneOf,
   resolveSchemasDependencies,
+  wrap,
   zodToOpenAPI,
   zodToOpenAPISchema,
 } from './index.js'
@@ -27,6 +29,9 @@ describe('helper barrel file exports', () => {
   it('should export getRouteMaps', () => {
     expect(typeof getRouteMaps).toBe('function')
   })
+  it('should export normalizeTypes', () => {
+    expect(typeof normalizeTypes).toBe('function')
+  })
   it('should export not', () => {
     expect(typeof not).toBe('function')
   })
@@ -35,6 +40,9 @@ describe('helper barrel file exports', () => {
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')
+  })
+  it('should export wrap', () => {
+    expect(typeof wrap).toBe('function')
   })
   it('should export zodToOpenAPISchema', () => {
     expect(typeof zodToOpenAPISchema).toBe('function')

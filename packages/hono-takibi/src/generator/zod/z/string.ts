@@ -1,3 +1,4 @@
+import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 import { regex } from '../../../utils/index.js'
 
@@ -54,14 +55,6 @@ export function string(schema: Schema): string {
       o.push(`.max(${schema.maxLength})`)
     }
   }
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  if (isNullable) {
-    o.push('.nullable()')
-  }
-  if (schema.default !== undefined) {
-    o.push(`.default(${JSON.stringify(schema.default)})`)
-  }
-  return o.join('')
+  const z = o.join('')
+  return wrap(z, schema)
 }

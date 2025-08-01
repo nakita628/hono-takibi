@@ -1,7 +1,6 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refName } from '../utils/index.js'
-import { zodToOpenAPI } from './zod-to-openapi.js'
+import { wrap } from './wrap.js'
 
 /**
  * Converts an OpenAPI `oneOf` schema to a Zod union expression.
@@ -15,26 +14,19 @@ import { zodToOpenAPI } from './zod-to-openapi.js'
  */
 export function oneOf(schema: Schema): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
-    return schema.nullable ? 'z.any().nullable()' : 'z.any()'
+    const z = 'z.any()'
+    return wrap(z, schema)
   }
-  const schemas = schema.oneOf.map((sub) => {
-    if (sub.$ref) return `${refName(sub.$ref)}Schema`
-    const z = zod(sub)
-    return zodToOpenAPI(z, sub)
+  // self-reference not call wrap
+  const schemas = schema.oneOf.map((schema) => {
+    return zod(schema)
   })
-  const discriminator = schema.discriminator?.propertyName
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.
+  // const discriminator = schema.discriminator?.propertyName
   // const z = discriminator
   //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
   //   : `z.union([${schemas.join(',')}])`
   const z = `z.union([${schemas.join(',')}])`
-  const isNullable =
-    schema.nullable === true ||
-    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
-  if (isNullable) {
-    return `${z}.nullable()`
-  }
-  return z
+  return wrap(z, schema)
 }

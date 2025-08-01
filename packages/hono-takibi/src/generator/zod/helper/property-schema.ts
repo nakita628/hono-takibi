@@ -1,6 +1,7 @@
+import { wrap } from '../../../helper/wrap.js'
 import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
-import { refName } from '../../../utils/index.js'
+import { refSchema } from '../../../utils/index.js'
 import { zod } from '../index.js'
 
 /**
@@ -31,15 +32,14 @@ import { zod } from '../index.js'
 export function propertySchema(schema: Schema): string {
   if (Boolean(schema.$ref) === true) {
     if (schema.$ref) {
-      const ref = refName(schema.$ref)
-      return `${ref}Schema`
+      return wrap(refSchema(schema.$ref), schema)
     }
     return 'z.any()'
   }
   if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
     if (schema.items?.$ref) {
-      const ref = refName(schema.items.$ref)
-      return `z.array(${ref}Schema)`
+      const ref = wrap(refSchema(schema.items.$ref), schema.items)
+      return `z.array(${ref})`
     }
     return 'z.array(z.any())'
   }
