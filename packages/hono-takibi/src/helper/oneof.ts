@@ -19,7 +19,7 @@ export function oneOf(schema: Schema): string {
     return wrap(z, schema)
   }
   const schemas = schema.oneOf.map((schema) => {
-    if (schema.$ref) return refSchema(schema.$ref)
+    if (schema.$ref) return wrap(refSchema(schema.$ref), schema)
     const z = zod(schema)
     return wrap(z, schema)
   })
