@@ -66,7 +66,7 @@ describe('oneOf', () => {
     ).toBe('z.union([z.string(),z.number()]).nullable()')
   })
 
-  it.concurrent("z.discriminatedUnion('petType',[CatSchema,DogSchema])", () => {
+  it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
     expect(
       oneOf({
         oneOf: [
@@ -76,10 +76,13 @@ describe('oneOf', () => {
           {
             type: 'number',
           },
+          {
+            type: ['string', 'null'],
+          },
         ],
         type: ['null'],
       }),
-    ).toBe('z.union([z.string(),z.number()]).nullable()')
+    ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
   })
 
   // discriminatedUnion Support hesitant

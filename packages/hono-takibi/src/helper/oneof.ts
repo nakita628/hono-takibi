@@ -1,6 +1,5 @@
 import { zod } from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { refSchema } from '../utils/index.js'
 import { wrap } from './wrap.js'
 
 /**
@@ -18,10 +17,9 @@ export function oneOf(schema: Schema): string {
     const z = 'z.any()'
     return wrap(z, schema)
   }
+  // self-reference not call wrap
   const schemas = schema.oneOf.map((schema) => {
-    if (schema.$ref) return wrap(refSchema(schema.$ref), schema)
-    const z = zod(schema)
-    return wrap(z, schema)
+    return zod(schema)
   })
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.

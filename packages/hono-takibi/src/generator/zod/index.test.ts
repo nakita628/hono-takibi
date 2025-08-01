@@ -944,21 +944,24 @@ describe('zod', () => {
         }),
       ).toBe('z.union([z.string(),z.number()]).nullable()')
     })
-    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-      expect(
-        zod({
-          oneOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-          ],
-          type: ['null'],
-        }),
-      ).toBe('z.union([z.string(),z.number()]).nullable()')
-    })
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
+        expect(
+          zod({
+            oneOf: [
+              {
+                type: 'string',
+              },
+              {
+                type: 'number',
+              },
+              {
+                type: ['string', 'null'],
+              },
+            ],
+            type: ['null'],
+          }),
+        ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
+      })
   })
 
   // not support zod-to-openapi
@@ -978,8 +981,7 @@ describe('zod', () => {
         }),
       ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
     })
-
-    it.concurrent('z.union([z.string(),z.number()]).nullabel()', () => {
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
       expect(
         zod({
           anyOf: [
@@ -1009,6 +1011,42 @@ describe('zod', () => {
           type: ['null'],
         }),
       ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+
+    it.concurrent('z.union([z.string().nullable().nullable(),FooSchema])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
+        }),
+      ).toBe('z.union([z.string().nullable().nullable(),FooSchema])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable().nullable()])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
+        }),
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable().nullable()])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()]) from anyOf without nullable', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }],
+        }),
+      ).toBe('z.union([z.string(),z.number()])')
+    })
+
+    it.concurrent('z.union([z.string().nullable().nullable(),FooSchema,BarSchema])', () => {
+      expect(
+        zod({
+          anyOf: [
+            { type: ['string', 'null'] },
+            { $ref: '#/components/schemas/Foo' },
+            { $ref: '#/components/schemas/Bar' },
+          ],
+        }),
+      ).toBe('z.union([z.string().nullable().nullable(),FooSchema,BarSchema])')
     })
   })
 

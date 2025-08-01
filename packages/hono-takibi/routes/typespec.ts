@@ -1,5 +1,4 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { boolean } from '../src/generator/zod/z'
 
 const HonoSchema = z.object({ hono: z.enum(['Hono', 'HonoX', 'ZodOpenAPIHono']) }).openapi('Hono')
 
