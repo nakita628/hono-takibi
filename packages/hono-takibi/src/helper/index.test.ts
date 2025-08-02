@@ -7,6 +7,7 @@ import {
   normalizeTypes,
   not,
   oneOf,
+  ref,
   resolveSchemasDependencies,
   wrap,
   zodToOpenAPI,
@@ -37,6 +38,9 @@ describe('helper barrel file exports', () => {
   })
   it('should export oneOf', () => {
     expect(typeof oneOf).toBe('function')
+  })
+  it('should export ref', () => {
+    expect(typeof ref).toBe('function')
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')

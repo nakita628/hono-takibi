@@ -112,7 +112,7 @@ describe('wrap', () => {
         wrap('z.int64()', {
           type: 'integer',
           format: 'int64',
-          default: 0n,
+          default: 0,
           nullable: true,
         }),
       ).toBe('z.int64().default(0n).nullable()')
@@ -123,7 +123,7 @@ describe('wrap', () => {
         wrap('z.int64()', {
           type: ['integer', 'null'],
           format: 'int64',
-          default: 0n,
+          default: 0,
         }),
       ).toBe('z.int64().default(0n).nullable()')
     })
@@ -135,10 +135,10 @@ describe('wrap', () => {
         wrap('z.bigint()', {
           type: 'integer',
           format: 'bigint',
-          default: 0n,
+          default: 0,
           nullable: true,
         }),
-      ).toBe('z.bigint().default(0n).nullable()')
+      ).toBe('z.bigint().default(BigInt(0)).nullable()')
     })
 
     it.concurrent(
@@ -148,9 +148,9 @@ describe('wrap', () => {
           wrap('z.bigint()', {
             type: ['integer', 'null'],
             format: 'bigint',
-            default: 0n,
+            default: 0,
           }),
-        ).toBe('z.bigint().default(0n).nullable()')
+        ).toBe('z.bigint().default(BigInt(0)).nullable()')
       },
     )
   })

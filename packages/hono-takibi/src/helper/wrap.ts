@@ -16,9 +16,6 @@ export function wrap(zod: string, schema: Schema): string {
       }
       return `${v}`
     }
-    if (typeof v === 'bigint') {
-      return `${v}n`
-    }
     // date
     if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`

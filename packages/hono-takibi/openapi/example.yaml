@@ -26,6 +26,7 @@ components:
       format: int32
       minimum: -2147483648
       maximum:  2147483647
+      default: 2147483647
       example: 42
 
     Int64:
@@ -33,20 +34,23 @@ components:
       format: int64
       minimum: -9223372036854775808
       maximum:  9223372036854775807
-      example: "-9223372036854776000n"
+      default: 9223372036854775807
+      example: "-9223372036854776000"
 
     BigInt:
       type: integer
       format: bigint
       minimum: -99999999999999999999999999999999999999
       maximum:  99999999999999999999999999999999999999
-      example:  "123456789012345678901234567890n"
+      default: 123456789012345678901234567890
+      example:  "123456789012345678901234567890"
 
     Float32:
       type: number
       format: float32
       minimum: -3.4e38
       maximum:  3.4e38
+      default: 3.1415927
       example: 6.2831855
 
     Float64:
@@ -54,6 +58,7 @@ components:
       format: float64
       minimum: -1.7e308
       maximum:  1.7e308
+      default: 3.141592653589793
       example: 2.718281828459045
 
     Decimal:
@@ -61,6 +66,7 @@ components:
       format: decimal
       minimum: -9999999999.9999
       maximum:  9999999999.9999
+      default: 9999999999.9999
       example: 12345.6789
 
     # ---------- Nullable numeric example (3.1 style) ----------
@@ -69,6 +75,7 @@ components:
       format: int32
       minimum: -2147483648
       maximum: 2147483647
+      default: 2147483647
       example: null
 
 

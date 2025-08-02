@@ -11,13 +11,15 @@ const BigIntSchema = z
   .bigint()
   .min(BigInt(-1e38))
   .max(BigInt(1e38))
-  .openapi({ example: '123456789012345678901234567890n' })
+  .default(BigInt(1.2345678901234568e29))
+  .openapi({ example: '123456789012345678901234567890' })
   .openapi('BigInt')
 
 const DecimalSchema = z
   .number()
   .min(-9999999999.9999)
   .max(9999999999.9999)
+  .default(9999999999.9999)
   .openapi({ example: 12345.6789 })
   .openapi('Decimal')
 
@@ -25,6 +27,7 @@ const Float32Schema = z
   .float32()
   .min(-3.4e38)
   .max(3.4e38)
+  .default(3.1415927)
   .openapi({ example: 6.2831855 })
   .openapi('Float32')
 
@@ -32,6 +35,7 @@ const Float64Schema = z
   .float64()
   .min(-1.7e308)
   .max(1.7e308)
+  .default(3.141592653589793)
   .openapi({ example: 2.718281828459045 })
   .openapi('Float64')
 
@@ -39,6 +43,7 @@ const Int32Schema = z
   .int32()
   .min(-2147483648)
   .max(2147483647)
+  .default(2147483647)
   .openapi({ example: 42 })
   .openapi('Int32')
 
@@ -46,7 +51,8 @@ const Int64Schema = z
   .int64()
   .min(-9223372036854776000n)
   .max(9223372036854776000n)
-  .openapi({ example: '-9223372036854776000n' })
+  .default(9223372036854776000n)
+  .openapi({ example: '-9223372036854776000' })
   .openapi('Int64')
 
 const IsoDurationSchema = z.iso
@@ -70,6 +76,7 @@ const NullableInt32Schema = z
   .int32()
   .min(-2147483648)
   .max(2147483647)
+  .default(2147483647)
   .nullable()
   .openapi({ example: null })
   .openapi('NullableInt32')
