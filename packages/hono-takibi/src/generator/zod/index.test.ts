@@ -5,11 +5,365 @@ import zod from '.'
 // pnpm vitest run ./src/generator/zod/index.test.ts
 
 describe('zod', () => {
+  // $ref
   describe('ref', () => {
     it.concurrent('TestSchema', () => {
       expect(zod({ $ref: '#/components/schemas/Test' })).toBe('TestSchema')
     })
   })
+  // oneOf
+  describe('oneOf', () => {
+    it.concurrent(
+      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+      () => {
+        expect(
+          zod({
+            type: 'object',
+            oneOf: [
+              {
+                properties: { kind: { const: 'A' } },
+                required: ['kind'],
+              },
+              {
+                properties: { kind: { const: 'B' } },
+                required: ['kind'],
+              },
+            ],
+          }),
+        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+      },
+    )
+
+    it.concurrent('z.union([z.number(),z.string()])', () => {
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'number',
+            },
+            {
+              type: 'string',
+            },
+          ],
+        }),
+      ).toBe('z.union([z.number(),z.string()])')
+    })
+    it.concurrent('z.union([ExampleSchemaSchema,AnotherSchemaSchema])', () => {
+      expect(
+        zod({
+          oneOf: [
+            { $ref: '#/components/schemas/ExampleSchema' },
+            { $ref: '#/components/schemas/AnotherSchema' },
+          ],
+        }),
+      ).toBe('z.union([ExampleSchemaSchema,AnotherSchemaSchema])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          nullable: true,
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
+      expect(
+        zod({
+          oneOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+            {
+              type: ['string', 'null'],
+            },
+          ],
+          type: ['null'],
+        }),
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
+    })
+  })
+  // anyOf
+  // not support zod-to-openapi
+  describe('anyOf', () => {
+    it.concurrent(
+      'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
+      () => {
+        expect(
+          zod({
+            type: 'object',
+            anyOf: [
+              {
+                properties: { kind: { const: 'A' } },
+                required: ['kind'],
+              },
+              {
+                properties: { kind: { const: 'B' } },
+                required: ['kind'],
+              },
+            ],
+          }),
+        ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+      },
+    )
+
+    it.concurrent('z.union([MultiPolygonSchema,PolygonSchema])', () => {
+      expect(
+        zod({
+          anyOf: [
+            {
+              $ref: '#/components/schemas/MultiPolygon',
+            },
+            {
+              $ref: '#/components/schemas/Polygon',
+            },
+          ],
+          description: 'Center coordinates',
+        }),
+      ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
+    })
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          nullable: true,
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
+      expect(
+        zod({
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+          ],
+          type: ['null'],
+        }),
+      ).toBe('z.union([z.string(),z.number()]).nullable()')
+    })
+
+    it.concurrent('z.union([z.string().nullable(),FooSchema])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
+        }),
+      ).toBe('z.union([z.string().nullable(),FooSchema])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
+        }),
+      ).toBe('z.union([z.string(),z.number(),z.string().nullable()])')
+    })
+
+    it.concurrent('z.union([z.string(),z.number()])', () => {
+      expect(
+        zod({
+          anyOf: [{ type: 'string' }, { type: 'number' }],
+        }),
+      ).toBe('z.union([z.string(),z.number()])')
+    })
+
+    it.concurrent('z.union([z.string().nullable(),FooSchema,BarSchema])', () => {
+      expect(
+        zod({
+          anyOf: [
+            { type: ['string', 'null'] },
+            { $ref: '#/components/schemas/Foo' },
+            { $ref: '#/components/schemas/Bar' },
+          ],
+        }),
+      ).toBe('z.union([z.string().nullable(),FooSchema,BarSchema])')
+    })
+  })
+
+  // allOf
+  // not support zod-to-openapi
+  describe('allOf', () => {
+    it.concurrent(
+      'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
+      () => {
+        expect(
+          zod({
+            description:
+              'Abstract type for all GeoJSon object except Feature and FeatureCollection\n',
+            externalDocs: {
+              url: 'https://tools.ietf.org/html/rfc7946#section-3',
+            },
+            allOf: [
+              {
+                $ref: '#/components/schemas/GeoJsonObject',
+              },
+              {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    enum: [
+                      'Point',
+                      'MultiPoint',
+                      'LineString',
+                      'MultiLineString',
+                      'Polygon',
+                      'MultiPolygon',
+                      'GeometryCollection',
+                    ],
+                  },
+                },
+                required: ['type'],
+                discriminator: {
+                  propertyName: 'type',
+                },
+              },
+            ],
+          }),
+        ).toBe(
+          'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
+        )
+      },
+    )
+    it.concurrent(
+      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
+      () => {
+        expect(
+          zod({
+            description: "GeoJSon 'Feature' object",
+            externalDocs: {
+              url: 'https://tools.ietf.org/html/rfc7946#section-3.2',
+            },
+            allOf: [
+              {
+                $ref: '#/components/schemas/GeoJsonObject',
+              },
+              {
+                type: 'object',
+                required: ['geometry', 'properties'],
+                properties: {
+                  geometry: {
+                    allOf: [
+                      {
+                        nullable: true,
+                      },
+                      {
+                        $ref: '#/components/schemas/Geometry',
+                      },
+                    ],
+                  },
+                  properties: {
+                    type: 'object',
+                    nullable: true,
+                  },
+                  id: {
+                    oneOf: [
+                      {
+                        type: 'number',
+                      },
+                      {
+                        type: 'string',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          }),
+        ).toBe(
+          'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
+        )
+      },
+    )
+
+    it.concurrent(
+      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+      () => {
+        expect(
+          zod({
+            allOf: [
+              {
+                type: 'object',
+                required: ['test'],
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                required: ['test2'],
+                properties: {
+                  test2: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            nullable: true,
+          }),
+        ).toBe(
+          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+        )
+      },
+    )
+
+    it.concurrent(
+      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+      () => {
+        expect(
+          zod({
+            allOf: [
+              {
+                type: 'object',
+                required: ['test'],
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+              {
+                type: 'object',
+                required: ['test2'],
+                properties: {
+                  test2: {
+                    type: 'string',
+                  },
+                },
+              },
+            ],
+            type: ['null'],
+          }),
+        ).toBe(
+          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
+        )
+      },
+    )
+  })
+  // TODO add not
 
   describe('const', () => {
     it.concurrent('z.literal("test")', () => {
@@ -23,6 +377,7 @@ describe('zod', () => {
     })
   })
 
+  // enum
   describe('enum', () => {
     it.concurrent('z.enum(["A","B"])', () => {
       expect(zod({ enum: ['A', 'B'], type: 'string' })).toBe('z.enum(["A","B"])')
@@ -88,260 +443,9 @@ describe('zod', () => {
     })
   })
 
-  describe('object', () => {
-    it.concurrent('z.object({})', () => {
-      expect(zod({ type: 'object' })).toBe('z.object({})')
-    })
-    it.concurrent('z.object({}).nullable()', () => {
-      expect(zod({ type: 'object', nullable: true })).toBe('z.object({}).nullable()')
-    })
-    it.concurrent('z.object({}).nullable() if type: ["object", "null"]', () => {
-      expect(zod({ type: ['object', 'null'] })).toBe('z.object({}).nullable()')
-    })
-    it.concurrent('z.object({type:z.enum(["A","B","C"])})', () => {
-      expect(
-        zod({
-          type: 'object',
-          properties: {
-            type: {
-              type: 'string',
-              enum: ['A', 'B', 'C'],
-            },
-          },
-          required: ['type'],
-          discriminator: {
-            propertyName: 'type',
-          },
-        }),
-      ).toBe('z.object({type:z.enum(["A","B","C"])})')
-    })
-    it.concurrent('z.strictObject({test:z.string()})', () => {
-      expect(
-        zod({
-          type: 'object',
-          properties: {
-            test: {
-              type: 'string',
-            },
-          },
-          required: ['test'],
-          additionalProperties: false,
-        }),
-      ).toBe('z.strictObject({test:z.string()})')
-    })
-    it.concurrent('z.looseObject({test:z.string()})', () => {
-      expect(
-        zod({
-          type: 'object',
-          properties: {
-            test: {
-              type: 'string',
-            },
-          },
-          required: ['test'],
-          additionalProperties: true,
-        }),
-      ).toBe('z.looseObject({test:z.string()})')
-    })
+  // TODO properties
 
-    // allOf
-    describe('allOf', () => {
-      it.concurrent('z.intersection(z.object({a:z.string()}),z.object({b:z.number()}))', () => {
-        expect(
-          zod({
-            allOf: [
-              {
-                type: 'object',
-                required: ['a'],
-                properties: {
-                  a: { type: 'string' },
-                },
-              },
-              {
-                type: 'object',
-                required: ['b'],
-                properties: {
-                  b: { type: 'number' },
-                },
-              },
-            ],
-          }),
-        ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()}))')
-      })
-
-      it.concurrent(
-        'z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()',
-        () => {
-          expect(
-            zod({
-              allOf: [
-                {
-                  type: 'object',
-                  required: ['a'],
-                  properties: {
-                    a: { type: 'string' },
-                  },
-                },
-                {
-                  type: 'object',
-                  required: ['b'],
-                  properties: {
-                    b: { type: 'number' },
-                  },
-                },
-              ],
-              nullable: true,
-            }),
-          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()')
-        },
-      )
-
-      it.concurrent(
-        'z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()',
-        () => {
-          expect(
-            zod({
-              allOf: [
-                {
-                  type: 'object',
-                  required: ['a'],
-                  properties: {
-                    a: { type: 'string' },
-                  },
-                },
-                {
-                  type: 'object',
-                  required: ['b'],
-                  properties: {
-                    b: { type: 'number' },
-                  },
-                },
-              ],
-              type: ['null'],
-            }),
-          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.number()})).nullable()')
-        },
-      )
-
-      it.concurrent('z.intersection(FooSchema,z.object({b:z.number()}))', () => {
-        expect(
-          zod({
-            allOf: [
-              {
-                $ref: '#/components/schemas/Foo',
-              },
-              {
-                type: 'object',
-                required: ['b'],
-                properties: {
-                  b: { type: 'number' },
-                },
-              },
-            ],
-          }),
-        ).toBe('z.intersection(FooSchema,z.object({b:z.number()}))')
-      })
-
-      it.concurrent('FooSchema.nullable()', () => {
-        expect(
-          zod({
-            allOf: [{ nullable: true }, { $ref: '#/components/schemas/Foo' }],
-          }),
-        ).toBe('FooSchema.nullable()')
-      })
-
-      it.concurrent('FooSchema.nullable()', () => {
-        expect(
-          zod({
-            allOf: [{ type: 'null' }, { $ref: '#/components/schemas/Foo' }],
-          }),
-        ).toBe('FooSchema.nullable()')
-      })
-
-      it.concurrent(
-        'z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()',
-        () => {
-          expect(
-            zod({
-              type: 'object',
-              allOf: [
-                {
-                  properties: { a: { type: 'string' } },
-                  required: ['a'],
-                },
-                {
-                  properties: { b: { type: 'integer' } },
-                  required: ['b'],
-                },
-              ],
-              nullable: true,
-            }),
-          ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
-        },
-      )
-    })
-
-    // oneOf
-    describe('oneOf', () => {
-      it.concurrent(
-        'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
-        () => {
-          expect(
-            zod({
-              type: 'object',
-              oneOf: [
-                {
-                  properties: { kind: { const: 'A' } },
-                  required: ['kind'],
-                },
-                {
-                  properties: { kind: { const: 'B' } },
-                  required: ['kind'],
-                },
-              ],
-            }),
-          ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-        },
-      )
-    })
-
-    // anyOf
-    describe('anyOf', () => {
-      it.concurrent(
-        'z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])',
-        () => {
-          expect(
-            zod({
-              type: 'object',
-              anyOf: [
-                {
-                  properties: { kind: { const: 'A' } },
-                  required: ['kind'],
-                },
-                {
-                  properties: { kind: { const: 'B' } },
-                  required: ['kind'],
-                },
-              ],
-            }),
-          ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-        },
-      )
-    })
-  })
-
-  describe('date', () => {
-    it.concurrent('z.date()', () => {
-      expect(zod({ type: 'date' })).toBe('z.date()')
-    })
-    it.concurrent('z.date().nullable()', () => {
-      expect(zod({ type: 'date', nullable: true })).toBe('z.date().nullable()')
-    })
-    it.concurrent('z.date().nullable() if type: ["date", "null"]', () => {
-      expect(zod({ type: ['date', 'null'] })).toBe('z.date().nullable()')
-    })
-  })
-
+  // string
   describe('string', () => {
     it.concurrent('z.string()', () => {
       expect(zod({ type: 'string' })).toBe('z.string()')
@@ -392,6 +496,7 @@ describe('zod', () => {
     })
   })
 
+  // number
   describe('number', () => {
     // float
     it.concurrent('type: number format: float → z.float32()', () => {
@@ -480,6 +585,7 @@ describe('zod', () => {
     })
   })
 
+  // integer
   describe('integer', () => {
     // integer
     it.concurrent('z.int()', () => {
@@ -785,6 +891,20 @@ describe('zod', () => {
     })
   })
 
+  // boolean
+  describe('boolean', () => {
+    it.concurrent('z.boolean()', () => {
+      expect(zod({ type: 'boolean' })).toBe('z.boolean()')
+    })
+    it.concurrent('z.boolean().nullable()', () => {
+      expect(zod({ type: 'boolean', nullable: true })).toBe('z.boolean().nullable()')
+    })
+    it.concurrent('z.boolean().nullable()', () => {
+      expect(zod({ type: ['boolean', 'null'] })).toBe('z.boolean().nullable()')
+    })
+  })
+
+  // array
   describe('array', () => {
     it.concurrent('z.array(z.string()).nullable()', () => {
       expect(zod({ type: 'array', nullable: true, items: { type: 'string' } })).toBe(
@@ -885,331 +1005,88 @@ describe('zod', () => {
     )
   })
 
-  describe('boolean', () => {
-    it.concurrent('z.boolean()', () => {
-      expect(zod({ type: 'boolean' })).toBe('z.boolean()')
+  // object
+  describe('object', () => {
+    it.concurrent('z.object({})', () => {
+      expect(zod({ type: 'object' })).toBe('z.object({})')
     })
-    it.concurrent('z.boolean().nullable()', () => {
-      expect(zod({ type: 'boolean', nullable: true })).toBe('z.boolean().nullable()')
+    it.concurrent('z.object({}).nullable()', () => {
+      expect(zod({ type: 'object', nullable: true })).toBe('z.object({}).nullable()')
     })
-    it.concurrent('z.boolean().nullable()', () => {
-      expect(zod({ type: ['boolean', 'null'] })).toBe('z.boolean().nullable()')
+    it.concurrent('z.object({}).nullable() if type: ["object", "null"]', () => {
+      expect(zod({ type: ['object', 'null'] })).toBe('z.object({}).nullable()')
+    })
+    it.concurrent('z.object({type:z.enum(["A","B","C"])})', () => {
+      expect(
+        zod({
+          type: 'object',
+          properties: {
+            type: {
+              type: 'string',
+              enum: ['A', 'B', 'C'],
+            },
+          },
+          required: ['type'],
+          discriminator: {
+            propertyName: 'type',
+          },
+        }),
+      ).toBe('z.object({type:z.enum(["A","B","C"])})')
+    })
+    it.concurrent('z.strictObject({test:z.string()})', () => {
+      expect(
+        zod({
+          type: 'object',
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+          required: ['test'],
+          additionalProperties: false,
+        }),
+      ).toBe('z.strictObject({test:z.string()})')
+    })
+    it.concurrent('z.looseObject({test:z.string()})', () => {
+      expect(
+        zod({
+          type: 'object',
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+          required: ['test'],
+          additionalProperties: true,
+        }),
+      ).toBe('z.looseObject({test:z.string()})')
     })
   })
 
+  // date
+  describe('date', () => {
+    it.concurrent('z.date()', () => {
+      expect(zod({ type: 'date' })).toBe('z.date()')
+    })
+    it.concurrent('z.date().nullable()', () => {
+      expect(zod({ type: 'date', nullable: true })).toBe('z.date().nullable()')
+    })
+    it.concurrent('z.date().nullable() if type: ["date", "null"]', () => {
+      expect(zod({ type: ['date', 'null'] })).toBe('z.date().nullable()')
+    })
+  })
+
+  // null
   describe('null', () => {
     it.concurrent('z.null()', () => {
       expect(zod({ type: 'null' })).toBe('z.null()')
     })
   })
 
-  describe('oneOf', () => {
-    it.concurrent('z.union([z.number(),z.string()])', () => {
-      expect(
-        zod({
-          oneOf: [
-            {
-              type: 'number',
-            },
-            {
-              type: 'string',
-            },
-          ],
-        }),
-      ).toBe('z.union([z.number(),z.string()])')
-    })
-    it.concurrent('z.union([ExampleSchemaSchema,AnotherSchemaSchema])', () => {
-      expect(
-        zod({
-          oneOf: [
-            { $ref: '#/components/schemas/ExampleSchema' },
-            { $ref: '#/components/schemas/AnotherSchema' },
-          ],
-        }),
-      ).toBe('z.union([ExampleSchemaSchema,AnotherSchemaSchema])')
-    })
-
-    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-      expect(
-        zod({
-          oneOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-          ],
-          nullable: true,
-        }),
-      ).toBe('z.union([z.string(),z.number()]).nullable()')
-    })
-    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
-      expect(
-        zod({
-          oneOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-            {
-              type: ['string', 'null'],
-            },
-          ],
-          type: ['null'],
-        }),
-      ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
+  // any
+  describe('any', () => {
+    it.concurrent('z.any()', () => {
+      expect(zod({})).toBe('z.any()')
     })
   })
-
-  // not support zod-to-openapi
-  describe('anyOf', () => {
-    it.concurrent('z.union([MultiPolygonSchema,PolygonSchema])', () => {
-      expect(
-        zod({
-          anyOf: [
-            {
-              $ref: '#/components/schemas/MultiPolygon',
-            },
-            {
-              $ref: '#/components/schemas/Polygon',
-            },
-          ],
-          description: 'Center coordinates',
-        }),
-      ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
-    })
-    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-      expect(
-        zod({
-          anyOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-          ],
-          nullable: true,
-        }),
-      ).toBe('z.union([z.string(),z.number()]).nullable()')
-    })
-
-    it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-      expect(
-        zod({
-          anyOf: [
-            {
-              type: 'string',
-            },
-            {
-              type: 'number',
-            },
-          ],
-          type: ['null'],
-        }),
-      ).toBe('z.union([z.string(),z.number()]).nullable()')
-    })
-
-    it.concurrent('z.union([z.string().nullable(),FooSchema])', () => {
-      expect(
-        zod({
-          anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
-        }),
-      ).toBe('z.union([z.string().nullable(),FooSchema])')
-    })
-
-    it.concurrent('z.union([z.string(),z.number(),z.string().nullable()])', () => {
-      expect(
-        zod({
-          anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
-        }),
-      ).toBe('z.union([z.string(),z.number(),z.string().nullable()])')
-    })
-
-    it.concurrent('z.union([z.string(),z.number()])', () => {
-      expect(
-        zod({
-          anyOf: [{ type: 'string' }, { type: 'number' }],
-        }),
-      ).toBe('z.union([z.string(),z.number()])')
-    })
-
-    it.concurrent('z.union([z.string().nullable(),FooSchema,BarSchema])', () => {
-      expect(
-        zod({
-          anyOf: [
-            { type: ['string', 'null'] },
-            { $ref: '#/components/schemas/Foo' },
-            { $ref: '#/components/schemas/Bar' },
-          ],
-        }),
-      ).toBe('z.union([z.string().nullable(),FooSchema,BarSchema])')
-    })
-  })
-
-  describe('allOf', () => {
-    it.concurrent(
-      'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
-      () => {
-        expect(
-          zod({
-            description:
-              'Abstract type for all GeoJSon object except Feature and FeatureCollection\n',
-            externalDocs: {
-              url: 'https://tools.ietf.org/html/rfc7946#section-3',
-            },
-            allOf: [
-              {
-                $ref: '#/components/schemas/GeoJsonObject',
-              },
-              {
-                type: 'object',
-                properties: {
-                  type: {
-                    type: 'string',
-                    enum: [
-                      'Point',
-                      'MultiPoint',
-                      'LineString',
-                      'MultiLineString',
-                      'Polygon',
-                      'MultiPolygon',
-                      'GeometryCollection',
-                    ],
-                  },
-                },
-                required: ['type'],
-                discriminator: {
-                  propertyName: 'type',
-                },
-              },
-            ],
-          }),
-        ).toBe(
-          'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
-        )
-      },
-    )
-    it.concurrent(
-      'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
-      () => {
-        expect(
-          zod({
-            description: "GeoJSon 'Feature' object",
-            externalDocs: {
-              url: 'https://tools.ietf.org/html/rfc7946#section-3.2',
-            },
-            allOf: [
-              {
-                $ref: '#/components/schemas/GeoJsonObject',
-              },
-              {
-                type: 'object',
-                required: ['geometry', 'properties'],
-                properties: {
-                  geometry: {
-                    allOf: [
-                      {
-                        nullable: true,
-                      },
-                      {
-                        $ref: '#/components/schemas/Geometry',
-                      },
-                    ],
-                  },
-                  properties: {
-                    type: 'object',
-                    nullable: true,
-                  },
-                  id: {
-                    oneOf: [
-                      {
-                        type: 'number',
-                      },
-                      {
-                        type: 'string',
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          }),
-        ).toBe(
-          'z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable(),id:z.union([z.number(),z.string()]).optional()}))',
-        )
-      },
-    )
-
-    it.concurrent(
-      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
-      () => {
-        expect(
-          zod({
-            allOf: [
-              {
-                type: 'object',
-                required: ['test'],
-                properties: {
-                  test: {
-                    type: 'string',
-                  },
-                },
-              },
-              {
-                type: 'object',
-                required: ['test2'],
-                properties: {
-                  test2: {
-                    type: 'string',
-                  },
-                },
-              },
-            ],
-            nullable: true,
-          }),
-        ).toBe(
-          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
-        )
-      },
-    )
-
-    it.concurrent(
-      'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
-      () => {
-        expect(
-          zod({
-            allOf: [
-              {
-                type: 'object',
-                required: ['test'],
-                properties: {
-                  test: {
-                    type: 'string',
-                  },
-                },
-              },
-              {
-                type: 'object',
-                required: ['test2'],
-                properties: {
-                  test2: {
-                    type: 'string',
-                  },
-                },
-              },
-            ],
-            type: ['null'],
-          }),
-        ).toBe(
-          'z.intersection(z.object({test:z.string()}),z.object({test2:z.string()})).nullable()',
-        )
-      },
-    )
-  })
-
-  // TODO add not
 })
