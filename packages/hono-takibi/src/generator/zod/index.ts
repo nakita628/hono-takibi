@@ -4,9 +4,8 @@ import { _const } from '../../helper/const.js'
 import { normalizeTypes } from '../../helper/normalize-types.js'
 import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
-import { wrap } from '../../helper/wrap.js'
+import { ref } from '../../helper/ref.js'
 import type { Schema } from '../../openapi/index.js'
-import { refSchema } from '../../utils/index.js'
 import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
 
 /**
@@ -65,7 +64,7 @@ import { _enum, array, boolean, date, integer, number, object, string } from './
 export default function zod(schema: Schema): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
-  if (schema.$ref) return wrap(refSchema(schema.$ref), schema)
+  if (schema.$ref) return ref(schema)
   /* combinators */
   if (schema.oneOf) return oneOf(schema)
   if (schema.anyOf) return anyOf(schema)
