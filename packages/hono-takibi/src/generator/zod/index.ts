@@ -71,7 +71,7 @@ export default function zod(schema: Schema): string {
   if (schema.allOf) return allOf(schema)
   if (schema.not) return not(schema)
   /* const */
-  if (schema.const !== undefined) return _const(schema)
+  if (schema.const) return _const(schema)
   /* enum */
   if (schema.enum) return _enum(schema)
   /* properties */
