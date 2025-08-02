@@ -76,23 +76,23 @@ export default function zod(schema: Schema): string {
   if (schema.enum) return _enum(schema)
   /* properties */
   if (schema.properties) return object(schema)
-  const types = normalizeTypes(schema.type)
+  const t = normalizeTypes(schema.type)
   /* string */
-  if (types.includes('string')) return string(schema)
+  if (t.includes('string')) return string(schema)
   /* number */
-  if (types.includes('number')) return number(schema)
+  if (t.includes('number')) return number(schema)
   /* integer & bigint */
-  if (types.includes('integer')) return integer(schema)
+  if (t.includes('integer')) return integer(schema)
   /* boolean */
-  if (types.includes('boolean')) return boolean(schema)
+  if (t.includes('boolean')) return boolean(schema)
   /* array */
-  if (types.includes('array')) return array(schema)
+  if (t.includes('array')) return array(schema)
   /* object */
-  if (types.includes('object')) return object(schema)
+  if (t.includes('object')) return object(schema)
   /* date */
-  if (types.includes('date')) return date(schema)
+  if (t.includes('date')) return date(schema)
   /* null only */
-  if (types.length === 1 && types[0] === 'null') return 'z.null()'
+  if (t.length === 1 && t[0] === 'null') return 'z.null()'
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return 'z.any()'
 }
