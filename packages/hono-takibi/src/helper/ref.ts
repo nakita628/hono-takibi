@@ -6,5 +6,6 @@ export function ref(schema: Schema): string {
   if (schema.$ref) {
     return wrap(refSchema(schema.$ref), schema)
   }
-  return 'z.any()'
+  const z = 'z.any()'
+  return wrap(z, schema)
 }
