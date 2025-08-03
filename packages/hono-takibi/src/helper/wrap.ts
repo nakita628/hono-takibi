@@ -1,6 +1,6 @@
 import type { Schema } from '../openapi/index.js'
 
-export function wrap(zod: string, schema: Schema): string {
+export function wrap(zod: string, schema: Schema, paramName?: string, paramIn?: string): string {
   const formatLiteral = (v: unknown): string => {
     // boolean true or false
     if (typeof v === 'boolean') {
