@@ -1,60 +1,55 @@
 import type { Schema } from '../../../openapi/index.js'
 
-/**
- * Generate a Zod enum schema string from an OpenAPI Schema object (nullable対応含む).
- */
 export function _enum(schema: Schema): string {
-  // number
-  if (schema.type === 'number' && schema.enum) {
+  /* -------------------------- helpers -------------------------- */
+  const hasType = (t: string): boolean =>
+    schema.type === t || (Array.isArray(schema.type) && schema.type.some((x) => x === t))
+
+  const lit = (v: unknown): string =>
+    v === null ? 'null' : typeof v === 'string' ? `'${v}'` : String(v)
+
+  const tuple = (arr: readonly unknown[]): string =>
+    `z.tuple([${arr.map((i) => `z.literal(${lit(i)})`).join(',')}])`
+
+  /* --------------------------- guard --------------------------- */
+  if (!schema.enum || schema.enum.length === 0) return 'z.any()'
+
+  /* ------------------- number / integer enum ------------------- */
+  if (hasType('number') || hasType('integer')) {
     return schema.enum.length > 1
       ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
       : `z.literal(${schema.enum[0]})`
   }
-  // integer
-  if (schema.type === 'integer' && schema.enum) {
+
+  /* ----------------------- boolean enum ------------------------ */
+  if (hasType('boolean')) {
     return schema.enum.length > 1
       ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
       : `z.literal(${schema.enum[0]})`
   }
-  // array
-  if (schema.type === 'array' && Array.isArray(schema.enum)) {
-    return (() => {
-      if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
-        const tupleItems = schema.enum[0].map((item) => `z.literal(${item})`).join(', ')
-        return `z.tuple([${tupleItems}])`
-      }
-      const unionParts = schema.enum.map((v) => {
-        if (Array.isArray(v)) {
-          const tupleItems = v.map((i) => `z.literal(${i})`)
-          return `z.tuple([${tupleItems}])`
-        }
-        return `z.literal(${v})`
-      })
-      return `z.union([${unionParts.join(',')}])`
-    })()
+
+  /* ----------------------- array enum -------------------------- */
+  if (hasType('array')) {
+    if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
+      return tuple(schema.enum[0])
+    }
+
+    const parts = schema.enum.map((v) => (Array.isArray(v) ? tuple(v) : `z.literal(${lit(v)})`))
+    return `z.union([${parts.join(',')}])`
   }
-  // boolean
-  if (schema.type === 'boolean' && schema.enum) {
+
+  /* ----------------------- string enum ------------------------- */
+  if (schema.enum.every((v) => typeof v === 'string')) {
     return schema.enum.length > 1
-      ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
-      : `z.literal(${schema.enum[0]})`
+      ? `z.enum(${JSON.stringify(schema.enum)})`
+      : `z.literal('${schema.enum[0]}')`
   }
-  // enum
-  if (schema.enum) {
-    return (() => {
-      if (schema.enum.length > 1) {
-        const allStrings = schema.enum.every((v) => typeof v === 'string')
-        if (allStrings) {
-          return `z.enum(${JSON.stringify(schema.enum)})`
-        }
-        const unionLiterals = schema.enum.map((v) =>
-          v === null ? 'z.null()' : `z.literal(${typeof v === 'string' ? `'${v}'` : v})`,
-        )
-        return `z.union([${unionLiterals.join(',')}])`
-      }
-      const v = schema.enum[0]
-      return `z.literal(${typeof v === 'string' ? `'${v}'` : v})`
-    })()
+
+  /* -------------------- mixed / null only ---------------------- */
+  if (schema.enum.length > 1) {
+    const parts = schema.enum.map((v) => `z.literal(${lit(v)})`)
+    return `z.union([${parts.join(',')}])`
   }
-  return 'z.any()'
+
+  return `z.literal(${lit(schema.enum[0])})`
 }

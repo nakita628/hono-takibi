@@ -34,7 +34,6 @@ export function zodToOpenAPI(
     if (!schema.allOf || schema.allOf.length === 0) {
       return wrap('z.any()', schema)
     }
-
     const { schemas, nullable } = schema.allOf.reduce<{
       schemas: string[]
       nullable: boolean
@@ -64,15 +63,12 @@ export function zodToOpenAPI(
           (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null'),
       },
     )
-
     if (schemas.length === 0) {
       return wrap('z.any()', { ...schema, nullable }, paramName, paramIn)
     }
-
     if (schemas.length === 1) {
       return wrap(schemas[0], { ...schema, nullable }, paramName, paramIn)
     }
-
     const z = `z.intersection(${schemas.join(',')})`
     return wrap(z, schema, paramName, paramIn)
   }
@@ -82,7 +78,6 @@ export function zodToOpenAPI(
     if (!schema.anyOf || schema.anyOf.length === 0) {
       return 'z.any()'
     }
-    // self-reference not call wrap
     const schemas = schema.anyOf.map((subSchema) => {
       return zodToOpenAPI(subSchema, paramName, paramIn)
     })
@@ -95,9 +90,7 @@ export function zodToOpenAPI(
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return 'z.any()'
     }
-    // self-reference not call wrap
     const schemas = schema.oneOf.map((schema) => {
-      // return zod(schema)
       return zodToOpenAPI(schema, paramName, paramIn)
     })
     // discriminatedUnion Support hesitant
