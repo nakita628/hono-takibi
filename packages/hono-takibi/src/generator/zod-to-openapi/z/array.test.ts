@@ -1,60 +1,73 @@
 import { describe, expect, it } from 'vitest'
 import { array } from './array'
+import { Schema } from '../../../openapi'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/z/array.test.ts
+// pnpm vitest run ./src/generator/zod-to-openapi/z/array.test.ts
 
 describe('array()', () => {
-  // z.array(z.any())
-  it.concurrent('returns z.array(z.any()) when items is missing', () => {
-    expect(array({})).toBe('z.array(z.any())')
-  })
-  // z.array(z.string())
-  it.concurrent('returns z.array(z.string()) when items is string', () => {
-    expect(array({ items: { type: 'string' } })).toBe('z.array(z.string())')
-  })
-  // z.array(z.number())
-  it.concurrent('returns z.array(z.number()) when items is number', () => {
-    expect(array({ items: { type: 'number' } })).toBe('z.array(z.number())')
-  })
-  // z.array(z.boolean())
-  it.concurrent('returns z.array(z.boolean()) when items is boolean', () => {
-    expect(array({ items: { type: 'boolean' } })).toBe('z.array(z.boolean())')
-  })
-  // z.array(z.object({}))
-  it.concurrent('returns z.array(z.object({})) when items is object', () => {
-    expect(array({ items: { type: 'object' } })).toBe('z.array(z.object({}))')
-  })
-  // z.array(z.array(z.string()))
-  it.concurrent('returns z.array(z.array(z.string())) when items is array', () => {
-    expect(array({ items: { type: 'array', items: { type: 'string' } } })).toBe(
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'array', items: { type: 'string' } }, 'z.array(z.string())'],
+    [
+      { type: 'array', items: { type: 'string', nullable: true } },
+      'z.array(z.string().nullable())',
+    ],
+    [{ type: 'array', items: { type: 'number' } }, 'z.array(z.number())'],
+    [
+      { type: 'array', items: { type: 'number', nullable: true } },
+      'z.array(z.number().nullable())',
+    ],
+    [{ type: 'array', items: { type: 'boolean' } }, 'z.array(z.boolean())'],
+    [
+      { type: 'array', items: { type: 'boolean', nullable: true } },
+      'z.array(z.boolean().nullable())',
+    ],
+    [
+      { type: 'array', items: { type: ['boolean', 'null'] } },
+      'z.array(z.boolean().nullable())',
+    ],
+    [{ type: 'array', items: { type: 'object' } }, 'z.array(z.object({}))'],
+    [{ type: 'array', items: { type: 'object' } }, 'z.array(z.object({}))'],
+    [
+      {
+        type: 'array',
+        items: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
       'z.array(z.array(z.string()))',
-    )
+    ],
+    [{ type: 'array', items: { type: 'string' }, minItems: 1 }, 'z.array(z.string()).min(1)'],
+    [{ type: 'array', items: { type: 'string' }, maxItems: 10 }, 'z.array(z.string()).max(10)'],
+    [
+      { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 },
+      'z.array(z.string()).min(1).max(10)',
+    ],
+    [
+      { type: 'array', items: { type: 'string' }, minItems: 5, maxItems: 5 },
+      'z.array(z.string()).length(5)',
+    ],
+    [
+      {
+        type: 'array',
+        items: {
+          anyOf: [
+            {
+              type: 'string',
+            },
+            {
+              type: 'number',
+            },
+            {
+              type: 'boolean',
+            },
+          ],
+        },
+      },
+      'z.array(z.union([z.string(),z.number(),z.boolean()]))',
+    ],
+  ])('array(%o) → %s', (input, expected) => {
+    expect(array(input)).toBe(expected)
   })
-  // z.array(z.string()).min(1)
-  it.concurrent('returns z.array(z.string()).min(1) when minItems is defined', () => {
-    expect(array({ items: { type: 'string' }, minItems: 1 })).toBe('z.array(z.string()).min(1)')
-  })
-  // z.array(z.string()).max(10)
-  it.concurrent('returns z.array(z.string()).max(10) when maxItems is defined', () => {
-    expect(array({ items: { type: 'string' }, maxItems: 10 })).toBe('z.array(z.string()).max(10)')
-  })
-  // z.array(z.string()).min(1).max(10)
-  it.concurrent(
-    'returns z.array(z.string()).min(1).max(10) when minItems and maxItems are defined',
-    () => {
-      expect(array({ items: { type: 'string' }, minItems: 1, maxItems: 10 })).toBe(
-        'z.array(z.string()).min(1).max(10)',
-      )
-    },
-  )
-  // z.array(z.string()).length(5)
-  it.concurrent(
-    'returns z.array(z.string()).length(5) when minItems and maxItems are equal',
-    () => {
-      expect(array({ items: { type: 'string' }, minItems: 5, maxItems: 5 })).toBe(
-        'z.array(z.string()).length(5)',
-      )
-    },
-  )
 })

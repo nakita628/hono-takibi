@@ -1,248 +1,141 @@
 import { describe, expect, it } from 'vitest'
+import type { Schema } from '../../../openapi'
 import { integer } from './integer'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/z/integer.test.ts
+// pnpm vitest run ./src/generator/zod-to-openapi/z/integer.test.ts
 
 describe('integer', () => {
-  // int
-  it.concurrent('z.int()', () => {
-    expect(integer({})).toBe('z.int()')
+  describe('type: integer', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer' }, 'z.int()'],
+      [{ type: 'integer', minimum: 0, exclusiveMinimum: true }, 'z.int().positive()'],
+      [{ type: 'integer', minimum: 0, exclusiveMinimum: false }, 'z.int().nonnegative()'],
+      [{ type: 'integer', maximum: 0, exclusiveMaximum: true }, 'z.int().negative()'],
+      [{ type: 'integer', maximum: 0, exclusiveMaximum: false }, 'z.int().nonpositive()'],
+      [{ type: 'integer', minimum: 100 }, 'z.int().min(100)'],
+      [{ type: 'integer', minimum: 0 }, 'z.int().min(0)'],
+      [{ type: 'integer', minimum: 100, exclusiveMinimum: true }, 'z.int().gt(100)'],
+      [{ type: 'integer', maximum: 100 }, 'z.int().max(100)'],
+      [{ type: 'integer', maximum: 0 }, 'z.int().max(0)'],
+      [{ type: 'integer', maximum: 100, exclusiveMaximum: true }, 'z.int().lt(100)'],
+      [{ type: 'integer', exclusiveMaximum: 100 }, 'z.int().lt(100)'],
+      [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
   })
-  // positive
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int().positive()', () => {
-    expect(integer({ minimum: 0, exclusiveMinimum: true })).toBe('z.int().positive()')
+
+  describe('type: integer, format: int32', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', format: 'int32' }, 'z.int32()'],
+      [
+        { type: 'integer', format: 'int32', minimum: 0, exclusiveMinimum: true },
+        'z.int32().positive()',
+      ],
+      [
+        { type: 'integer', format: 'int32', minimum: 0, exclusiveMinimum: false },
+        'z.int32().nonnegative()',
+      ],
+      [
+        { type: 'integer', format: 'int32', maximum: 0, exclusiveMaximum: true },
+        'z.int32().negative()',
+      ],
+      [
+        { type: 'integer', format: 'int32', maximum: 0, exclusiveMaximum: false },
+        'z.int32().nonpositive()',
+      ],
+      [{ type: 'integer', format: 'int32', minimum: 100 }, 'z.int32().min(100)'],
+      [{ type: 'integer', format: 'int32', minimum: 0 }, 'z.int32().min(0)'],
+      [
+        { type: 'integer', format: 'int32', minimum: 100, exclusiveMinimum: true },
+        'z.int32().gt(100)',
+      ],
+      [{ type: 'integer', format: 'int32', maximum: 100 }, 'z.int32().max(100)'],
+      [{ type: 'integer', format: 'int32', maximum: 0 }, 'z.int32().max(0)'],
+      [
+        { type: 'integer', format: 'int32', maximum: 100, exclusiveMaximum: true },
+        'z.int32().lt(100)',
+      ],
+      [{ type: 'integer', format: 'int32', exclusiveMaximum: 100 }, 'z.int32().lt(100)'],
+      [{ type: 'integer', format: 'int32', multipleOf: 2 }, 'z.int32().multipleOf(2)'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
   })
-  // nonnegative
-  it.concurrent('minimum: 0, exclusiveMinimum: false → z.int().nonnegative()', () => {
-    expect(integer({ minimum: 0, exclusiveMinimum: false })).toBe('z.int().nonnegative()')
+
+  describe('type: integer, format: int64', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', format: 'int64' }, 'z.int64()'],
+      [
+        { type: 'integer', format: 'int64', minimum: 0, exclusiveMinimum: true },
+        'z.int64().positive()',
+      ],
+      [
+        { type: 'integer', format: 'int64', minimum: 0, exclusiveMinimum: false },
+        'z.int64().nonnegative()',
+      ],
+      [
+        { type: 'integer', format: 'int64', maximum: 0, exclusiveMaximum: true },
+        'z.int64().negative()',
+      ],
+      [
+        { type: 'integer', format: 'int64', maximum: 0, exclusiveMaximum: false },
+        'z.int64().nonpositive()',
+      ],
+      [{ type: 'integer', format: 'int64', minimum: 100 }, 'z.int64().min(100n)'],
+      [{ type: 'integer', format: 'int64', minimum: 0 }, 'z.int64().min(0n)'],
+      [
+        { type: 'integer', format: 'int64', minimum: 100, exclusiveMinimum: true },
+        'z.int64().gt(100n)',
+      ],
+      [{ type: 'integer', format: 'int64', maximum: 100 }, 'z.int64().max(100n)'],
+      [{ type: 'integer', format: 'int64', maximum: 0 }, 'z.int64().max(0n)'],
+      [
+        { type: 'integer', format: 'int64', maximum: 100, exclusiveMaximum: true },
+        'z.int64().lt(100n)',
+      ],
+      [{ type: 'integer', format: 'int64', exclusiveMaximum: 100 }, 'z.int64().lt(100n)'],
+      [{ type: 'integer', format: 'int64', multipleOf: 2 }, 'z.int64().multipleOf(2n)'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
   })
-  // negative
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int().negative()', () => {
-    expect(integer({ maximum: 0, exclusiveMaximum: true })).toBe('z.int().negative()')
+
+  describe('type: integer, format: bigint', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', format: 'bigint' }, 'z.bigint()'],
+      [
+        { type: 'integer', format: 'bigint', minimum: 0, exclusiveMinimum: true },
+        'z.bigint().positive()',
+      ],
+      [
+        { type: 'integer', format: 'bigint', minimum: 0, exclusiveMinimum: false },
+        'z.bigint().nonnegative()',
+      ],
+      [
+        { type: 'integer', format: 'bigint', maximum: 0, exclusiveMaximum: true },
+        'z.bigint().negative()',
+      ],
+      [
+        { type: 'integer', format: 'bigint', maximum: 0, exclusiveMaximum: false },
+        'z.bigint().nonpositive()',
+      ],
+      [{ type: 'integer', format: 'bigint', minimum: 100 }, 'z.bigint().min(BigInt(100))'],
+      [{ type: 'integer', format: 'bigint', minimum: 0 }, 'z.bigint().min(BigInt(0))'],
+      [
+        { type: 'integer', format: 'bigint', minimum: 100, exclusiveMinimum: true },
+        'z.bigint().gt(BigInt(100))',
+      ],
+      [{ type: 'integer', format: 'bigint', maximum: 100 }, 'z.bigint().max(BigInt(100))'],
+      [
+        { type: 'integer', format: 'bigint', maximum: 100, exclusiveMaximum: true },
+        'z.bigint().lt(BigInt(100))',
+      ],
+      [{ type: 'integer', format: 'bigint', exclusiveMaximum: 100 }, 'z.bigint().lt(BigInt(100))'],
+      [{ type: 'integer', format: 'bigint', multipleOf: 2 }, 'z.bigint().multipleOf(BigInt(2))'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
   })
-  // nonpositive
-  it.concurrent('maximum: 0, exclusiveMaximum: false → z.int().nonpositive()', () => {
-    expect(integer({ maximum: 0, exclusiveMaximum: false })).toBe('z.int().nonpositive()')
-  })
-  // min
-  it.concurrent('minimum: 100 → z.int().min(100)', () => {
-    expect(integer({ minimum: 100 })).toBe('z.int().min(100)')
-  })
-  // min 0
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int().min(0)', () => {
-    expect(integer({ minimum: 0 })).toBe('z.int().min(0)')
-  })
-  // gt
-  it.concurrent('minimum: 100, exclusiveMinimum: true → z.int().gt(100)', () => {
-    expect(integer({ minimum: 100, exclusiveMinimum: true })).toBe('z.int().gt(100)')
-  })
-  it.concurrent('exclusiveMinimum: 100 → z.int().gt(100)', () => {
-    expect(integer({ exclusiveMinimum: 100 })).toBe('z.int().gt(100)')
-  })
-  // max
-  it.concurrent('maximum: 100 → z.int().max(100)', () => {
-    expect(integer({ maximum: 100 })).toBe('z.int().max(100)')
-  })
-  // max 0
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int().max(0)', () => {
-    expect(integer({ maximum: 0 })).toBe('z.int().max(0)')
-  })
-  // lt
-  it.concurrent('maximum: 100, exclusiveMaximum: true → z.int().lt(100)', () => {
-    expect(integer({ maximum: 100, exclusiveMaximum: true })).toBe('z.int().lt(100)')
-  })
-  it.concurrent('exclusiveMaximum: 100 → z.int().lt(100)', () => {
-    expect(integer({ exclusiveMaximum: 100 })).toBe('z.int().lt(100)')
-  })
-  it.concurrent('maximum: 0 → z.int().max(0)', () => {
-    expect(integer({ maximum: 0 })).toBe('z.int().max(0)')
-  })
-  // multipleOf
-  it.concurrent('type: integer, multipleOf: 2 → z.int().multipleOf(2)', () => {
-    expect(integer({ type: 'integer', multipleOf: 2 })).toBe('z.int().multipleOf(2)')
-  })
-  // int32
-  it.concurrent(' ormat: int32 → z.int32()', () => {
-    expect(integer({ format: 'int32' })).toBe('z.int32()')
-  })
-  // int32 positive
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int32().positive()', () => {
-    expect(integer({ format: 'int32', minimum: 0, exclusiveMinimum: true })).toBe(
-      'z.int32().positive()',
-    )
-  })
-  // int32 nonnegative
-  it.concurrent('minimum: 0, exclusiveMinimum: false → z.int32().nonnegative()', () => {
-    expect(integer({ format: 'int32', minimum: 0, exclusiveMinimum: false })).toBe(
-      'z.int32().nonnegative()',
-    )
-  })
-  // int32 negative
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int32().negative()', () => {
-    expect(integer({ format: 'int32', maximum: 0, exclusiveMaximum: true })).toBe(
-      'z.int32().negative()',
-    )
-  })
-  // int32 nonpositive
-  it.concurrent('maximum: 0, exclusiveMaximum: false → z.int32().nonpositive()', () => {
-    expect(integer({ format: 'int32', maximum: 0, exclusiveMaximum: false })).toBe(
-      'z.int32().nonpositive()',
-    )
-  })
-  // int32 min
-  it.concurrent('minimum: 100 → z.int32().min(100)', () => {
-    expect(integer({ format: 'int32', minimum: 100 })).toBe('z.int32().min(100)')
-  })
-  // int32 min 0
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int32().min(0)', () => {
-    expect(integer({ format: 'int32', minimum: 0 })).toBe('z.int32().min(0)')
-  })
-  // int32 gt
-  it.concurrent('minimum: 100, exclusiveMinimum: true → z.int32().gt(100)', () => {
-    expect(integer({ format: 'int32', minimum: 100, exclusiveMinimum: true })).toBe(
-      'z.int32().gt(100)',
-    )
-  })
-  // int32 max
-  it.concurrent('maximum: 100 → z.int32().max(100)', () => {
-    expect(integer({ format: 'int32', maximum: 100 })).toBe('z.int32().max(100)')
-  })
-  // int32 max 0
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int32().max()', () => {
-    expect(integer({ format: 'int32', maximum: 0 })).toBe('z.int32().max(0)')
-  })
-  // int32 lt
-  it.concurrent('maximum: 100, exclusiveMaximum: true → z.int32().lt(100)', () => {
-    expect(integer({ format: 'int32', maximum: 100, exclusiveMaximum: true })).toBe(
-      'z.int32().lt(100)',
-    )
-  })
-  // int32 multipleOf
-  it.concurrent('format: int32, multipleOf: 2 → z.int32().multipleOf(2)', () => {
-    expect(integer({ format: 'int32', multipleOf: 2 })).toBe('z.int32().multipleOf(2)')
-  })
-  // int64
-  it.concurrent('type: integer, format: int64 → z.int64()', () => {
-    expect(integer({ format: 'int64' })).toBe('z.int64()')
-  })
-  // int64 positive
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int64().positive()', () => {
-    expect(integer({ format: 'int64', minimum: 0, exclusiveMinimum: true })).toBe(
-      'z.int64().positive()',
-    )
-  })
-  // int64 nonnegative
-  it.concurrent('minimum: 0, exclusiveMinimum: false → z.int64().nonnegative()', () => {
-    expect(integer({ format: 'int64', minimum: 0, exclusiveMinimum: false })).toBe(
-      'z.int64().nonnegative()',
-    )
-  })
-  // int64 negative
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int64().negative()', () => {
-    expect(integer({ format: 'int64', maximum: 0, exclusiveMaximum: true })).toBe(
-      'z.int64().negative()',
-    )
-  })
-  // int64 nonpositive
-  it.concurrent('maximum: 0, exclusiveMaximum: false → z.int64().nonpositive()', () => {
-    expect(integer({ format: 'int64', maximum: 0, exclusiveMaximum: false })).toBe(
-      'z.int64().nonpositive()',
-    )
-  })
-  // int64 min
-  it.concurrent('minimum: 100 → z.int64().min(100n)', () => {
-    expect(integer({ format: 'int64', minimum: 100 })).toBe('z.int64().min(100n)')
-  })
-  // int64 min 0
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.int64().min(0n)', () => {
-    expect(integer({ format: 'int64', minimum: 0 })).toBe('z.int64().min(0n)')
-  })
-  // int64 gt
-  it.concurrent('minimum: 100, exclusiveMinimum: true → z.int64().gt(100n)', () => {
-    expect(integer({ format: 'int64', minimum: 100, exclusiveMinimum: true })).toBe(
-      'z.int64().gt(100n)',
-    )
-  })
-  // int64 max
-  it.concurrent('maximum: 100 → z.int64().max(100n)', () => {
-    expect(integer({ format: 'int64', maximum: 100 })).toBe('z.int64().max(100n)')
-  })
-  // int64 max 0
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.int64().negative()', () => {
-    expect(integer({ format: 'int64', maximum: 0 })).toBe('z.int64().max(0n)')
-  })
-  // int64 lt
-  it.concurrent('maximum: 100, exclusiveMaximum: true → z.int64().lt(100n)', () => {
-    expect(integer({ format: 'int64', maximum: 100, exclusiveMaximum: true })).toBe(
-      'z.int64().lt(100n)',
-    )
-  })
-  // int64 multipleOf
-  it.concurrent('type: integer, format: int64, multipleOf: 2 → z.int64().multipleOf(2n)', () => {
-    expect(integer({ format: 'int64', multipleOf: 2 })).toBe('z.int64().multipleOf(2n)')
-  })
-  // bigint
-  it.concurrent('type: integer, format: bigint → z.bigint()', () => {
-    expect(integer({ format: 'bigint' })).toBe('z.bigint()')
-  })
-  // bigint positive
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.bigint().positive()', () => {
-    expect(integer({ format: 'bigint', minimum: 0, exclusiveMinimum: true })).toBe(
-      'z.bigint().positive()',
-    )
-  })
-  // bigint nonnegative
-  it.concurrent('minimum: 0, exclusiveMinimum: false → z.bigint().nonnegative()', () => {
-    expect(integer({ format: 'bigint', minimum: 0, exclusiveMinimum: false })).toBe(
-      'z.bigint().nonnegative()',
-    )
-  })
-  // bigint negative
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.bigint().negative()', () => {
-    expect(integer({ format: 'bigint', maximum: 0, exclusiveMaximum: true })).toBe(
-      'z.bigint().negative()',
-    )
-  })
-  // bigint nonpositive
-  it.concurrent('z.bigint() -> .nonpositive()', () => {
-    expect(integer({ format: 'bigint', maximum: 0, exclusiveMaximum: false })).toBe(
-      'z.bigint().nonpositive()',
-    )
-  })
-  // bigint min
-  it.concurrent('minimum: 100 → z.bigint().min(BigInt(100))', () => {
-    expect(integer({ format: 'bigint', minimum: 100 })).toBe('z.bigint().min(BigInt(100))')
-  })
-  // bigint min 0
-  it.concurrent('minimum: 0, exclusiveMinimum: true → z.bigint().min(BigInt(0))', () => {
-    expect(integer({ format: 'bigint', minimum: 0 })).toBe('z.bigint().min(BigInt(0))')
-  })
-  // bigint gt
-  it.concurrent('minimum: 100, exclusiveMinimum: true → z.bigint().gt(BigInt(100))', () => {
-    expect(integer({ format: 'bigint', minimum: 100, exclusiveMinimum: true })).toBe(
-      'z.bigint().gt(BigInt(100))',
-    )
-  })
-  // bigint max
-  it.concurrent('maximum: 100 → z.bigint().max(BigInt(100))', () => {
-    expect(integer({ format: 'bigint', maximum: 100 })).toBe('z.bigint().max(BigInt(100))')
-  })
-  // bigint lt
-  it.concurrent('maximum: 100, exclusiveMaximum: true → z.bigint().lt(BigInt(100))', () => {
-    expect(
-      integer({ type: 'integer', format: 'bigint', maximum: 100, exclusiveMaximum: true }),
-    ).toBe('z.bigint().lt(BigInt(100))')
-  })
-  // bigint max 0
-  it.concurrent('maximum: 0, exclusiveMaximum: true → z.bigint().max(BigInt(0))', () => {
-    expect(integer({ format: 'bigint', maximum: 0 })).toBe('z.bigint().max(BigInt(0))')
-  })
-  // bigint multipleOf
-  it.concurrent(
-    'type: integer, format: bigint, multipleOf: 2 → z.bigint().multipleOf(BigInt(2))',
-    () => {
-      expect(integer({ format: 'bigint', multipleOf: 2 })).toBe('z.bigint().multipleOf(BigInt(2))')
-    },
-  )
 })

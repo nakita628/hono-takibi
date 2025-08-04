@@ -1,55 +1,40 @@
 import { describe, expect, it } from 'vitest'
+import type { Schema } from '../../../openapi'
 import { string } from './string'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/z/string.test.ts
+// pnpm vitest run ./src/generator/zod-to-openapi/z/string.test.ts
 
 describe('string', () => {
-  it.concurrent('string({}) -> z.string()', () => {
-    const result = string({})
-    const expected = 'z.string()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent(`string({ pattern: '^[a-z]+$' }) -> z.string().regex(/^[a-z]+$/)`, () => {
-    const result = string({ pattern: '^[a-z]+$' })
-    const expected = 'z.string().regex(/^[a-z]+$/)'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('string({ minLength: 1 }) -> z.string().min(1)', () => {
-    const result = string({ minLength: 1 })
-    const expected = 'z.string().min(1)'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('string({ maxLength: 10 }) -> z.string().max(10)', () => {
-    const result = string({ maxLength: 10 })
-    const expected = 'z.string().max(10)'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('string({ minLength: 1, maxLength: 10 }) -> z.string().min(1).max(10)', () => {
-    const result = string({ minLength: 1, maxLength: 10 })
-    const expected = 'z.string().min(1).max(10)'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent(`string({ format: 'email' }) -> z.email()`, () => {
-    const result = string({ format: 'email' })
-    const expected = 'z.email()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent(`string({ format: 'uuid' }) -> z.uuid()`, () => {
-    const result = string({ format: 'uuid' })
-    const expected = 'z.uuid()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('string({ format: "jwt" }) -> z.jwt()', () => {
-    const result = string({ format: 'jwt' })
-    const expected = 'z.jwt()'
-    expect(result).toBe(expected)
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'string' }, 'z.string()'],
+    [{ type: 'string', minLength: 1, maxLength: 10 }, 'z.string().min(1).max(10)'],
+    [{ type: 'string', pattern: '^\\w+$' }, 'z.string().regex(/^\\w+$/)'],
+    [{ type: 'string', format: 'email' }, 'z.email()'],
+    [{ type: 'string', format: 'uuid' }, 'z.uuid()'],
+    [{ type: 'string', format: 'uuidv4' }, 'z.uuidv4()'],
+    [{ type: 'string', format: 'uuidv7' }, 'z.uuidv7()'],
+    [{ type: 'string', format: 'uri' }, 'z.url()'],
+    [{ type: 'string', format: 'emoji' }, 'z.emoji()'],
+    [{ type: 'string', format: 'base64' }, 'z.base64()'],
+    [{ type: 'string', format: 'nanoid' }, 'z.nanoid()'],
+    [{ type: 'string', format: 'cuid' }, 'z.cuid()'],
+    [{ type: 'string', format: 'cuid2' }, 'z.cuid2()'],
+    [{ type: 'string', format: 'ulid' }, 'z.ulid()'],
+    [{ type: 'string', format: 'ipv4' }, 'z.ipv4()'],
+    [{ type: 'string', format: 'ipv6' }, 'z.ipv6()'],
+    [{ type: 'string', format: 'cidrv4' }, 'z.cidrv4()'],
+    [{ type: 'string', format: 'cidrv6' }, 'z.cidrv6()'],
+    [{ type: 'string', format: 'date' }, 'z.iso.date()'],
+    [{ type: 'string', format: 'time' }, 'z.iso.time()'],
+    [{ type: 'string', format: 'date-time' }, 'z.iso.datetime()'],
+    [{ type: 'string', format: 'duration' }, 'z.iso.duration()'],
+    [{ type: 'string', format: 'binary' }, 'z.file()'],
+    [{ type: 'string', format: 'toLowerCase' }, 'z.toLowerCase()'],
+    [{ type: 'string', format: 'toUpperCase' }, 'z.toUpperCase()'],
+    [{ type: 'string', format: 'trim' }, 'z.trim()'],
+    [{ type: 'string', format: 'jwt' }, 'z.jwt()'],
+  ])('string(%o) → %s', (input, expected) => {
+    expect(string(input)).toBe(expected)
   })
 })
