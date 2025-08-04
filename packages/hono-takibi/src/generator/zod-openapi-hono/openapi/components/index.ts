@@ -1,8 +1,7 @@
 import { resolveSchemasDependencies } from '../../../../helper/resolve-schemas-dependencies.js'
-import { zodToOpenAPI } from '../../../../helper/zod-to-openapi.js'
 import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
-import zod from '../../../zod/index.js'
+import { zodToOpenAPI } from '../../../zod/helper/zod-to-openapi.js'
 
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
@@ -39,7 +38,7 @@ export function componentsCode(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
-      const zodSchema = zodToOpenAPI(zod(schema), schema)
+      const zodSchema = zodToOpenAPI(schema)
       // 4.3 generate zod schema definition
       return zodToOpenAPISchema(schemaName, zodSchema, exportSchema, exportType)
     })

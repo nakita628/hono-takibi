@@ -1,5 +1,4 @@
-import { propertySchema } from '../generator/zod/helper/property-schema.js'
-import zod from '../generator/zod/index.js'
+import { zodToOpenAPI } from '../generator/zod/helper/property-schema.js'
 import type { Schema } from '../openapi/index.js'
 
 /**
@@ -19,7 +18,7 @@ export function oneOf(schema: Schema): string {
   // self-reference not call wrap
   const schemas = schema.oneOf.map((schema) => {
     // return zod(schema)
-    return propertySchema(schema)
+    return zodToOpenAPI(schema)
   })
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.

@@ -1,6 +1,6 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { requestParamsArray } from '../../../../../utils/index.js'
-import { propertySchema } from '../../../../zod/helper/property-schema.js'
+import { zodToOpenAPI } from '../../../../zod/helper/zod-to-openapi.js'
 import { requestBody } from '../request/body/index.js'
 import { paramsObject } from './index.js'
 
@@ -40,7 +40,7 @@ export function requestParameter(
     const uniqueSchemas = new Map<string, string>()
     for (const contentType of requestBodyContentTypes) {
       const { schema } = body.content[contentType]
-      const z = propertySchema(schema)
+      const z = zodToOpenAPI(schema)
       uniqueSchemas.set(z, z)
     }
     const request_body_required = body.required ?? false

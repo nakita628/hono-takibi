@@ -1,8 +1,6 @@
-import { zodToOpenAPI } from '../../../../../helper/zod-to-openapi.js'
 import type { Parameters } from '../../../../../openapi/index.js'
 import { getToSafeIdentifier } from '../../../../../utils/index.js'
-import { propertySchema } from '../../../../zod/helper/property-schema.js'
-import zod from '../../../../zod/index.js'
+import { zodToOpenAPI } from '../../../../zod/helper/zod-to-openapi.js'
 import { queryParameter } from './index.js'
 
 /**
@@ -32,8 +30,8 @@ export function paramsObject(parameters: Parameters[]): {
       const optionalSuffix = param.required ? '' : '.optional()'
       // path params are generated with the param name
       const baseSchema = param.in
-        ? propertySchema(param.schema, param.name, param.in)
-        : propertySchema(param.schema, param.name)
+        ? zodToOpenAPI(param.schema, param.name, param.in)
+        : zodToOpenAPI(param.schema, param.name)
       // Initialize section if it doesn't exist
       if (!acc[param.in]) {
         acc[param.in] = {}

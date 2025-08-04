@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { _enum, array,integer, number, object, string } from './index.js'
+import { _enum, array, integer, number, object, string } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod/z/index.test.ts

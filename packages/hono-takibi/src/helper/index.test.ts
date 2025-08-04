@@ -10,7 +10,6 @@ import {
   ref,
   resolveSchemasDependencies,
   wrap,
-  zodToOpenAPI,
   zodToOpenAPISchema,
 } from './index.js'
 
@@ -50,8 +49,5 @@ describe('helper barrel file exports', () => {
   })
   it('should export zodToOpenAPISchema', () => {
     expect(typeof zodToOpenAPISchema).toBe('function')
-  })
-  it('should export zodToOpenAPI', () => {
-    expect(typeof zodToOpenAPI).toBe('function')
   })
 })

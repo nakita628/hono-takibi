@@ -4,7 +4,7 @@ import { not } from '../../../helper/not.js'
 import { oneOf } from '../../../helper/oneof.js'
 import type { Schema } from '../../../openapi/index.js'
 import { propertiesSchema } from '../helper/properties-schema.js'
-import { propertySchema } from '../helper/property-schema.js'
+import { zodToOpenAPI } from '../helper/zod-to-openapi.js'
 // import zod from '../index.js'
 
 /**
@@ -33,7 +33,7 @@ export function object(schema: Schema): string {
       return 'z.any()'
     }
     // const s = zod(schema.additionalProperties)
-    const s = propertySchema(schema.additionalProperties)
+    const s = zodToOpenAPI(schema.additionalProperties)
     return `z.record(z.string(),${s})`
   }
   if (schema.properties) {

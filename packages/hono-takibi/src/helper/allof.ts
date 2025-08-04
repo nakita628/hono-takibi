@@ -1,4 +1,4 @@
-import zod from '../generator/zod/index.js'
+import { zodToOpenAPI } from '../generator/zod/helper/property-schema.js'
 import type { Schema } from '../openapi/index.js'
 import { wrap } from './wrap.js'
 
@@ -23,7 +23,7 @@ export function allOf(schema: Schema): string {
         }
       }
 
-      const z = zod(s)
+      const z = zodToOpenAPI(s)
       return {
         schemas: [...acc.schemas, wrap(z, s)],
         nullable: acc.nullable,

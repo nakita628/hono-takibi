@@ -1,5 +1,4 @@
-import { propertySchema } from '../generator/zod/helper/property-schema.js'
-import zod from '../generator/zod/index.js'
+import { zodToOpenAPI } from '../generator/zod/helper/zod-to-openapi.js'
 import type { Schema } from '../openapi/index.js'
 
 /**
@@ -21,7 +20,7 @@ export function anyOf(schema: Schema): string {
   // self-reference not call wrap
   const schemas = schema.anyOf.map((subSchema) => {
     // return zod(subSchema)
-    return propertySchema(subSchema)
+    return zodToOpenAPI(subSchema)
   })
   return `z.union([${schemas.join(',')}])`
 }
