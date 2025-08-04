@@ -51,9 +51,9 @@ export function zodToOpenAPI(
   /* combinators */
   // allOf
   if (schema.allOf) {
-    // if (!schema.allOf || schema.allOf.length === 0) {
-    //   return wrap('z.any()', schema)
-    // }
+    if (!schema.allOf || schema.allOf.length === 0) {
+      return wrap('z.any()', schema)
+    }
 
     const { schemas, nullable } = schema.allOf.reduce<{
       schemas: string[]

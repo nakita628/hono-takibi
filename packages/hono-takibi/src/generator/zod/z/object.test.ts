@@ -62,37 +62,37 @@ describe('object', () => {
     ).toBe('z.record(z.string(),z.uuid())')
   })
 
-  it('oneOf', () => {
-    expect(
-      object({
-        oneOf: [
-          {
-            properties: { kind: { const: 'A' } },
-            required: ['kind'],
-          },
-          {
-            properties: { kind: { const: 'B' } },
-            required: ['kind'],
-          },
-        ],
-      }),
-    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-  })
+  // it('oneOf', () => {
+  //   expect(
+  //     object({
+  //       oneOf: [
+  //         {
+  //           properties: { kind: { const: 'A' } },
+  //           required: ['kind'],
+  //         },
+  //         {
+  //           properties: { kind: { const: 'B' } },
+  //           required: ['kind'],
+  //         },
+  //       ],
+  //     }),
+  //   ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+  // })
 
-  it('anyOf', () => {
-    expect(
-      object({
-        anyOf: [
-          {
-            properties: { kind: { const: 'A' } },
-            required: ['kind'],
-          },
-          {
-            properties: { kind: { const: 'B' } },
-            required: ['kind'],
-          },
-        ],
-      }),
-    ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
-  })
+  // it('anyOf', () => {
+  //   expect(
+  //     object({
+  //       anyOf: [
+  //         {
+  //           properties: { kind: { const: 'A' } },
+  //           required: ['kind'],
+  //         },
+  //         {
+  //           properties: { kind: { const: 'B' } },
+  //           required: ['kind'],
+  //         },
+  //       ],
+  //     }),
+  //   ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
+  // })
 })

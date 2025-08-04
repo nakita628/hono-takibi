@@ -15,10 +15,10 @@ import { zodToOpenAPI } from '../helper/zod-to-openapi.js'
  */
 export function object(schema: Schema): string {
   // // allOf, oneOf, anyOf, not
-  if (schema.oneOf) return oneOf(schema)
-  if (schema.anyOf) return anyOf(schema)
-  if (schema.allOf) return allOf(schema)
-  if (schema.not) return not(schema)
+  // if (schema.oneOf) return oneOf(schema)
+  // if (schema.anyOf) return anyOf(schema)
+  // if (schema.allOf) return allOf(schema)
+  // if (schema.not) return not(schema)
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
