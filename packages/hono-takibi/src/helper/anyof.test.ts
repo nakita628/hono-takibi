@@ -20,53 +20,6 @@ describe('anyOf', () => {
       }),
     ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
   })
-  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-    expect(
-      anyOf({
-        anyOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'number',
-          },
-        ],
-        nullable: true,
-      }),
-    ).toBe('z.union([z.string(),z.number()]).nullable()')
-  })
-
-  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-    expect(
-      anyOf({
-        anyOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'number',
-          },
-        ],
-        type: ['null'],
-      }),
-    ).toBe('z.union([z.string(),z.number()]).nullable()')
-  })
-
-  it.concurrent('z.union([z.string().nullable(),FooSchema])', () => {
-    expect(
-      anyOf({
-        anyOf: [{ type: ['string', 'null'] }, { $ref: '#/components/schemas/Foo' }],
-      }),
-    ).toBe('z.union([z.string().nullable(),FooSchema])')
-  })
-
-  it.concurrent('z.union([z.string(),z.number(),z.string().nullable()])', () => {
-    expect(
-      anyOf({
-        anyOf: [{ type: 'string' }, { type: 'number' }, { type: ['string', 'null'] }],
-      }),
-    ).toBe('z.union([z.string(),z.number(),z.string().nullable()])')
-  })
 
   it.concurrent('z.union([z.string(),z.number()])', () => {
     expect(

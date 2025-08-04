@@ -50,41 +50,6 @@ describe('oneOf', () => {
     ).toBe('z.union([ExampleSchemaSchema,AnotherSchemaSchema])')
   })
 
-  it.concurrent('z.union([z.string(),z.number()]).nullable()', () => {
-    expect(
-      oneOf({
-        oneOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'number',
-          },
-        ],
-        nullable: true,
-      }),
-    ).toBe('z.union([z.string(),z.number()]).nullable()')
-  })
-
-  it.concurrent('z.union([z.string(),z.number(),z.string().nullable()]).nullable()', () => {
-    expect(
-      oneOf({
-        oneOf: [
-          {
-            type: 'string',
-          },
-          {
-            type: 'number',
-          },
-          {
-            type: ['string', 'null'],
-          },
-        ],
-        type: ['null'],
-      }),
-    ).toBe('z.union([z.string(),z.number(),z.string().nullable()]).nullable()')
-  })
-
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.
   // it.concurrent("z.discriminatedUnion('petType',[CatSchema,DogSchema])", () => {

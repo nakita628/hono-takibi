@@ -20,7 +20,6 @@ export function oneOf(schema: Schema): string {
   const schemas = schema.oneOf.map((schema) => {
     // return zod(schema)
     return propertySchema(schema)
-    
   })
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.

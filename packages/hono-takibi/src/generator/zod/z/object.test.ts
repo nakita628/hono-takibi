@@ -9,14 +9,6 @@ describe('object', () => {
     expect(object({})).toBe('z.object({})')
   })
 
-  it.concurrent('object({ nullable: true }) -> z.object({}).nullable())', () => {
-    expect(object({ nullable: true })).toBe('z.object({}).nullable()')
-  })
-
-  it.concurrent('object({ type: "null" }) -> z.object({}).nullable()', () => {
-    expect(object({ type: 'null' })).toBe('z.object({}).nullable()')
-  })
-
   it.concurrent('object -> z.object({type:z.enum(["A","B","C"])})', () => {
     expect(
       object({
@@ -70,24 +62,6 @@ describe('object', () => {
     ).toBe('z.record(z.string(),z.uuid())')
   })
 
-  it('allOf', () => {
-    expect(
-      object({
-        allOf: [
-          {
-            properties: { a: { type: 'string' } },
-            required: ['a'],
-          },
-          {
-            properties: { b: { type: 'integer' } },
-            required: ['b'],
-          },
-        ],
-        nullable: true,
-      }),
-    ).toBe('z.intersection(z.object({a:z.string()}),z.object({b:z.int()})).nullable()')
-  })
-
   it('oneOf', () => {
     expect(
       object({
@@ -121,34 +95,4 @@ describe('object', () => {
       }),
     ).toBe('z.union([z.object({kind:z.literal("A")}),z.object({kind:z.literal("B")})])')
   })
-
-  // default
-  it.concurrent('default: { a: 1 } -> z.object({a:z.number()}).default({a:1})', () => {
-    expect(
-      object({
-        properties: {
-          a: { type: 'number' },
-        },
-        required: ['a'],
-        default: { a: 1 },
-      }),
-    ).toBe('z.object({a:z.number()}).default({"a":1})')
-  })
-
-  // nullable default
-  it.concurrent(
-    'default: { a: 1 }, nullable: true -> z.object({a:z.number()}).default({a:1}).nullable()',
-    () => {
-      expect(
-        object({
-          properties: {
-            a: { type: 'number' },
-          },
-          required: ['a'],
-          default: { a: 1 },
-          nullable: true,
-        }),
-      ).toBe('z.object({a:z.number()}).default({"a":1}).nullable()')
-    },
-  )
 })

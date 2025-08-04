@@ -5,7 +5,7 @@ import { oneOf } from '../../../helper/oneof.js'
 import type { Schema } from '../../../openapi/index.js'
 import { propertiesSchema } from '../helper/properties-schema.js'
 import { propertySchema } from '../helper/property-schema.js'
-import zod from '../index.js'
+// import zod from '../index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.

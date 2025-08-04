@@ -29,11 +29,36 @@ export function wrap(zod: string, schema: Schema, paramName?: string, paramIn?: 
   }
 
   // why schema.default !== undefined becasue schema.default === 0  // → falsy
-  const z = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
+  const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
 
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
-  return isNullable ? `${z}.nullable()` : z
+  const z = isNullable ? `${s}.nullable()` : s
+
+  const openapiProps: string[] = []
+
+  if (paramIn && paramName) {
+    const required = paramIn === 'path' ? true : !!schema.required
+    openapiProps.push(
+      `param:{in:"${paramIn}",name:${JSON.stringify(paramName)},required:${required}}`,
+    )
+  }
+
+  // Add 'example' if defined
+  if ('example' in schema && schema.example !== undefined) {
+    openapiProps.push(`example:${JSON.stringify(schema.example)}`)
+  }
+
+  // Add 'examples' if defined
+  if ('examples' in schema && Array.isArray(schema.examples) && schema.examples.length > 0) {
+    openapiProps.push(`examples:${JSON.stringify(schema.examples)}`)
+  }
+
+  // Add 'description' if defined
+  if ('description' in schema && schema.description !== undefined) {
+    openapiProps.push(`description:${JSON.stringify(schema.description)}`)
+  }
+  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }
