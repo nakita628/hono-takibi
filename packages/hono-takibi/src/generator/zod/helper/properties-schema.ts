@@ -1,6 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
 import { getToSafeIdentifier } from '../../../utils/index.js'
-import { zodToOpenAPI } from './zod-to-openapi.js'
+import { zodToOpenAPI } from '../index.js'
 
 /**
  * Generates a Zod object schema string from a set of OpenAPI properties.

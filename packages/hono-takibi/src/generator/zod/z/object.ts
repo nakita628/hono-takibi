@@ -1,11 +1,6 @@
-// import { allOf } from '../../../helper/allof.js'
-// import { anyOf } from '../../../helper/anyof.js'
-// import { not } from '../../../helper/not.js'
-// import { oneOf } from '../../../helper/oneof.js'
 import type { Schema } from '../../../openapi/index.js'
 import { propertiesSchema } from '../helper/properties-schema.js'
-import { zodToOpenAPI } from '../helper/zod-to-openapi.js'
-// import zod from '../index.js'
+import { zodToOpenAPI } from '../index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.
@@ -15,10 +10,10 @@ import { zodToOpenAPI } from '../helper/zod-to-openapi.js'
  */
 export function object(schema: Schema): string {
   // // allOf, oneOf, anyOf, not
-  // if (schema.oneOf) return oneOf(schema)
-  // if (schema.anyOf) return anyOf(schema)
-  // if (schema.allOf) return allOf(schema)
-  // if (schema.not) return not(schema)
+  if (schema.oneOf) return zodToOpenAPI(schema)
+  if (schema.anyOf) return zodToOpenAPI(schema)
+  if (schema.allOf) return zodToOpenAPI(schema)
+  if (schema.not) return zodToOpenAPI(schema)
   if (schema.additionalProperties) {
     if (typeof schema.additionalProperties === 'boolean') {
       if (schema.properties) {
@@ -32,7 +27,6 @@ export function object(schema: Schema): string {
       }
       return 'z.any()'
     }
-    // const s = zod(schema.additionalProperties)
     const s = zodToOpenAPI(schema.additionalProperties)
     return `z.record(z.string(),${s})`
   }

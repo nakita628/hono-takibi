@@ -1,6 +1,6 @@
 import type { Parameters, RequestBody } from '../../../../../openapi/index.js'
 import { requestParamsArray } from '../../../../../utils/index.js'
-import { zodToOpenAPI } from '../../../../zod/helper/zod-to-openapi.js'
+import { zodToOpenAPI } from '../../../../zod/index.js'
 import { requestBody } from '../request/body/index.js'
 import { paramsObject } from './index.js'
 
