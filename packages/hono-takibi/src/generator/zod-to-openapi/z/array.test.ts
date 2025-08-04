@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Schema } from '../../../openapi'
 import { array } from './array'
-import { Schema } from '../../../openapi'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/array.test.ts
@@ -22,10 +22,7 @@ describe('array()', () => {
       { type: 'array', items: { type: 'boolean', nullable: true } },
       'z.array(z.boolean().nullable())',
     ],
-    [
-      { type: 'array', items: { type: ['boolean', 'null'] } },
-      'z.array(z.boolean().nullable())',
-    ],
+    [{ type: 'array', items: { type: ['boolean', 'null'] } }, 'z.array(z.boolean().nullable())'],
     [{ type: 'array', items: { type: 'object' } }, 'z.array(z.object({}))'],
     [{ type: 'array', items: { type: 'object' } }, 'z.array(z.object({}))'],
     [
