@@ -184,8 +184,7 @@ describe('honoTakibi --help', () => {
 
     expect(result).toStrictEqual({
       ok: true,
-      value: {
-        message: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+      value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type        export TypeScript type aliases
@@ -194,7 +193,6 @@ Options:
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
   -h, --help           display help for command`,
-      },
     })
   })
 })
@@ -208,8 +206,7 @@ describe('honoTakibi -h', () => {
     const result = await honoTakibi()
     expect(result).toStrictEqual({
       ok: true,
-      value: {
-        message: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+      value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
   --export-type        export TypeScript type aliases
@@ -218,7 +215,6 @@ Options:
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
   -h, --help           display help for command`,
-      },
     })
   })
 

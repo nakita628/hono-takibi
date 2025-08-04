@@ -110,7 +110,7 @@ describe('takibi generate', () => {
 
     expect(result).toStrictEqual({
       ok: true,
-      value: { message: 'Generated code written to zod-openapi-hono.ts' },
+      value: 'Generated code written to zod-openapi-hono.ts',
     })
 
     const generatedCode = fs.readFileSync('zod-openapi-hono.ts', 'utf-8')
