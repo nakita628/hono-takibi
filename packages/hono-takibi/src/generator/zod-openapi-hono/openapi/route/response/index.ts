@@ -1,6 +1,6 @@
 import type { Responses } from '../../../../../openapi/index.js'
 import { escapeStringLiteral, isUniqueContentSchema } from '../../../../../utils/index.js'
-import { zodToOpenAPI } from '../../../../zod/index.js'
+import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Generates a Zod-compatible response schema definition from OpenAPI responses.

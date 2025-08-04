@@ -35,10 +35,6 @@
     "./zod-openapi-hono": {
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
-    },
-    "./zod": {
-      "types": "./dist/generator/zod/index.d.ts",
-      "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
     }
   },
   "scripts": {

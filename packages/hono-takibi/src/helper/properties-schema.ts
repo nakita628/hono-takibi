@@ -1,4 +1,4 @@
-import { zodToOpenAPI } from '../generator/zod/index.js'
+import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import { getToSafeIdentifier } from '../utils/index.js'
 

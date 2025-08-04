@@ -1,7 +1,7 @@
 import { resolveSchemasDependencies } from '../../../../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
-import { zodToOpenAPI } from '../../../zod/index.js'
+import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
