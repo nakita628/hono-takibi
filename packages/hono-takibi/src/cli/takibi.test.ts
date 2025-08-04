@@ -191,7 +191,7 @@ describe('takibi generate', () => {
 
     expect(result).toStrictEqual({
       ok: true,
-      value: { message: 'Generated code written to zod-openapi-hono.ts' },
+      value: 'Generated code written to zod-openapi-hono.ts',
     })
   })
 
@@ -203,7 +203,7 @@ describe('takibi generate', () => {
 
     expect(result).toStrictEqual({
       ok: true,
-      value: { message: 'Generated code and template files written' },
+      value: 'Generated code and template files written',
     })
   })
 })

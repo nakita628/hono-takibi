@@ -21,12 +21,14 @@ export function zodToOpenAPI(
     }
     if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
       if (schema.items?.$ref) {
-        console.log(wrap(refSchema(schema.items.$ref), schema.items))
         const ref = wrap(refSchema(schema.items.$ref), schema.items)
         return `z.array(${ref})`
       }
-      return 'z.array(z.any())'
+      const z = 'z.array(z.any())'
+      return wrap(z, schema, paramName, paramIn)
     }
+    const z = 'z.any()'
+    return wrap(z, schema, paramName, paramIn)
   }
   /* combinators */
   // allOf

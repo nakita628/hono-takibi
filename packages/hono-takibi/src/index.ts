@@ -20,7 +20,7 @@ import { honoTakibi } from './cli/index.js'
 
 honoTakibi().then((result) => {
   if (result.ok) {
-    console.log(result.value.message)
+    console.log(result.value)
     process.exit(0)
   } else {
     console.error(result.error)

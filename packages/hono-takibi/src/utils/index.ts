@@ -20,12 +20,10 @@ export function parseCli(args: readonly string[]):
         test: boolean
         basePath?: string
       }
-      error?: undefined
     }
   | {
       ok: false
       error: string
-      value?: undefined
     } {
   const input = args[0]
   const oIdx = args.indexOf('-o')
