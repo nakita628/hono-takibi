@@ -20,12 +20,10 @@ export function parseCli(args: readonly string[]):
         test: boolean
         basePath?: string
       }
-      error?: undefined
     }
   | {
       ok: false
       error: string
-      value?: undefined
     } {
   const input = args[0]
   const oIdx = args.indexOf('-o')
@@ -58,6 +56,28 @@ export function parseCli(args: readonly string[]):
       basePath: getFlagValue(args, '--base-path'),
     },
   }
+}
+
+/* ========================================================================== *
+ *  normalizeTypes
+ * ========================================================================== */
+
+export function normalizeTypes(
+  t?:
+    | 'string'
+    | 'number'
+    | 'integer'
+    | 'date'
+    | 'boolean'
+    | 'array'
+    | 'object'
+    | 'null'
+    | [
+        'string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null',
+        ...('string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null')[],
+      ],
+) {
+  return t === undefined ? [] : Array.isArray(t) ? t : [t]
 }
 
 /* ========================================================================== *
@@ -242,43 +262,6 @@ export function getHandlerImports(
   return getHandlerImports
 }
 
-/* ---------- HTTP-specific ----------------------------------------------- */
-
-/**
- * Checks if a given string is a valid HTTP method.
- *
- * Narrows the type to one of the standard lowercase HTTP methods if matched.
- *
- * @param method - The string to check.
- * @returns `true` if the string is a valid HTTP method (e.g., `'get'`, `'post'`), otherwise `false`.
- *
- * @example
- * ```ts
- * isHttpMethod('get')     // true
- * isHttpMethod('POST')    // false (case-sensitive)
- * isHttpMethod('delete')  // true
- * isHttpMethod('foobar')  // false
- * ```
- *
- * @remarks
- * - This check is case-sensitive; `'GET'` will return `false`.
- * - Returns a type predicate for narrowing: `method is HttpMethod`.
- */
-export function isHttpMethod(
-  method: string,
-): method is 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace' {
-  return (
-    method === 'get' ||
-    method === 'post' ||
-    method === 'put' ||
-    method === 'delete' ||
-    method === 'patch' ||
-    method === 'options' ||
-    method === 'head' ||
-    method === 'trace'
-  )
-}
-
 /**
  * Checks if a value is a non-null object (e.g., a potential `$ref` object).
  *
@@ -458,7 +441,7 @@ export function requestParamsArray(parameters: {
         // 2.1 process only if object is not empty
         if (Object.keys(obj).length) {
           const s = `z.object({${Object.entries(obj)
-            .map(([key, val]) => `${key}:${val}`)
+            .map(([k, v]) => `${k}:${v}`)
             .join(',')}})`
           // path is params convention
           if (section === 'path') {

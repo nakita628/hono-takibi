@@ -82,9 +82,6 @@ describe.concurrent('Hono Takibi Normal Test', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema --export-type`,
-      {
-        stdio: 'pipe',
-      },
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -109,9 +106,6 @@ export const postTestRoute = createRoute({
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema`,
-      {
-        stdio: 'pipe',
-      },
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -134,9 +128,6 @@ export const postTestRoute = createRoute({
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-type`,
-      {
-        stdio: 'pipe',
-      },
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -159,9 +150,7 @@ export const postTestRoute = createRoute({
   // #4: exportSchema=false, exportType=false
   it('exportSchema=false, exportType=false', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
-    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`, {
-      stdio: 'pipe',
-    })
+    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`)
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
@@ -181,7 +170,6 @@ export const postTestRoute = createRoute({
 
 describe('cli test', () => {
   const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
-
   const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -197,7 +185,7 @@ describe('cli test', () => {
       const actual = await vi.importActual<typeof import('./cli/index.js')>('./cli/index.js')
       return {
         ...actual,
-        honoTakibi: vi.fn(() => Promise.resolve({ ok: true, value: { message: 'OK' } } as const)),
+        honoTakibi: vi.fn(() => Promise.resolve({ ok: true, value: 'OK' } as const)),
       }
     })
 

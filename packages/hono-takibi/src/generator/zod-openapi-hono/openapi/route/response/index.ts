@@ -1,6 +1,6 @@
 import type { Responses } from '../../../../../openapi/index.js'
 import { escapeStringLiteral, isUniqueContentSchema } from '../../../../../utils/index.js'
-import { propertySchema } from '../../../../zod/helper/property-schema.js'
+import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
  * Generates a Zod-compatible response schema definition from OpenAPI responses.
@@ -31,7 +31,7 @@ export function response(responses: Responses): string {
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = propertySchema(content.schema)
+        const zodSchema = zodToOpenAPI(content.schema)
 
         const examples = content.examples
         const exampleString =

@@ -1,6 +1,6 @@
-import type { Schema } from '../../../openapi/index.js'
-import { getToSafeIdentifier } from '../../../utils/index.js'
-import { propertySchema } from './property-schema.js'
+import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import type { Schema } from '../openapi/index.js'
+import { getToSafeIdentifier } from '../utils/index.js'
 
 /**
  * Generates a Zod object schema string from a set of OpenAPI properties.
@@ -50,7 +50,7 @@ export function propertiesSchema(properties: Record<string, Schema>, required: s
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const safeKey = getToSafeIdentifier(key)
-    return `${safeKey}:${propertySchema(schema)}${isRequired ? '' : '.optional()'}`
+    return `${safeKey}:${zodToOpenAPI(schema)}${isRequired ? '' : '.optional()'}`
   })
   // Check if all properties are optional
   const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))

@@ -1,4 +1,3 @@
-import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 
 /**
@@ -97,6 +96,5 @@ export function integer(schema: Schema): string {
     o.push(`.multipleOf(${lit(schema.multipleOf)})`)
   }
 
-  const z = o.join('')
-  return wrap(z, schema)
+  return o.join('')
 }

@@ -1,5 +1,4 @@
 import type { OpenAPIPaths } from '../../../../openapi/index.js'
-import { isHttpMethod } from '../../../../utils/index.js'
 import { route } from './route.js'
 
 /**
@@ -24,8 +23,6 @@ export function routeCode(openAPIPaths: OpenAPIPaths): string {
     for (const [method, pathItemValue] of Object.entries(pathItem)) {
       // 3.1. skip parameters key and undefined operations
       if (method === 'parameters' || !pathItemValue) continue
-      // 3.2. check if the method is an HTTP method
-      if (!isHttpMethod(method)) throw new Error('Invalid HTTP method')
       // 3.3 exclude the possibility of string or Parameter[]
       if (typeof pathItemValue === 'string' || Array.isArray(pathItemValue)) continue
       // 3.4 at this point, pathItemValue is only a possibility for Operation

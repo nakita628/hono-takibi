@@ -8,9 +8,9 @@ import {
   importHandlers,
   importMap,
   importRoutes,
-  isHttpMethod,
   isRefObject,
   isUniqueContentSchema,
+  normalizeTypes,
   parseCli,
   refSchema,
   regex,
@@ -70,6 +70,35 @@ describe('utils', () => {
       })
     })
   })
+  /* ========================================================================== *
+   *  normalizeTypes
+   * ========================================================================== */
+  describe('normalizeTypes', () => {
+    it('should return empty array if type is undefined', () => {
+      expect(normalizeTypes(undefined)).toStrictEqual([])
+    })
+
+    it('should wrap string type in array', () => {
+      expect(normalizeTypes('string')).toStrictEqual(['string'])
+    })
+
+    it('should return the array as is if already array', () => {
+      expect(normalizeTypes(['string', 'null'])).toStrictEqual(['string', 'null'])
+    })
+
+    it('should wrap number type in array', () => {
+      expect(normalizeTypes('number')).toStrictEqual(['number'])
+    })
+
+    it('should handle "null" as string', () => {
+      expect(normalizeTypes('null')).toStrictEqual(['null'])
+    })
+
+    it('should handle mixed type array', () => {
+      expect(normalizeTypes(['integer', 'null'])).toStrictEqual(['integer', 'null'])
+    })
+  })
+
   /* ========================================================================== *
    *  Handler-Generation Utilities
    * ========================================================================== */
@@ -243,30 +272,6 @@ describe('utils', () => {
         'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
       }
       expect(result).toStrictEqual(expected)
-    })
-  })
-  // isHttpMethod
-  describe('isHttpMethod', () => {
-    it.concurrent.each([
-      { method: 'get', expected: true },
-      { method: 'post', expected: true },
-      { method: 'put', expected: true },
-      { method: 'delete', expected: true },
-      { method: 'patch', expected: true },
-      { method: 'options', expected: true },
-      { method: 'head', expected: true },
-      { method: 'trace', expected: true },
-      { method: 'GET', expected: false },
-      { method: 'POST', expected: false },
-      { method: 'PUT', expected: false },
-      { method: 'DELETE', expected: false },
-      { method: 'PATCH', expected: false },
-      { method: 'OPTIONS', expected: false },
-      { method: 'HEAD', expected: false },
-      { method: 'TRACE', expected: false },
-    ])('isHttpMethod($method) -> $expected', async ({ method, expected }) => {
-      const result = isHttpMethod(method)
-      expect(result).toBe(expected)
     })
   })
   // isRefObject

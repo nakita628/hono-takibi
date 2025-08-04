@@ -87,7 +87,7 @@ const GeometryElementSchema = z
   .openapi('GeometryElement')
 
 const GeometryCollectionSchema = z
-  .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema) }))
+  .intersection(GeometrySchema, z.object({ geometries: z.array(GeometryElementSchema).min(0) }))
   .openapi({
     description:
       'GeoJSon geometry collection\nGeometryCollections composed of a single part or a number of parts of a single type SHOULD be avoided when that single part or a single object of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could be used instead.\n',
@@ -167,7 +167,7 @@ const ProjectSchema = z
       .union([MultiPolygonSchema, PolygonSchema])
       .openapi({ description: 'Polygon' })
       .optional(),
-    centre: PointSchema.optional(),
+    centre: PointSchema.openapi({ description: 'Center coordinates' }).optional(),
     createdAt: z.iso.datetime().openapi({ description: 'Created date' }),
     updatedAt: z.iso.datetime().openapi({ description: 'Last updated date' }),
   })
