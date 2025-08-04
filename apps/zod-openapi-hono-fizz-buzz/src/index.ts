@@ -24,7 +24,7 @@ app.use('*', async (c, next) => {
 export const api = app.openapi(getFizzBuzzRoute, getFizzBuzzRouteHandler)
 
 app
-  .doc('/doc', {
+  .doc31('/doc', {
     openapi: '3.1.0',
     info: { title: 'FizzBuzz API', version: 'v1' },
   })

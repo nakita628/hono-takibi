@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "deps": "rm -rf node_modules && rm -rf pnpm-lock.yaml && pnpm install",
+    "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
     "check": "pnpm biome check --write ./",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
