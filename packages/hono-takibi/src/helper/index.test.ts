@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-  allOf,
-  anyOf,
   docs,
   getRouteMaps,
   normalizeTypes,
-  not,
-  oneOf,
-  ref,
   resolveSchemasDependencies,
   wrap,
   zodToOpenAPISchema,
@@ -17,12 +12,6 @@ import {
 // pnpm vitest run ./src/helper/index.test.ts
 
 describe('helper barrel file exports', () => {
-  it('should export allOf', () => {
-    expect(typeof allOf).toBe('function')
-  })
-  it('should export anyOf', () => {
-    expect(typeof anyOf).toBe('function')
-  })
   it('should export docs', () => {
     expect(typeof docs).toBe('function')
   })
@@ -31,15 +20,6 @@ describe('helper barrel file exports', () => {
   })
   it('should export normalizeTypes', () => {
     expect(typeof normalizeTypes).toBe('function')
-  })
-  it('should export not', () => {
-    expect(typeof not).toBe('function')
-  })
-  it('should export oneOf', () => {
-    expect(typeof oneOf).toBe('function')
-  })
-  it('should export ref', () => {
-    expect(typeof ref).toBe('function')
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')

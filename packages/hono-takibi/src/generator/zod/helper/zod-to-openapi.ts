@@ -149,6 +149,5 @@ export function zodToOpenAPI(
     const z = `z.literal(${JSON.stringify(schema.const)})`
     return wrap(z, schema, paramName, paramIn)
   }
-
   return wrap(zod(schema), schema, paramName, paramIn)
 }

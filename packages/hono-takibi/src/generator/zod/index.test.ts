@@ -83,7 +83,7 @@ describe('zod', () => {
         },
       )
 
-      it.concurrent('z.union([MultiPolygonSchema,PolygonSchema])', () => {
+      it.concurrent('z.union([MultiPolygonSchema,PolygonSchema]).openapi({description:"Center coordinates"})', () => {
         expect(
           zod({
             anyOf: [
@@ -96,7 +96,7 @@ describe('zod', () => {
             ],
             description: 'Center coordinates',
           }),
-        ).toBe('z.union([MultiPolygonSchema,PolygonSchema])')
+        ).toBe('z.union([MultiPolygonSchema,PolygonSchema]).openapi({description:"Center coordinates"})')
       })
     })
 
@@ -141,7 +141,7 @@ describe('zod', () => {
               ],
             }),
           ).toBe(
-            'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])}))',
+            'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"])})).openapi({description:"Abstract type for all GeoJSon object except Feature and FeatureCollection\\n"})',
           )
         },
       )

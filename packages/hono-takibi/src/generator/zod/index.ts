@@ -1,11 +1,12 @@
-import { allOf } from '../../helper/allof.js'
-import { anyOf } from '../../helper/anyof.js'
-import { _const } from '../../helper/const.js'
+// import { allOf } from '../../helper/allof.js'
+// import { anyOf } from '../../helper/anyof.js'
+// import { _const } from '../../helper/const.js'
 import { normalizeTypes } from '../../helper/normalize-types.js'
-import { not } from '../../helper/not.js'
-import { oneOf } from '../../helper/oneof.js'
-import { ref } from '../../helper/ref.js'
+// import { not } from '../../helper/not.js'
+// import { oneOf } from '../../helper/oneof.js'
+// import { ref } from '../../helper/ref.js'
 import type { Schema } from '../../openapi/index.js'
+import { zodToOpenAPI } from './helper/zod-to-openapi.js'
 import { _enum, array, integer, number, object, string } from './z/index.js'
 
 /**
@@ -64,14 +65,14 @@ import { _enum, array, integer, number, object, string } from './z/index.js'
 export default function zod(schema: Schema): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /* $ref */
-  if (schema.$ref) return ref(schema)
+  if (schema.$ref) return zodToOpenAPI(schema)
   /* combinators */
-  if (schema.oneOf) return oneOf(schema)
-  if (schema.anyOf) return anyOf(schema)
-  if (schema.allOf) return allOf(schema)
-  if (schema.not) return not(schema)
+  if (schema.oneOf) return zodToOpenAPI(schema)
+  if (schema.anyOf) return zodToOpenAPI(schema)
+  if (schema.allOf) return zodToOpenAPI(schema)
+  if (schema.not) return zodToOpenAPI(schema)
   /* const */
-  if (schema.const) return _const(schema)
+  if (schema.const) return zodToOpenAPI(schema)
   /* enum */
   if (schema.enum) return _enum(schema)
   /* properties */
