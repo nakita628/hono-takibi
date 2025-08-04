@@ -3,7 +3,6 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import type { Result } from '../result/index.js'
 import { asyncAndThen } from '../result/index.js'
 import { templateCode } from './template-code.js'
 
@@ -27,7 +26,16 @@ export async function takibi(
   template: boolean,
   test: boolean,
   basePath?: string,
-): Promise<Result<string, string>> {
+): Promise<
+  | {
+      ok: true
+      value: string
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   return await asyncAndThen(await parseOpenAPI(input), async (openAPI) =>
     asyncAndThen(await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType)), async (code) =>
       asyncAndThen(await mkdir(path.dirname(output)), async () =>

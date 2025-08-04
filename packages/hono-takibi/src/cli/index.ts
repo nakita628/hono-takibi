@@ -1,5 +1,4 @@
-import type { Result } from '../result/index.js'
-import { asyncAndThen, ok } from '../result/index.js'
+import { asyncAndThen } from '../result/index.js'
 import { parseCli } from '../utils/index.js'
 import { takibi } from './takibi.js'
 
@@ -18,7 +17,16 @@ Options:
  *
  * @returns A `Result` containing help text or CLI execution result.
  */
-export async function honoTakibi(): Promise<Result<string, string>> {
+export async function honoTakibi(): Promise<
+  | {
+      ok: true
+      value: string
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   // Slice the arguments to remove the first two (node and script path)
   const args = process.argv.slice(2)
   const isHelpRequested = (args: readonly string[]): boolean => {
@@ -27,7 +35,7 @@ export async function honoTakibi(): Promise<Result<string, string>> {
   if (isHelpRequested(args)) {
     return {
       ok: true,
-      value: HELP_TEXT
+      value: HELP_TEXT,
     }
   }
   return await asyncAndThen(parseCli(args), async (cli) =>
@@ -41,7 +49,12 @@ export async function honoTakibi(): Promise<Result<string, string>> {
         cli.test ?? false,
         cli.basePath,
       ),
-      async (result) => ok(result),
+      async (result) => {
+        return {
+          ok: true,
+          value: result,
+        }
+      },
     ),
   )
 }
