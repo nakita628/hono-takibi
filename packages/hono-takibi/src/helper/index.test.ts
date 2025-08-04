@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   docs,
   getRouteMaps,
-  normalizeTypes,
+  propertiesSchema,
   resolveSchemasDependencies,
   wrap,
   zodToOpenAPISchema,
@@ -18,8 +18,8 @@ describe('helper barrel file exports', () => {
   it('should export getRouteMaps', () => {
     expect(typeof getRouteMaps).toBe('function')
   })
-  it('should export normalizeTypes', () => {
-    expect(typeof normalizeTypes).toBe('function')
+  it('should export propertiesSchema', () => {
+    expect(typeof propertiesSchema).toBe('function')
   })
   it('should export resolveSchemasDependencies', () => {
     expect(typeof resolveSchemasDependencies).toBe('function')

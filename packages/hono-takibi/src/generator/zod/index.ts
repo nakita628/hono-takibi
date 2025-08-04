@@ -1,7 +1,6 @@
-import { normalizeTypes } from '../../helper/normalize-types.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Schema } from '../../openapi/index.js'
-import { refSchema } from '../../utils/index.js'
+import { normalizeTypes, refSchema } from '../../utils/index.js'
 import { array } from './z/array.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'

@@ -1,6 +1,6 @@
 export { docs } from './docs.js'
 export { getRouteMaps } from './get-route-maps.js'
-export { normalizeTypes } from './normalize-types.js'
+export { propertiesSchema } from './properties-schema.js'
 export { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
 export { wrap } from './wrap.js'
 export { zodToOpenAPISchema } from './zod-to-openapi-schema.js'

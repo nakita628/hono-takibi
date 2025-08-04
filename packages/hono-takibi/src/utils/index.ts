@@ -61,6 +61,28 @@ export function parseCli(args: readonly string[]):
 }
 
 /* ========================================================================== *
+ *  normalizeTypes
+ * ========================================================================== */
+
+export function normalizeTypes(
+  t?:
+    | 'string'
+    | 'number'
+    | 'integer'
+    | 'date'
+    | 'boolean'
+    | 'array'
+    | 'object'
+    | 'null'
+    | [
+        'string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null',
+        ...('string' | 'number' | 'integer' | 'date' | 'boolean' | 'array' | 'object' | 'null')[],
+      ],
+) {
+  return t === undefined ? [] : Array.isArray(t) ? t : [t]
+}
+
+/* ========================================================================== *
  *  Handler-Generation Utilities
  * ========================================================================== */
 
@@ -458,7 +480,7 @@ export function requestParamsArray(parameters: {
         // 2.1 process only if object is not empty
         if (Object.keys(obj).length) {
           const s = `z.object({${Object.entries(obj)
-            .map(([key, val]) => `${key}:${val}`)
+            .map(([k, v]) => `${k}:${v}`)
             .join(',')}})`
           // path is params convention
           if (section === 'path') {

@@ -1,5 +1,5 @@
+import { propertiesSchema } from '../../../helper/properties-schema.js'
 import type { Schema } from '../../../openapi/index.js'
-import { propertiesSchema } from '../helper/properties-schema.js'
 import { zodToOpenAPI } from '../index.js'
 
 /**
