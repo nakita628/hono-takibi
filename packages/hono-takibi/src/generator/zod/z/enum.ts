@@ -1,4 +1,3 @@
-import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 
 /**
@@ -7,23 +6,19 @@ import type { Schema } from '../../../openapi/index.js'
 export function _enum(schema: Schema): string {
   // number
   if (schema.type === 'number' && schema.enum) {
-    const z =
-      schema.enum.length > 1
-        ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
-        : `z.literal(${schema.enum[0]})`
-    return wrap(z, schema)
+    return schema.enum.length > 1
+      ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
+      : `z.literal(${schema.enum[0]})`
   }
   // integer
   if (schema.type === 'integer' && schema.enum) {
-    const z =
-      schema.enum.length > 1
-        ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
-        : `z.literal(${schema.enum[0]})`
-    return wrap(z, schema)
+    return schema.enum.length > 1
+      ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
+      : `z.literal(${schema.enum[0]})`
   }
   // array
   if (schema.type === 'array' && Array.isArray(schema.enum)) {
-    const z = (() => {
+    return (() => {
       if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
         const tupleItems = schema.enum[0].map((item) => `z.literal(${item})`).join(', ')
         return `z.tuple([${tupleItems}])`
@@ -37,19 +32,16 @@ export function _enum(schema: Schema): string {
       })
       return `z.union([${unionParts.join(',')}])`
     })()
-    return wrap(z, schema)
   }
   // boolean
   if (schema.type === 'boolean' && schema.enum) {
-    const z =
-      schema.enum.length > 1
-        ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
-        : `z.literal(${schema.enum[0]})`
-    return wrap(z, schema)
+    return schema.enum.length > 1
+      ? `z.union([${schema.enum.map((v) => `z.literal(${v})`).join(',')}])`
+      : `z.literal(${schema.enum[0]})`
   }
   // enum
   if (schema.enum) {
-    const z = (() => {
+    return (() => {
       if (schema.enum.length > 1) {
         const allStrings = schema.enum.every((v) => typeof v === 'string')
         if (allStrings) {
@@ -63,8 +55,6 @@ export function _enum(schema: Schema): string {
       const v = schema.enum[0]
       return `z.literal(${typeof v === 'string' ? `'${v}'` : v})`
     })()
-    return wrap(z, schema)
   }
-  const z = 'z.any()'
-  return wrap(z, schema)
+  return 'z.any()'
 }

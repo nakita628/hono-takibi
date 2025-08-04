@@ -6,7 +6,7 @@ import { not } from '../../helper/not.js'
 import { oneOf } from '../../helper/oneof.js'
 import { ref } from '../../helper/ref.js'
 import type { Schema } from '../../openapi/index.js'
-import { _enum, array, boolean, date, integer, number, object, string } from './z/index.js'
+import { _enum, array, integer, number, object, string } from './z/index.js'
 
 /**
  * Converts an OpenAPI `Schema` object into a Zod schema string.
@@ -84,13 +84,13 @@ export default function zod(schema: Schema): string {
   /* integer & bigint */
   if (t.includes('integer')) return integer(schema)
   /* boolean */
-  if (t.includes('boolean')) return boolean(schema)
+  if (t.includes('boolean')) return 'z.boolean()'
   /* array */
   if (t.includes('array')) return array(schema)
   /* object */
   if (t.includes('object')) return object(schema)
   /* date */
-  if (t.includes('date')) return date(schema)
+  if (t.includes('date')) return 'z.date()'
   /* null only */
   if (t.length === 1 && t[0] === 'null') return 'z.null()'
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)

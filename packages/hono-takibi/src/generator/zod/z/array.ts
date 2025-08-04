@@ -1,4 +1,3 @@
-import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 import zod from '../index.js'
 
@@ -6,20 +5,15 @@ export function array(schema: Schema): string {
   const array = `z.array(${schema.items ? zod(schema.items) : 'z.any()'})`
   if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
     if (schema.minItems === schema.maxItems) {
-      const z = `${array}.length(${schema.minItems})`
-      return wrap(z, schema)
+      return `${array}.length(${schema.minItems})`
     }
-    const z = `${array}.min(${schema.minItems}).max(${schema.maxItems})`
-    return wrap(z, schema)
+    return `${array}.min(${schema.minItems}).max(${schema.maxItems})`
   }
   if (typeof schema.minItems === 'number') {
-    const z = `${array}.min(${schema.minItems})`
-    return wrap(z, schema)
+    return `${array}.min(${schema.minItems})`
   }
   if (typeof schema.maxItems === 'number') {
-    const z = `${array}.max(${schema.maxItems})`
-    return wrap(z, schema)
+    return `${array}.max(${schema.maxItems})`
   }
-  const z = array
-  return wrap(z, schema)
+  return array
 }

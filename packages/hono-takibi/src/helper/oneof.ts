@@ -1,6 +1,6 @@
+import { propertySchema } from '../generator/zod/helper/property-schema.js'
 import zod from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { wrap } from './wrap.js'
 
 /**
  * Converts an OpenAPI `oneOf` schema to a Zod union expression.
@@ -14,12 +14,13 @@ import { wrap } from './wrap.js'
  */
 export function oneOf(schema: Schema): string {
   if (!schema.oneOf || schema.oneOf.length === 0) {
-    const z = 'z.any()'
-    return wrap(z, schema)
+    return 'z.any()'
   }
   // self-reference not call wrap
   const schemas = schema.oneOf.map((schema) => {
-    return zod(schema)
+    // return zod(schema)
+    return propertySchema(schema)
+    
   })
   // discriminatedUnion Support hesitant
   // This is because using intersection causes a type error.
@@ -27,6 +28,5 @@ export function oneOf(schema: Schema): string {
   // const z = discriminator
   //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
   //   : `z.union([${schemas.join(',')}])`
-  const z = `z.union([${schemas.join(',')}])`
-  return wrap(z, schema)
+  return `z.union([${schemas.join(',')}])`
 }

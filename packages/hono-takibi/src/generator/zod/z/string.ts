@@ -1,4 +1,3 @@
-import { wrap } from '../../../helper/wrap.js'
 import type { Schema } from '../../../openapi/index.js'
 import { regex } from '../../../utils/index.js'
 
@@ -55,6 +54,5 @@ export function string(schema: Schema): string {
       o.push(`.max(${schema.maxLength})`)
     }
   }
-  const z = o.join('')
-  return wrap(z, schema)
+  return o.join('')
 }

@@ -1,3 +1,7 @@
+import { allOf } from '../../../helper/allof.js'
+import { anyOf } from '../../../helper/anyof.js'
+import { not } from '../../../helper/not.js'
+import { oneOf } from '../../../helper/oneof.js'
 import { wrap } from '../../../helper/wrap.js'
 import { zodToOpenAPI } from '../../../helper/zod-to-openapi.js'
 import type { Schema } from '../../../openapi/index.js'
@@ -43,5 +47,7 @@ export function propertySchema(schema: Schema): string {
     }
     return 'z.array(z.any())'
   }
-  return zodToOpenAPI(zod(schema), schema)
+  
+  const z = wrap(zod(schema), schema)
+  return zodToOpenAPI(z, schema)
 }

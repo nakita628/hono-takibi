@@ -1,10 +1,9 @@
 import zod from '../generator/zod/index.js'
 import type { Schema } from '../openapi/index.js'
-import { wrap } from './wrap.js'
 
 export function allOf(schema: Schema): string {
   if (!schema.allOf || schema.allOf.length === 0) {
-    return wrap('z.any()', schema)
+    return 'z.any()'
   }
 
   const { schemas, nullable } = schema.allOf.reduce<{
@@ -23,9 +22,8 @@ export function allOf(schema: Schema): string {
         }
       }
 
-      const z = zod(s)
       return {
-        schemas: [...acc.schemas, wrap(z, s)],
+        schemas: [...acc.schemas, zod(s)],
         nullable: acc.nullable,
       }
     },
@@ -38,13 +36,15 @@ export function allOf(schema: Schema): string {
   )
 
   if (schemas.length === 0) {
-    return wrap('z.any()', { ...schema, nullable })
+    // return wrap('z.any()', { ...schema, nullable })
+    return 'z.any()'
   }
 
   if (schemas.length === 1) {
-    return wrap(schemas[0], { ...schema, nullable })
+    // return wrap(schemas[0], { ...schema, nullable })
+    return schemas[0]
   }
 
-  const z = `z.intersection(${schemas.join(',')})`
-  return wrap(z, { ...schema, nullable })
+  return `z.intersection(${schemas.join(',')})`
+  // return wrap(z, { ...schema, nullable })
 }
