@@ -33,11 +33,27 @@ export function zodToOpenAPI(
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
+  if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
+  // ref
+  if (schema.$ref) {
+    if (Boolean(schema.$ref) === true) {
+      return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
+    }
+    if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
+      if (schema.items?.$ref) {
+        console.log(wrap(refSchema(schema.items.$ref), schema.items))
+        const ref = wrap(refSchema(schema.items.$ref), schema.items)
+        return `z.array(${ref})`
+      }
+      return 'z.array(z.any())'
+    }
+  }
+  /* combinators */
   // allOf
   if (schema.allOf) {
-    if (!schema.allOf || schema.allOf.length === 0) {
-      return wrap('z.any()', schema)
-    }
+    // if (!schema.allOf || schema.allOf.length === 0) {
+    //   return wrap('z.any()', schema)
+    // }
 
     const { schemas, nullable } = schema.allOf.reduce<{
       schemas: string[]
@@ -70,15 +86,15 @@ export function zodToOpenAPI(
     )
 
     if (schemas.length === 0) {
-      return wrap('z.any()', { ...schema, nullable })
+      return wrap('z.any()', { ...schema, nullable }, paramName, paramIn)
     }
 
     if (schemas.length === 1) {
-      return wrap(schemas[0], { ...schema, nullable })
+      return wrap(schemas[0], { ...schema, nullable }, paramName, paramIn)
     }
 
     const z = `z.intersection(${schemas.join(',')})`
-    return wrap(z, schema)
+    return wrap(z, schema, paramName, paramIn)
   }
 
   // anyOf
@@ -88,25 +104,10 @@ export function zodToOpenAPI(
     }
     // self-reference not call wrap
     const schemas = schema.anyOf.map((subSchema) => {
-      // return zod(subSchema)
       return zodToOpenAPI(subSchema, paramName, paramIn)
     })
     const z = `z.union([${schemas.join(',')}])`
     return wrap(z, schema)
-  }
-
-  if (Boolean(schema.$ref) === true) {
-    if (schema.$ref) {
-      return wrap(refSchema(schema.$ref), schema)
-    }
-    return 'z.any()'
-  }
-  if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
-    if (schema.items?.$ref) {
-      const ref = wrap(refSchema(schema.items.$ref), schema.items)
-      return `z.array(${ref})`
-    }
-    return 'z.array(z.any())'
   }
 
   // oneOf
@@ -126,9 +127,28 @@ export function zodToOpenAPI(
     //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
     //   : `z.union([${schemas.join(',')}])`
     const z = `z.union([${schemas.join(',')}])`
-    return wrap(z, schema)
+    return wrap(z, schema, paramName, paramIn)
+  }
+
+  // not
+  if (schema.not) {
+    if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
+      const predicate = `(v) => typeof v !== '${schema.not.type}'`
+      return `z.any().refine(${predicate})`
+    }
+    if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
+      const list = JSON.stringify(schema.not.enum)
+      const predicate = `(v) => !${list}.includes(v)`
+      return `z.any().refine(${predicate})`
+    }
+    return 'z.any()'
+  }
+
+  // const
+  if (schema.const) {
+    const z = `z.literal(${JSON.stringify(schema.const)})`
+    return wrap(z, schema, paramName, paramIn)
   }
 
   return wrap(zod(schema), schema, paramName, paramIn)
-  // return zodToOpenAPI(z, schema, paramName, paramIn)
 }

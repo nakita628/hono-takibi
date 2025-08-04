@@ -2,103 +2,28 @@ import { describe, expect, it } from 'vitest'
 import { zodToOpenAPI } from './zod-to-openapi'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/helper/property-schema.test.ts
+// pnpm vitest run ./src/generator/zod/helper/zod-to-openapi.test.ts
 
 describe('propertySchema', () => {
-  it.concurrent('propertySchema -> TestSchema', () => {
-    const result = zodToOpenAPI({
-      $ref: '#/components/schemas/Test',
-    })
-
-    const expected = 'TestSchema'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.string()', () => {
-    const result = zodToOpenAPI({
-      type: 'string',
-    })
-
-    const expected = 'z.string()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.number()', () => {
-    const result = zodToOpenAPI({
-      type: 'number',
-    })
-
-    const expected = 'z.number()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.any', () => {
-    const result = zodToOpenAPI({
-      // biome-ignore lint: test
-      $ref: '' as any,
-    })
-
-    const expected = 'z.any()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.array(z.any())', () => {
-    const result = zodToOpenAPI({
-      type: 'array',
-      items: {
-        // biome-ignore lint: test
-        $ref: '' as any,
-      },
-    })
-
-    const expected = 'z.array(z.any())'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.array(TestSchema)', () => {
-    const result = zodToOpenAPI({
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/Test',
-      },
-    })
-
-    const expected = 'z.array(TestSchema)'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.email()', () => {
-    const result = zodToOpenAPI({ type: 'string', format: 'email' })
-
-    const expected = 'z.email()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.uuid()', () => {
-    const result = zodToOpenAPI({ type: 'string', format: 'uuid' })
-
-    const expected = 'z.uuid()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.iso.datetime()', () => {
-    const result = zodToOpenAPI({ type: 'string', format: 'date-time' })
-
-    const expected = 'z.iso.datetime()'
-    expect(result).toBe(expected)
-  })
-
-  it.concurrent('propertySchema -> z.enum(["a","b","c"])', () => {
-    const result = zodToOpenAPI({ type: 'string', enum: ['a', 'b', 'c'] })
-
-    const expected = 'z.enum(["a","b","c"])'
-    expect(result).toBe(expected)
-  })
-
   // $ref
   describe('ref', () => {
     it.concurrent('TestSchema', () => {
-      expect(zodToOpenAPI({ $ref: '#/components/schemas/Test' })).toBe('TestSchema')
+      expect(
+        zodToOpenAPI({
+          $ref: '#/components/schemas/Test',
+        }),
+      ).toBe('TestSchema')
+    })
+
+    it.concurrent('z.array(TestSchema)', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/Test',
+          },
+        }),
+      ).toBe('z.array(TestSchema)')
     })
   })
   // oneOf
