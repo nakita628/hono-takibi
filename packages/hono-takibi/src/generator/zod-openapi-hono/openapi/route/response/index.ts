@@ -31,7 +31,7 @@ export function response(responses: Responses): string {
       const contentParts: string[] = []
       for (const contentType of contentTypes) {
         const content = response.content[contentType]
-        const zodSchema = zodToOpenAPI(content.schema)
+        const z = zodToOpenAPI(content.schema)
 
         const examples = content.examples
         const exampleString =
@@ -46,9 +46,9 @@ export function response(responses: Responses): string {
                 })
                 .join(',')}}`
             : ''
-        contentParts.push(`'${contentType}':{schema:${zodSchema}${exampleString}}`)
+        contentParts.push(`'${contentType}':{schema:${z}${exampleString}}`)
       }
-      return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}},},`
+      return `${code}:{description:'${escapeStringLiteral(response.description ?? '')}',content:{${contentParts.join(',')}}},`
     }
   })
   // 3.combine all response definitions

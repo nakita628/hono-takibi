@@ -30,7 +30,7 @@ describe('requestBody', () => {
       'z.object({post: z.string().min(1).max(140)})',
     )
 
-    const expected = `body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)})}},},`
+    const expected = `body:{required:true,content:{'application/json':{schema:z.object({post: z.string().min(1).max(140)})}}},`
     expect(result).toBe(expected)
   })
 
@@ -85,7 +85,7 @@ describe('requestBody', () => {
   photoUrls: z.array(z.string()),
   tags: z.array(tagSchema).optional(),
   status: z.enum(['available', 'pending', 'sold']).optional(),
-})}},},`
+})}}},`
     expect(result).toBe(expected)
   })
 
@@ -111,7 +111,7 @@ describe('requestBody', () => {
       },
       'petSchema',
     )
-    const expected = `body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}},},`
+    const expected = `body:{required:true,content:{'application/json':{schema:petSchema},'application/xml':{schema:petSchema},'application/x-www-form-urlencoded':{schema:petSchema}}},`
     expect(result).toBe(expected)
   })
 
@@ -127,7 +127,7 @@ describe('requestBody', () => {
       },
       'z.date()',
     )
-    const expected = `body:{required:true,content:{'application/json':{schema:z.coerce.date()}},},`
+    const expected = `body:{required:true,content:{'application/json':{schema:z.coerce.date()}}},`
     expect(result).toBe(expected)
   })
 

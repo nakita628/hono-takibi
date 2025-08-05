@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { response } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/response/response.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/response/index.test.ts
 
 describe('generateResponseSchema', () => {
   it.concurrent('generateResponseSchema Hono', () => {
@@ -26,7 +26,7 @@ describe('generateResponseSchema', () => {
       },
     })
 
-    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},`
+    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}}},`
 
     expect(result).toBe(expected)
   })
