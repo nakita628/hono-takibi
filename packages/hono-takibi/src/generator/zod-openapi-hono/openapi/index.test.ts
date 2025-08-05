@@ -112,7 +112,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 export type E = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
 
     expect(result).toBe(expected)
   })
@@ -141,7 +141,7 @@ export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('
 
 
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
     expect(result).toBe(expected)
   })
   // #3: exportSchema=false, exportType=true
@@ -169,7 +169,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 export type E = z.infer<typeof ESchema>
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
     expect(result).toBe(expected)
   })
   // #4: exportSchema=false, exportType=false
@@ -197,7 +197,7 @@ const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
 
 
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}},},}})`
+export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
     expect(result).toBe(expected)
   })
 })

@@ -24,7 +24,7 @@ describe('requestParameter', () => {
         },
       },
     })
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}}},},`
     expect(result).toBe(expected)
   })
 
@@ -81,7 +81,7 @@ describe('requestParameter', () => {
       },
     )
 
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}},},params:z.object({id:z.uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}}},params:z.object({id:z.uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
     expect(result).toBe(expected)
   })
 
@@ -120,7 +120,7 @@ describe('requestParameter', () => {
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}},},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}}},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
     expect(result).toBe(expected)
   })
 })
