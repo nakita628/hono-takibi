@@ -25,7 +25,7 @@ export function requestBody(required: boolean, content: Content, schema: string)
         contentParts.push(`'${contentType}':{schema:${schema}}`)
       }
     }
-    return `body:{required:${required},content:{${contentParts.join(',')}},},`
+    return `body:{required:${required},content:{${contentParts.join(',')}}},`
   }
   return ''
 }

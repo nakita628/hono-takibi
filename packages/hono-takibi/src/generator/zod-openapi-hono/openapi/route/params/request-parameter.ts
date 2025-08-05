@@ -43,9 +43,9 @@ export function requestParameter(
       const z = zodToOpenAPI(schema)
       uniqueSchemas.set(z, z)
     }
-    const request_body_required = body.required ?? false
+    const required = body.required ?? false
     const [firstSchema] = uniqueSchemas.values()
-    const requestBodyCode = requestBody(request_body_required, body.content, firstSchema)
+    const requestBodyCode = requestBody(required, body.content, firstSchema)
     if (params) {
       return params.replace('request:{', `request:{${requestBodyCode}`)
     }

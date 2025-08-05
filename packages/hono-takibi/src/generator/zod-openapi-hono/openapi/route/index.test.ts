@@ -34,7 +34,7 @@ describe('routeCode', () => {
         },
       },
     })
-    const expected = `export const getHonoRoute=createRoute({tags:["Hono"],method:'get',path:'/hono',summary:'Hono',description:'Hono',responses:{200:{description:'OK',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}},},}})`
+    const expected = `export const getHonoRoute=createRoute({tags:["Hono"],method:'get',path:'/hono',summary:'Hono',description:'Hono',responses:{200:{description:'OK',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}}},}})`
     expect(result).toBe(expected)
   })
 })

@@ -27,8 +27,6 @@ export function paramsObject(parameters: Parameters[]): {
       },
       param,
     ) => {
-      // const z = zod(param.schema)
-      const optionalSuffix = param.required ? '' : '.optional()'
       // path params are generated with the param name
       const baseSchema = param.in
         ? zodToOpenAPI(param.schema, param.name, param.in)
@@ -38,9 +36,9 @@ export function paramsObject(parameters: Parameters[]): {
         acc[param.in] = {}
       }
       // queryParameter check
-      const zodSchema = queryParameter(baseSchema, param)
+      const z = queryParameter(baseSchema, param)
       // Add parameter to its section
-      acc[param.in][getToSafeIdentifier(param.name)] = `${zodSchema}${optionalSuffix}`
+      acc[param.in][getToSafeIdentifier(param.name)] = `${z}${param.required ? '' : '.optional()'}`
       return acc
     },
     {},

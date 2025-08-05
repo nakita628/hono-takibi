@@ -38,9 +38,9 @@ export function componentsCode(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
-      const zodSchema = zodToOpenAPI(schema)
+      const z = zodToOpenAPI(schema)
       // 4.3 generate zod schema definition
-      return zodToOpenAPISchema(schemaName, zodSchema, exportSchema, exportType)
+      return zodToOpenAPISchema(schemaName, z, exportSchema, exportType)
     })
     .join('\n\n')
   // 5. return code

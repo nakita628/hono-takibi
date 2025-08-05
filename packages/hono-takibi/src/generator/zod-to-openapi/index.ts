@@ -34,7 +34,7 @@ export function zodToOpenAPI(
   // allOf
   if (schema.allOf) {
     if (!schema.allOf || schema.allOf.length === 0) {
-      return wrap('z.any()', schema)
+      return wrap('z.any()', schema, paramName, paramIn)
     }
     const { schemas, nullable } = schema.allOf.reduce<{
       schemas: string[]
@@ -78,19 +78,19 @@ export function zodToOpenAPI(
   // anyOf
   if (schema.anyOf) {
     if (!schema.anyOf || schema.anyOf.length === 0) {
-      return 'z.any()'
+      return wrap('z.any()', schema, paramName, paramIn)
     }
     const schemas = schema.anyOf.map((subSchema) => {
       return zodToOpenAPI(subSchema, paramName, paramIn)
     })
     const z = `z.union([${schemas.join(',')}])`
-    return wrap(z, schema)
+    return wrap(z, schema, paramName, paramIn)
   }
 
   // oneOf
   if (schema.oneOf) {
     if (!schema.oneOf || schema.oneOf.length === 0) {
-      return 'z.any()'
+      return wrap('z.any()', schema, paramName, paramIn)
     }
     const schemas = schema.oneOf.map((schema) => {
       return zodToOpenAPI(schema, paramName, paramIn)
@@ -101,6 +101,7 @@ export function zodToOpenAPI(
     // const z = discriminator
     //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
     //   : `z.union([${schemas.join(',')}])`
+    // return wrap(z, schema, paramName, paramIn)
     const z = `z.union([${schemas.join(',')}])`
     return wrap(z, schema, paramName, paramIn)
   }
@@ -109,14 +110,16 @@ export function zodToOpenAPI(
   if (schema.not) {
     if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
       const predicate = `(v) => typeof v !== '${schema.not.type}'`
-      return `z.any().refine(${predicate})`
+      const z = `z.any().refine(${predicate})`
+      return wrap(z, schema, paramName, paramIn)
     }
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
-      return `z.any().refine(${predicate})`
+      const z = `z.any().refine(${predicate})`
+      return wrap(z, schema, paramName, paramIn)
     }
-    return 'z.any()'
+    return wrap('z.any()', schema, paramName, paramIn)
   }
 
   // const

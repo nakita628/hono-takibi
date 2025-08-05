@@ -42,10 +42,12 @@ export const getSearchRoute = createRoute({
           z.string().openapi({ param: { in: 'query', name: 'filter', required: false } }),
           z.array(z.string()).openapi({ param: { in: 'query', name: 'filter', required: false } }),
         ])
+        .openapi({ param: { in: 'query', name: 'filter', required: false } })
         .optional(),
       exclude: z
         .any()
         .refine((v) => typeof v !== 'number')
+        .openapi({ param: { in: 'query', name: 'exclude', required: false } })
         .optional(),
     }),
   },
