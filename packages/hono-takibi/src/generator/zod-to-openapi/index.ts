@@ -110,7 +110,7 @@ export function zodToOpenAPI(
   if (schema.not) {
     if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
       const predicate = `(v) => typeof v !== '${schema.not.type}'`
-      const z =  `z.any().refine(${predicate})`
+      const z = `z.any().refine(${predicate})`
       return wrap(z, schema, paramName, paramIn)
     }
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
