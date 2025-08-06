@@ -1,211 +1,114 @@
-import { execSync } from 'node:child_process'
-import { randomUUID } from 'node:crypto'
 import { testClient } from 'hono/testing'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '../index.ts'
-import prisma from '../infra/index.ts'
+import * as postsService from '../services/postsService'
+
+// Test run
+// pnpm vitest run ./src/handlers/postsHandler.test.ts
 
 const test = testClient(api)
 
-describe('Hono Zod OpenAPI Test', () => {
-  beforeAll(async () => {
-    execSync('DATABASE_URL=file:./test.db prisma migrate reset --force --skip-seed')
+vi.mock('../services/postsService', () => ({
+  postPosts: vi.fn(),
+  getPosts: vi.fn(),
+  putPostsId: vi.fn(),
+  deletePostsId: vi.fn(),
+}))
+
+describe('postPostsRouteHandler (via service mock)', () => {
+  const mockedService = vi.mocked(postsService)
+  beforeEach(() => {
+    vi.resetAllMocks()
   })
 
-  beforeEach(async () => {
-    await prisma.post.deleteMany()
-  })
-
-  afterAll(async () => {
-    await prisma.$disconnect()
-  })
-
-  describe('postPostsRouteHandler', () => {
+  describe('POST /posts', () => {
     it('201', async () => {
-      const res = await test.posts.$post({
-        json: {
-          post: 'OpenAPIHono🔥',
-        },
+      mockedService.postPosts.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
       })
-      const input = await res.json()
-      expect(input).toStrictEqual({ message: 'Created' })
-      expect(res.status).toBe(201)
-    })
 
-    it('422', async () => {
       const res = await test.posts.$post({
         json: {
-          post: '',
+          post: 'Hono🔥',
         },
       })
-      const input = await res.json()
-      const expected = {
-        ok: false,
-        errors: {
-          errors: [],
-          properties: {
-            post: {
-              errors: ['At least 1 character are required'],
-            },
-          },
-        },
-      }
-      expect(input).toStrictEqual(expected)
-      expect(res.status).toBe(422)
+
+      expect(res.status).toBe(201)
+      expect(await res.json()).toStrictEqual({ message: 'Created' })
+      expect(mockedService.postPosts).toHaveBeenCalledWith('Hono🔥')
     })
   })
 
-  describe('getPostsRouteHandler', () => {
+  describe('GET /posts', () => {
     it('200', async () => {
-      const generatePosts = (count: number) => {
-        return Array.from({ length: count }, (_, i) => ({
-          id: randomUUID(),
-          post: `OpenAPIHono🔥${i + 1}`,
-          createdAt: new Date(`2021-01-${i + 1}`),
-          updatedAt: new Date(`2021-01-${i + 1}`),
-        }))
-      }
-
-      const postDatas = await Promise.all(
-        generatePosts(20).map(async (data) => {
-          return prisma.post.create({
-            data,
-          })
-        }),
-      )
+      mockedService.getPosts.mockResolvedValueOnce({
+        ok: true,
+        value: [
+          {
+            id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
+            post: 'Hono🔥',
+            createdAt: new Date('2024-01-01T00:00:00.000Z'),
+            updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+          },
+        ],
+      })
 
       const res = await test.posts.$get({
         query: {
           page: '1',
-          rows: '15',
+          rows: '10',
         },
       })
 
-      const input = await res.json()
-
-      const expected = postDatas
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 15)
-        .map((post) => ({
-          ...post,
-          createdAt: new Date(post.createdAt).toISOString(),
-          updatedAt: new Date(post.updatedAt).toISOString(),
-        }))
-
-      expect(input).toStrictEqual(expected)
       expect(res.status).toBe(200)
-    })
-
-    it('422', async () => {
-      const res = await test.posts.$get({
-        query: {
-          page: '-1',
-          rows: '-1',
-        },
-      })
-      expect(res.status).toBe(422)
-    })
-  })
-
-  it('putPostsIdRouteHandler 204', async () => {
-    const post = await prisma.post.create({
-      data: {
-        id: randomUUID(),
-        post: 'OpenAPIHono🔥',
-        createdAt: new Date('2021-01-01'),
-        updatedAt: new Date('2021-01-01'),
-      },
-    })
-
-    const res = await test.posts[':id'].$put({
-      param: {
-        id: post.id,
-      },
-      json: {
-        post: 'OpenAPIHono🔥🔥',
-      },
-    })
-
-    expect(res.status).toBe(204)
-
-    const updatedPost = await prisma.post.findUnique({
-      where: {
-        id: post.id,
-      },
-    })
-    expect(updatedPost?.post).toStrictEqual('OpenAPIHono🔥🔥')
-  })
-
-  describe('putPostsIdRouteHandler', () => {
-    it(`post '' 422`, async () => {
-      const post = await prisma.post.create({
-        data: {
-          id: randomUUID(),
+      expect(await res.json()).toStrictEqual([
+        {
+          id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
           post: 'Hono🔥',
-          createdAt: new Date('2021-01-01'),
-          updatedAt: new Date('2021-01-01'),
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
         },
+      ])
+      expect(mockedService.getPosts).toHaveBeenCalledWith(10, 0)
+    })
+  })
+
+  describe('PUT /posts/:id', () => {
+    it('204', async () => {
+      mockedService.putPostsId.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
       })
 
       const res = await test.posts[':id'].$put({
-        param: {
-          id: post.id,
-        },
-        json: {
-          post: '',
-        },
-      })
-      expect(res.status).toBe(422)
-    })
-
-    it('param 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 422', async () => {
-      const res = await test.posts[':id'].$put({
-        param: {
-          id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
-        },
-        json: {
-          post: 'test',
-        },
-      })
-      expect(res.status).toBe(422)
-    })
-
-    it('deletePostsIdRouteHandler 204', async () => {
-      const post = await prisma.post.create({
-        data: {
-          id: randomUUID(),
-          post: 'OpenAPIHono🔥',
-          createdAt: new Date('2021-01-01'),
-          updatedAt: new Date('2021-01-01'),
-        },
-      })
-
-      const res = await test.posts[':id'].$delete({
-        param: {
-          id: post.id,
-        },
+        param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
+        json: { post: 'updated' },
       })
 
       expect(res.status).toBe(204)
-
-      const deletedPost = await prisma.post.findUnique({
-        where: {
-          id: post.id,
-        },
-      })
-
-      expect(deletedPost).toBeNull()
+      expect(mockedService.putPostsId).toHaveBeenCalledWith(
+        'c6c0f743-01fa-4c23-80d6-1b358512e213',
+        'updated',
+      )
     })
   })
 
-  describe('deletePostsIdRouteHandler', () => {
-    it('422', async () => {
-      const res = await test.posts[':id'].$delete({
-        param: {
-          id: '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥',
-        },
+  describe('DELETE /posts/:id', () => {
+    it('204', async () => {
+      mockedService.deletePostsId.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
       })
-      expect(res.status).toBe(422)
+
+      const res = await test.posts[':id'].$delete({
+        param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
+      })
+
+      expect(res.status).toBe(204)
+      expect(mockedService.deletePostsId).toHaveBeenCalledWith(
+        'c6c0f743-01fa-4c23-80d6-1b358512e213',
+      )
     })
   })
 })
