@@ -23,7 +23,10 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
   describe('POST /posts', () => {
     it('201', async () => {
-      mockedService.postPosts.mockResolvedValueOnce(undefined)
+      mockedService.postPosts.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
+      })
 
       const res = await test.posts.$post({
         json: {
@@ -39,14 +42,17 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
   describe('GET /posts', () => {
     it('200', async () => {
-      mockedService.getPosts.mockResolvedValueOnce([
-        {
-          id: 'abc',
-          post: 'Post1',
-          createdAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
-          updatedAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
-        },
-      ])
+      mockedService.getPosts.mockResolvedValueOnce({
+        ok: true,
+        value: [
+          {
+            id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
+            post: 'Hono🔥',
+            createdAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
+            updatedAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
+          },
+        ],
+      })
 
       const res = await test.posts.$get({
         query: {
@@ -58,8 +64,8 @@ describe('postPostsRouteHandler (via service mock)', () => {
       expect(res.status).toBe(200)
       expect(await res.json()).toStrictEqual([
         {
-          id: 'abc',
-          post: 'Post1',
+          id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
+          post: 'Hono🔥',
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
@@ -70,7 +76,10 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
   describe('PUT /posts/:id', () => {
     it('204', async () => {
-      mockedService.postPosts.mockResolvedValueOnce(undefined)
+      mockedService.putPostsId.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
+      })
 
       const res = await test.posts[':id'].$put({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
@@ -87,7 +96,10 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
   describe('DELETE /posts/:id', () => {
     it('204', async () => {
-      mockedService.postPosts.mockResolvedValueOnce(undefined)
+      mockedService.deletePostsId.mockResolvedValueOnce({
+        ok: true,
+        value: undefined,
+      })
 
       const res = await test.posts[':id'].$delete({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
