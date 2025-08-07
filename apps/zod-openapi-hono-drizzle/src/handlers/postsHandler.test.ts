@@ -22,7 +22,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
   })
 
   describe('POST /posts', () => {
-    it('201', async () => {
+    it.concurrent('201', async () => {
       mockedService.postPosts.mockResolvedValueOnce({
         ok: true,
         value: undefined,
@@ -41,7 +41,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
   })
 
   describe('GET /posts', () => {
-    it('200', async () => {
+    it.concurrent('200', async () => {
       mockedService.getPosts.mockResolvedValueOnce({
         ok: true,
         value: [
@@ -75,7 +75,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
   })
 
   describe('PUT /posts/:id', () => {
-    it('204', async () => {
+    it.concurrent('204', async () => {
       mockedService.putPostsId.mockResolvedValueOnce({
         ok: true,
         value: undefined,
@@ -95,7 +95,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
   })
 
   describe('DELETE /posts/:id', () => {
-    it('204', async () => {
+    it.concurrent('204', async () => {
       mockedService.deletePostsId.mockResolvedValueOnce({
         ok: true,
         value: undefined,

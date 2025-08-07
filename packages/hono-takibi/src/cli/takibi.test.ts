@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../openapi/index.js'
 import { takibi } from './takibi.js'
 
@@ -96,11 +96,11 @@ const openapi: OpenAPI = {
 }
 
 describe('takibi generate', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     fs.writeFileSync('openapi.json', JSON.stringify(openapi))
   })
 
-  afterAll(() => {
+  afterEach(() => {
     fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
   })
@@ -175,7 +175,7 @@ export const getZodOpenapiHonoRoute = createRoute({
 })
 
 describe('takibi generate', () => {
-  afterAll(() => {
+  afterEach(() => {
     fs.rmSync('openapi.json', { force: true })
     fs.rmSync('zod-openapi-hono.ts', { force: true })
     if (fs.existsSync('tmp')) {
@@ -194,13 +194,205 @@ describe('takibi generate', () => {
       value: 'Generated code written to zod-openapi-hono.ts',
     })
   })
+})
 
-  it('should generate Hono app with OpenAPI routes and template files', async () => {
+describe('templateCode', () => {
+  beforeEach(() => {
+    fs.mkdirSync('tmp-template/src', { recursive: true })
+  })
+  afterEach(() => {
+    fs.rmSync('tmp-template', { recursive: true, force: true })
+  })
+
+  const cwd = process.cwd()
+  const path = `${cwd}/tmp-template/src/`
+
+  // test true
+  it('--template --test', async () => {
     if (!fs.existsSync('openapi.json')) {
       fs.writeFileSync('openapi.json', JSON.stringify(openapi))
     }
-    const result = await takibi('openapi.json', 'tmp/zod-openapi-hono.ts', true, true, true, true)
+    const result = await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, true)
 
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  it('test true exists main.ts', async () => {
+    // 1st run
+    await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, true)
+
+    // 2nd run
+    // exists main.ts
+    const result = await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, true)
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  // test false
+  it('--template --test false', async () => {
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      false,
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(false)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+  })
+
+  it('templateCode template true exists main.ts', async () => {
+    // 1st run
+    await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, false)
+    // 2nd run
+    // exists main.ts
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      false,
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  // basePath test
+  it('basePath api test true', async () => {
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      true,
+      'api',
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    // contain basePath
+    const appCode = fs.readFileSync(`${path}/index.ts`, 'utf-8')
+    expect(appCode).toContain("new OpenAPIHono().basePath('api')")
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  it('basePath api test false', async () => {
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      false,
+      'api',
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    // contain basePath
+    const appCode = fs.readFileSync(`${path}/index.ts`, 'utf-8')
+    expect(appCode).toContain("new OpenAPIHono().basePath('api')")
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  it('basePath api test true exists main.ts', async () => {
+    // 1st run
+    await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, true, 'api')
+    // 2nd run
+    // exists main.ts
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      true,
+      'api',
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.test.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.test.ts`)).toBe(true)
+    // contain basePath
+    const appCode = fs.readFileSync(`${path}/index.ts`, 'utf-8')
+    expect(appCode).toContain("new OpenAPIHono().basePath('api')")
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'Generated code and template files written',
+    })
+  })
+
+  it('basePath api test false exists main.ts', async () => {
+    // 1st run
+    await takibi('openapi.json', 'tmp-template/src/route.ts', true, true, true, false, 'api')
+    // 2nd run
+    // exists main.ts
+    const result = await takibi(
+      'openapi.json',
+      'tmp-template/src/route.ts',
+      true,
+      true,
+      true,
+      false,
+      'api',
+    )
+    expect(fs.existsSync(`${path}/index.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/main.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/honoXHandler.ts`)).toBe(true)
+    expect(fs.existsSync(`${path}/handlers/zodOpenapiHonoHandler.ts`)).toBe(true)
+    // contain basePath
+    const appCode = fs.readFileSync(`${path}/index.ts`, 'utf-8')
+    expect(appCode).toContain("new OpenAPIHono().basePath('api')")
     expect(result).toStrictEqual({
       ok: true,
       value: 'Generated code and template files written',
