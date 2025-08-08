@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
+import { mkdir, readdir, writeFile } from '../fsp/index.js'
+import { app } from '../generator/zod-openapi-hono/app/index.js'
+import { zodOpenapiHonoHandler } from '../generator/zod-openapi-hono/handler/zod-openapi-hono-handler.js'
 import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { asyncAndThen } from '../result/index.js'
-import { templateCode } from './template-code.js'
 
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.
@@ -36,23 +36,47 @@ export async function takibi(
       error: string
     }
 > {
-  return await asyncAndThen(await parseOpenAPI(input), async (openAPI) =>
-    asyncAndThen(await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType)), async (code) =>
-      asyncAndThen(await mkdir(path.dirname(output)), async () =>
-        asyncAndThen(await writeFile(output, code), async () =>
-          template && output.includes('/')
-            ? asyncAndThen(await templateCode(openAPI, output, test, basePath), async () => {
-                return {
-                  ok: true,
-                  value: 'Generated code and template files written',
-                }
-              })
-            : {
-                ok: true,
-                value: `Generated code written to ${output}`,
-              },
-        ),
-      ),
-    ),
-  )
+  const openAPIResult = await parseOpenAPI(input)
+  if (!openAPIResult.ok) {
+    return { ok: false, error: openAPIResult.error }
+  }
+  const openAPI = openAPIResult.value
+  const honoResult = await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))
+  if (!honoResult.ok) {
+    return { ok: false, error: honoResult.error }
+  }
+  const mkdirResult = await mkdir(path.dirname(output))
+  if (!mkdirResult.ok) {
+    return { ok: false, error: mkdirResult.error }
+  }
+  const writeResult = await writeFile(output, honoResult.value)
+  if (!writeResult.ok) {
+    return { ok: false, error: writeResult.error }
+  }
+  if (template && output.includes('/')) {
+    const appResult = await fmt(app(openAPI, output, basePath))
+    if (!appResult.ok) {
+      return { ok: false, error: appResult.error }
+    }
+    const dir = path.dirname(output)
+    const readdirResult = await readdir(dir)
+    if (!readdirResult.ok) {
+      return { ok: false, error: readdirResult.error }
+    }
+    const files = readdirResult.value
+    const target = path.join(dir, files.includes('index.ts') ? 'main.ts' : 'index.ts')
+    const writeResult = await writeFile(target, appResult.value)
+    if (!writeResult.ok) {
+      return { ok: false, error: writeResult.error }
+    }
+    const handlerResult = await zodOpenapiHonoHandler(openAPI, output, test)
+    if (!handlerResult.ok) {
+      return { ok: false, error: handlerResult.error }
+    }
+    return { ok: true, value: 'Generated code and template files written' }
+  }
+  return {
+    ok: true,
+    value: `Generated code written to ${output}`,
+  }
 }

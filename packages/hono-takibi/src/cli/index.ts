@@ -1,4 +1,3 @@
-import { asyncAndThen } from '../result/index.js'
 import { parseCli } from '../utils/index.js'
 import { takibi } from './takibi.js'
 
@@ -38,23 +37,25 @@ export async function honoTakibi(): Promise<
       value: HELP_TEXT,
     }
   }
-  return await asyncAndThen(parseCli(args), async (cli) =>
-    asyncAndThen(
-      await takibi(
-        cli.input,
-        cli.output,
-        cli.exportSchema ?? false,
-        cli.exportType ?? false,
-        cli.template ?? false,
-        cli.test ?? false,
-        cli.basePath,
-      ),
-      async (result) => {
-        return {
-          ok: true,
-          value: result,
-        }
-      },
-    ),
+  const cliResult = parseCli(args)
+  if (!cliResult.ok) {
+    return { ok: false, error: cliResult.error }
+  }
+  const cli = cliResult.value
+  const takibiResult = await takibi(
+    cli.input,
+    cli.output,
+    cli.exportSchema ?? false,
+    cli.exportType ?? false,
+    cli.template ?? false,
+    cli.test ?? false,
+    cli.basePath,
   )
+  if (!takibiResult.ok) {
+    return { ok: false, error: takibiResult.error }
+  }
+  return {
+    ok: true,
+    value: takibiResult.value,
+  }
 }

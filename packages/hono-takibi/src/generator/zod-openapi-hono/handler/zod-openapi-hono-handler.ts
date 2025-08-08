@@ -1,7 +1,6 @@
 import { fmt } from '../../../format/index.js'
 import { mkdir, writeFile } from '../../../fsp/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../../openapi/index.js'
-import type { Result } from '../../../result/index.js'
 import { groupHandlersByFileName, routeName } from '../../../utils/index.js'
 
 /**
@@ -16,7 +15,16 @@ export async function zodOpenapiHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
-): Promise<Result<void, string>> {
+): Promise<
+  | {
+      ok: true
+      value: undefined
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   const paths: OpenAPIPaths = openapi.paths
   const handlers: {
     fileName: `${string}.ts`
