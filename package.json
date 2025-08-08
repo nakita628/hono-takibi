@@ -15,7 +15,7 @@
     "takibis": "pnpm -F hono-takibi takibis"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.2",
+    "@biomejs/biome": "^2.1.4",
     "typedoc": "^0.28.7"
   }
 }
