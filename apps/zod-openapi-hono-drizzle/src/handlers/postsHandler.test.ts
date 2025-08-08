@@ -16,14 +16,14 @@ vi.mock('../services/postsService', () => ({
 }))
 
 describe('postPostsRouteHandler (via service mock)', () => {
-  const mockedService = vi.mocked(postsService)
+  const mockService = vi.mocked(postsService)
   beforeEach(() => {
     vi.resetAllMocks()
   })
 
   describe('POST /posts', () => {
     it.concurrent('201', async () => {
-      mockedService.postPosts.mockResolvedValueOnce({
+      mockService.postPosts.mockResolvedValueOnce({
         ok: true,
         value: undefined,
       })
@@ -36,20 +36,20 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
       expect(res.status).toBe(201)
       expect(await res.json()).toStrictEqual({ message: 'Created' })
-      expect(mockedService.postPosts).toHaveBeenCalledWith('Hono🔥')
+      expect(mockService.postPosts).toHaveBeenCalledWith('Hono🔥')
     })
   })
 
   describe('GET /posts', () => {
     it.concurrent('200', async () => {
-      mockedService.getPosts.mockResolvedValueOnce({
+      mockService.getPosts.mockResolvedValueOnce({
         ok: true,
         value: [
           {
             id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
             post: 'Hono🔥',
-            createdAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
-            updatedAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
           },
         ],
       })
@@ -70,13 +70,13 @@ describe('postPostsRouteHandler (via service mock)', () => {
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
       ])
-      expect(mockedService.getPosts).toHaveBeenCalledWith(10, 0)
+      expect(mockService.getPosts).toHaveBeenCalledWith(10, 0)
     })
   })
 
   describe('PUT /posts/:id', () => {
     it.concurrent('204', async () => {
-      mockedService.putPostsId.mockResolvedValueOnce({
+      mockService.putPostsId.mockResolvedValueOnce({
         ok: true,
         value: undefined,
       })
@@ -87,7 +87,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
       })
 
       expect(res.status).toBe(204)
-      expect(mockedService.putPostsId).toHaveBeenCalledWith(
+      expect(mockService.putPostsId).toHaveBeenCalledWith(
         'c6c0f743-01fa-4c23-80d6-1b358512e213',
         'updated',
       )
@@ -96,7 +96,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
 
   describe('DELETE /posts/:id', () => {
     it.concurrent('204', async () => {
-      mockedService.deletePostsId.mockResolvedValueOnce({
+      mockService.deletePostsId.mockResolvedValueOnce({
         ok: true,
         value: undefined,
       })
@@ -106,7 +106,7 @@ describe('postPostsRouteHandler (via service mock)', () => {
       })
 
       expect(res.status).toBe(204)
-      expect(mockedService.deletePostsId).toHaveBeenCalledWith(
+      expect(mockService.deletePostsId).toHaveBeenCalledWith(
         'c6c0f743-01fa-4c23-80d6-1b358512e213',
       )
     })
