@@ -9,6 +9,41 @@ import { parseOpenAPI } from '../openapi/index.js'
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.
  *
+ * ```mermaid
+ * flowchart TD
+ *   A["takibi(input, output, flags)"] --> B["openAPIResult = parseOpenAPI(input)"]
+ *   B --> C{"openAPIResult.ok ?"}
+ *   C -->|No| D["return { ok:false, error: openAPIResult.error }"]
+ *   C -->|Yes| E["openAPI = openAPIResult.value"]
+ *   E --> F["honoResult = fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))"]
+ *   F --> G{"honoResult.ok ?"}
+ *   G -->|No| H["return { ok:false, error: honoResult.error }"]
+ *   G -->|Yes| I["mkdirResult = mkdir(dirname(output))"]
+ *   I --> J{"mkdirResult.ok ?"}
+ *   J -->|No| K["return { ok:false, error: mkdirResult.error }"]
+ *   J -->|Yes| L["writeResult = writeFile(output, honoResult.value)"]
+ *   L --> M{"writeResult.ok ?"}
+ *   M -->|No| N["return { ok:false, error: writeResult.error }"]
+ *   M -->|Yes| O{"template && output includes '/' ?"}
+ *   O -->|No| P["return { ok:true, value: 'Generated code written to ' + output }"]
+ *   O -->|Yes| Q["appResult = fmt(app(openAPI, output, basePath))"]
+ *   Q --> R{"appResult.ok ?"}
+ *   R -->|No| S["return { ok:false, error: appResult.error }"]
+ *   R -->|Yes| T["dir = dirname(output)"]
+ *   T --> U["readdirResult = readdir(dir)"]
+ *   U --> V{"readdirResult.ok ?"}
+ *   V -->|No| W["return { ok:false, error: readdirResult.error }"]
+ *   V -->|Yes| X["files = readdirResult.value"]
+ *   X --> Y["target = join(dir, files includes 'index.ts' ? 'main.ts' : 'index.ts')"]
+ *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
+ *   Z --> ZA{"writeResult2.ok ?"}
+ *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
+ *   ZA -->|Yes| ZC["handlerResult = zodOpenapiHonoHandler(openAPI, output, test)"]
+ *   ZC --> ZD{"handlerResult.ok ?"}
+ *   ZD -->|No| ZE["return { ok:false, error: handlerResult.error }"]
+ *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
+ * ```
+ *
  * @param input - Input OpenAPI file (`.yaml`, `.json`, or `.tsp`).
  * @param output - Output `.ts` file path.
  * @param exportSchema - Whether to export schemas.

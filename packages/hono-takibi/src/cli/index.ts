@@ -14,7 +14,34 @@ Options:
 /**
  * CLI entry point for `hono-takibi`.
  *
- * @returns A `Result` containing help text or CLI execution result.
+ * Executes the CLI flow: parse args → optional help → validate options → run generator (`takibi`) → return result.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["Start honoTakibi()"] --> B["args = process.argv.slice(2)"]
+ *   B --> C{"isHelpRequested(args) ?"}
+ *   C -->|Yes| D["return { ok:true, value: HELP_TEXT }"]
+ *   C -->|No| E["cliResult = parseCli(args)"]
+ *   E --> F{"cliResult.ok ?"}
+ *   F -->|No| G["return { ok:false, error: cliResult.error }"]
+ *   F -->|Yes| H["cli = cliResult.value"]
+ *   H --> I["takibiResult = await takibi(cli.input, cli.output, ...options)"]
+ *   I --> J{"takibiResult.ok ?"}
+ *   J -->|No| K["return { ok:false, error: takibiResult.error }"]
+ *   J -->|Yes| L["return { ok:true, value: takibiResult.value }"]
+ * ```
+ *
+ * **Options**
+ * - `--export-type`        Export TypeScript type aliases
+ * - `--export-schema`      Export Zod schema objects
+ * - `--template`           Generate app file and handler stubs
+ * - `--test`               Generate empty `*.test.ts` files
+ * - `--base-path <path>`   API prefix (default: `/`)
+ * - `-h, --help`           Show help and exit
+ *
+ * @returns A Result-like object:
+ * - `{ ok: true, value: string }` with either help text or generation message
+ * - `{ ok: false, error: string }` on validation or generation errors
  */
 export async function honoTakibi(): Promise<
   | {
