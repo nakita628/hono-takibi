@@ -344,8 +344,8 @@ describe('utils', () => {
   describe('routeName', () => {
     it.concurrent.each([
       ['get', '/posts', 'getPostsRoute'],
-      ['get',  '/posts/{id}','getPostsIdRoute'],
-      ['get','/user/profile', 'getUserProfileRoute'],
+      ['get', '/posts/{id}', 'getPostsIdRoute'],
+      ['get', '/user/profile', 'getUserProfileRoute'],
       ['put', '/user/settings', 'putUserSettingsRoute'],
       ['get', '/user/preferences', 'getUserPreferencesRoute'],
       ['put', '/user/avatar', 'putUserAvatarRoute'],

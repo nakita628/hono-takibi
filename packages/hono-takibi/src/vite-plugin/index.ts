@@ -5,6 +5,36 @@ import { fmt } from '../format/index.js'
 import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
+/**
+ * Vite plugin to generate Hono routes from an OpenAPI or TypeSpec file.
+ *
+ * - On `buildStart`, parses the input spec and generates TypeScript route code.
+ * - Supports `.yaml`, `.json`, and `.tsp` inputs.
+ * - Watches the input file in dev mode and regenerates on change (debounced).
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["HonoTakibiVite()"] --> B["buildStart()"]
+ *   B --> C["run()"]
+ *   C --> D{"input endsWith .tsp/.yaml/.json?"}
+ *   D -->|Yes| E["parseOpenAPI(input)"]
+ *   E --> F{"spec.ok?"}
+ *   F -->|No| G["console.error(spec.error)"]
+ *   F -->|Yes| H["zodOpenAPIHono(spec.value, exportSchema, exportType)"]
+ *   H --> I["fmt(hono)"]
+ *   I --> J{"code.ok?"}
+ *   J -->|No| K["console.error(code.error)"]
+ *   J -->|Yes| L["mkdir output dir & writeFile(output, code.value)"]
+ *   A --> M["configureServer(server)"]
+ *   M --> N["watch absInput & on change runDebounced()"]
+ * ```
+ *
+ * @param input - Path to `.yaml`, `.json`, or `.tsp` spec file.
+ * @param output - Path to the generated `.ts` file.
+ * @param exportType - Whether to export TypeScript types.
+ * @param exportSchema - Whether to export Zod schemas.
+ * @returns A Vite plugin object.
+ */
 export default async function HonoTakibiVite({
   input,
   output,

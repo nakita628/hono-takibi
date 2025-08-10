@@ -1,0 +1,15 @@
+{
+  "name": "@docs/hono",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.9.0"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.18.1",
+    "tsx": "^4.20.3"
+  }
+}

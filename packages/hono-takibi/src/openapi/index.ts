@@ -2,10 +2,27 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { typeSpecToOpenAPI } from '../typespec/index.js'
 
 /**
- * Parses an OpenAPI document from a file path (YAML, JSON, or TypeSpec).
+ * Parses input into an OpenAPI document and returns `{ ok, value | error }`.
  *
- * @param input - File path to the OpenAPI or TypeSpec document
- * @returns A promise resolving to a Result with the parsed OpenAPI or error string
+ * - If `input` ends with `.tsp`, it is first converted from TypeSpec to OpenAPI.
+ * - Otherwise, it is parsed directly as an OpenAPI YAML/JSON string.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["parseOpenAPI(input)"] --> B{"input endsWith '.tsp'?"}
+ *   B -->|Yes| C["typeSpecToOpenAPI(input)"]
+ *   C --> D{"tsp.ok?"}
+ *   D -->|No| E["return { ok:false, error }"]
+ *   D -->|Yes| F["SwaggerParser.parse(tsp.value)"]
+ *   F --> G["return { ok:true, value: OpenAPI }"]
+ *   B -->|No| H["SwaggerParser.parse(input)"]
+ *   H --> I["return { ok:true, value: OpenAPI }"]
+ *   A -.->|catch| J["return { ok:false, error }"]
+ * ```
+ *
+ * Note: `SwaggerParser.parse` has a broad return type, so we assert
+ * `as OpenAPI` after successful parsing to enable type-safe access
+ * in downstream code.
  */
 export async function parseOpenAPI(input: string): Promise<
   | {
@@ -23,9 +40,15 @@ export async function parseOpenAPI(input: string): Promise<
       if (!tsp.ok) {
         return { ok: false, error: tsp.error }
       }
+      // to treat `tsp.value` as an OpenAPI specification.
+      // This cast is required both for parsing the spec and for ensuring
+      // type safety in the generator process.
       const spec = (await SwaggerParser.parse(tsp.value as unknown as string)) as OpenAPI
       return { ok: true, value: spec }
     }
+    // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
+    // The parser validates the spec at runtime but does not express this guarantee in its type definition,
+    // so we assert `OpenAPI` here to enable typed access in the generator.
     const spec = (await SwaggerParser.parse(input)) as OpenAPI
     return { ok: true, value: spec }
   } catch (e) {
