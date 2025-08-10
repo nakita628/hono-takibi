@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
-    "typedoc": "^0.28.7"
+    "typedoc": "^0.28.9",
+    "typedoc-plugin-mermaid": "^1.12.0"
   }
 }

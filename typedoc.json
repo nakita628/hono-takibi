@@ -12,5 +12,6 @@
     "**/tests/**",
     "**/coverage/**"
   ],
-  "skipErrorChecking": true
+  "skipErrorChecking": true,
+  "plugin": ["typedoc-plugin-mermaid"]
 }
