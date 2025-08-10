@@ -8,9 +8,11 @@
     "**/*.test.ts",
     "**/*.d.ts",
     "packages/hono-takibi/routes/*.ts",
+    "packages/hono-takibi/vite.config.ts",
+    "packages/hono-takibi/vitest.config.ts",
     "**/test/**",
     "**/tests/**",
-    "**/coverage/**"
+    "**/coverage/**",
   ],
   "skipErrorChecking": true,
   "plugin": ["typedoc-plugin-mermaid"]
