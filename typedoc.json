@@ -12,7 +12,7 @@
     "packages/hono-takibi/vitest.config.ts",
     "**/test/**",
     "**/tests/**",
-    "**/coverage/**",
+    "**/coverage/**"
   ],
   "skipErrorChecking": true,
   "plugin": ["typedoc-plugin-mermaid"]
