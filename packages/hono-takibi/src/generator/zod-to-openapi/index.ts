@@ -8,6 +8,9 @@ import { number } from './z/number.js'
 import { object } from './z/object.js'
 import { string } from './z/string.js'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-to-openapi/index.test.ts
+
 export function zodToOpenAPI(
   schema: Schema,
   paramName?: string,
@@ -42,7 +45,7 @@ export function zodToOpenAPI(
 
         const z = zodToOpenAPI(s, paramName, paramIn)
         return {
-          schemas: [...acc.schemas, wrap(z, s)],
+          schemas: [...acc.schemas, z],
           nullable: acc.nullable,
         }
       },
