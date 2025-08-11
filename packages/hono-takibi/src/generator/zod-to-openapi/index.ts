@@ -16,19 +16,7 @@ export function zodToOpenAPI(
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   // ref
   if (schema.$ref) {
-    if (Boolean(schema.$ref) === true) {
-      return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
-    }
-    if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
-      if (schema.items?.$ref) {
-        const ref = wrap(refSchema(schema.items.$ref), schema.items)
-        return `z.array(${ref})`
-      }
-      const z = 'z.array(z.any())'
-      return wrap(z, schema, paramName, paramIn)
-    }
-    const z = 'z.any()'
-    return wrap(z, schema, paramName, paramIn)
+    return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
   }
   /* combinators */
   // allOf

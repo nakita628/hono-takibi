@@ -64,6 +64,13 @@ describe('array()', () => {
       },
       'z.array(z.union([z.string(),z.number(),z.boolean()]))',
     ],
+    [
+      {
+        type: 'array',
+        items: { $ref: '#/components/schemas/Test' },
+      },
+      'z.array(TestSchema)',
+    ],
   ])('array(%o) → %s', (input, expected) => {
     expect(array(input)).toBe(expected)
   })
