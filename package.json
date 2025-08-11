@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
-    "docs": "pnpm typedoc && pnpm -F @docs/hono dev",
+    "docs": "pnpm -F @docs/hono dev",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
     "check": "pnpm biome check --write ./",
     "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
@@ -16,8 +16,6 @@
     "takibis": "pnpm -F hono-takibi takibis"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.4",
-    "typedoc": "^0.28.9",
-    "typedoc-plugin-mermaid": "^1.12.0"
+    "@biomejs/biome": "^2.1.4"
   }
 }
