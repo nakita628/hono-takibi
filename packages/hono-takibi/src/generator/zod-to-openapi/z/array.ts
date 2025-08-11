@@ -3,12 +3,11 @@ import { refSchema } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 export function array(schema: Schema): string {
-  const item =
-    schema.items?.$ref
-      ? refSchema(schema.items.$ref)
-      : schema.items
-        ? zodToOpenAPI(schema.items)
-        : 'z.any()'
+  const item = schema.items?.$ref
+    ? refSchema(schema.items.$ref)
+    : schema.items
+      ? zodToOpenAPI(schema.items)
+      : 'z.any()'
 
   const z = `z.array(${item})`
 
