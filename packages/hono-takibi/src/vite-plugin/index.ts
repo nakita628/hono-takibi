@@ -49,8 +49,8 @@ export default async function HonoTakibiVite({
   const run = async () => {
     if (
       typeof input === 'string' &&
-      ((p: `${string}.yaml` | `${string}.json` | `${string}.tsp`): p is `${string}.tsp` =>
-        p.endsWith('.tsp'))(input)
+      ((i: `${string}.yaml` | `${string}.json` | `${string}.tsp`): i is `${string}.tsp` =>
+        i.endsWith('.tsp'))(input)
     ) {
       const spec = await parseOpenAPI(input)
       if (!spec.ok) {
@@ -88,6 +88,9 @@ export default async function HonoTakibiVite({
   const absInput = path.resolve(input)
   return {
     name: 'hono-takibi-vite',
+    // https://vite.dev/guide/api-plugin.html#conditional-application
+    // Only valid when the development server is running.
+    apply: 'serve',
     async buildStart() {
       await run()
     },
