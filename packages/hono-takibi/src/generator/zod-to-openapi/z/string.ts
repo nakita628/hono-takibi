@@ -48,9 +48,8 @@ const FORMAT_STRING: Record<string, string> = {
  *   D --> F{"Pattern exists?"}
  *   E --> F
  *   F -- "Yes" --> G["o.push(regex(schema.pattern))"]
- *   F -- "No"  --> H["skip"]
+ *   F -- "No"  --> I
  *   G --> I{"minLength and maxLength are equal?"}
- *   H --> I
  *   I -- "Yes" --> J["o.push(length(minLength))"]
  *   I -- "No"  --> K{"minLength or maxLength?"}
  *   K -- "min" --> L["o.push(min(minLength))"]

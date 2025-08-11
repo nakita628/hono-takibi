@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm watch tsx src/index.ts",
-    "typedoc": "pnpm tsx watch src/typedoc.ts"
+    "typedoc": "pnpm tsx src/typedoc.ts",
+    "dev": "pnpm typedoc && pnpm watch tsx src/index.ts"
   },
   "dependencies": {
     "hono": "^4.9.0"
