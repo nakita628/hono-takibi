@@ -8,6 +8,9 @@ import { number } from './z/number.js'
 import { object } from './z/object.js'
 import { string } from './z/string.js'
 
+// Test run
+// pnpm vitest run ./src/generator/zod-to-openapi/index.test.ts
+
 export function zodToOpenAPI(
   schema: Schema,
   paramName?: string,
@@ -16,19 +19,7 @@ export function zodToOpenAPI(
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   // ref
   if (schema.$ref) {
-    if (Boolean(schema.$ref) === true) {
-      return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
-    }
-    if (schema.type === 'array' && Boolean(schema.items?.$ref)) {
-      if (schema.items?.$ref) {
-        const ref = wrap(refSchema(schema.items.$ref), schema.items)
-        return `z.array(${ref})`
-      }
-      const z = 'z.array(z.any())'
-      return wrap(z, schema, paramName, paramIn)
-    }
-    const z = 'z.any()'
-    return wrap(z, schema, paramName, paramIn)
+    return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
   }
   /* combinators */
   // allOf
@@ -54,7 +45,7 @@ export function zodToOpenAPI(
 
         const z = zodToOpenAPI(s, paramName, paramIn)
         return {
-          schemas: [...acc.schemas, wrap(z, s)],
+          schemas: [...acc.schemas, z],
           nullable: acc.nullable,
         }
       },

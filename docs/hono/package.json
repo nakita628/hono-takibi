@@ -3,13 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "typedoc": "pnpm tsx src/typedoc.ts",
+    "dev": "pnpm typedoc && pnpm watch tsx src/index.ts"
   },
   "dependencies": {
     "hono": "^4.9.0"
   },
   "devDependencies": {
     "@hono/node-server": "^1.18.1",
-    "tsx": "^4.20.3"
+    "@hono/vite-dev-server": "^0.19.1",
+    "tsx": "^4.20.3",
+    "typedoc": "^0.28.10",
+    "typedoc-plugin-mermaid": "^1.12.0",
+    "vite": "^7.1.1"
   }
 }

@@ -10,5 +10,6 @@
     "strict": true,
     "skipLibCheck": true,
     "types": ["node"]
-  }
+  },
+  "include": ["../../packages/**/*.ts"]
 }

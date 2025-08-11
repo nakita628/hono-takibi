@@ -18,6 +18,7 @@ describe('zodToOpenAPI', () => {
         },
         'z.array(TestSchema)',
       ],
+      [{ type: 'array', items: { $ref: '#/components/schemas/Test' } }, 'z.array(TestSchema)'],
     ])('zodToOpenAPI(%o) → %s', (input, expected) => {
       expect(zodToOpenAPI(input)).toBe(expected)
     })
