@@ -88,9 +88,6 @@ export default async function HonoTakibiVite({
   const absInput = path.resolve(input)
   return {
     name: 'hono-takibi-vite',
-    // https://vite.dev/guide/api-plugin.html#conditional-application
-    // Only valid when the development server is running.
-    apply: 'serve',
     async buildStart() {
       await run()
     },
