@@ -48,7 +48,11 @@ async function honoRpcs() {
       ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
         i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
       if (isYamlOrJsonOrTsp(openapiFile)) {
-        await rpc(`openapi/${openapiFile}`, `rpcs/${file}.ts`, "import { client } from '../index.ts'")
+        await rpc(
+          `openapi/${openapiFile}`,
+          `rpcs/${file}.ts`,
+          "import { client } from '../index.ts'",
+        )
       }
     }
   }
