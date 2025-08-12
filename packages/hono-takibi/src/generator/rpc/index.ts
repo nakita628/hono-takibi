@@ -3,8 +3,7 @@ import type { OpenAPI, OpenAPIPaths, Schema } from '../../openapi/index.js'
 /* ─────────────────────────────── Guards ─────────────────────────────── */
 
 /** Narrow to generic object records */
-const isRecord = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
 /** Narrow to OpenAPI paths object (shallow structural check) */
 const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
@@ -23,7 +22,13 @@ const upperHead = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
 /** Build function name: method + PascalCase(path) */
 const funcNameFrom = (method: string, path: string) => {
-  const core = path.replace(/[/{}._-]/g, ' ').trim().split(/\s+/).filter(Boolean).map(upperHead).join('')
+  const core = path
+    .replace(/[/{}._-]/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(upperHead)
+    .join('')
   return core ? `${method}${core}` : `${method}Index`
 }
 
@@ -60,7 +65,13 @@ type JSONTypeName = 'object' | 'array' | 'string' | 'number' | 'integer' | 'bool
 /** 'type' to normalized list for uniform checks */
 const isJSONTypeName = (s: unknown): s is JSONTypeName =>
   typeof s === 'string' &&
-  (s === 'object' || s === 'array' || s === 'string' || s === 'number' || s === 'integer' || s === 'boolean' || s === 'null')
+  (s === 'object' ||
+    s === 'array' ||
+    s === 'string' ||
+    s === 'number' ||
+    s === 'integer' ||
+    s === 'boolean' ||
+    s === 'null')
 
 const toTypeArray = (t: unknown): JSONTypeName[] => {
   if (isJSONTypeName(t)) return [t]
@@ -71,14 +82,19 @@ const toTypeArray = (t: unknown): JSONTypeName[] => {
 /** Build literal union from enum values (kept compact) */
 const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
   const toLit = (v: unknown) =>
-    typeof v === 'string' ? `'${v.replace(/'/g, "\\'")}'` :
-    typeof v === 'number' || typeof v === 'boolean' ? String(v) :
-    v === null ? 'null' : 'unknown'
+    typeof v === 'string'
+      ? `'${v.replace(/'/g, "\\'")}'`
+      : typeof v === 'number' || typeof v === 'boolean'
+        ? String(v)
+        : v === null
+          ? 'null'
+          : 'unknown'
   return vals.map(toLit).join('|')
 }
 
 /** Create a $ref resolver for #/components/schemas/... */
-const createResolveRef = (schemas: Record<string, Schema>) =>
+const createResolveRef =
+  (schemas: Record<string, Schema>) =>
   (ref?: string): Schema | undefined => {
     if (!ref) return undefined
     const m = ref.match(/^#\/components\/schemas\/(.+)$/)
@@ -104,9 +120,12 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
     nextSeen.add(schema)
 
     // combinators
-    if (Array.isArray(schema.oneOf) && schema.oneOf.length) return schema.oneOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
-    if (Array.isArray(schema.anyOf) && schema.anyOf.length) return schema.anyOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
-    if (Array.isArray(schema.allOf) && schema.allOf.length) return schema.allOf.map((s) => tt(s, nextSeen)).join('&') || 'unknown'
+    if (Array.isArray(schema.oneOf) && schema.oneOf.length)
+      return schema.oneOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
+    if (Array.isArray(schema.anyOf) && schema.anyOf.length)
+      return schema.anyOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
+    if (Array.isArray(schema.allOf) && schema.allOf.length)
+      return schema.allOf.map((s) => tt(s, nextSeen)).join('&') || 'unknown'
 
     // enum
     if (Array.isArray(schema.enum) && schema.enum.length) {
@@ -134,9 +153,11 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
       })
       const ap = schema.additionalProperties
       const addl =
-        ap === true ? `[key:string]:unknown` :
-        isSchema(ap) ? `[key:string]:${tt(ap, nextSeen)}` :
-        ''
+        ap === true
+          ? '[key:string]:unknown'
+          : isSchema(ap)
+            ? `[key:string]:${tt(ap, nextSeen)}`
+            : ''
       const members = [...fields, addl].filter(Boolean).join(',')
       const core = `{${members}}`
       return schema.nullable ? `${core}|null` : core
@@ -144,7 +165,9 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
 
     // primitives
     if (types.length === 0) return schema.nullable ? 'unknown|null' : 'unknown'
-    const prim = types.map((t) => (t === 'integer' ? 'number' : t === 'null' ? 'null' : t)).join('|')
+    const prim = types
+      .map((t) => (t === 'integer' ? 'number' : t === 'null' ? 'null' : t))
+      .join('|')
     return schema.nullable ? `${prim}|null` : prim
   }
   return tt
@@ -171,15 +194,14 @@ const isParameterObject = (v: unknown): v is ParameterLike => {
 /** Extract components/parameters name from a ref-like value */
 const refParamName = (refLike: unknown): string | undefined => {
   const ref =
-    typeof refLike === 'string' ? refLike :
-    isRefObject(refLike) ? refLike.$ref :
-    undefined
+    typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
   return m ? m[1] : undefined
 }
 
 /** Build a resolver that returns normalized ParameterLike (resolving $ref) */
-const createResolveParameter = (componentsParameters: Record<string, unknown>) =>
+const createResolveParameter =
+  (componentsParameters: Record<string, unknown>) =>
   (p: unknown): ParameterLike | undefined => {
     if (isParameterObject(p)) return p
     const name = refParamName(p)
@@ -188,7 +210,8 @@ const createResolveParameter = (componentsParameters: Record<string, unknown>) =
   }
 
 /** Convert raw parameters array into ParameterLike[] */
-const createToParameterLikes = (resolveParam: (p: unknown) => ParameterLike | undefined) =>
+const createToParameterLikes =
+  (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
     Array.isArray(arr)
       ? arr.reduce<ParameterLike[]>((acc, x) => {
@@ -214,7 +237,16 @@ type PathItemLike = {
 } & { [M in HttpMethod]?: OperationLike }
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-const HTTP_METHODS: ReadonlyArray<HttpMethod> = ['get','put','post','delete','options','head','patch','trace']
+const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+]
 
 /** Extract the first suitable schema from requestBody.content by priority order */
 const pickBodySchema = (op: OperationLike): Schema | undefined => {
@@ -232,7 +264,11 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (isRecord(media) && 'schema' in media && isSchema((media as Record<string, unknown>).schema)) {
+    if (
+      isRecord(media) &&
+      'schema' in media &&
+      isSchema((media as Record<string, unknown>).schema)
+    ) {
       return (media as Record<string, unknown>).schema as Schema // NOTE: narrowed by isSchema
     }
   }
@@ -242,7 +278,8 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
 /* ─────────────────────────────── Args builders ─────────────────────────────── */
 
 /** Build TS type for params arg (compact formatting) */
-const createBuildParamsType = (tsTypeFromSchema: (s: Schema | undefined) => string) =>
+const createBuildParamsType =
+  (tsTypeFromSchema: (s: Schema | undefined) => string) =>
   (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
     const parts: string[] = []
     if (pathParams.length) {
@@ -258,9 +295,13 @@ const createBuildParamsType = (tsTypeFromSchema: (s: Schema | undefined) => stri
 
 /** Build function argument signature */
 const buildArgSignature = (paramsType: string, bodyType: string | null) =>
-  paramsType && bodyType ? `params:${paramsType}, body:${bodyType}` :
-  paramsType ? `params:${paramsType}` :
-  bodyType ? `body:${bodyType}` : ''
+  paramsType && bodyType
+    ? `params:${paramsType}, body:${bodyType}`
+    : paramsType
+      ? `params:${paramsType}`
+      : bodyType
+        ? `body:${bodyType}`
+        : ''
 
 /** Build one query key:value piece with integer-to-string rules */
 const buildQueryPiece = (p: ParameterLike) => {
@@ -269,15 +310,20 @@ const buildQueryPiece = (p: ParameterLike) => {
   const itemsInt =
     isArr && isSchema(p.schema?.items) && toTypeArray(p.schema?.items?.type).includes('integer')
   const isInt = types.includes('integer')
-  const rhs =
-    itemsInt ? `(params.query.${p.name}??[]).map((v:unknown)=>String(v))` :
-    isInt ? `String(params.query.${p.name})` :
-    `params.query.${p.name}`
+  const rhs = itemsInt
+    ? `(params.query.${p.name}??[]).map((v:unknown)=>String(v))`
+    : isInt
+      ? `String(params.query.${p.name})`
+      : `params.query.${p.name}`
   return `${p.name}:${rhs}`
 }
 
 /** Build client call argument object (compact formatting) */
-const buildClientArgs = (pathParams: ParameterLike[], queryParams: ParameterLike[], hasBody: boolean) => {
+const buildClientArgs = (
+  pathParams: ParameterLike[],
+  queryParams: ParameterLike[],
+  hasBody: boolean,
+) => {
   const pieces: string[] = []
   if (pathParams.length) {
     const inner = pathParams.map((p) => `${p.name}:params.path.${p.name}`).join(',')
@@ -301,7 +347,7 @@ const generateOperationCode = (
     client: string
     tsTypeFromSchema: (s: Schema | undefined) => string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
-  }
+  },
 ): string => {
   const op = item[method]
   if (!isOperationLike(op)) return ''
