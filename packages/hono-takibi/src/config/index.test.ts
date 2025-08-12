@@ -26,7 +26,7 @@ describe('cnfig', () => {
       rpc: {
         input: 'openapi.yaml',
         output: 'test.ts',
-        import: 'openapi.yaml',
+        import: "import { client } from '../index.ts'",
       },
     }
 
@@ -44,7 +44,7 @@ describe('cnfig', () => {
         rpc: {
           input: 'openapi.yaml',
           output: 'test.ts',
-          import: 'openapi.yaml',
+          import: "import { client } from '../index.ts'",
         },
       },
     })

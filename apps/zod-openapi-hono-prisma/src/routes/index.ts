@@ -150,7 +150,7 @@ export const putPostsIdRoute = createRoute({
 export const deletePostsIdRoute = createRoute({
   tags: ['Post'],
   method: 'delete',
-  path: '/posts/hono/{id}',
+  path: '/posts/{id}',
   summary: 'Delete a post',
   description: 'Delete an existing post identified by its unique ID.',
   request: {
