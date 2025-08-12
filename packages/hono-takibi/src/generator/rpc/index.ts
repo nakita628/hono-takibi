@@ -99,7 +99,7 @@ export function honoRpc(openapi: OpenAPI, importCode: string): string {
 
   const tsTypeFromJsonType = (t: unknown): string => {
     const arr = toTypeArray(t)
-    if (arr.length === 0) return 'any' // 生成物の型として any テキストは許容
+    if (arr.length === 0) return 'any'
     return arr.map((x) => (x === 'integer' ? 'number' : x === 'null' ? 'null' : x)).join(' | ')
   }
 
@@ -257,5 +257,10 @@ export function honoRpc(openapi: OpenAPI, importCode: string): string {
     }
   }
 
-  return rpc.join('\n\n')
+  const header = (() => {
+    const s = (importCode ?? '').trim()
+    return s.length ? `${s}\n\n` : ''
+  })()
+
+  return header + rpc.join('\n\n') + (rpc.length ? '\n' : '')
 }
