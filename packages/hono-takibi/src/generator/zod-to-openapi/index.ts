@@ -8,21 +8,18 @@ import { number } from './z/number.js'
 import { object } from './z/object.js'
 import { string } from './z/string.js'
 
-// Test run
-// pnpm vitest run ./src/generator/zod-to-openapi/index.test.ts
-
 export function zodToOpenAPI(
   schema: Schema,
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
-  // ref
+  /** ref */
   if (schema.$ref) {
     return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
   }
   /* combinators */
-  // allOf
+  /** allOf */
   if (schema.allOf) {
     if (!schema.allOf || schema.allOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
@@ -66,7 +63,7 @@ export function zodToOpenAPI(
     return wrap(z, schema, paramName, paramIn)
   }
 
-  // anyOf
+  /* anyOf */
   if (schema.anyOf) {
     if (!schema.anyOf || schema.anyOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
@@ -78,7 +75,7 @@ export function zodToOpenAPI(
     return wrap(z, schema, paramName, paramIn)
   }
 
-  // oneOf
+  /* oneOf */
   if (schema.oneOf) {
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
@@ -97,7 +94,7 @@ export function zodToOpenAPI(
     return wrap(z, schema, paramName, paramIn)
   }
 
-  // not
+  /* not */
   if (schema.not) {
     if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
       const predicate = `(v) => typeof v !== '${schema.not.type}'`
@@ -113,7 +110,7 @@ export function zodToOpenAPI(
     return wrap('z.any()', schema, paramName, paramIn)
   }
 
-  // const
+  /* const */
   if (schema.const) {
     const z = `z.literal(${JSON.stringify(schema.const)})`
     return wrap(z, schema, paramName, paramIn)

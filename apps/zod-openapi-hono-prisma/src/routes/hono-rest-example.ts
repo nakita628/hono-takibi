@@ -1,8 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
+export const ErrorSchema = z.object({ message: z.string() }).openapi('Error')
 
-const PostSchema = z
+export type Error = z.infer<typeof ErrorSchema>
+
+export const PostSchema = z
   .object({
     id: z.uuid().openapi({ description: 'Unique identifier of the post' }),
     post: z.string().min(1).max(140).openapi({ description: 'Content of the post' }),
@@ -12,6 +14,8 @@ const PostSchema = z
       .openapi({ description: 'Timestamp when the post was last updated' }),
   })
   .openapi('Post')
+
+export type Post = z.infer<typeof PostSchema>
 
 export const getRoute = createRoute({
   tags: ['Hono'],
@@ -80,8 +84,8 @@ export const getPostsRoute = createRoute({
     'Retrieve a paginated list of posts. Specify the page number and the number of posts per page.',
   request: {
     query: z.object({
-      page: z.int().openapi({ param: { in: 'query', name: 'page', required: false } }),
-      rows: z.int().openapi({ param: { in: 'query', name: 'rows', required: false } }),
+      page: z.coerce.number().openapi({ param: { in: 'query', name: 'page', required: false } }),
+      rows: z.coerce.number().openapi({ param: { in: 'query', name: 'rows', required: false } }),
     }),
   },
   responses: {

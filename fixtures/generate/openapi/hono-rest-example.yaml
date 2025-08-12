@@ -116,12 +116,12 @@ paths:
           in: query
           required: true
           schema:
-            type: integer
+            type: number
         - name: rows
           in: query
           required: true
           schema:
-            type: integer
+            type: number
       responses:
         '200':
           description: Successfully retrieved a list of posts.

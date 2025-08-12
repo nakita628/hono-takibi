@@ -39,6 +39,7 @@ export function parseCli(args: readonly string[]):
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
+  /** yaml or json or tsp */
   const isYamlOrJsonOrTsp = (
     i: string,
   ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>

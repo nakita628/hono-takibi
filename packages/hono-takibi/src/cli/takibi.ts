@@ -88,6 +88,7 @@ export async function takibi(
   if (!writeResult.ok) {
     return { ok: false, error: writeResult.error }
   }
+  /** template */
   if (template && output.includes('/')) {
     const appResult = await fmt(app(openAPI, output, basePath))
     if (!appResult.ok) {

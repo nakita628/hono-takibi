@@ -10,7 +10,8 @@
       "!**/node_modules/**",
       "!**/dist/**",
       "!**/*.js",
-      "!**/routes/example.ts"
+      "!**/routes/**",
+      "!**/rpcs/**"
     ]
   },
   "formatter": {
