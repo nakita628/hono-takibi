@@ -13,7 +13,8 @@
     "test": "pnpm -F hono-takibi test",
     "coverage": "pnpm -F hono-takibi coverage",
     "release": "pnpm build && pnpm -F hono-takibi release",
-    "takibis": "pnpm -F hono-takibi takibis"
+    "takibis": "pnpm -F hono-takibi takibis",
+    "fixtures": "pnpm -F @fixtures/generate dev"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4"
