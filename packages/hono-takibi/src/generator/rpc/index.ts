@@ -1,6 +1,6 @@
-import type { OpenAPI} from '../../openapi/index.js'
+import type { OpenAPI } from '../../openapi/index.js'
 
-export function honoRpc(openapi: OpenAPI): string {
+export function honoRpc(openapi: OpenAPI, importCode: string): string {
   const client = 'client'
   const rpc: string[] = []
 
@@ -38,17 +38,9 @@ export function honoRpc(openapi: OpenAPI): string {
     return head + tail
   }
 
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    typeof v === 'object' && v !== null
+  const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
-  type JSONTypeName =
-    | 'object'
-    | 'array'
-    | 'string'
-    | 'number'
-    | 'integer'
-    | 'boolean'
-    | 'null'
+  type JSONTypeName = 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'null'
 
   const isJSONTypeName = (s: unknown): s is JSONTypeName =>
     typeof s === 'string' &&
@@ -76,7 +68,7 @@ export function honoRpc(openapi: OpenAPI): string {
   const isParameterLike = (v: unknown): v is ParameterLike => {
     if (!isRecord(v)) return false
     if (typeof v.name !== 'string') return false
-    const pin = v['in']
+    const pin = v.in
     if (pin !== 'path' && pin !== 'query' && pin !== 'header' && pin !== 'cookie') return false
     const schema = v.schema
     if (schema !== undefined && !isRecord(schema)) return false
@@ -107,10 +99,8 @@ export function honoRpc(openapi: OpenAPI): string {
 
   const tsTypeFromJsonType = (t: unknown): string => {
     const arr = toTypeArray(t)
-    if (arr.length === 0) return 'any'
-    return arr
-      .map((x) => (x === 'integer' ? 'number' : x === 'null' ? 'null' : x))
-      .join(' | ')
+    if (arr.length === 0) return 'any' // 生成物の型として any テキストは許容
+    return arr.map((x) => (x === 'integer' ? 'number' : x === 'null' ? 'null' : x)).join(' | ')
   }
 
   const tsTypeFromSchema = (schema: unknown): string => {
@@ -185,23 +175,22 @@ export function honoRpc(openapi: OpenAPI): string {
     }
 
     if (hasBody) {
-      pieces.push(`json: body`)
+      pieces.push('json: body')
     }
 
     return pieces.length ? `{ ${pieces.join(', ')} }` : ''
   }
 
-  const hasSchema = (v: unknown): v is { schema: unknown } =>
-    isRecord(v) && 'schema' in v
+  const hasSchema = (v: unknown): v is { schema: unknown } => isRecord(v) && 'schema' in v
 
   const pickJsonBodySchema = (op: Record<string, unknown>): unknown => {
-    const rb = op['requestBody']
+    const rb = op.requestBody
     if (!isRecord(rb)) return undefined
-    const content = rb['content']
+    const content = rb.content
     if (!isRecord(content)) return undefined
     const aj = content['application/json']
-    if (hasSchema(aj)) return aj.schema
     const asj = content['application/*+json']
+    if (hasSchema(aj)) return aj.schema
     if (hasSchema(asj)) return asj.schema
     return undefined
   }
@@ -214,9 +203,10 @@ export function honoRpc(openapi: OpenAPI): string {
     const pathItemUnknown = pathsUnknown[path]
     if (!isRecord(pathItemUnknown)) continue
 
-    const pathLevelParamsRaw = pathItemUnknown['parameters']
-    const pathLevelParams: ParameterLike[] =
-      Array.isArray(pathLevelParamsRaw) ? pathLevelParamsRaw.filter(isParameterLike) : []
+    const pathLevelParamsRaw = pathItemUnknown.parameters
+    const pathLevelParams: ParameterLike[] = Array.isArray(pathLevelParamsRaw)
+      ? pathLevelParamsRaw.filter(isParameterLike)
+      : []
 
     for (const method in pathItemUnknown) {
       if (method === 'parameters') continue
@@ -228,9 +218,10 @@ export function honoRpc(openapi: OpenAPI): string {
       const funcName = funcNameFrom(method, path)
       const clientPath = formatPath(path)
 
-      const opParamsRaw = op['parameters']
-      const opParams: ParameterLike[] =
-        Array.isArray(opParamsRaw) ? opParamsRaw.filter(isParameterLike) : []
+      const opParamsRaw = op.parameters
+      const opParams: ParameterLike[] = Array.isArray(opParamsRaw)
+        ? opParamsRaw.filter(isParameterLike)
+        : []
 
       const allParams = [...pathLevelParams, ...opParams]
       const pathParams = allParams.filter((p) => p.in === 'path')
@@ -249,18 +240,18 @@ export function honoRpc(openapi: OpenAPI): string {
           ? `${client}.${clientPath}.$${method}(${clientArgs})`
           : `${client}.${clientPath}.$${method}()`
 
-      const summary = typeof op['summary'] === 'string' ? op['summary'] : ''
-      const description = typeof op['description'] === 'string' ? op['description'] : ''
+      const summary = typeof op.summary === 'string' ? op.summary : ''
+      const description = typeof op.description === 'string' ? op.description : ''
 
       const rpcCode =
-        `/**\n` +
+        '/**\n' +
         (summary ? ` * ${summary}\n *\n` : '') +
         (description ? ` * ${description}\n *\n` : '') +
         ` * ${method.toUpperCase()} ${path}\n` +
-        ` */\n` +
+        ' */\n' +
         `export async function ${funcName}(${argSig}) {\n` +
         `  return await ${call}\n` +
-        `}`
+        '}'
 
       rpc.push(rpcCode)
     }
