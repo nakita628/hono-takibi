@@ -25,7 +25,8 @@
     "dist"
   ],
   "bin": {
-    "hono-takibi": "dist/index.js"
+    "hono-takibi": "dist/index.js",
+    "hono-takibi-rpc": "dist/rpc.js"
   },
   "exports": {
     "./vite-plugin": {
