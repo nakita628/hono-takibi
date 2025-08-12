@@ -47,30 +47,55 @@ export default async function HonoTakibiVite({
   exportSchema?: boolean
 }) {
   const run = async () => {
-    if (
-      typeof input === 'string' &&
-      ((i: `${string}.yaml` | `${string}.json` | `${string}.tsp`): i is `${string}.tsp` =>
-        i.endsWith('.tsp'))(input)
-    ) {
-      const spec = await parseOpenAPI(input)
-      if (!spec.ok) {
-        console.error(spec.error)
-        return false
-      }
-      try {
-        const hono = zodOpenAPIHono(spec.value, exportSchema, exportType)
-        const code = await fmt(hono)
-        if (!code.ok) {
-          console.error(`${code.error}`)
-          return false
-        }
-        await fsp.mkdir(path.dirname(output), { recursive: true })
-        await fsp.writeFile(output, code.value, 'utf-8')
-      } catch (e) {
-        console.error(String(e))
-        throw e
-      }
+    const isYamlOrJsonOrTsp = (
+      i: string,
+    ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+      i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
+
+    if (!isYamlOrJsonOrTsp(input)) {
+      console.error(`Invalid input file type: ${input}`)
+      return
     }
+
+    const spec = await parseOpenAPI(input)
+    if (!spec.ok) {
+      console.error(spec.error)
+      return
+    }
+
+    try {
+      const hono = zodOpenAPIHono(spec.value, exportSchema, exportType)
+      const code = await fmt(hono)
+      if (!code.ok) {
+        console.error(`${code.error}`)
+        return
+      }
+      await fsp.mkdir(path.dirname(output), { recursive: true })
+      await fsp.writeFile(output, code.value, 'utf-8')
+    } catch (e) {
+      console.error(String(e))
+      throw e
+    }
+
+    // const spec = await parseOpenAPI(input)
+    // if (!spec.ok) {
+    //   console.error(spec.error)
+    //   return false
+    // }
+    // try {
+    //   const hono = zodOpenAPIHono(spec.value, exportSchema, exportType)
+    //   const code = await fmt(hono)
+    //   if (!code.ok) {
+    //     console.error(`${code.error}`)
+    //     return
+    //   }
+    //   await fsp.mkdir(path.dirname(output), { recursive: true })
+    //   await fsp.writeFile(output, code.value, 'utf-8')
+    // } catch (e) {
+    //   console.error(String(e))
+    //   throw e
+    // }
+    // }
   }
 
   const debounce = (ms: number, fn: () => void): (() => void) => {
