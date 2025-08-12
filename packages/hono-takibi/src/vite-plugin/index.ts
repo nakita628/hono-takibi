@@ -76,26 +76,6 @@ export default async function HonoTakibiVite({
       console.error(String(e))
       throw e
     }
-
-    // const spec = await parseOpenAPI(input)
-    // if (!spec.ok) {
-    //   console.error(spec.error)
-    //   return false
-    // }
-    // try {
-    //   const hono = zodOpenAPIHono(spec.value, exportSchema, exportType)
-    //   const code = await fmt(hono)
-    //   if (!code.ok) {
-    //     console.error(`${code.error}`)
-    //     return
-    //   }
-    //   await fsp.mkdir(path.dirname(output), { recursive: true })
-    //   await fsp.writeFile(output, code.value, 'utf-8')
-    // } catch (e) {
-    //   console.error(String(e))
-    //   throw e
-    // }
-    // }
   }
 
   const debounce = (ms: number, fn: () => void): (() => void) => {
