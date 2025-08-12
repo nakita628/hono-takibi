@@ -90,7 +90,7 @@ export async function honoTakibi(): Promise<
     results.push(takibiResult.value)
 
     /** rpc */
-    const rv = configResult.value['rpc']
+    const rv = configResult.value.rpc
     if (rv) {
       if (!(rv.input && rv.output && rv.import)) {
         return { ok: false, error: 'Invalid RPC input or output or import' }
