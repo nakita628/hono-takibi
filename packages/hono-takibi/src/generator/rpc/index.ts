@@ -1,249 +1,272 @@
-import type { OpenAPI } from '../../openapi/index.js'
+import type { OpenAPI, OpenAPIPaths, Schema } from '../../openapi/index.js'
 
 export function honoRpc(openapi: OpenAPI, importCode: string): string {
   const client = 'client'
-  const rpc: string[] = []
+  const out: string[] = []
 
-  const pathsUnknown: unknown = openapi.paths ?? {}
+  /* guards */
+  const isRecord = (v: unknown): v is Record<string, unknown> =>
+    typeof v === 'object' && v !== null
 
-  /* ----------------------------- helpers ----------------------------- */
+  const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
+    if (!isRecord(v)) return false
+    for (const k in v) if (!isRecord(v[k])) return false
+    return true
+  }
 
+  const isSchema = (v: unknown): v is Schema => isRecord(v)
+
+  /* formatters */
   const upperHead = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
-
   const funcNameFrom = (method: string, path: string) => {
-    const core = path
-      .replace(/[/{}._-]/g, ' ')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map(upperHead)
-      .join('')
+    const core = path.replace(/[/{}._-]/g, ' ').trim().split(/\s+/).filter(Boolean).map(upperHead).join('')
     return core ? `${method}${core}` : `${method}Index`
   }
-
   const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
-
-  // '/posts/hono/{id}' → 'posts.hono[':id']'
+  const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+  // '/hono-x' → "['hono-x']" , '/posts/hono/{id}' → ".posts.hono[':id']" , '/' → ".index"
   const formatPath = (path: string) => {
-    const name = path === '/' ? 'index' : path
-    const segs = name.replace(/^\/+/, '').split('/').filter(Boolean)
-    const head = segs[0] ?? 'index'
-    const tail = segs
-      .slice(1)
-      .map((seg) => {
-        if (seg.startsWith('{') && seg.endsWith('}')) return `[':${seg.slice(1, -1)}']`
-        return isValidIdent(seg) ? `.${seg}` : `['${seg}']`
-      })
-      .join('')
-    return head + tail
+    const segs = (path === '/' ? ['index'] : path.replace(/^\/+/, '').split('/')).filter(Boolean)
+    return segs.map((seg) => {
+      if (seg.startsWith('{') && seg.endsWith('}')) return `[':${seg.slice(1, -1)}']`
+      return isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`
+    }).join('')
   }
 
-  const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+  /* schema resolve ($ref, enum, anyOf/allOf/oneOf, additionalProperties, nullable) */
+  const schemas = openapi.components?.schemas ?? {}
+
+  const resolveRef = (ref: string | undefined): Schema | undefined => {
+    if (!ref) return undefined
+    const m = ref.match(/^#\/components\/schemas\/(.+)$/)
+    if (!m) return undefined
+    const target = schemas[m[1]]
+    return isSchema(target) ? target : undefined
+  }
 
   type JSONTypeName = 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'null'
-
   const isJSONTypeName = (s: unknown): s is JSONTypeName =>
-    typeof s === 'string' &&
-    (s === 'object' ||
-      s === 'array' ||
-      s === 'string' ||
-      s === 'number' ||
-      s === 'integer' ||
-      s === 'boolean' ||
-      s === 'null')
-
+    typeof s === 'string' && (s === 'object' || s === 'array' || s === 'string' || s === 'number' || s === 'integer' || s === 'boolean' || s === 'null')
   const toTypeArray = (t: unknown): JSONTypeName[] => {
     if (isJSONTypeName(t)) return [t]
     if (Array.isArray(t)) return t.filter(isJSONTypeName)
     return []
   }
 
+  const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
+    const toLit = (v: unknown) =>
+      typeof v === 'string' ? `'${v.replace(/'/g, "\\'")}'`
+      : typeof v === 'number' || typeof v === 'boolean' ? String(v)
+      : v === null ? 'null' : 'unknown'
+    return vals.map(toLit).join('|')
+  }
+
+  const tsTypeFromSchema = (schema: Schema | undefined, seen: Set<Schema> = new Set()): string => {
+    if (!schema) return 'unknown'
+    if (schema.$ref) {
+      const tgt = resolveRef(schema.$ref)
+      return tgt ? tsTypeFromSchema(tgt, seen) : 'unknown'
+    }
+    if (seen.has(schema)) return 'unknown'
+    const nextSeen = new Set(seen); nextSeen.add(schema)
+
+    if (Array.isArray(schema.oneOf) && schema.oneOf.length) return schema.oneOf.map(s => tsTypeFromSchema(s, nextSeen)).join('|') || 'unknown'
+    if (Array.isArray(schema.anyOf) && schema.anyOf.length) return schema.anyOf.map(s => tsTypeFromSchema(s, nextSeen)).join('|') || 'unknown'
+    if (Array.isArray(schema.allOf) && schema.allOf.length) return schema.allOf.map(s => tsTypeFromSchema(s, nextSeen)).join('&') || 'unknown'
+
+    if (Array.isArray(schema.enum) && schema.enum.length) {
+      const base = literalFromEnum(schema.enum)
+      return schema.nullable ? `${base}|null` : base
+    }
+
+    const types = toTypeArray(schema.type)
+
+    if (types.includes('array')) {
+      const inner = tsTypeFromSchema(schema.items, nextSeen)
+      const core = `${inner}[]`
+      return schema.nullable ? `${core}|null` : core
+    }
+
+    if (types.includes('object')) {
+      const req = new Set<string>(Array.isArray(schema.required) ? schema.required : [])
+      const props = schema.properties ?? {}
+      const fields = Object.entries(props).map(([k, v]) => {
+        const opt = req.has(k) ? '' : '?'
+        return `${k}${opt}:${tsTypeFromSchema(isSchema(v) ? v : undefined, nextSeen)}`
+      })
+      const ap = schema.additionalProperties
+      const addl =
+        ap === true ? `[key:string]:unknown`
+        : isSchema(ap) ? `[key:string]:${tsTypeFromSchema(ap, nextSeen)}`
+        : ''
+      const members = [...fields, addl].filter(Boolean).join(',')
+      const core = `{${members}}`
+      return schema.nullable ? `${core}|null` : core
+    }
+
+    if (types.length === 0) return schema.nullable ? 'unknown|null' : 'unknown'
+    const prim = types.map(t => t === 'integer' ? 'number' : t === 'null' ? 'null' : t).join('|')
+    return schema.nullable ? `${prim}|null` : prim
+  }
+
+  /* parameters ($ref in components.parameters) */
   type ParameterLike = {
     name: string
     in: 'path' | 'query' | 'header' | 'cookie'
     required?: boolean
-    schema?: { type?: JSONTypeName | JSONTypeName[] }
+    schema?: Schema
   }
-
-  const isParameterLike = (v: unknown): v is ParameterLike => {
+  const isParameterObject = (v: unknown): v is ParameterLike => {
     if (!isRecord(v)) return false
     if (typeof v.name !== 'string') return false
     const pin = v.in
-    if (pin !== 'path' && pin !== 'query' && pin !== 'header' && pin !== 'cookie') return false
-    const schema = v.schema
-    if (schema !== undefined && !isRecord(schema)) return false
-    if (isRecord(schema) && schema.type !== undefined) {
-      const t = schema.type
-      if (!(isJSONTypeName(t) || (Array.isArray(t) && t.every(isJSONTypeName)))) return false
-    }
-    return true
+    return pin === 'path' || pin === 'query' || pin === 'header' || pin === 'cookie'
   }
 
-  type SchemaLike = {
-    type?: JSONTypeName | JSONTypeName[]
-    properties?: Record<string, unknown>
-    required?: string[]
-    items?: unknown
+  const componentsParameters = openapi.components?.parameters ?? {}
+
+  const refParamName = (refLike: unknown): string | undefined => {
+    const ref =
+      typeof refLike === 'string'
+        ? refLike
+        : isRecord(refLike) && typeof refLike.$ref === 'string'
+          ? refLike.$ref
+          : undefined
+    const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
+    return m ? m[1] : undefined
   }
 
-  const isSchemaLike = (v: unknown): v is SchemaLike => {
-    if (!isRecord(v)) return false
-    if (v.type !== undefined) {
-      const t = v.type
-      if (!(isJSONTypeName(t) || (Array.isArray(t) && t.every(isJSONTypeName)))) return false
-    }
-    if (v.properties !== undefined && !isRecord(v.properties)) return false
-    if (v.required !== undefined && !Array.isArray(v.required)) return false
-    return true
+  const resolveParameterLike = (p: unknown): ParameterLike | undefined => {
+    if (isParameterObject(p)) return p
+    const name = refParamName(p)
+    const cand = name ? componentsParameters[name] : undefined
+    return isParameterObject(cand) ? cand : undefined
   }
 
-  const tsTypeFromJsonType = (t: unknown): string => {
-    const arr = toTypeArray(t)
-    if (arr.length === 0) return 'any'
-    return arr.map((x) => (x === 'integer' ? 'number' : x === 'null' ? 'null' : x)).join(' | ')
-  }
+  const toParameterLikes = (arr: unknown): ParameterLike[] =>
+    Array.isArray(arr)
+      ? arr.reduce<ParameterLike[]>((acc, x) => {
+          const r = resolveParameterLike(x)
+          if (r) acc.push(r)
+          return acc
+        }, [])
+      : []
 
-  const tsTypeFromSchema = (schema: unknown): string => {
-    if (!isSchemaLike(schema)) return 'any'
-    const types = toTypeArray(schema.type)
-
-    if (types.includes('object') && isRecord(schema.properties)) {
-      const req = new Set<string>(Array.isArray(schema.required) ? schema.required : [])
-      const fields = Object.entries(schema.properties).map(([k, v]) => {
-        const opt = req.has(k) ? '' : '?'
-        return `${k}${opt}: ${tsTypeFromSchema(v)}`
-      })
-      return `{ ${fields.join('; ')} }`
-    }
-
-    if (types.includes('array')) {
-      const inner = tsTypeFromSchema(schema.items)
-      return `${inner}[]`
-    }
-
-    return tsTypeFromJsonType(schema.type)
-  }
-
+  /* params & client args */
   const buildParamsType = (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
     const parts: string[] = []
     if (pathParams.length) {
-      const inner = pathParams
-        .map((p) => `${p.name}: ${tsTypeFromJsonType(p.schema?.type)}`)
-        .join('; ')
-      parts.push(`path: { ${inner} }`)
+      const inner = pathParams.map(p => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')
+      parts.push(`path:{${inner}}`)
     }
     if (queryParams.length) {
-      const inner = queryParams
-        .map((p) => `${p.name}: ${tsTypeFromJsonType(p.schema?.type)}`)
-        .join('; ')
-      parts.push(`query: { ${inner} }`)
+      const inner = queryParams.map(p => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')
+      parts.push(`query:{${inner}}`)
     }
-    return parts.length ? `{ ${parts.join('; ')} }` : ''
+    return parts.length ? `{${parts.join(',')}}` : ''
   }
 
-  const buildArgSignature = (paramsType: string, bodyType: string | null) => {
-    if (paramsType && bodyType) return `params: ${paramsType}, body: ${bodyType}`
-    if (paramsType) return `params: ${paramsType}`
-    if (bodyType) return `body: ${bodyType}`
-    return ''
+  const buildArgSignature = (paramsType: string, bodyType: string | null) =>
+    paramsType && bodyType ? `params:${paramsType}, body:${bodyType}`
+    : paramsType ? `params:${paramsType}`
+    : bodyType ? `body:${bodyType}` : ''
+
+  const buildQueryPiece = (p: ParameterLike) => {
+    const types = toTypeArray(p.schema?.type)
+    const isArr = types.includes('array')
+    const itemsInt =
+      isArr && isSchema(p.schema?.items) && toTypeArray(p.schema?.items?.type).includes('integer')
+    const isInt = types.includes('integer')
+    const rhs =
+      itemsInt ? `(params.query.${p.name}??[]).map((v:unknown)=>String(v))`
+      : isInt   ? `String(params.query.${p.name})`
+      : `params.query.${p.name}`
+    return `${p.name}:${rhs}`
   }
 
-  const buildClientArgs = (
-    pathParams: ParameterLike[],
-    queryParams: ParameterLike[],
-    hasBody: boolean,
-  ) => {
+  const buildClientArgs = (pathParams: ParameterLike[], queryParams: ParameterLike[], hasBody: boolean) => {
     const pieces: string[] = []
-
     if (pathParams.length) {
-      const inner = pathParams.map((p) => `${p.name}: params.path.${p.name}`).join(', ')
-      pieces.push(`param: { ${inner} }`)
+      const inner = pathParams.map(p => `${p.name}:params.path.${p.name}`).join(',')
+      pieces.push(`param:{${inner}}`)
     }
-
     if (queryParams.length) {
-      const inner = queryParams
-        .map((p) => {
-          const t = p.schema?.type
-          const isInt =
-            (typeof t === 'string' && t === 'integer') ||
-            (Array.isArray(t) && t.some((x) => x === 'integer'))
-          const rhs = isInt ? `String(params.query.${p.name})` : `params.query.${p.name}`
-          return `${p.name}: ${rhs}`
-        })
-        .join(', ')
-      pieces.push(`query: { ${inner} }`)
+      const inner = queryParams.map(buildQueryPiece).join(',')
+      pieces.push(`query:{${inner}}`)
     }
-
-    if (hasBody) {
-      pieces.push('json: body')
-    }
-
-    return pieces.length ? `{ ${pieces.join(', ')} }` : ''
+    if (hasBody) pieces.push('json:body')
+    return pieces.length ? `{${pieces.join(',')}}` : ''
   }
 
-  const hasSchema = (v: unknown): v is { schema: unknown } => isRecord(v) && 'schema' in v
-
-  const pickJsonBodySchema = (op: Record<string, unknown>): unknown => {
+  /* requestBody schema */
+  const hasSchemaProp = (v: unknown): v is { schema?: Schema } => isRecord(v) && 'schema' in v
+  const pickBodySchema = (op: unknown): Schema | undefined => {
+    if (!isRecord(op)) return undefined
     const rb = op.requestBody
     if (!isRecord(rb)) return undefined
     const content = rb.content
     if (!isRecord(content)) return undefined
-    const aj = content['application/json']
-    const asj = content['application/*+json']
-    if (hasSchema(aj)) return aj.schema
-    if (hasSchema(asj)) return asj.schema
+    const order = [
+      'application/json',
+      'application/*+json',
+      'application/xml',
+      'application/x-www-form-urlencoded',
+      'multipart/form-data',
+      'application/octet-stream',
+    ]
+    for (const k of order) {
+      const media = isRecord(content[k]) ? content[k] : undefined
+      if (hasSchemaProp(media)) return media.schema
+    }
     return undefined
   }
 
-  /* --------------------------- main generation --------------------------- */
+  /* main */
+  const header = (() => {
+    const s = (importCode ?? '').trim()
+    return s.length ? `${s}\n\n` : ''
+  })()
 
-  if (!isRecord(pathsUnknown)) return ''
+  const pathsMaybe = openapi.paths
+  if (!isOpenAPIPaths(pathsMaybe)) return header
+  const paths: OpenAPIPaths = pathsMaybe
 
-  for (const path in pathsUnknown) {
-    const pathItemUnknown = pathsUnknown[path]
-    if (!isRecord(pathItemUnknown)) continue
+  type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
+  const HTTP_METHODS: ReadonlyArray<HttpMethod> = ['get','put','post','delete','options','head','patch','trace']
 
-    const pathLevelParamsRaw = pathItemUnknown.parameters
-    const pathLevelParams: ParameterLike[] = Array.isArray(pathLevelParamsRaw)
-      ? pathLevelParamsRaw.filter(isParameterLike)
-      : []
+  for (const path in paths) {
+    const item = paths[path]
+    const pathLevelParams = toParameterLikes(item.parameters)
 
-    for (const method in pathItemUnknown) {
-      if (method === 'parameters') continue
-
-      const op = pathItemUnknown[method]
-      if (!isRecord(op)) continue
+    for (const method of HTTP_METHODS) {
+      const op = item[method]
+      if (!op) continue
       if (!('responses' in op)) continue
 
       const funcName = funcNameFrom(method, path)
-      const clientPath = formatPath(path)
+      const clientAccess = formatPath(path)
 
-      const opParamsRaw = op.parameters
-      const opParams: ParameterLike[] = Array.isArray(opParamsRaw)
-        ? opParamsRaw.filter(isParameterLike)
-        : []
-
+      const opParams = toParameterLikes(op.parameters)
       const allParams = [...pathLevelParams, ...opParams]
       const pathParams = allParams.filter((p) => p.in === 'path')
       const queryParams = allParams.filter((p) => p.in === 'query')
 
-      const jsonBodySchema = pickJsonBodySchema(op)
-      const hasBody = jsonBodySchema !== undefined
-      const bodyType = hasBody ? tsTypeFromSchema(jsonBodySchema) : null
+      const bodySchema = pickBodySchema(op)
+      const hasBody = bodySchema !== undefined
+      const bodyType = hasBody ? tsTypeFromSchema(bodySchema) : null
 
       const paramsType = buildParamsType(pathParams, queryParams)
       const argSig = buildArgSignature(paramsType, bodyType)
       const clientArgs = buildClientArgs(pathParams, queryParams, hasBody)
 
-      const call =
-        clientArgs.length > 0
-          ? `${client}.${clientPath}.$${method}(${clientArgs})`
-          : `${client}.${clientPath}.$${method}()`
+      const call = clientArgs
+        ? `${client}${clientAccess}.$${method}(${clientArgs})`
+        : `${client}${clientAccess}.$${method}()`
 
       const summary = typeof op.summary === 'string' ? op.summary : ''
       const description = typeof op.description === 'string' ? op.description : ''
 
-      const rpcCode =
+      const code =
         '/**\n' +
         (summary ? ` * ${summary}\n *\n` : '') +
         (description ? ` * ${description}\n *\n` : '') +
@@ -253,14 +276,10 @@ export function honoRpc(openapi: OpenAPI, importCode: string): string {
         `  return await ${call}\n` +
         '}'
 
-      rpc.push(rpcCode)
+
+      out.push(code)
     }
   }
 
-  const header = (() => {
-    const s = (importCode ?? '').trim()
-    return s.length ? `${s}\n\n` : ''
-  })()
-
-  return header + rpc.join('\n\n') + (rpc.length ? '\n' : '')
+  return header + out.join('\n\n') + (out.length ? '\n' : '')
 }

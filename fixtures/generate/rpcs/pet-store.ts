@@ -7,7 +7,14 @@ import { client } from '../index.ts'
  *
  * PUT /pet
  */
-export async function putPet(body: any) {
+export async function putPet(body: {
+  id?: number
+  name: string
+  category?: { id?: number; name?: string }
+  photoUrls: string[]
+  tags?: { id?: number; name?: string }[]
+  status?: 'available' | 'pending' | 'sold'
+}) {
   return await client.pet.$put({ json: body })
 }
 
@@ -18,7 +25,14 @@ export async function putPet(body: any) {
  *
  * POST /pet
  */
-export async function postPet(body: any) {
+export async function postPet(body: {
+  id?: number
+  name: string
+  category?: { id?: number; name?: string }
+  photoUrls: string[]
+  tags?: { id?: number; name?: string }[]
+  status?: 'available' | 'pending' | 'sold'
+}) {
   return await client.pet.$post({ json: body })
 }
 
@@ -29,7 +43,9 @@ export async function postPet(body: any) {
  *
  * GET /pet/findByStatus
  */
-export async function getPetFindByStatus(params: { query: { status: string } }) {
+export async function getPetFindByStatus(params: {
+  query: { status: 'available' | 'pending' | 'sold' }
+}) {
   return await client.pet.findByStatus.$get({ query: { status: params.query.status } })
 }
 
@@ -40,7 +56,7 @@ export async function getPetFindByStatus(params: { query: { status: string } }) 
  *
  * GET /pet/findByTags
  */
-export async function getPetFindByTags(params: { query: { tags: array } }) {
+export async function getPetFindByTags(params: { query: { tags: string[] } }) {
   return await client.pet.findByTags.$get({ query: { tags: params.query.tags } })
 }
 
@@ -86,13 +102,14 @@ export async function deletePetPetId(params: { path: { petId: number } }) {
  *
  * POST /pet/{petId}/uploadImage
  */
-export async function postPetPetIdUploadImage(params: {
-  path: { petId: number }
-  query: { additionalMetadata: string }
-}) {
+export async function postPetPetIdUploadImage(
+  params: { path: { petId: number }; query: { additionalMetadata: string } },
+  body: string,
+) {
   return await client.pet[':petId'].uploadImage.$post({
     param: { petId: params.path.petId },
     query: { additionalMetadata: params.query.additionalMetadata },
+    json: body,
   })
 }
 
@@ -114,7 +131,14 @@ export async function getStoreInventory() {
  *
  * POST /store/order
  */
-export async function postStoreOrder(body: any) {
+export async function postStoreOrder(body: {
+  id?: number
+  petId?: number
+  quantity?: number
+  shipDate?: string
+  status?: 'placed' | 'approved' | 'delivered'
+  complete?: boolean
+}) {
   return await client.store.order.$post({ json: body })
 }
 
@@ -147,7 +171,16 @@ export async function deleteStoreOrderOrderId(params: { path: { orderId: number 
  *
  * POST /user
  */
-export async function postUser(body: any) {
+export async function postUser(body: {
+  id?: number
+  username?: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  password?: string
+  phone?: string
+  userStatus?: number
+}) {
   return await client.user.$post({ json: body })
 }
 
@@ -158,7 +191,18 @@ export async function postUser(body: any) {
  *
  * POST /user/createWithList
  */
-export async function postUserCreateWithList(body: any[]) {
+export async function postUserCreateWithList(
+  body: {
+    id?: number
+    username?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    phone?: string
+    userStatus?: number
+  }[],
+) {
   return await client.user.createWithList.$post({ json: body })
 }
 
@@ -198,7 +242,19 @@ export async function getUserUsername(params: { path: { username: string } }) {
  *
  * PUT /user/{username}
  */
-export async function putUserUsername(params: { path: { username: string } }, body: any) {
+export async function putUserUsername(
+  params: { path: { username: string } },
+  body: {
+    id?: number
+    username?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    phone?: string
+    userStatus?: number
+  },
+) {
   return await client.user[':username'].$put({
     param: { username: params.path.username },
     json: body,
