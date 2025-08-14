@@ -19,13 +19,13 @@ export async function fmt(code: string): Promise<
     }
 > {
   try {
-    const formatted = await format(code, {
+    const result = await format(code, {
       parser: 'typescript',
       printWidth: 100,
       singleQuote: true,
       semi: false,
     })
-    return { ok: true, value: formatted }
+    return { ok: true, value: result }
   } catch (e) {
     return {
       ok: false,

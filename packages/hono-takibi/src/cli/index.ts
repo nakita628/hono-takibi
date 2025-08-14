@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { config } from '../config/index.js'
 import { rpc } from '../core/rpc.js'
 import { takibi } from '../core/takibi.js'
@@ -68,59 +70,64 @@ export async function honoTakibi(): Promise<
     }
   }
 
-  const configResult = await config()
+  const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 
-  if (configResult.ok) {
-    const c = configResult.value
-
-    const takibiResult = c['hono-takibi']
-      ? await takibi(
-          c['hono-takibi']?.input,
-          c['hono-takibi']?.output,
-          c['hono-takibi']?.exportSchema ?? false,
-          c['hono-takibi']?.exportType ?? false,
-          false, // template
-          false, // test
-        )
-      : undefined
-
-    if (takibiResult && !takibiResult.ok) {
+  if (!existsSync(abs)) {
+    const cliResult = parseCli(args)
+    if (!cliResult.ok) {
+      return { ok: false, error: cliResult.error }
+    }
+    const cli = cliResult.value
+    const takibiResult = await takibi(
+      cli.input,
+      cli.output,
+      cli.exportSchema ?? false,
+      cli.exportType ?? false,
+      cli.template ?? false,
+      cli.test ?? false,
+      cli.basePath,
+    )
+    if (!takibiResult.ok) {
       return { ok: false, error: takibiResult.error }
     }
-
-    const rpcResult = c.rpc ? await rpc(c.rpc.input, c.rpc.output, c.rpc.import) : undefined
-
-    if (rpcResult && !rpcResult.ok) {
-      return { ok: false, error: rpcResult.error }
-    }
-
-    const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
-
     return {
       ok: true,
-      value: results.join('\n'),
+      value: takibiResult.value,
     }
   }
 
-  const cliResult = parseCli(args)
-  if (!cliResult.ok) {
-    return { ok: false, error: cliResult.error }
+  const configResult = await config()
+
+  if (!configResult.ok) {
+    return { ok: false, error: configResult.error }
   }
-  const cli = cliResult.value
-  const takibiResult = await takibi(
-    cli.input,
-    cli.output,
-    cli.exportSchema ?? false,
-    cli.exportType ?? false,
-    cli.template ?? false,
-    cli.test ?? false,
-    cli.basePath,
-  )
-  if (!takibiResult.ok) {
+  const c = configResult.value
+
+  const takibiResult = c['hono-takibi']
+    ? await takibi(
+        c['hono-takibi']?.input,
+        c['hono-takibi']?.output,
+        c['hono-takibi']?.exportSchema ?? false,
+        c['hono-takibi']?.exportType ?? false,
+        false, // template
+        false, // test
+      )
+    : undefined
+
+  if (takibiResult && !takibiResult.ok) {
     return { ok: false, error: takibiResult.error }
   }
+
+  const rpcResult = c.rpc ? await rpc(c.rpc.input, c.rpc.output, c.rpc.import) : undefined
+
+  if (rpcResult && !rpcResult.ok) {
+    return { ok: false, error: rpcResult.error }
+  }
+
+  const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
+
   return {
     ok: true,
-    value: takibiResult.value,
+    value: results.join('\n'),
   }
 }

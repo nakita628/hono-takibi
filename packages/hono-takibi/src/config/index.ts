@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
@@ -29,9 +28,9 @@ export async function config(): Promise<
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 
-  if (!existsSync(abs)) {
-    return { ok: false, error: `Config not found: ${abs}` }
-  }
+  // if (!existsSync(abs)) {
+  //   return { ok: false, error: `Config not found: ${abs}` }
+  // }
 
   register()
 

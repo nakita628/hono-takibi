@@ -55,7 +55,7 @@ export async function typeSpecToOpenAPI(input: string): Promise<
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? String(e.message) : String(e),
+      error: e instanceof Error ? e.message : String(e),
     }
   }
 }

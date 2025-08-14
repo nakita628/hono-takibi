@@ -48,7 +48,6 @@ export async function readdir(dir: string): Promise<
 > {
   try {
     const files = await fsp.readdir(dir)
-    // return ok(files)
     return { ok: true, value: files }
   } catch (e) {
     return {
