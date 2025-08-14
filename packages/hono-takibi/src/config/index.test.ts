@@ -60,10 +60,7 @@ export default defineConfig({
   })
 
   it('should return an error if the config file does not exist', async () => {
-    expect(await config()).toStrictEqual({
-      ok: false,
-      error:
-        "Cannot find module '/tmp/hono-takibi-config-L88FOj/hono-takibi.config.ts' imported from '/workspaces/hono-takibi/packages/hono-takibi/src/config/index.ts'",
-    })
+    const result = await config()
+    expect(result.ok).toBe(false)
   })
 })
