@@ -40,9 +40,9 @@
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
     },
-    "./rpc": {
-      "types": "./dist/generator/rpc/index.d.ts",
-      "import": "./dist/generator/rpc/index.js"
+    "./rpc-beta": {
+      "types": "./dist/core/rpc.d.ts",
+      "import": "./dist/core/rpc.js"
     }
   },
   "scripts": {
