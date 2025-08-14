@@ -1,7 +1,7 @@
 import { defineConfig } from '../hono-takibi/src/config'
 
 export default defineConfig({
-  "hono-takibi": {
+  'hono-takibi': {
     input: 'openapi.yaml',
     output: 'index.ts',
     exportType: true,

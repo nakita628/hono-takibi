@@ -71,41 +71,35 @@ export async function honoTakibi(): Promise<
   const configResult = await config()
 
   if (configResult.ok) {
-    console.log(configResult.value)
-    // const results: string[] = []
-    // const tv = configResult.value['hono-takibi'] ?? {}
-    // if (!(tv.input && tv.output)) {
-    //   return { ok: false, error: 'Invalid input or output' }
-    // }
-    // const takibiResult = await takibi(
-    //   tv.input,
-    //   tv.output,
-    //   tv.exportSchema ?? false,
-    //   tv.exportType ?? false,
-    //   false, // template
-    //   false, // test
-    // )
-    // if (!takibiResult.ok) {
-    //   return { ok: false, error: takibiResult.error }
-    // }
-    // results.push(takibiResult.value)
+    const c = configResult.value
 
-    // /** rpc */
-    // const rv = configResult.value.rpc
-    // if (rv) {
-    //   if (!(rv.input && rv.output && rv.import)) {
-    //     return { ok: false, error: 'Invalid RPC input or output or import' }
-    //   }
-    //   const rpcResult = await rpc(rv.input, rv.output, rv.import)
-    //   if (!rpcResult.ok) {
-    //     return { ok: false, error: rpcResult.error }
-    //   }
-    //   results.push(rpcResult.value)
-    // }
-    // return {
-    //   ok: true,
-    //   value: results.join('\n'),
-    // }
+    const takibiResult = c['hono-takibi']
+      ? await takibi(
+          c['hono-takibi']?.input,
+          c['hono-takibi']?.output,
+          c['hono-takibi']?.exportSchema ?? false,
+          c['hono-takibi']?.exportType ?? false,
+          false, // template
+          false, // test
+        )
+      : undefined
+
+    if (takibiResult && !takibiResult.ok) {
+      return { ok: false, error: takibiResult.error }
+    }
+
+    const rpcResult = c.rpc ? await rpc(c.rpc.input, c.rpc.output, c.rpc.import) : undefined
+
+    if (rpcResult && !rpcResult.ok) {
+      return { ok: false, error: rpcResult.error }
+    }
+
+    const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
+
+    return {
+      ok: true,
+      value: results.join('\n'),
+    }
   }
 
   const cliResult = parseCli(args)

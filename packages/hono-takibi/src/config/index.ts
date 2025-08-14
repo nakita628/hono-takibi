@@ -1,7 +1,7 @@
-import { resolve } from 'node:path'
 import { existsSync } from 'node:fs'
-import { register } from 'tsx/esm/api'
+import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { register } from 'tsx/esm/api'
 
 type Config = {
   'hono-takibi'?: {
@@ -17,7 +17,16 @@ type Config = {
   }
 }
 
-export async function config() {
+export async function config(): Promise<
+  | {
+      ok: true
+      value: Config
+    }
+  | {
+      ok: false
+      error: string
+    }
+> {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 
   if (!existsSync(abs)) {
@@ -27,8 +36,8 @@ export async function config() {
   register()
 
   try {
-    const mod = await import(pathToFileURL(abs).href)
-    console.log(mod)
+    const mod: { default: Config } = await import(pathToFileURL(abs).href)
+
     if (!('default' in mod)) {
       return { ok: false, error: 'Config must export default object' }
     }
@@ -37,7 +46,6 @@ export async function config() {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
-
 
 export function defineConfig(config: Config): Config {
   return config
