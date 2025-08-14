@@ -3,7 +3,7 @@ import { fmt } from '../format/index.js'
 import { mkdir, readdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
 import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
-import { parseOpenAPI, type OpenAPI, type OpenAPIPaths } from '../openapi/index.js'
+import { type OpenAPI, type OpenAPIPaths, parseOpenAPI } from '../openapi/index.js'
 import { groupHandlersByFileName, methodPath } from '../utils/index.js'
 
 /**

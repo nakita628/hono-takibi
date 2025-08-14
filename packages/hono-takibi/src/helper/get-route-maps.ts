@@ -1,5 +1,5 @@
 import type { OpenAPI } from '../openapi/index.js'
-import { methodPath} from '../utils/index.js'
+import { methodPath } from '../utils/index.js'
 
 /**
  * Extracts route mappings from an OpenAPI specification.

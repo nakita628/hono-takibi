@@ -10,13 +10,13 @@ import {
   importRoutes,
   isRefObject,
   isUniqueContentSchema,
+  methodPath,
   normalizeTypes,
   parseCli,
   refSchema,
   regex,
   registerComponent,
   requestParamsArray,
-  methodPath,
   sanitizeIdentifier,
 } from '.'
 

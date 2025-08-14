@@ -253,12 +253,8 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (
-      isRecord(media) &&
-      'schema' in media &&
-      isSchema((media).schema)
-    ) {
-      return (media).schema
+    if (isRecord(media) && 'schema' in media && isSchema(media.schema)) {
+      return media.schema
     }
   }
   return undefined
