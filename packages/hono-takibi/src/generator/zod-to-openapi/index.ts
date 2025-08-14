@@ -15,12 +15,12 @@ export function zodToOpenAPI(
 ): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /** ref */
-  if (schema.$ref) {
+  if (schema.$ref !== undefined) {
     return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
   }
   /* combinators */
   /** allOf */
-  if (schema.allOf) {
+  if (schema.allOf !== undefined) {
     if (!schema.allOf || schema.allOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
     }
@@ -64,7 +64,7 @@ export function zodToOpenAPI(
   }
 
   /* anyOf */
-  if (schema.anyOf) {
+  if (schema.anyOf !== undefined) {
     if (!schema.anyOf || schema.anyOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
     }
@@ -76,7 +76,7 @@ export function zodToOpenAPI(
   }
 
   /* oneOf */
-  if (schema.oneOf) {
+  if (schema.oneOf !== undefined) {
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return wrap('z.any()', schema, paramName, paramIn)
     }
@@ -95,7 +95,7 @@ export function zodToOpenAPI(
   }
 
   /* not */
-  if (schema.not) {
+  if (schema.not !== undefined) {
     if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
       const predicate = `(v) => typeof v !== '${schema.not.type}'`
       const z = `z.any().refine(${predicate})`
@@ -111,15 +111,15 @@ export function zodToOpenAPI(
   }
 
   /* const */
-  if (schema.const) {
+  if (schema.const !== undefined) {
     const z = `z.literal(${JSON.stringify(schema.const)})`
     return wrap(z, schema, paramName, paramIn)
   }
 
   /* enum */
-  if (schema.enum) return wrap(_enum(schema), schema, paramName, paramIn)
+  if (schema.enum !== undefined) return wrap(_enum(schema), schema, paramName, paramIn)
   /* properties */
-  if (schema.properties) return wrap(object(schema), schema, paramName, paramIn)
+  if (schema.properties !== undefined) return wrap(object(schema), schema, paramName, paramIn)
   const t = normalizeTypes(schema.type)
   /* string */
   if (t.includes('string')) return wrap(string(schema), schema, paramName, paramIn)
