@@ -68,43 +68,44 @@ export async function honoTakibi(): Promise<
     }
   }
 
-  const configResult = config()
+  const configResult = await config()
 
   if (configResult.ok) {
-    const results: string[] = []
-    const tv = configResult.value['hono-takibi'] ?? {}
-    if (!(tv.input && tv.output)) {
-      return { ok: false, error: 'Invalid input or output' }
-    }
-    const takibiResult = await takibi(
-      tv.input,
-      tv.output,
-      tv.exportSchema ?? false,
-      tv.exportType ?? false,
-      false, // template
-      false, // test
-    )
-    if (!takibiResult.ok) {
-      return { ok: false, error: takibiResult.error }
-    }
-    results.push(takibiResult.value)
+    console.log(configResult.value)
+    // const results: string[] = []
+    // const tv = configResult.value['hono-takibi'] ?? {}
+    // if (!(tv.input && tv.output)) {
+    //   return { ok: false, error: 'Invalid input or output' }
+    // }
+    // const takibiResult = await takibi(
+    //   tv.input,
+    //   tv.output,
+    //   tv.exportSchema ?? false,
+    //   tv.exportType ?? false,
+    //   false, // template
+    //   false, // test
+    // )
+    // if (!takibiResult.ok) {
+    //   return { ok: false, error: takibiResult.error }
+    // }
+    // results.push(takibiResult.value)
 
-    /** rpc */
-    const rv = configResult.value.rpc
-    if (rv) {
-      if (!(rv.input && rv.output && rv.import)) {
-        return { ok: false, error: 'Invalid RPC input or output or import' }
-      }
-      const rpcResult = await rpc(rv.input, rv.output, rv.import)
-      if (!rpcResult.ok) {
-        return { ok: false, error: rpcResult.error }
-      }
-      results.push(rpcResult.value)
-    }
-    return {
-      ok: true,
-      value: results.join('\n'),
-    }
+    // /** rpc */
+    // const rv = configResult.value.rpc
+    // if (rv) {
+    //   if (!(rv.input && rv.output && rv.import)) {
+    //     return { ok: false, error: 'Invalid RPC input or output or import' }
+    //   }
+    //   const rpcResult = await rpc(rv.input, rv.output, rv.import)
+    //   if (!rpcResult.ok) {
+    //     return { ok: false, error: rpcResult.error }
+    //   }
+    //   results.push(rpcResult.value)
+    // }
+    // return {
+    //   ok: true,
+    //   value: results.join('\n'),
+    // }
   }
 
   const cliResult = parseCli(args)
