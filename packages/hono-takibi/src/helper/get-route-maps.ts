@@ -1,5 +1,5 @@
 import type { OpenAPI } from '../openapi/index.js'
-import { routeName } from '../utils/index.js'
+import { methodPath} from '../utils/index.js'
 
 /**
  * Extracts route mappings from an OpenAPI specification.
@@ -14,8 +14,8 @@ export function getRouteMaps(
   const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {
     return Object.entries(pathItem).flatMap(([method]) => {
       return {
-        routeName: routeName(method, path),
-        handlerName: `${routeName(method, path)}Handler`,
+        routeName: `${methodPath(method, path)}Route`,
+        handlerName: `${methodPath(method, path)}RouteHandler`,
         path,
       }
     })

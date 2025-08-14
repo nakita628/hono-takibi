@@ -472,9 +472,9 @@ export function refSchema($ref: `#/components/schemas/${string}`): string {
  * @returns A route name string (e.g., 'getUsersIdPostsRoute').
  *
  * @example
- * routeName('get', '/users/{id}/posts') // 'getUsersIdPostsRoute'
+ * methodPath('get', '/users/{id}/posts') // 'getUsersIdPosts'
  */
-export function routeName(method: string, path: string): string {
+export function methodPath(method: string, path: string): string {
   // 1. api_path: `/user/createWithList`
   // 2. replace(/[\/{}-]/g, ' ') -> ` user createWithList`
   // 3. trim() -> `user createWithList`
@@ -487,7 +487,7 @@ export function routeName(method: string, path: string): string {
     .split(/\s+/)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
-  return `${method}${apiPath}Route`
+  return apiPath ? `${method}${apiPath}` : `${method}Index`
 }
 
 /**

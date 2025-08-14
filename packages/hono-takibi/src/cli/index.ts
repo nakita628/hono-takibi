@@ -1,7 +1,7 @@
 import { config } from '../config/index.js'
+import { rpc } from '../core/rpc.js'
+import { takibi } from '../core/takibi.js'
 import { parseCli } from '../utils/index.js'
-import { rpc } from './rpc.js'
-import { takibi } from './takibi.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 

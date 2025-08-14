@@ -1,4 +1,5 @@
 import type { OpenAPI, OpenAPIPaths, Schema } from '../../openapi/index.js'
+import { methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
 
@@ -19,18 +20,6 @@ const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 /** Uppercase the first character */
 const upperHead = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
-
-/** Build function name: method + PascalCase(path) */
-const funcNameFrom = (method: string, path: string) => {
-  const core = path
-    .replace(/[/{}._-]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(upperHead)
-    .join('')
-  return core ? `${method}${core}` : `${method}Index`
-}
 
 /** JS identifier check */
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
@@ -267,9 +256,9 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
     if (
       isRecord(media) &&
       'schema' in media &&
-      isSchema((media as Record<string, unknown>).schema)
+      isSchema((media).schema)
     ) {
-      return (media as Record<string, unknown>).schema as Schema // NOTE: narrowed by isSchema
+      return (media).schema
     }
   }
   return undefined
@@ -352,7 +341,7 @@ const generateOperationCode = (
   const op = item[method]
   if (!isOperationLike(op)) return ''
 
-  const funcName = funcNameFrom(method, path)
+  const funcName = methodPath(method, path)
   const clientAccess = formatPath(path)
 
   const pathLevelParams = deps.toParameterLikes(item.parameters)
