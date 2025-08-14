@@ -1,4 +1,7 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'docs/*'
+  - apps/*
+  - packages/*
+  - docs/*
+  - fixtures/*
+overrides:
+  hono-takibi: link:packages/hono-takibi

@@ -73,7 +73,7 @@ export default async function HonoTakibiVite({
       await fsp.mkdir(path.dirname(output), { recursive: true })
       await fsp.writeFile(output, code.value, 'utf-8')
     } catch (e) {
-      console.error(String(e))
+      console.error(e instanceof Error ? e.message : String(e))
       throw e
     }
   }

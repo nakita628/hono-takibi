@@ -14,7 +14,12 @@ export async function getUsers() {
  *
  * POST /users
  */
-export async function postUsers(body: any) {
+export async function postUsers(body: {
+  name: string
+  email: string
+  address?: { street: string; city: string; state: string; postalCode: string; country: string }
+  profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
+}) {
   return await client.users.$post({ json: body })
 }
 
@@ -32,7 +37,15 @@ export async function getUsersUserId(params: { path: { userId: string } }) {
  *
  * PUT /users/{userId}
  */
-export async function putUsersUserId(params: { path: { userId: string } }, body: any) {
+export async function putUsersUserId(
+  params: { path: { userId: string } },
+  body: {
+    name?: string
+    email?: string
+    address?: { street: string; city: string; state: string; postalCode: string; country: string }
+    profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
+  },
+) {
   return await client.users[':userId'].$put({ param: { userId: params.path.userId }, json: body })
 }
 
@@ -59,6 +72,12 @@ export async function getOrders() {
  *
  * POST /orders
  */
-export async function postOrders(body: any) {
+export async function postOrders(body: {
+  userId: string
+  items: { productId: string; quantity: number; price: number }[]
+  paymentMethod?:
+    | { method: 'credit_card'; cardNumber: string; cardHolder: string; expirationDate: string }
+    | { method: 'paypal'; email: string }
+}) {
   return await client.orders.$post({ json: body })
 }

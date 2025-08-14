@@ -1,5 +1,5 @@
 import type { Operation } from '../../../../openapi/index.js'
-import { createRoute, escapeStringLiteral, routeName } from '../../../../utils/index.js'
+import { createRoute, escapeStringLiteral, methodPath } from '../../../../utils/index.js'
 import { requestParameter } from './params/index.js'
 import { response } from './response/index.js'
 
@@ -23,7 +23,7 @@ export function route(path: string, method: string, operation: Operation): strin
   const requestParams = requestParameter(parameters, requestBody)
 
   const create_args = {
-    routeName: routeName(method, path),
+    routeName: `${methodPath(method, path)}Route`,
     tags: tags ? `tags:${tagList},` : '',
     method: `method:'${method}',`,
     path: `path:'${path}',`,

@@ -4,7 +4,7 @@ import type { OpenAPI } from '../openapi/index.js'
 import { takibi } from './takibi.js'
 
 // Test run
-// pnpm vitest run ./src/cli/takibi.test.ts
+// pnpm vitest run ./src/core/takibi.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.1.0',

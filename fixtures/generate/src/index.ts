@@ -2,7 +2,7 @@ import { exec } from 'node:child_process'
 import { readdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { rpc } from '../../../packages/hono-takibi/src/cli/rpc.js'
+import { rpc } from '../../../packages/hono-takibi/src/core/rpc.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
