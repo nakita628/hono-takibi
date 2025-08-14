@@ -46,6 +46,6 @@ export async function config(): Promise<
   }
 }
 
-export function defineConfig(config: Config): Config {
+export default function defineConfig(config: Config): Config {
   return config
 }
