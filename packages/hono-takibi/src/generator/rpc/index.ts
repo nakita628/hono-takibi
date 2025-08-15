@@ -18,9 +18,6 @@ const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
-/** Uppercase the first character */
-const upperHead = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
-
 /** JS identifier check */
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
 

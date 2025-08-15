@@ -173,7 +173,7 @@ const ProjectSchema = z
   })
   .openapi('Project')
 
-export const getRoute = createRoute({
+export const getIndexRoute = createRoute({
   tags: ['Utility'],
   method: 'get',
   path: '/',
