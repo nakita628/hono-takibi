@@ -53,28 +53,18 @@ describe.concurrent('Hono Takibi Normal Test', () => {
   }
 
   beforeEach(() => {
-    if (!fs.existsSync('tmp-openapi')) {
-      fs.mkdirSync('tmp-openapi', { recursive: true })
-      fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
-    }
-    if (!fs.existsSync('tmp-route')) {
-      fs.mkdirSync('tmp-route', { recursive: true })
-    }
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
+
+    fs.mkdirSync('tmp-openapi', { recursive: true })
+    fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
+
+    fs.mkdirSync('tmp-route', { recursive: true })
   })
 
   afterEach(() => {
-    if (fs.existsSync('tmp-openapi/test.json')) {
-      fs.unlinkSync('tmp-openapi/test.json')
-    }
-    if (fs.existsSync('tmp-openapi') && fs.readdirSync('tmp-openapi').length === 0) {
-      fs.rmdirSync('tmp-openapi')
-    }
-    if (fs.existsSync('tmp-route/test.ts')) {
-      fs.unlinkSync('tmp-route/test.ts')
-    }
-    if (fs.existsSync('tmp-route') && fs.readdirSync('tmp-route').length === 0) {
-      fs.rmdirSync('tmp-route')
-    }
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
   })
 
   // #1: exportSchema=true, exportType=true
