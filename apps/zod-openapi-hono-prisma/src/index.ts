@@ -5,7 +5,7 @@ import { apiReference } from '@scalar/hono-api-reference'
 import { hc } from 'hono/client'
 import { logger } from 'hono/logger'
 import { customError } from './custom-error'
-import { getRouteHandler } from './handlers/indexHandler'
+import { getIndexRouteHandler } from './handlers/indexHandler'
 import {
   deletePostsIdRouteHandler,
   getPostsRouteHandler,
@@ -15,7 +15,7 @@ import {
 import {
   deletePostsIdRoute,
   getPostsRoute,
-  getRoute,
+  getIndexRoute,
   postPostsRoute,
   putPostsIdRoute,
 } from './routes'
@@ -49,7 +49,7 @@ app.use('*', async (c, next) => {
 })
 
 export const api = app
-  .openapi(getRoute, getRouteHandler)
+  .openapi(getIndexRoute, getIndexRouteHandler)
   .openapi(postPostsRoute, postPostsRouteHandler)
   .openapi(getPostsRoute, getPostsRouteHandler)
   .openapi(putPostsIdRoute, putPostsIdRouteHandler)

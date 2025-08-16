@@ -178,8 +178,6 @@ async function zodOpenapiHonoHandler(
     }
   }
 
-  console.log(handlers)
-
   const mergedHandlers = groupHandlersByFileName(handlers)
 
   for (const handler of mergedHandlers) {
@@ -193,7 +191,6 @@ async function zodOpenapiHonoHandler(
     const match = output?.match(/[^/]+\.ts$/)
     const matchPath = match ? match[0] : ''
     const path = output === '.' || output === './' ? output : `../${matchPath}`
-    // console.log(routeTypes)
     const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
     const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
