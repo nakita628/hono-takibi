@@ -54,3 +54,5 @@ export async function putPostsId(params: { path: { id: string } }, body: { post:
 export async function deletePostsId(params: { path: { id: string } }) {
   return await client.posts[':id'].$delete({ param: { id: params.path.id } })
 }
+ params.path.id } })
+}

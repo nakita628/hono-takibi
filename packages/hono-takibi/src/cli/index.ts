@@ -1,8 +1,10 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { rpc } from '../core/rpc.js'
+import core from '../core/core.js'
 import { takibi } from '../core/takibi.js'
+import rpc from '../generator/rpc/index.js'
+// import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
@@ -118,11 +120,27 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: takibiResult.error }
   }
 
-  const rpcResult = c.rpc ? await rpc(c.rpc.input, c.rpc.output, c.rpc.import) : undefined
+  const rpcResult = c.rpc
+    ? await core(c.rpc.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+    : undefined
 
   if (rpcResult && !rpcResult.ok) {
     return { ok: false, error: rpcResult.error }
   }
+
+  // const swrResult = c.swr
+  //   ? await core(
+  //       c.swr.input,
+  //       c.swr.output,
+  //       c.swr.import,
+  //       'Generated SWR code written to',
+  //       honoRpcWithSWR,
+  //     )
+  //   : undefined
+
+  // if (swrResult && !swrResult.ok) {
+  //   return { ok: false, error: swrResult.error }
+  // }
 
   const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
 

@@ -1,17 +1,17 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
   "files": {
     "ignoreUnknown": true,
     "includes": [
       "**/*.ts",
       "**/*.json",
-      "!**/.pnpm-store/**",
+      "!**/.pnpm-store",
       "!**/*.d.ts",
-      "!**/node_modules/**",
-      "!**/dist/**",
+      "!**/node_modules",
+      "!**/dist",
       "!**/*.js",
-      "!**/routes/**",
-      "!**/rpcs/**"
+      "!**/routes",
+      "!**/rpcs"
     ]
   },
   "formatter": {

@@ -1,7 +1,7 @@
 {
   "name": "hono-takibi",
   "description": "Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.",
-  "version": "0.9.01",
+  "version": "0.9.11",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -40,9 +40,13 @@
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
     },
-    "./rpc-beta": {
-      "types": "./dist/core/rpc.d.ts",
-      "import": "./dist/core/rpc.js"
+    "./core": {
+      "types": "./dist/core/core.d.ts",
+      "import": "./dist/core/core.js"
+    },
+    "./rpc": {
+      "types": "./dist/generator/rpc/index.d.ts",
+      "import": "./dist/generator/rpc/index.js"
     }
   },
   "scripts": {

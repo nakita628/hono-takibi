@@ -17,7 +17,7 @@
     "fixtures": "pnpm -F @fixtures/generate dev"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.4"
+    "@biomejs/biome": "^2.2.0"
   },
   "dependencies": {
     "hono-takibi": "link:packages/hono-takibi"

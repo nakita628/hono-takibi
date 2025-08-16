@@ -24,7 +24,7 @@ describe('config', () => {
 
   it('should return the default config', async () => {
     const testFilePath = path.join(process.cwd(), 'hono-takibi.config.ts')
-    const testConfig = `import { defineConfig } from '../hono-takibi/src/config'
+    const testConfig = `import defineConfig from '../hono-takibi/src/config'
 
 export default defineConfig({
   'hono-takibi': {

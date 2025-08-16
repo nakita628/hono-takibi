@@ -14,6 +14,11 @@ type Config = {
     output: `${string}.ts`
     import: string
   }
+  swr?: {
+    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+    output: `${string}.ts`
+    import: string
+  }
 }
 
 export async function config(): Promise<
@@ -46,6 +51,6 @@ export async function config(): Promise<
   }
 }
 
-export function defineConfig(config: Config): Config {
+export default function defineConfig(config: Config): Config {
   return config
 }

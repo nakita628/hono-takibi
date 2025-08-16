@@ -1,13 +1,14 @@
 import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
-import { honoRpc } from '../generator/rpc/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 
-export async function rpc(
+export default async function core(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
   importCode: string,
+  value: string,
+  fn: (openapi: OpenAPI, importCode: string) => string,
 ): Promise<
   | {
       ok: true
@@ -23,7 +24,7 @@ export async function rpc(
     return { ok: false, error: openAPIResult.error }
   }
   const openAPI = openAPIResult.value
-  const honoRpcResult = await fmt(honoRpc(openAPI, importCode))
+  const honoRpcResult = await fmt(fn(openAPI, importCode))
   if (!honoRpcResult.ok) {
     return { ok: false, error: honoRpcResult.error }
   }
@@ -37,6 +38,6 @@ export async function rpc(
   }
   return {
     ok: true,
-    value: `Generated RPC code written to ${output}`,
+    value: `${value} ${output}`,
   }
 }

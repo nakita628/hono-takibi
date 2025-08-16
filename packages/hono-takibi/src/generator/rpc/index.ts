@@ -18,9 +18,6 @@ const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
-/** Uppercase the first character */
-const upperHead = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)
-
 /** JS identifier check */
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
 
@@ -377,7 +374,7 @@ const generateOperationCode = (
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
 
-export function honoRpc(openapi: OpenAPI, importCode: string): string {
+export default function rpc(openapi: OpenAPI, importCode: string): string {
   const client = 'client'
   const out: string[] = []
 
