@@ -12,17 +12,6 @@ export async function getIndex() {
 }
 
 /**
- * Create a new post
- *
- * Submit a new post with a maximum length of 140 characters.
- *
- * POST /posts
- */
-export async function postPosts(body: { post: string }) {
-  return await client.posts.$post({ json: body })
-}
-
-/**
  * Retrieve a list of posts
  *
  * Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
@@ -31,6 +20,17 @@ export async function postPosts(body: { post: string }) {
  */
 export async function getPosts(params: { query: { page: number; rows: number } }) {
   return await client.posts.$get({ query: { page: params.query.page, rows: params.query.rows } })
+}
+
+/**
+ * Create a new post
+ *
+ * Submit a new post with a maximum length of 140 characters.
+ *
+ * POST /posts
+ */
+export async function postPosts(body: { post: string }) {
+  return await client.posts.$post({ json: body })
 }
 
 /**
