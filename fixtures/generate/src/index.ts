@@ -3,8 +3,8 @@ import type { Dirent } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { core } from '../../../packages/hono-takibi/src/core/core.js'
-import { honoRpc } from '../../../packages/hono-takibi/src/generator/rpc/index.js'
+import core from '../../../packages/hono-takibi/src/core/core.js'
+import rpc from '../../../packages/hono-takibi/src/generator/rpc/index.js'
 
 // import { honoSWRHooks } from '../../../packages/hono-takibi/src/generator/swr/index.js'
 
@@ -87,7 +87,7 @@ async function honoRpcs() {
         `rpcs/${file}.ts`,
         "import { client } from '../index.ts'",
         'Generated RPC code written to',
-        honoRpc,
+        rpc,
       )
     }),
   )

@@ -3,7 +3,7 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 
-export async function core(
+export default async function core(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
   importCode: string,

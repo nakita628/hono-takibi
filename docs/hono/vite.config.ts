@@ -69,15 +69,26 @@ function typeDocVitePlugin(): PluginOption {
       })
 
       server.middlewares.use(async (req, res, next) => {
-        const urlPath = (req.url || '/').split('?')[0]!
-        if (!(urlPath === '/' || urlPath.endsWith('.html') || urlPath.endsWith('/'))) return next()
-
-        const rel =
-          urlPath === '/' ? '/index.html' : urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath
-        const file = path.join(server.config.root, 'public', rel)
-
         try {
-          const raw = await fsp.readFile(file, 'utf8')
+          const urlPath = (req.url ?? '/').split('?')[0]
+          if (!(urlPath === '/' || urlPath.endsWith('.html') || urlPath.endsWith('/'))) {
+            return next()
+          }
+
+          const rel =
+            urlPath === '/'
+              ? 'index.html'
+              : urlPath.endsWith('/')
+                ? `${urlPath}index.html`.replace(/^\//, '')
+                : urlPath.replace(/^\//, '')
+
+          const publicRoot = path.join(server.config.root, 'public')
+          const file = path.join(publicRoot, rel)
+
+          const normalized = path.normalize(file)
+          if (!normalized.startsWith(publicRoot)) return next()
+
+          const raw = await fsp.readFile(normalized, 'utf8')
           const html = await server.transformIndexHtml(urlPath, raw)
           res.setHeader('Content-Type', 'text/html')
           res.end(html)

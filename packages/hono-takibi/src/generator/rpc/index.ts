@@ -374,7 +374,7 @@ const generateOperationCode = (
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
 
-export function honoRpc(openapi: OpenAPI, importCode: string): string {
+export default function rpc(openapi: OpenAPI, importCode: string): string {
   const client = 'client'
   const out: string[] = []
 
