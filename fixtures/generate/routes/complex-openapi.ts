@@ -149,6 +149,11 @@ export const getUsersUserIdRoute = createRoute({
   method: 'get',
   path: '/users/{userId}',
   summary: 'Retrieve a user by ID',
+  request: {
+    params: z.object({
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
+    }),
+  },
   responses: {
     200: { description: 'User details', content: { 'application/json': { schema: UserSchema } } },
     404: { description: 'User not found' },
@@ -161,6 +166,9 @@ export const putUsersUserIdRoute = createRoute({
   summary: 'Update an existing user',
   request: {
     body: { required: true, content: { 'application/json': { schema: UpdateUserSchema } } },
+    params: z.object({
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
+    }),
   },
   responses: {
     200: {
@@ -175,6 +183,11 @@ export const deleteUsersUserIdRoute = createRoute({
   method: 'delete',
   path: '/users/{userId}',
   summary: 'Delete a user',
+  request: {
+    params: z.object({
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
+    }),
+  },
   responses: {
     204: { description: 'User deleted successfully' },
     404: { description: 'User not found' },

@@ -1,37 +1,49 @@
-import type { OpenAPIPaths } from '../../../../openapi/index.js'
+import type { OpenAPIPaths, Operation, Parameters } from '../../../../openapi/index.js'
 import { route } from './route.js'
 
-/**
- * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
- *
- * @param openAPIPaths - The OpenAPI paths object.
- * @returns A string containing all generated route definitions.
- *
- * @remarks
- * - Filters only valid HTTP methods and OpenAPI operations.
- * - Ignores `parameters` keys, undefined values, strings, and arrays.
- * - Uses `route(...)` to generate code for each valid route.
- * - Returns all generated routes joined by newlines.
- */
+type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
+const METHODS: ReadonlyArray<HttpMethod> = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'patch',
+  'options',
+  'head',
+  'trace',
+]
+
 export function routeCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []
-  // 1. flattening and processing OpenAPI paths
-  for (const [path, pathItem] of Object.entries(openAPIPaths)) {
-    // 2.skip if path definition does not exist
+
+  const isOp = (v: unknown): v is Operation =>
+    typeof v === 'object' && v !== null && 'responses' in v
+  const isParam = (p: unknown): p is Parameters =>
+    typeof p === 'object' && p !== null && 'name' in p && 'in' in p
+
+  for (const path in openAPIPaths) {
+    const pathItem = openAPIPaths[path]
     if (!pathItem) continue
-    // 3. loop through HTTP methods for each path
-    for (const [method, pathItemValue] of Object.entries(pathItem)) {
-      // 3.1. skip parameters key and undefined operations
-      if (method === 'parameters' || !pathItemValue) continue
-      // 3.3 exclude the possibility of string or Parameter[]
-      if (typeof pathItemValue === 'string' || Array.isArray(pathItemValue)) continue
-      // 3.4 at this point, pathItemValue is only a possibility for Operation
-      // if (!isOperation(pathItemValue)) continue
-      if (!('responses' in pathItemValue)) continue
-      // 3.5 generating the root code and adding it to the array
-      routes.push(route(path, method, pathItemValue))
+
+    for (const method of METHODS) {
+      const maybeOp = pathItem[method]
+      if (!isOp(maybeOp)) continue
+      const mergedParams: Parameters[] | undefined = (() => {
+        const out: Parameters[] = []
+        if (Array.isArray(pathItem.parameters)) {
+          for (const p of pathItem.parameters) if (isParam(p)) out.push(p)
+        }
+        if (Array.isArray(maybeOp.parameters)) {
+          for (const p of maybeOp.parameters) if (isParam(p)) out.push(p)
+        }
+        return out.length ? out : undefined
+      })()
+      const op: Operation = (() => {
+        if (mergedParams) return { ...maybeOp, parameters: mergedParams }
+        return maybeOp
+      })()
+      routes.push(route(path, method, op))
     }
   }
-  // 4. exclude invalid routes and join them with a newline
   return routes.filter(Boolean).join('\n\n')
 }
