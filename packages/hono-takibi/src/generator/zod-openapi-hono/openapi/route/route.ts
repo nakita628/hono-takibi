@@ -22,7 +22,7 @@ export function route(path: string, method: string, operation: Operation): strin
   const tagList = tags ? JSON.stringify(tags) : '[]'
   const requestParams = requestParameter(parameters, requestBody)
 
-  const create_args = {
+  const args = {
     routeName: `${methodPath(method, path)}Route`,
     tags: tags ? `tags:${tagList},` : '',
     method: `method:'${method}',`,
@@ -34,5 +34,5 @@ export function route(path: string, method: string, operation: Operation): strin
     requestParams: requestParams ? `${requestParams}` : '',
     responses: responses ? `responses:{${response(responses)}}` : '',
   }
-  return createRoute(create_args)
+  return createRoute(args)
 }

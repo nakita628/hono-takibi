@@ -30,6 +30,7 @@ export function requestParameter(
         const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
         if (requestParamsArr.length) {
+          // params
           return `request:{${requestParamsArr.join(',')}},`
         }
         return ''
