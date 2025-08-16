@@ -84,7 +84,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -106,7 +111,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -130,7 +140,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -150,7 +165,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
