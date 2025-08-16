@@ -146,8 +146,17 @@ async function zodOpenapiHonoHandler(
     routeHandlerContents: string[]
     routeNames: string[]
   }[] = []
+  const isHttpMethod = (
+    v: string,
+  ): v is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' => {
+    for (const m of ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace']) {
+      if (m === v) return true
+    }
+    return false
+  }
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
+      if (!isHttpMethod(method)) continue
       const routeHandlerContent = `export const ${methodPath(method, path)}RouteHandler:RouteHandler<typeof ${methodPath(method, path)}Route>=async(c)=>{}`
       const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
       const pathName = (rawSegment === '' ? 'index' : rawSegment)
@@ -169,6 +178,8 @@ async function zodOpenapiHonoHandler(
     }
   }
 
+  console.log(handlers)
+
   const mergedHandlers = groupHandlersByFileName(handlers)
 
   for (const handler of mergedHandlers) {
@@ -182,6 +193,7 @@ async function zodOpenapiHonoHandler(
     const match = output?.match(/[^/]+\.ts$/)
     const matchPath = match ? match[0] : ''
     const path = output === '.' || output === './' ? output : `../${matchPath}`
+    // console.log(routeTypes)
     const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
     const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
