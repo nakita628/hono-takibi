@@ -14,8 +14,8 @@ import {
 } from './handlers/postsHandler'
 import {
   deletePostsIdRoute,
-  getPostsRoute,
   getIndexRoute,
+  getPostsRoute,
   postPostsRoute,
   putPostsIdRoute,
 } from './routes'
