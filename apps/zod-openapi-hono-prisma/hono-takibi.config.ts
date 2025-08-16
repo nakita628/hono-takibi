@@ -1,4 +1,4 @@
-import { defineConfig } from 'hono-takibi/config'
+import defineConfig from 'hono-takibi/config'
 
 export default defineConfig({
   'hono-takibi': {

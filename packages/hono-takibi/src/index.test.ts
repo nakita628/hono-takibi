@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { OpenAPI } from './openapi/index.js'
 
 // Test run
@@ -52,29 +52,19 @@ describe.concurrent('Hono Takibi Normal Test', () => {
     },
   }
 
-  beforeAll(() => {
-    if (!fs.existsSync('tmp-openapi')) {
-      fs.mkdirSync('tmp-openapi', { recursive: true })
-      fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
-    }
-    if (!fs.existsSync('tmp-route')) {
-      fs.mkdirSync('tmp-route', { recursive: true })
-    }
+  beforeEach(() => {
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
+
+    fs.mkdirSync('tmp-openapi', { recursive: true })
+    fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
+
+    fs.mkdirSync('tmp-route', { recursive: true })
   })
 
-  afterAll(() => {
-    if (fs.existsSync('tmp-openapi/test.json')) {
-      fs.unlinkSync('tmp-openapi/test.json')
-    }
-    if (fs.existsSync('tmp-openapi') && fs.readdirSync('tmp-openapi').length === 0) {
-      fs.rmdirSync('tmp-openapi')
-    }
-    if (fs.existsSync('tmp-route/test.ts')) {
-      fs.unlinkSync('tmp-route/test.ts')
-    }
-    if (fs.existsSync('tmp-route') && fs.readdirSync('tmp-route').length === 0) {
-      fs.rmdirSync('tmp-route')
-    }
+  afterEach(() => {
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
   })
 
   // #1: exportSchema=true, exportType=true
@@ -94,7 +84,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -116,7 +111,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -140,7 +140,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
@@ -160,7 +165,12 @@ export const postTestRoute = createRoute({
   method: 'post',
   path: '/test',
   summary: 'Test endpoint',
-  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  request: {
+    body: {
+      required: true,
+      content: { 'application/json': { schema: z.object({ test: z.string() }) } },
+    },
+  },
   responses: { 200: { description: 'Successful test' } },
 })
 `
