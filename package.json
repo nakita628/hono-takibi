@@ -18,8 +18,5 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0"
-  },
-  "dependencies": {
-    "hono-takibi": "link:packages/hono-takibi"
   }
 }
