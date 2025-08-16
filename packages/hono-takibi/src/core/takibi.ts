@@ -148,7 +148,7 @@ async function zodOpenapiHonoHandler(
   }[] = []
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
-      const routeHandlerContent = `export const ${methodPath(method, path)}RouteHandler:RouteHandler<typeof ${methodPath(method, path)}>=async(c)=>{}`
+      const routeHandlerContent = `export const ${methodPath(method, path)}RouteHandler:RouteHandler<typeof ${methodPath(method, path)}Route>=async(c)=>{}`
       const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
       const pathName = (rawSegment === '' ? 'index' : rawSegment)
         .replace(/\{([^}]+)\}/g, '$1')
