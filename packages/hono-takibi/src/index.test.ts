@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { OpenAPI } from './openapi/index.js'
 
 // Test run
@@ -52,7 +52,7 @@ describe.concurrent('Hono Takibi Normal Test', () => {
     },
   }
 
-  beforeAll(() => {
+  beforeEach(() => {
     if (!fs.existsSync('tmp-openapi')) {
       fs.mkdirSync('tmp-openapi', { recursive: true })
       fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
@@ -62,7 +62,7 @@ describe.concurrent('Hono Takibi Normal Test', () => {
     }
   })
 
-  afterAll(() => {
+  afterEach(() => {
     if (fs.existsSync('tmp-openapi/test.json')) {
       fs.unlinkSync('tmp-openapi/test.json')
     }
