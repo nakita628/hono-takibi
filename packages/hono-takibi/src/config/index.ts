@@ -42,9 +42,9 @@ export async function config(): Promise<
   try {
     const mod: { default: Config } = await import(pathToFileURL(abs).href)
 
-    if (!('default' in mod)) {
-      return { ok: false, error: 'Config must export default object' }
-    }
+    // if (!('default' in mod)) {
+    //   return { ok: false, error: 'Config must export default object' }
+    // }
     return { ok: true, value: mod.default }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
