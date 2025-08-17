@@ -387,6 +387,27 @@ export function isRefObject(value: unknown): value is {
 }
 
 /**
+ * Checks if a string is a valid HTTP method.
+ *
+ * @param method - The HTTP method to check.
+ * @returns `true` if the method is a valid HTTP method; otherwise `false`.
+ */
+export function isHttpMethod(
+  method: string,
+): method is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' {
+  return (
+    method === 'get' ||
+    method === 'put' ||
+    method === 'post' ||
+    method === 'delete' ||
+    method === 'patch' ||
+    method === 'options' ||
+    method === 'head' ||
+    method === 'trace'
+  )
+}
+
+/**
  * Checks if all given content types share the same schema definition.
  *
  * ```mermaid

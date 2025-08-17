@@ -8,6 +8,7 @@ import {
   importHandlers,
   importMap,
   importRoutes,
+  isHttpMethod,
   isRefObject,
   isUniqueContentSchema,
   methodPath,
@@ -77,23 +78,18 @@ describe('utils', () => {
     it('should return empty array if type is undefined', () => {
       expect(normalizeTypes(undefined)).toStrictEqual([])
     })
-
     it('should wrap string type in array', () => {
       expect(normalizeTypes('string')).toStrictEqual(['string'])
     })
-
     it('should return the array as is if already array', () => {
       expect(normalizeTypes(['string', 'null'])).toStrictEqual(['string', 'null'])
     })
-
     it('should wrap number type in array', () => {
       expect(normalizeTypes('number')).toStrictEqual(['number'])
     })
-
     it('should handle "null" as string', () => {
       expect(normalizeTypes('null')).toStrictEqual(['null'])
     })
-
     it('should handle mixed type array', () => {
       expect(normalizeTypes(['integer', 'null'])).toStrictEqual(['integer', 'null'])
     })
@@ -276,53 +272,48 @@ describe('utils', () => {
   })
   // isRefObject
   describe('isRefObject Test', () => {
-    it.concurrent('isRefObject -> true', () => {
-      const result = isRefObject({ type: 'object' })
-      const expected = true
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isRefObject -> true', () => {
-      const result = isRefObject({ $ref: '#/components/schemas/Test' })
-      const expected = true
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isRefObject -> false', () => {
-      const result = isRefObject('string')
-      const expected = false
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isRefObject -> false', () => {
-      const result = isRefObject(1)
-      const expected = false
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isRefObject -> false', () => {
-      const result = isRefObject(true)
-      const expected = false
-      expect(result).toBe(expected)
-    })
-    it.concurrent('isRefObject -> false', () => {
-      const result = isRefObject(false)
-      const expected = false
-      expect(result).toBe(expected)
+    it.concurrent.each([
+      [{ type: 'object' }, true],
+      [{ $ref: '#/components/schemas/Test' }, true],
+      ['string', false],
+      [1, false],
+      [true, false],
+      [false, false],
+    ])(`isRefObject('%s') -> %s`, (input, expected) => {
+      expect(isRefObject(input)).toBe(expected)
     })
   })
+  // isHttpMethod
+  describe('isHttpMethod Test', () => {
+    it.concurrent.each([
+      ['get', true],
+      ['post', true],
+      ['put', true],
+      ['delete', true],
+      ['patch', true],
+      ['head', true],
+      ['options', true],
+      ['trace', true],
+      ['invalidMethod', false],
+    ])(`isHttpMethod('%s') -> %s`, (method, expected) => {
+      expect(isHttpMethod(method)).toBe(expected)
+    })
+  })
+
   // isUniqueContentSchema
   describe('isUniqueContentSchema Test', () => {
     it.concurrent('isUniqueContentSchema -> true', () => {
       const result = isUniqueContentSchema(['application/json'], {
         'application/json': { schema: { $ref: '#/components/schemas/Test' } },
       })
-      const expected = true
-      expect(result).toBe(expected)
+      expect(result).toBe(true)
     })
     it.concurrent('isUniqueContentSchema -> false', () => {
       const result = isUniqueContentSchema(['application/json', 'application/xml'], {
         'application/json': { schema: { $ref: '#/components/schemas/Test' } },
         'application/xml': { schema: { $ref: '#/components/schemas/Example' } },
       })
-      const expected = false
-      expect(result).toBe(expected)
+      expect(result).toBe(false)
     })
   })
   /* ========================================================================== *
@@ -401,15 +392,20 @@ describe('utils', () => {
   describe('createRoute', () => {
     it.concurrent('createRoute Test', () => {
       const result = createRoute({
-        routeName: 'deletePostsId',
-        tags: '["Post"]',
-        method: 'delete',
-        path: '/posts/{id}',
-        description: 'delete post',
-        requestParams: 'request:{params:z.object({id:z.uuid()})},',
-        responses: `204:{description:'No Content',},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message:z.string()}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema: z.object({message: z.string()}),},},},`,
+        routeName: 'postHonoRoute',
+        tags: 'tags:["Hono"],',
+        method: "method:'post',",
+        path: "path:'/hono',",
+        operationId: "operationId:'HonoService_create',",
+        summary: '',
+        description: '',
+        security: '',
+        requestParams:
+          "request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},",
+        responses:
+          "responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}",
       })
-      const expected = `export const deletePostsId=createRoute({["Post"]delete/posts/{id}delete postrequest:{params:z.object({id:z.uuid()})},204:{description:'No Content',},400:{description:'Bad Request',content:{'application/json':{schema:z.object({message:z.string()}),},},},500:{description:'Internal Server Error',content:{'application/json':{schema: z.object({message: z.string()}),},},},})`
+      const expected = `export const postHonoRoute=createRoute({tags:["Hono"],method:'post',path:'/hono',operationId:'HonoService_create',request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}})`
       expect(result).toBe(expected)
     })
   })
@@ -417,110 +413,45 @@ describe('utils', () => {
    *  Request Parameters
    * ========================================================================== */
   describe('requestParamsArray', () => {
-    it.concurrent(
-      `requestParamsArray({
-        query: { id: 'z.string()' },
-        params: { id: 'z.string()' },
-      },) -> ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']`,
-      () => {
-        const result = requestParamsArray({
+    it.concurrent.each([
+      [
+        {
           query: { id: 'z.string()' },
           params: { id: 'z.string()' },
-        })
-        const expected = ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})']
-        expect(result).toStrictEqual(expected)
-      },
-    )
-    it.concurrent(
-      `requestParamsArray({ path: { petId: 'z.number().int()' } }) -> ['params:z.object({petId:z.number().int()})']`,
-      () => {
-        const result = requestParamsArray({ path: { petId: 'z.number().int()' } })
-        const expected = ['params:z.object({petId:z.number().int()})']
-        expect(result).toStrictEqual(expected)
-      },
-    )
+        },
+        ['query:z.object({id:z.string()})', 'params:z.object({id:z.string()})'],
+      ],
+      [
+        { path: { petId: 'z.int64().openapi({ example: 198772 })' } },
+        ['params:z.object({petId:z.int64().openapi({ example: 198772 })})'],
+      ],
+    ])('requestParamsArray(%o) -> %o', (input, expected) => {
+      expect(requestParamsArray(input)).toStrictEqual(expected)
+    })
   })
 
   /* ========================================================================== *
    *  String Escaping
    * ========================================================================== */
   // escapeStringLiteral
-  describe('escapeStringLiteralingLiteral', () => {
-    it.concurrent(`escapeStringLiteral('') -> ''`, () => {
-      const result = escapeStringLiteral('')
-      const expected = ''
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("'") -> "\\'"`, () => {
-      const result = escapeStringLiteral("'")
-      const expected = "\\'"
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("'test") -> "\\'test"`, () => {
-      const result = escapeStringLiteral("'test")
-      const expected = "\\'test"
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("It's a test") -> "It\\'s a test"`, () => {
-      const result = escapeStringLiteral("It's a test")
-      const expected = "It\\'s a test"
-      expect(result).toBe(expected)
-    })
-    it.concurrent(
-      `escapeStringLiteral('test "string" with quotes') -> 'test "string" with quotes'`,
-      () => {
-        const result = escapeStringLiteral('test "string" with quotes')
-        const expected = 'test "string" with quotes'
-        expect(result).toBe(expected)
-      },
-    )
-    it.concurrent(
-      `escapeStringLiteral("Retrieve Santa's wishlist for Christmas.") -> "Retrieve Santa\\'s wishlist for Christmas."`,
-      () => {
-        const result = escapeStringLiteral("Retrieve Santa's wishlist for Christmas.")
-        const expected = "Retrieve Santa\\'s wishlist for Christmas."
-        expect(result).toBe(expected)
-      },
-    )
-    it.concurrent(`escapeStringLiteral("Santa's wishlist.") -> "Santa\\'s wishlist."`, () => {
-      const result = escapeStringLiteral("Santa's wishlist.")
-      const expected = "Santa\\'s wishlist."
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("back\\\\slash") -> "back\\\\\\\\slash"`, () => {
-      const result = escapeStringLiteral('back\\slash')
-      const expected = 'back\\\\slash'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("full　width　space") -> "full width space"`, () => {
-      const result = escapeStringLiteral('full　width　space')
-      const expected = 'full width space'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("multi\\nline\\ntext") -> "multi line text"`, () => {
-      const result = escapeStringLiteral('multi\nline\ntext')
-      const expected = 'multi line text'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("\\u200Bhidden") -> "hidden"`, () => {
-      const result = escapeStringLiteral('\u200Bhidden')
-      const expected = 'hidden'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("   trim me   ") -> "trim me"`, () => {
-      const result = escapeStringLiteral('   trim me   ')
-      const expected = 'trim me'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("\\t tabbed") -> "tabbed"`, () => {
-      const result = escapeStringLiteral('\t tabbed')
-      const expected = 'tabbed'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`escapeStringLiteral("a\\nb\\tc\\u200Bd\\uFEFF") -> "a b c d"`, () => {
-      const result = escapeStringLiteral('a\nb\tc\u200Bd\uFEFF')
-      const expected = 'a b c d'
-      expect(result).toBe(expected)
+  describe('escapeStringLiteral', () => {
+    it.concurrent.each([
+      ['', ''],
+      ["'", "\\'"],
+      ["'test", "\\'test"],
+      ["It's a test", "It\\'s a test"],
+      ['test "string" with quotes', 'test "string" with quotes'],
+      ["Retrieve Santa's wishlist for Christmas.", "Retrieve Santa\\'s wishlist for Christmas."],
+      ["Santa's wishlist.", "Santa\\'s wishlist."],
+      ['back\\slash', 'back\\\\slash'],
+      ['full width space', 'full width space'],
+      ['multi\nline\ntext', 'multi line text'],
+      ['\u200Bhidden', 'hidden'],
+      ['   trim me   ', 'trim me'],
+      ['\t tabbed', 'tabbed'],
+      ['a\nb\tc\u200Bd\uFEFF', 'a b c d'],
+    ])(`escapeStringLiteral('%s') -> '%s'`, (input, expected) => {
+      expect(escapeStringLiteral(input)).toBe(expected)
     })
   })
   /* ========================================================================== *
@@ -528,60 +459,39 @@ describe('utils', () => {
    * ========================================================================== */
   // getToSafeIdentifier
   describe('getToSafeIdentifier', () => {
-    it('should return the string as-is if it is a valid identifier', () => {
-      expect(getToSafeIdentifier('validName')).toBe('validName')
-      expect(getToSafeIdentifier('_underscore')).toBe('_underscore')
-      expect(getToSafeIdentifier('$dollar')).toBe('$dollar')
-      expect(getToSafeIdentifier('camelCase123')).toBe('camelCase123')
-    })
-
-    it('should quote the string if it contains invalid characters', () => {
-      expect(getToSafeIdentifier('invalid-name')).toBe('"invalid-name"')
-      expect(getToSafeIdentifier('123startWithNumber')).toBe('"123startWithNumber"')
-      expect(getToSafeIdentifier('has space')).toBe('"has space"')
-      expect(getToSafeIdentifier('has.dot')).toBe('"has.dot"')
-      expect(getToSafeIdentifier('hyphen-ated')).toBe('"hyphen-ated"')
-    })
-
-    it('should quote reserved keywords', () => {
-      expect(getToSafeIdentifier('class')).toBe('class')
-      expect(getToSafeIdentifier('function')).toBe('function')
-    })
-
-    it('should handle edge cases correctly', () => {
-      expect(getToSafeIdentifier('')).toBe('""')
-      expect(getToSafeIdentifier(' ')).toBe('" "')
-      expect(getToSafeIdentifier('-')).toBe('"-"')
+    it.concurrent.each([
+      ['validName', 'validName'],
+      ['_underscore', '_underscore'],
+      ['$dollar', '$dollar'],
+      ['camelCase123', 'camelCase123'],
+      ['has space', '"has space"'],
+      ['invalid-name', '"invalid-name"'],
+      ['123startWithNumber', '"123startWithNumber"'],
+      ['has.dot', '"has.dot"'],
+      ['hyphen-ated', '"hyphen-ated"'],
+      ['class', 'class'],
+      ['function', 'function'],
+      ['', '""'],
+      [' ', '" "'],
+      ['-', '"-"'],
+    ])(`getToSafeIdentifier('%s') -> '%s'`, (input, expected) => {
+      expect(getToSafeIdentifier(input)).toBe(expected)
     })
   })
   // sanitizeIdentifier
   describe('sanitizeIdentifier', () => {
-    it.concurrent(`sanitizeIdentifier('test') -> 'test'`, () => {
-      expect(sanitizeIdentifier('test')).toBe('test')
-    })
-    it.concurrent(`sanitizeIdentifier('test123') -> 'test123'`, () => {
-      expect(sanitizeIdentifier('test123')).toBe('test123')
-    })
-    it.concurrent(`sanitizeIdentifier('_test') -> '_test'`, () => {
-      expect(sanitizeIdentifier('_test')).toBe('_test')
-    })
-    it.concurrent(`sanitizeIdentifier('$test') -> '$test'`, () => {
-      expect(sanitizeIdentifier('$test')).toBe('$test')
-    })
-    it.concurrent(`sanitizeIdentifier('foo-bar') -> 'foo_bar'`, () => {
-      expect(sanitizeIdentifier('foo-bar')).toBe('foo_bar')
-    })
-    it.concurrent(`sanitizeIdentifier('foo@bar!baz') -> 'foo_bar_baz'`, () => {
-      expect(sanitizeIdentifier('foo@bar!baz')).toBe('foo_bar_baz')
-    })
-    it.concurrent(`sanitizeIdentifier('post.title') -> 'post_title'`, () => {
-      expect(sanitizeIdentifier('post.title')).toBe('post_title')
-    })
-    it.concurrent(`(sanitizeIdentifier('テスト') -> '___'`, () => {
-      expect(sanitizeIdentifier('テスト')).toBe('___')
-    })
-    it.concurrent(`sanitizeIdentifier('') -> ''`, () => {
-      expect(sanitizeIdentifier('')).toBe('')
+    it.concurrent.each([
+      ['test', 'test'],
+      ['test123', 'test123'],
+      ['_test', '_test'],
+      ['$test', '$test'],
+      ['foo-bar', 'foo_bar'],
+      ['foo@bar!baz', 'foo_bar_baz'],
+      ['post.title', 'post_title'],
+      ['テスト', '___'],
+      ['', ''],
+    ])(`sanitizeIdentifier('%s') -> '%s'`, (input, expected) => {
+      expect(sanitizeIdentifier(input)).toBe(expected)
     })
   })
   /* ========================================================================== *
@@ -589,46 +499,22 @@ describe('utils', () => {
    * ========================================================================== */
   // regex
   describe('regex', () => {
-    it.concurrent(`regex('^[a-z]+$') -> .regex(/^[a-z]+$/)`, () => {
-      const result = regex('^[a-z]+$')
-      const expected = '.regex(/^[a-z]+$/)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(`regex('^\\d{4}-\\d{2}-\\d{2}$') -> .regex(/^\\d{4}-\\d{2}-\\d{2}$/)`, () => {
-      const result = regex('^\\d{4}-\\d{2}-\\d{2}$')
-      const expected = '.regex(/^\\d{4}-\\d{2}-\\d{2}$/)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(
-      `regex('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$') -> .regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$/)`,
-      () => {
-        const result = regex('^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$')
-        const expected = '.regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$/)'
-        expect(result).toBe(expected)
-      },
-    )
-    it.concurrent(`regex('^#[0-9a-fA-F]{6}$') -> .regex(/^#[0-9a-fA-F]{6}$/)`, () => {
-      const result = regex('^#[0-9a-fA-F]{6}$')
-      const expected = '.regex(/^#[0-9a-fA-F]{6}$/)'
-      expect(result).toBe(expected)
-    })
-    it.concurrent(
-      `regex('^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$') -> .regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)`,
-      () => {
-        const result = regex('^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$')
-        const expected = '.regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)'
-        expect(result).toBe(expected)
-      },
-    )
-    it.concurrent(`regex('^\\d{2}/\\d{2}$') -> '.regex(/^\\d{2}\\/\\d{2}$/)'`, () => {
-      const result = regex('^\\d{2}/\\d{2}$')
-      const expected = '.regex(/^\\d{2}\\/\\d{2}$/)'
-      expect(result).toBe(expected)
-    })
-    it(`regex('^/api/users$') → '.regex(/^\\/api\\/users$/)'`, () => {
-      const result = regex('^/api/users$')
-      const expected = '.regex(/^\\/api\\/users$/)'
-      expect(result).toBe(expected)
+    it.concurrent.each([
+      ['^[a-z]+$', '.regex(/^[a-z]+$/)'],
+      ['^\\d{4}-\\d{2}-\\d{2}$', '.regex(/^\\d{4}-\\d{2}-\\d{2}$/)'],
+      [
+        '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$',
+        '.regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$/)',
+      ],
+      ['^#[0-9a-fA-F]{6}$', '.regex(/^#[0-9a-fA-F]{6}$/)'],
+      [
+        '^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$',
+        '.regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)',
+      ],
+      ['^\\d{2}/\\d{2}$', '.regex(/^\\d{2}\\/\\d{2}$/)'],
+      ['^/api/users$', '.regex(/^\\/api\\/users$/)'],
+    ])(`regex('%s') -> '%s'`, (input, expected) => {
+      expect(regex(input)).toBe(expected)
     })
   })
 })
