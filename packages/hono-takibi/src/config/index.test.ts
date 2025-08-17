@@ -12,7 +12,7 @@ describe('config', () => {
 
   beforeEach(() => {
     vi.resetModules()
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'hono-takibi-config-'))
+    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'hono-takibi-config.ts'))
     process.chdir(tmpdir)
   })
 
@@ -27,7 +27,7 @@ describe('config', () => {
     const testConfig = `import defineConfig from '../hono-takibi/src/config'
 
 export default defineConfig({
-  'hono-takibi': {
+  'zod-openapi': {
     input: 'openapi.yaml',
     output: 'routes/index.ts',
     exportType: true,
@@ -44,7 +44,7 @@ export default defineConfig({
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
-        'hono-takibi': {
+        'zod-openapi': {
           input: 'openapi.yaml',
           output: 'routes/index.ts',
           exportType: true,

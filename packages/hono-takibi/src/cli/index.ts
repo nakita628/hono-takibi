@@ -105,12 +105,12 @@ export async function honoTakibi(): Promise<
   }
   const c = configResult.value
 
-  const takibiResult = c['hono-takibi']
+  const takibiResult = c['zod-openapi']
     ? await takibi(
-        c['hono-takibi']?.input,
-        c['hono-takibi']?.output,
-        c['hono-takibi']?.exportSchema ?? false,
-        c['hono-takibi']?.exportType ?? false,
+        c['zod-openapi']?.input,
+        c['zod-openapi']?.output,
+        c['zod-openapi']?.exportSchema ?? false,
+        c['zod-openapi']?.exportType ?? false,
         false, // template
         false, // test
       )
