@@ -4,7 +4,7 @@ import { mkdir, readdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
 import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
 import { type OpenAPI, type OpenAPIPaths, parseOpenAPI } from '../openapi/index.js'
-import { groupHandlersByFileName, methodPath } from '../utils/index.js'
+import { groupHandlersByFileName, isHttpMethod, methodPath } from '../utils/index.js'
 
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.
@@ -146,14 +146,6 @@ async function zodOpenapiHonoHandler(
     routeHandlerContents: string[]
     routeNames: string[]
   }[] = []
-  const isHttpMethod = (
-    v: string,
-  ): v is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' => {
-    for (const m of ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace']) {
-      if (m === v) return true
-    }
-    return false
-  }
   for (const [path, pathItem] of Object.entries(paths)) {
     for (const [method] of Object.entries(pathItem)) {
       if (!isHttpMethod(method)) continue

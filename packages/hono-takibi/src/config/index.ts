@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
 type Config = {
-  'hono-takibi'?: {
+  'zod-openapi'?: {
     input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
     output: `${string}.ts`
     exportType?: boolean
@@ -14,11 +14,11 @@ type Config = {
     output: `${string}.ts`
     import: string
   }
-  swr?: {
-    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-    output: `${string}.ts`
-    import: string
-  }
+  // swr?: {
+  //   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+  //   output: `${string}.ts`
+  //   import: string
+  // }
 }
 
 export async function config(): Promise<
@@ -42,9 +42,9 @@ export async function config(): Promise<
   try {
     const mod: { default: Config } = await import(pathToFileURL(abs).href)
 
-    if (!('default' in mod)) {
-      return { ok: false, error: 'Config must export default object' }
-    }
+    // if (!('default' in mod)) {
+    //   return { ok: false, error: 'Config must export default object' }
+    // }
     return { ok: true, value: mod.default }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

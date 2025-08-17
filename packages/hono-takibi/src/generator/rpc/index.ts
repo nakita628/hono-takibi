@@ -3,34 +3,22 @@ import { methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
 
-/** Narrow to generic object records */
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
-/** Narrow to OpenAPI paths object (shallow structural check) */
 const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   if (!isRecord(v)) return false
   for (const k in v) if (!isRecord(v[k])) return false
   return true
 }
 
-/** Treat any object as Schema (we rely on downstream field checks) */
 const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
-/** JS identifier check */
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
-
-/** Escape single quotes and backslashes for single-quoted strings */
 const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
-/**
- * Convert an OpenAPI path to a client access chain.
- * examples:
- *  '/'                 -> ".index"
- *  '/hono-x'           -> "['hono-x']"
- *  '/posts/hono/{id}'  -> ".posts.hono[':id']"
- */
+/** '/'->'.index' | '/hono-x'->"['hono-x']" | '/posts/hono/{id}'->".posts.hono[':id']" */
 const formatPath = (path: string) => {
   const segs = (path === '/' ? ['index'] : path.replace(/^\/+/, '').split('/')).filter(Boolean)
   return segs
@@ -48,7 +36,6 @@ const formatPath = (path: string) => {
 
 type JSONTypeName = 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'null'
 
-/** 'type' to normalized list for uniform checks */
 const isJSONTypeName = (s: unknown): s is JSONTypeName =>
   typeof s === 'string' &&
   (s === 'object' ||
@@ -65,7 +52,6 @@ const toTypeArray = (t: unknown): JSONTypeName[] => {
   return []
 }
 
-/** Build literal union from enum values (kept compact) */
 const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
   const toLit = (v: unknown) =>
     typeof v === 'string'
@@ -78,7 +64,6 @@ const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
   return vals.map(toLit).join('|')
 }
 
-/** Create a $ref resolver for #/components/schemas/... */
 const createResolveRef =
   (schemas: Record<string, Schema>) =>
   (ref?: string): Schema | undefined => {
@@ -89,31 +74,27 @@ const createResolveRef =
     return isSchema(target) ? target : undefined
   }
 
-/** Create a Schema->TypeScript type printer (single instance, recursive-safe) */
+/** TS type printer (handles $ref / enums / combinators / additionalProperties / nullable) */
 const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined) => {
   const tt = (schema: Schema | undefined, seen: Set<Schema> = new Set()): string => {
     if (!schema) return 'unknown'
 
-    // $ref resolution
     if (schema.$ref) {
       const tgt = resolveRef(schema.$ref)
       return tt(tgt, seen)
     }
 
-    // recursion guard
     if (seen.has(schema)) return 'unknown'
-    const nextSeen = new Set(seen)
-    nextSeen.add(schema)
+    const next = new Set(seen)
+    next.add(schema)
 
-    // combinators
     if (Array.isArray(schema.oneOf) && schema.oneOf.length)
-      return schema.oneOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
+      return schema.oneOf.map((s) => tt(s, next)).join('|') || 'unknown'
     if (Array.isArray(schema.anyOf) && schema.anyOf.length)
-      return schema.anyOf.map((s) => tt(s, nextSeen)).join('|') || 'unknown'
+      return schema.anyOf.map((s) => tt(s, next)).join('|') || 'unknown'
     if (Array.isArray(schema.allOf) && schema.allOf.length)
-      return schema.allOf.map((s) => tt(s, nextSeen)).join('&') || 'unknown'
+      return schema.allOf.map((s) => tt(s, next)).join('&') || 'unknown'
 
-    // enum
     if (Array.isArray(schema.enum) && schema.enum.length) {
       const base = literalFromEnum(schema.enum)
       return schema.nullable ? `${base}|null` : base
@@ -121,35 +102,31 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
 
     const types = toTypeArray(schema.type)
 
-    // array
+    // array (parentheses when inner contains union/intersection)
     if (types.includes('array')) {
-      const inner = tt(isSchema(schema.items) ? schema.items : undefined, nextSeen)
-      const core = `${inner}[]`
+      const item = isSchema(schema.items) ? schema.items : undefined
+      const inner = tt(item, next)
+      const needParens = /[|&]/.test(inner) && !/^\(.*\)$/.test(inner)
+      const core = `${needParens ? `(${inner})` : inner}[]`
       return schema.nullable ? `${core}|null` : core
     }
 
-    // object
     if (types.includes('object')) {
       const req = new Set<string>(Array.isArray(schema.required) ? schema.required : [])
       const props = schema.properties ?? {}
       const fields = Object.entries(props).map(([k, v]) => {
         const opt = req.has(k) ? '' : '?'
         const child = isSchema(v) ? v : undefined
-        return `${k}${opt}:${tt(child, nextSeen)}`
+        return `${k}${opt}:${tt(child, next)}`
       })
       const ap = schema.additionalProperties
       const addl =
-        ap === true
-          ? '[key:string]:unknown'
-          : isSchema(ap)
-            ? `[key:string]:${tt(ap, nextSeen)}`
-            : ''
+        ap === true ? '[key:string]:unknown' : isSchema(ap) ? `[key:string]:${tt(ap, next)}` : ''
       const members = [...fields, addl].filter(Boolean).join(',')
       const core = `{${members}}`
       return schema.nullable ? `${core}|null` : core
     }
 
-    // primitives
     if (types.length === 0) return schema.nullable ? 'unknown|null' : 'unknown'
     const prim = types
       .map((t) => (t === 'integer' ? 'number' : t === 'null' ? 'null' : t))
@@ -177,7 +154,6 @@ const isParameterObject = (v: unknown): v is ParameterLike => {
   return pos === 'path' || pos === 'query' || pos === 'header' || pos === 'cookie'
 }
 
-/** Extract components/parameters name from a ref-like value */
 const refParamName = (refLike: unknown): string | undefined => {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
@@ -185,7 +161,6 @@ const refParamName = (refLike: unknown): string | undefined => {
   return m ? m[1] : undefined
 }
 
-/** Build a resolver that returns normalized ParameterLike (resolving $ref) */
 const createResolveParameter =
   (componentsParameters: Record<string, unknown>) =>
   (p: unknown): ParameterLike | undefined => {
@@ -195,7 +170,6 @@ const createResolveParameter =
     return isParameterObject(cand) ? cand : undefined
   }
 
-/** Convert raw parameters array into ParameterLike[] */
 const createToParameterLikes =
   (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
@@ -234,7 +208,8 @@ const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
   'trace',
 ]
 
-/** Extract the first suitable schema from requestBody.content by priority order */
+const hasSchemaProp = (v: unknown): v is { schema?: unknown } => isRecord(v) && 'schema' in v
+
 const pickBodySchema = (op: OperationLike): Schema | undefined => {
   const rb = op.requestBody
   if (!isRecord(rb)) return undefined
@@ -250,16 +225,14 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (isRecord(media) && 'schema' in media && isSchema(media.schema)) {
-      return media.schema
-    }
+    if (hasSchemaProp(media) && isSchema((media as Record<string, unknown>).schema))
+      return (media as Record<string, unknown>).schema as Schema
   }
   return undefined
 }
 
 /* ─────────────────────────────── Args builders ─────────────────────────────── */
 
-/** Build TS type for params arg (compact formatting) */
 const createBuildParamsType =
   (tsTypeFromSchema: (s: Schema | undefined) => string) =>
   (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
@@ -275,7 +248,6 @@ const createBuildParamsType =
     return parts.length ? `{${parts.join(',')}}` : ''
   }
 
-/** Build function argument signature */
 const buildArgSignature = (paramsType: string, bodyType: string | null) =>
   paramsType && bodyType
     ? `params:${paramsType}, body:${bodyType}`
@@ -285,22 +257,7 @@ const buildArgSignature = (paramsType: string, bodyType: string | null) =>
         ? `body:${bodyType}`
         : ''
 
-/** Build one query key:value piece with integer-to-string rules */
-const buildQueryPiece = (p: ParameterLike) => {
-  const types = toTypeArray(p.schema?.type)
-  const isArr = types.includes('array')
-  const itemsInt =
-    isArr && isSchema(p.schema?.items) && toTypeArray(p.schema?.items?.type).includes('integer')
-  const isInt = types.includes('integer')
-  const rhs = itemsInt
-    ? `(params.query.${p.name}??[]).map((v:unknown)=>String(v))`
-    : isInt
-      ? `String(params.query.${p.name})`
-      : `params.query.${p.name}`
-  return `${p.name}:${rhs}`
-}
-
-/** Build client call argument object (compact formatting) */
+/** pass query as-is (keep numbers/arrays) */
 const buildClientArgs = (
   pathParams: ParameterLike[],
   queryParams: ParameterLike[],
@@ -312,7 +269,7 @@ const buildClientArgs = (
     pieces.push(`param:{${inner}}`)
   }
   if (queryParams.length) {
-    const inner = queryParams.map(buildQueryPiece).join(',')
+    const inner = queryParams.map((p) => `${p.name}:params.query.${p.name}`).join(',')
     pieces.push(`query:{${inner}}`)
   }
   if (hasBody) pieces.push('json:body')
@@ -359,17 +316,10 @@ const generateOperationCode = (
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
+  const summaryBlock = summary ? ` * ${summary}\n *\n` : ''
+  const descriptionBlock = description ? ` * ${description}\n *\n` : ''
 
-  return (
-    '/**\n' +
-    (summary ? ` * ${summary}\n *\n` : '') +
-    (description ? ` * ${description}\n *\n` : '') +
-    ` * ${method.toUpperCase()} ${path}\n` +
-    ' */\n' +
-    `export async function ${funcName}(${argSig}) {\n` +
-    `  return await ${call}\n` +
-    '}'
-  )
+  return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${path}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
 }
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
@@ -378,17 +328,12 @@ export default function rpc(openapi: OpenAPI, importCode: string): string {
   const client = 'client'
   const out: string[] = []
 
-  // import header (kept as-is, then a blank line if present)
-  const header = (() => {
-    const s = (importCode ?? '').trim()
-    return s.length ? `${s}\n\n` : ''
-  })()
+  const s = (importCode ?? '').trim()
+  const header = s.length ? `${s}\n\n` : ''
 
-  // paths guard
   const pathsMaybe = openapi.paths
   if (!isOpenAPIPaths(pathsMaybe)) return header
 
-  // schema & parameter resolvers
   const schemas = openapi.components?.schemas ?? {}
   const resolveRef = createResolveRef(schemas)
   const tsTypeFromSchema = createTsTypeFromSchema(resolveRef)
@@ -397,7 +342,6 @@ export default function rpc(openapi: OpenAPI, importCode: string): string {
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)
 
-  // iterate path items & operations
   for (const path in pathsMaybe) {
     const rawItem = pathsMaybe[path]
     if (!isRecord(rawItem)) continue
@@ -424,6 +368,5 @@ export default function rpc(openapi: OpenAPI, importCode: string): string {
     }
   }
 
-  // final string (compact; Prettier will handle formatting as configured)
-  return header + out.join('\n\n') + (out.length ? '\n' : '')
+  return `${header}${out.join('\n\n')}${out.length ? '\n' : ''}`
 }

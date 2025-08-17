@@ -156,6 +156,35 @@ export const postTestRoute = createRoute({
 `
     expect(result).toBe(expected)
   })
+
+  // #5: template
+  it.concurrent('--template', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
+    const routeResult = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const routeExpected = `import { createRoute, z } from '@hono/zod-openapi'
+
+const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
+`
+    expect(routeResult).toBe(routeExpected)
+
+    const handlerResult = fs.readFileSync('tmp-route/handlers/testHandler.ts', { encoding: 'utf-8' })
+
+    const handlerExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { postTestRoute } from '../test.ts'
+
+export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c) => {}
+`
+    expect(handlerResult).toBe(handlerExpected)
+  })
 })
 
 describe('cli test', () => {

@@ -70,6 +70,31 @@ export function parseCli(args: readonly string[]):
   }
 }
 
+export function parseIO<T>(section: T): { ok: true; value: T } | { ok: false; error: string } {
+  const inputExts = ['yaml', 'json', 'tsp'] as const
+  const outputExts = ['ts'] as const
+
+  const isString = (x: unknown): x is string => typeof x === 'string'
+  const hasExt = (path: string, exts: readonly string[]) => exts.some((e) => path.endsWith(`.${e}`))
+
+  if (section == null) return { ok: true, value: section }
+  if (typeof section !== 'object') return { ok: true, value: section }
+
+  if (Reflect.has(section, 'input')) {
+    const input = Reflect.get(section, 'input')
+    if (isString(input) && !hasExt(input, inputExts)) {
+      return { ok: false, error: 'input must be a .yaml, .json, or .tsp file' }
+    }
+  }
+  if (Reflect.has(section, 'output')) {
+    const output = Reflect.get(section, 'output')
+    if (isString(output) && !hasExt(output, outputExts)) {
+      return { ok: false, error: 'output must be a .ts file' }
+    }
+  }
+  return { ok: true, value: section }
+}
+
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *
@@ -384,6 +409,27 @@ export function isRefObject(value: unknown): value is {
   [key: string]: unknown
 } {
   return typeof value === 'object' && value !== null
+}
+
+/**
+ * Checks if a string is a valid HTTP method.
+ *
+ * @param method - The HTTP method to check.
+ * @returns `true` if the method is a valid HTTP method; otherwise `false`.
+ */
+export function isHttpMethod(
+  method: string,
+): method is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' {
+  return (
+    method === 'get' ||
+    method === 'put' ||
+    method === 'post' ||
+    method === 'delete' ||
+    method === 'patch' ||
+    method === 'options' ||
+    method === 'head' ||
+    method === 'trace'
+  )
 }
 
 /**
