@@ -24,15 +24,15 @@ export default async function core(
     return { ok: false, error: openAPIResult.error }
   }
   const openAPI = openAPIResult.value
-  const honoRpcResult = await fmt(fn(openAPI, importCode))
-  if (!honoRpcResult.ok) {
-    return { ok: false, error: honoRpcResult.error }
+  const fnResult = await fmt(fn(openAPI, importCode))
+  if (!fnResult.ok) {
+    return { ok: false, error: fnResult.error }
   }
   const mkdirResult = await mkdir(path.dirname(output))
   if (!mkdirResult.ok) {
     return { ok: false, error: mkdirResult.error }
   }
-  const writeResult = await writeFile(output, honoRpcResult.value)
+  const writeResult = await writeFile(output, fnResult.value)
   if (!writeResult.ok) {
     return { ok: false, error: writeResult.error }
   }

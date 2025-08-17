@@ -5,7 +5,7 @@ import core from '../core/core.js'
 import { takibi } from '../core/takibi.js'
 import rpc from '../generator/rpc/index.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
-import { parseCli } from '../utils/index.js'
+import { parseCli, parseIO } from '../utils/index.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
@@ -105,6 +105,12 @@ export async function honoTakibi(): Promise<
   }
   const c = configResult.value
 
+  const zodOpenAPIConfigResult = parseIO(c['zod-openapi'])
+
+  if (!zodOpenAPIConfigResult.ok) {
+    return { ok: false, error: zodOpenAPIConfigResult.error }
+  }
+
   const takibiResult = c['zod-openapi']
     ? await takibi(
         c['zod-openapi']?.input,
@@ -118,6 +124,12 @@ export async function honoTakibi(): Promise<
 
   if (takibiResult && !takibiResult.ok) {
     return { ok: false, error: takibiResult.error }
+  }
+
+  const rpcConfigResult = parseIO(c.rpc)
+
+  if (!rpcConfigResult.ok) {
+    return { ok: false, error: rpcConfigResult.error }
   }
 
   const rpcResult = c.rpc

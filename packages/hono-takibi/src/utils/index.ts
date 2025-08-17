@@ -70,6 +70,31 @@ export function parseCli(args: readonly string[]):
   }
 }
 
+export function parseIO<T>(section: T): { ok: true; value: T } | { ok: false; error: string } {
+  const inputExts = ['yaml', 'json', 'tsp'] as const
+  const outputExts = ['ts'] as const
+
+  const isString = (x: unknown): x is string => typeof x === 'string'
+  const hasExt = (path: string, exts: readonly string[]) => exts.some((e) => path.endsWith(`.${e}`))
+
+  if (section == null) return { ok: true, value: section }
+  if (typeof section !== 'object') return { ok: true, value: section }
+
+  if (Reflect.has(section, 'input')) {
+    const input = Reflect.get(section, 'input')
+    if (isString(input) && !hasExt(input, inputExts)) {
+      return { ok: false, error: 'input must be a .yaml, .json, or .tsp file' }
+    }
+  }
+  if (Reflect.has(section, 'output')) {
+    const output = Reflect.get(section, 'output')
+    if (isString(output) && !hasExt(output, outputExts)) {
+      return { ok: false, error: 'output must be a .ts file' }
+    }
+  }
+  return { ok: true, value: section }
+}
+
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *

@@ -14,6 +14,7 @@ import {
   methodPath,
   normalizeTypes,
   parseCli,
+  parseIO,
   refSchema,
   regex,
   registerComponent,
@@ -71,6 +72,28 @@ describe('utils', () => {
       })
     })
   })
+  // parseIO
+  describe('parseIO', () => {
+    it('should return ok for valid input', () => {
+      expect(parseIO({ input: 'input.yaml', output: 'output.ts' })).toStrictEqual({
+        ok: true,
+        value: { input: 'input.yaml', output: 'output.ts' },
+      })
+    })
+    it('should return error for invalid input', () => {
+      expect(parseIO({ input: 'input.txt', output: 'output.ts' })).toStrictEqual({
+        ok: false,
+        error: 'input must be a .yaml, .json, or .tsp file',
+      })
+    })
+    it('should return error for invalid output', () => {
+      expect(parseIO({ input: 'input.yaml', output: 'output.txt' })).toStrictEqual({
+        ok: false,
+        error: 'output must be a .ts file',
+      })
+    })
+  })
+
   /* ========================================================================== *
    *  normalizeTypes
    * ========================================================================== */
