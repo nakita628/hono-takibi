@@ -176,7 +176,9 @@ export const postTestRoute = createRoute({
 `
     expect(routeResult).toBe(routeExpected)
 
-    const handlerResult = fs.readFileSync('tmp-route/handlers/testHandler.ts', { encoding: 'utf-8' })
+    const handlerResult = fs.readFileSync('tmp-route/handlers/testHandler.ts', {
+      encoding: 'utf-8',
+    })
 
     const handlerExpected = `import type { RouteHandler } from '@hono/zod-openapi'
 import type { postTestRoute } from '../test.ts'

@@ -19,9 +19,7 @@ export async function getIndex() {
  * GET /posts
  */
 export async function getPosts(params: { query: { page: number; rows: number } }) {
-  return await client.posts.$get({
-    query: { page: String(params.query.page), rows: String(params.query.rows) },
-  })
+  return await client.posts.$get({ query: { page: params.query.page, rows: params.query.rows } })
 }
 
 /**
