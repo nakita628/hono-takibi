@@ -249,7 +249,7 @@ const createBuildParamsType =
 
 const buildArgSignature = (paramsType: string, bodyType: string | null) =>
   paramsType && bodyType
-    ? `params:${paramsType}, body:${bodyType}`
+    ? `params:${paramsType},body:${bodyType}`
     : paramsType
       ? `params:${paramsType}`
       : bodyType

@@ -48,6 +48,10 @@ export async function config(): Promise<
       i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
     const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
 
+    if (!('default' in mod)) {
+      return { ok: false, error: 'Config must export default object' }
+    }
+
     if (mod.default !== undefined) {
       // zod-openapi
       if (mod.default['zod-openapi']) {
@@ -94,20 +98,15 @@ export async function config(): Promise<
             error: `Invalid output format for rpc: ${mod.default.rpc.output}`,
           }
         }
-        if (mod.default.rpc.import !== undefined) {
-          if (typeof mod.default.rpc.import !== 'string') {
-            return {
-              ok: false,
-              error: `Invalid import format for rpc: ${mod.default.rpc.import}`,
-            }
+        if (typeof mod.default.rpc.import !== 'string') {
+          return {
+            ok: false,
+            error: `Invalid import format for rpc: ${mod.default.rpc.import}`,
           }
         }
       }
     }
 
-    // if (!('default' in mod)) {
-    //   return { ok: false, error: 'Config must export default object' }
-    // }
     return { ok: true, value: mod.default }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

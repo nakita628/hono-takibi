@@ -489,7 +489,7 @@ export async function getUsersId(params:{path:{id:string}}){return await client.
  *
  * PUT /users/{id}
  */
-export async function putUsersId(params:{path:{id:string}}, body:{displayName:string,email:string,roles?:('attendee'|'speaker'|'lt-speaker'|'staff'|'sponsor'|'mc'|'ghost-wifi-fixer')[],isStudent?:boolean,pronouns?:string,affiliations?:string[]}){return await client.users[':id'].$put({param:{id:params.path.id},json:body})}
+export async function putUsersId(params:{path:{id:string}},body:{displayName:string,email:string,roles?:('attendee'|'speaker'|'lt-speaker'|'staff'|'sponsor'|'mc'|'ghost-wifi-fixer')[],isStudent?:boolean,pronouns?:string,affiliations?:string[]}){return await client.users[':id'].$put({param:{id:params.path.id},json:body})}
 
 /**
  * Delete user
@@ -507,7 +507,7 @@ export async function deleteUsersId(params:{path:{id:string}}){return await clie
  *
  * PATCH /users/{id}
  */
-export async function patchUsersId(params:{path:{id:string}}, body:{displayName?:string,email?:string,roles?:('attendee'|'speaker'|'lt-speaker'|'staff'|'sponsor'|'mc'|'ghost-wifi-fixer')[],isStudent?:boolean,pronouns?:string,affiliations?:string[]}){return await client.users[':id'].$patch({param:{id:params.path.id},json:body})}
+export async function patchUsersId(params:{path:{id:string}},body:{displayName?:string,email?:string,roles?:('attendee'|'speaker'|'lt-speaker'|'staff'|'sponsor'|'mc'|'ghost-wifi-fixer')[],isStudent?:boolean,pronouns?:string,affiliations?:string[]}){return await client.users[':id'].$patch({param:{id:params.path.id},json:body})}
 `
     expect(result).toBe(expected)
   })
