@@ -15,3 +15,4 @@ local.db
 typedoc
 copilot-instructions.md
 public
+.cursor
