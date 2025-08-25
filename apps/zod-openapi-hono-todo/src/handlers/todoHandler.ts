@@ -1,6 +1,14 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { makeErr } from '@/domain/errorDomain.ts'
-import { makePrismaTodoRepo } from '@/repository/prisma/todoRepository.ts'
+// import { makePrismaTodoRepo } from '@/repository/prisma/todoRepository.ts'
+import { makeDrizzleTodoRepo } from '@/repository/drizzle/todoRepository'
+import type {
+  deleteTodoIdRoute,
+  getTodoIdRoute,
+  getTodoRoute,
+  postTodoRoute,
+  putTodoIdRoute,
+} from '@/routes.ts'
 import {
   deleteTodoIdTransaction,
   getTodoIdTransaction,
@@ -8,17 +16,10 @@ import {
   postTodoTransaction,
   putTodoIdTransaction,
 } from '@/transactions/todoTransaction.ts'
-import type {
-  deleteTodoIdRoute,
-  getTodoIdRoute,
-  getTodoRoute,
-  postTodoRoute,
-  putTodoIdRoute,
-} from '../routes.ts'
 
-export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = async (c) => {
+export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = (c) => {
   const { limit, offset } = c.req.valid('query')
-  const res = await getTodoTransaction(makePrismaTodoRepo(), limit, offset)
+  const res = getTodoTransaction(makeDrizzleTodoRepo(), limit, offset)
   return res.match(
     (todos) => c.json(todos),
     (e) => {
@@ -28,9 +29,9 @@ export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = async (c) 
   )
 }
 
-export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = async (c) => {
+export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = (c) => {
   const { content } = c.req.valid('json')
-  const res = await postTodoTransaction(makePrismaTodoRepo(), content)
+  const res = postTodoTransaction(makeDrizzleTodoRepo(), content)
   return res.match(
     () => c.json({ message: 'Todo created' }),
     (e) => {
@@ -40,9 +41,9 @@ export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = async (c
   )
 }
 
-export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = async (c) => {
+export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
-  const res = await getTodoIdTransaction(makePrismaTodoRepo(), id)
+  const res = getTodoIdTransaction(makeDrizzleTodoRepo(), id)
   return res.match(
     (todo) => c.json(todo),
     (e) => {
@@ -52,10 +53,10 @@ export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = async 
   )
 }
 
-export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = async (c) => {
+export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
   const { content } = c.req.valid('json')
-  const res = await putTodoIdTransaction(makePrismaTodoRepo(), id, content)
+  const res = putTodoIdTransaction(makeDrizzleTodoRepo(), id, content)
   return res.match(
     () => c.json({ message: 'Todo updated' }),
     (e) => {
@@ -65,13 +66,14 @@ export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = async 
   )
 }
 
-export const deleteTodoIdRouteHandler: RouteHandler<typeof deleteTodoIdRoute> = async (c) => {
+export const deleteTodoIdRouteHandler: RouteHandler<typeof deleteTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
-  const res = await deleteTodoIdTransaction(makePrismaTodoRepo(), id)
+  const res = deleteTodoIdTransaction(makeDrizzleTodoRepo(), id)
   return res.match(
     () => c.json({ message: 'Todo deleted' }),
     (e) => {
       const { body, status } = makeErr(e)
+      console.log(body, status)
       return c.json(body, status)
     },
   )

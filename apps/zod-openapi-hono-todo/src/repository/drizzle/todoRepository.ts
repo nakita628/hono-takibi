@@ -1,8 +1,8 @@
 import { desc, eq } from 'drizzle-orm'
 import { err, fromPromise, ok, type ResultAsync } from 'neverthrow'
 import { type AppError, dbErr } from '@/domain/errorDomain'
-import type { Todo, TodoRepo } from '@/domain/todoDomain'
 import db, { table } from '@/infra/drizzle'
+import type { Todo, TodoRepo } from '@/services/todoService'
 
 export function makeDrizzleTodoRepo(): TodoRepo {
   return {

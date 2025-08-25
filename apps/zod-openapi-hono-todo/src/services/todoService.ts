@@ -1,11 +1,11 @@
 import type { ResultAsync } from 'neverthrow'
-import type { AppError } from './errorDomain'
+import type { AppError } from '@/domain/errorDomain'
 
 export type Todo = Readonly<{
   id: string
   content: string
-  createdAt: string | Date
-  updatedAt: string | Date
+  createdAt: string
+  updatedAt: string
 }>
 
 export type TodoRepo = Readonly<{

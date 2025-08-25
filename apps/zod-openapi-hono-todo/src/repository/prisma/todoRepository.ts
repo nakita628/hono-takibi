@@ -1,8 +1,8 @@
 import { err, fromPromise, ok, type ResultAsync } from 'neverthrow'
 import type { AppError } from '@/domain/errorDomain'
 import { dbErr } from '@/domain/errorDomain'
-import type { Todo, TodoRepo } from '@/domain/todoDomain'
 import prisma from '@/infra/prisma'
+import type { Todo, TodoRepo } from '@/services/todoService'
 
 export function makePrismaTodoRepo(): TodoRepo {
   return {
@@ -22,7 +22,15 @@ function getTodo(limit: number = 10, offset: number = 0): ResultAsync<Todo[], Ap
       skip: offset,
     }),
     (e) => dbErr(e),
-  ).andThen((rows) => ok(rows))
+  ).andThen((rows) => {
+    const todos: Todo[] = rows.map((row) => ({
+      id: row.id,
+      content: row.content,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    }))
+    return ok(todos)
+  })
 }
 
 function postTodo(post: string): ResultAsync<void, AppError> {
@@ -44,7 +52,13 @@ function getTodoId(id: string): ResultAsync<Todo, AppError> {
     if (!row) {
       return err({ kind: 'NOT_FOUND', message: 'Todo not found' } as const)
     }
-    return ok(row)
+    const todo: Todo = {
+      id: row.id,
+      content: row.content,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    }
+    return ok(todo)
   })
 }
 

@@ -1,5 +1,5 @@
 import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono } from '@hono/zod-openapi'
+import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { getIndexRouteHandler } from './handlers/indexHandler.ts'
 import {
   deleteTodoIdRouteHandler,
@@ -17,7 +17,19 @@ import {
   putTodoIdRoute,
 } from './routes.ts'
 
-const app = new OpenAPIHono()
+const app = new OpenAPIHono({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          ok: false,
+          errors: z.treeifyError(result.error),
+        },
+        422,
+      )
+    }
+  },
+})
 
 export const api = app
   .openapi(getIndexRoute, getIndexRouteHandler)

@@ -17,5 +17,8 @@ export function makeErr(e: AppError) {
   if (e.kind === 'DB_ERROR') {
     return { body: { message: e.message } as const, status: 503 as const }
   }
+  if (e.kind === 'INTERNAL_SERVER_ERROR') {
+    return { body: { message: e.message } as const, status: 500 as const }
+  }
   return { body: { message: 'Internal Server Error' } as const, status: 500 as const }
 }
