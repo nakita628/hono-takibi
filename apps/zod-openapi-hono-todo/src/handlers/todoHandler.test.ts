@@ -3,7 +3,7 @@ import { testClient } from 'hono/testing'
 import { errAsync, okAsync } from 'neverthrow'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppError } from '@/domain/errorDomain'
-import { api } from '@/index.ts'
+import { api } from '@/index'
 import type { Todo } from '@/schema/todo'
 
 // Test run
