@@ -1,0 +1,22 @@
+{
+  "name": "@apps/zod-openapi-hono-todo",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "takibi": "hono-takibi",
+    "tsp": "tsp compile ./typespec --emit @typespec/openapi3"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@types/node": "^24.3.0",
+    "@typespec/http": "^1.3.0",
+    "@typespec/openapi3": "^1.3.0",
+    "@typespec/versioning": "^0.73.0",
+    "hono-takibi": "^0.9.23",
+    "vite": "^7.1.3"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.0",
+    "zod": "^4.1.1"
+  }
+}
