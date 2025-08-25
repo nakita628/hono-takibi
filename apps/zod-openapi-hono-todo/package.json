@@ -3,20 +3,36 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev": "vite --host",
+    "typecheck": "tsc --noEmit",
+    "prepare": "cp .env.example .env",
     "takibi": "hono-takibi",
-    "tsp": "tsp compile ./typespec --emit @typespec/openapi3"
+    "tsp": "tsp compile ./typespec --emit @typespec/openapi3",
+    "d:generate": "drizzle-kit generate",
+    "d:migrate": "drizzle-kit migrate",
+    "p:migrate": "prisma migrate dev --name init"
   },
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.2",
+    "@hono/vite-dev-server": "^0.19.1",
+    "@libsql/client": "^0.15.12",
     "@types/node": "^24.3.0",
     "@typespec/http": "^1.3.0",
     "@typespec/openapi3": "^1.3.0",
     "@typespec/versioning": "^0.73.0",
+    "dotenv": "^17.2.1",
+    "drizzle-kit": "^0.31.4",
     "hono-takibi": "^0.9.23",
-    "vite": "^7.1.3"
+    "prisma": "^6.14.0",
+    "vite": "^7.1.3",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.1.0",
+    "@prisma/client": "^6.14.0",
+    "drizzle-orm": "^0.44.4",
+    "hono": "^4.9.4",
+    "neverthrow": "^8.2.0",
     "zod": "^4.1.1"
   }
 }

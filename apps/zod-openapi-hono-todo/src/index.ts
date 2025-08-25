@@ -2,19 +2,19 @@ import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { getIndexRouteHandler } from './handlers/indexHandler.ts'
 import {
+  deleteTodoIdRouteHandler,
+  getTodoIdRouteHandler,
   getTodoRouteHandler,
   postTodoRouteHandler,
-  getTodoIdRouteHandler,
   putTodoIdRouteHandler,
-  deleteTodoIdRouteHandler,
 } from './handlers/todoHandler.ts'
 import {
+  deleteTodoIdRoute,
   getIndexRoute,
+  getTodoIdRoute,
   getTodoRoute,
   postTodoRoute,
-  getTodoIdRoute,
   putTodoIdRoute,
-  deleteTodoIdRoute,
 } from './routes.ts'
 
 const app = new OpenAPIHono()
