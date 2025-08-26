@@ -19,7 +19,7 @@
  * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
  * @returns `{ ok:true, value }` on success; `{ ok:false, error }` on invalid usage.
  */
-export function parseCli(args: readonly string[]):
+export function parseCli(args: readonly string[]): Readonly<
   | {
       ok: true
       value: {
@@ -35,7 +35,8 @@ export function parseCli(args: readonly string[]):
   | {
       ok: false
       error: string
-    } {
+    }
+> {
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
