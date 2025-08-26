@@ -1,7 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { makeErr } from '@/domain/errorDomain.ts'
-// import { makePrismaTodoRepo } from '@/repository/prisma/todoRepository.ts'
-import { makeDrizzleTodoRepo } from '@/repository/drizzle/todoRepository'
 import type {
   deleteTodoIdRoute,
   getTodoIdRoute,
@@ -9,17 +7,11 @@ import type {
   postTodoRoute,
   putTodoIdRoute,
 } from '@/routes.ts'
-import {
-  deleteTodoIdTransaction,
-  getTodoIdTransaction,
-  getTodoTransaction,
-  postTodoTransaction,
-  putTodoIdTransaction,
-} from '@/transactions/todoTransaction.ts'
+import { todoService } from '@/services/todoService'
 
 export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = (c) => {
   const { limit, offset } = c.req.valid('query')
-  const res = getTodoTransaction(makeDrizzleTodoRepo(), limit, offset)
+  const res = todoService.getTodo(limit, offset)
   return res.match(
     (todos) => c.json(todos),
     (e) => {
@@ -31,7 +23,7 @@ export const getTodoRouteHandler: RouteHandler<typeof getTodoRoute> = (c) => {
 
 export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = (c) => {
   const { content } = c.req.valid('json')
-  const res = postTodoTransaction(makeDrizzleTodoRepo(), content)
+  const res = todoService.postTodo(content)
   return res.match(
     () => c.json({ message: 'Todo created' }),
     (e) => {
@@ -43,7 +35,7 @@ export const postTodoRouteHandler: RouteHandler<typeof postTodoRoute> = (c) => {
 
 export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
-  const res = getTodoIdTransaction(makeDrizzleTodoRepo(), id)
+  const res = todoService.getTodoId(id)
   return res.match(
     (todo) => c.json(todo),
     (e) => {
@@ -56,7 +48,7 @@ export const getTodoIdRouteHandler: RouteHandler<typeof getTodoIdRoute> = (c) =>
 export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
   const { content } = c.req.valid('json')
-  const res = putTodoIdTransaction(makeDrizzleTodoRepo(), id, content)
+  const res = todoService.putTodoId(id, content)
   return res.match(
     () => c.json({ message: 'Todo updated' }),
     (e) => {
@@ -68,7 +60,7 @@ export const putTodoIdRouteHandler: RouteHandler<typeof putTodoIdRoute> = (c) =>
 
 export const deleteTodoIdRouteHandler: RouteHandler<typeof deleteTodoIdRoute> = (c) => {
   const { id } = c.req.valid('param')
-  const res = deleteTodoIdTransaction(makeDrizzleTodoRepo(), id)
+  const res = todoService.deleteTodoId(id)
   return res.match(
     () => c.json({ message: 'Todo deleted' }),
     (e) => {

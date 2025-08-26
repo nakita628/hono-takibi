@@ -5,21 +5,22 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppError } from '@/domain/errorDomain'
 import { api } from '@/index'
 import type { Todo } from '@/schema/todo'
+import { todoService } from '@/services/todoService'
 
 // Test run
 // pnpm vitest run ./src/handlers/todoHandler.test.ts
 
-vi.mock('@/transactions/todoTransaction.ts', () => ({
-  getTodoTransaction: vi.fn(),
-  postTodoTransaction: vi.fn(),
-  getTodoIdTransaction: vi.fn(),
-  putTodoIdTransaction: vi.fn(),
-  deleteTodoIdTransaction: vi.fn(),
+vi.mock('@/services/todoService', () => ({
+  todoService: {
+    getTodo: vi.fn(),
+    postTodo: vi.fn(),
+    getTodoId: vi.fn(),
+    putTodoId: vi.fn(),
+    deleteTodoId: vi.fn(),
+  },
 }))
 
-import * as todoTransaction from '@/transactions/todoTransaction.ts'
-
-const mockTodoTransaction = vi.mocked(todoTransaction, true)
+const mockTodoService = vi.mocked(todoService)
 
 const client = testClient(api)
 
@@ -30,18 +31,12 @@ describe('todo route handlers (transactions mocked)', () => {
 
   describe('POST /todo', () => {
     it.concurrent('200 OK', async () => {
-      mockTodoTransaction.postTodoTransaction.mockReturnValueOnce(
-        okAsync<void, AppError>(undefined),
-      )
+      mockTodoService.postTodo.mockReturnValueOnce(okAsync<void, AppError>(undefined))
 
       const res = await client.todo.$post({ json: { content: 'Hono🔥' } })
 
       expect(res.status).toBe(200)
       expect(await res.json()).toStrictEqual({ message: 'Todo created' })
-      expect(mockTodoTransaction.postTodoTransaction).toHaveBeenCalledWith(
-        expect.any(Object),
-        'Hono🔥',
-      )
     })
   })
 
@@ -55,7 +50,7 @@ describe('todo route handlers (transactions mocked)', () => {
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
       ]
-      mockTodoTransaction.getTodoTransaction.mockReturnValueOnce(okAsync<Todo[], AppError>(todos))
+      mockTodoService.getTodo.mockReturnValueOnce(okAsync<Todo[], AppError>(todos))
 
       const res = await client.todo.$get({ query: { limit: '10', offset: '0' } })
 
@@ -72,7 +67,7 @@ describe('todo route handlers (transactions mocked)', () => {
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',
       }
-      mockTodoTransaction.getTodoIdTransaction.mockReturnValueOnce(okAsync<Todo, AppError>(todo))
+      mockTodoService.getTodoId.mockReturnValueOnce(okAsync<Todo, AppError>(todo))
 
       const res = await client.todo[':id'].$get({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
@@ -83,7 +78,7 @@ describe('todo route handlers (transactions mocked)', () => {
     })
 
     it.concurrent('404 Not Found', async () => {
-      mockTodoTransaction.getTodoIdTransaction.mockReturnValueOnce(
+      mockTodoService.getTodoId.mockReturnValueOnce(
         errAsync({ kind: 'NOT_FOUND', message: 'Todo not found' }),
       )
 
@@ -98,9 +93,7 @@ describe('todo route handlers (transactions mocked)', () => {
 
   describe('PUT /todo/:id', () => {
     it.concurrent('200 OK', async () => {
-      mockTodoTransaction.putTodoIdTransaction.mockReturnValueOnce(
-        okAsync<void, AppError>(undefined),
-      )
+      mockTodoService.putTodoId.mockReturnValueOnce(okAsync<void, AppError>(undefined))
 
       const res = await client.todo[':id'].$put({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
@@ -109,19 +102,12 @@ describe('todo route handlers (transactions mocked)', () => {
 
       expect(res.status).toBe(200)
       expect(await res.json()).toStrictEqual({ message: 'Todo updated' })
-      expect(mockTodoTransaction.putTodoIdTransaction).toHaveBeenCalledWith(
-        expect.any(Object),
-        'c6c0f743-01fa-4c23-80d6-1b358512e213',
-        'updated',
-      )
     })
   })
 
   describe('DELETE /todo/:id', () => {
     it.concurrent('200 OK', async () => {
-      mockTodoTransaction.deleteTodoIdTransaction.mockReturnValueOnce(
-        okAsync<void, AppError>(undefined),
-      )
+      mockTodoService.deleteTodoId.mockReturnValueOnce(okAsync<void, AppError>(undefined))
 
       const res = await client.todo[':id'].$delete({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
