@@ -17,10 +17,10 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
  */
 export function componentsCode(
-  components: Components,
-  exportSchema: boolean,
-  exportType: boolean,
-): string {
+  components: Readonly<Components>,
+  exportSchema: Readonly<boolean>,
+  exportType: Readonly<boolean>,
+): Readonly<string> {
   // 1. schema extraction
   const { schemas } = components
   if (!schemas) {
