@@ -54,22 +54,24 @@ import { groupHandlersByFileName, isHttpMethod, methodPath } from '../utils/inde
  * @returns A `Result` containing a success message or an error string.
  */
 export async function takibi(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-  output: `${string}.ts`,
-  exportSchema: boolean,
-  exportType: boolean,
-  template: boolean,
-  test: boolean,
-  basePath?: string,
+  input: Readonly<`${string}.yaml` | `${string}.json` | `${string}.tsp`>,
+  output: Readonly<`${string}.ts`>,
+  exportSchema: Readonly<boolean>,
+  exportType: Readonly<boolean>,
+  template: Readonly<boolean>,
+  test: Readonly<boolean>,
+  basePath?: Readonly<string>,
 ): Promise<
-  | {
-      ok: true
-      value: string
-    }
-  | {
-      ok: false
-      error: string
-    }
+  Readonly<
+    | {
+        ok: true
+        value: string
+      }
+    | {
+        ok: false
+        error: string
+      }
+  >
 > {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {

@@ -11,7 +11,9 @@ import type { Schema } from '../openapi/index.js'
  * @returns A list of schema names sorted in topological order.
  * @throws If a circular reference is detected among the schemas.
  */
-export function resolveSchemasDependencies(schemas: Record<string, Schema>): readonly string[] {
+export function resolveSchemasDependencies(
+  schemas: Readonly<Record<string, Schema>>,
+): Readonly<string[]> {
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
   const collectRefs = (schema: Schema): string[] => {
