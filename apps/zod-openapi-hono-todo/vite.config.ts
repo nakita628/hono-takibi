@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     devServer({ entry: 'src/index.tsx' }),
-    // HonoTakibiVite({
-    //   input: 'typespec/main.tsp',
-    //   output: 'src/routes/index.ts',
-    //   exportType: false,
-    //   exportSchema: false,
-    // }),
+    HonoTakibiVite({
+      input: 'typespec/main.tsp',
+      output: 'src/routes/index.ts',
+      exportType: false,
+      exportSchema: false,
+    }),
   ],
 })
