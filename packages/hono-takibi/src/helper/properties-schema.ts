@@ -49,7 +49,7 @@ import { getToSafeIdentifier } from '../utils/index.js'
 export function propertiesSchema(
   properties: Readonly<Record<string, Schema>>,
   required: Readonly<string[]>,
-): string {
+): Readonly<string> {
   const objectProperties = Object.entries(properties).map(([key, schema]) => {
     const isRequired = required.includes(key)
     const safeKey = getToSafeIdentifier(key)

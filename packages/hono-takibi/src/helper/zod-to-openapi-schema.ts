@@ -18,7 +18,7 @@ export function zodToOpenAPISchema(
   zodSchema: Readonly<string>,
   exportSchema: Readonly<boolean>,
   exportType: Readonly<boolean>,
-): string {
+): Readonly<string> {
   const variableName = `${schemaName}Schema`
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)

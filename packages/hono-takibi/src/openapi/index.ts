@@ -25,14 +25,16 @@ import { typeSpecToOpenAPI } from '../typespec/index.js'
  * in downstream code.
  */
 export async function parseOpenAPI(input: string): Promise<
-  | {
-      ok: true
-      value: OpenAPI
-    }
-  | {
-      ok: false
-      error: string
-    }
+  Readonly<
+    | {
+        ok: true
+        value: OpenAPI
+      }
+    | {
+        ok: false
+        error: string
+      }
+  >
 > {
   try {
     if (typeof input === 'string' && input.endsWith('.tsp')) {
