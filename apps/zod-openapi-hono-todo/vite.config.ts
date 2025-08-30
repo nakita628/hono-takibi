@@ -6,12 +6,12 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
-    devServer({ entry: 'src/index.ts' }),
-    HonoTakibiVite({
-      input: 'typespec/main.tsp',
-      output: 'src/routes/index.ts',
-      exportType: false,
-      exportSchema: false,
-    }),
+    devServer({ entry: 'src/index.tsx' }),
+    // HonoTakibiVite({
+    //   input: 'typespec/main.tsp',
+    //   output: 'src/routes/index.ts',
+    //   exportType: false,
+    //   exportSchema: false,
+    // }),
   ],
 })
