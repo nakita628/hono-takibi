@@ -1,7 +1,9 @@
 import type { OpenAPIPaths, Operation, Parameters } from '../../../../openapi/index.js'
 import { route } from './route.js'
 
-type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
+type HttpMethod = Readonly<
+  'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
+>
 const METHODS: ReadonlyArray<HttpMethod> = [
   'get',
   'put',
@@ -13,12 +15,12 @@ const METHODS: ReadonlyArray<HttpMethod> = [
   'trace',
 ]
 
-export function routeCode(openAPIPaths: OpenAPIPaths): string {
+export function routeCode(openAPIPaths: Readonly<OpenAPIPaths>): Readonly<string> {
   const routes: string[] = []
 
-  const isOp = (v: unknown): v is Operation =>
+  const isOp = (v: unknown): v is Readonly<Operation> =>
     typeof v === 'object' && v !== null && 'responses' in v
-  const isParam = (p: unknown): p is Parameters =>
+  const isParam = (p: unknown): p is Readonly<Parameters> =>
     typeof p === 'object' && p !== null && 'name' in p && 'in' in p
 
   for (const path in openAPIPaths) {
@@ -38,7 +40,7 @@ export function routeCode(openAPIPaths: OpenAPIPaths): string {
         }
         return out.length ? out : undefined
       })()
-      const op: Operation = (() => {
+      const op: Readonly<Operation> = (() => {
         if (mergedParams) return { ...maybeOp, parameters: mergedParams }
         return maybeOp
       })()

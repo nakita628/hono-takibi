@@ -128,20 +128,22 @@ export async function takibi(
  * @returns A `Result` indicating success or error with message.
  */
 async function zodOpenapiHonoHandler(
-  openapi: OpenAPI,
-  output: string,
-  test: boolean,
+  openapi: Readonly<OpenAPI>,
+  output: Readonly<string>,
+  test: Readonly<boolean>,
 ): Promise<
-  | {
-      ok: true
-      value: undefined
-    }
-  | {
-      ok: false
-      error: string
-    }
+  Readonly<
+    | {
+        ok: true
+        value: undefined
+      }
+    | {
+        ok: false
+        error: string
+      }
+  >
 > {
-  const paths: OpenAPIPaths = openapi.paths
+  const paths: Readonly<OpenAPIPaths> = openapi.paths
   const handlers: {
     fileName: `${string}.ts`
     testFileName: `${string}.ts`

@@ -17,9 +17,9 @@ import { paramsObject } from './index.js'
  * - Uses `params` instead of `path` for Hono compatibility.
  */
 export function requestParameter(
-  parameters: Parameters[] | undefined,
-  body: RequestBody | undefined,
-): string {
+  parameters: Readonly<Parameters[]> | undefined,
+  body: Readonly<RequestBody> | undefined,
+): Readonly<string> {
   // Early return if no parameters or content
   if (!(parameters || body?.content)) {
     return ''
@@ -38,7 +38,7 @@ export function requestParameter(
     : ''
   if (requestBodyContentTypes.length > 0 && body?.content) {
     // Eliminate schema duplication
-    const uniqueSchemas = new Map<string, string>()
+    const uniqueSchemas = new Map<Readonly<string>, Readonly<string>>()
     for (const contentType of requestBodyContentTypes) {
       const { schema } = body.content[contentType]
       const z = zodToOpenAPI(schema)

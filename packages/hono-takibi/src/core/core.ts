@@ -8,7 +8,7 @@ export default async function core(
   output: Readonly<`${string}.ts`>,
   importCode: Readonly<string>,
   value: Readonly<string>,
-  fn: (openapi: Readonly<OpenAPI>, importCode: Readonly<string>) => string,
+  fn: (openapi: Readonly<OpenAPI>, importCode: Readonly<string>) => Readonly<string>,
 ): Promise<
   Readonly<
     | {
