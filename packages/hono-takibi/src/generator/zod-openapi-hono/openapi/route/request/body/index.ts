@@ -9,7 +9,11 @@ import { isUniqueContentSchema } from '../../../../../../utils/index.js'
  * @param schema - Zod schema string used for validation.
  * @returns A formatted request body definition string, or an empty string if unsupported.
  */
-export function requestBody(required: boolean, content: Content, schema: string): string {
+export function requestBody(
+  required: Readonly<boolean>,
+  content: Readonly<Content>,
+  schema: Readonly<string>,
+): Readonly<string> {
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
   // check duplication

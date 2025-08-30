@@ -2,7 +2,21 @@ import { err, fromPromise, ok, type ResultAsync } from 'neverthrow'
 import type { AppError } from '@/domain/errorDomain'
 import { dbErr } from '@/domain/errorDomain'
 import prisma from '@/infra/prisma'
-import type { Todo, TodoRepo } from '@/services/todoService'
+
+type Todo = Readonly<{
+  id: string
+  content: string
+  createdAt: string
+  updatedAt: string
+}>
+
+export type TodoRepo = Readonly<{
+  getTodo: (limit: number, offset: number) => ResultAsync<Todo[], AppError>
+  postTodo: (content: string) => ResultAsync<void, AppError>
+  getTodoId: (id: string) => ResultAsync<Todo, AppError>
+  putTodoId: (id: string, content: string) => ResultAsync<void, AppError>
+  deleteTodoId: (id: string) => ResultAsync<void, AppError>
+}>
 
 export function makePrismaTodoRepo(): TodoRepo {
   return {

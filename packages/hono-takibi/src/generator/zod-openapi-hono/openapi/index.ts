@@ -11,10 +11,10 @@ import { routeCode } from './route/index.js'
  * @returns The generated TypeScript code string
  */
 export default function zodOpenAPIHono(
-  openapi: OpenAPI,
-  exportSchema: boolean,
-  exportType: boolean,
-): string {
+  openapi: Readonly<OpenAPI>,
+  exportSchema: Readonly<boolean>,
+  exportType: Readonly<boolean>,
+): Readonly<string> {
   const components = openapi.components
     ? componentsCode(openapi.components, exportSchema, exportType)
     : ''

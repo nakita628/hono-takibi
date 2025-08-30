@@ -18,10 +18,10 @@ import {
  * @returns The generated application code as a string.
  */
 export function app(
-  openapi: OpenAPI,
-  output: `${string}.ts`,
-  basePath: string | undefined,
-): string {
+  openapi: Readonly<OpenAPI>,
+  output: Readonly<`${string}.ts`>,
+  basePath: Readonly<string | undefined>,
+): Readonly<string> {
   const routeMappings = getRouteMaps(openapi)
   const path = basePath !== undefined ? `${basePath}/doc` : '/doc'
   const registerComponentCode = openapi.components?.securitySchemes

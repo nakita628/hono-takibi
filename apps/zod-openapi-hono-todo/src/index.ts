@@ -1,5 +1,6 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono, z } from '@hono/zod-openapi'
+import { customError } from './custom-error'
 import { getIndexRouteHandler } from './handlers/indexHandler.ts'
 import {
   deleteTodoIdRouteHandler,
@@ -38,6 +39,8 @@ export const api = app
   .openapi(getTodoIdRoute, getTodoIdRouteHandler)
   .openapi(putTodoIdRoute, putTodoIdRouteHandler)
   .openapi(deleteTodoIdRoute, deleteTodoIdRouteHandler)
+
+customError()
 
 if (process.env.NODE_ENV === 'development') {
   app

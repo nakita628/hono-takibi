@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
-type Config = {
+type Config = Readonly<{
   'zod-openapi'?: {
     input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
     output: `${string}.ts`
@@ -20,17 +20,19 @@ type Config = {
   //   output: `${string}.ts`
   //   import: string
   // }
-}
+}>
 
 export async function config(): Promise<
-  | {
-      ok: true
-      value: Config
-    }
-  | {
-      ok: false
-      error: string
-    }
+  Readonly<
+    | {
+        ok: true
+        value: Config
+      }
+    | {
+        ok: false
+        error: string
+      }
+  >
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 
@@ -38,10 +40,9 @@ export async function config(): Promise<
     return { ok: false, error: `Config not found: ${abs}` }
   }
 
-  register()
-
   try {
-    const mod: { default: Config } = await import(pathToFileURL(abs).href)
+    register()
+    const mod: Readonly<{ default: Config }> = await import(pathToFileURL(abs).href)
     const isYamlOrJsonOrTsp = (
       i: string,
     ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
