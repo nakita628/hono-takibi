@@ -77,6 +77,25 @@ describe('todo route handlers (transactions mocked)', () => {
       expect(await res.json()).toStrictEqual(todo)
     })
 
+    it.concurrent('422 Unprocessable Content', async () => {
+      const res = await client.todo[':id'].$get({
+        param: { id: 'invalid-id' },
+      })
+
+      expect(res.status).toBe(422)
+      expect(await res.json()).toStrictEqual({
+        ok: false,
+        errors: {
+          errors: [],
+          properties: {
+            id: {
+              errors: ['id must be UUID'],
+            },
+          },
+        },
+      })
+    })
+
     it.concurrent('404 Not Found', async () => {
       mockTodoService.getTodoId.mockReturnValueOnce(
         errAsync({ kind: 'NOT_FOUND', message: 'Todo not found' }),

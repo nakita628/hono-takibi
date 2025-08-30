@@ -49,15 +49,16 @@ Options:
  * - `{ ok: true, value: string }` with either help text or generation message
  * - `{ ok: false, error: string }` on validation or generation errors
  */
-export async function honoTakibi(): Promise<Readonly<
-  | {
-      ok: true
-      value: string
-    }
-  | {
-      ok: false
-      error: string
-    }
+export async function honoTakibi(): Promise<
+  Readonly<
+    | {
+        ok: true
+        value: string
+      }
+    | {
+        ok: false
+        error: string
+      }
   >
 > {
   // Slice the arguments to remove the first two (node and script path)
