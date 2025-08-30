@@ -1,7 +1,5 @@
 // src/core.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-// System under test (ESM)
 import core from './core.ts'
 
 // Test run
