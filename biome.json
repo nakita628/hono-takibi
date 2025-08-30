@@ -5,6 +5,7 @@
     "includes": [
       "**/*.ts",
       "**/*.json",
+      "**/*.tsx",
       "!**/.pnpm-store",
       "!**/*.d.ts",
       "!**/node_modules",
