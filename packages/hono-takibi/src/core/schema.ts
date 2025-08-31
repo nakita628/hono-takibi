@@ -6,13 +6,13 @@ import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependenci
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
-const lowerFirst = (s: string) => (s ? s[0]!.toLowerCase() + s.slice(1) : s)
+const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
 const findSchemaRefs = (code: string, selfName: string): string[] => {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
   const out = new Set<string>()
   for (const m of code.matchAll(re)) {
-    const base = m[1]!
-    if (base !== selfName) out.add(base)
+    const base = m[1] ?? ''
+    if (base !== selfName && base) out.add(base)
   }
   return Array.from(out)
 }
@@ -79,8 +79,9 @@ export async function schema(
     }
 
     // index.ts
-    const indexBody =
-      orderedSchemas.map((n) => `export * from './${lowerFirst(n)}'`).join('\n') + '\n'
+    const indexBody = `${orderedSchemas
+      .map((n) => `export * from './${lowerFirst(n)}'`)
+      .join('\n')}\n`
     const indexFmt = await fmt(indexBody)
     if (!indexFmt.ok) {
       return { ok: false, error: indexFmt.error }

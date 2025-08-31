@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { afterAll, afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../openapi'
 import { schema } from './schema'
 
