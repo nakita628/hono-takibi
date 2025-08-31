@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import core from '../core/core.js'
+import { core } from '../core/core.js'
 import { route } from '../core/route.js'
 import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
-import rpc from '../generator/rpc/index.js'
+import { rpc } from '../generator/rpc/index.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
