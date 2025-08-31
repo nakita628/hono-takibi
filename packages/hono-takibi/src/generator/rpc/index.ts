@@ -323,7 +323,7 @@ const generateOperationCode = (
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
 
-export default function rpc(openapi: OpenAPI, importPath: string): string {
+export function rpc(openapi: OpenAPI, importPath: string): string {
   const client = 'client'
   const out: string[] = []
 

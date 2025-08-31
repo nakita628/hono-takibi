@@ -10,7 +10,7 @@ import { routeCode } from './route/index.js'
  * @param exportType - Whether to export inferred TypeScript types
  * @returns The generated TypeScript code string
  */
-export default function zodOpenAPIHono(
+export function zodOpenAPIHono(
   openapi: OpenAPI,
   exportSchema: boolean,
   exportType: boolean,

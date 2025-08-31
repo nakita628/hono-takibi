@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../openapi/index.js'
-import rpc from './index.js'
+import { rpc } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/rpc/index.test.ts
