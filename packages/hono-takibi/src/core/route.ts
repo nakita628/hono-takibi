@@ -23,7 +23,7 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
   }
   return hits.map((h, i) => {
     const start = h.start
-    const end = i + 1 < hits.length ? hits[i + 1]!.start : src.length
+    const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
     return { name: h.name, block: src.slice(start, end).trim() }
   })
 }
@@ -35,7 +35,9 @@ export async function route(
   output: string | `${string}.ts`,
   importPath: string,
   split?: boolean,
-): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {
     return { ok: false, error: openAPIResult.error }
