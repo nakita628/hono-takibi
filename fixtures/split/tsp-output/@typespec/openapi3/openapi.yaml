@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags:
+  - name: Hono
+paths:
+  /hono:
+    get:
+      operationId: HonoService_hono
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hono'
+      tags:
+        - Hono
+  /honox:
+    get:
+      operationId: HonoXService_honox
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hono'
+      tags:
+        - Hono
+  /zod-openapi-hono:
+    get:
+      operationId: ZodOpenAPIHonoService_zod_openapi_hono
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hono'
+      tags:
+        - Hono
+components:
+  schemas:
+    Hono:
+      type: object
+      required:
+        - hono
+      properties:
+        hono:
+          type: string
+          enum:
+            - Hono
+    HonoUnion:
+      type: object
+      required:
+        - hono-union
+      properties:
+        hono-union:
+          anyOf:
+            - $ref: '#/components/schemas/Hono'
+            - $ref: '#/components/schemas/HonoX'
+            - $ref: '#/components/schemas/ZodOpenAPIHono'
+    HonoX:
+      type: object
+      required:
+        - honoX
+      properties:
+        honoX:
+          type: string
+          enum:
+            - HonoX
+    ZodOpenAPIHono:
+      type: object
+      required:
+        - zod-openapi-hono
+      properties:
+        zod-openapi-hono:
+          type: string
+          enum:
+            - ZodOpenAPIHono

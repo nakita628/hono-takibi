@@ -21,7 +21,7 @@ export async function schema(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string,
   exportType: boolean,
-  split: boolean,
+  split?: boolean,
 ): Promise<
   | {
       readonly ok: true
