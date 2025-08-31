@@ -1,22 +1,18 @@
+// src/core/route.test.ts
 import fs from 'node:fs'
-import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { OpenAPI } from '../openapi'
-import { route } from './route'
+import os from 'node:os'
+import path from 'node:path'
+import { describe, it, expect } from 'vitest'
+import { route } from './route.js'
+import { OpenAPI } from '../openapi/index.js'
 
 // Test run
 // pnpm vitest run ./src/core/route.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.0.0',
-  info: {
-    title: '(title)',
-    version: '0.0.0',
-  },
-  tags: [
-    {
-      name: 'Hono',
-    },
-  ],
+  info: { title: '(title)', version: '0.0.0' },
+  tags: [{ name: 'Hono' }],
   paths: {
     '/hono': {
       get: {
@@ -25,13 +21,7 @@ const openapi: OpenAPI = {
         responses: {
           '200': {
             description: 'The request has succeeded.',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/Hono',
-                },
-              },
-            },
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Hono' } } },
           },
         },
         tags: ['Hono'],
@@ -44,13 +34,7 @@ const openapi: OpenAPI = {
         responses: {
           '200': {
             description: 'The request has succeeded.',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/HonoX',
-                },
-              },
-            },
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/HonoX' } } },
           },
         },
         tags: ['Hono'],
@@ -64,11 +48,7 @@ const openapi: OpenAPI = {
           '200': {
             description: 'The request has succeeded.',
             content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/ZodOpenAPIHono',
-                },
-              },
+              'application/json': { schema: { $ref: '#/components/schemas/ZodOpenAPIHono' } },
             },
           },
         },
@@ -78,15 +58,12 @@ const openapi: OpenAPI = {
   },
   components: {
     schemas: {
-      Hono: {
+      Hono: { type: 'object', required: ['hono'], properties: { hono: { type: 'string', enum: ['Hono'] } } },
+      HonoX: { type: 'object', required: ['honoX'], properties: { honoX: { type: 'string', enum: ['HonoX'] } } },
+      ZodOpenAPIHono: {
         type: 'object',
-        required: ['hono'],
-        properties: {
-          hono: {
-            type: 'string',
-            enum: ['Hono'],
-          },
-        },
+        required: ['zod-openapi-hono'],
+        properties: { 'zod-openapi-hono': { type: 'string', enum: ['ZodOpenAPIHono'] } },
       },
       HonoUnion: {
         type: 'object',
@@ -101,52 +78,22 @@ const openapi: OpenAPI = {
           },
         },
       },
-      HonoX: {
-        type: 'object',
-        required: ['honoX'],
-        properties: {
-          honoX: {
-            type: 'string',
-            enum: ['HonoX'],
-          },
-        },
-      },
-      ZodOpenAPIHono: {
-        type: 'object',
-        required: ['zod-openapi-hono'],
-        properties: {
-          'zod-openapi-hono': {
-            type: 'string',
-            enum: ['ZodOpenAPIHono'],
-          },
-        },
-      },
     },
   },
 }
 
 describe('route', () => {
-  beforeEach(() => {
-    fs.writeFileSync('openapi.json', JSON.stringify(openapi))
-  })
-  afterEach(() => {
-    if (fs.existsSync('test.ts')) {
-      fs.rmSync('test.ts', { force: true })
-    }
-    if (fs.existsSync('test')) {
-      fs.rmSync('test', { recursive: true, force: true })
-    }
-  })
-  afterAll(() => {
-    if (fs.existsSync('openapi.json')) {
-      fs.rmSync('openapi.json', { force: true })
-    }
-  })
-  // split false
-  it('should generate route code', async () => {
-    const result = await route('openapi.json', 'test.ts', '@packages/schemas')
-    const index = fs.readFileSync('test.ts', 'utf-8')
-    const indexExpected = `import { createRoute } from '@hono/zod-openapi'
+  it('should generate route code (single file)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const out = path.join(dir, 'test.ts')
+
+      const result = await route(input, out, '@packages/schemas')
+      const index = fs.readFileSync(out, 'utf-8')
+
+      const expected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema } from '@packages/schemas'
 
 export const getHonoRoute = createRoute({
@@ -188,21 +135,32 @@ export const getZodOpenapiHonoRoute = createRoute({
   },
 })
 `
-    expect(index).toBe(indexExpected)
-    expect(result).toStrictEqual({ ok: true, value: 'Generated route code written to test.ts' })
+      expect(index).toBe(expected)
+      expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
-  // split true
+
   it('should generate route code (split)', async () => {
-    const result = await route('openapi.json', 'test', '@packages/schemas', true)
-    const index = fs.readFileSync('test/index.ts', 'utf-8')
-    const indexExpected = `export * from './getHono'
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-'))
+    try {
+      const input = path.join(dir, 'openapi.json')  as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const outDir = path.join(dir, 'test')
+
+      const result = await route(input, outDir, '@packages/schemas', true)
+
+      const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const indexExpected = `export * from './getHono'
 export * from './getHonox'
 export * from './getZodOpenapiHono'
 `
-    expect(index).toBe(indexExpected)
+      const getHono = fs.readFileSync(path.join(outDir, 'getHono.ts'), 'utf-8')
+      const getHonox = fs.readFileSync(path.join(outDir, 'getHonox.ts'), 'utf-8')
+      const getZod = fs.readFileSync(path.join(outDir, 'getZodOpenapiHono.ts'), 'utf-8')
 
-    const getHono = fs.readFileSync('test/getHono.ts', 'utf-8')
-    const getHonoExpected = `import { createRoute } from '@hono/zod-openapi'
+      const getHonoExpected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema } from '@packages/schemas'
 
 export const getHonoRoute = createRoute({
@@ -218,10 +176,7 @@ export const getHonoRoute = createRoute({
   },
 })
 `
-    expect(getHono).toBe(getHonoExpected)
-
-    const getHonox = fs.readFileSync('test/getHonox.ts', 'utf-8')
-    const getHonoXexpected = `import { createRoute } from '@hono/zod-openapi'
+      const getHonoxExpected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoXSchema } from '@packages/schemas'
 
 export const getHonoxRoute = createRoute({
@@ -237,11 +192,7 @@ export const getHonoxRoute = createRoute({
   },
 })
 `
-    expect(getHonox).toBe(getHonoXexpected)
-
-    const getZodOpenapiHono = fs.readFileSync('test/getZodOpenapiHono.ts', 'utf-8')
-
-    const getZodOpenapiHonoExpected = `import { createRoute } from '@hono/zod-openapi'
+      const getZodExpected = `import { createRoute } from '@hono/zod-openapi'
 import { ZodOpenAPIHonoSchema } from '@packages/schemas'
 
 export const getZodOpenapiHonoRoute = createRoute({
@@ -257,11 +208,17 @@ export const getZodOpenapiHonoRoute = createRoute({
   },
 })
 `
-    expect(getZodOpenapiHono).toBe(getZodOpenapiHonoExpected)
 
-    expect(result).toStrictEqual({
-      ok: true,
-      value: 'Generated route code written to test/*.ts (index.ts included)',
-    })
+      expect(index).toBe(indexExpected)
+      expect(getHono).toBe(getHonoExpected)
+      expect(getHonox).toBe(getHonoxExpected)
+      expect(getZod).toBe(getZodExpected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated route code written to ${outDir}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
