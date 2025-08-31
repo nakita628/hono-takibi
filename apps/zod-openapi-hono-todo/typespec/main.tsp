@@ -5,7 +5,6 @@ import "./schemas/success.tsp";
 import "./schemas/error.tsp";
 
 using Http;
-using Versioning;
 
 @service(#{ title: "Hono Todo API" })
 namespace HonoService;
@@ -27,11 +26,11 @@ interface Todos {
   @post create(@body body: { content: Todo.content} ): Created | UnprocessableContent | ServiceUnavailable;
 
   @summary("Update an existing post")
-  @get read(@path id: Todo.id): Todo | NotFound | UnprocessableContent | ServiceUnavailable;
+  @get update(@path id: Todo.id): Todo | NotFound | UnprocessableContent | ServiceUnavailable;
 
   @summary("Delete an existing post identified by its unique ID.")
-  @put update(@path id: Todo.id, @body body: { content: Todo.content} ): void | NotFound | UnprocessableContent | ServiceUnavailable;
+  @put delete(@path id: Todo.id, @body body: { content: Todo.content} ): void | NotFound | UnprocessableContent | ServiceUnavailable;
 
   @summary("Post successfully deleted.")
-  @delete delete(@path id: Todo.id): void | NotFound | UnprocessableContent | ServiceUnavailable;  
+  @delete post(@path id: Todo.id): void | NotFound | UnprocessableContent | ServiceUnavailable;  
 }

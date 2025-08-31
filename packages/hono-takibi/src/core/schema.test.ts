@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../openapi'
 import { schema } from './schema'
 
@@ -57,7 +57,11 @@ const openapi: OpenAPI = {
   },
   components: {
     schemas: {
-      Hono: { type: 'object', required: ['hono'], properties: { hono: { type: 'string', enum: ['Hono'] } } },
+      Hono: {
+        type: 'object',
+        required: ['hono'],
+        properties: { hono: { type: 'string', enum: ['Hono'] } },
+      },
       HonoUnion: {
         type: 'object',
         required: ['hono-union'],
@@ -71,7 +75,11 @@ const openapi: OpenAPI = {
           },
         },
       },
-      HonoX: { type: 'object', required: ['honoX'], properties: { honoX: { type: 'string', enum: ['HonoX'] } } },
+      HonoX: {
+        type: 'object',
+        required: ['honoX'],
+        properties: { honoX: { type: 'string', enum: ['HonoX'] } },
+      },
       ZodOpenAPIHono: {
         type: 'object',
         required: ['zod-openapi-hono'],

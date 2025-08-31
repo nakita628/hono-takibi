@@ -111,7 +111,7 @@ export const getTodoIdRoute = createRoute({
   tags: ['Todos'],
   method: 'get',
   path: '/todo/{id}',
-  operationId: 'Todos_read',
+  operationId: 'Todos_update',
   summary: 'Update an existing post',
   request: {
     params: z.object({
@@ -139,7 +139,7 @@ export const putTodoIdRoute = createRoute({
   tags: ['Todos'],
   method: 'put',
   path: '/todo/{id}',
-  operationId: 'Todos_update',
+  operationId: 'Todos_delete',
   summary: 'Delete an existing post identified by its unique ID.',
   request: {
     body: {
@@ -172,7 +172,7 @@ export const deleteTodoIdRoute = createRoute({
   tags: ['Todos'],
   method: 'delete',
   path: '/todo/{id}',
-  operationId: 'Todos_delete',
+  operationId: 'Todos_post',
   summary: 'Post successfully deleted.',
   request: {
     params: z.object({

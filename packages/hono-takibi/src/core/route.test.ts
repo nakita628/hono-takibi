@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type { OpenAPI } from '../openapi/index.js'
 import { route } from './route.js'
-import { OpenAPI } from '../openapi/index.js'
 
 // Test run
 // pnpm vitest run ./src/core/route.test.ts
@@ -57,8 +57,16 @@ const openapi: OpenAPI = {
   },
   components: {
     schemas: {
-      Hono: { type: 'object', required: ['hono'], properties: { hono: { type: 'string', enum: ['Hono'] } } },
-      HonoX: { type: 'object', required: ['honoX'], properties: { honoX: { type: 'string', enum: ['HonoX'] } } },
+      Hono: {
+        type: 'object',
+        required: ['hono'],
+        properties: { hono: { type: 'string', enum: ['Hono'] } },
+      },
+      HonoX: {
+        type: 'object',
+        required: ['honoX'],
+        properties: { honoX: { type: 'string', enum: ['HonoX'] } },
+      },
       ZodOpenAPIHono: {
         type: 'object',
         required: ['zod-openapi-hono'],
@@ -144,7 +152,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   it('should generate route code (split)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-'))
     try {
-      const input = path.join(dir, 'openapi.json')  as `${string}.yaml | ${string}.json`
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
