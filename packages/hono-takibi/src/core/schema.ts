@@ -19,7 +19,7 @@ const findSchemaRefs = (code: string, selfName: string): string[] => {
 
 export async function schema(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-  output: string,
+  output: string | `${string}.ts`,
   exportType: boolean,
   split?: boolean,
 ): Promise<

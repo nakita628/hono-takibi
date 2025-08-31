@@ -28,7 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hono'
+                $ref: '#/components/schemas/HonoX'
       tags:
         - Hono
   /zod-openapi-hono:
@@ -41,7 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hono'
+                $ref: '#/components/schemas/ZodOpenAPIHono'
       tags:
         - Hono
 components:

@@ -47,7 +47,7 @@ const openapi: OpenAPI = {
             content: {
               'application/json': {
                 schema: {
-                  $ref: '#/components/schemas/Hono',
+                  $ref: '#/components/schemas/HonoX',
                 },
               },
             },
@@ -66,7 +66,7 @@ const openapi: OpenAPI = {
             content: {
               'application/json': {
                 schema: {
-                  $ref: '#/components/schemas/Hono',
+                  $ref: '#/components/schemas/ZodOpenAPIHono',
                 },
               },
             },

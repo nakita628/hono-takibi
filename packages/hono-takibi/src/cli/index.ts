@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
 import core from '../core/core.js'
+import { route } from '../core/route.js'
 import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
 import rpc from '../generator/rpc/index.js'
@@ -132,6 +133,19 @@ export async function honoTakibi(): Promise<
     : undefined
   if (schemaResult && !schemaResult.ok) {
     return { ok: false, error: schemaResult.error }
+  }
+
+  // route
+  const routeResult = c['zod-openapi']?.route
+    ? await route(
+        c['zod-openapi'].input,
+        c['zod-openapi'].route.output,
+        c['zod-openapi'].route.import,
+        c['zod-openapi'].route.split ?? false,
+      )
+    : undefined
+  if (routeResult && !routeResult.ok) {
+    return { ok: false, error: routeResult.error }
   }
 
   const rpcResult = c.rpc

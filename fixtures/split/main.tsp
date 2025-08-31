@@ -26,12 +26,12 @@ interface HonoService {
 @route("/honox")
 @tag("Hono")
 interface HonoXService {
-  @get honox(): Hono;
+  @get honox(): HonoX;
 }
 
 @route("/zod-openapi-hono")
 @tag("Hono")
 interface ZodOpenAPIHonoService {
-  @get zod_openapi_hono(): Hono;
+  @get zod_openapi_hono(): ZodOpenAPIHono;
 }
 

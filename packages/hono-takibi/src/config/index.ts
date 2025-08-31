@@ -50,7 +50,7 @@ export async function config(): Promise<
 
   try {
     register()
-    const mod: Readonly<{ default: Config }> = await import(pathToFileURL(abs).href)
+    const mod: { readonly default: Config } = await import(pathToFileURL(abs).href)
     const isYamlOrJsonOrTsp = (
       i: string,
     ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
@@ -118,37 +118,37 @@ export async function config(): Promise<
           }
         }
         // route
-        if (mod.default['zod-openapi'].route !== undefined) {
-          // import
-          if (typeof mod.default['zod-openapi'].route.import !== 'string') {
-            return {
-              ok: false,
-              error: `Invalid route import format for zod-openapi: ${mod.default['zod-openapi'].route.import}`,
-            }
-          }
-          // split
-          if (mod.default['zod-openapi'].route.split !== undefined) {
-            if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
-              return {
-                ok: false,
-                error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
-              }
-            }
-          } else {
-            if (typeof mod.default['zod-openapi'].route.output !== 'string') {
-              return {
-                ok: false,
-                error: `Invalid route output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].route.output}`,
-              }
-            }
-          }
-          if (isTs(mod.default['zod-openapi'].route.output)) {
-            return {
-              ok: false,
-              error: `Invalid route output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].route.output}`,
-            }
-          }
-        }
+        // if (mod.default['zod-openapi'].route !== undefined) {
+        //   // import
+        //   if (typeof mod.default['zod-openapi'].route.import !== 'string') {
+        //     return {
+        //       ok: false,
+        //       error: `Invalid route import format for zod-openapi: ${mod.default['zod-openapi'].route.import}`,
+        //     }
+        //   }
+        //   // split
+        //   if (mod.default['zod-openapi'].route.split !== undefined) {
+        //     if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
+        //       return {
+        //         ok: false,
+        //         error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
+        //       }
+        //     }
+        //   } else {
+        //     if (typeof mod.default['zod-openapi'].route.output !== 'string') {
+        //       return {
+        //         ok: false,
+        //         error: `Invalid route output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].route.output}`,
+        //       }
+        //     }
+        //   }
+        //   if (isTs(mod.default['zod-openapi'].route.output)) {
+        //     return {
+        //       ok: false,
+        //       error: `Invalid route output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].route.output}`,
+        //     }
+        //   }
+        // }
       }
       // rpc
       if (mod.default.rpc) {

@@ -1,16 +1,5 @@
-import { createRoute, z } from '@hono/zod-openapi'
-
-const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
-
-const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
-
-const ZodOpenAPIHonoSchema = z
-  .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
-  .openapi('ZodOpenAPIHono')
-
-const HonoUnionSchema = z
-  .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })
-  .openapi('HonoUnion')
+import { createRoute } from '@hono/zod-openapi'
+import { HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema } from './schemas'
 
 export const getHonoRoute = createRoute({
   tags: ['Hono'],
