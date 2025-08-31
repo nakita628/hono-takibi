@@ -13,12 +13,20 @@ const findSchemaTokens = (code: string): string[] =>
     ),
   )
 
-const extractRouteBlocks = (src: string): { name: string; block: string }[] =>
-  Array.from(
-    src.matchAll(
-      /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=\s*createRoute\(\s*\{[\s\S]*?\}\s*\)/g,
-    ),
-  ).map((m) => ({ name: m[1]!, block: m[0]! }))
+const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
+  const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
+  const hits: Array<{ name: string; start: number }> = []
+  for (const m of src.matchAll(re)) {
+    const name = (m[1] ?? '').trim()
+    const start = m.index ?? 0
+    if (name) hits.push({ name, start })
+  }
+  return hits.map((h, i) => {
+    const start = h.start
+    const end = i + 1 < hits.length ? hits[i + 1]!.start : src.length
+    return { name: h.name, block: src.slice(start, end).trim() }
+  })
+}
 
 const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s)
 
@@ -27,9 +35,7 @@ export async function route(
   output: string | `${string}.ts`,
   importPath: string,
   split?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+): Promise<{ readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }> {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {
     return { ok: false, error: openAPIResult.error }
@@ -43,7 +49,7 @@ export async function route(
     const schemaTokens = findSchemaTokens(routesSrc)
     const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
     const importSchemas =
-      schemaTokens.length > 0 ? `import { ${schemaTokens.join(', ')} } from '${importPath}'` : ''
+      schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
 
     const finalSrc = [importHono, importSchemas, '\n', routesSrc].filter(Boolean).join('\n')
     const fmtCode = await fmt(finalSrc)
@@ -58,18 +64,17 @@ export async function route(
       : { ok: false, error: wr.error }
   }
 
-  // --- split: ルートごとに分割し index.ts を生成 ---
   const outDir = (output as string).replace(/\.ts$/, '')
   const blocks = extractRouteBlocks(routesSrc)
 
-  // ブロックが見つからない場合はフォールバックで一括出力
   if (blocks.length === 0) {
     const includeZ = routesSrc.includes('z.')
     const schemaTokens = findSchemaTokens(routesSrc)
     const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
     const importSchemas =
       schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
-    const finalSrc = [importHono, importSchemas, '', routesSrc].filter(Boolean).join('\n')
+    const finalSrc = [importHono, importSchemas, '\n', routesSrc].filter(Boolean).join('\n')
+
     const fmtCode = await fmt(finalSrc)
     if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
     const mk = await mkdir(path.dirname(output))
@@ -86,7 +91,7 @@ export async function route(
     const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
     const importSchemas =
       schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
-    const fileSrc = [importHono, importSchemas, '\n', block].filter(Boolean).join('\n')
+    const fileSrc = [importHono, importSchemas, '\n', block, ''].filter(Boolean).join('\n')
 
     const fmtCode = await fmt(fileSrc)
     if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
