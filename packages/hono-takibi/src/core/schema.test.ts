@@ -1,5 +1,7 @@
 import fs from 'node:fs'
-import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
+import os from 'node:os'
+import path from 'node:path'
+import { describe, it, expect } from 'vitest'
 import type { OpenAPI } from '../openapi'
 import { schema } from './schema'
 
@@ -8,15 +10,8 @@ import { schema } from './schema'
 
 const openapi: OpenAPI = {
   openapi: '3.0.0',
-  info: {
-    title: '(title)',
-    version: '0.0.0',
-  },
-  tags: [
-    {
-      name: 'Hono',
-    },
-  ],
+  info: { title: '(title)', version: '0.0.0' },
+  tags: [{ name: 'Hono' }],
   paths: {
     '/hono': {
       get: {
@@ -25,13 +20,7 @@ const openapi: OpenAPI = {
         responses: {
           '200': {
             description: 'The request has succeeded.',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/Hono',
-                },
-              },
-            },
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Hono' } } },
           },
         },
         tags: ['Hono'],
@@ -44,13 +33,7 @@ const openapi: OpenAPI = {
         responses: {
           '200': {
             description: 'The request has succeeded.',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/HonoX',
-                },
-              },
-            },
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/HonoX' } } },
           },
         },
         tags: ['Hono'],
@@ -64,11 +47,7 @@ const openapi: OpenAPI = {
           '200': {
             description: 'The request has succeeded.',
             content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/ZodOpenAPIHono',
-                },
-              },
+              'application/json': { schema: { $ref: '#/components/schemas/ZodOpenAPIHono' } },
             },
           },
         },
@@ -78,16 +57,7 @@ const openapi: OpenAPI = {
   },
   components: {
     schemas: {
-      Hono: {
-        type: 'object',
-        required: ['hono'],
-        properties: {
-          hono: {
-            type: 'string',
-            enum: ['Hono'],
-          },
-        },
-      },
+      Hono: { type: 'object', required: ['hono'], properties: { hono: { type: 'string', enum: ['Hono'] } } },
       HonoUnion: {
         type: 'object',
         required: ['hono-union'],
@@ -101,49 +71,28 @@ const openapi: OpenAPI = {
           },
         },
       },
-      HonoX: {
-        type: 'object',
-        required: ['honoX'],
-        properties: {
-          honoX: {
-            type: 'string',
-            enum: ['HonoX'],
-          },
-        },
-      },
+      HonoX: { type: 'object', required: ['honoX'], properties: { honoX: { type: 'string', enum: ['HonoX'] } } },
       ZodOpenAPIHono: {
         type: 'object',
         required: ['zod-openapi-hono'],
-        properties: {
-          'zod-openapi-hono': {
-            type: 'string',
-            enum: ['ZodOpenAPIHono'],
-          },
-        },
+        properties: { 'zod-openapi-hono': { type: 'string', enum: ['ZodOpenAPIHono'] } },
       },
     },
   },
 }
 
-describe('schema()', () => {
-  beforeEach(() => {
-    fs.writeFileSync('openapi.json', JSON.stringify(openapi))
-  })
-  afterEach(() => {
-    if (fs.existsSync('test')) {
-      fs.rmSync('test', { recursive: true, force: true })
-    }
-  })
-  afterAll(() => {
-    if (fs.existsSync('openapi.json')) {
-      fs.rmSync('openapi.json', { force: true })
-    }
-  })
-  // output test export type true split false
-  it('should generate schema code export type true split true', async () => {
-    const result = await schema('openapi.json', 'test/index.ts', true)
-    const index = fs.readFileSync('test/index.ts', 'utf-8')
-    const indexExpected = `import { z } from '@hono/zod-openapi'
+describe('schema() (sandbox)', () => {
+  it('generates schema (exportType: true, split: false)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const out = path.join(dir, 'index.ts')
+
+      const result = await schema(input, out, true)
+      const index = fs.readFileSync(out, 'utf-8')
+
+      const indexExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
@@ -166,20 +115,27 @@ export const HonoUnionSchema = z
 export type HonoUnion = z.infer<typeof HonoUnionSchema>
 `
 
-    expect(index).toBe(indexExpected)
-    expect(result).toStrictEqual({
-      ok: true,
-      value: 'Generated schema code written to test/index.ts',
-    })
+      expect(index).toBe(indexExpected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated schema code written to ${out}`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 
-  // output test export type false split false
-  it('should generate schema code export type true split true', async () => {
-    const result = await schema('openapi.json', 'test/index.ts', false)
+  it('generates schema (exportType: false, split: false)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const out = path.join(dir, 'index.ts')
 
-    const index = fs.readFileSync('test/index.ts', 'utf-8')
+      const result = await schema(input, out, false)
+      const index = fs.readFileSync(out, 'utf-8')
 
-    const indexExpected = `import { z } from '@hono/zod-openapi'
+      const indexExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
@@ -194,85 +150,102 @@ export const HonoUnionSchema = z
   .openapi('HonoUnion')
 `
 
-    expect(index).toBe(indexExpected)
-    expect(result).toStrictEqual({
-      ok: true,
-      value: 'Generated schema code written to test/index.ts',
-    })
+      expect(index).toBe(indexExpected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated schema code written to ${out}`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 
-  // output test export type false split true
-  it('should generate schema code export type true split true', async () => {
-    const result = await schema('openapi.json', 'test', false, true)
+  it('generates schema (exportType: false, split: true)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const outDir = path.join(dir, 'test')
 
-    const index = fs.readFileSync('test/index.ts', 'utf-8')
-    const indexExpected = `export * from './hono'
+      const result = await schema(input, outDir, false, true)
+
+      const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const indexExpected = `export * from './hono'
 export * from './honoX'
 export * from './zodOpenAPIHono'
 export * from './honoUnion'
 `
-    expect(index).toBe(indexExpected)
+      expect(index).toBe(indexExpected)
 
-    const hono = fs.readFileSync('test/hono.ts', 'utf-8')
-    const honoExpected = `import { z } from '@hono/zod-openapi'
+      const hono = fs.readFileSync(path.join(outDir, 'hono.ts'), 'utf-8')
+      const honoExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 `
-    expect(hono).toBe(honoExpected)
+      expect(hono).toBe(honoExpected)
 
-    const honox = fs.readFileSync('test/honoX.ts', 'utf-8')
-    const honoxExpected = `import { z } from '@hono/zod-openapi'
+      const honox = fs.readFileSync(path.join(outDir, 'honoX.ts'), 'utf-8')
+      const honoxExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
 `
+      expect(honox).toBe(honoxExpected)
 
-    expect(honox).toBe(honoxExpected)
-    const zodopenapihono = fs.readFileSync('test/zodOpenAPIHono.ts', 'utf-8')
-    const zodopenapihonoExpected = `import { z } from '@hono/zod-openapi'
+      const zod = fs.readFileSync(path.join(outDir, 'zodOpenAPIHono.ts'), 'utf-8')
+      const zodExpected = `import { z } from '@hono/zod-openapi'
 
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
   .openapi('ZodOpenAPIHono')
 `
-    expect(zodopenapihono).toBe(zodopenapihonoExpected)
-    expect(result).toStrictEqual({
-      ok: true,
-      value: 'Generated schema code written to test/*.ts (index.ts included)',
-    })
+      expect(zod).toBe(zodExpected)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 
-  // output test export type true split true
-  it('should generate schema code export type true split true', async () => {
-    const result = await schema('openapi.json', 'test', true, true)
+  it('generates schema (exportType: true, split: true)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(openapi))
+      const outDir = path.join(dir, 'test')
 
-    const index = fs.readFileSync('test/index.ts', 'utf-8')
-    const indexExpected = `export * from './hono'
+      const result = await schema(input, outDir, true, true)
+
+      const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+      const indexExpected = `export * from './hono'
 export * from './honoX'
 export * from './zodOpenAPIHono'
 export * from './honoUnion'
 `
-    expect(index).toBe(indexExpected)
+      expect(index).toBe(indexExpected)
 
-    const hono = fs.readFileSync('test/hono.ts', 'utf-8')
-    const honoExpected = `import { z } from '@hono/zod-openapi'
+      const hono = fs.readFileSync(path.join(outDir, 'hono.ts'), 'utf-8')
+      const honoExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
 export type Hono = z.infer<typeof HonoSchema>
 `
-    expect(hono).toBe(honoExpected)
+      expect(hono).toBe(honoExpected)
 
-    const honox = fs.readFileSync('test/honoX.ts', 'utf-8')
-    const honoxExpected = `import { z } from '@hono/zod-openapi'
+      const honox = fs.readFileSync(path.join(outDir, 'honoX.ts'), 'utf-8')
+      const honoxExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
 
 export type HonoX = z.infer<typeof HonoXSchema>
 `
+      expect(honox).toBe(honoxExpected)
 
-    expect(honox).toBe(honoxExpected)
-    const zodopenapihono = fs.readFileSync('test/zodOpenAPIHono.ts', 'utf-8')
-    const zodopenapihonoExpected = `import { z } from '@hono/zod-openapi'
+      const zod = fs.readFileSync(path.join(outDir, 'zodOpenAPIHono.ts'), 'utf-8')
+      const zodExpected = `import { z } from '@hono/zod-openapi'
 
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
@@ -280,10 +253,14 @@ export const ZodOpenAPIHonoSchema = z
 
 export type ZodOpenAPIHono = z.infer<typeof ZodOpenAPIHonoSchema>
 `
-    expect(zodopenapihono).toBe(zodopenapihonoExpected)
-    expect(result).toStrictEqual({
-      ok: true,
-      value: 'Generated schema code written to test/*.ts (index.ts included)',
-    })
+      expect(zod).toBe(zodExpected)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
