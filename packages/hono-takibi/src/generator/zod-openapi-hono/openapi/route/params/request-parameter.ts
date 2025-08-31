@@ -17,9 +17,9 @@ import { paramsObject } from './index.js'
  * - Uses `params` instead of `path` for Hono compatibility.
  */
 export function requestParameter(
-  parameters: Readonly<Parameters[]> | undefined,
-  body: Readonly<RequestBody> | undefined,
-): Readonly<string> {
+  parameters: readonly Parameters[] | undefined,
+  body: RequestBody | undefined,
+): string {
   // Early return if no parameters or content
   if (!(parameters || body?.content)) {
     return ''

@@ -3,36 +3,34 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
-type Config = Readonly<{
-  'zod-openapi'?: {
-    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-    output: `${string}.ts`
-    exportType?: boolean
-    exportSchema?: boolean
+type Config = {
+  readonly 'zod-openapi'?: {
+    readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+    readonly output: `${string}.ts`
+    readonly exportType?: boolean
+    readonly exportSchema?: boolean
   }
-  rpc?: {
-    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-    output: `${string}.ts`
-    import: string
+  readonly rpc?: {
+    readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+    readonly output: `${string}.ts`
+    readonly import: string
   }
   // swr?: {
   //   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   //   output: `${string}.ts`
   //   import: string
   // }
-}>
+}
 
 export async function config(): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: Config
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: Config
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 

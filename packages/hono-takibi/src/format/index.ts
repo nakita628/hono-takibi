@@ -7,16 +7,14 @@ import { format } from 'prettier'
  * @returns A `Result` containing the formatted code or an error message.
  */
 export async function fmt(code: string): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: string
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: string
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   try {
     const result = await format(code, {

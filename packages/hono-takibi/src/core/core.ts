@@ -4,22 +4,20 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 
 export default async function core(
-  input: Readonly<`${string}.yaml` | `${string}.json` | `${string}.tsp`>,
-  output: Readonly<`${string}.ts`>,
-  importCode: Readonly<string>,
-  value: Readonly<string>,
-  fn: (openapi: Readonly<OpenAPI>, importCode: Readonly<string>) => Readonly<string>,
+  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  output: `${string}.ts`,
+  importCode: string,
+  value: string,
+  fn: (openapi: OpenAPI, importCode: string) => string,
 ): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: string
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: string
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {

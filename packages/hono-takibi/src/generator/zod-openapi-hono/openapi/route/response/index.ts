@@ -55,7 +55,7 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 //   return responseEntries.join('')
 // }
 
-export function response(responses: Readonly<Responses>): Readonly<string> {
+export function response(responses: Responses): string {
   // 1. get response codes (200, 404, etc.)
   const responseEntries = Object.keys(responses).map((code) => {
     const res = responses[code]

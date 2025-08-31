@@ -17,9 +17,9 @@ import { queryParameter } from './index.js'
  * - Uses `zodToOpenAPI` for schema conversion and `zodToOpenAPISchema` for output generation.
  * - Supports conditional `export` statements for both schemas and types.
  */
-export function paramsObject(parameters: Readonly<Parameters[]>): Readonly<{
+export function paramsObject(parameters: readonly Parameters[]): {
   [section: string]: Record<string, string>
-}> {
+} {
   return parameters.reduce(
     (
       acc: {

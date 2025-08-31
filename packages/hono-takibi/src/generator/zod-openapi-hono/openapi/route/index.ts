@@ -15,12 +15,12 @@ const METHODS: ReadonlyArray<HttpMethod> = [
   'trace',
 ]
 
-export function routeCode(openAPIPaths: Readonly<OpenAPIPaths>): Readonly<string> {
+export function routeCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []
 
-  const isOp = (v: unknown): v is Readonly<Operation> =>
+  const isOp = (v: unknown): v is Operation =>
     typeof v === 'object' && v !== null && 'responses' in v
-  const isParam = (p: unknown): p is Readonly<Parameters> =>
+  const isParam = (p: unknown): p is Parameters =>
     typeof p === 'object' && p !== null && 'name' in p && 'in' in p
 
   for (const path in openAPIPaths) {
@@ -40,7 +40,7 @@ export function routeCode(openAPIPaths: Readonly<OpenAPIPaths>): Readonly<string
         }
         return out.length ? out : undefined
       })()
-      const op: Readonly<Operation> = (() => {
+      const op: Operation = (() => {
         if (mergedParams) return { ...maybeOp, parameters: mergedParams }
         return maybeOp
       })()

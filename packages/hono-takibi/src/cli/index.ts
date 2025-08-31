@@ -50,16 +50,14 @@ Options:
  * - `{ ok: false, error: string }` on validation or generation errors
  */
 export async function honoTakibi(): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: string
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: string
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   // Slice the arguments to remove the first two (node and script path)
   const args = process.argv.slice(2)
