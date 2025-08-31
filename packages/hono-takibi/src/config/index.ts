@@ -9,6 +9,16 @@ type Config = {
     readonly output: `${string}.ts`
     readonly exportType?: boolean
     readonly exportSchema?: boolean
+    readonly schema?: {
+      readonly output: string
+      readonly exportType?: boolean
+      readonly import: string
+      readonly split?: boolean
+    }
+    readonly route?: {
+      readonly split?: boolean
+      readonly import: string
+    }
   }
   readonly rpc?: {
     readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
@@ -79,6 +89,36 @@ export async function config(): Promise<
             return {
               ok: false,
               error: `Invalid exportType format for zod-openapi: ${mod.default['zod-openapi'].exportType}`,
+            }
+          }
+        }
+        // schema
+        if (mod.default['zod-openapi'].schema !== undefined) {
+          if (typeof mod.default['zod-openapi'].schema.split !== 'boolean') {
+            return {
+              ok: false,
+              error: `Invalid schema split format for zod-openapi: ${mod.default['zod-openapi'].schema.split}`,
+            }
+          }
+          if (typeof mod.default['zod-openapi'].schema.import !== 'string') {
+            return {
+              ok: false,
+              error: `Invalid schema path format for zod-openapi: ${mod.default['zod-openapi'].schema.import}`,
+            }
+          }
+        }
+        // route
+        if (mod.default['zod-openapi'].route !== undefined) {
+          if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
+            return {
+              ok: false,
+              error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
+            }
+          }
+          if (typeof mod.default['zod-openapi'].route.import !== 'string') {
+            return {
+              ok: false,
+              error: `Invalid route import format for zod-openapi: ${mod.default['zod-openapi'].route.import}`,
             }
           }
         }
