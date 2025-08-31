@@ -7,14 +7,14 @@ export default defineConfig({
     exportType: false,
     exportSchema: false,
     schema: {
-      output: 'src/schemas/',
+      output: 'src/schemas',
       exportType: true,
-      import: '@packages/schemas',
       split: true,
     },
     route: {
+      output: 'src/routes',
+      import: 'src/schemas',
       split: true,
-      import: 'src/routes',
     },
   },
 })

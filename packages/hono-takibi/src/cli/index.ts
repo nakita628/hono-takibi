@@ -127,7 +127,6 @@ export async function honoTakibi(): Promise<
         c['zod-openapi'].input,
         c['zod-openapi'].schema.output,
         c['zod-openapi'].schema.exportType ?? false,
-        c['zod-openapi'].schema.import,
         c['zod-openapi']?.schema.split ?? false,
       )
     : undefined

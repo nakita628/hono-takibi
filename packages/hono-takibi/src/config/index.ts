@@ -10,14 +10,14 @@ type Config = {
     readonly exportType?: boolean
     readonly exportSchema?: boolean
     readonly schema?: {
-      readonly output: string
+      readonly output: string | `${string}.ts`
       readonly exportType?: boolean
-      readonly import: string
       readonly split?: boolean
     }
     readonly route?: {
-      readonly split?: boolean
+      readonly output: string | `${string}.ts`
       readonly import: string
+      readonly split?: boolean
     }
   }
   readonly rpc?: {
@@ -94,31 +94,58 @@ export async function config(): Promise<
         }
         // schema
         if (mod.default['zod-openapi'].schema !== undefined) {
-          if (typeof mod.default['zod-openapi'].schema.split !== 'boolean') {
-            return {
-              ok: false,
-              error: `Invalid schema split format for zod-openapi: ${mod.default['zod-openapi'].schema.split}`,
+          // split
+          if (mod.default['zod-openapi'].schema.split !== undefined) {
+            if (typeof mod.default['zod-openapi'].schema.split !== 'boolean') {
+              return {
+                ok: false,
+                error: `Invalid schema split format for zod-openapi: ${mod.default['zod-openapi'].schema.split}`,
+              }
+            } else {
+              if (typeof mod.default['zod-openapi'].schema.output !== 'string') {
+                return {
+                  ok: false,
+                  error: `Invalid schema output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].schema.output}`,
+                }
+              }
             }
           }
-          if (typeof mod.default['zod-openapi'].schema.import !== 'string') {
+          if (isTs(mod.default['zod-openapi'].schema.output)) {
             return {
               ok: false,
-              error: `Invalid schema path format for zod-openapi: ${mod.default['zod-openapi'].schema.import}`,
+              error: `Invalid schema output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].schema.output}`,
             }
           }
         }
         // route
         if (mod.default['zod-openapi'].route !== undefined) {
-          if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
-            return {
-              ok: false,
-              error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
-            }
-          }
+          // import
           if (typeof mod.default['zod-openapi'].route.import !== 'string') {
             return {
               ok: false,
               error: `Invalid route import format for zod-openapi: ${mod.default['zod-openapi'].route.import}`,
+            }
+          }
+          // split
+          if (mod.default['zod-openapi'].route.split !== undefined) {
+            if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
+              return {
+                ok: false,
+                error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
+              }
+            }
+          } else {
+            if (typeof mod.default['zod-openapi'].route.output !== 'string') {
+              return {
+                ok: false,
+                error: `Invalid route output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].route.output}`,
+              }
+            }
+          }
+          if (isTs(mod.default['zod-openapi'].route.output)) {
+            return {
+              ok: false,
+              error: `Invalid route output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].route.output}`,
             }
           }
         }
@@ -145,7 +172,6 @@ export async function config(): Promise<
         }
       }
     }
-
     return { ok: true, value: mod.default }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

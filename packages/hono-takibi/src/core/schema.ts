@@ -1,18 +1,26 @@
-
 import path from 'node:path'
+import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
-import { componentsCode } from '../generator/zod-openapi-hono/openapi/components/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import { type Components, type OpenAPI, parseOpenAPI } from '../openapi/index.js'
-import { fmt } from '../format/index.js'
+import { parseOpenAPI } from '../openapi/index.js'
+
+const lowerFirst = (s: string) => (s ? s[0]!.toLowerCase() + s.slice(1) : s)
+const findSchemaRefs = (code: string, selfName: string): string[] => {
+  const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
+  const out = new Set<string>()
+  for (const m of code.matchAll(re)) {
+    const base = m[1]!
+    if (base !== selfName) out.add(base)
+  }
+  return Array.from(out)
+}
 
 export async function schema(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string,
   exportType: boolean,
-  importPath: string,
   split: boolean,
 ): Promise<
   | {
@@ -38,35 +46,62 @@ export async function schema(
     return { ok: true, value: 'No schemas found' }
   }
 
-  // split 
+  // split
   if (split) {
+    const outDir = output.replace(/\.ts$/, '')
     for (const schemaName of orderedSchemas) {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
       const zs = zodToOpenAPISchema(schemaName, z, true, exportType)
-      const importCode = `import { z } from '@hono/zod-openapi'`
-      
-      const fmtCode = await fmt(`${importCode}\n\n${zs}`)
+
+      const importZ = `import { z } from '@hono/zod-openapi'`
+      const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
+      const depImports =
+        deps.length > 0
+          ? deps.map((d) => `import { ${d}Schema } from './${lowerFirst(d)}'`).join('\n')
+          : ''
+      const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
+
+      const fmtCode = await fmt(fileCode)
       if (!fmtCode.ok) {
         return { ok: false, error: fmtCode.error }
       }
-      const mkdirResult = await mkdir(path.dirname(`${output.replace(/\.ts$/, '')}/${schemaName.charAt(0).toLowerCase()}${schemaName.slice(1)}.ts`))
+
+      const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
+      const mkdirResult = await mkdir(path.dirname(filePath))
       if (!mkdirResult.ok) {
         return { ok: false, error: mkdirResult.error }
       }
-      const writeResult = await writeFile(`${output.replace(/\.ts$/, '')}/${schemaName.charAt(0).toLowerCase()}${schemaName.slice(1)}.ts`, fmtCode.value)
+      const writeResult = await writeFile(filePath, fmtCode.value)
       if (!writeResult.ok) {
         return { ok: false, error: writeResult.error }
       }
-      // return { ok: true, value: `Generated schema code written to ${output.replace(/\.ts$/, '')}/${schemaName}.ts` }
     }
-    return { ok: true, value: `Generated schema code written to ${output.replace(/\.ts$/, '')}/*.ts` }
+
+    // index.ts
+    const indexBody =
+      orderedSchemas.map((n) => `export * from './${lowerFirst(n)}'`).join('\n') + '\n'
+    const indexFmt = await fmt(indexBody)
+    if (!indexFmt.ok) {
+      return { ok: false, error: indexFmt.error }
+    }
+    const mkIndex = await mkdir(path.dirname(`${outDir}/index.ts`))
+    if (!mkIndex.ok) {
+      return { ok: false, error: mkIndex.error }
+    }
+    const wrIndex = await writeFile(`${outDir}/index.ts`, indexFmt.value)
+    if (!wrIndex.ok) {
+      return { ok: false, error: wrIndex.error }
+    }
+
+    return {
+      ok: true,
+      value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
+    }
   }
 
-
-
   const schemaDefinitions = orderedSchemas
-    .map(async (schemaName) => {
+    .map((schemaName) => {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
       return zodToOpenAPISchema(schemaName, z, true, exportType)
@@ -82,7 +117,7 @@ export async function schema(
   if (!mkdirResult.ok) {
     return { ok: false, error: mkdirResult.error }
   }
-  const writeResult = await writeFile(output, schemaDefinitionsCode)
+  const writeResult = await writeFile(output, fmtCode.value)
   if (!writeResult.ok) {
     return { ok: false, error: writeResult.error }
   }
