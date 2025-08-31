@@ -109,7 +109,7 @@ export async function honoTakibi(): Promise<
 
   const takibiResult = c['zod-openapi']
     ? await takibi(
-        c['zod-openapi']?.input,
+        c.input,
         c['zod-openapi']?.output,
         c['zod-openapi']?.exportSchema ?? false,
         c['zod-openapi']?.exportType ?? false,
@@ -125,7 +125,7 @@ export async function honoTakibi(): Promise<
   // schema
   const schemaResult = c['zod-openapi']?.schema
     ? await schema(
-        c['zod-openapi'].input,
+        c.input,
         c['zod-openapi'].schema.output,
         c['zod-openapi'].schema.exportType ?? false,
         c['zod-openapi']?.schema.split ?? false,
@@ -138,7 +138,7 @@ export async function honoTakibi(): Promise<
   // route
   const routeResult = c['zod-openapi']?.route
     ? await route(
-        c['zod-openapi'].input,
+        c.input,
         c['zod-openapi'].route.output,
         c['zod-openapi'].route.import,
         c['zod-openapi'].route.split ?? false,
@@ -149,7 +149,7 @@ export async function honoTakibi(): Promise<
   }
 
   const rpcResult = c.rpc
-    ? await core(c.rpc.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+    ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
     : undefined
 
   if (rpcResult && !rpcResult.ok) {

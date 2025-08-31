@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { config } from './index.js'
+import { config } from './index'
 
 // Test run
 // pnpm vitest run ./src/config/index.test.ts
@@ -26,14 +26,13 @@ describe('config()', () => {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     output: 'routes/index.ts',
     exportType: true,
     exportSchema: true
   },
   rpc: {
-    input: 'openapi.yaml',
     output: 'rpc/index.ts',
     import: "import { client } from '../index.ts'"
   }
@@ -44,14 +43,13 @@ export default {
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
+        input: 'openapi.yaml',
         'zod-openapi': {
-          input: 'openapi.yaml',
           output: 'routes/index.ts',
           exportType: true,
           exportSchema: true,
         },
         rpc: {
-          input: 'openapi.yaml',
           output: 'rpc/index.ts',
           import: "import { client } from '../index.ts'",
         },
@@ -61,7 +59,6 @@ export default {
 
   it('fails: config file missing', async () => {
     const result = await config()
-    console.log(result)
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error).toMatch(/Config not found:/)
@@ -72,8 +69,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     output: 'routes/index.ts', // NG
     schema: {
       output: 'schemas.ts'
@@ -94,8 +91,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     output: 'routes/index.ts', // NG
     route: {
       output: 'routes/all.ts',
@@ -117,8 +114,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     schema: {
       output: 'schemas.ts',
       exportType: true
@@ -131,8 +128,8 @@ export default {
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
+        input: 'openapi.yaml',
         'zod-openapi': {
-          input: 'openapi.yaml',
           schema: {
             output: 'schemas.ts',
             exportType: true,
@@ -146,8 +143,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     schema: {
       output: 'schemas',
       split: true
@@ -160,8 +157,8 @@ export default {
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
+        input: 'openapi.yaml',
         'zod-openapi': {
-          input: 'openapi.yaml',
           schema: {
             output: 'schemas',
             split: true,
@@ -175,8 +172,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
-  'zod-openapi': {
-    input: 'openapi.yaml',
+  input: 'openapi.yaml',
+  'zod-openapi': {  
     schema: {
       output: 'schemas' // NG
     }
@@ -196,8 +193,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     schema: {
       output: 'schemas.ts', // NG
       split: true
@@ -218,8 +215,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     route: {
       output: 'routes/all.ts',
       import: '@packages/schemas'
@@ -232,8 +229,8 @@ export default {
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
+        input: 'openapi.yaml',
         'zod-openapi': {
-          input: 'openapi.yaml',
           route: {
             output: 'routes/all.ts',
             import: '@packages/schemas',
@@ -247,8 +244,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     route: {
       output: 'routes',
       import: '@packages/schemas',
@@ -262,8 +259,8 @@ export default {
     await expect(config()).resolves.toStrictEqual({
       ok: true,
       value: {
+        input: 'openapi.yaml',
         'zod-openapi': {
-          input: 'openapi.yaml',
           route: {
             output: 'routes',
             import: '@packages/schemas',
@@ -278,8 +275,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     route: {
       output: 'routes/all.ts', // NG
       import: '@packages/schemas',
@@ -301,8 +298,8 @@ export default {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `
 export default {
+  input: 'openapi.yaml',
   'zod-openapi': {
-    input: 'openapi.yaml',
     route: {
       output: 'routes',
       import: '@packages/schemas'
@@ -317,5 +314,135 @@ export default {
     if (!result.ok) {
       expect(result.error).toMatch(/non-split mode \(must be \.ts file\)/)
     }
+  })
+
+  // ===== 追加の否定系・境界テスト =====
+
+  it('fails: legacy mode but zod-openapi.output is missing', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    exportType: true
+  }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Invalid output format for zod-openapi:/)
+    }
+  })
+
+  it('fails: rpc.output missing', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yaml',
+  rpc: {
+    import: "import { client } from '../index.ts'"
+  }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Invalid output format for rpc:/)
+    }
+  })
+
+  it('fails: zod-openapi boolean flags must be boolean', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: 'routes/index.ts',
+    exportType: 'yes',      // NG
+    exportSchema: 1         // NG
+  }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Invalid export(Type|Schema) format/)
+    }
+  })
+
+  it('fails: route.import must be string', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    route: {
+      output: 'routes/all.ts',
+      import: 123 // NG
+    }
+  }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Invalid route import format/)
+    }
+  })
+
+  it('fails: input must end with .yaml/.json/.tsp', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yml', // NG
+  'zod-openapi': { output: 'routes/index.ts' }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Invalid input format/)
+    }
+  })
+
+  it('fails: no default export', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = 'export const foo = {}'
+    fs.writeFileSync(p, c, 'utf-8')
+    const result = await config()
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error).toMatch(/Config must export default object/)
+    }
+  })
+
+  it('passes: schema and route together (no top-level output)', async () => {
+    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
+    const c = `
+export default {
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    schema: { output: 'schemas.ts' },
+    route:  { output: 'routes/all.ts', import: '@packages/schemas' }
+  }
+}
+`
+    fs.writeFileSync(p, c, 'utf-8')
+    await expect(config()).resolves.toStrictEqual({
+      ok: true,
+      value: {
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          schema: { output: 'schemas.ts' },
+          route: { output: 'routes/all.ts', import: '@packages/schemas' },
+        },
+      },
+    })
   })
 })

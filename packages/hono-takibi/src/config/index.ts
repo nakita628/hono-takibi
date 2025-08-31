@@ -3,9 +3,9 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
-type Config = {
+export type Config = {
+  readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
-    readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
     readonly output: `${string}.ts`
     readonly exportType?: boolean
     readonly exportSchema?: boolean
@@ -21,14 +21,27 @@ type Config = {
     }
   }
   readonly rpc?: {
-    readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
     readonly output: `${string}.ts`
     readonly import: string
   }
 }
 
+const isYamlOrJsonOrTsp = (
+  i: unknown,
+): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+  typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
+
+const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+
 export async function config(): Promise<
-  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
+  | {
+      readonly ok: true
+      readonly value: Config
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
@@ -37,32 +50,34 @@ export async function config(): Promise<
     register()
     const mod: { readonly default: Config } = await import(pathToFileURL(abs).href)
 
-    const isYamlOrJsonOrTsp = (
-      i: string,
-    ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-      i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-    const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
-
     if (!('default' in mod)) {
       return { ok: false, error: 'Config must export default object' }
     }
 
     if (mod.default) {
+      // input
+      if (!isYamlOrJsonOrTsp(mod.default.input)) {
+        return {
+          ok: false,
+          error: `Invalid input format for zod-openapi: ${String(mod.default.input)}`,
+        }
+      }
+
+      // zod-openapi
       const zo = mod.default['zod-openapi']
       if (zo) {
-        // input
-        if (!isYamlOrJsonOrTsp(zo.input)) {
-          return { ok: false, error: `Invalid input format for zod-openapi: ${zo.input}` }
-        }
-        // booleans
+        // boolean flags
         if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
           return {
             ok: false,
-            error: `Invalid exportSchema format for zod-openapi: ${zo.exportSchema}`,
+            error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
           }
         }
         if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
-          return { ok: false, error: `Invalid exportType format for zod-openapi: ${zo.exportType}` }
+          return {
+            ok: false,
+            error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
+          }
         }
 
         const hasSchema = zo.schema !== undefined
@@ -78,21 +93,27 @@ export async function config(): Promise<
           }
         } else {
           if (!isTs(zo.output)) {
-            return { ok: false, error: `Invalid output format for zod-openapi: ${zo.output}` }
+            return {
+              ok: false,
+              error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
+            }
           }
         }
 
         if (hasSchema) {
           const s = zo.schema
-          if (!s) {
-            return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
-          }
+          if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
+
           if (s.split !== undefined && typeof s.split !== 'boolean') {
-            return { ok: false, error: `Invalid schema split format for zod-openapi: ${s.split}` }
+            return {
+              ok: false,
+              error: `Invalid schema split format for zod-openapi: ${String(s.split)}`,
+            }
           }
           if (typeof s.output !== 'string') {
             return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
           }
+
           if (s.split === true) {
             if (isTs(s.output)) {
               return {
@@ -108,28 +129,35 @@ export async function config(): Promise<
               }
             }
           }
+
           if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
             return {
               ok: false,
-              error: `Invalid schema exportType format for zod-openapi: ${s.exportType}`,
+              error: `Invalid schema exportType format for zod-openapi: ${String(s.exportType)}`,
             }
           }
         }
 
         if (hasRoute) {
           const r = zo.route
-          if (!r) {
-            return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
-          }
+          if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
+
           if (typeof r.import !== 'string') {
-            return { ok: false, error: `Invalid route import format for zod-openapi: ${r.import}` }
+            return {
+              ok: false,
+              error: `Invalid route import format for zod-openapi: ${String(r.import)}`,
+            }
           }
           if (r.split !== undefined && typeof r.split !== 'boolean') {
-            return { ok: false, error: `Invalid route split format for zod-openapi: ${r.split}` }
+            return {
+              ok: false,
+              error: `Invalid route split format for zod-openapi: ${String(r.split)}`,
+            }
           }
           if (typeof r.output !== 'string') {
-            return { ok: false, error: `Invalid route output path: ${r.output}` }
+            return { ok: false, error: `Invalid route output path: ${String(r.output)}` }
           }
+
           if (r.split === true) {
             if (isTs(r.output)) {
               return {
@@ -148,17 +176,13 @@ export async function config(): Promise<
         }
       }
 
-      // rpc
       const rpc = mod.default.rpc
       if (rpc) {
-        if (!isYamlOrJsonOrTsp(rpc.input)) {
-          return { ok: false, error: `Invalid input format for rpc: ${rpc.input}` }
-        }
         if (!isTs(rpc.output)) {
-          return { ok: false, error: `Invalid output format for rpc: ${rpc.output}` }
+          return { ok: false, error: `Invalid output format for rpc: ${String(rpc.output)}` }
         }
         if (typeof rpc.import !== 'string') {
-          return { ok: false, error: `Invalid import format for rpc: ${rpc.import}` }
+          return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
         }
       }
     }
@@ -169,6 +193,6 @@ export async function config(): Promise<
   }
 }
 
-export default function defineConfig(c: Config): Config {
+export function defineConfig(c: Config): Config {
   return c
 }
