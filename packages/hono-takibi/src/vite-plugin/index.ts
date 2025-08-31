@@ -35,7 +35,7 @@ import { parseOpenAPI } from '../openapi/index.js'
  * @param exportSchema - Whether to export Zod schemas.
  * @returns A Vite plugin object.
  */
-export default async function HonoTakibiVite({
+export async function HonoTakibiVite({
   input,
   output,
   exportType = true,
