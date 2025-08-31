@@ -3,107 +3,186 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { register } from 'tsx/esm/api'
 
-type Config = Readonly<{
-  'zod-openapi'?: {
-    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-    output: `${string}.ts`
-    exportType?: boolean
-    exportSchema?: boolean
+type Config = {
+  readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+  readonly 'zod-openapi'?: {
+    readonly output: `${string}.ts`
+    readonly exportType?: boolean
+    readonly exportSchema?: boolean
+    readonly schema?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly route?: {
+      readonly output: string | `${string}.ts`
+      readonly import: string
+      readonly split?: boolean
+    }
   }
-  rpc?: {
-    input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-    output: `${string}.ts`
-    import: string
+  readonly rpc?: {
+    readonly output: `${string}.ts`
+    readonly import: string
   }
-  // swr?: {
-  //   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-  //   output: `${string}.ts`
-  //   import: string
-  // }
-}>
+}
+
+const isYamlOrJsonOrTsp = (
+  i: unknown,
+): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+  typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
+
+const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
 
 export async function config(): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: Config
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: Config
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
-
-  if (!existsSync(abs)) {
-    return { ok: false, error: `Config not found: ${abs}` }
-  }
+  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
 
   try {
     register()
-    const mod: Readonly<{ default: Config }> = await import(pathToFileURL(abs).href)
-    const isYamlOrJsonOrTsp = (
-      i: string,
-    ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-      i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-    const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
+    const mod: { readonly default: Config } = await import(pathToFileURL(abs).href)
 
     if (!('default' in mod)) {
       return { ok: false, error: 'Config must export default object' }
     }
 
-    if (mod.default !== undefined) {
+    if (mod.default) {
+      // input
+      if (!isYamlOrJsonOrTsp(mod.default.input)) {
+        return {
+          ok: false,
+          error: `Invalid input format for zod-openapi: ${String(mod.default.input)}`,
+        }
+      }
+
       // zod-openapi
-      if (mod.default['zod-openapi']) {
-        if (!isYamlOrJsonOrTsp(mod.default['zod-openapi'].input)) {
+      const zo = mod.default['zod-openapi']
+      if (zo) {
+        // boolean flags
+        if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
           return {
             ok: false,
-            error: `Invalid input format for zod-openapi: ${mod.default['zod-openapi'].input}`,
+            error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
           }
         }
-        if (!isTs(mod.default['zod-openapi'].output)) {
+        if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
           return {
             ok: false,
-            error: `Invalid output format for zod-openapi: ${mod.default['zod-openapi'].output}`,
+            error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
           }
         }
-        if (mod.default['zod-openapi'].exportSchema !== undefined) {
-          if (typeof mod.default['zod-openapi'].exportSchema !== 'boolean') {
+
+        const hasSchema = zo.schema !== undefined
+        const hasRoute = zo.route !== undefined
+
+        if (hasSchema || hasRoute) {
+          if (Object.hasOwn(zo, 'output')) {
             return {
               ok: false,
-              error: `Invalid exportSchema format for zod-openapi: ${mod.default['zod-openapi'].exportSchema}`,
+              error:
+                "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
+            }
+          }
+        } else {
+          if (!isTs(zo.output)) {
+            return {
+              ok: false,
+              error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
             }
           }
         }
-        if (mod.default['zod-openapi'].exportType !== undefined) {
-          if (typeof mod.default['zod-openapi'].exportType !== 'boolean') {
+
+        if (hasSchema) {
+          const s = zo.schema
+          if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
+
+          if (s.split !== undefined && typeof s.split !== 'boolean') {
             return {
               ok: false,
-              error: `Invalid exportType format for zod-openapi: ${mod.default['zod-openapi'].exportType}`,
+              error: `Invalid schema split format for zod-openapi: ${String(s.split)}`,
+            }
+          }
+          if (typeof s.output !== 'string') {
+            return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
+          }
+
+          if (s.split === true) {
+            if (isTs(s.output)) {
+              return {
+                ok: false,
+                error: `Invalid schema output path for split mode (must be a directory, not .ts): ${s.output}`,
+              }
+            }
+          } else {
+            if (!isTs(s.output)) {
+              return {
+                ok: false,
+                error: `Invalid schema output path for non-split mode (must be .ts file): ${s.output}`,
+              }
+            }
+          }
+
+          if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
+            return {
+              ok: false,
+              error: `Invalid schema exportType format for zod-openapi: ${String(s.exportType)}`,
+            }
+          }
+        }
+
+        if (hasRoute) {
+          const r = zo.route
+          if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
+
+          if (typeof r.import !== 'string') {
+            return {
+              ok: false,
+              error: `Invalid route import format for zod-openapi: ${String(r.import)}`,
+            }
+          }
+          if (r.split !== undefined && typeof r.split !== 'boolean') {
+            return {
+              ok: false,
+              error: `Invalid route split format for zod-openapi: ${String(r.split)}`,
+            }
+          }
+          if (typeof r.output !== 'string') {
+            return { ok: false, error: `Invalid route output path: ${String(r.output)}` }
+          }
+
+          if (r.split === true) {
+            if (isTs(r.output)) {
+              return {
+                ok: false,
+                error: `Invalid route output path for split mode (must be a directory, not .ts): ${r.output}`,
+              }
+            }
+          } else {
+            if (!isTs(r.output)) {
+              return {
+                ok: false,
+                error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
+              }
             }
           }
         }
       }
-      // rpc
-      if (mod.default.rpc) {
-        if (!isYamlOrJsonOrTsp(mod.default.rpc.input)) {
-          return {
-            ok: false,
-            error: `Invalid input format for rpc: ${mod.default.rpc.input}`,
-          }
+
+      const rpc = mod.default.rpc
+      if (rpc) {
+        if (!isTs(rpc.output)) {
+          return { ok: false, error: `Invalid output format for rpc: ${String(rpc.output)}` }
         }
-        if (!isTs(mod.default.rpc.output)) {
-          return {
-            ok: false,
-            error: `Invalid output format for rpc: ${mod.default.rpc.output}`,
-          }
-        }
-        if (typeof mod.default.rpc.import !== 'string') {
-          return {
-            ok: false,
-            error: `Invalid import format for rpc: ${mod.default.rpc.import}`,
-          }
+        if (typeof rpc.import !== 'string') {
+          return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
         }
       }
     }
@@ -114,6 +193,6 @@ export async function config(): Promise<
   }
 }
 
-export default function defineConfig(config: Config): Config {
-  return config
+export function defineConfig(c: Config): Config {
+  return c
 }

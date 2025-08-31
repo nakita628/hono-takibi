@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../openapi/index.js'
-import rpc from './index.js'
+import { rpc } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/rpc/index.test.ts
@@ -420,11 +420,9 @@ const openapi: OpenAPI = {
   },
 }
 
-const importCode = "import { client } from '../index.ts'"
-
 describe('rpc', () => {
   it('should generate the correct import code', () => {
-    const result = rpc(openapi, importCode)
+    const result = rpc(openapi, '../index.ts')
 
     const expected = `import { client } from '../index.ts'
 

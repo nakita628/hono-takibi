@@ -9,10 +9,10 @@ import { object } from './z/object.js'
 import { string } from './z/string.js'
 
 export function zodToOpenAPI(
-  schema: Readonly<Schema>,
-  paramName?: Readonly<string>,
-  paramIn?: Readonly<'path' | 'query' | 'header' | 'cookie'>,
-): Readonly<string> {
+  schema: Schema,
+  paramName?: string,
+  paramIn?: 'path' | 'query' | 'header' | 'cookie',
+): string {
   if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /** ref */
   if (schema.$ref !== undefined) {

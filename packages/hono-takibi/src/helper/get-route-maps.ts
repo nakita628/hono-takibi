@@ -8,8 +8,8 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  * @returns An array of route mappings, each with route name, handler name, and path.
  */
 export function getRouteMaps(
-  openapi: Readonly<OpenAPI>,
-): Readonly<{ routeName: string; handlerName: string; path: string }[]> {
+  openapi: OpenAPI,
+): readonly { routeName: string; handlerName: string; path: string }[] {
   const paths = openapi.paths
   const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {
     return Object.entries(pathItem).flatMap(([method]) => {

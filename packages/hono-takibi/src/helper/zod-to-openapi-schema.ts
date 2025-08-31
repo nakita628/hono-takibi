@@ -14,11 +14,11 @@ import { sanitizeIdentifier } from '../utils/index.js'
  * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  */
 export function zodToOpenAPISchema(
-  schemaName: Readonly<string>,
-  zodSchema: Readonly<string>,
-  exportSchema: Readonly<boolean>,
-  exportType: Readonly<boolean>,
-): Readonly<string> {
+  schemaName: string,
+  zodSchema: string,
+  exportSchema: boolean,
+  exportType: boolean,
+): string {
   const variableName = `${schemaName}Schema`
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)

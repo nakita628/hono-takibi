@@ -28,17 +28,15 @@ import { getOpenAPI3 } from '@typespec/openapi3'
  * @param input - Absolute or relative path to a `.tsp` file.
  * @returns `{ ok:true, value }` with an OpenAPI document, or `{ ok:false, error }` on failure.
  */
-export async function typeSpecToOpenAPI(input: Readonly<string>): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: SupportedOpenAPIDocuments
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+export async function typeSpecToOpenAPI(input: string): Promise<
+  | {
+      readonly ok: true
+      readonly value: SupportedOpenAPIDocuments
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   try {
     const program = await compile(NodeHost, path.resolve(input), {

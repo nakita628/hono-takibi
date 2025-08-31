@@ -7,16 +7,14 @@ import fsp from 'node:fs/promises'
  * @returns A `Result` that is `ok` on success, otherwise an error message.
  */
 export async function mkdir(dir: string): Promise<
-  Readonly<
-    | {
-        ok: false
-        error: string
-      }
-    | {
-        ok: true
-        value: undefined
-      }
-  >
+  | {
+      readonly ok: false
+      readonly error: string
+    }
+  | {
+      readonly ok: true
+      readonly value: undefined
+    }
 > {
   try {
     await fsp.mkdir(dir, { recursive: true })
@@ -39,16 +37,14 @@ export async function mkdir(dir: string): Promise<
  * @returns A `Result` with the file list on success, otherwise an error message.
  */
 export async function readdir(dir: string): Promise<
-  Readonly<
-    | {
-        ok: false
-        error: string
-      }
-    | {
-        ok: true
-        value: string[]
-      }
-  >
+  | {
+      readonly ok: false
+      error: string
+    }
+  | {
+      readonly ok: true
+      readonly value: string[]
+    }
 > {
   try {
     const files = await fsp.readdir(dir)
@@ -72,16 +68,14 @@ export async function writeFile(
   path: string,
   data: string,
 ): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: undefined
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: undefined
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   try {
     await fsp.writeFile(path, data, 'utf-8')

@@ -1,6 +1,6 @@
 // src/core.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import core from './core.ts'
+import { core } from './core.ts'
 
 // Test run
 // pnpm vitest run ./src/core/core.test.ts

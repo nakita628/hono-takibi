@@ -19,24 +19,23 @@
  * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
  * @returns `{ ok:true, value }` on success; `{ ok:false, error }` on invalid usage.
  */
-export function parseCli(args: readonly string[]): Readonly<
+export function parseCli(args: readonly string[]):
   | {
-      ok: true
-      value: {
-        input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-        output: `${string}.ts`
-        exportType: boolean
-        exportSchema: boolean
-        template: boolean
-        test: boolean
-        basePath?: string
+      readonly ok: true
+      readonly value: {
+        readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+        readonly output: `${string}.ts`
+        readonly exportType: boolean
+        readonly exportSchema: boolean
+        readonly template: boolean
+        readonly test: boolean
+        readonly basePath?: string
       }
     }
   | {
-      ok: false
-      error: string
-    }
-> {
+      readonly ok: false
+      readonly error: string
+    } {
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
@@ -127,9 +126,9 @@ export function normalizeTypes(
  * @param importsMap - Map of file paths to exported identifiers.
  * @returns Array of import statements.
  */
-export function importRoutes(
-  importsMap: Readonly<{ [importPath: `${string}.ts`]: string[] }>,
-): string[] {
+export function importRoutes(importsMap: {
+  [importPath: `${string}.ts`]: readonly string[]
+}): readonly string[] {
   const importRoutes: string[] = []
   for (const [importPath, names] of Object.entries(importsMap)) {
     const uniqueNames = Array.from(new Set(names))
@@ -204,13 +203,13 @@ export function registerComponent(securitySchemes: {
 export function importMap(
   routeMappings: Readonly<
     {
-      routeName: string
-      handlerName: string
-      path: string
+      readonly routeName: string
+      readonly handlerName: string
+      readonly path: string
     }[]
   >,
-  output: Readonly<`${string}.ts`>,
-): Readonly<{ [importPath: `${string}.ts`]: string[] }> {
+  output: `${string}.ts`,
+): { [importPath: `${string}.ts`]: readonly string[] } {
   const importsMap: { [importPath: string]: string[] } = {}
   for (const { routeName } of routeMappings) {
     const match = output.match(/[^/]+\.ts$/)
@@ -246,9 +245,9 @@ export function importMap(
  * @returns An array of import statement strings.
  */
 export function importHandlers(
-  handlerImportsMap: Readonly<{ [fileName: string]: string[] }>,
-  output: Readonly<`${string}.ts`>,
-): string[] {
+  handlerImportsMap: { [fileName: string]: readonly string[] },
+  output: `${string}.ts`,
+): readonly string[] {
   const importHandlers: string[] = []
   for (const [fileName, handlers] of Object.entries(handlerImportsMap)) {
     const uniqueHandlers = Array.from(new Set(handlers))
@@ -287,22 +286,18 @@ export function importHandlers(
  * @returns A deduplicated array of grouped handler definitions per file.
  */
 export function groupHandlersByFileName(
-  handlers: Readonly<
-    {
-      fileName: `${string}.ts`
-      testFileName: `${string}.ts`
-      routeHandlerContents: string[]
-      routeNames: string[]
-    }[]
-  >,
-): Readonly<
-  {
-    fileName: `${string}.ts`
-    testFileName: `${string}.ts`
-    routeHandlerContents: string[]
-    routeNames: string[]
-  }[]
-> {
+  handlers: {
+    readonly fileName: `${string}.ts`
+    readonly testFileName: `${string}.ts`
+    readonly routeHandlerContents: readonly string[]
+    readonly routeNames: readonly string[]
+  }[],
+): {
+  readonly fileName: `${string}.ts`
+  readonly testFileName: `${string}.ts`
+  readonly routeHandlerContents: readonly string[]
+  readonly routeNames: readonly string[]
+}[] {
   return Array.from(
     handlers
       .reduce((acc, handler) => {
@@ -346,12 +341,12 @@ export function groupHandlersByFileName(
 export function getHandlerImports(
   handlerMaps: Readonly<
     {
-      routeName: string
-      handlerName: string
-      path: string
+      readonly routeName: string
+      readonly handlerName: string
+      readonly path: string
     }[]
   >,
-): Readonly<{ [fileName: `${string}.ts`]: string[] }> {
+): { [fileName: `${string}.ts`]: readonly string[] } {
   const getHandlerImports: { [fileName: string]: string[] } = {}
   for (const { handlerName, path } of handlerMaps) {
     const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
@@ -390,10 +385,10 @@ export function getHandlerImports(
  * isRefObject('text')                                // false
  * ```
  */
-export function isRefObject(value: unknown): value is Readonly<{
-  $ref?: string
-  [key: string]: unknown
-}> {
+export function isRefObject(value: unknown): value is {
+  readonly $ref?: string
+  readonly [key: string]: unknown
+} {
   return typeof value === 'object' && value !== null
 }
 
@@ -404,8 +399,8 @@ export function isRefObject(value: unknown): value is Readonly<{
  * @returns `true` if the method is a valid HTTP method; otherwise `false`.
  */
 export function isHttpMethod(
-  method: Readonly<string>,
-): method is Readonly<'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'> {
+  method: string,
+): method is 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace' {
   return (
     method === 'get' ||
     method === 'put' ||
@@ -444,14 +439,14 @@ export function isHttpMethod(
  * ```
  */
 export function isUniqueContentSchema(
-  contentTypes: Readonly<string[]>,
-  content: Readonly<{
+  contentTypes: readonly string[],
+  content: {
     [key: string]: {
       schema: {
-        $ref?: `#/components/schemas/${string}`
+        readonly $ref?: `#/components/schemas/${string}`
       }
     }
-  }>,
+  },
 ): boolean {
   const schema = new Set(contentTypes.map((type) => JSON.stringify(content?.[type].schema)))
   return schema.size === 1
@@ -477,7 +472,7 @@ export function isUniqueContentSchema(
  * // → 'AddressSchema'
  * ```
  */
-export function refSchema($ref: Readonly<`#/components/schemas/${string}`>): string {
+export function refSchema($ref: `#/components/schemas/${string}`): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
@@ -506,7 +501,7 @@ export function refSchema($ref: Readonly<`#/components/schemas/${string}`>): str
  * @example
  * methodPath('get', '/users/{id}/posts') // 'getUsersIdPosts'
  */
-export function methodPath(method: Readonly<string>, path: Readonly<string>): Readonly<string> {
+export function methodPath(method: string, path: string): string {
   // 1. api_path: `/user/createWithList`
   // 2. replace(/[\/{}-]/g, ' ') -> ` user createWithList`
   // 3. trim() -> `user createWithList`
@@ -546,20 +541,18 @@ export function methodPath(method: Readonly<string>, path: Readonly<string>): Re
  * })
  * // => export const getUserRoute = createRoute({method:"get",path:"/user",request:{query:...},responses:{...}})
  */
-export function createRoute(
-  args: Readonly<{
-    routeName: string
-    tags?: string
-    method: string
-    path: string
-    operationId?: string
-    summary?: string
-    description?: string
-    security?: string
-    requestParams: string
-    responses: string
-  }>,
-): Readonly<string> {
+export function createRoute(args: {
+  readonly routeName: string
+  readonly tags?: string
+  readonly method: string
+  readonly path: string
+  readonly operationId?: string
+  readonly summary?: string
+  readonly description?: string
+  readonly security?: string
+  readonly requestParams: string
+  readonly responses: string
+}): string {
   const properties = [
     args.tags,
     args.method,
@@ -592,11 +585,9 @@ export function createRoute(
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
-export function requestParamsArray(
-  parameters: Readonly<{
-    [section: string]: Record<string, string>
-  }>,
-): Readonly<string[]> {
+export function requestParamsArray(parameters: {
+  [section: string]: Record<string, string>
+}): readonly string[] {
   // 1.  define sections to be processed
   const sections = Object.entries(parameters)
     .filter(([_, obj]) => obj && Object.keys(obj).length > 0)
@@ -642,7 +633,7 @@ export function requestParamsArray(
  * @param text - The input text to escape.
  * @returns The escaped string.
  */
-export function escapeStringLiteral(text: Readonly<string>): Readonly<string> {
+export function escapeStringLiteral(text: string): string {
   return text
     .replace(/[\n\t]/g, ' ')
     .replace(/\u200B|\u200C|\u200D|\uFEFF/g, ' ')
@@ -674,7 +665,7 @@ export function escapeStringLiteral(text: Readonly<string>): Readonly<string> {
  * getToSafeIdentifier('if')          // → 'if'
  * ```
  */
-export function getToSafeIdentifier(str: Readonly<string>): Readonly<string> {
+export function getToSafeIdentifier(str: string): string {
   return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(str) ? str : JSON.stringify(str)
 }
 
@@ -701,7 +692,7 @@ export function getToSafeIdentifier(str: Readonly<string>): Readonly<string> {
  * sanitizeIdentifier('valid_Name')     // → 'valid_Name'
  * ```
  */
-export function sanitizeIdentifier(str: Readonly<string>): Readonly<string> {
+export function sanitizeIdentifier(str: string): string {
   return str.replace(/[^A-Za-z0-9_$]/g, '_')
 }
 
@@ -724,6 +715,6 @@ export function sanitizeIdentifier(str: Readonly<string>): Readonly<string> {
  * @param pattern - A raw regex pattern **without** the surrounding slashes.
  * @returns A string like `'.regex(/^[a-z]+$/)'`.
  */
-export function regex(pattern: Readonly<string>): Readonly<string> {
+export function regex(pattern: string): string {
   return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
 }

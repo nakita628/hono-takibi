@@ -1,9 +1,11 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import core from '../core/core.js'
+import { core } from '../core/core.js'
+import { route } from '../core/route.js'
+import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
-import rpc from '../generator/rpc/index.js'
+import { rpc } from '../generator/rpc/index.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
@@ -50,16 +52,14 @@ Options:
  * - `{ ok: false, error: string }` on validation or generation errors
  */
 export async function honoTakibi(): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: string
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: string
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   // Slice the arguments to remove the first two (node and script path)
   const args = process.argv.slice(2)
@@ -109,7 +109,7 @@ export async function honoTakibi(): Promise<
 
   const takibiResult = c['zod-openapi']
     ? await takibi(
-        c['zod-openapi']?.input,
+        c.input,
         c['zod-openapi']?.output,
         c['zod-openapi']?.exportSchema ?? false,
         c['zod-openapi']?.exportType ?? false,
@@ -122,8 +122,34 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: takibiResult.error }
   }
 
+  // schema
+  const schemaResult = c['zod-openapi']?.schema
+    ? await schema(
+        c.input,
+        c['zod-openapi'].schema.output,
+        c['zod-openapi'].schema.exportType ?? false,
+        c['zod-openapi']?.schema.split ?? false,
+      )
+    : undefined
+  if (schemaResult && !schemaResult.ok) {
+    return { ok: false, error: schemaResult.error }
+  }
+
+  // route
+  const routeResult = c['zod-openapi']?.route
+    ? await route(
+        c.input,
+        c['zod-openapi'].route.output,
+        c['zod-openapi'].route.import,
+        c['zod-openapi'].route.split ?? false,
+      )
+    : undefined
+  if (routeResult && !routeResult.ok) {
+    return { ok: false, error: routeResult.error }
+  }
+
   const rpcResult = c.rpc
-    ? await core(c.rpc.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+    ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
     : undefined
 
   if (rpcResult && !rpcResult.ok) {

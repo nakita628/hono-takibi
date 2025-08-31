@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
-import zodOpenAPIHono from '../generator/zod-openapi-hono/openapi/index.js'
+import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { type OpenAPI, type OpenAPIPaths, parseOpenAPI } from '../openapi/index.js'
 import { groupHandlersByFileName, isHttpMethod, methodPath } from '../utils/index.js'
 
@@ -54,24 +54,22 @@ import { groupHandlersByFileName, isHttpMethod, methodPath } from '../utils/inde
  * @returns A `Result` containing a success message or an error string.
  */
 export async function takibi(
-  input: Readonly<`${string}.yaml` | `${string}.json` | `${string}.tsp`>,
-  output: Readonly<`${string}.ts`>,
-  exportSchema: Readonly<boolean>,
-  exportType: Readonly<boolean>,
-  template: Readonly<boolean>,
-  test: Readonly<boolean>,
-  basePath?: Readonly<string>,
+  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  output: `${string}.ts`,
+  exportSchema: boolean,
+  exportType: boolean,
+  template: boolean,
+  test: boolean,
+  basePath?: string,
 ): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: string
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: string
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {
@@ -101,8 +99,7 @@ export async function takibi(
     if (!readdirResult.ok) {
       return { ok: false, error: readdirResult.error }
     }
-    const files = readdirResult.value
-    const target = path.join(dir, files.includes('index.ts') ? 'main.ts' : 'index.ts')
+    const target = path.join(dir, readdirResult.value.includes('index.ts') ? 'main.ts' : 'index.ts')
     const writeResult = await writeFile(target, appResult.value)
     if (!writeResult.ok) {
       return { ok: false, error: writeResult.error }
@@ -128,22 +125,20 @@ export async function takibi(
  * @returns A `Result` indicating success or error with message.
  */
 async function zodOpenapiHonoHandler(
-  openapi: Readonly<OpenAPI>,
-  output: Readonly<string>,
-  test: Readonly<boolean>,
+  openapi: OpenAPI,
+  output: string,
+  test: boolean,
 ): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: undefined
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+  | {
+      readonly ok: true
+      readonly value: undefined
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
-  const paths: Readonly<OpenAPIPaths> = openapi.paths
+  const paths: OpenAPIPaths = openapi.paths
   const handlers: {
     fileName: `${string}.ts`
     testFileName: `${string}.ts`

@@ -24,17 +24,15 @@ import { typeSpecToOpenAPI } from '../typespec/index.js'
  * `as OpenAPI` after successful parsing to enable type-safe access
  * in downstream code.
  */
-export async function parseOpenAPI(input: Readonly<string>): Promise<
-  Readonly<
-    | {
-        ok: true
-        value: OpenAPI
-      }
-    | {
-        ok: false
-        error: string
-      }
-  >
+export async function parseOpenAPI(input: string): Promise<
+  | {
+      readonly ok: true
+      readonly value: OpenAPI
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    }
 > {
   try {
     if (typeof input === 'string' && input.endsWith('.tsp')) {

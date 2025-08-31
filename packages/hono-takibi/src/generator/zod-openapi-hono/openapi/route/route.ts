@@ -16,11 +16,7 @@ import { response } from './response/index.js'
  * - Escapes all string literals.
  * - Produces a complete `.openapi()` route definition with validation.
  */
-export function route(
-  path: Readonly<string>,
-  method: Readonly<string>,
-  operation: Readonly<Operation>,
-): Readonly<string> {
+export function route(path: string, method: string, operation: Operation): string {
   const { tags, operationId, summary, description, security, parameters, requestBody, responses } =
     operation
   const tagList = tags ? JSON.stringify(tags) : '[]'
