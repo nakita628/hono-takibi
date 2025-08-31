@@ -3,8 +3,8 @@ import type { Dirent } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import core from '../../../packages/hono-takibi/src/core/core.js'
-import rpc from '../../../packages/hono-takibi/src/generator/rpc/index.js'
+import { core } from 'hono-takibi/core'
+import { rpc } from 'hono-takibi/rpc'
 
 // import { honoSWRHooks } from '../../../packages/hono-takibi/src/generator/swr/index.js'
 

@@ -13,6 +13,7 @@
     "tsx": "^4.20.3"
   },
   "dependencies": {
+    "hono-takibi": "workspace:^",
     "@hono/zod-openapi": "^1.1.0",
     "hono": "^4.9.5",
     "swr": "^2.3.6"
