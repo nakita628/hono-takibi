@@ -4,7 +4,6 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
-// "HonoSchema" など、ルート内で参照されている *Schema を重複なく抽出（識別子そのまま）
 const findSchemaTokens = (code: string): string[] =>
   Array.from(
     new Set(
@@ -14,7 +13,6 @@ const findSchemaTokens = (code: string): string[] =>
     ),
   )
 
-// export const XxxRoute = createRoute({...}) をブロック単位で抽出
 const extractRouteBlocks = (src: string): { name: string; block: string }[] =>
   Array.from(
     src.matchAll(
@@ -28,7 +26,7 @@ export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
   importPath: string,
-  split: boolean,
+  split?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -38,11 +36,9 @@ export async function route(
   }
   const openAPI = openAPIResult.value
 
-  // ルート本体（ここに XxxRoute と *Schema が現れる）
   const routesSrc = routeCode(openAPI.paths)
 
   if (!split) {
-    // まとめて1ファイル
     const includeZ = routesSrc.includes('z.')
     const schemaTokens = findSchemaTokens(routesSrc)
     const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
@@ -84,7 +80,6 @@ export async function route(
       : { ok: false, error: wr.error }
   }
 
-  // 各ルートを書き出し
   for (const { name, block } of blocks) {
     const includeZ = block.includes('z.')
     const schemaTokens = findSchemaTokens(block)
@@ -104,7 +99,6 @@ export async function route(
     if (!wr.ok) return { ok: false, error: wr.error }
   }
 
-  // index.ts を生成
   const indexBody = `${blocks.map(({ name }) => `export * from './${lowerFirst(name)}'`).join('\n')}\n`
   const indexFmt = await fmt(indexBody)
   if (!indexFmt.ok) return { ok: false, error: indexFmt.error }

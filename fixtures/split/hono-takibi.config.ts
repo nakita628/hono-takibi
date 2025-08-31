@@ -12,8 +12,9 @@ export default defineConfig({
       split: true,
     },
     route: {
-      output: 'src/routes.ts',
-      import: './schemas',
+      output: 'src/routes',
+      import: '../schemas',
+      split: true,
     },
   },
 })
