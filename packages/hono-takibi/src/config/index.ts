@@ -25,32 +25,18 @@ type Config = {
     readonly output: `${string}.ts`
     readonly import: string
   }
-  // swr?: {
-  //   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-  //   output: `${string}.ts`
-  //   import: string
-  // }
 }
 
 export async function config(): Promise<
-  | {
-      readonly ok: true
-      readonly value: Config
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    }
+  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
-
-  if (!existsSync(abs)) {
-    return { ok: false, error: `Config not found: ${abs}` }
-  }
+  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
 
   try {
     register()
     const mod: { readonly default: Config } = await import(pathToFileURL(abs).href)
+
     const isYamlOrJsonOrTsp = (
       i: string,
     ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
@@ -61,123 +47,128 @@ export async function config(): Promise<
       return { ok: false, error: 'Config must export default object' }
     }
 
-    if (mod.default !== undefined) {
-      // zod-openapi
-      if (mod.default['zod-openapi']) {
-        if (!isYamlOrJsonOrTsp(mod.default['zod-openapi'].input)) {
+    if (mod.default) {
+      const zo = mod.default['zod-openapi']
+      if (zo) {
+        // input
+        if (!isYamlOrJsonOrTsp(zo.input)) {
+          return { ok: false, error: `Invalid input format for zod-openapi: ${zo.input}` }
+        }
+        // booleans
+        if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
           return {
             ok: false,
-            error: `Invalid input format for zod-openapi: ${mod.default['zod-openapi'].input}`,
+            error: `Invalid exportSchema format for zod-openapi: ${zo.exportSchema}`,
           }
         }
-        if (!isTs(mod.default['zod-openapi'].output)) {
-          return {
-            ok: false,
-            error: `Invalid output format for zod-openapi: ${mod.default['zod-openapi'].output}`,
-          }
+        if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
+          return { ok: false, error: `Invalid exportType format for zod-openapi: ${zo.exportType}` }
         }
-        if (mod.default['zod-openapi'].exportSchema !== undefined) {
-          if (typeof mod.default['zod-openapi'].exportSchema !== 'boolean') {
+
+        const hasSchema = zo.schema !== undefined
+        const hasRoute = zo.route !== undefined
+
+        if (hasSchema || hasRoute) {
+          if (Object.hasOwn(zo, 'output')) {
             return {
               ok: false,
-              error: `Invalid exportSchema format for zod-openapi: ${mod.default['zod-openapi'].exportSchema}`,
+              error:
+                "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
             }
           }
-        }
-        if (mod.default['zod-openapi'].exportType !== undefined) {
-          if (typeof mod.default['zod-openapi'].exportType !== 'boolean') {
-            return {
-              ok: false,
-              error: `Invalid exportType format for zod-openapi: ${mod.default['zod-openapi'].exportType}`,
-            }
+        } else {
+          if (!isTs(zo.output)) {
+            return { ok: false, error: `Invalid output format for zod-openapi: ${zo.output}` }
           }
         }
-        // schema
-        if (mod.default['zod-openapi'].schema !== undefined) {
-          // split
-          if (mod.default['zod-openapi'].schema.split !== undefined) {
-            if (typeof mod.default['zod-openapi'].schema.split !== 'boolean') {
+
+        if (hasSchema) {
+          const s = zo.schema
+          if (!s) {
+            return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
+          }
+          if (s.split !== undefined && typeof s.split !== 'boolean') {
+            return { ok: false, error: `Invalid schema split format for zod-openapi: ${s.split}` }
+          }
+          if (typeof s.output !== 'string') {
+            return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
+          }
+          if (s.split === true) {
+            if (isTs(s.output)) {
               return {
                 ok: false,
-                error: `Invalid schema split format for zod-openapi: ${mod.default['zod-openapi'].schema.split}`,
-              }
-            } else {
-              if (typeof mod.default['zod-openapi'].schema.output !== 'string') {
-                return {
-                  ok: false,
-                  error: `Invalid schema output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].schema.output}`,
-                }
-              }
-            }
-          }
-          if (isTs(mod.default['zod-openapi'].schema.output)) {
-            return {
-              ok: false,
-              error: `Invalid schema output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].schema.output}`,
-            }
-          }
-        }
-        // route
-        if (mod.default['zod-openapi'].route !== undefined) {
-          // import
-          if (typeof mod.default['zod-openapi'].route.import !== 'string') {
-            return {
-              ok: false,
-              error: `Invalid route import format for zod-openapi: ${mod.default['zod-openapi'].route.import}`,
-            }
-          }
-          // split
-          if (mod.default['zod-openapi'].route.split !== undefined) {
-            if (typeof mod.default['zod-openapi'].route.split !== 'boolean') {
-              return {
-                ok: false,
-                error: `Invalid route split format for zod-openapi: ${mod.default['zod-openapi'].route.split}`,
+                error: `Invalid schema output path for split mode (must be a directory, not .ts): ${s.output}`,
               }
             }
           } else {
-            if (typeof mod.default['zod-openapi'].route.output !== 'string') {
+            if (!isTs(s.output)) {
               return {
                 ok: false,
-                error: `Invalid route output path for split mode (must be directory, not .ts file): ${mod.default['zod-openapi'].route.output}`,
+                error: `Invalid schema output path for non-split mode (must be .ts file): ${s.output}`,
               }
             }
           }
-          if (isTs(mod.default['zod-openapi'].route.output)) {
+          if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
             return {
               ok: false,
-              error: `Invalid route output path for non-split mode (must be .ts file): ${mod.default['zod-openapi'].route.output}`,
+              error: `Invalid schema exportType format for zod-openapi: ${s.exportType}`,
+            }
+          }
+        }
+
+        if (hasRoute) {
+          const r = zo.route
+          if (!r) {
+            return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
+          }
+          if (typeof r.import !== 'string') {
+            return { ok: false, error: `Invalid route import format for zod-openapi: ${r.import}` }
+          }
+          if (r.split !== undefined && typeof r.split !== 'boolean') {
+            return { ok: false, error: `Invalid route split format for zod-openapi: ${r.split}` }
+          }
+          if (typeof r.output !== 'string') {
+            return { ok: false, error: `Invalid route output path: ${r.output}` }
+          }
+          if (r.split === true) {
+            if (isTs(r.output)) {
+              return {
+                ok: false,
+                error: `Invalid route output path for split mode (must be a directory, not .ts): ${r.output}`,
+              }
+            }
+          } else {
+            if (!isTs(r.output)) {
+              return {
+                ok: false,
+                error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
+              }
             }
           }
         }
       }
+
       // rpc
-      if (mod.default.rpc) {
-        if (!isYamlOrJsonOrTsp(mod.default.rpc.input)) {
-          return {
-            ok: false,
-            error: `Invalid input format for rpc: ${mod.default.rpc.input}`,
-          }
+      const rpc = mod.default.rpc
+      if (rpc) {
+        if (!isYamlOrJsonOrTsp(rpc.input)) {
+          return { ok: false, error: `Invalid input format for rpc: ${rpc.input}` }
         }
-        if (!isTs(mod.default.rpc.output)) {
-          return {
-            ok: false,
-            error: `Invalid output format for rpc: ${mod.default.rpc.output}`,
-          }
+        if (!isTs(rpc.output)) {
+          return { ok: false, error: `Invalid output format for rpc: ${rpc.output}` }
         }
-        if (typeof mod.default.rpc.import !== 'string') {
-          return {
-            ok: false,
-            error: `Invalid import format for rpc: ${mod.default.rpc.import}`,
-          }
+        if (typeof rpc.import !== 'string') {
+          return { ok: false, error: `Invalid import format for rpc: ${rpc.import}` }
         }
       }
     }
+
     return { ok: true, value: mod.default }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
 
-export default function defineConfig(config: Config): Config {
-  return config
+export default function defineConfig(c: Config): Config {
+  return c
 }
