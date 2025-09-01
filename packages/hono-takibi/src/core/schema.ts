@@ -41,15 +41,11 @@ export async function schema(
   if (!schemas) {
     return { ok: false, error: 'No schemas found' }
   }
-  const orderedSchemas = resolveSchemasDependencies(schemas)
-  if (orderedSchemas.length === 0) {
-    return { ok: true, value: 'No schemas found' }
-  }
 
   // split
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
-    for (const schemaName of orderedSchemas) {
+    for (const schemaName of Object.keys(schemas)) {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
       const zs = zodToOpenAPISchema(schemaName, z, true, exportType)
@@ -79,7 +75,7 @@ export async function schema(
     }
 
     // index.ts
-    const indexBody = `${orderedSchemas
+    const indexBody = `${Object.keys(schemas)
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
     const indexFmt = await fmt(indexBody)
@@ -99,6 +95,11 @@ export async function schema(
       ok: true,
       value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
     }
+  }
+
+  const orderedSchemas = resolveSchemasDependencies(schemas)
+  if (orderedSchemas.length === 0) {
+    return { ok: true, value: 'No schemas found' }
   }
 
   const schemaDefinitions = orderedSchemas

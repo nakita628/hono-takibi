@@ -107,7 +107,7 @@ export async function honoTakibi(): Promise<
   }
   const c = configResult.value
 
-  const takibiResult = c['zod-openapi']
+  const takibiResult = c['zod-openapi']?.output
     ? await takibi(
         c.input,
         c['zod-openapi']?.output,
