@@ -6,7 +6,7 @@ import { register } from 'tsx/esm/api'
 type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
-    readonly output: `${string}.ts`
+    readonly output?: `${string}.ts`
     readonly exportType?: boolean
     readonly exportSchema?: boolean
     readonly schema?: {

@@ -179,9 +179,9 @@ export const HonoUnionSchema = z
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       const indexExpected = `export * from './hono'
+export * from './honoUnion'
 export * from './honoX'
 export * from './zodOpenAPIHono'
-export * from './honoUnion'
 `
       expect(index).toBe(indexExpected)
 
@@ -228,9 +228,9 @@ export const ZodOpenAPIHonoSchema = z
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       const indexExpected = `export * from './hono'
+export * from './honoUnion'
 export * from './honoX'
 export * from './zodOpenAPIHono'
-export * from './honoUnion'
 `
       expect(index).toBe(indexExpected)
 
