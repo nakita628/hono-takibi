@@ -48,6 +48,7 @@ export async function schema(
     for (const schemaName of Object.keys(schemas)) {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
+      // export schema must be true
       const zs = zodToOpenAPISchema(schemaName, z, true, exportType)
 
       const importZ = `import { z } from '@hono/zod-openapi'`
