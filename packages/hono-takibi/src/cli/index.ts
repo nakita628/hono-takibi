@@ -1,11 +1,10 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { core } from '../core/core.js'
 import { route } from '../core/route.js'
+import { rpc } from '../core/rpc.js'
 import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
-import { rpc } from '../generator/rpc/index.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
@@ -152,12 +151,20 @@ export async function honoTakibi(): Promise<
   }
 
   const rpcResult = c.rpc
-    ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+    ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
 
   if (rpcResult && !rpcResult.ok) {
     return { ok: false, error: rpcResult.error }
   }
+
+  // const rpcResult = c.rpc
+  //   ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+  //   : undefined
+
+  // if (rpcResult && !rpcResult.ok) {
+  //   return { ok: false, error: rpcResult.error }
+  // }
 
   // const swrResult = c.swr
   //   ? await core(

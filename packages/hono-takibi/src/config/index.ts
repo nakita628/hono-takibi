@@ -21,8 +21,9 @@ type Config = {
     }
   }
   readonly rpc?: {
-    readonly output: `${string}.ts`
+    readonly output: string | `${string}.ts`
     readonly import: string
+    readonly split?: boolean
   }
 }
 
@@ -31,7 +32,7 @@ const isYamlOrJsonOrTsp = (
 ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
   typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
 
-const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+  const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
 
 /**
  * Load and validate `hono-takibi.config.ts` in the current working directory.
@@ -203,11 +204,31 @@ export async function config(): Promise<
 
       const rpc = mod.default.rpc
       if (rpc) {
-        if (!isTs(rpc.output)) {
+        if (typeof rpc.output !== 'string') {
           return { ok: false, error: `Invalid output format for rpc: ${String(rpc.output)}` }
         }
         if (typeof rpc.import !== 'string') {
           return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
+        }
+        if (rpc.split !== undefined && typeof rpc.split !== 'boolean') {
+          return { ok: false, error: `Invalid split format for rpc: ${String(rpc.split)}` }
+        }
+
+        const isSplit = rpc.split === true
+        if (isSplit) {
+          if (isTs(rpc.output)) {
+            return {
+              ok: false,
+              error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${rpc.output}`,
+            }
+          }
+        } else {
+          if (!isTs(rpc.output)) {
+            return {
+              ok: false,
+              error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(rpc.output)}`,
+            }
+          }
         }
       }
     }
