@@ -33,31 +33,6 @@ If you have OpenAPI specifications, Hono Takibi automates the conversion process
 npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 ```
 
-## CLI
-
-### Options
-
-basic
-
-```bash
-Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-```
-
-template
-
-> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
-
-### Example
-
-```bash
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
-```
-
 input:
 
 ```yaml
@@ -111,6 +86,31 @@ export const getRoute = createRoute({
 ### Demo 
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/demo/hono-takibi.gif)
+
+## CLI
+
+### Options
+
+basic
+
+```bash
+Options:
+  --export-type        export TypeScript type aliases
+  --export-schema      export Zod schema objects
+  --template           generate app file and handler stubs
+  --test               generate empty *.test.ts files
+  --base-path <path>   api prefix (default: /)
+```
+
+template
+
+> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+
+### Example
+
+```bash
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
+```
 
 ## HonoTakibiVite
 
