@@ -43,13 +43,13 @@ export async function parseOpenAPI(input: string): Promise<
       // to treat `tsp.value` as an OpenAPI specification.
       // This cast is required both for parsing the spec and for ensuring
       // type safety in the generator process.
-      const spec = (await SwaggerParser.parse(tsp.value as unknown as string)) as Readonly<OpenAPI>
+      const spec = (await SwaggerParser.bundle(tsp.value as unknown as string)) as Readonly<OpenAPI>
       return { ok: true, value: spec }
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
     // The parser validates the spec at runtime but does not express this guarantee in its type definition,
     // so we assert `OpenAPI` here to enable typed access in the generator.
-    const spec = (await SwaggerParser.parse(input)) as Readonly<OpenAPI>
+    const spec = (await SwaggerParser.bundle(input)) as Readonly<OpenAPI>
     return { ok: true, value: spec }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
@@ -59,7 +59,7 @@ export async function parseOpenAPI(input: string): Promise<
 /**
  * Base OpenAPI type derived from SwaggerParser
  */
-type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.parse>>
+type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.bundle>>
 
 /**
  * Extended OpenAPI specification with required components and paths

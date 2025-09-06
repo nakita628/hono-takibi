@@ -3,7 +3,6 @@ import type { Dirent } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { core } from 'hono-takibi/core'
 import { rpc } from 'hono-takibi/rpc'
 
 // import { honoSWRHooks } from '../../../packages/hono-takibi/src/generator/swr/index.js'
@@ -79,16 +78,15 @@ async function honoRpcs() {
   const targets = result.value.filter(isYamlOrJsonOrTsp)
 
   await Promise.all(
-    targets.map((name) => {
+    targets.map(async (name) => {
       console.log(`[START] Generating RPC for ${name}`)
       const file = name.replace(/\.(yaml|json|tsp)$/i, '')
-      return core(
-        `openapi/${name}`,
-        `rpcs/${file}.ts`,
-        "import { client } from '../index.ts'",
-        'Generated RPC code written to',
-        rpc,
-      )
+      const result = await rpc(`openapi/${name}`, `rpcs/${file}.ts`, '../index.ts', false)
+      if (!result.ok) {
+        console.error(`Error generating RPC for ${name}: ${result.error}`)
+        return
+      }
+      console.log(`[END] Generated RPC for ${name}`)
     }),
   )
 }

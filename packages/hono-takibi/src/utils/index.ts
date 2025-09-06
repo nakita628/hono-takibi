@@ -457,10 +457,10 @@ export function isUniqueContentSchema(
  *
  * ```mermaid
  * graph TD
- *   A[Start refSchema] --> B[Split $ref by slash]
- *   B --> C[Take last segment]
- *   C --> D[Append Schema suffix]
- *   D --> E[Return result string]
+ *   A["Start refSchema"] --> B["Split $ref by slash"]
+ *   B --> C["Take last segment"]
+ *   C --> D["Append Schema suffix"]
+ *   D --> E["Return result string"]
  * ```
  *
  * @param $ref - A reference path like `#/components/schemas/Address`.
@@ -704,12 +704,12 @@ export function sanitizeIdentifier(str: string): string {
  *
  * ```mermaid
  * graph TD
- *   A[Start regex(pattern)] --> B[Receive raw regex pattern without slashes]
- *   B --> C[Find all '/' not preceded by '\\']
- *   C --> D[Escape them to '\\/']
- *   D --> E[Wrap pattern in '/ ... /']
- *   E --> F[Prefix with '.regex(' and suffix with ')']
- *   F --> G[Return generated string]
+ *   A["Start regex(pattern)"] --> B["Receive raw regex pattern without slashes"]
+ *   B --> C["Find all '/' not preceded by '\\'"]
+ *   C --> D["Escape them to '\\/'"]
+ *   D --> E["Wrap pattern in '/ ... /'"]
+ *   E --> F["Prefix with '.regex(' and suffix with ')' "]
+ *   F --> G["Return generated string"]
  * ```
  *
  * @param pattern - A raw regex pattern **without** the surrounding slashes.

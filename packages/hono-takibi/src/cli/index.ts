@@ -1,14 +1,17 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { core } from '../core/core.js'
 import { route } from '../core/route.js'
+import { rpc } from '../core/rpc.js'
 import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
-import { rpc } from '../generator/rpc/index.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
+/**
+ * CLI usage help text shown when `-h`/`--help` is provided.
+ * Kept as a single template for easy updates and snapshot stability.
+ */
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
@@ -26,17 +29,16 @@ Options:
  *
  * ```mermaid
  * flowchart TD
- *   A["Start honoTakibi()"] --> B["args = process.argv.slice(2)"]
- *   B --> C{"isHelpRequested(args) ?"}
- *   C -->|Yes| D["return { ok:true, value: HELP_TEXT }"]
- *   C -->|No| E["cliResult = parseCli(args)"]
- *   E --> F{"cliResult.ok ?"}
- *   F -->|No| G["return { ok:false, error: cliResult.error }"]
- *   F -->|Yes| H["cli = cliResult.value"]
- *   H --> I["takibiResult = await takibi(cli.input, cli.output, ...options)"]
- *   I --> J{"takibiResult.ok ?"}
- *   J -->|No| K["return { ok:false, error: takibiResult.error }"]
- *   J -->|Yes| L["return { ok:true, value: takibiResult.value }"]
+ *   A["Start honoTakibi"] --> B["Parse args"]
+ *   B --> C{"Help requested?"}
+ *   C -- Yes --> D["Return help text"]
+ *   C -- No --> E["parseCli(args)"]
+ *   E --> F{"cliResult.ok?"}
+ *   F -- No --> G["Return parse error"]
+ *   F -- Yes --> H["Run takibi"]
+ *   H --> I{"takibi.ok?"}
+ *   I -- No --> J["Return takibi error"]
+ *   I -- Yes --> K["Return success message"]
  * ```
  *
  * **Options**
@@ -149,12 +151,20 @@ export async function honoTakibi(): Promise<
   }
 
   const rpcResult = c.rpc
-    ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+    ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
 
   if (rpcResult && !rpcResult.ok) {
     return { ok: false, error: rpcResult.error }
   }
+
+  // const rpcResult = c.rpc
+  //   ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
+  //   : undefined
+
+  // if (rpcResult && !rpcResult.ok) {
+  //   return { ok: false, error: rpcResult.error }
+  // }
 
   // const swrResult = c.swr
   //   ? await core(
