@@ -17,6 +17,26 @@ const findSchemaRefs = (code: string, selfName: string): string[] => {
   return Array.from(out)
 }
 
+/**
+ * Generate Zod schemas from an OpenAPI/TypeSpec source.
+ *
+ * @remarks
+ * - When `split=true`, writes one file per schema (and an `index.ts`).
+ * - Otherwise, emits a single `.ts` file.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["schema()"] --> B["parseOpenAPI"]
+ *   B --> C{"ok?"}
+ *   C -- Yes --> D["collect components.schemas"]
+ *   C -- No  --> E["return error"]
+ *   D --> F{"split mode?"}
+ *   F -- Yes --> G["emit per-file + index"]
+ *   F -- No  --> H["emit single file"]
+ *   G --> I["return success message"]
+ *   H --> I
+ * ```
+ */
 export async function schema(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,

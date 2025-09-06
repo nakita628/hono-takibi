@@ -33,6 +33,31 @@ const isYamlOrJsonOrTsp = (
 
 const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
 
+/**
+ * Load and validate `hono-takibi.config.ts` in the current working directory.
+ *
+ * @remarks
+ * Returns a Result-like object with either the validated config or a descriptive error.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["config()"] --> B{"Config file exists?"}
+ *   B -- No  --> C["Return error"]
+ *   B -- Yes --> D["register tsx"]
+ *   D --> E["dynamic import"]
+ *   E --> F{"default export?"}
+ *   F -- No  --> G["Return error"]
+ *   F -- Yes --> H["Validate input"]
+ *   H --> I["Validate zod-openapi"]
+ *   I --> J{"schema/route set?"}
+ *   J -- Yes --> K["Ensure no top-level output"]
+ *   J -- No  --> L["Ensure output is .ts"]
+ *   K --> M["Validate schema/route details"]
+ *   L --> M
+ *   M --> N["Validate rpc"]
+ *   N --> O["Return { ok:true, value }"]
+ * ```
+ */
 export async function config(): Promise<
   | {
       readonly ok: true
@@ -193,6 +218,11 @@ export async function config(): Promise<
   }
 }
 
+/**
+ * Helper to define a config with full type completion.
+ *
+ * @see config
+ */
 export function defineConfig(c: Config): Config {
   return c
 }
