@@ -32,7 +32,7 @@ const isYamlOrJsonOrTsp = (
 ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
   typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
 
-  const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
 
 /**
  * Load and validate `hono-takibi.config.ts` in the current working directory.

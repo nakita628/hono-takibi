@@ -22,8 +22,8 @@ const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s
 const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
 /** '/'->'.index' | '/hono-x'->"['hono-x']" | '/posts/hono/{id}'->".posts.hono[':id']" */
-const formatPath = (path: string) => {
-  const segs = (path === '/' ? ['index'] : path.replace(/^\/+/, '').split('/')).filter(Boolean)
+const formatPath = (p: string) => {
+  const segs = (p === '/' ? ['index'] : p.replace(/^\/+/, '').split('/')).filter(Boolean)
   return segs
     .map((seg) =>
       seg.startsWith('{') && seg.endsWith('}')
@@ -281,7 +281,7 @@ const buildClientArgs = (
 /* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
 
 const generateOperationCode = (
-  path: string,
+  pathStr: string,
   method: HttpMethod,
   item: PathItemLike,
   deps: {
@@ -293,8 +293,8 @@ const generateOperationCode = (
   const op = item[method]
   if (!isOperationLike(op)) return ''
 
-  const funcName = methodPath(method, path)
-  const clientAccess = formatPath(path)
+  const funcName = methodPath(method, pathStr)
+  const clientAccess = formatPath(pathStr)
 
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
@@ -321,7 +321,16 @@ const generateOperationCode = (
   const summaryBlock = summary ? ` * ${summary}\n *\n` : ''
   const descriptionBlock = description ? ` * ${description}\n *\n` : ''
 
-  return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${path}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
+  return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${pathStr}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
+}
+
+/* ─────────────────────────────── Split 出力先解決 ─────────────────────────────── */
+
+const resolveSplitOutDir = (output: string) => {
+  const looksLikeFile = output.endsWith('.ts')
+  const outDir = looksLikeFile ? path.dirname(output) : output
+  const indexPath = path.join(outDir, 'index.ts')
+  return { outDir, indexPath }
 }
 
 /* ─────────────────────────────── Entry ─────────────────────────────── */
@@ -338,8 +347,7 @@ export async function rpc(
   importPath: string,
   split?: boolean,
 ): Promise<
-  | { readonly ok: true; readonly value: string }
-  | { readonly ok: false; readonly error: string }
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) {
@@ -366,7 +374,7 @@ export async function rpc(
   const toParameterLikes = createToParameterLikes(resolveParameter)
 
   // Split-mode: prepare an index file exports collector.
-  const splitExports: string[] = []
+  const splitExports = new Set<string>()
 
   // Iterate paths and generate per-operation code
   for (const p in pathsMaybe) {
@@ -384,6 +392,7 @@ export async function rpc(
       patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
       trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
     }
+
     for (const method of HTTP_METHODS) {
       const code = generateOperationCode(p, method, pathItem, {
         client,
@@ -399,14 +408,14 @@ export async function rpc(
         const fmtCode = await fmt(fileSrc)
         if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
 
-        const outDir = output.replace(/\.ts$/, '')
-        const filePath = `${outDir}/${funcName}.ts`
+        const { outDir } = resolveSplitOutDir(output)
+        const filePath = path.join(outDir, `${funcName}.ts`)
         const mk = await mkdir(path.dirname(filePath))
         if (!mk.ok) return { ok: false, error: mk.error }
         const wr = await writeFile(filePath, fmtCode.value)
         if (!wr.ok) return { ok: false, error: wr.error }
 
-        splitExports.push(`export * from './${funcName}'`)
+        splitExports.add(`export * from './${funcName}'`)
       } else {
         combinedOut.push(code)
       }
@@ -419,6 +428,7 @@ export async function rpc(
     if (!mk.ok) return { ok: false, error: mk.error }
 
     const code = `${header}${combinedOut.join('\n\n')}${combinedOut.length ? '\n' : ''}`
+
     const fmtCode = await fmt(code)
     if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
     const wr = await writeFile(output, fmtCode.value)
@@ -426,14 +436,14 @@ export async function rpc(
     return { ok: true, value: `Generated rpc code written to ${output}` }
   }
 
-  // Split: write index.ts
-  const outDir = output.replace(/\.ts$/, '')
-  const indexBody = `${splitExports.join('\n')}\n`
+  // Split: write index.ts (barrel)
+  const { outDir, indexPath } = resolveSplitOutDir(output)
+  const indexBody = `${Array.from(splitExports).sort().join('\n')}\n`
   const indexFmt = await fmt(indexBody)
   if (!indexFmt.ok) return { ok: false, error: indexFmt.error }
-  const mkIndex = await mkdir(path.dirname(`${outDir}/index.ts`))
+  const mkIndex = await mkdir(path.dirname(indexPath))
   if (!mkIndex.ok) return { ok: false, error: mkIndex.error }
-  const wrIndex = await writeFile(`${outDir}/index.ts`, indexFmt.value)
+  const wrIndex = await writeFile(indexPath, indexFmt.value)
   if (!wrIndex.ok) return { ok: false, error: wrIndex.error }
 
   return { ok: true, value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)` }
