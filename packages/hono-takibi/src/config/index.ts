@@ -74,7 +74,8 @@ export async function config(): Promise<
 
   try {
     register()
-    const mod: { readonly default: Config } = await import(pathToFileURL(abs).href)
+    const url = pathToFileURL(abs).href
+    const mod: { readonly default: Config } = await import(/* @vite-ignore */ url)
 
     if (!('default' in mod)) {
       return { ok: false, error: 'Config must export default object' }
