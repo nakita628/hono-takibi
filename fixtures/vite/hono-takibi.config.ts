@@ -7,18 +7,19 @@ export default defineConfig({
     // exportType: true,
     // exportSchema: true,
     schema: {
-      output: './src/schemas/index.ts',
+      output: './src/schemas',
       exportType: true,
-    //   split: true,
+      split: true,
     },
     route: {
-      output: './src/routes/index.ts',
+      output: './src/routes',
       import: '../schemas',
-    //   split: true,
+      split: true,
     },
   },
   rpc: {
-    output: './src/rpc/index.ts',
-    import: '../client'
+    output: './src/rpc/',
+    import: '../client',
+    split: true,
   },
 })

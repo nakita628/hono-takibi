@@ -1,9 +1,8 @@
 // vite.config.ts
-import { defineConfig } from 'vite'
+
 import { HonoTakibiVite } from 'hono-takibi/vite-plugin'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    HonoTakibiVite()
-  ],
+  plugins: [HonoTakibiVite()],
 })
