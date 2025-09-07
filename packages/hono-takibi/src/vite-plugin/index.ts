@@ -1,6 +1,5 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
 import { schema } from '../core/schema.js'
@@ -9,20 +8,34 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-
 import { methodPath } from '../utils/index.js'
 
 /* ──────────────────────────────────────────────────────────────
- * Types
+ * Types & guards (keep local; .yml is not allowed)
  * ────────────────────────────────────────────────────────────── */
+
+type YamlJsonTsp = `${string}.yaml` | `${string}.json` | `${string}.tsp`
+type TsFile = `${string}.ts`
+
+const isYamlOrJsonOrTsp = (i: unknown): i is YamlJsonTsp =>
+  typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
+
+const isTs = (o: unknown): o is TsFile => typeof o === 'string' && o.endsWith('.ts')
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
-  'get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace',
-] as const
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+]
 
-// Minimal dev-server surface so we don't depend on Vite's types directly.
-interface DevServerLike {
+// Minimal dev-server surface so we do not depend on Vite's types directly
+type DevServerLike = {
   watcher: {
     add: (paths: string | readonly string[]) => void
     on: (event: 'all', cb: (evt: string, file: string) => void) => void
@@ -37,46 +50,51 @@ interface DevServerLike {
   ssrLoadModule: (id: string) => Promise<unknown>
 }
 
-// Keep the same shape as `hono-takibi.config.ts` (key is 'zod-openapi').
+// Keep same surface as hono-takibi.config.ts
 type Conf = {
-  readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+  readonly input: YamlJsonTsp
   readonly 'zod-openapi'?: {
-    readonly output?: `${string}.ts`
+    readonly output?: TsFile
     readonly exportType?: boolean
     readonly exportSchema?: boolean
     readonly schema?: {
-      readonly output: string | `${string}.ts`
+      readonly output: string | TsFile
       readonly exportType?: boolean
       readonly split?: boolean
     }
     readonly route?: {
-      readonly output: string | `${string}.ts`
+      readonly output: string | TsFile
       readonly import: string
       readonly split?: boolean
     }
   }
   readonly rpc?: {
-    readonly output: string | `${string}.ts`
+    readonly output: string | TsFile
     readonly import: string
     readonly split?: boolean
   }
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Small utils
+ * Small helpers (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-const isOperationLike = (v: unknown): v is { readonly responses?: unknown } => isRecord(v) && 'responses' in v
+const asRecord = (v: unknown): Record<string, unknown> => (isRecord(v) ? v : {})
+const isOperationLike = (v: unknown): v is { readonly responses?: unknown } =>
+  isRecord(v) && 'responses' in v
 const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s)
-const exists = (p: string) => fsp.stat(p).then(() => true).catch(() => false)
-const isTsPath = (p: string) => p.endsWith('.ts')
-const isYamlJsonOrTsp = (p: string) => /\.ya?ml$|\.json$|\.tsp$/.test(p)
+const toAbs = (p: string) => path.resolve(process.cwd(), p)
 
 /* ──────────────────────────────────────────────────────────────
- * Config hot-loader
- *   - Always re-load TS config via ssrLoadModule (bypass Node import cache)
+ * Config hot-loader (no `as`; narrow via Reflect + guards)
  * ────────────────────────────────────────────────────────────── */
+
+const isConf = (v: unknown): v is Conf => {
+  if (!isRecord(v)) return false
+  const input = Reflect.get(v, 'input')
+  return isYamlOrJsonOrTsp(input)
+}
 
 const loadConfigHot = async (
   server: DevServerLike,
@@ -84,119 +102,165 @@ const loadConfigHot = async (
   const abs = path.resolve(process.cwd(), 'hono-takibi.config.ts')
   try {
     const resolved = await server.pluginContainer.resolveId(abs)
-    if (resolved?.id) {
-      const node = server.moduleGraph.getModuleById(resolved.id)
+    const id = resolved?.id
+    if (id) {
+      const node = server.moduleGraph.getModuleById(id)
       if (node) server.moduleGraph.invalidateModule(node)
     } else {
       server.moduleGraph.invalidateAll()
     }
-    const mod = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
-    const maybe = mod as { default?: unknown }
-    if (!('default' in maybe) || typeof maybe.default !== 'object' || maybe.default === null) {
+    const mod: unknown = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
+    const def = isRecord(mod) ? Reflect.get(mod, 'default') : undefined
+    if (!isConf(def)) {
       return { ok: false, error: 'Config must export default object' }
     }
-    return { ok: true, value: maybe.default as Conf }
+    return { ok: true, value: def }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Strict validation (block invalid/unsafe shapes early)
+ * Strict validation (messages aligned with config())
  * ────────────────────────────────────────────────────────────── */
 
 type Valid = { ok: true } | { ok: false; error: string }
 
 const validateConfStrict = (c: Conf): Valid => {
-  if (!isYamlJsonOrTsp(c.input)) {
-    return { ok: false, error: `Invalid input: ${c.input} (must be .yaml/.yml/.json/.tsp)` }
+  // input
+  if (!isYamlOrJsonOrTsp(c.input)) {
+    return { ok: false, error: `Invalid input format for zod-openapi: ${String(c.input)}` }
   }
+
+  // zod-openapi
   const zo = c['zod-openapi']
   if (zo) {
-    const hasSchema = !!zo.schema
-    const hasRoute = !!zo.route
-
-    // When using nested schema/route, top-level output must not be set.
-    if ((hasSchema || hasRoute) && typeof zo.output !== 'undefined') {
+    if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
       return {
         ok: false,
-        error:
-          "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
+        error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
+      }
+    }
+    if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
       }
     }
 
-    // If neither schema nor route is specified, output must be a .ts file (non-split).
-    if (!(hasSchema || hasRoute)) {
-      if (!(zo.output && isTsPath(zo.output))) {
+    const hasSchema = zo.schema !== undefined
+    const hasRoute = zo.route !== undefined
+
+    if (hasSchema || hasRoute) {
+      if (Object.hasOwn(zo, 'output')) {
         return {
           ok: false,
-          error: "Invalid 'zod-openapi.output': non-split mode requires a .ts file path",
-        }
-      }
-    }
-
-    // schema block
-    if (hasSchema) {
-      const s = zo.schema!
-      if (s.split === true) {
-        if (isTsPath(s.output)) {
-          return {
-            ok: false,
-            error: `Invalid schema.output for split mode (must be a directory, not .ts): ${s.output}`,
-          }
-        }
-      } else {
-        if (!isTsPath(s.output)) {
-          return {
-            ok: false,
-            error: `Invalid schema.output for non-split mode (must be .ts): ${s.output}`,
-          }
-        }
-      }
-    }
-
-    // route block
-    if (hasRoute) {
-      const r = zo.route!
-      if (!r.import || typeof r.import !== 'string') {
-        return { ok: false, error: "Invalid 'zod-openapi.route.import': must be a string" }
-      }
-      if (r.split === true) {
-        if (isTsPath(r.output)) {
-          return {
-            ok: false,
-            error: `Invalid route.output for split mode (must be a directory, not .ts): ${r.output}`,
-          }
-        }
-      } else {
-        if (!isTsPath(r.output)) {
-          return {
-            ok: false,
-            error: `Invalid route.output for non-split mode (must be .ts): ${r.output}`,
-          }
-        }
-      }
-    }
-  }
-
-  // rpc block
-  if (c.rpc) {
-    const r = c.rpc
-    if (!r.import || typeof r.import !== 'string') {
-      return { ok: false, error: "Invalid 'rpc.import': must be a string" }
-    }
-    if (r.split === true) {
-      if (isTsPath(r.output)) {
-        return {
-          ok: false,
-          error: `Invalid rpc.output for split mode (must be a directory, not .ts): ${r.output}`,
+          error:
+            "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
         }
       }
     } else {
-      if (!isTsPath(r.output)) {
+      if (!isTs(zo.output)) {
+        return { ok: false, error: `Invalid output format for zod-openapi: ${String(zo.output)}` }
+      }
+    }
+
+    if (hasSchema) {
+      const s = zo.schema
+      if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
+      if (s.split !== undefined && typeof s.split !== 'boolean') {
         return {
           ok: false,
-          error: `Invalid rpc.output for non-split mode (must be .ts): ${r.output}`,
+          error: `Invalid schema split format for zod-openapi: ${String(s.split)}`,
+        }
+      }
+      if (typeof s.output !== 'string') {
+        return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
+      }
+      if (s.split === true) {
+        if (isTs(s.output)) {
+          return {
+            ok: false,
+            error: `Invalid schema output path for split mode (must be a directory, not .ts): ${s.output}`,
+          }
+        }
+      } else {
+        if (!isTs(s.output)) {
+          return {
+            ok: false,
+            error: `Invalid schema output path for non-split mode (must be .ts file): ${s.output}`,
+          }
+        }
+      }
+      if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid schema exportType format for zod-openapi: ${String(s.exportType)}`,
+        }
+      }
+    }
+
+    if (hasRoute) {
+      const r = zo.route
+      if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
+      if (typeof r.import !== 'string') {
+        return {
+          ok: false,
+          error: `Invalid route import format for zod-openapi: ${String(r.import)}`,
+        }
+      }
+      if (r.split !== undefined && typeof r.split !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid route split format for zod-openapi: ${String(r.split)}`,
+        }
+      }
+      if (typeof r.output !== 'string') {
+        return { ok: false, error: `Invalid route output path: ${String(r.output)}` }
+      }
+      if (r.split === true) {
+        if (isTs(r.output)) {
+          return {
+            ok: false,
+            error: `Invalid route output path for split mode (must be a directory, not .ts): ${r.output}`,
+          }
+        }
+      } else {
+        if (!isTs(r.output)) {
+          return {
+            ok: false,
+            error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
+          }
+        }
+      }
+    }
+  }
+
+  // rpc
+  const rp = c.rpc
+  if (rp) {
+    if (typeof rp.output !== 'string') {
+      return { ok: false, error: `Invalid output format for rpc: ${String(rp.output)}` }
+    }
+    if (typeof rp.import !== 'string') {
+      return { ok: false, error: `Invalid import format for rpc: ${String(rp.import)}` }
+    }
+    if (rp.split !== undefined && typeof rp.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for rpc: ${String(rp.split)}` }
+    }
+    const isSplit = rp.split === true
+    if (isSplit) {
+      if (isTs(rp.output)) {
+        return {
+          ok: false,
+          error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${rp.output}`,
+        }
+      }
+    } else {
+      if (!isTs(rp.output)) {
+        return {
+          ok: false,
+          error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(rp.output)}`,
         }
       }
     }
@@ -206,7 +270,125 @@ const validateConfStrict = (c: Conf): Valid => {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Pruning helpers
+ * Purge helpers (NEVER generate a marker file)
+ * ────────────────────────────────────────────────────────────── */
+
+// Delete all .ts files one level below the directory
+const listTsShallow = async (dir: string): Promise<string[]> =>
+  fsp
+    .stat(dir)
+    .then((st) =>
+      st.isDirectory()
+        ? fsp
+            .readdir(dir, { withFileTypes: true })
+            .then((ents) =>
+              ents
+                .filter((e) => e.isFile() && e.name.endsWith('.ts'))
+                .map((e) => path.join(dir, e.name)),
+            )
+        : [],
+    )
+    .catch((): string[] => [])
+
+// Unlink the given .ts files (shallow)
+const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
+  listTsShallow(dir).then((files) =>
+    Promise.all(
+      files.map((f) =>
+        fsp
+          .unlink(f)
+          .then(() => f)
+          .catch(() => null),
+      ),
+    ).then((res) => res.filter((x): x is string => x !== null)),
+  )
+
+// Remove unexpected .ts files (shallow) based on an expected set
+const pruneDir = async (dir: string, expected: ReadonlySet<string>): Promise<string[]> =>
+  fsp
+    .stat(dir)
+    .then((st) =>
+      st.isDirectory()
+        ? fsp.readdir(dir, { withFileTypes: true }).then((ents) => {
+            const targets = ents
+              .filter((e) => e.isFile() && e.name.endsWith('.ts') && !expected.has(e.name))
+              .map((e) => path.join(dir, e.name))
+            return Promise.all(
+              targets.map((f) =>
+                fsp
+                  .unlink(f)
+                  .then(() => f)
+                  .catch(() => null),
+              ),
+            ).then((res) => res.filter((x): x is string => x !== null))
+          })
+        : [],
+    )
+    .catch((): string[] => [])
+
+// Remove directory if it is empty
+const removeDirIfEmpty = async (dir: string): Promise<string[]> =>
+  fsp
+    .stat(dir)
+    .then((st) =>
+      st.isDirectory()
+        ? fsp.readdir(dir).then((ents) =>
+            ents.length === 0
+              ? fsp
+                  .rmdir(dir)
+                  .then(() => [dir])
+                  .catch((): string[] => [])
+              : [],
+          )
+        : [],
+    )
+    .catch((): string[] => [])
+
+// Remove parent directory if it becomes empty after a file removal
+const removeEmptyParentDir = async (fileOrDir: string): Promise<string[]> =>
+  fsp
+    .stat(fileOrDir)
+    .then((st) =>
+      st.isDirectory() ? removeDirIfEmpty(fileOrDir) : removeDirIfEmpty(path.dirname(fileOrDir)),
+    )
+    .catch((): string[] => [])
+
+/**
+ * Always shallow-prune .ts files and try to remove the directory if it becomes empty.
+ * We never create or rely on a marker file.
+ */
+const rmrfIfGeneratedOrShallow = async (dir: string): Promise<string[]> =>
+  deleteAllTsShallow(dir).then((removed) => removeDirIfEmpty(dir).then((d) => removed.concat(d)))
+
+/**
+ * Purge an output path (file or directory) with safe policies.
+ * - Directory: shallow-prune .ts and try to remove if empty
+ * - File: unlink and try to remove empty parent directory
+ */
+const purgePath = async (out: string, expected?: ReadonlySet<string>): Promise<string[]> =>
+  fsp
+    .stat(out)
+    .then(async (st) => {
+      if (st.isDirectory()) {
+        return expected ? pruneDir(out, expected) : rmrfIfGeneratedOrShallow(out)
+      }
+      if (st.isFile()) {
+        const removedFile: string[] = await fsp
+          .unlink(out)
+          .then((): string[] => [out])
+          .catch((): string[] => [])
+        const removedParent: string[] = await removeEmptyParentDir(out)
+        return removedFile.concat(removedParent)
+      }
+      return []
+    })
+    .catch(async (): Promise<string[]> => {
+      const removedParent: string[] = await removeEmptyParentDir(out)
+      return removedParent
+    })
+
+/* ──────────────────────────────────────────────────────────────
+ * Route block extractor (used by computeRouteSplitFiles)
  * ────────────────────────────────────────────────────────────── */
 
 const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
@@ -219,105 +401,25 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
   }
   return hits.map((h, i) => {
     const start = h.start
-    const end = i + 1 < hits.length ? hits[i + 1]!.start : src.length
+    // Fix: avoid non-null assertion with optional chaining + nullish coalescing
+    const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
     return { name: h.name, block: src.slice(start, end).trim() }
   })
 }
 
-const deleteFileIfExists = async (filePath: string): Promise<string[]> =>
-  exists(filePath)
-    .then((ok) => ok ? fsp.unlink(filePath).then(() => [filePath]).catch(() => []) : [])
-    .catch(() => [])
-
-/** List direct `.ts` files under a directory (non-recursive). */
-const listTsShallow = async (dir: string): Promise<string[]> =>
-  fsp.stat(dir)
-    .then((st) => st.isDirectory()
-      ? fsp.readdir(dir, { withFileTypes: true })
-          .then((ents) => ents.filter((e) => e.isFile() && e.name.endsWith('.ts')).map((e) => path.join(dir, e.name)))
-      : [])
-    .catch(() => [])
-
-/** Remove all `.ts` files directly under the directory (non-recursive). Return removed paths. */
-const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
-  listTsShallow(dir)
-    .then((files) =>
-      Promise.all(files.map((f) => fsp.unlink(f).then(() => f).catch(() => null)))
-        .then((res) => res.filter((x): x is string => x !== null)),
-    )
-
-/** Remove unexpected `.ts` files (non-recursive) based on an expected set of names. Return removed paths. */
-const pruneDir = async (dir: string, expected: ReadonlySet<string>): Promise<string[]> =>
-  fsp.stat(dir).then(
-    (st) =>
-      st.isDirectory()
-        ? fsp.readdir(dir, { withFileTypes: true }).then((ents) => {
-            const targets = ents
-              .filter((e) => e.isFile() && e.name.endsWith('.ts') && !expected.has(e.name))
-              .map((e) => path.join(dir, e.name))
-            return Promise.all(targets.map((f) => fsp.unlink(f).then(() => f).catch(() => null)))
-              .then((res) => res.filter((x): x is string => x !== null))
-          })
-        : [],
-  ).catch(() => [])
-
-/** Remove the directory itself if it becomes empty (single level). Return removed dir path if removed. */
-const removeDirIfEmpty = async (dir: string): Promise<string[]> =>
-  fsp.stat(dir).then(
-    (st) =>
-      st.isDirectory()
-        ? fsp.readdir(dir).then((ents) =>
-            ents.length === 0 ? fsp.rmdir(dir).then(() => [dir]).catch(() => []) : [],
-          )
-        : [],
-  ).catch(() => [])
-
-/** If the given path is a file, check its parent; if a dir, check itself; remove if empty. Return removed dir path if removed. */
-const removeEmptyParentDir = async (fileOrDir: string): Promise<string[]> =>
-  fsp.stat(fileOrDir)
-    .then((st) => (st.isDirectory() ? removeDirIfEmpty(fileOrDir) : removeDirIfEmpty(path.dirname(fileOrDir))))
-    .catch(() => [])
-
-/** Generic purge:
- *  - If `out` is a file: delete it if exists; then try to remove empty parent directory.
- *  - If `out` is a directory: delete shallow `.ts` files; then remove the directory if empty.
- *  - If `expected` is provided and `out` is a directory: only remove unexpected `.ts` files.
- *  Returns every removed path (files and possibly directory).
- */
-const purgePath = async (out: string, expected?: ReadonlySet<string>): Promise<string[]> =>
-  fsp.stat(out).then(async (st) => {
-    if (st.isDirectory()) {
-      const removed = expected ? await pruneDir(out, expected) : await deleteAllTsShallow(out)
-      const removedDir = await removeDirIfEmpty(out)
-      return removed.concat(removedDir)
-    }
-    if (st.isFile()) {
-      const removedFile = await deleteFileIfExists(out)
-      const removedParent = await removeEmptyParentDir(out)
-      return removedFile.concat(removedParent)
-    }
-    return []
-  }).catch(async () => {
-    // If stat fails, try as file parent (e.g., non-existent file path was given)
-    const removedParent = await removeEmptyParentDir(out)
-    return removedParent
-  })
-
 /* ──────────────────────────────────────────────────────────────
- * Split-mode filename calculators
+ * Split-mode filename calculators (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
-const computeRpcSplitFiles = async (
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-): Promise<ReadonlySet<string>> => {
+const computeRpcSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
   const acc = new Set<string>()
-  const paths = isRecord(spec.value.paths) ? (spec.value.paths as Record<string, unknown>) : {}
+  const paths = asRecord(spec.value.paths)
   for (const p in paths) {
-    const itemRec = isRecord(paths[p]) ? (paths[p] as Record<string, unknown>) : {}
+    const itemRec = asRecord(paths[p])
     for (const m of HTTP_METHODS) {
-      const op = (itemRec as Record<string, unknown>)[m]
+      const op = itemRec[m]
       if (isOperationLike(op)) acc.add(`${methodPath(m, p)}.ts`)
     }
   }
@@ -325,9 +427,7 @@ const computeRpcSplitFiles = async (
   return acc
 }
 
-const computeRouteSplitFiles = async (
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-): Promise<ReadonlySet<string>> => {
+const computeRouteSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
   const code = routeCode(spec.value.paths)
@@ -337,12 +437,10 @@ const computeRouteSplitFiles = async (
   return acc
 }
 
-const computeSchemaSplitFiles = async (
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-): Promise<ReadonlySet<string>> => {
+const computeSchemaSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
-  const schemas = spec.value.components?.schemas ?? {}
+  const schemas = asRecord(spec.value.components?.schemas)
   const names = Object.keys(schemas)
   const acc = new Set<string>(names.map((n) => `${lowerFirst(n)}.ts`))
   if (acc.size > 0) acc.add('index.ts')
@@ -350,7 +448,7 @@ const computeSchemaSplitFiles = async (
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Debounce helper (no `let`)
+ * Debounce (no `let`)
  * ────────────────────────────────────────────────────────────── */
 
 const debounce = (ms: number, fn: () => void): (() => void) => {
@@ -364,7 +462,7 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Execute generation for a given config
+ * Run generators for a given config (no `as`)
  * ────────────────────────────────────────────────────────────── */
 
 const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
@@ -373,7 +471,6 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 
   const jobs: Array<Promise<string>> = []
 
-  // zod-openapi
   const zo = c['zod-openapi']
   if (zo) {
     const exportType = zo.exportType === true
@@ -381,13 +478,19 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     const hasSchema = !!zo.schema
     const hasRoute = !!zo.route
 
+    // top-level zod-openapi (non-split)
     if (!(hasSchema || hasRoute)) {
       const runZo = async () => {
         const spec = await parseOpenAPI(c.input)
         if (!spec.ok) return `✗ zod-openapi: ${spec.error}`
         const code = await fmt(zodOpenAPIHono(spec.value, exportSchema, exportType))
         if (!code.ok) return `✗ zod-openapi fmt: ${code.error}`
-        const out = zo.output as `${string}.ts`
+
+        const outputMaybe = zo.output
+        if (typeof outputMaybe !== 'string') {
+          return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(outputMaybe)}`
+        }
+        const out = toAbs(outputMaybe)
         const mk = await mkdir(path.dirname(out))
         if (!mk.ok) return `✗ zod-openapi mkdir: ${mk.error}`
         const wr = await writeFile(out, code.value)
@@ -396,30 +499,36 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       jobs.push(runZo())
     }
 
-    if (hasSchema) {
-      const s = zo.schema!
+    // zod-openapi.schema
+    if (zo.schema) {
+      const s = zo.schema
       const runSchema = async () => {
         if (s.split === true) {
-          const r = await schema(c.input, s.output, s.exportType === true, true)
+          const outDir = toAbs(s.output)
+          const r = await schema(c.input, outDir, s.exportType === true, true)
           if (!r.ok) return `✗ schema(split): ${r.error}`
           const want = await computeSchemaSplitFiles(c.input)
-          const removed = await pruneDir(s.output, want)
+          const removed = await pruneDir(outDir, want)
           return removed.length > 0
-            ? `✓ schema(split) -> ${s.output}/*.ts (pruned ${removed.length})`
-            : `✓ schema(split) -> ${s.output}/*.ts`
+            ? `✓ schema(split) -> ${outDir}/*.ts (pruned ${removed.length})`
+            : `✓ schema(split) -> ${outDir}/*.ts`
         }
-        const out = s.output as `${string}.ts`
+        const outputMaybe = s.output
+        if (typeof outputMaybe !== 'string')
+          return `✗ schema: Invalid schema output path: ${String(outputMaybe)}`
+        const out = toAbs(outputMaybe)
         const r = await schema(c.input, out, s.exportType === true, false)
         return r.ok ? `✓ schema -> ${out}` : `✗ schema: ${r.error}`
       }
       jobs.push(runSchema())
     }
 
-    if (hasRoute) {
-      const r = zo.route!
+    // zod-openapi.route
+    if (zo.route) {
+      const r = zo.route
       const runRoute = async () => {
         if (r.split === true) {
-          const outDir = r.output
+          const outDir = toAbs(r.output)
           const rr = await route(c.input, outDir, r.import, true)
           if (!rr.ok) return `✗ route(split): ${rr.error}`
           const want = await computeRouteSplitFiles(c.input)
@@ -428,7 +537,10 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
             ? `✓ route(split) -> ${outDir}/*.ts (pruned ${removed.length})`
             : `✓ route(split) -> ${outDir}/*.ts`
         }
-        const out = r.output as `${string}.ts`
+        const outputMaybe = r.output
+        if (typeof outputMaybe !== 'string')
+          return `✗ route: Invalid route output path: ${String(outputMaybe)}`
+        const out = toAbs(outputMaybe)
         const rr = await route(c.input, out, r.import, false)
         return rr.ok ? `✓ route -> ${out}` : `✗ route: ${rr.error}`
       }
@@ -441,7 +553,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     const r = c.rpc
     const runRpc = async () => {
       if (r.split === true) {
-        const outDir = r.output
+        const outDir = toAbs(r.output)
         const rr = await rpc(c.input, outDir, r.import, true)
         if (!rr.ok) return `✗ rpc(split): ${rr.error}`
         const want = await computeRpcSplitFiles(c.input)
@@ -450,7 +562,11 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
           ? `✓ rpc(split) -> ${outDir}/*.ts (pruned ${removed.length})`
           : `✓ rpc(split) -> ${outDir}/*.ts`
       }
-      const out = r.output as `${string}.ts`
+      const outputMaybe = r.output
+      if (typeof outputMaybe !== 'string') {
+        return `✗ rpc: Invalid output format for rpc (non-split mode must be .ts file): ${String(outputMaybe)}`
+      }
+      const out = toAbs(outputMaybe)
       const rr = await rpc(c.input, out, r.import, false)
       return rr.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rr.error}`
     }
@@ -461,70 +577,71 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Cleanup when split/non-split flips or output path changes
- *   - Use generic purgePath() to handle both files and directories.
- *   - Return log lines with removed paths for better UX.
+ * Reconcile transitions (HMR) and report removals
  * ────────────────────────────────────────────────────────────── */
 
 type SplitSpec = { present: false } | { present: true; split: boolean; out: string }
+type ZoTopSpec = { present: false } | { present: true; out: string }
 
 const pickSplitSpec = (c: Conf, kind: 'schema' | 'route' | 'rpc'): SplitSpec => {
   if (kind === 'schema') {
     const s = c['zod-openapi']?.schema
-    return s ? { present: true, split: s.split === true, out: s.output } : { present: false }
+    return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
   }
   if (kind === 'route') {
     const r = c['zod-openapi']?.route
-    return r ? { present: true, split: r.split === true, out: r.output } : { present: false }
+    return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
   }
   const rc = c.rpc
-  return rc ? { present: true, split: rc.split === true, out: rc.output } : { present: false }
+  return rc
+    ? { present: true, split: rc.split === true, out: toAbs(rc.output) }
+    : { present: false }
 }
 
-/** Reconcile transitions and return detailed removal logs. */
+const pickZoTopNonSplit = (c: Conf): ZoTopSpec => {
+  const zo = c['zod-openapi']
+  if (!zo) return { present: false }
+  const hasSchema = !!zo.schema
+  const hasRoute = !!zo.route
+  return !(hasSchema || hasRoute) && zo.output
+    ? { present: true, out: toAbs(zo.output) }
+    : { present: false }
+}
+
 const reconcileSplitTransition = async (prevC: Conf, nextC: Conf): Promise<string[]> => {
   const kinds: ReadonlyArray<'schema' | 'route' | 'rpc'> = ['schema', 'route', 'rpc']
-  return Promise.all(
+  const perKind = await Promise.all(
     kinds.map(async (kind) => {
       const prev = pickSplitSpec(prevC, kind)
       const next = pickSplitSpec(nextC, kind)
+      const tasks: Array<Promise<string[]>> = []
 
-      // Decide which old path to purge and with what strategy.
-      const tasks: Promise<string[]>[] = []
-
-      // split -> non-split or removed
-      if (prev.present && prev.split && (!next.present || (next.present && !next.split))) {
-        tasks.push(purgePath(prev.out)) // remove old dir .ts and maybe the dir
-      }
-
-      // non-split -> split
-      if (prev.present && !prev.split && next.present && next.split) {
-        tasks.push(purgePath(prev.out)) // remove old single .ts and maybe empty parent
-      }
-
-      // split -> split but output dir changed
-      if (prev.present && prev.split && next.present && next.split && prev.out !== next.out) {
-        tasks.push(purgePath(prev.out)) // remove old dir content and maybe the dir
-      }
-
-      // non-split -> non-split but output file changed
-      if (prev.present && !prev.split && next.present && !next.split && prev.out !== next.out) {
+      if (prev.present && prev.split && (!next.present || (next.present && !next.split)))
         tasks.push(purgePath(prev.out))
-      }
-
-      // present -> not present (remove outputs entirely)
-      if (prev.present && !next.present) {
+      if (prev.present && !prev.split && next.present && next.split) tasks.push(purgePath(prev.out))
+      if (prev.present && prev.split && next.present && next.split && prev.out !== next.out)
         tasks.push(purgePath(prev.out))
-      }
+      if (prev.present && !prev.split && next.present && !next.split && prev.out !== next.out)
+        tasks.push(purgePath(prev.out))
+      if (prev.present && !next.present) tasks.push(purgePath(prev.out))
 
       const removed = (await Promise.all(tasks)).flat()
       return removed.map((p) => `- removed: ${p}`).join('\n')
     }),
-  ).then((blocks) => blocks.filter((b) => b.length > 0))
+  )
+
+  const prevTop = pickZoTopNonSplit(prevC)
+  const nextTop = pickZoTopNonSplit(nextC)
+  const topLogs =
+    prevTop.present && (!nextTop.present || prevTop.out !== nextTop.out)
+      ? (await purgePath(prevTop.out)).map((p) => `- removed: ${p}`).join('\n')
+      : ''
+
+  return [...perKind, topLogs].filter((s) => s.length > 0)
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Watch target helpers
+ * Watch helpers
  * ────────────────────────────────────────────────────────────── */
 
 const addInputGlobs = (server: DevServerLike, absInput: string) => {
@@ -541,110 +658,108 @@ const addInputGlobs = (server: DevServerLike, absInput: string) => {
 const outputDirsFromConf = (c: Conf): string[] => {
   const zo = c['zod-openapi']
   const dirs: string[] = []
-  if (zo?.schema?.split === true) dirs.push(zo.schema.output)
-  if (zo?.route?.split === true) dirs.push(zo.route.output)
-  if (c.rpc?.split === true) dirs.push(c.rpc.output)
+
+  const s = zo?.schema
+  if (s?.split === true) dirs.push(toAbs(s.output))
+
+  const r = zo?.route
+  if (r?.split === true) dirs.push(toAbs(r.output))
+
+  const rp = c.rpc
+  if (rp?.split === true) dirs.push(toAbs(rp.output))
+
   return dirs
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Plugin (no `let`; state via const object)
+ * Plugin (return `any`, no `let`)
  * ────────────────────────────────────────────────────────────── */
 
+// biome-ignore lint: plugin
 export function HonoTakibiVite(): any {
-  // Keep mutable state inside a const object (avoid `let`).
   const state: { current: Conf | null } = { current: null }
   const absConfig = path.resolve(process.cwd(), 'hono-takibi.config.ts')
 
-  // Run generators for the current config.
   const run = async () => {
     if (!state.current) return
     const { logs } = await runAllWithConf(state.current)
-    for (const line of logs) {
-      // eslint-disable-next-line no-console
-      console.log(`[hono-takibi] ${line}`)
-    }
+    for (const line of logs) console.log(`[hono-takibi] ${line}`)
   }
 
-  // Run and trigger a full reload.
   const runAndReload = async (server?: DevServerLike) => {
     await run()
     if (server) server.ws.send({ type: 'full-reload' })
   }
 
-  // React to config change: validate, reconcile split/non-split, rewatch, rerun.
   const onConfigChange = async (server: DevServerLike) => {
     const prev = state.current
     const next = await loadConfigHot(server)
     if (!next.ok) {
-      // eslint-disable-next-line no-console
       console.error(`[hono-takibi] ✗ config: ${next.error}`)
       return
     }
     const valid = validateConfStrict(next.value)
     if (!valid.ok) {
-      // eslint-disable-next-line no-console
       console.error(`[hono-takibi] ✗ config: ${valid.error}`)
       return
     }
 
     if (prev) {
       const removedLogs = await reconcileSplitTransition(prev, next.value)
-      for (const block of removedLogs) {
-        if (block) console.log(`[hono-takibi]\n${block}`)
-      }
+      for (const block of removedLogs) if (block) console.log(`[hono-takibi]\n${block}`)
     }
     state.current = next.value
 
-    addInputGlobs(server, path.resolve(process.cwd(), state.current.input))
+    addInputGlobs(server, toAbs(state.current.input))
     const dirs = outputDirsFromConf(state.current)
-    for (const d of dirs) server.watcher.add(path.resolve(d))
+    for (const d of dirs) server.watcher.add(d)
 
     await runAndReload(server)
   }
 
-  // Return a plain object; the caller may cast to `Plugin`.
   const pluginLike = {
     name: 'hono-takibi-vite',
-    async buildStart() {
-      // No-op: dev mode handles hot config loading in `configureServer`.
+
+    handleHotUpdate(ctx: { file: string; server: DevServerLike }) {
+      const abs = path.resolve(ctx.file)
+      if (abs === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
+        console.log('[hono-takibi] config changed (hot-update)')
+        onConfigChange(ctx.server).catch((e) => console.error('[hono-takibi] hot-update error:', e))
+        return []
+      }
+      return
     },
+
+    async buildStart() {
+      // Dev-only: handled by configureServer
+    },
+
     configureServer(server: DevServerLike) {
       ;(async () => {
-        // Initial hot load of config.
         const first = await loadConfigHot(server)
         if (!first.ok) {
-          // eslint-disable-next-line no-console
           console.error(`[hono-takibi] ✗ config: ${first.error}`)
           return
         }
         const valid = validateConfStrict(first.value)
         if (!valid.ok) {
-          // eslint-disable-next-line no-console
           console.error(`[hono-takibi] ✗ config: ${valid.error}`)
           return
         }
         state.current = first.value
 
-        // Watch input spec and its directory (to catch $ref, etc.)
-        addInputGlobs(server, path.resolve(process.cwd(), state.current.input))
-
-        // Watch split output directories so we can react to unlink events.
+        addInputGlobs(server, toAbs(state.current.input))
         const outDirs = outputDirsFromConf(state.current)
-        for (const d of outDirs) server.watcher.add(path.resolve(d))
+        for (const d of outDirs) server.watcher.add(d)
 
-        // Watch the config itself.
         server.watcher.add(absConfig)
 
-        // Debounced runner for normal file changes.
         const runDebounced = debounce(200, () => void runAndReload(server))
 
-        // Single chokidar 'all' handler covers add/change/unlink.
         server.watcher.on('all', async (_evt, file) => {
           const abs = path.resolve(file)
           if (abs === absConfig) {
-            // eslint-disable-next-line no-console
-            console.log('[hono-takibi] config changed (hot reload)')
+            console.log('[hono-takibi] config changed (watch)')
             await onConfigChange(server)
             return
           }

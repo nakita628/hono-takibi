@@ -12,7 +12,8 @@
       "!**/dist",
       "!**/*.js",
       "!**/routes",
-      "!**/rpcs"
+      "!**/rpcs",
+      "!**/fixtures"
     ]
   },
   "formatter": {
