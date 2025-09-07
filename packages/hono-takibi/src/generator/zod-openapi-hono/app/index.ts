@@ -27,7 +27,14 @@ export function app(
   const registerComponentCode = openapi.components?.securitySchemes
     ? registerComponent(openapi.components.securitySchemes)
     : ''
-  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.doc('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
+  const versionStr = String(openapi.openapi ?? '').trim()
+  const [majStr, minStr] = versionStr.split('.', 3)
+  const major = Number.isFinite(Number(majStr)) ? Number(majStr) : 0
+  const minor = Number.isFinite(Number(minStr)) ? Number(minStr) : 0
+  const is31Plus = major > 3 || (major === 3 && minor >= 1)
+
+  const doc = is31Plus ? 'doc31' : 'doc'
+  const swagger = `if(process.env.NODE_ENV === 'development'){${registerComponentCode}\napp.${doc}('${'/doc'}',${JSON.stringify(docs(openapi))}).get('/ui',swaggerUI({url:'${path}'}))}`
   const sections = [
     [
       `import { swaggerUI } from '@hono/swagger-ui'`,
