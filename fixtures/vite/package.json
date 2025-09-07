@@ -1,0 +1,13 @@
+{
+  "name": "vite",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.0",
+    "hono-takibi": "workspace:^",
+    "vite": "^7.1.4"
+  }
+}
