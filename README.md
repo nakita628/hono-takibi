@@ -264,13 +264,13 @@ export default defineConfig({
   input: 'openapi.json',
   'zod-openapi': {
     schema: {
-      output: './src/index.ts',
+      output: './src/schemas/index.ts',
       exportType: true,
       // split omitted → false (single file)
     },
     route: {
-      output: './src/index.ts',
-      import: '../index',
+      output: './src/routes/index.ts',
+      import: '../schemas',
       // split omitted → false (single file)
     },
   },
