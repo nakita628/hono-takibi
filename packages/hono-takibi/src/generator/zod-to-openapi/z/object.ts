@@ -54,7 +54,6 @@ export function object(schema: Schema): string {
     }
     return s
   }
-
   if (schema.additionalProperties === false) {
     return 'z.strictObject({})'
   }
