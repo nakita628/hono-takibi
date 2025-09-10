@@ -6,8 +6,8 @@ import prisma from '@/infra/prisma'
 type Todo = {
   readonly id: string
   readonly content: string
-  readonly createdAt: string
-  readonly updatedAt: string
+  readonly createdAt: string | Date
+  readonly updatedAt: string | Date
 }
 
 export type TodoRepo = {
@@ -37,11 +37,11 @@ function getTodo(limit: number = 10, offset: number = 0): ResultAsync<Todo[], Ap
     }),
     (e) => dbErr(e),
   ).andThen((rows) => {
-    const todos: Todo[] = rows.map((row: Todo) => ({
+    const todos = rows.map((row: Todo) => ({
       id: row.id,
       content: row.content,
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
+      createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+      updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
     }))
     return ok(todos)
   })
