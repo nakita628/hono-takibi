@@ -114,40 +114,54 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type
 
 ## Configuration File (`hono-takibi.config.ts`)
 
-Use a typed config to drive generation and reuse the same settings with the Vite plugin. The examples below **always set `schema` and `route` together** and keep paths simple.
+Use a **typed config** to drive generation (both the CLI and the Vite plugin read this).
+With `'zod-openapi'`, **`schema` and `route` must always be defined together** (either **both** present or **neither**). Defining only one of them is **invalid**.
 
 ### Field reference (incl. `exportType` / `exportSchema`)
 
 * `input: string` — Path to your OpenAPI (`.yaml`/`.json`) or TypeSpec (`.tsp`) source.
-* `'zod-openapi'` (all-in-one)
 
-  * **Do not set** top‑level `output` when `schema`/`route` blocks are present.
-  * `schema`
+* `'zod-openapi'` (Zod + Hono codegen)
 
-    * `output: string | *.ts` — Directory when `split: true`; otherwise a single `*.ts` file.
-    * `exportType?: boolean` (default: **false**) — Export inferred TS types per schema.
-    * `split?: boolean` — Generate one file per schema (+ `index.ts`).
-    * *Note:* `exportSchema` does **not** exist here; schemas are always exported in this block.
-  * `route`
+  * **Paired mode (using `schema`/`route`)**
 
-    * `output: string | *.ts` — Directory when `split: true`; otherwise a single `*.ts` file.
-    * `import: string` — Import path used by generated routes to reference schemas/types (e.g., `"../schemas"`).
-    * `split?: boolean` — Generate one file per route (+ `index.ts`).
+    * `schema` and `route` are **both required**. Having only one is **invalid** (rejected by validation).
+    * In this mode, the top‑level `'zod-openapi'.output` **must not** be set (mixing is invalid).
+    * `schema`
+
+      * `output: string | *.ts` — **Directory** when `split: true`; otherwise a **single `*.ts` file**.
+      * `exportType?: boolean` (default: **false**) — Export **TS types** inferred from Zod.
+      * `split?: boolean` — Generate one file per schema (+ `index.ts`).
+      * *Note:* `exportSchema` does **not** exist here; schemas are always written when you configure this block.
+    * `route`
+
+      * `output: string | *.ts` — **Directory** when `split: true`; otherwise a **single `*.ts` file**.
+      * `import: string` — Import path that generated routes use to reference schemas/types (e.g., `"../schemas"`).
+      * `split?: boolean` — Generate one file per route (+ `index.ts`).
+    * *Remark:* In paired mode, any top‑level `exportSchema` / `exportType` have **no effect**; use `schema.exportType` instead.
+
+  * **Single‑file mode (using top‑level `output`)**
+
+    * `output: *.ts` — Write Zod and routes into a **single file**.
+    * `exportSchema?: boolean` — Whether to **export Zod schema constants**.
+    * `exportType?: boolean` — Whether to **export TS types** (`z.infer<...>`). When `exportSchema: false`, `exportType` has **no effect**.
+    * In this mode, **do not** define `schema` or `route` blocks.
+
 * `rpc` (optional)
 
-  * `output: string | *.ts` — Directory when `split: true`; otherwise a single `*.ts` file.
+  * `output: string | *.ts` — **Directory** when `split: true`; otherwise a **single `*.ts` file**.
   * `import: string` — Import path used inside generated RPC stubs.
   * `split?: boolean` — Generate one file per operation (+ `index.ts`).
 
 ---
 
-### Example A — Split schemas & split routes + RPC (split)
+### Example A — Split schemas & split routes + RPC (all split)
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
       output: './src/schemas',
@@ -161,7 +175,7 @@ export default defineConfig({
     },
   },
   rpc: {
-    output: './src/rpc/',
+    output: './src/rpc',
     import: '../client',
     split: true,
   },
@@ -174,7 +188,7 @@ export default defineConfig({
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
       output: './src/schemas',
@@ -196,37 +210,37 @@ export default defineConfig({
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
-      output: './src/index.ts',   // one file for all schemas
+      output: './src/schemas/index.ts',  // all schemas into one file
       exportType: true,
       // split omitted → false
     },
     route: {
-      output: './src/index.ts',    // one file for all routes
-      import: './schemas',
+      output: './src/routes/index.ts',   // all routes into one file
+      import: '../schemas',
       // split omitted → false
     },
   },
 })
 ```
 
-### Example D — Single‑file schemas + split routes (mixed, still paired)
+### Example D — Single‑file schemas + split routes (mixed but still paired)
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
-      output: './src/index.ts',
+      output: './src/schemas/index.ts',
       exportType: false,
     },
     route: {
       output: './src/routes',
-      import: './schemas',
+      import: '../schemas',
       split: true,
     },
   },
@@ -255,13 +269,13 @@ export default defineConfig({
 })
 ```
 
-### Example F — Paired, **split omitted** (defaults to non‑split single files)
+### Example F — `split` omitted (defaults to single files)
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
       output: './src/schemas/index.ts',
@@ -277,21 +291,21 @@ export default defineConfig({
 })
 ```
 
-### Example G — (Invalid) Paired but **without `output`** in `schema`/`route`
+### Example G — (Invalid) missing `output` in `schema`/`route`
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     schema: {
-      // ❌ missing output → will fail validation
+      // ❌ missing output → validation will fail
       exportType: true,
       split: true,
     },
     route: {
-      // ❌ missing output → will fail validation
+      // ❌ missing output → validation will fail
       import: '../schemas',
       split: true,
     },
@@ -299,10 +313,12 @@ export default defineConfig({
 })
 ```
 
-> **Why invalid?** In paired mode, `schema.output` and `route.output` are **required**. If you want a single file, set a `*.ts` path and omit `split`; if you want split files, set a **directory** and `split: true`. The loader will otherwise emit errors like:
+> **Why invalid?** In paired mode, `schema.output` and `route.output` are **required**.
+> When `split: true`, `output` must be a **directory**; when `split` is omitted/false, `output` must be a **`*.ts` file**.
+> The validator emits errors such as:
 >
 > * `Invalid schema output path for split mode (must be a directory, not .ts): ...`
-> * `Invalid route output path ...`
+> * `Invalid route output path for non-split mode (must be .ts file): ...`
 
 ### Example H — Top‑level single file (no `schema`/`route`) — export schemas & types
 
@@ -310,11 +326,11 @@ export default defineConfig({
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
-    output: './src/index.ts', // single file; do not set schema/route blocks
-    exportSchema: true,                 // export Zod schema constants
-    exportType: true,                   // also export TS types via z.infer
+    output: './src/index.ts',   // single file; do not use schema/route blocks
+    exportSchema: true,         // export Zod schema constants
+    exportType: true,           // also export TS types via z.infer
   },
 })
 ```
@@ -325,24 +341,25 @@ export default defineConfig({
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts',
-    exportSchema: false, // inline Zod inside routes; no schema exports
-    exportType: false,   // ignored when exportSchema is false
+    exportSchema: false,  // inline Zod within routes; do not export schemas
+    exportType: false,    // has no effect when exportSchema is false
   },
 })
 ```
 
-> When using **top‑level** `'zod-openapi'.output`, **omit** the `schema` and `route` blocks entirely. The loader will reject configs that mix them.
+> When using **top‑level** `'zod-openapi'.output`, **omit** the `schema` and `route` blocks entirely.
+> The validator rejects configs that mix them.
 
-### Example J — Top‑level single file (requested minimal form)
+### Example J — Top‑level minimal form (single file)
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  input: 'openapi.json',
+  input: 'openapi.yaml',
   'zod-openapi': {
     output: 'src/index.ts',
     exportType: true,
@@ -353,7 +370,7 @@ export default defineConfig({
 
 ## HonoTakibiVite
 
-**Auto‑regenerate + HMR**: Whenever you save `hono-takibi.config.ts`, your OpenAPI/TypeSpec input, or any files under the watched folders, the plugin regenerates code and triggers a full reload.
+**Auto‑regenerate + HMR**: whenever `hono-takibi.config.ts`, your `input`, or any watched YAML/JSON/TSP files change, the plugin regenerates code and reloads.
 
 ### Install & wire up
 
@@ -363,28 +380,26 @@ import { defineConfig } from 'vite'
 import { HonoTakibiVite } from 'hono-takibi/vite-plugin'
 
 export default defineConfig({
-  plugins: [
-    HonoTakibiVite(),
-  ],
+  plugins: [HonoTakibiVite()],
 })
 ```
 
-> The plugin auto‑loads `hono-takibi.config.ts` at the project root and uses its settings.
+> The plugin auto‑loads the project‑root `hono-takibi.config.ts` and uses its settings.
 
 ### Behavior summary
 
-* **Watches**: the config file, your `input` file, and nearby `**/*.yaml|json|tsp` files.
+* **Watches**: the config file, `input`, and nearby `**/*.{yaml,json,tsp}` files.
 * **Generates** according to your config for:
 
-  * `zod-openapi` (single file or split `schema` / `route`)
+  * `'zod-openapi'` (single file or split `schema` / `route`)
   * `rpc` (single file or split)
 * **Prunes stale outputs safely**:
 
-  * In split mode it keeps only the expected generated `*.ts` files and removes others.
-  * In non‑split mode it unlinks the single `*.ts` output.
-  * When toggling split↔non‑split or changing output paths, previous outputs are removed.
+  * In split mode, keeps only the expected generated `*.ts` files and removes others.
+  * In non‑split mode, removes the single `*.ts` output.
+  * When toggling split ↔ non‑split or changing output paths, previous outputs are removed.
   * Empty output directories are removed when possible.
-* **No marker files** are created; all pruning is shallow and limited to `*.ts` under the specified output paths.
+* **No marker files** are created; pruning is shallow and limited to `*.ts` under the specified output paths.
 
 ### What gets generated (by mode)
 
@@ -393,8 +408,6 @@ export default defineConfig({
 | Schemas | Single `*.ts`      | One `*.ts` per schema + `index.ts`    |
 | Routes  | Single `*.ts`      | One `*.ts` per route + `index.ts`     |
 | RPC     | Single `*.ts`      | One `*.ts` per operation + `index.ts` |
-
-> Route file names are derived from operations; schema files are derived from component schema names.
 
 ### Demo (Vite + HMR)
 

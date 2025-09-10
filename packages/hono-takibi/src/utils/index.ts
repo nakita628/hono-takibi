@@ -86,7 +86,7 @@ export function parseConfig(config: {
           "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
       }
     }
-
+    
     if (hasSchema || hasRoute) {
       if (Object.hasOwn(zo, 'output')) {
         return {
@@ -145,7 +145,6 @@ export function parseConfig(config: {
     if (hasRoute) {
       const r = zo.route
       if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
-
       if (typeof r.import !== 'string') {
         return {
           ok: false,
@@ -179,7 +178,7 @@ export function parseConfig(config: {
       }
     }
   }
-
+  // rpc
   const rpc = c.rpc
   if (rpc !== undefined) {
     if (typeof rpc.output !== 'string') {
@@ -191,7 +190,7 @@ export function parseConfig(config: {
     if (rpc.split !== undefined && typeof rpc.split !== 'boolean') {
       return { ok: false, error: `Invalid split format for rpc: ${String(rpc.split)}` }
     }
-
+    // split
     const isSplit = rpc.split === true
     if (isSplit) {
       if (isTs(rpc.output)) {
@@ -209,7 +208,6 @@ export function parseConfig(config: {
       }
     }
   }
-
   return { ok: true, value: c }
 }
 
