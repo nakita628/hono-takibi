@@ -97,6 +97,7 @@ export async function schema(
 
     // index.ts
     const indexBody = `${Object.keys(schemas)
+      .sort()
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
     const indexFmt = await fmt(indexBody)

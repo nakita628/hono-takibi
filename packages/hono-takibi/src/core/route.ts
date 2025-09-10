@@ -106,7 +106,10 @@ export async function route(
     if (!wr.ok) return { ok: false, error: wr.error }
   }
 
-  const indexBody = `${blocks.map(({ name }) => `export * from './${lowerFirst(name)}'`).join('\n')}\n`
+  const indexBody = `${blocks
+    .sort()
+    .map(({ name }) => `export * from './${lowerFirst(name)}'`)
+    .join('\n')}\n`
   const indexFmt = await fmt(indexBody)
   if (!indexFmt.ok) return { ok: false, error: indexFmt.error }
 
