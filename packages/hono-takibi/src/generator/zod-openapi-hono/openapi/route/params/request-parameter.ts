@@ -38,7 +38,7 @@ export function requestParameter(
     : ''
   if (requestBodyContentTypes.length > 0 && body?.content) {
     // Eliminate schema duplication
-    const uniqueSchemas = new Map<Readonly<string>, Readonly<string>>()
+    const uniqueSchemas = new Map<string, string>()
     for (const contentType of requestBodyContentTypes) {
       const { schema } = body.content[contentType]
       const z = zodToOpenAPI(schema)

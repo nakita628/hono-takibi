@@ -86,7 +86,7 @@ export function parseConfig(config: {
           "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
       }
     }
-    
+
     if (hasSchema || hasRoute) {
       if (Object.hasOwn(zo, 'output')) {
         return {
@@ -414,13 +414,11 @@ export function registerComponent(securitySchemes: {
  * @returns A record where each key is an import path (e.g., 'user.ts') and the value is an array of route names imported from that path.
  */
 export function importMap(
-  routeMappings: Readonly<
-    {
-      readonly routeName: string
-      readonly handlerName: string
-      readonly path: string
-    }[]
-  >,
+  routeMappings: {
+    readonly routeName: string
+    readonly handlerName: string
+    readonly path: string
+  }[],
   output: `${string}.ts`,
 ): { [importPath: `${string}.ts`]: readonly string[] } {
   const importsMap: { [importPath: string]: string[] } = {}
@@ -552,13 +550,11 @@ export function groupHandlersByFileName(
  * @returns A map where keys are handler file names and values are arrays of handler names.
  */
 export function getHandlerImports(
-  handlerMaps: Readonly<
-    {
-      readonly routeName: string
-      readonly handlerName: string
-      readonly path: string
-    }[]
-  >,
+  handlerMaps: {
+    readonly routeName: string
+    readonly handlerName: string
+    readonly path: string
+  }[],
 ): { [fileName: `${string}.ts`]: readonly string[] } {
   const getHandlerImports: { [fileName: string]: string[] } = {}
   for (const { handlerName, path } of handlerMaps) {

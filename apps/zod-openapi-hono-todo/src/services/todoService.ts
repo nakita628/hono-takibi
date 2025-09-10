@@ -5,13 +5,13 @@ import { makeDrizzleTodoRepo } from '@/repository/drizzle/todoRepository'
 // import { makePrismaTodoRepo } from '@/repository/prisma/todoRepository'
 import { type Todo, TodoSchema } from '@/schema/todo'
 
-export type TodoService = Readonly<{
+export type TodoService = {
   getTodo: (limit?: number, offset?: number) => ResultAsync<Todo[], AppError>
   postTodo: (content: string) => ResultAsync<void, AppError>
   getTodoId: (id: string) => ResultAsync<Todo, AppError>
   putTodoId: (id: string, content: string) => ResultAsync<void, AppError>
   deleteTodoId: (id: string) => ResultAsync<void, AppError>
-}>
+}
 
 export const todoService = makeTodoService(makeDrizzleTodoRepo())
 

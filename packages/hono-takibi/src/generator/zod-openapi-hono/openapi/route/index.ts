@@ -1,9 +1,8 @@
 import type { OpenAPIPaths, Operation, Parameters } from '../../../../openapi/index.js'
 import { route } from './route.js'
 
-type HttpMethod = Readonly<
-  'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
->
+type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
+
 const METHODS: ReadonlyArray<HttpMethod> = [
   'get',
   'put',
