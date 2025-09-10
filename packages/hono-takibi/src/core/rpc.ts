@@ -259,21 +259,15 @@ const buildArgSignature = (paramsType: string, bodyType: string | null) =>
         ? `body:${bodyType}`
         : ''
 
-/** pass query as-is (keep numbers/arrays) */
+/** pass path/query as-is (keep numbers/arrays) */
 const buildClientArgs = (
   pathParams: ParameterLike[],
   queryParams: ParameterLike[],
   hasBody: boolean,
 ) => {
   const pieces: string[] = []
-  if (pathParams.length) {
-    const inner = pathParams.map((p) => `${p.name}:params.path.${p.name}`).join(',')
-    pieces.push(`param:{${inner}}`)
-  }
-  if (queryParams.length) {
-    const inner = queryParams.map((p) => `${p.name}:params.query.${p.name}`).join(',')
-    pieces.push(`query:{${inner}}`)
-  }
+  if (pathParams.length) pieces.push('param:params.path')
+  if (queryParams.length) pieces.push('query:params.query')
   if (hasBody) pieces.push('json:body')
   return pieces.length ? `{${pieces.join(',')}}` : ''
 }
@@ -324,7 +318,7 @@ const generateOperationCode = (
   return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${pathStr}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
 }
 
-/* ─────────────────────────────── Split 出力先解決 ─────────────────────────────── */
+/* ─────────────────────────────── Split ─────────────────────────────── */
 
 const resolveSplitOutDir = (output: string) => {
   const looksLikeFile = output.endsWith('.ts')
