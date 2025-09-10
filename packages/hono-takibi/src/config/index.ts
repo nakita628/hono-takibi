@@ -48,8 +48,7 @@ export async function config(): Promise<
     if (!('default' in mod) || mod.default === undefined) {
       return { ok: false, error: 'Config must export default object' }
     }
-    const c = mod.default
-    const result = parseConfig(c)
+    const result = parseConfig(mod.default)
     if (!result.ok) return { ok: false, error: result.error }
     return { ok: true, value: result.value }
   } catch (e) {
