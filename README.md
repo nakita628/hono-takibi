@@ -229,7 +229,7 @@ That’s it — set `input`, choose one of the two patterns, and (optionally) ad
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
 
-## With AI Prompt　Example
+## With AI Prompt Example
 
 ```sh
 Generate one **OpenAPI 3.x+** YAML (prefer **3.1.0**).
