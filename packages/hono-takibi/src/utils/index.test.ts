@@ -14,6 +14,7 @@ import {
   methodPath,
   normalizeTypes,
   parseCli,
+  parseConfig,
   refSchema,
   regex,
   registerComponent,
@@ -25,6 +26,353 @@ import {
 // pnpm vitest run ./src/utils/index.test.ts
 
 describe('utils', () => {
+  // parseConfig
+  describe('parseConfig', () => {
+    describe('parseConfig', () => {
+      it.concurrent('passes: legacy top-level output mode', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            output: 'routes/index.ts',
+            exportType: true,
+            exportSchema: true,
+          },
+          rpc: {
+            output: 'rpc/index.ts',
+            import: "import { client } from '../index.ts'",
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: true,
+          value: {
+            input: 'openapi.yaml',
+            'zod-openapi': { output: 'routes/index.ts', exportType: true, exportSchema: true },
+            rpc: {
+              output: 'rpc/index.ts',
+              import: "import { client } from '../index.ts'",
+            },
+          },
+        })
+      })
+      it.concurrent('passes: schema+route non-split mode (.ts outputs)', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            exportType: true,
+            exportSchema: false,
+            schema: {
+              output: 'src/schemas/index.ts',
+              exportType: true,
+            },
+            route: {
+              output: 'src/routes/index.ts',
+              import: '../schemas',
+            },
+          },
+          rpc: {
+            output: 'src/rpc/index.ts',
+            import: '../client',
+          },
+        })
+        expect(result.ok).toBe(true)
+      })
+      it.concurrent('passes: schema+route split mode (dir outputs) + rpc split dir', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            schema: {
+              output: 'src/schemas', // dir
+              split: true,
+            },
+            route: {
+              output: 'src/routes', // dir
+              import: '../schemas',
+              split: true,
+            },
+          },
+          rpc: {
+            output: 'src/rpc', // dir
+            import: '../client',
+            split: true,
+          },
+        })
+        expect(result.ok).toBe(true)
+      })
+      it.concurrent('fails: XOR - schema only (route missing)', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas/index.ts' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
+        })
+      })
+      it.concurrent('fails: XOR - route only (schema missing)', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            route: { output: 'src/routes/index.ts', import: '../schemas' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
+        })
+      })
+      it.concurrent('fails: schema+route present but top-level output also set', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            output: 'routes/index.ts',
+            schema: { output: 'src/schemas/index.ts' },
+            route: { output: 'src/routes/index.ts', import: '../schemas' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
+        })
+      })
+      it.concurrent('fails: legacy top-level output not .ts', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            // biome-ignore lint: test
+            output: 'routes/' as any, // not .ts
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid output format for zod-openapi: routes/',
+        })
+      })
+      it.concurrent('fails: schema.split=true but .ts file given', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas/index.ts', split: true },
+            route: { output: 'src/routes', import: '../schemas', split: true },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            'Invalid schema output path for split mode (must be a directory, not .ts): src/schemas/index.ts',
+        })
+      })
+      it.concurrent('fails: schema non-split but output not .ts', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas' },
+            route: { output: 'src/routes/index.ts', import: '../schemas' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid schema output path for non-split mode (must be .ts file): src/schemas',
+        })
+      })
+      it.concurrent('fails: route.import not string', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas/index.ts' },
+            // biome-ignore lint: test
+            route: { output: 'src/routes/index.ts', import: 123 as any },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid route import format for zod-openapi: 123',
+        })
+      })
+      it.concurrent('fails: route.split not boolean', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas/index.ts' },
+            route: {
+              output: 'src/routes/index.ts',
+              import: '../schemas',
+              // biome-ignore lint: test
+              split: 'yes' as any,
+            },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid route split format for zod-openapi: yes',
+        })
+      })
+      it.concurrent('fails: route non-split but output not .ts', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': {
+            schema: { output: 'src/schemas/index.ts' },
+            route: { output: 'src/routes/', import: '../schemas' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid route output path for non-split mode (must be .ts file): src/routes/',
+        })
+      })
+      it.concurrent('fails: route.split=true but .ts file given', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            schema: { output: 'src/schemas', split: true },
+            route: { output: 'src/routes/index.ts', import: '../schemas', split: true },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            'Invalid route output path for split mode (must be a directory, not .ts): src/routes/index.ts',
+        })
+      })
+      it.concurrent('fails: zod-openapi.exportSchema not boolean', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            output: 'routes/index.ts',
+            // biome-ignore lint: test
+            exportSchema: 'true' as any,
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid exportSchema format for zod-openapi: true',
+        })
+      })
+      it.concurrent('fails: zod-openapi.exportType not boolean', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            output: 'routes/index.ts',
+            // biome-ignore lint: test
+            exportType: 1 as any,
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid exportType format for zod-openapi: 1',
+        })
+      })
+      it.concurrent('fails: schema.exportType not boolean', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            schema: {
+              output: 'src/schemas/index.ts',
+              // biome-ignore lint: test
+              exportType: 'yes' as any,
+            },
+            route: { output: 'src/routes/index.ts', import: '../schemas' },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid schema exportType format for zod-openapi: yes',
+        })
+      })
+      it.concurrent('fails: rpc.output not string', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': { output: 'routes/index.ts' },
+          rpc: {
+            // biome-ignore lint: test
+            output: 42 as any,
+            import: '../client',
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid output format for rpc: 42',
+        })
+      })
+      it.concurrent('fails: rpc.import not string', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          'zod-openapi': { output: 'routes/index.ts' },
+          rpc: {
+            output: 'rpc/index.ts',
+            // biome-ignore lint: test
+            import: true as any,
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid import format for rpc: true',
+        })
+      })
+
+      it.concurrent('fails: rpc.split not boolean', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': { output: 'routes/index.ts' },
+          rpc: {
+            output: 'rpc/index.ts',
+            import: '../client',
+            // biome-ignore lint: test
+            split: 'nope' as any,
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid split format for rpc: nope',
+        })
+      })
+      it.concurrent('fails: rpc split mode but .ts output given', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': { output: 'routes/index.ts' },
+          rpc: {
+            output: 'rpc/index.ts',
+            import: '../client',
+            split: true,
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            'Invalid rpc output path for split mode (must be a directory, not .ts): rpc/index.ts',
+        })
+      })
+      it.concurrent('fails: rpc non-split but output not .ts', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': { output: 'routes/index.ts' },
+          rpc: {
+            output: 'rpc/',
+            import: '../client',
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid output format for rpc (non-split mode must be .ts file): rpc/',
+        })
+      })
+      it.concurrent('fails: invalid input extension (.yml is not allowed)', () => {
+        const result = parseConfig({
+          // biome-ignore lint: test
+          input: 'openapi.yml' as any,
+          'zod-openapi': { output: 'routes/index.ts' },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid input: openapi.yml (must be .yaml | .json | .tsp)',
+        })
+      })
+    })
+  })
   // parseCli
   describe('parseCli', () => {
     it('parses minimal valid input', () => {

@@ -436,7 +436,6 @@ describe('rpc', () => {
 
       const result = await rpc(input, out, '../index.ts', false)
 
-      // 失敗時は即時に原因が見えるようにする（任意だが便利）
       if (!result.ok) {
         throw new Error(result.error)
       }
@@ -500,14 +499,7 @@ export async function getUsers(params: {
     q: string
   }
 }) {
-  return await client.users.$get({
-    query: {
-      limit: params.query.limit,
-      offset: params.query.offset,
-      role: params.query.role,
-      q: params.query.q,
-    },
-  })
+  return await client.users.$get({ query: params.query })
 }
 
 /**
@@ -544,7 +536,7 @@ export async function postUsers(body: {
  * GET /users/{id}
  */
 export async function getUsersId(params: { path: { id: string } }) {
-  return await client.users[':id'].$get({ param: { id: params.path.id } })
+  return await client.users[':id'].$get({ param: params.path })
 }
 
 /**
@@ -573,7 +565,7 @@ export async function putUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$put({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$put({ param: params.path, json: body })
 }
 
 /**
@@ -584,7 +576,7 @@ export async function putUsersId(
  * DELETE /users/{id}
  */
 export async function deleteUsersId(params: { path: { id: string } }) {
-  return await client.users[':id'].$delete({ param: { id: params.path.id } })
+  return await client.users[':id'].$delete({ param: params.path })
 }
 
 /**
@@ -613,10 +605,9 @@ export async function patchUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$patch({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$patch({ param: params.path, json: body })
 }
 `
-
       expect(index).toStrictEqual(expected)
       expect(result.ok).toBe(true)
       expect(result.value).toMatch(/Generated rpc code written to/)
@@ -663,7 +654,7 @@ export * from './putUsersId'
  * DELETE /users/{id}
  */
 export async function deleteUsersId(params: { path: { id: string } }) {
-  return await client.users[':id'].$delete({ param: { id: params.path.id } })
+  return await client.users[':id'].$delete({ param: params.path })
 }
 `
       expect(deleteUsersId).toBe(deleteUsersIdExpected)
@@ -727,14 +718,7 @@ export async function getUsers(params: {
     q: string
   }
 }) {
-  return await client.users.$get({
-    query: {
-      limit: params.query.limit,
-      offset: params.query.offset,
-      role: params.query.role,
-      q: params.query.q,
-    },
-  })
+  return await client.users.$get({ query: params.query })
 }
 `
       expect(getUsers).toBe(expected)
@@ -751,7 +735,7 @@ export async function getUsers(params: {
  * GET /users/{id}
  */
 export async function getUsersId(params: { path: { id: string } }) {
-  return await client.users[':id'].$get({ param: { id: params.path.id } })
+  return await client.users[':id'].$get({ param: params.path })
 }
 `
       expect(getUsersId).toBe(getUsersIdExpected)
@@ -806,7 +790,7 @@ export async function patchUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$patch({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$patch({ param: params.path, json: body })
 }
 `
       expect(patchUsersId).toBe(patchUsersIdExpected)
@@ -872,7 +856,7 @@ export async function putUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$put({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$put({ param: params.path, json: body })
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)

@@ -24,8 +24,19 @@ export function object(schema: Schema): string {
         if (schema.additionalProperties === true) {
           return s.replace('object', 'looseObject')
         }
+        if (schema.additionalProperties === false) {
+          return s.replace('object', 'strictObject')
+        }
+        return s
       }
-      return 'z.any()'
+      const s = 'z.object({})'
+      if (schema.additionalProperties === true) {
+        return s.replace('object', 'looseObject')
+      }
+      if (schema.additionalProperties === false) {
+        return s.replace('object', 'strictObject')
+      }
+      return s
     }
     const s = zodToOpenAPI(schema.additionalProperties)
     return `z.record(z.string(),${s})`
@@ -38,7 +49,16 @@ export function object(schema: Schema): string {
     if (schema.additionalProperties === false) {
       return s.replace('object', 'strictObject')
     }
+    if (schema.additionalProperties === true) {
+      return s.replace('object', 'looseObject')
+    }
     return s
+  }
+  if (schema.additionalProperties === false) {
+    return 'z.strictObject({})'
+  }
+  if (schema.additionalProperties === true) {
+    return 'z.looseObject({})'
   }
   return 'z.object({})'
 }

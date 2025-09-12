@@ -13,7 +13,8 @@
       "!**/*.js",
       "!**/routes",
       "!**/rpcs",
-      "!**/fixtures"
+      "!**/fixtures/vite/src/handlers",
+      "!**/fixtures/vite/src/rpcs"
     ]
   },
   "formatter": {

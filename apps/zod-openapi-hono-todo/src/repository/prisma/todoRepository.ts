@@ -3,20 +3,20 @@ import type { AppError } from '@/domain/errorDomain'
 import { dbErr } from '@/domain/errorDomain'
 import prisma from '@/infra/prisma'
 
-type Todo = Readonly<{
-  id: string
-  content: string
-  createdAt: string
-  updatedAt: string
-}>
+type Todo = {
+  readonly id: string
+  readonly content: string
+  readonly createdAt: string | Date
+  readonly updatedAt: string | Date
+}
 
-export type TodoRepo = Readonly<{
+export type TodoRepo = {
   getTodo: (limit: number, offset: number) => ResultAsync<Todo[], AppError>
   postTodo: (content: string) => ResultAsync<void, AppError>
   getTodoId: (id: string) => ResultAsync<Todo, AppError>
   putTodoId: (id: string, content: string) => ResultAsync<void, AppError>
   deleteTodoId: (id: string) => ResultAsync<void, AppError>
-}>
+}
 
 export function makePrismaTodoRepo(): TodoRepo {
   return {
@@ -37,11 +37,11 @@ function getTodo(limit: number = 10, offset: number = 0): ResultAsync<Todo[], Ap
     }),
     (e) => dbErr(e),
   ).andThen((rows) => {
-    const todos: Todo[] = rows.map((row) => ({
+    const todos = rows.map((row: Todo) => ({
       id: row.id,
       content: row.content,
-      createdAt: row.createdAt.toISOString(),
-      updatedAt: row.updatedAt.toISOString(),
+      createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt,
+      updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : row.updatedAt,
     }))
     return ok(todos)
   })

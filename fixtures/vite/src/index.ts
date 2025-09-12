@@ -1,7 +1,7 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
-    deleteUsersIdRouteHandler,
+  deleteUsersIdRouteHandler,
   getHonoRouteHandler,
   getHonoXRouteHandler,
   getUsersIdRouteHandler,

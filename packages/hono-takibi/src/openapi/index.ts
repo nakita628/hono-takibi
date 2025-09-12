@@ -13,9 +13,9 @@ import { typeSpecToOpenAPI } from '../typespec/index.js'
  *   B -->|Yes| C["typeSpecToOpenAPI(input)"]
  *   C --> D{"tsp.ok?"}
  *   D -->|No| E["return { ok:false, error }"]
- *   D -->|Yes| F["SwaggerParser.parse(tsp.value)"]
+ *   D -->|Yes| F["SwaggerParser.bundle(tsp.value)"]
  *   F --> G["return { ok:true, value: OpenAPI }"]
- *   B -->|No| H["SwaggerParser.parse(input)"]
+ *   B -->|No| H["SwaggerParser.bundle(input)"]
  *   H --> I["return { ok:true, value: OpenAPI }"]
  *   A -.->|catch| J["return { ok:false, error }"]
  * ```
@@ -43,13 +43,13 @@ export async function parseOpenAPI(input: string): Promise<
       // to treat `tsp.value` as an OpenAPI specification.
       // This cast is required both for parsing the spec and for ensuring
       // type safety in the generator process.
-      const spec = (await SwaggerParser.bundle(tsp.value as unknown as string)) as Readonly<OpenAPI>
+      const spec = (await SwaggerParser.bundle(tsp.value as unknown as string)) as OpenAPI
       return { ok: true, value: spec }
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
     // The parser validates the spec at runtime but does not express this guarantee in its type definition,
     // so we assert `OpenAPI` here to enable typed access in the generator.
-    const spec = (await SwaggerParser.bundle(input)) as Readonly<OpenAPI>
+    const spec = (await SwaggerParser.bundle(input)) as OpenAPI
     return { ok: true, value: spec }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

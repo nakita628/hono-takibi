@@ -26,5 +26,5 @@ export async function patchUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$patch({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$patch({ param: params.path, json: body })
 }

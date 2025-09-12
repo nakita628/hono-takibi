@@ -18,7 +18,7 @@ export default defineConfig({
     },
   },
   rpc: {
-    output: './src/rpc/',
+    output: './src/rpc',
     import: '../client',
     split: true,
   },

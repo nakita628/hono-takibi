@@ -26,5 +26,5 @@ export async function putUsersId(
     affiliations?: string[]
   },
 ) {
-  return await client.users[':id'].$put({ param: { id: params.path.id }, json: body })
+  return await client.users[':id'].$put({ param: params.path, json: body })
 }
