@@ -101,7 +101,7 @@ vi.mock('../fsp/index.js', () => ({
 // ──────────────────────────────────────────────────────────────
 // SUT import (after mocks)
 // ──────────────────────────────────────────────────────────────
-import { HonoTakibiVite } from './index'
+import { honoTakibiVite } from './index'
 
 // ──────────────────────────────────────────────────────────────
 // Sandbox lifecycle (no let; mutate a const state object)
@@ -136,7 +136,7 @@ afterEach(async () => {
 // Tests
 // ──────────────────────────────────────────────────────────────
 
-describe('HonoTakibiVite (no marker behavior)', () => {
+describe('honoTakibiVite (no marker behavior)', () => {
   it('does not create .hono-takibi.generated in split outputs and shallow-prunes stray .ts files', async () => {
     const conf = {
       input: 'openapi.yaml',
@@ -148,7 +148,7 @@ describe('HonoTakibiVite (no marker behavior)', () => {
     }
 
     const { server, reloaded } = makeDevServerMock(conf)
-    const plugin = HonoTakibiVite()
+    const plugin = honoTakibiVite()
 
     plugin.configureServer(server)
     await reloaded
