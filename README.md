@@ -204,16 +204,18 @@ export default defineConfig({
 
 ---
 
-## Vite Plugin (`HonoTakibiVite`)
+## Vite Plugin (`honoTakibiVite`)
 
 Auto‑regenerates on changes and reloads dev server.
 
 ```ts
 // vite.config.ts
+import { honoTakibiVite } from 'hono-takibi/vite-plugin'
 import { defineConfig } from 'vite'
-import { HonoTakibiVite } from 'hono-takibi/vite-plugin'
 
-export default defineConfig({ plugins: [HonoTakibiVite()] })
+export default defineConfig({
+  plugins: [honoTakibiVite()],
+})
 ```
 
 **What it does**

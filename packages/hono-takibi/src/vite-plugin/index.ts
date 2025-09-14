@@ -479,7 +479,7 @@ const outputDirsFromConf = (c: Conf): string[] => {
  * ────────────────────────────────────────────────────────────── */
 
 // biome-ignore lint: plugin
-export function HonoTakibiVite(): any {
+export function honoTakibiVite(): any {
   const state: { current: Conf | null } = { current: null }
   const absConfig = path.resolve(process.cwd(), 'hono-takibi.config.ts')
 
