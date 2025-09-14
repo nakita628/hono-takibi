@@ -10,7 +10,9 @@ const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
 
 const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   if (!isRecord(v)) return false
-  for (const k in v) if (!isRecord(v[k])) return false
+  for (const k in v) {
+    if (!isRecord(v[k])) return false
+  }
   return true
 }
 
@@ -259,21 +261,15 @@ const buildArgSignature = (paramsType: string, bodyType: string | null) =>
         ? `body:${bodyType}`
         : ''
 
-/** pass query as-is (keep numbers/arrays) */
+/** pass path/query as-is (keep numbers/arrays) */
 const buildClientArgs = (
   pathParams: ParameterLike[],
   queryParams: ParameterLike[],
   hasBody: boolean,
 ) => {
   const pieces: string[] = []
-  if (pathParams.length) {
-    const inner = pathParams.map((p) => `${p.name}:params.path.${p.name}`).join(',')
-    pieces.push(`param:{${inner}}`)
-  }
-  if (queryParams.length) {
-    const inner = queryParams.map((p) => `${p.name}:params.query.${p.name}`).join(',')
-    pieces.push(`query:{${inner}}`)
-  }
+  if (pathParams.length) pieces.push('param:params.path')
+  if (queryParams.length) pieces.push('query:params.query')
   if (hasBody) pieces.push('json:body')
   return pieces.length ? `{${pieces.join(',')}}` : ''
 }
@@ -324,7 +320,7 @@ const generateOperationCode = (
   return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${pathStr}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
 }
 
-/* ─────────────────────────────── Split 出力先解決 ─────────────────────────────── */
+/* ─────────────────────────────── Split ─────────────────────────────── */
 
 const resolveSplitOutDir = (output: string) => {
   const looksLikeFile = output.endsWith('.ts')
@@ -405,14 +401,14 @@ export async function rpc(
         // One file per RPC function: <funcName>.ts
         const funcName = methodPath(method, p)
         const fileSrc = `${header}${code}\n`
-        const fmtCode = await fmt(fileSrc)
-        if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
+        const fmtResult = await fmt(fileSrc)
+        if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
 
         const { outDir } = resolveSplitOutDir(output)
         const filePath = path.join(outDir, `${funcName}.ts`)
         const mk = await mkdir(path.dirname(filePath))
         if (!mk.ok) return { ok: false, error: mk.error }
-        const wr = await writeFile(filePath, fmtCode.value)
+        const wr = await writeFile(filePath, fmtResult.value)
         if (!wr.ok) return { ok: false, error: wr.error }
 
         splitExports.add(`export * from './${funcName}'`)
@@ -429,22 +425,22 @@ export async function rpc(
 
     const code = `${header}${combinedOut.join('\n\n')}${combinedOut.length ? '\n' : ''}`
 
-    const fmtCode = await fmt(code)
-    if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
-    const wr = await writeFile(output, fmtCode.value)
-    if (!wr.ok) return { ok: false, error: wr.error }
+    const fmtResult = await fmt(code)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+    const writeResult = await writeFile(output, fmtResult.value)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
     return { ok: true, value: `Generated rpc code written to ${output}` }
   }
 
   // Split: write index.ts (barrel)
   const { outDir, indexPath } = resolveSplitOutDir(output)
   const indexBody = `${Array.from(splitExports).sort().join('\n')}\n`
-  const indexFmt = await fmt(indexBody)
-  if (!indexFmt.ok) return { ok: false, error: indexFmt.error }
-  const mkIndex = await mkdir(path.dirname(indexPath))
-  if (!mkIndex.ok) return { ok: false, error: mkIndex.error }
-  const wrIndex = await writeFile(indexPath, indexFmt.value)
-  if (!wrIndex.ok) return { ok: false, error: wrIndex.error }
+  const fmtResult = await fmt(indexBody)
+  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+  const mkdirResult = await mkdir(path.dirname(indexPath))
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  const writeResult = await writeFile(indexPath, fmtResult.value)
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
   return { ok: true, value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)` }
 }

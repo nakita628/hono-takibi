@@ -54,16 +54,16 @@ export async function route(
       schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
 
     const finalSrc = [importHono, importSchemas, '\n', routesSrc].filter(Boolean).join('\n')
-    const fmtCode = await fmt(finalSrc)
-    if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
+    const fmtResult = await fmt(finalSrc)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
 
-    const mk = await mkdir(path.dirname(output))
-    if (!mk.ok) return { ok: false, error: mk.error }
+    const mkdirResult = await mkdir(path.dirname(output))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
-    const wr = await writeFile(output, fmtCode.value)
-    return wr.ok
+    const writeResult = await writeFile(output, fmtResult.value)
+    return writeResult.ok
       ? { ok: true, value: `Generated route code written to ${output}` }
-      : { ok: false, error: wr.error }
+      : { ok: false, error: writeResult.error }
   }
 
   const outDir = (output as string).replace(/\.ts$/, '')
@@ -77,14 +77,14 @@ export async function route(
       schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
     const finalSrc = [importHono, importSchemas, '\n', routesSrc].filter(Boolean).join('\n')
 
-    const fmtCode = await fmt(finalSrc)
-    if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
-    const mk = await mkdir(path.dirname(output))
-    if (!mk.ok) return { ok: false, error: mk.error }
-    const wr = await writeFile(output, fmtCode.value)
-    return wr.ok
+    const fmtResult = await fmt(finalSrc)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+    const mkdirResult = await mkdir(path.dirname(output))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+    const writeResult = await writeFile(output, fmtResult.value)
+    return writeResult.ok
       ? { ok: true, value: `Generated route code written to ${output}` }
-      : { ok: false, error: wr.error }
+      : { ok: false, error: writeResult.error }
   }
 
   for (const { name, block } of blocks) {
@@ -95,26 +95,29 @@ export async function route(
       schemaTokens.length > 0 ? `import { ${schemaTokens.join(',')} } from '${importPath}'` : ''
     const fileSrc = [importHono, importSchemas, '\n', block, ''].filter(Boolean).join('\n')
 
-    const fmtCode = await fmt(fileSrc)
-    if (!fmtCode.ok) return { ok: false, error: fmtCode.error }
+    const fmtResult = await fmt(fileSrc)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
 
     const filePath = `${outDir}/${lowerFirst(name)}.ts`
-    const mk = await mkdir(path.dirname(filePath))
-    if (!mk.ok) return { ok: false, error: mk.error }
+    const mkdirResult = await mkdir(path.dirname(filePath))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
-    const wr = await writeFile(filePath, fmtCode.value)
-    if (!wr.ok) return { ok: false, error: wr.error }
+    const writeResult = await writeFile(filePath, fmtResult.value)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
   }
 
-  const indexBody = `${blocks.map(({ name }) => `export * from './${lowerFirst(name)}'`).join('\n')}\n`
-  const indexFmt = await fmt(indexBody)
-  if (!indexFmt.ok) return { ok: false, error: indexFmt.error }
+  const indexBody = `${blocks
+    .sort()
+    .map(({ name }) => `export * from './${lowerFirst(name)}'`)
+    .join('\n')}\n`
+  const fmtResult = await fmt(indexBody)
+  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
 
-  const mkIndex = await mkdir(path.dirname(`${outDir}/index.ts`))
-  if (!mkIndex.ok) return { ok: false, error: mkIndex.error }
+  const mkdirResult = await mkdir(path.dirname(`${outDir}/index.ts`))
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
-  const wrIndex = await writeFile(`${outDir}/index.ts`, indexFmt.value)
-  if (!wrIndex.ok) return { ok: false, error: wrIndex.error }
+  const writeResult = await writeFile(`${outDir}/index.ts`, fmtResult.value)
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
   return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
 }

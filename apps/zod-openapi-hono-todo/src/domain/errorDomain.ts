@@ -1,6 +1,6 @@
-type NotFound = Readonly<{ kind: 'NOT_FOUND'; message: string }>
-type DBError = Readonly<{ kind: 'DB_ERROR'; message: string }>
-type InternalServerError = Readonly<{ kind: 'INTERNAL_SERVER_ERROR'; message: string }>
+type NotFound = { readonly kind: 'NOT_FOUND'; readonly message: string }
+type DBError = { readonly kind: 'DB_ERROR'; readonly message: string }
+type InternalServerError = { readonly kind: 'INTERNAL_SERVER_ERROR'; readonly message: string }
 export type AppError = DBError | NotFound | InternalServerError
 
 export function dbErr(e: unknown): AppError {

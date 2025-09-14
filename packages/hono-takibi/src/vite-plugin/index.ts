@@ -8,19 +8,9 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { methodPath } from '../utils/index.js'
+import { methodPath, parseConfig } from '../utils/index.js'
 
-/* ──────────────────────────────────────────────────────────────
- * Types & guards (keep local; .yml is not allowed)
- * ────────────────────────────────────────────────────────────── */
-
-type YamlJsonTsp = `${string}.yaml` | `${string}.json` | `${string}.tsp`
-type TsFile = `${string}.ts`
-
-const isYamlOrJsonOrTsp = (i: unknown): i is YamlJsonTsp =>
-  typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
-
-const isTs = (o: unknown): o is TsFile => typeof o === 'string' && o.endsWith('.ts')
+type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
@@ -50,31 +40,6 @@ type DevServerLike = {
   ssrLoadModule: (id: string) => Promise<unknown>
 }
 
-// Keep same surface as hono-takibi.config.ts
-type Conf = {
-  readonly input: YamlJsonTsp
-  readonly 'zod-openapi'?: {
-    readonly output?: TsFile
-    readonly exportType?: boolean
-    readonly exportSchema?: boolean
-    readonly schema?: {
-      readonly output: string | TsFile
-      readonly exportType?: boolean
-      readonly split?: boolean
-    }
-    readonly route?: {
-      readonly output: string | TsFile
-      readonly import: string
-      readonly split?: boolean
-    }
-  }
-  readonly rpc?: {
-    readonly output: string | TsFile
-    readonly import: string
-    readonly split?: boolean
-  }
-}
-
 /* ──────────────────────────────────────────────────────────────
  * Small helpers (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
@@ -85,16 +50,6 @@ const isOperationLike = (v: unknown): v is { readonly responses?: unknown } =>
   isRecord(v) && 'responses' in v
 const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s)
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
-
-/* ──────────────────────────────────────────────────────────────
- * Config hot-loader (no `as`; narrow via Reflect + guards)
- * ────────────────────────────────────────────────────────────── */
-
-const isConf = (v: unknown): v is Conf => {
-  if (!isRecord(v)) return false
-  const input = Reflect.get(v, 'input')
-  return isYamlOrJsonOrTsp(input)
-}
 
 const loadConfigHot = async (
   server: DevServerLike,
@@ -109,164 +64,16 @@ const loadConfigHot = async (
     } else {
       server.moduleGraph.invalidateAll()
     }
-    const mod: unknown = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
+
+    const mod = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
     const def = isRecord(mod) ? Reflect.get(mod, 'default') : undefined
-    if (!isConf(def)) {
-      return { ok: false, error: 'Config must export default object' }
-    }
-    return { ok: true, value: def }
+    if (def === undefined) return { ok: false, error: 'Config must export default object' }
+    // as unknown as Conf
+    const parsed = parseConfig(def as Conf)
+    return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
-}
-
-/* ──────────────────────────────────────────────────────────────
- * Strict validation (messages aligned with config())
- * ────────────────────────────────────────────────────────────── */
-
-type Valid = { ok: true } | { ok: false; error: string }
-
-const validateConfStrict = (c: Conf): Valid => {
-  // input
-  if (!isYamlOrJsonOrTsp(c.input)) {
-    return { ok: false, error: `Invalid input format for zod-openapi: ${String(c.input)}` }
-  }
-
-  // zod-openapi
-  const zo = c['zod-openapi']
-  if (zo) {
-    if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
-      }
-    }
-    if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
-      }
-    }
-
-    const hasSchema = zo.schema !== undefined
-    const hasRoute = zo.route !== undefined
-
-    if (hasSchema || hasRoute) {
-      if (Object.hasOwn(zo, 'output')) {
-        return {
-          ok: false,
-          error:
-            "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
-        }
-      }
-    } else {
-      if (!isTs(zo.output)) {
-        return { ok: false, error: `Invalid output format for zod-openapi: ${String(zo.output)}` }
-      }
-    }
-
-    if (hasSchema) {
-      const s = zo.schema
-      if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
-      if (s.split !== undefined && typeof s.split !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid schema split format for zod-openapi: ${String(s.split)}`,
-        }
-      }
-      if (typeof s.output !== 'string') {
-        return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
-      }
-      if (s.split === true) {
-        if (isTs(s.output)) {
-          return {
-            ok: false,
-            error: `Invalid schema output path for split mode (must be a directory, not .ts): ${s.output}`,
-          }
-        }
-      } else {
-        if (!isTs(s.output)) {
-          return {
-            ok: false,
-            error: `Invalid schema output path for non-split mode (must be .ts file): ${s.output}`,
-          }
-        }
-      }
-      if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid schema exportType format for zod-openapi: ${String(s.exportType)}`,
-        }
-      }
-    }
-
-    if (hasRoute) {
-      const r = zo.route
-      if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
-      if (typeof r.import !== 'string') {
-        return {
-          ok: false,
-          error: `Invalid route import format for zod-openapi: ${String(r.import)}`,
-        }
-      }
-      if (r.split !== undefined && typeof r.split !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid route split format for zod-openapi: ${String(r.split)}`,
-        }
-      }
-      if (typeof r.output !== 'string') {
-        return { ok: false, error: `Invalid route output path: ${String(r.output)}` }
-      }
-      if (r.split === true) {
-        if (isTs(r.output)) {
-          return {
-            ok: false,
-            error: `Invalid route output path for split mode (must be a directory, not .ts): ${r.output}`,
-          }
-        }
-      } else {
-        if (!isTs(r.output)) {
-          return {
-            ok: false,
-            error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
-          }
-        }
-      }
-    }
-  }
-
-  // rpc
-  const rp = c.rpc
-  if (rp) {
-    if (typeof rp.output !== 'string') {
-      return { ok: false, error: `Invalid output format for rpc: ${String(rp.output)}` }
-    }
-    if (typeof rp.import !== 'string') {
-      return { ok: false, error: `Invalid import format for rpc: ${String(rp.import)}` }
-    }
-    if (rp.split !== undefined && typeof rp.split !== 'boolean') {
-      return { ok: false, error: `Invalid split format for rpc: ${String(rp.split)}` }
-    }
-    const isSplit = rp.split === true
-    if (isSplit) {
-      if (isTs(rp.output)) {
-        return {
-          ok: false,
-          error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${rp.output}`,
-        }
-      }
-    } else {
-      if (!isTs(rp.output)) {
-        return {
-          ok: false,
-          error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(rp.output)}`,
-        }
-      }
-    }
-  }
-
-  return { ok: true }
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -401,7 +208,6 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
   }
   return hits.map((h, i) => {
     const start = h.start
-    // Fix: avoid non-null assertion with optional chaining + nullish coalescing
     const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
     return { name: h.name, block: src.slice(start, end).trim() }
   })
@@ -411,7 +217,7 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
  * Split-mode filename calculators (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
-const computeRpcSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
+const computeRpcSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
   const acc = new Set<string>()
@@ -427,7 +233,7 @@ const computeRpcSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<str
   return acc
 }
 
-const computeRouteSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
+const computeRouteSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
   const code = routeCode(spec.value.paths)
@@ -437,7 +243,7 @@ const computeRouteSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<s
   return acc
 }
 
-const computeSchemaSplitFiles = async (input: YamlJsonTsp): Promise<ReadonlySet<string>> => {
+const computeSchemaSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
   const schemas = asRecord(spec.value.components?.schemas)
@@ -462,13 +268,10 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Run generators for a given config (no `as`)
+ * Run generators for a given config（parseConfig 済み前提）
  * ────────────────────────────────────────────────────────────── */
 
 const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
-  const v = validateConfStrict(c)
-  if (!v.ok) return { logs: [`✗ config: ${v.error}`] }
-
   const jobs: Array<Promise<string>> = []
 
   const zo = c['zod-openapi']
@@ -698,11 +501,6 @@ export function HonoTakibiVite(): any {
       console.error(`[hono-takibi] ✗ config: ${next.error}`)
       return
     }
-    const valid = validateConfStrict(next.value)
-    if (!valid.ok) {
-      console.error(`[hono-takibi] ✗ config: ${valid.error}`)
-      return
-    }
 
     if (prev) {
       const removedLogs = await reconcileSplitTransition(prev, next.value)
@@ -739,11 +537,6 @@ export function HonoTakibiVite(): any {
         const first = await loadConfigHot(server)
         if (!first.ok) {
           console.error(`[hono-takibi] ✗ config: ${first.error}`)
-          return
-        }
-        const valid = validateConfStrict(first.value)
-        if (!valid.ok) {
-          console.error(`[hono-takibi] ✗ config: ${valid.error}`)
           return
         }
         state.current = first.value

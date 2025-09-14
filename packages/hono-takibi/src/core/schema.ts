@@ -79,9 +79,9 @@ export async function schema(
           : ''
       const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
 
-      const fmtCode = await fmt(fileCode)
-      if (!fmtCode.ok) {
-        return { ok: false, error: fmtCode.error }
+      const fmtResult = await fmt(fileCode)
+      if (!fmtResult.ok) {
+        return { ok: false, error: fmtResult.error }
       }
 
       const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
@@ -89,7 +89,7 @@ export async function schema(
       if (!mkdirResult.ok) {
         return { ok: false, error: mkdirResult.error }
       }
-      const writeResult = await writeFile(filePath, fmtCode.value)
+      const writeResult = await writeFile(filePath, fmtResult.value)
       if (!writeResult.ok) {
         return { ok: false, error: writeResult.error }
       }
@@ -97,19 +97,20 @@ export async function schema(
 
     // index.ts
     const indexBody = `${Object.keys(schemas)
+      .sort()
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
-    const indexFmt = await fmt(indexBody)
-    if (!indexFmt.ok) {
-      return { ok: false, error: indexFmt.error }
+    const fmtResult = await fmt(indexBody)
+    if (!fmtResult.ok) {
+      return { ok: false, error: fmtResult.error }
     }
-    const mkIndex = await mkdir(path.dirname(`${outDir}/index.ts`))
-    if (!mkIndex.ok) {
-      return { ok: false, error: mkIndex.error }
+    const mkdirResult = await mkdir(path.dirname(`${outDir}/index.ts`))
+    if (!mkdirResult.ok) {
+      return { ok: false, error: mkdirResult.error }
     }
-    const wrIndex = await writeFile(`${outDir}/index.ts`, indexFmt.value)
-    if (!wrIndex.ok) {
-      return { ok: false, error: wrIndex.error }
+    const writeResult = await writeFile(`${outDir}/index.ts`, fmtResult.value)
+    if (!writeResult.ok) {
+      return { ok: false, error: writeResult.error }
     }
 
     return {
@@ -132,15 +133,15 @@ export async function schema(
     .join('\n\n')
   const importCode = `import { z } from '@hono/zod-openapi'`
   const schemaDefinitionsCode = `${importCode}\n\n${schemaDefinitions}`
-  const fmtCode = await fmt(schemaDefinitionsCode)
-  if (!fmtCode.ok) {
-    return { ok: false, error: fmtCode.error }
+  const fmtResult = await fmt(schemaDefinitionsCode)
+  if (!fmtResult.ok) {
+    return { ok: false, error: fmtResult.error }
   }
   const mkdirResult = await mkdir(path.dirname(output))
   if (!mkdirResult.ok) {
     return { ok: false, error: mkdirResult.error }
   }
-  const writeResult = await writeFile(output, fmtCode.value)
+  const writeResult = await writeFile(output, fmtResult.value)
   if (!writeResult.ok) {
     return { ok: false, error: writeResult.error }
   }

@@ -1,3 +1,216 @@
+export function parseConfig(config: {
+  readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+  readonly 'zod-openapi'?: {
+    readonly output?: `${string}.ts`
+    readonly exportType?: boolean
+    readonly exportSchema?: boolean
+    readonly schema?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly route?: {
+      readonly output: string | `${string}.ts`
+      readonly import: string
+      readonly split?: boolean
+    }
+  }
+  readonly rpc?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+  }
+}):
+  | {
+      readonly ok: true
+      readonly value: {
+        readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+        readonly 'zod-openapi'?: {
+          readonly output?: `${string}.ts`
+          readonly exportType?: boolean
+          readonly exportSchema?: boolean
+          readonly schema?: {
+            readonly output: string | `${string}.ts`
+            readonly exportType?: boolean
+            readonly split?: boolean
+          }
+          readonly route?: {
+            readonly output: string | `${string}.ts`
+            readonly import: string
+            readonly split?: boolean
+          }
+        }
+        readonly rpc?: {
+          readonly output: string | `${string}.ts`
+          readonly import: string
+          readonly split?: boolean
+        }
+      }
+    }
+  | { readonly ok: false; readonly error: string } {
+  const isYamlOrJsonOrTsp = (
+    i: unknown,
+  ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+    typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
+  const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+
+  const c = config
+
+  if (!isYamlOrJsonOrTsp(c.input)) {
+    return { ok: false, error: `Invalid input: ${String(c.input)} (must be .yaml | .json | .tsp)` }
+  }
+
+  const zo = c['zod-openapi']
+  if (zo !== undefined) {
+    // boolean flags
+    if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
+      }
+    }
+    if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
+      }
+    }
+
+    const hasSchema = zo.schema !== undefined
+    const hasRoute = zo.route !== undefined
+
+    if (hasSchema !== hasRoute) {
+      return {
+        ok: false,
+        error:
+          "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
+      }
+    }
+
+    if (hasSchema || hasRoute) {
+      if (Object.hasOwn(zo, 'output')) {
+        return {
+          ok: false,
+          error:
+            "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
+        }
+      }
+    } else {
+      if (!isTs(zo.output)) {
+        return {
+          ok: false,
+          error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
+        }
+      }
+    }
+
+    if (hasSchema) {
+      const s = zo.schema
+      if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
+
+      if (s.split !== undefined && typeof s.split !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid schema split format for zod-openapi: ${String(s.split)}`,
+        }
+      }
+      if (typeof s.output !== 'string') {
+        return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
+      }
+
+      if (s.split === true) {
+        if (isTs(s.output)) {
+          return {
+            ok: false,
+            error: `Invalid schema output path for split mode (must be a directory, not .ts): ${s.output}`,
+          }
+        }
+      } else {
+        if (!isTs(s.output)) {
+          return {
+            ok: false,
+            error: `Invalid schema output path for non-split mode (must be .ts file): ${s.output}`,
+          }
+        }
+      }
+
+      if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid schema exportType format for zod-openapi: ${String(s.exportType)}`,
+        }
+      }
+    }
+
+    if (hasRoute) {
+      const r = zo.route
+      if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
+      if (typeof r.import !== 'string') {
+        return {
+          ok: false,
+          error: `Invalid route import format for zod-openapi: ${String(r.import)}`,
+        }
+      }
+      if (r.split !== undefined && typeof r.split !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid route split format for zod-openapi: ${String(r.split)}`,
+        }
+      }
+      if (typeof r.output !== 'string') {
+        return { ok: false, error: `Invalid route output path: ${String(r.output)}` }
+      }
+
+      if (r.split === true) {
+        if (isTs(r.output)) {
+          return {
+            ok: false,
+            error: `Invalid route output path for split mode (must be a directory, not .ts): ${r.output}`,
+          }
+        }
+      } else {
+        if (!isTs(r.output)) {
+          return {
+            ok: false,
+            error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
+          }
+        }
+      }
+    }
+  }
+  // rpc
+  const rpc = c.rpc
+  if (rpc !== undefined) {
+    if (typeof rpc.output !== 'string') {
+      return { ok: false, error: `Invalid output format for rpc: ${String(rpc.output)}` }
+    }
+    if (typeof rpc.import !== 'string') {
+      return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
+    }
+    if (rpc.split !== undefined && typeof rpc.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for rpc: ${String(rpc.split)}` }
+    }
+    // split
+    const isSplit = rpc.split === true
+    if (isSplit) {
+      if (isTs(rpc.output)) {
+        return {
+          ok: false,
+          error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${rpc.output}`,
+        }
+      }
+    } else {
+      if (!isTs(rpc.output)) {
+        return {
+          ok: false,
+          error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(rpc.output)}`,
+        }
+      }
+    }
+  }
+  return { ok: true, value: c }
+}
+
 /**
  * Parse raw CLI arguments into structured options.
  *
@@ -201,13 +414,11 @@ export function registerComponent(securitySchemes: {
  * @returns A record where each key is an import path (e.g., 'user.ts') and the value is an array of route names imported from that path.
  */
 export function importMap(
-  routeMappings: Readonly<
-    {
-      readonly routeName: string
-      readonly handlerName: string
-      readonly path: string
-    }[]
-  >,
+  routeMappings: {
+    readonly routeName: string
+    readonly handlerName: string
+    readonly path: string
+  }[],
   output: `${string}.ts`,
 ): { [importPath: `${string}.ts`]: readonly string[] } {
   const importsMap: { [importPath: string]: string[] } = {}
@@ -339,13 +550,11 @@ export function groupHandlersByFileName(
  * @returns A map where keys are handler file names and values are arrays of handler names.
  */
 export function getHandlerImports(
-  handlerMaps: Readonly<
-    {
-      readonly routeName: string
-      readonly handlerName: string
-      readonly path: string
-    }[]
-  >,
+  handlerMaps: {
+    readonly routeName: string
+    readonly handlerName: string
+    readonly path: string
+  }[],
 ): { [fileName: `${string}.ts`]: readonly string[] } {
   const getHandlerImports: { [fileName: string]: string[] } = {}
   for (const { handlerName, path } of handlerMaps) {
