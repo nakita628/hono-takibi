@@ -63,7 +63,7 @@ export async function honoTakibi(): Promise<
       readonly error: string
     }
 > {
-  // Slice the arguments to remove the first two (node and script path)
+  /** Slice the arguments to remove the first two (node and script path) */
   const args = process.argv.slice(2)
   const isHelpRequested = (args: readonly string[]): boolean => {
     return args.length === 1 && (args[0] === '--help' || args[0] === '-h')
@@ -78,11 +78,10 @@ export async function honoTakibi(): Promise<
 
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
 
+  /** If config file does not exist, parse CLI arguments */
   if (!existsSync(abs)) {
     const cliResult = parseCli(args)
-    if (!cliResult.ok) {
-      return { ok: false, error: cliResult.error }
-    }
+    if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const cli = cliResult.value
     const takibiResult = await takibi(
       cli.input,
@@ -102,6 +101,7 @@ export async function honoTakibi(): Promise<
     }
   }
 
+  /** If config file exists, parse config file */
   const configResult = await config()
 
   if (!configResult.ok) {
@@ -109,6 +109,7 @@ export async function honoTakibi(): Promise<
   }
   const c = configResult.value
 
+  /** takibi */
   const takibiResult = c['zod-openapi']?.output
     ? await takibi(
         c.input,
@@ -124,7 +125,7 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: takibiResult.error }
   }
 
-  // schema
+  /** schema */
   const schemaResult = c['zod-openapi']?.schema
     ? await schema(
         c.input,
@@ -137,7 +138,7 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: schemaResult.error }
   }
 
-  // route
+  /** route */
   const routeResult = c['zod-openapi']?.route
     ? await route(
         c.input,
@@ -150,6 +151,7 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: routeResult.error }
   }
 
+  /** rpc */
   const rpcResult = c.rpc
     ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
@@ -157,28 +159,6 @@ export async function honoTakibi(): Promise<
   if (rpcResult && !rpcResult.ok) {
     return { ok: false, error: rpcResult.error }
   }
-
-  // const rpcResult = c.rpc
-  //   ? await core(c.input, c.rpc.output, c.rpc.import, 'Generated RPC code written to', rpc)
-  //   : undefined
-
-  // if (rpcResult && !rpcResult.ok) {
-  //   return { ok: false, error: rpcResult.error }
-  // }
-
-  // const swrResult = c.swr
-  //   ? await core(
-  //       c.swr.input,
-  //       c.swr.output,
-  //       c.swr.import,
-  //       'Generated SWR code written to',
-  //       honoRpcWithSWR,
-  //     )
-  //   : undefined
-
-  // if (swrResult && !swrResult.ok) {
-  //   return { ok: false, error: swrResult.error }
-  // }
 
   const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
 
