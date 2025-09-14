@@ -112,101 +112,150 @@ template
 npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
 ```
 
-## HonoTakibiVite
+## Configuration File (`hono-takibi.config.ts`)
 
-### Automatic Code Regeneration & HMR
+Config used by both the CLI and the Vite plugin.
 
-With **HonoTakibiVite**, saving your OpenAPI spec while the Vite dev server is running instantly regenerates the code.
+## Essentials
 
-### OpenAPI Schema Requirements
+* Put **`hono-takibi.config.ts`** at repo root.
+* Default‑export with `defineConfig(...)`.
+* `input`: **`openapi.yaml`** (recommended), or `*.json` / `*.tsp`.
 
-- Your OpenAPI definition must include **only the `#/components/schemas/` section**.
-- It must be fully compliant with **OpenAPI 3.0 or later (e.g., 3.0 or 3.1)**.
-- Do **not** include `paths`, `tags`, or any other OpenAPI sections.
+> **About `split`**
+>
+> * `split: true` → `output` is a **directory**; many files + `index.ts`.
+> * `split` **omitted** or `false` → `output` is a **single `*.ts` file** (one file only).
 
-### Supported Input Formats
+---
 
-You may specify the input file in one of the following formats:
+## Single‑file
 
-- `.yaml` — OpenAPI YAML (schemas only)
-- `.json` — OpenAPI JSON (schemas only)
-- `.tsp` — TypeSpec source file
-
-### TypeSpec Setup (if using `.tsp`)
-
-If you use a `.tsp` TypeSpec file, you must set up the TypeSpec environment and install required libraries:
-
-- @typespec/http
-- @typespec/rest
-- ...other
-
-### Example
-
-`vite.config.ts`
+One file. Set top‑level `output` (don’t define `schema`/`route`).
 
 ```ts
-import { defineConfig } from 'vite'
-import { HonoTakibiVite } from 'hono-takibi/vite-plugin'
+import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  plugins: [
-    HonoTakibiVite({
-      input: 'main.tsp',
-      output: 'index.ts',
-      exportType: true,
-      exportSchema: true,
-    }),
-  ],
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/index.ts',
+    exportSchema: true,
+    exportType: true,
+  },
 })
 ```
 
-### Demo
+---
+
+## Schemas & Routes
+
+Define **both** `schema` and `route` (don’t set top‑level `output`).
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    // split ON → outputs are directories
+    schema: { output: './src/schemas', split: true },
+    route: { output: './src/routes', import: '../schemas', split: true },
+
+    // split OFF example (one file each):
+    // schema: { output: './src/schemas/index.ts' },
+    // route: { output: './src/routes/index.ts', import: '../schemas' },
+  },
+})
+```
+
+---
+
+## RPC (optional)
+
+Works with either pattern.
+
+* `split: true` → `output` is a **directory**; many files + `index.ts`.
+* `split` **omitted** or `false` → `output` is **one `*.ts` file**.
+
+**Example (split: true)**
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
+  rpc: { output: './src/rpc', import: '../client', split: true },
+})
+```
+
+**Example (single file; split omitted/false)**
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
+  rpc: { output: './src/rpc/index.ts', import: '../client' },
+})
+```
+
+---
+
+## Vite Plugin (`HonoTakibiVite`)
+
+Auto‑regenerates on changes and reloads dev server.
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import { HonoTakibiVite } from 'hono-takibi/vite-plugin'
+
+export default defineConfig({ plugins: [HonoTakibiVite()] })
+```
+
+**What it does**
+
+* **Watches**: the config, your `input`, and nearby `**/*.{yaml,json,tsp}`.
+* **Generates** outputs per your config (single‑file or split, plus `rpc`).
+* **Cleans** old generated files safely when paths or `split` change.
+
+That’s it — set `input`, choose one of the two patterns, and (optionally) add `rpc`. ✅
+
+### Demo (Vite + HMR)
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
 
-## With AI Prompt
+## AI Prompt Example
 
-### Sample Prompt — Schemas-Only Extractor (OpenAPI 3+)
+```sh
+Generate one **OpenAPI 3.x+** YAML (prefer **3.1.0**).
 
-A copy‑and‑paste prompt for **any LLM** that extracts **only** the contents of `#/components/schemas/` from an OpenAPI document.
+Rules:
+- Use only `components.schemas` (no other `components`).
+- Never include `parameters:`.
+- No path params; all inputs in `requestBody` (`application/json`) with `$ref: '#/components/schemas/*'`.
+- All responses use `application/json` with `$ref: '#/components/schemas/*'`.
+- POST-only action routes: `/resource/create|get|search|update|delete`.
+- No inline schemas in `paths`.
 
-## Prompt　Example
+Fill, then generate:
+- title / version / tags
+- resources & fields
+- ops per resource: create / get / search / update / delete
 
-```md
-You are a **Schemas‑Only Extractor** for OpenAPI 3+.
-
-## 1. Version
-- Accept files that start with `openapi: "3.0.0"` or newer.
-- Otherwise reply with: `Unsupported OpenAPI version (must be 3.0+).`
-
-## 2. Scope
-- Look **only** inside `#/components/schemas/`. Ignore everything else.
-- `$ref` must also point inside that section.
-
-## 3. Schemas section present?
-- If `components.schemas` is missing, reply with: `Missing '#/components/schemas/' section. Cannot proceed.`
-
-## 4. File type
-- Accept **.yaml**, **.json**, or **.tsp** files.
-- Otherwise reply with: `Unsupported input file extension.`
-
-## Format tips
-- `format: uuid` usually means **UUID v4**.
-- Other accepted identifiers include `uuidv6`, `uuidv7`, `ulid`, `cuid`, etc.
-- With **hono‑takibi**, you can generate **Zod schemas** directly from a custom OpenAPI file.
-
-## What the LLM should do
-1. Validate the file with the four rules above.
-2. If it passes, output **only** the YAML/JSON fragment under `#/components/schemas/` (preserve indentation).
-3. Otherwise, output the exact error message above—nothing more.
+**Output format (strict):**
+- Return a **single fenced code block** labeled `yaml` that contains **only** the YAML.
+- No text before or after the code block.
 ```
 
 ### ⚠️ WARNING: Potential Breaking Changes Without Notice
 
 **This package is in active development and may introduce breaking changes without prior notice.**
 Specifically:
-- Query parameter coercion behavior may change
 - Schema generation logic might be updated
 - Output code structure could be modified
 - Example value handling might be altered
