@@ -244,7 +244,7 @@ async function zodOpenapiHonoHandler(
   }
 
   {
-    const sorted = mergedHandlers.map((h) => h.fileName).sort() 
+    const sorted = mergedHandlers.map((h) => h.fileName).sort()
     const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
 
     const fmtExports = await fmt(exports)

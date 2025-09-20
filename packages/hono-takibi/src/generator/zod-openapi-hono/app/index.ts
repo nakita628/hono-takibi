@@ -54,6 +54,7 @@ export function app(
   const apiInit =
     'export const api = app' +
     routeMappings
+      .sort((a, b) => (a.routeName < b.routeName ? -1 : a.routeName > b.routeName ? 1 : 0))
       .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')
 
