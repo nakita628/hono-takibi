@@ -212,7 +212,7 @@ async function zodOpenapiHonoHandler(
         return map
       }, new Map())
       .values(),
-  ).sort((a, b) => (a.fileName < b.fileName ? -1 : a.fileName > b.fileName ? 1 : 0))
+  )
 
   const isDot = output === '.' || output === './'
   const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
@@ -244,7 +244,8 @@ async function zodOpenapiHonoHandler(
   }
 
   {
-    const exports = mergedHandlers.map((h) => `export * from './${h.fileName}';`).join('\n')
+    const sorted = mergedHandlers.map((h) => h.fileName).sort() 
+    const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
 
     const fmtExports = await fmt(exports)
     if (!fmtExports.ok) return { ok: false, error: fmtExports.error }
