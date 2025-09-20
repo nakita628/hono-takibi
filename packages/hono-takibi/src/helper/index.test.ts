@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   docs,
-  getRouteMaps,
   propertiesSchema,
   resolveSchemasDependencies,
   wrap,
@@ -14,9 +13,6 @@ import {
 describe('helper barrel file exports', () => {
   it('should export docs', () => {
     expect(typeof docs).toBe('function')
-  })
-  it('should export getRouteMaps', () => {
-    expect(typeof getRouteMaps).toBe('function')
   })
   it('should export propertiesSchema', () => {
     expect(typeof propertiesSchema).toBe('function')

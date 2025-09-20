@@ -31,7 +31,7 @@ export function app(
     })
     return routeMappings
   }
-  
+
   const routeMappings = getRouteMaps(openapi)
 
   const handlerNames = Array.from(new Set(routeMappings.map((m) => m.handlerName))).sort()
