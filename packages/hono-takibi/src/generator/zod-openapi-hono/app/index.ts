@@ -1,7 +1,6 @@
 import { docs } from '../../../helper/docs.js'
-import { getRouteMaps } from '../../../helper/get-route-maps.js'
 import type { OpenAPI } from '../../../openapi/index.js'
-import { registerComponent } from '../../../utils/index.js'
+import { isHttpMethod, methodPath, registerComponent } from '../../../utils/index.js'
 
 /**
  * Generates a Hono app with OpenAPI and Swagger UI integration.
@@ -16,6 +15,23 @@ export function app(
   output: `${string}.ts`,
   basePath: string | undefined,
 ): string {
+  const getRouteMaps = (
+    openapi: OpenAPI,
+  ): { routeName: string; handlerName: string; path: string }[] => {
+    const paths = openapi.paths
+    const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {
+      return Object.entries(pathItem).flatMap(([method]) => {
+        if (!isHttpMethod(method)) return []
+        return {
+          routeName: `${methodPath(method, path)}Route`,
+          handlerName: `${methodPath(method, path)}RouteHandler`,
+          path,
+        }
+      })
+    })
+    return routeMappings
+  }
+  
   const routeMappings = getRouteMaps(openapi)
 
   const handlerNames = Array.from(new Set(routeMappings.map((m) => m.handlerName))).sort()
