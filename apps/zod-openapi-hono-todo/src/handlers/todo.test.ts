@@ -8,7 +8,7 @@ import type { Todo } from '@/schema/todo'
 import { todoService } from '@/services/todoService'
 
 // Test run
-// pnpm vitest run ./src/handlers/todoHandler.test.ts
+// pnpm vitest run ./src/handlers/todo.test.ts
 
 vi.mock('@/services/todoService', () => ({
   todoService: {
