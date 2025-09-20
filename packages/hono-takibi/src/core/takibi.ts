@@ -4,7 +4,7 @@ import { mkdir, readdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { type OpenAPI, type OpenAPIPaths, parseOpenAPI } from '../openapi/index.js'
-import { groupHandlersByFileName, isHttpMethod, methodPath } from '../utils/index.js'
+import { isHttpMethod, methodPath } from '../utils/index.js'
 
 /**
  * Generates TypeScript code from an OpenAPI spec and optional templates.
@@ -129,74 +129,129 @@ async function zodOpenapiHonoHandler(
   output: string,
   test: boolean,
 ): Promise<
-  | {
-      readonly ok: true
-      readonly value: undefined
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    }
+  { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
   const paths: OpenAPIPaths = openapi.paths
-  const handlers: {
-    fileName: `${string}.ts`
-    testFileName: `${string}.ts`
-    routeHandlerContents: string[]
-    routeNames: string[]
-  }[] = []
-  for (const [path, pathItem] of Object.entries(paths)) {
-    for (const [method] of Object.entries(pathItem)) {
-      if (!isHttpMethod(method)) continue
-      const routeHandlerContent = `export const ${methodPath(method, path)}RouteHandler:RouteHandler<typeof ${methodPath(method, path)}Route>=async(c)=>{}`
-      const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
-      const pathName = (rawSegment === '' ? 'index' : rawSegment)
-        .replace(/\{([^}]+)\}/g, '$1')
-        .replace(/[^0-9A-Za-z._-]/g, '_')
-        .replace(/^[._-]+|[._-]+$/g, '')
-        .replace(/__+/g, '_')
-        .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
-      const fileName: `${string}.ts` =
-        pathName.length === 0 ? 'indexHandler.ts' : `${pathName}Handler.ts`
-      const testFileName: `${string}.ts` =
-        pathName.length === 0 ? 'indexHandler.test.ts' : `${pathName}Handler.test.ts`
-      handlers.push({
-        fileName,
-        testFileName,
-        routeHandlerContents: [routeHandlerContent],
-        routeNames: [`${methodPath(method, path)}Route`],
-      })
-    }
-  }
 
-  const mergedHandlers = groupHandlersByFileName(handlers)
+  const handlers: ReadonlyArray<{
+    readonly fileName: `${string}.ts`
+    readonly testFileName: `${string}.ts`
+    readonly routeHandlerContents: string[]
+    readonly routeNames: string[]
+  }> = Object.entries(paths).flatMap(([p, pathItem]) =>
+    Object.entries(pathItem)
+      .filter(([m]) => isHttpMethod(m))
+      .map(([method]) => {
+        const routeId = methodPath(method, p)
+        const routeHandlerContent = `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`
+
+        const rawSegment = p.replace(/^\/+/, '').split('/')[0] ?? ''
+        const sanitized = rawSegment
+          .replace(/\{([^}]+)\}/g, '$1')
+          .replace(/[^0-9A-Za-z._-]/g, '_')
+          .replace(/^[._-]+|[._-]+$/g, '')
+          .replace(/__+/g, '_')
+          .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+
+        const pathName = sanitized === '' ? '__root' : sanitized
+        const fileName: `${string}.ts` = `${pathName}.ts`
+        const testFileName: `${string}.ts` = `${pathName}.test.ts`
+
+        return {
+          fileName,
+          testFileName,
+          routeHandlerContents: [routeHandlerContent],
+          routeNames: [`${routeId}Route`],
+        } satisfies Readonly<{
+          readonly fileName: `${string}.ts`
+          readonly testFileName: `${string}.ts`
+          readonly routeHandlerContents: string[]
+          readonly routeNames: string[]
+        }>
+      }),
+  )
+
+  const mergedHandlers: ReadonlyArray<{
+    readonly fileName: `${string}.ts`
+    readonly testFileName: `${string}.ts`
+    readonly routeHandlerContents: string[]
+    readonly routeNames: string[]
+  }> = Array.from(
+    handlers
+      .reduce<
+        Map<
+          string,
+          Readonly<{
+            readonly fileName: `${string}.ts`
+            readonly testFileName: `${string}.ts`
+            readonly routeHandlerContents: string[]
+            readonly routeNames: string[]
+          }>
+        >
+      >((map, h) => {
+        const prev = map.get(h.fileName)
+        const next: Readonly<{
+          readonly fileName: `${string}.ts`
+          readonly testFileName: `${string}.ts`
+          readonly routeHandlerContents: string[]
+          readonly routeNames: string[]
+        }> = prev
+          ? {
+              fileName: h.fileName,
+              testFileName: h.testFileName,
+              routeHandlerContents: [...prev.routeHandlerContents, ...h.routeHandlerContents],
+              routeNames: Array.from(new Set([...prev.routeNames, ...h.routeNames])),
+            }
+          : {
+              fileName: h.fileName,
+              testFileName: h.testFileName,
+              routeHandlerContents: [...h.routeHandlerContents],
+              routeNames: [...h.routeNames],
+            }
+        map.set(h.fileName, next)
+        return map
+      }, new Map())
+      .values(),
+  ).sort((a, b) => (a.fileName < b.fileName ? -1 : a.fileName > b.fileName ? 1 : 0))
+
+  const isDot = output === '.' || output === './'
+  const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
+  const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
+  const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
+  const importFrom = `../${routeEntryBasename}`
+
+  {
+    const mkdirResult = await mkdir(handlerPath)
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  }
 
   for (const handler of mergedHandlers) {
-    const dirPath = output?.replace(/\/[^/]+\.ts$/, '')
-    const handlerPath = dirPath === 'index.ts' ? 'handlers' : `${dirPath}/handlers`
-    const mkdirResult = await mkdir(handlerPath)
-    if (!mkdirResult.ok) {
-      return { ok: false, error: mkdirResult.error }
-    }
-    const routeTypes = handler.routeNames.map((routeName) => `${routeName}`).join(', ')
-    const match = output?.match(/[^/]+\.ts$/)
-    const matchPath = match ? match[0] : ''
-    const path = output === '.' || output === './' ? output : `../${matchPath}`
-    const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${path}';` : ''
+    const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
+    const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
     const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
+
     const formatCode = await fmt(fileContent)
-    if (!formatCode.ok) {
-      return { ok: false, error: formatCode.error }
-    }
+    if (!formatCode.ok) return { ok: false, error: formatCode.error }
+
     const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, formatCode.value)
-    if (!writeResult.ok) writeResult
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
     if (test) {
-      const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
-      if (!writeResult.ok) {
-        return { ok: false, error: writeResult.error }
-      }
+      const writeTest = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
+      if (!writeTest.ok) return { ok: false, error: writeTest.error }
     }
   }
+
+  {
+    const exports = mergedHandlers.map((h) => `export * from './${h.fileName}';`).join('\n')
+
+    const fmtExports = await fmt(exports)
+    if (!fmtExports.ok) return { ok: false, error: fmtExports.error }
+
+    const writeBarrel = await writeFile(`${handlerPath}/index.ts`, fmtExports.value)
+    if (!writeBarrel.ok) return { ok: false, error: writeBarrel.error }
+  }
+
   return { ok: true, value: undefined }
 }
