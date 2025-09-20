@@ -2,12 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createRoute,
   escapeStringLiteral,
-  getHandlerImports,
   getToSafeIdentifier,
-  groupHandlersByFileName,
-  importHandlers,
-  importMap,
-  importRoutes,
   isHttpMethod,
   isRefObject,
   isUniqueContentSchema,
@@ -446,18 +441,6 @@ describe('utils', () => {
   /* ========================================================================== *
    *  Handler-Generation Utilities
    * ========================================================================== */
-  // importRoutes
-  describe('importRoutes', () => {
-    it.concurrent('importRoutes Test', () => {
-      const result = importRoutes({
-        'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
-      })
-      const expected = [
-        "import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './routes.ts'",
-      ]
-      expect(result).toStrictEqual(expected)
-    })
-  })
   // registerComponent
   describe('registerComponent', () => {
     it.concurrent('registerComponent success', () => {
@@ -478,146 +461,11 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  // importMap
-  describe('processImportMap', () => {
-    it.concurrent('processImportMap Test', () => {
-      const result = importMap(
-        [
-          {
-            routeName: 'getHonoRoute',
-            handlerName: 'getHonoRouteHandler',
-            path: '/hono',
-          },
-          {
-            routeName: 'getHonoXRoute',
-            handlerName: 'getHonoXRouteHandler',
-            path: '/hono-x',
-          },
-          {
-            routeName: 'getZodOpenapiHonoRoute',
-            handlerName: 'getZodOpenapiHonoRouteHandler',
-            path: '/zod-openapi-hono',
-          },
-        ],
-        'src/routes.ts',
-      )
-      const expected = {
-        'routes.ts': ['getHonoRoute', 'getHonoXRoute', 'getZodOpenapiHonoRoute'],
-      }
-      expect(result).toStrictEqual(expected)
-    })
-  })
   /* ========================================================================== *
    *  Handler Utilities
    *    └─ Everything below relates to generating, grouping, or importing route
    *       handler functions.
    * ========================================================================== */
-  // importHandlers
-  describe('importHandlers', () => {
-    it.concurrent('importHandlers', () => {
-      const result = importHandlers(
-        {
-          'honoHandler.ts': ['getHonoRouteHandler'],
-          'honoXHandler.ts': ['getHonoXRouteHandler'],
-          'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
-        },
-        'src/routes.ts',
-      )
-      const expected = [
-        "import { getHonoRouteHandler } from './handlers/honoHandler.ts'",
-        "import { getHonoXRouteHandler } from './handlers/honoXHandler.ts'",
-        "import { getZodOpenapiHonoRouteHandler } from './handlers/zodOpenapiHonoHandler.ts'",
-      ]
-      expect(result).toStrictEqual(expected)
-    })
-  })
-  // groupHandlersByFileName
-  describe('groupHandlersByFileName', () => {
-    it.concurrent('groupHandlersByFileName Test', () => {
-      const result = groupHandlersByFileName([
-        {
-          fileName: 'honoHandler.ts',
-          testFileName: 'honoHandler.test.ts',
-          routeHandlerContents: [
-            'export const getHonoRouteHandler:RouteHandler<typeof getHonoRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getHonoRoute'],
-        },
-        {
-          fileName: 'honoXHandler.ts',
-          testFileName: 'honoXHandler.test.ts',
-          routeHandlerContents: [
-            'export const getHonoXRouteHandler:RouteHandler<typeof getHonoXRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getHonoXRoute'],
-        },
-        {
-          fileName: 'zodOpenapiHonoHandler.ts',
-          testFileName: 'zodOpenapiHonoHandler.test.ts',
-          routeHandlerContents: [
-            'export const getZodOpenapiHonoRouteHandler:RouteHandler<typeof getZodOpenapiHonoRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getZodOpenapiHonoRoute'],
-        },
-      ])
-
-      const expected = [
-        {
-          fileName: 'honoHandler.ts',
-          testFileName: 'honoHandler.test.ts',
-          routeHandlerContents: [
-            'export const getHonoRouteHandler:RouteHandler<typeof getHonoRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getHonoRoute'],
-        },
-        {
-          fileName: 'honoXHandler.ts',
-          testFileName: 'honoXHandler.test.ts',
-          routeHandlerContents: [
-            'export const getHonoXRouteHandler:RouteHandler<typeof getHonoXRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getHonoXRoute'],
-        },
-        {
-          fileName: 'zodOpenapiHonoHandler.ts',
-          testFileName: 'zodOpenapiHonoHandler.test.ts',
-          routeHandlerContents: [
-            'export const getZodOpenapiHonoRouteHandler:RouteHandler<typeof getZodOpenapiHonoRoute>=async(c)=>{}',
-          ],
-          routeNames: ['getZodOpenapiHonoRoute'],
-        },
-      ]
-      expect(result).toStrictEqual(expected)
-    })
-  })
-  // importHandlers
-  describe('getHandlerImports', () => {
-    it.concurrent('getHandlerImports Test', () => {
-      const result = getHandlerImports([
-        {
-          routeName: 'getHonoRoute',
-          handlerName: 'getHonoRouteHandler',
-          path: '/hono',
-        },
-        {
-          routeName: 'getHonoXRoute',
-          handlerName: 'getHonoXRouteHandler',
-          path: '/hono-x',
-        },
-        {
-          routeName: 'getZodOpenapiHonoRoute',
-          handlerName: 'getZodOpenapiHonoRouteHandler',
-          path: '/zod-openapi-hono',
-        },
-      ])
-      const expected = {
-        'honoHandler.ts': ['getHonoRouteHandler'],
-        'honoXHandler.ts': ['getHonoXRouteHandler'],
-        'zodOpenapiHonoHandler.ts': ['getZodOpenapiHonoRouteHandler'],
-      }
-      expect(result).toStrictEqual(expected)
-    })
-  })
   // isRefObject
   describe('isRefObject Test', () => {
     it.concurrent.each([
@@ -682,7 +530,7 @@ describe('utils', () => {
   // methodPath
   describe('methodPath', () => {
     it.concurrent.each([
-      ['get', '/', 'getIndex'],
+      ['get', '/', 'get'],
       ['get', '/posts', 'getPosts'],
       ['get', '/posts/{id}', 'getPostsId'],
       ['get', '/user/profile', 'getUserProfile'],

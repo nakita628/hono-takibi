@@ -31,7 +31,7 @@ const TodoSchema = z
 
 const UnprocessableContentSchema = z.object({ message: z.string() }).openapi('UnprocessableContent')
 
-export const getIndexRoute = createRoute({
+export const getRoute = createRoute({
   tags: ['Health'],
   method: 'get',
   path: '/',

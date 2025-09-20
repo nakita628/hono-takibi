@@ -198,46 +198,12 @@ describe('templateCode (sandbox)', () => {
       const result = await takibi(input, out, true, true, true, true)
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(false)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.test.ts'))).toBe(
-        true,
-      )
-      expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('test true (second run: main.ts appears)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tpl-'))
-    try {
-      const input = path.join(
-        dir,
-        'openapi.json',
-      ) as `${string}.yaml | ${string}.json | ${string}.tsp`
-      const srcDir = path.join(dir, 'tmp-template', 'src')
-      fs.mkdirSync(srcDir, { recursive: true })
-      fs.writeFileSync(input, JSON.stringify(openapi))
-
-      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await takibi(input, out, true, true, true, true) // 1st
-      const result = await takibi(input, out, true, true, true, true) // 2nd
-
-      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.test.ts'))).toBe(
-        true,
-      )
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
       expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -259,36 +225,9 @@ describe('templateCode (sandbox)', () => {
       const result = await takibi(input, out, true, true, true, false)
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(false)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-      expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('template true (second run: main.ts appears)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tpl-'))
-    try {
-      const input = path.join(
-        dir,
-        'openapi.json',
-      ) as `${string}.yaml | ${string}.json | ${string}.tsp`
-      const srcDir = path.join(dir, 'tmp-template', 'src')
-      fs.mkdirSync(srcDir, { recursive: true })
-      fs.writeFileSync(input, JSON.stringify(openapi))
-
-      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await takibi(input, out, true, true, true, false) // 1st
-      const result = await takibi(input, out, true, true, true, false) // 2nd
-
-      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
       expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -310,14 +249,12 @@ describe('templateCode (sandbox)', () => {
       const result = await takibi(input, out, true, true, true, true, 'api')
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.test.ts'))).toBe(
-        true,
-      )
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toContain("new OpenAPIHono().basePath('api')")
@@ -343,74 +280,9 @@ describe('templateCode (sandbox)', () => {
       const result = await takibi(input, out, true, true, true, false, 'api')
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-
-      const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('api')")
-
-      expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('basePath "api" with test: true (second run: main.ts appears)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tpl-'))
-    try {
-      const input = path.join(
-        dir,
-        'openapi.json',
-      ) as `${string}.yaml | ${string}.json | ${string}.tsp`
-      const srcDir = path.join(dir, 'tmp-template', 'src')
-      fs.mkdirSync(srcDir, { recursive: true })
-      fs.writeFileSync(input, JSON.stringify(openapi))
-
-      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await takibi(input, out, true, true, true, true, 'api') // 1st
-      const result = await takibi(input, out, true, true, true, true, 'api') // 2nd
-
-      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.test.ts'))).toBe(
-        true,
-      )
-
-      const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('api')")
-
-      expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('basePath "api" with test: false (second run: main.ts appears)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tpl-'))
-    try {
-      const input = path.join(
-        dir,
-        'openapi.json',
-      ) as `${string}.yaml | ${string}.json | ${string}.tsp`
-      const srcDir = path.join(dir, 'tmp-template', 'src')
-      fs.mkdirSync(srcDir, { recursive: true })
-      fs.writeFileSync(input, JSON.stringify(openapi))
-
-      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      await takibi(input, out, true, true, true, false, 'api') // 1st
-      const result = await takibi(input, out, true, true, true, false, 'api') // 2nd
-
-      expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'main.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoXHandler.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHonoHandler.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toContain("new OpenAPIHono().basePath('api')")

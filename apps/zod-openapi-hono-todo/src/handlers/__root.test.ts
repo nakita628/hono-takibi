@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { api } from '@/index'
 
 // Test run
-// pnpm vitest run ./src/handlers/indexHandler.test.ts
+// pnpm vitest run ./src/handlers/__root.test.ts
 
 const test = testClient(api)
 

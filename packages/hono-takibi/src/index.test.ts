@@ -7,8 +7,7 @@ import type { OpenAPI } from './openapi/index.js'
 // Test run
 // pnpm vitest run ./src/index.test.ts
 
-// Normal
-describe.concurrent('Hono Takibi Normal Test', () => {
+describe('Hono Takibi Normal Test', () => {
   const tmpOpenAPI: OpenAPI = {
     openapi: '3.0.0',
     info: {
@@ -157,8 +156,8 @@ export const postTestRoute = createRoute({
     expect(result).toBe(expected)
   })
 
-  // #5: template
-  it.concurrent('--template', () => {
+  // #5: template（これも並列にしない）
+  it('--template', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
     const routeResult = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
@@ -176,7 +175,7 @@ export const postTestRoute = createRoute({
 `
     expect(routeResult).toBe(routeExpected)
 
-    const handlerResult = fs.readFileSync('tmp-route/handlers/testHandler.ts', {
+    const handlerResult = fs.readFileSync('tmp-route/handlers/test.ts', {
       encoding: 'utf-8',
     })
 
@@ -190,46 +189,69 @@ export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c
 })
 
 describe('cli test', () => {
-  const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-  const flushMicrotasks = () => new Promise<void>((r) => setImmediate(r))
+  let exitSpy: ReturnType<typeof vi.spyOn>
+  let logSpy: ReturnType<typeof vi.spyOn>
+  let errorSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     vi.resetModules()
-    vi.clearAllMocks()
-    flushMicrotasks()
+    exitSpy = vi
+      .spyOn(process, 'exit')
+      // biome-ignore lint: test
+      .mockImplementation(() => undefined as unknown as never) as any
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('logs message & exits(0) on success', async () => {
+    vi.resetModules()
+
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     vi.doMock('./cli/index.js', async () => {
       const actual = await vi.importActual<typeof import('./cli/index.js')>('./cli/index.js')
-      return {
-        ...actual,
-        honoTakibi: vi.fn(() => Promise.resolve({ ok: true, value: 'OK' } as const)),
-      }
+      return { ...actual, honoTakibi: vi.fn(async () => ({ ok: true, value: 'OK' }) as const) }
     })
 
     await import('./index.js')
+
+    const tick = () => new Promise<void>((r) => setImmediate(r))
+    await tick()
 
     expect(logSpy).toHaveBeenCalledWith('OK')
     expect(exitSpy).toHaveBeenCalledWith(0)
     expect(errorSpy).not.toHaveBeenCalled()
+
+    vi.restoreAllMocks()
   })
 
   it('logs error & exits(1) on failure', async () => {
+    vi.resetModules()
+
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     vi.doMock('./cli/index.js', async () => {
       const actual = await vi.importActual<typeof import('./cli/index.js')>('./cli/index.js')
-      return {
-        ...actual,
-        honoTakibi: vi.fn(() => Promise.resolve({ ok: false, error: 'FAIL' } as const)),
-      }
+      return { ...actual, honoTakibi: vi.fn(async () => ({ ok: false, error: 'FAIL' }) as const) }
     })
 
     await import('./index.js')
 
+    const tick = () => new Promise<void>((r) => setImmediate(r))
+    await tick()
+
     expect(errorSpy).toHaveBeenCalledWith('FAIL')
     expect(exitSpy).toHaveBeenCalledWith(1)
     expect(logSpy).not.toHaveBeenCalled()
+
+    vi.restoreAllMocks()
   })
 })

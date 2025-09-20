@@ -1,22 +1,22 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono, z } from '@hono/zod-openapi'
 import { customError } from './custom-error'
-import { getIndexRouteHandler } from './handlers/indexHandler.ts'
 import {
   deleteTodoIdRouteHandler,
+  getHandler,
   getTodoIdRouteHandler,
   getTodoRouteHandler,
   postTodoRouteHandler,
   putTodoIdRouteHandler,
-} from './handlers/todoHandler.ts'
+} from './handlers'
 import {
   deleteTodoIdRoute,
-  getIndexRoute,
+  getRoute,
   getTodoIdRoute,
   getTodoRoute,
   postTodoRoute,
   putTodoIdRoute,
-} from './routes.ts'
+} from './routes'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
@@ -33,7 +33,7 @@ const app = new OpenAPIHono({
 })
 
 export const api = app
-  .openapi(getIndexRoute, getIndexRouteHandler)
+  .openapi(getRoute, getHandler)
   .openapi(getTodoRoute, getTodoRouteHandler)
   .openapi(postTodoRoute, postTodoRouteHandler)
   .openapi(getTodoIdRoute, getTodoIdRouteHandler)
