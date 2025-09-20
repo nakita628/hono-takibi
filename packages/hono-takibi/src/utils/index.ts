@@ -778,51 +778,21 @@ export function createRoute(args: {
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
- *
- * ```mermaid
- * graph TD
- *   A[Start requestParamsArray] --> B[Collect non empty sections]
- *   B --> C[Iterate sections]
- *   C --> D[Build z object string from entries]
- *   D --> E[If section is path rename to params]
- *   E --> F[Push section colon z object string]
- *   F --> G[Continue loop]
- *   G --> H[Filter out null values]
- *   H --> I[Return array of strings]
- * ```
- *
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
-export function requestParamsArray(parameters: {
-  [section: string]: Record<string, string>
-}): readonly string[] {
-  // 1.  define sections to be processed
-  const sections = Object.entries(parameters)
-    .filter(([_, obj]) => obj && Object.keys(obj).length > 0)
-    .map(([section]) => section)
-  // 2. processing of each section
-  return (
-    sections
-      .map((section) => {
-        const obj = parameters[section]
-        // 2.1 process only if object is not empty
-        if (Object.keys(obj).length) {
-          const s = `z.object({${Object.entries(obj)
-            .map(([k, v]) => `${k}:${v}`)
-            .join(',')}})`
-          // path is params convention
-          if (section === 'path') {
-            return `params:${s}`
-          }
-          return `${section}:${s}`
-        }
-        return null
-      })
-      // 3. exclude null and return only an array of strings
-      .filter((item): item is string => item !== null)
-  )
-}
+export const requestParamsArray = (
+  parameters: Record<string, Record<string, string>>,
+): readonly string[] =>
+  Object.entries(parameters)
+    .filter(([, obj]) => obj && Object.keys(obj).length)
+    .map(([section, obj]) => {
+      const name = section === 'path' ? 'params' : section
+      const fields = Object.entries(obj)
+        .map(([k, v]) => `${k}:${v}`)
+        .join(',')
+      return `${name}:z.object({${fields}})`
+    })
 
 /**
  * Escapes a string for safe use in TypeScript string literals.
