@@ -104,9 +104,9 @@ export async function takibi(
     if (!writeResult.ok) {
       return { ok: false, error: writeResult.error }
     }
-    const handlerResult = await zodOpenapiHonoHandler(openAPI, output, test)
-    if (!handlerResult.ok) {
-      return { ok: false, error: handlerResult.error }
+    const zodOpenapiHonoHandlerResult = await zodOpenapiHonoHandler(openAPI, output, test)
+    if (!zodOpenapiHonoHandlerResult.ok) {
+      return { ok: false, error: zodOpenapiHonoHandlerResult.error }
     }
     return { ok: true, value: 'Generated code and template files written' }
   }
@@ -220,10 +220,12 @@ async function zodOpenapiHonoHandler(
   const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
   const importFrom = `../${routeEntryBasename}`
 
-  {
-    const mkdirResult = await mkdir(handlerPath)
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  }
+  const mkdirResult = await mkdir(handlerPath)
+  if (!mkdirResult.ok)
+    return {
+      ok: false,
+      error: mkdirResult.error,
+    }
 
   for (const handler of mergedHandlers) {
     const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
@@ -231,28 +233,46 @@ async function zodOpenapiHonoHandler(
     const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 
-    const formatCode = await fmt(fileContent)
-    if (!formatCode.ok) return { ok: false, error: formatCode.error }
+    const fmtResult = await fmt(fileContent)
+    if (!fmtResult.ok)
+      return {
+        ok: false,
+        error: fmtResult.error,
+      }
 
-    const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, formatCode.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
+    if (!writeResult.ok)
+      return {
+        ok: false,
+        error: writeResult.error,
+      }
 
     if (test) {
-      const writeTest = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
-      if (!writeTest.ok) return { ok: false, error: writeTest.error }
+      const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
+      if (!writeResult.ok)
+        return {
+          ok: false,
+          error: writeResult.error,
+        }
     }
   }
 
-  {
-    const sorted = mergedHandlers.map((h) => h.fileName).sort()
-    const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
+  const sorted = mergedHandlers.map((h) => h.fileName).sort()
+  const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
 
-    const fmtExports = await fmt(exports)
-    if (!fmtExports.ok) return { ok: false, error: fmtExports.error }
+  const fmtResult = await fmt(exports)
+  if (!fmtResult.ok)
+    return {
+      ok: false,
+      error: fmtResult.error,
+    }
 
-    const writeBarrel = await writeFile(`${handlerPath}/index.ts`, fmtExports.value)
-    if (!writeBarrel.ok) return { ok: false, error: writeBarrel.error }
-  }
+  const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
+  if (!writeResult.ok)
+    return {
+      ok: false,
+      error: writeResult.error,
+    }
 
   return { ok: true, value: undefined }
 }
