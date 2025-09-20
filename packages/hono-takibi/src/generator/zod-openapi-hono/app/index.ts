@@ -20,12 +20,12 @@ export function app(
 
   const handlerNames = Array.from(new Set(routeMappings.map((m) => m.handlerName))).sort()
   const handlerImport =
-    handlerNames.length > 0 ? `import { ${handlerNames.join(', ')} } from './handlers'` : ''
+    handlerNames.length > 0 ? `import { ${handlerNames.join(',')} } from './handlers'` : ''
 
   const routeNames = Array.from(new Set(routeMappings.map((m) => m.routeName))).sort()
   const routeModule = `./${output.replace(/^.*\//, '').replace(/\.ts$/, '')}`
   const routesImport =
-    routeNames.length > 0 ? `import { ${routeNames.join(', ')} } from '${routeModule}'` : ''
+    routeNames.length > 0 ? `import { ${routeNames.join(',')} } from '${routeModule}'` : ''
 
   const path = basePath !== undefined ? `${basePath}/doc` : '/doc'
   const registerComponentCode = openapi.components?.securitySchemes
@@ -54,14 +54,14 @@ export function app(
   const apiInit =
     'export const api = app' +
     routeMappings
-      .map(({ routeName, handlerName }) => `.openapi(${routeName}, ${handlerName})`)
+      .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')
 
   const swagger =
-    `if (process.env.NODE_ENV === 'development') {` +
+    `if(process.env.NODE_ENV === 'development'){` +
     `${registerComponentCode}\n` +
-    `  app.${doc}('/doc', ${JSON.stringify(docs(openapi))})` +
-    `.get('/ui', swaggerUI({ url: '${path}' }))` +
+    `app.${doc}('/doc',${JSON.stringify(docs(openapi))})` +
+    `.get('/ui',swaggerUI({url:'${path}'}))` +
     '}'
 
   return [

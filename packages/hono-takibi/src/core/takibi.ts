@@ -99,7 +99,7 @@ export async function takibi(
     if (!readdirResult.ok) {
       return { ok: false, error: readdirResult.error }
     }
-    const target = path.join(dir, readdirResult.value.includes('index.ts') ? 'main.ts' : 'index.ts')
+    const target = path.join(dir, 'index.ts')
     const writeResult = await writeFile(target, appResult.value)
     if (!writeResult.ok) {
       return { ok: false, error: writeResult.error }
