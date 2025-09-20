@@ -218,7 +218,7 @@ async function zodOpenapiHonoHandler(
   const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
-  const importFrom = `../${routeEntryBasename}`
+  const importFrom = `../${routeEntryBasename.replace(/\.ts$/, '')}`
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok)

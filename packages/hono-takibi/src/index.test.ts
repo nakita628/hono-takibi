@@ -180,7 +180,7 @@ export const postTestRoute = createRoute({
     })
 
     const handlerExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { postTestRoute } from '../test.ts'
+import type { postTestRoute } from '../test'
 
 export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c) => {}
 `
