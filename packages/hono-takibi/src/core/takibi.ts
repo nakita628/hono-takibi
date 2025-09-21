@@ -72,42 +72,27 @@ export async function takibi(
     }
 > {
   const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) {
-    return { ok: false, error: openAPIResult.error }
-  }
+  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
   const honoResult = await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))
-  if (!honoResult.ok) {
-    return { ok: false, error: honoResult.error }
-  }
+  if (!honoResult.ok) return { ok: false, error: honoResult.error }
   const mkdirResult = await mkdir(path.dirname(output))
-  if (!mkdirResult.ok) {
-    return { ok: false, error: mkdirResult.error }
-  }
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
   const writeResult = await writeFile(output, honoResult.value)
-  if (!writeResult.ok) {
-    return { ok: false, error: writeResult.error }
-  }
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
   /** template */
   if (template && output.includes('/')) {
     const appResult = await fmt(app(openAPI, output, basePath))
-    if (!appResult.ok) {
-      return { ok: false, error: appResult.error }
-    }
+    if (!appResult.ok) return { ok: false, error: appResult.error }
     const dir = path.dirname(output)
     const readdirResult = await readdir(dir)
-    if (!readdirResult.ok) {
-      return { ok: false, error: readdirResult.error }
-    }
+    if (!readdirResult.ok) return { ok: false, error: readdirResult.error }
     const target = path.join(dir, 'index.ts')
     const writeResult = await writeFile(target, appResult.value)
-    if (!writeResult.ok) {
-      return { ok: false, error: writeResult.error }
-    }
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
     const zodOpenapiHonoHandlerResult = await zodOpenapiHonoHandler(openAPI, output, test)
-    if (!zodOpenapiHonoHandlerResult.ok) {
+    if (!zodOpenapiHonoHandlerResult.ok)
       return { ok: false, error: zodOpenapiHonoHandlerResult.error }
-    }
     return { ok: true, value: 'Generated code and template files written' }
   }
   return {
@@ -221,11 +206,7 @@ async function zodOpenapiHonoHandler(
   const importFrom = `../${routeEntryBasename.replace(/\.ts$/, '')}`
 
   const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok)
-    return {
-      ok: false,
-      error: mkdirResult.error,
-    }
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
   for (const handler of mergedHandlers) {
     const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
@@ -234,26 +215,13 @@ async function zodOpenapiHonoHandler(
     const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
 
     const fmtResult = await fmt(fileContent)
-    if (!fmtResult.ok)
-      return {
-        ok: false,
-        error: fmtResult.error,
-      }
-
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
-    if (!writeResult.ok)
-      return {
-        ok: false,
-        error: writeResult.error,
-      }
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
     if (test) {
       const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
-      if (!writeResult.ok)
-        return {
-          ok: false,
-          error: writeResult.error,
-        }
+      if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
   }
 
@@ -261,18 +229,9 @@ async function zodOpenapiHonoHandler(
   const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
 
   const fmtResult = await fmt(exports)
-  if (!fmtResult.ok)
-    return {
-      ok: false,
-      error: fmtResult.error,
-    }
-
+  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
   const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
-  if (!writeResult.ok)
-    return {
-      ok: false,
-      error: writeResult.error,
-    }
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
   return { ok: true, value: undefined }
 }

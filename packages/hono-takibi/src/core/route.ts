@@ -39,9 +39,7 @@ export async function route(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) {
-    return { ok: false, error: openAPIResult.error }
-  }
+  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
   const routesSrc = routeCode(openAPI.paths)
@@ -56,10 +54,8 @@ export async function route(
     const finalSrc = [importHono, importSchemas, '\n', routesSrc].filter(Boolean).join('\n')
     const fmtResult = await fmt(finalSrc)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-
     const writeResult = await writeFile(output, fmtResult.value)
     return writeResult.ok
       ? { ok: true, value: `Generated route code written to ${output}` }
@@ -97,11 +93,9 @@ export async function route(
 
     const fmtResult = await fmt(fileSrc)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-
     const filePath = `${outDir}/${lowerFirst(name)}.ts`
     const mkdirResult = await mkdir(path.dirname(filePath))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-
     const writeResult = await writeFile(filePath, fmtResult.value)
     if (!writeResult.ok) return { ok: false, error: writeResult.error }
   }
@@ -112,10 +106,8 @@ export async function route(
     .join('\n')}\n`
   const fmtResult = await fmt(indexBody)
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-
   const mkdirResult = await mkdir(path.dirname(`${outDir}/index.ts`))
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-
   const writeResult = await writeFile(`${outDir}/index.ts`, fmtResult.value)
   if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
