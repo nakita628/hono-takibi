@@ -45,9 +45,8 @@ export async function config(): Promise<
     register()
     const url = pathToFileURL(abs).href
     const mod: { readonly default: Config } = await import(/* @vite-ignore */ url)
-    if (!('default' in mod) || mod.default === undefined) {
+    if (!('default' in mod) || mod.default === undefined)
       return { ok: false, error: 'Config must export default object' }
-    }
     const result = parseConfig(mod.default)
     if (!result.ok) return { ok: false, error: result.error }
     return { ok: true, value: result.value }

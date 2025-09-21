@@ -403,14 +403,12 @@ export async function rpc(
         const fileSrc = `${header}${code}\n`
         const fmtResult = await fmt(fileSrc)
         if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-
         const { outDir } = resolveSplitOutDir(output)
         const filePath = path.join(outDir, `${funcName}.ts`)
-        const mk = await mkdir(path.dirname(filePath))
-        if (!mk.ok) return { ok: false, error: mk.error }
-        const wr = await writeFile(filePath, fmtResult.value)
-        if (!wr.ok) return { ok: false, error: wr.error }
-
+        const mkdirResult = await mkdir(path.dirname(filePath))
+        if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+        const writeResult = await writeFile(filePath, fmtResult.value)
+        if (!writeResult.ok) return { ok: false, error: writeResult.error }
         splitExports.add(`export * from './${funcName}'`)
       } else {
         combinedOut.push(code)
@@ -420,11 +418,9 @@ export async function rpc(
 
   // Non-split: write single file
   if (!split) {
-    const mk = await mkdir(path.dirname(output))
-    if (!mk.ok) return { ok: false, error: mk.error }
-
+    const mkdirResult = await mkdir(path.dirname(output))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
     const code = `${header}${combinedOut.join('\n\n')}${combinedOut.length ? '\n' : ''}`
-
     const fmtResult = await fmt(code)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const writeResult = await writeFile(output, fmtResult.value)
@@ -434,13 +430,12 @@ export async function rpc(
 
   // Split: write index.ts (barrel)
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const indexBody = `${Array.from(splitExports).sort().join('\n')}\n`
-  const fmtResult = await fmt(indexBody)
+  const index = `${Array.from(splitExports).sort().join('\n')}\n`
+  const fmtResult = await fmt(index)
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
   const mkdirResult = await mkdir(path.dirname(indexPath))
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
   const writeResult = await writeFile(indexPath, fmtResult.value)
   if (!writeResult.ok) return { ok: false, error: writeResult.error }
-
   return { ok: true, value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)` }
 }

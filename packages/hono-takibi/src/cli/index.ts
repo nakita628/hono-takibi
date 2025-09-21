@@ -92,9 +92,7 @@ export async function honoTakibi(): Promise<
       cli.test ?? false,
       cli.basePath,
     )
-    if (!takibiResult.ok) {
-      return { ok: false, error: takibiResult.error }
-    }
+    if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
       ok: true,
       value: takibiResult.value,
@@ -121,9 +119,7 @@ export async function honoTakibi(): Promise<
       )
     : undefined
 
-  if (takibiResult && !takibiResult.ok) {
-    return { ok: false, error: takibiResult.error }
-  }
+  if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
 
   /** schema */
   const schemaResult = c['zod-openapi']?.schema
@@ -134,9 +130,7 @@ export async function honoTakibi(): Promise<
         c['zod-openapi']?.schema.split ?? false,
       )
     : undefined
-  if (schemaResult && !schemaResult.ok) {
-    return { ok: false, error: schemaResult.error }
-  }
+  if (schemaResult && !schemaResult.ok) return { ok: false, error: schemaResult.error }
 
   /** route */
   const routeResult = c['zod-openapi']?.route
@@ -147,18 +141,14 @@ export async function honoTakibi(): Promise<
         c['zod-openapi'].route.split ?? false,
       )
     : undefined
-  if (routeResult && !routeResult.ok) {
-    return { ok: false, error: routeResult.error }
-  }
+  if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** rpc */
   const rpcResult = c.rpc
     ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
 
-  if (rpcResult && !rpcResult.ok) {
-    return { ok: false, error: rpcResult.error }
-  }
+  if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 
   const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
 
