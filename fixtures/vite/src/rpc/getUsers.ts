@@ -1,11 +1,11 @@
 import { client } from '../client'
 
 /**
+ * GET /users
+ *
  * List users
  *
  * List users with pagination and optional role filter.
- *
- * GET /users
  */
 export async function getUsers(params: {
   query: {

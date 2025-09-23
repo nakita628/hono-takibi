@@ -444,44 +444,44 @@ describe('rpc', () => {
       const expected = `import { client } from '../index.ts'
 
 /**
+ * GET /hono
+ *
  * Hono
  *
  * Simple ping for Hono
- *
- * GET /hono
  */
 export async function getHono() {
   return await client.hono.$get()
 }
 
 /**
+ * GET /hono-x
+ *
  * HonoX
  *
  * Simple ping for HonoX
- *
- * GET /hono-x
  */
 export async function getHonoX() {
   return await client['hono-x'].$get()
 }
 
 /**
+ * GET /zod-openapi-hono
+ *
  * ZodOpenAPIHono
  *
  * Simple ping for ZodOpenAPIHono
- *
- * GET /zod-openapi-hono
  */
 export async function getZodOpenapiHono() {
   return await client['zod-openapi-hono'].$get()
 }
 
 /**
+ * GET /users
+ *
  * List users
  *
  * List users with pagination and optional role filter.
- *
- * GET /users
  */
 export async function getUsers(params: {
   query: {
@@ -503,11 +503,11 @@ export async function getUsers(params: {
 }
 
 /**
+ * POST /users
+ *
  * Create user
  *
  * Create a new user.
- *
- * POST /users
  */
 export async function postUsers(body: {
   displayName: string
@@ -529,22 +529,22 @@ export async function postUsers(body: {
 }
 
 /**
+ * GET /users/{id}
+ *
  * Get user
  *
  * Retrieve a single user by ID.
- *
- * GET /users/{id}
  */
 export async function getUsersId(params: { path: { id: string } }) {
   return await client.users[':id'].$get({ param: params.path })
 }
 
 /**
+ * PUT /users/{id}
+ *
  * Replace user
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
- *
- * PUT /users/{id}
  */
 export async function putUsersId(
   params: { path: { id: string } },
@@ -569,22 +569,22 @@ export async function putUsersId(
 }
 
 /**
+ * DELETE /users/{id}
+ *
  * Delete user
  *
  * Delete a user by ID.
- *
- * DELETE /users/{id}
  */
 export async function deleteUsersId(params: { path: { id: string } }) {
   return await client.users[':id'].$delete({ param: params.path })
 }
 
 /**
+ * PATCH /users/{id}
+ *
  * Update user (partial)
  *
  * Partial update (PATCH). Only provided fields will be updated.
- *
- * PATCH /users/{id}
  */
 export async function patchUsersId(
   params: { path: { id: string } },
@@ -608,6 +608,7 @@ export async function patchUsersId(
   return await client.users[':id'].$patch({ param: params.path, json: body })
 }
 `
+
       expect(index).toStrictEqual(expected)
       expect(result.ok).toBe(true)
       expect(result.value).toMatch(/Generated rpc code written to/)
@@ -647,48 +648,51 @@ export * from './putUsersId'
       const deleteUsersIdExpected = `import { client } from '../index.ts'
 
 /**
+ * DELETE /users/{id}
+ *
  * Delete user
  *
  * Delete a user by ID.
- *
- * DELETE /users/{id}
  */
 export async function deleteUsersId(params: { path: { id: string } }) {
   return await client.users[':id'].$delete({ param: params.path })
 }
 `
+
       expect(deleteUsersId).toBe(deleteUsersIdExpected)
 
       const getHono = fs.readFileSync(path.join(dir, 'rpc', 'getHono.ts'), 'utf-8')
       const getHonoExpected = `import { client } from '../index.ts'
 
 /**
+ * GET /hono
+ *
  * Hono
  *
  * Simple ping for Hono
- *
- * GET /hono
  */
 export async function getHono() {
   return await client.hono.$get()
 }
 `
+
       expect(getHono).toBe(getHonoExpected)
 
       const getHonoX = fs.readFileSync(path.join(dir, 'rpc', 'getHonoX.ts'), 'utf-8')
       const getHonoXExpected = `import { client } from '../index.ts'
 
 /**
+ * GET /hono-x
+ *
  * HonoX
  *
  * Simple ping for HonoX
- *
- * GET /hono-x
  */
 export async function getHonoX() {
   return await client['hono-x'].$get()
 }
 `
+
       expect(getHonoX).toBe(getHonoXExpected)
 
       const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
@@ -696,11 +700,11 @@ export async function getHonoX() {
       const expected = `import { client } from '../index.ts'
 
 /**
+ * GET /users
+ *
  * List users
  *
  * List users with pagination and optional role filter.
- *
- * GET /users
  */
 export async function getUsers(params: {
   query: {
@@ -721,6 +725,7 @@ export async function getUsers(params: {
   return await client.users.$get({ query: params.query })
 }
 `
+
       expect(getUsers).toBe(expected)
 
       const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
@@ -728,11 +733,11 @@ export async function getUsers(params: {
       const getUsersIdExpected = `import { client } from '../index.ts'
 
 /**
+ * GET /users/{id}
+ *
  * Get user
  *
  * Retrieve a single user by ID.
- *
- * GET /users/{id}
  */
 export async function getUsersId(params: { path: { id: string } }) {
   return await client.users[':id'].$get({ param: params.path })
@@ -748,11 +753,11 @@ export async function getUsersId(params: { path: { id: string } }) {
       const getZodOpenapiHonoExpected = `import { client } from '../index.ts'
 
 /**
+ * GET /zod-openapi-hono
+ *
  * ZodOpenAPIHono
  *
  * Simple ping for ZodOpenAPIHono
- *
- * GET /zod-openapi-hono
  */
 export async function getZodOpenapiHono() {
   return await client['zod-openapi-hono'].$get()
@@ -765,11 +770,11 @@ export async function getZodOpenapiHono() {
       const patchUsersIdExpected = `import { client } from '../index.ts'
 
 /**
+ * PATCH /users/{id}
+ *
  * Update user (partial)
  *
  * Partial update (PATCH). Only provided fields will be updated.
- *
- * PATCH /users/{id}
  */
 export async function patchUsersId(
   params: { path: { id: string } },
@@ -799,11 +804,11 @@ export async function patchUsersId(
       const postUsersExpected = `import { client } from '../index.ts'
 
 /**
+ * POST /users
+ *
  * Create user
  *
  * Create a new user.
- *
- * POST /users
  */
 export async function postUsers(body: {
   displayName: string
@@ -831,11 +836,11 @@ export async function postUsers(body: {
       const putUsersIdExpected = `import { client } from '../index.ts'
 
 /**
+ * PUT /users/{id}
+ *
  * Replace user
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
- *
- * PUT /users/{id}
  */
 export async function putUsersId(
   params: { path: { id: string } },

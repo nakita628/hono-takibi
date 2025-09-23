@@ -1,11 +1,11 @@
 import { client } from '../client'
 
 /**
+ * POST /users
+ *
  * Create user
  *
  * Create a new user.
- *
- * POST /users
  */
 export async function postUsers(body: {
   displayName: string

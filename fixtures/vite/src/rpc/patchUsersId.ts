@@ -1,11 +1,11 @@
 import { client } from '../client'
 
 /**
+ * PATCH /users/{id}
+ *
  * Update user (partial)
  *
  * Partial update (PATCH). Only provided fields will be updated.
- *
- * PATCH /users/{id}
  */
 export async function patchUsersId(
   params: { path: { id: string } },

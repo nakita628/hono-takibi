@@ -314,10 +314,17 @@ const generateOperationCode = (
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
-  const summaryBlock = summary ? ` * ${summary}\n *\n` : ''
-  const descriptionBlock = description ? ` * ${description}\n *\n` : ''
+  const docs = [
+    '/**',
+    ` * ${method.toUpperCase()} ${pathStr}`,
+    ...(summary ? [' *', ` * ${summary}`] : []),
+    ...(description ? [' *', ` * ${description}`] : []),
+    ' */',
+  ].join('\n')
 
-  return `/**\n${summaryBlock}${descriptionBlock} * ${method.toUpperCase()} ${pathStr}\n */\nexport async function ${funcName}(${argSig}){return await ${call}}`
+  const func = `export async function ${funcName}(${argSig}){return await ${call}}`
+
+  return `${docs}\n${func}`
 }
 
 /* ─────────────────────────────── Split ─────────────────────────────── */
@@ -346,9 +353,7 @@ export async function rpc(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) {
-    return { ok: false, error: openAPIResult.error }
-  }
+  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
   const client = 'client'

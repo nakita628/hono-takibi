@@ -1,11 +1,11 @@
 import { client } from '../client'
 
 /**
+ * GET /hono
+ *
  * Hono
  *
  * Simple ping for Hono
- *
- * GET /hono
  */
 export async function getHono() {
   return await client.hono.$get()
