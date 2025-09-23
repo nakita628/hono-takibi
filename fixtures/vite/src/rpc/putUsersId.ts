@@ -1,11 +1,11 @@
 import { client } from '../client'
 
 /**
+ * PUT /users/{id}
+ *
  * Replace user
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
- *
- * PUT /users/{id}
  */
 export async function putUsersId(
   params: { path: { id: string } },
