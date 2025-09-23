@@ -317,8 +317,8 @@ const generateOperationCode = (
   const docs = [
     '/**',
     ` * ${method.toUpperCase()} ${pathStr}`,
-    ...(summary ? [' *', ` * ${summary}`] : []),
-    ...(description ? [' *', ` * ${description}`] : []),
+    ...(summary ? [' *', ` * ${summary.trimEnd()}`] : []),
+    ...(description ? [' *', ` * ${description.trimEnd()}`] : []),
     ' */',
   ].join('\n')
 
