@@ -199,8 +199,12 @@ describe('cli test', () => {
       .spyOn(process, 'exit')
       // biome-ignore lint: test
       .mockImplementation(() => undefined as unknown as never) as any
-    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}) as unknown as ReturnType<
+      typeof vi.spyOn
+    >
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {}) as unknown as ReturnType<
+      typeof vi.spyOn
+    >
   })
 
   afterEach(() => {
