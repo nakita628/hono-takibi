@@ -13,7 +13,7 @@ import { methodPath, parseConfig } from '../utils/index.js'
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
+const HTTP_METHODS: readonly HttpMethod[] = [
   'get',
   'put',
   'post',
@@ -268,7 +268,7 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * Run generators for a given config（parseConfig 済み前提）
+ * Run generators for a given config (parseConfig assumed)
  * ────────────────────────────────────────────────────────────── */
 
 const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
@@ -278,11 +278,11 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   if (zo) {
     const exportType = zo.exportType === true
     const exportSchema = zo.exportSchema !== false
-    const hasSchema = !!zo.schema
-    const hasRoute = !!zo.route
+    const hs = !!zo.schema
+    const hr = !!zo.route
 
     // top-level zod-openapi (non-split)
-    if (!(hasSchema || hasRoute)) {
+    if (!(hs || hr)) {
       const runZo = async () => {
         const spec = await parseOpenAPI(c.input)
         if (!spec.ok) return `✗ zod-openapi: ${spec.error}`
@@ -412,7 +412,7 @@ const pickZoTopNonSplit = (c: Conf): ZoTopSpec => {
 }
 
 const reconcileSplitTransition = async (prevC: Conf, nextC: Conf): Promise<string[]> => {
-  const kinds: ReadonlyArray<'schema' | 'route' | 'rpc'> = ['schema', 'route', 'rpc']
+  const kinds: readonly ('schema' | 'route' | 'rpc')[] = ['schema', 'route', 'rpc'] as const
   const perKind = await Promise.all(
     kinds.map(async (kind) => {
       const prev = pickSplitSpec(prevC, kind)

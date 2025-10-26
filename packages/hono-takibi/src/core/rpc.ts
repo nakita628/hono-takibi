@@ -202,7 +202,7 @@ type PathItemLike = {
 } & { [M in HttpMethod]?: OperationLike }
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-const HTTP_METHODS: ReadonlyArray<HttpMethod> = [
+const HTTP_METHODS: readonly HttpMethod[] = [
   'get',
   'put',
   'post',

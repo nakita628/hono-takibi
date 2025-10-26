@@ -118,12 +118,12 @@ async function zodOpenapiHonoHandler(
 > {
   const paths: OpenAPIPaths = openapi.paths
 
-  const handlers: ReadonlyArray<{
+  const handlers: readonly {
     readonly fileName: `${string}.ts`
     readonly testFileName: `${string}.ts`
     readonly routeHandlerContents: string[]
     readonly routeNames: string[]
-  }> = Object.entries(paths).flatMap(([p, pathItem]) =>
+  }[] = Object.entries(paths).flatMap(([p, pathItem]) =>
     Object.entries(pathItem)
       .filter(([m]) => isHttpMethod(m))
       .map(([method]) => {
@@ -147,40 +147,40 @@ async function zodOpenapiHonoHandler(
           testFileName,
           routeHandlerContents: [routeHandlerContent],
           routeNames: [`${routeId}Route`],
-        } satisfies Readonly<{
+        } satisfies {
           readonly fileName: `${string}.ts`
           readonly testFileName: `${string}.ts`
           readonly routeHandlerContents: string[]
           readonly routeNames: string[]
-        }>
+        }
       }),
   )
 
-  const mergedHandlers: ReadonlyArray<{
+  const mergedHandlers: readonly {
     readonly fileName: `${string}.ts`
     readonly testFileName: `${string}.ts`
     readonly routeHandlerContents: string[]
     readonly routeNames: string[]
-  }> = Array.from(
+  }[] = Array.from(
     handlers
       .reduce<
         Map<
           string,
-          Readonly<{
+          {
             readonly fileName: `${string}.ts`
             readonly testFileName: `${string}.ts`
             readonly routeHandlerContents: string[]
             readonly routeNames: string[]
-          }>
+          }
         >
       >((map, h) => {
         const prev = map.get(h.fileName)
-        const next: Readonly<{
+        const next: {
           readonly fileName: `${string}.ts`
           readonly testFileName: `${string}.ts`
           readonly routeHandlerContents: string[]
           readonly routeNames: string[]
-        }> = prev
+        } = prev
           ? {
               fileName: h.fileName,
               testFileName: h.testFileName,

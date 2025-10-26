@@ -3,7 +3,7 @@ import { route } from './route.js'
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
 
-const METHODS: ReadonlyArray<HttpMethod> = [
+const METHODS: readonly HttpMethod[] = [
   'get',
   'put',
   'post',
@@ -12,7 +12,7 @@ const METHODS: ReadonlyArray<HttpMethod> = [
   'options',
   'head',
   'trace',
-]
+] as const
 
 export function routeCode(openAPIPaths: OpenAPIPaths): string {
   const routes: string[] = []

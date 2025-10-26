@@ -156,7 +156,7 @@ export const postTestRoute = createRoute({
     expect(result).toBe(expected)
   })
 
-  // #5: template（これも並列にしない）
+  // #5: template
   it('--template', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
@@ -199,8 +199,12 @@ describe('cli test', () => {
       .spyOn(process, 'exit')
       // biome-ignore lint: test
       .mockImplementation(() => undefined as unknown as never) as any
-    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}) as unknown as ReturnType<
+      typeof vi.spyOn
+    >
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {}) as unknown as ReturnType<
+      typeof vi.spyOn
+    >
   })
 
   afterEach(() => {
