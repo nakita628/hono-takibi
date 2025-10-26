@@ -57,9 +57,8 @@ export async function route(
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
     const writeResult = await writeFile(output, fmtResult.value)
-    return writeResult.ok
-      ? { ok: true, value: `Generated route code written to ${output}` }
-      : { ok: false, error: writeResult.error }
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    return { ok: true, value: `Generated route code written to ${output}` }
   }
 
   const outDir = (output as string).replace(/\.ts$/, '')
@@ -78,9 +77,8 @@ export async function route(
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
     const writeResult = await writeFile(output, fmtResult.value)
-    return writeResult.ok
-      ? { ok: true, value: `Generated route code written to ${output}` }
-      : { ok: false, error: writeResult.error }
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    return { ok: true, value: `Generated route code written to ${output}` }
   }
 
   for (const { name, block } of blocks) {

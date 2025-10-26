@@ -60,6 +60,7 @@ export function parseConfig(config: {
     return { ok: false, error: `Invalid input: ${String(c.input)} (must be .yaml | .json | .tsp)` }
   }
 
+  // zod-openapi
   const zo = c['zod-openapi']
   if (zo !== undefined) {
     // boolean flags
@@ -76,10 +77,10 @@ export function parseConfig(config: {
       }
     }
 
-    const hasSchema = zo.schema !== undefined
-    const hasRoute = zo.route !== undefined
+    const hs = zo.schema !== undefined
+    const hr = zo.route !== undefined
 
-    if (hasSchema !== hasRoute) {
+    if (hs !== hr) {
       return {
         ok: false,
         error:
@@ -87,7 +88,7 @@ export function parseConfig(config: {
       }
     }
 
-    if (hasSchema || hasRoute) {
+    if (hs || hr) {
       if (Object.hasOwn(zo, 'output')) {
         return {
           ok: false,
@@ -104,7 +105,7 @@ export function parseConfig(config: {
       }
     }
 
-    if (hasSchema) {
+    if (hs) {
       const s = zo.schema
       if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
 
@@ -142,7 +143,7 @@ export function parseConfig(config: {
       }
     }
 
-    if (hasRoute) {
+    if (hr) {
       const r = zo.route
       if (!r) return { ok: false, error: 'Invalid config: zod-openapi.route is undefined' }
       if (typeof r.import !== 'string') {
@@ -341,11 +342,11 @@ export function normalizeTypes(
  * @returns Multiline string of registration statements.
  */
 export function registerComponent(securitySchemes: {
-  [key: string]: {
-    type?: string
-    name?: string
-    scheme?: string
-    bearerFormat?: string
+  readonly [key: string]: {
+    readonly type?: string
+    readonly name?: string
+    readonly scheme?: string
+    readonly bearerFormat?: string
   }
 }): string {
   return Object.entries(securitySchemes)
@@ -431,8 +432,8 @@ export function isHttpMethod(
 export function isUniqueContentSchema(
   contentTypes: readonly string[],
   content: {
-    [key: string]: {
-      schema: {
+    readonly [key: string]: {
+      readonly schema: {
         readonly $ref?: `#/components/schemas/${string}`
       }
     }
