@@ -287,19 +287,6 @@ export function parseCli(args: readonly string[]):
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *
- * - `undefined` → `[]`
- * - `'string'`  → `['string']`
- * - `['string','number']` → unchanged
- *
- * ```mermaid
- * graph TD
- *   A1[normalizeTypes] --> B1{is undefined}
- *   B1 -->|Yes| C1[return empty array]
- *   B1 -->|No| D1{is array}
- *   D1 -->|Yes| E1[return t]
- *   D1 -->|No| F1[return array with t]
- * ```
- *
  * @param t - JSON Schema `type` as a single value or an array of values.
  * @returns A flat array of type strings.
  */
@@ -324,20 +311,6 @@ export function normalizeTypes(
 /**
  * Generates registration code for OpenAPI `securitySchemes`.
  *
- * The code calls:
- * ```
- * app.openAPIRegistry.registerComponent('securitySchemes', name, scheme)
- * ```
- * for each entry in the provided record.
- *
- * ```mermaid
- * graph TD
- *   A[Start registerComponent] --> B[Iterate over securitySchemes]
- *   B --> C[Build registration string for each name + scheme]
- *   C --> D[Join all strings with newline]
- *   D --> E[Return final code string]
- * ```
- *
  * @param securitySchemes - Record of scheme name to scheme properties.
  * @returns Multiline string of registration statements.
  */
@@ -358,13 +331,6 @@ export function registerComponent(securitySchemes: {
 
 /**
  * Checks if a value is a non-null object (e.g., a potential `$ref` object).
- *
- * ```mermaid
- * graph TD
- *   A[Start isRefObject] --> B[Check typeof value is object]
- *   B --> C[Check value is not null]
- *   C --> D[Return true or false]
- * ```
  *
  * @param value - The value to check.
  * @returns `true` if the value is a non-null object.
@@ -407,16 +373,6 @@ export function isHttpMethod(
 /**
  * Checks if all given content types share the same schema definition.
  *
- * ```mermaid
- * graph TD
- *   A[Start isUniqueContentSchema] --> B[Create empty set]
- *   B --> C[Loop over content types]
- *   C --> D[Read schema for type]
- *   D --> E[Stringify and add to set]
- *   E --> F[After loop check size]
- *   F --> G[Return true if size is one]
- * ```
- *
  * @param contentTypes - Array of content type keys (e.g., ['application/json', 'application/xml']).
  * @param content - OpenAPI content object mapping content types to media objects.
  * @returns `true` if all specified content types refer to the same schema; otherwise `false`.
@@ -446,14 +402,6 @@ export function isUniqueContentSchema(
 /**
  * Extracts the type name from an OpenAPI `$ref` string.
  *
- * ```mermaid
- * graph TD
- *   A["Start refSchema"] --> B["Split $ref by slash"]
- *   B --> C["Take last segment"]
- *   C --> D["Append Schema suffix"]
- *   D --> E["Return result string"]
- * ```
- *
  * @param $ref - A reference path like `#/components/schemas/Address`.
  * @returns The extracted type name with `Schema` suffix.
  *
@@ -474,16 +422,6 @@ export function refSchema($ref: `#/components/schemas/${string}`): string {
 
 /**
  * Generates a PascalCase route name from HTTP method and path.
- *
- * ```mermaid
- * graph TD
- *   A[Start routeName] --> B[Replace special chars with space]
- *   B --> C[Trim and split by spaces]
- *   C --> D[Capitalize each segment]
- *   D --> E[Join segments into single string]
- *   E --> F[Prefix with method and suffix with Route]
- *   F --> G[Return final route name]
- * ```
  *
  * @param method - HTTP method (e.g., 'get', 'post').
  * @param path - URL path (e.g., '/users/{id}/posts').
@@ -510,14 +448,6 @@ export function methodPath(method: string, path: string): string {
 
 /**
  * Generates a Hono route definition as a TypeScript export string.
- *
- * ```mermaid
- * graph TD
- *   A[Start createRoute] --> B[Collect properties from args]
- *   B --> C[Join properties into one string]
- *   C --> D[Build export createRoute template]
- *   D --> E[Return final code string]
- * ```
  *
  * @param args - Route metadata and OpenAPI friendly fragments (`method`, `path`, `requestParams`, `responses`, etc.).
  * @returns A string representing an `export const <name> = createRoute({ ... })` statement.
@@ -560,6 +490,7 @@ export function createRoute(args: {
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
+ *
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
@@ -579,18 +510,6 @@ export const requestParamsArray = (
 /**
  * Escapes a string for safe use in TypeScript string literals.
  *
- * ```mermaid
- * graph TD
- *   A[Start escapeStringLiteral] --> B[Replace newline and tab with space]
- *   B --> C[Remove zero width and BOM characters]
- *   C --> D[Replace full width spaces with normal space]
- *   D --> E[Collapse multiple spaces into one]
- *   E --> F[Escape backslashes]
- *   F --> G[Escape single quotes]
- *   G --> H[Trim leading and trailing spaces]
- *   H --> I[Return escaped string]
- * ```
- *
  * @param text - The input text to escape.
  * @returns The escaped string.
  */
@@ -608,14 +527,8 @@ export function escapeStringLiteral(text: string): string {
 /**
  * Converts a string to a safe TypeScript object key.
  *
- * ```mermaid
- * graph TD
- *   A[Start getToSafeIdentifier] --> B[Check if matches identifier regex]
- *   B --> C[If matches, return string as is]
- *   B --> D[If not, wrap with JSON stringify]
- *   C --> E[Return result]
- *   D --> E[Return result]
- * ```
+ * @param text - The string to convert to a safe identifier.
+ * @returns A safe identifier string.
  *
  * @example
  * ```ts
@@ -626,22 +539,14 @@ export function escapeStringLiteral(text: string): string {
  * getToSafeIdentifier('if')          // → 'if'
  * ```
  */
-export function getToSafeIdentifier(str: string): string {
-  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(str) ? str : JSON.stringify(str)
+export function getToSafeIdentifier(text: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text) ? text : JSON.stringify(text)
 }
 
 /**
- * Converts a string to a safe TypeScript identifier.
- *
- * ```mermaid
- * graph TD
- *   A[Start sanitizeIdentifier] --> B[Replace invalid characters with underscore]
- *   B --> C[Return sanitized string]
- * ```
- *
  * Replaces any character not matching `[A-Za-z0-9_$]` with `_`.
  *
- * @param str - The raw string to sanitize.
+ * @param text - The raw string to sanitize.
  * @returns A valid identifier string.
  *
  * @example
@@ -653,25 +558,12 @@ export function getToSafeIdentifier(str: string): string {
  * sanitizeIdentifier('valid_Name')     // → 'valid_Name'
  * ```
  */
-export function sanitizeIdentifier(str: string): string {
-  return str.replace(/[^A-Za-z0-9_$]/g, '_')
+export function sanitizeIdentifier(text: string): string {
+  return text.replace(/[^A-Za-z0-9_$]/g, '_')
 }
 
 /**
  * Appends a properly escaped `.regex(/pattern/)` clause.
- *
- * Any unescaped forward-slash within the pattern is escaped so the final
- * string remains a valid JavaScript RegExp literal.
- *
- * ```mermaid
- * graph TD
- *   A["Start regex(pattern)"] --> B["Receive raw regex pattern without slashes"]
- *   B --> C["Find all '/' not preceded by '\\'"]
- *   C --> D["Escape them to '\\/'"]
- *   D --> E["Wrap pattern in '/ ... /'"]
- *   E --> F["Prefix with '.regex(' and suffix with ')' "]
- *   F --> G["Return generated string"]
- * ```
  *
  * @param pattern - A raw regex pattern **without** the surrounding slashes.
  * @returns A string like `'.regex(/^[a-z]+$/)'`.

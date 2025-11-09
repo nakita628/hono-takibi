@@ -116,18 +116,19 @@ const pruneDir = async (dir: string, expected: ReadonlySet<string>): Promise<str
     .stat(dir)
     .then((st) =>
       st.isDirectory()
-        ? fsp.readdir(dir, { withFileTypes: true }).then((ents) => {
+        ? fsp.readdir(dir, { withFileTypes: true }).then(async (ents) => {
             const targets = ents
               .filter((e) => e.isFile() && e.name.endsWith('.ts') && !expected.has(e.name))
               .map((e) => path.join(dir, e.name))
-            return Promise.all(
+            const res = await Promise.all(
               targets.map((f) =>
                 fsp
                   .unlink(f)
                   .then(() => f)
                   .catch(() => null),
               ),
-            ).then((res) => res.filter((x): x is string => x !== null))
+            )
+            return res.filter((x): x is string => x !== null)
           })
         : [],
     )
@@ -213,10 +214,6 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
   })
 }
 
-/* ──────────────────────────────────────────────────────────────
- * Split-mode filename calculators (no `as` cast)
- * ────────────────────────────────────────────────────────────── */
-
 const computeRpcSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
@@ -253,10 +250,6 @@ const computeSchemaSplitFiles = async (input: Conf['input']): Promise<ReadonlySe
   return acc
 }
 
-/* ──────────────────────────────────────────────────────────────
- * Debounce (no `let`)
- * ────────────────────────────────────────────────────────────── */
-
 const debounce = (ms: number, fn: () => void): (() => void) => {
   const bucket = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
   const wrapped = (): void => {
@@ -266,10 +259,6 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
   }
   return wrapped
 }
-
-/* ──────────────────────────────────────────────────────────────
- * Run generators for a given config (parseConfig assumed)
- * ────────────────────────────────────────────────────────────── */
 
 const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const jobs: Array<Promise<string>> = []
@@ -284,20 +273,24 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     // top-level zod-openapi (non-split)
     if (!(hs || hr)) {
       const runZo = async () => {
-        const spec = await parseOpenAPI(c.input)
-        if (!spec.ok) return `✗ zod-openapi: ${spec.error}`
-        const code = await fmt(zodOpenAPIHono(spec.value, exportSchema, exportType))
-        if (!code.ok) return `✗ zod-openapi fmt: ${code.error}`
+        try {
+          const spec = await parseOpenAPI(c.input)
+          if (!spec.ok) return `✗ zod-openapi: ${spec.error}`
+          const code = await fmt(zodOpenAPIHono(spec.value, exportSchema, exportType))
+          if (!code.ok) return `✗ zod-openapi fmt: ${code.error}`
 
-        const outputMaybe = zo.output
-        if (typeof outputMaybe !== 'string') {
-          return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(outputMaybe)}`
+          const outputMaybe = zo.output
+          if (typeof outputMaybe !== 'string') {
+            return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(outputMaybe)}`
+          }
+          const out = toAbs(outputMaybe)
+          const mk = await mkdir(path.dirname(out))
+          if (!mk.ok) return `✗ zod-openapi mkdir: ${mk.error}`
+          const wr = await writeFile(out, code.value)
+          return wr.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi write: ${wr.error}`
+        } catch (e) {
+          return `✗ zod-openapi: ${e instanceof Error ? e.message : String(e)}`
         }
-        const out = toAbs(outputMaybe)
-        const mk = await mkdir(path.dirname(out))
-        if (!mk.ok) return `✗ zod-openapi mkdir: ${mk.error}`
-        const wr = await writeFile(out, code.value)
-        return wr.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi write: ${wr.error}`
       }
       jobs.push(runZo())
     }

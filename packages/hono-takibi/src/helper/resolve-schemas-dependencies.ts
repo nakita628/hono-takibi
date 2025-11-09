@@ -58,6 +58,5 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
   for (const name of Object.keys(schemas).sort()) {
     visit(name)
   }
-
   return sorted
 }
