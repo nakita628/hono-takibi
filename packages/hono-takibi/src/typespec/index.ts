@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { compile, logDiagnostics, NodeHost } from '@typespec/compiler'
+import { compile, NodeHost } from '@typespec/compiler'
 import type { SupportedOpenAPIDocuments } from '@typespec/openapi3'
 import { getOpenAPI3 } from '@typespec/openapi3'
 
@@ -43,7 +43,8 @@ export async function typeSpecToOpenAPI(input: string): Promise<
       noEmit: true,
     })
     if (program.diagnostics.length) {
-      logDiagnostics(program.diagnostics, program.host.logSink)
+      // logDiagnostics(program.diagnostics, program.host.logSink)
+      console.log(JSON.stringify(program.diagnostics, null, 2))
       return {
         ok: false,
         error: 'TypeSpec compile failed',

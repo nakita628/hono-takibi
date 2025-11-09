@@ -490,7 +490,7 @@ export function createRoute(args: {
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
- * 
+ *
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
@@ -564,7 +564,7 @@ export function sanitizeIdentifier(text: string): string {
 
 /**
  * Appends a properly escaped `.regex(/pattern/)` clause.
- * 
+ *
  * @param pattern - A raw regex pattern **without** the surrounding slashes.
  * @returns A string like `'.regex(/^[a-z]+$/)'`.
  */
