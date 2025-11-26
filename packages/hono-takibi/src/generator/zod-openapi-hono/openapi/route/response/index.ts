@@ -16,40 +16,42 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  */
 export function response(responses: Responses): string {
   // 1. get response codes (200, 404, etc.)
-  return Object.keys(responses).map((code) => {
-    const res = responses[code]
-    const content = res.content
-    if (!content) return `${code}:{description:'${escapeStringLiteral(res.description ?? '')}',},`
-    const contentTypes = Object.keys(content)
-    const isUnique = isUniqueContentSchema(contentTypes, content)
+  return Object.keys(responses)
+    .map((code) => {
+      const res = responses[code]
+      const content = res.content
+      if (!content) return `${code}:{description:'${escapeStringLiteral(res.description ?? '')}',},`
+      const contentTypes = Object.keys(content)
+      const isUnique = isUniqueContentSchema(contentTypes, content)
 
-    const sharedZ = isUnique ? zodToOpenAPI(content[contentTypes[0]].schema) : undefined
+      const sharedZ = isUnique ? zodToOpenAPI(content[contentTypes[0]].schema) : undefined
 
-    const contentParts = contentTypes.map((ct) => {
-      const media = content[ct]
-      const z = sharedZ ?? zodToOpenAPI(media.schema)
+      const contentParts = contentTypes.map((ct) => {
+        const media = content[ct]
+        const z = sharedZ ?? zodToOpenAPI(media.schema)
 
-      const examples = media.examples
-      const exampleString =
-        examples && Object.keys(examples).length > 0
-          ? `,examples:{${Object.entries(examples)
-              .map(([exampleKey, example]) => {
-                const fields = [
-                  example.summary !== undefined
-                    ? `summary:${JSON.stringify(example.summary)}`
-                    : undefined,
-                  example.value !== undefined
-                    ? `value:${JSON.stringify(example.value)}`
-                    : undefined,
-                ].filter((field): field is string => field !== undefined)
+        const examples = media.examples
+        const exampleString =
+          examples && Object.keys(examples).length > 0
+            ? `,examples:{${Object.entries(examples)
+                .map(([exampleKey, example]) => {
+                  const fields = [
+                    example.summary !== undefined
+                      ? `summary:${JSON.stringify(example.summary)}`
+                      : undefined,
+                    example.value !== undefined
+                      ? `value:${JSON.stringify(example.value)}`
+                      : undefined,
+                  ].filter((field): field is string => field !== undefined)
 
-                return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
-              })
-              .join(',')}}`
-          : ''
+                  return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
+                })
+                .join(',')}}`
+            : ''
 
-      return `'${ct}':{schema:${z}${exampleString}}`
+        return `'${ct}':{schema:${z}${exampleString}}`
+      })
+      return `${code}:{description:'${escapeStringLiteral(res.description ?? '')}',content:{${contentParts.join(',')}}},`
     })
-    return `${code}:{description:'${escapeStringLiteral(res.description ?? '')}',content:{${contentParts.join(',')}}},`
-  }).join('')
+    .join('')
 }

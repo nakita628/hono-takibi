@@ -12,20 +12,19 @@ import { isUniqueContentSchema } from '../../../../../../utils/index.js'
 export function requestBody(required: boolean, content: Content, schema: string): string {
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
-  // check duplication
+
   const isUniqueSchema = isUniqueContentSchema(contentTypes, content)
-  // all duplication same schema
-  if (isUniqueSchema) {
-    const contentParts: string[] = []
-    for (const contentType of contentTypes) {
-      // z.date() → z.coerce.date()
-      if (schema.includes('z.date()')) {
-        contentParts.push(`'${contentType}':{schema:z.coerce.${schema.replace('z.', '')}}`)
-      } else {
-        contentParts.push(`'${contentType}':{schema:${schema}}`)
-      }
-    }
-    return `body:{required:${required},content:{${contentParts.join(',')}}},`
-  }
-  return ''
+  if (!isUniqueSchema) return ''
+
+  // if z.date() → z.coerce.date()
+  const contentParts = contentTypes
+    .map(
+      (contentType) =>
+        `'${contentType}':{schema:${
+          schema.includes('z.date()') ? `z.coerce.${schema.replace('z.', '')}` : schema
+        }}`,
+    )
+    .join(',')
+
+  return `body:{required:${required},content:{${contentParts}}},`
 }
