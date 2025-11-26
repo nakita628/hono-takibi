@@ -70,27 +70,24 @@ const FORMAT_STRING: Record<string, string> = {
  * @returns Concatenated Zod string schema
  */
 export function string(schema: Schema): string {
-  const o: string[] = []
   const format = schema.format && FORMAT_STRING[schema.format]
-  o.push(format ? `z.${format}` : 'z.string()')
-  // pattern
-  if (schema.pattern) {
-    o.push(regex(schema.pattern))
-  }
-  // length
-  if (
+  const base = format ? `z.${format}` : 'z.string()'
+
+  const pattern = schema.pattern ? regex(schema.pattern) : undefined
+
+  const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
-  ) {
-    o.push(`.length(${schema.minLength})`)
-  } else {
-    if (schema.minLength !== undefined) {
-      o.push(`.min(${schema.minLength})`)
-    }
-    if (schema.maxLength !== undefined) {
-      o.push(`.max(${schema.maxLength})`)
-    }
-  }
-  return o.join('')
+
+  return [
+    base,
+    pattern,
+    // minLength === maxLength → .length(n)
+    isFixedLength ? `.length(${schema.minLength})` : undefined,
+    !isFixedLength && schema.minLength !== undefined ? `.min(${schema.minLength})` : undefined,
+    !isFixedLength && schema.maxLength !== undefined ? `.max(${schema.maxLength})` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join('')
 }
