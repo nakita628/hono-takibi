@@ -30,4 +30,41 @@ describe('generateResponseSchema', () => {
 
     expect(result).toBe(expected)
   })
+
+  it.concurrent('generateResponseSchema Hono with examples', () => {
+    const result = response({
+      '200': {
+        description: 'Successful response with a welcome message.',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                message: {
+                  type: 'string',
+                },
+              },
+              required: ['message'],
+            },
+            examples: {
+              example1: {
+                summary: 'Example 1',
+                value: 'Hono🔥',
+              },
+              example2: {
+                summary: 'Example 2',
+                value: 'HonoX🔥',
+              },
+              example3: {
+                summary: 'Example 3',
+                value: 'ZodOpenAPIHono🔥',
+              },
+            },
+          },
+        },
+      },
+    })
+    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string()}),examples:{"example1":{summary:"Example 1",value:"Hono🔥"},"example2":{summary:"Example 2",value:"HonoX🔥"},"example3":{summary:"Example 3",value:"ZodOpenAPIHono🔥"}}}}},`
+    expect(result).toBe(expected)
+  })
 })
