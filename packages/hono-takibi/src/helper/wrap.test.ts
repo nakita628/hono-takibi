@@ -6,18 +6,15 @@ import { wrap } from './wrap'
 
 describe('wrap', () => {
   describe('string', () => {
-    it.concurrent(
-      'adds .default and .nullable for z.string() when default and nullable=true',
-      () => {
-        expect(
-          wrap('z.string()', {
-            type: 'string',
-            default: 'test',
-            nullable: true,
-          }),
-        ).toBe(`z.string().default("test").nullable()`)
-      },
-    )
+    it.concurrent('adds .default and .nullable for z.string() when default and nullable=true', () => {
+      expect(
+        wrap('z.string()', {
+          type: 'string',
+          default: 'test',
+          nullable: true,
+        }),
+      ).toBe(`z.string().default("test").nullable()`)
+    })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
@@ -30,18 +27,15 @@ describe('wrap', () => {
   })
 
   describe('number', () => {
-    it.concurrent(
-      'adds .default and .nullable for z.number() when default and nullable=true',
-      () => {
-        expect(
-          wrap('z.number()', {
-            type: 'number',
-            default: 0,
-            nullable: true,
-          }),
-        ).toBe('z.number().default(0).nullable()')
-      },
-    )
+    it.concurrent('adds .default and .nullable for z.number() when default and nullable=true', () => {
+      expect(
+        wrap('z.number()', {
+          type: 'number',
+          default: 0,
+          nullable: true,
+        }),
+      ).toBe('z.number().default(0).nullable()')
+    })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
@@ -54,32 +48,26 @@ describe('wrap', () => {
   })
 
   describe('int32', () => {
-    it.concurrent(
-      'adds .default and .nullable for z.int32() with format int32 when default and nullable=true',
-      () => {
-        expect(
-          wrap('z.int32()', {
-            type: 'integer',
-            format: 'int32',
-            default: 0,
-            nullable: true,
-          }),
-        ).toBe('z.int32().default(0).nullable()')
-      },
-    )
+    it.concurrent('adds .default and .nullable for z.int32() with format int32 when default and nullable=true', () => {
+      expect(
+        wrap('z.int32()', {
+          type: 'integer',
+          format: 'int32',
+          default: 0,
+          nullable: true,
+        }),
+      ).toBe('z.int32().default(0).nullable()')
+    })
 
-    it.concurrent(
-      'marks schema as nullable and adds default for z.int32() when type includes null',
-      () => {
-        expect(
-          wrap('z.int32()', {
-            type: ['integer', 'null'],
-            format: 'int32',
-            default: 0,
-          }),
-        ).toBe('z.int32().default(0).nullable()')
-      },
-    )
+    it.concurrent('marks schema as nullable and adds default for z.int32() when type includes null', () => {
+      expect(
+        wrap('z.int32()', {
+          type: ['integer', 'null'],
+          format: 'int32',
+          default: 0,
+        }),
+      ).toBe('z.int32().default(0).nullable()')
+    })
   })
 
   describe('int64', () => {
@@ -94,18 +82,15 @@ describe('wrap', () => {
       ).toBe('z.int64().default(0n).nullable()')
     })
 
-    it.concurrent(
-      'handles default number and marks schema nullable when type includes null',
-      () => {
-        expect(
-          wrap('z.int64()', {
-            type: ['integer', 'null'],
-            format: 'int64',
-            default: 0,
-          }),
-        ).toBe('z.int64().default(0n).nullable()')
-      },
-    )
+    it.concurrent('handles default number and marks schema nullable when type includes null', () => {
+      expect(
+        wrap('z.int64()', {
+          type: ['integer', 'null'],
+          format: 'int64',
+          default: 0,
+        }),
+      ).toBe('z.int64().default(0n).nullable()')
+    })
 
     it.concurrent('uses BigInt default and adds .nullable for z.int64()', () => {
       expect(
@@ -141,33 +126,27 @@ describe('wrap', () => {
       ).toBe('z.bigint().default(BigInt(0)).nullable()')
     })
 
-    it.concurrent(
-      'handles BigInt default and marks schema nullable when type includes null',
-      () => {
-        expect(
-          wrap('z.bigint()', {
-            type: ['integer', 'null'],
-            format: 'bigint',
-            default: 0,
-          }),
-        ).toBe('z.bigint().default(BigInt(0)).nullable()')
-      },
-    )
+    it.concurrent('handles BigInt default and marks schema nullable when type includes null', () => {
+      expect(
+        wrap('z.bigint()', {
+          type: ['integer', 'null'],
+          format: 'bigint',
+          default: 0,
+        }),
+      ).toBe('z.bigint().default(BigInt(0)).nullable()')
+    })
   })
 
   describe('boolean', () => {
-    it.concurrent(
-      'adds .default and .nullable for z.boolean() when default and nullable=true',
-      () => {
-        expect(
-          wrap('z.boolean()', {
-            type: 'boolean',
-            default: true,
-            nullable: true,
-          }),
-        ).toBe('z.boolean().default(true).nullable()')
-      },
-    )
+    it.concurrent('adds .default and .nullable for z.boolean() when default and nullable=true', () => {
+      expect(
+        wrap('z.boolean()', {
+          type: 'boolean',
+          default: true,
+          nullable: true,
+        }),
+      ).toBe('z.boolean().default(true).nullable()')
+    })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
