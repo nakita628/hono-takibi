@@ -42,7 +42,7 @@ export function response(responses: Responses): string {
                     example.value !== undefined
                       ? `value:${JSON.stringify(example.value)}`
                       : undefined,
-                  ].filter((field): field is string => field !== undefined)
+                  ].filter((field) => field !== undefined)
 
                   return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
                 })

@@ -212,4 +212,10 @@ describe('wrap', () => {
     const expected = 'z.string().openapi({param:{in:"header",name:"x",required:true}})'
     expect(result).toBe(expected)
   })
+
+  it('should return examples', () => {
+    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] })
+    const expected = 'z.string().openapi({examples:["example1","example2"]})'
+    expect(result).toBe(expected)
+  })
 })

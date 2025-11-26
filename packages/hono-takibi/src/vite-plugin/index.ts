@@ -107,7 +107,7 @@ const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
           .then(() => f)
           .catch(() => null),
       ),
-    ).then((res) => res.filter((x): x is string => x !== null)),
+    ).then((res) => res.filter((x) => x !== null)),
   )
 
 // Remove unexpected .ts files (shallow) based on an expected set
@@ -128,7 +128,7 @@ const pruneDir = async (dir: string, expected: ReadonlySet<string>): Promise<str
                   .catch(() => null),
               ),
             )
-            return res.filter((x): x is string => x !== null)
+            return res.filter((x) => x !== null)
           })
         : [],
     )

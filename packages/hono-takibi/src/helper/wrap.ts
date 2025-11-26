@@ -37,25 +37,27 @@ export function wrap(zod: string, schema: Schema, paramName?: string, paramIn?: 
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  const openapiProps: string[] = []
+  const openapiProps = [
+    // param
+    paramIn && paramName
+      ? (() => {
+          const required = paramIn === 'path' ? true : !!schema.required
+          return `param:{in:"${paramIn}",name:${JSON.stringify(paramName)},required:${required}}`
+        })()
+      : undefined,
+    // example
+    'example' in schema && schema.example !== undefined
+      ? `example:${JSON.stringify(schema.example)}`
+      : undefined,
+    // examples
+    'examples' in schema && Array.isArray(schema.examples) && schema.examples.length > 0
+      ? `examples:${JSON.stringify(schema.examples)}`
+      : undefined,
+    // description
+    'description' in schema && schema.description !== undefined
+      ? `description:${JSON.stringify(schema.description)}`
+      : undefined,
+  ].filter((prop) => prop !== undefined)
 
-  if (paramIn && paramName) {
-    const required = paramIn === 'path' ? true : !!schema.required
-    openapiProps.push(
-      `param:{in:"${paramIn}",name:${JSON.stringify(paramName)},required:${required}}`,
-    )
-  }
-  /* 'example' if defined */
-  if ('example' in schema && schema.example !== undefined) {
-    openapiProps.push(`example:${JSON.stringify(schema.example)}`)
-  }
-  /* 'examples' if defined */
-  if ('examples' in schema && Array.isArray(schema.examples) && schema.examples.length > 0) {
-    openapiProps.push(`examples:${JSON.stringify(schema.examples)}`)
-  }
-  /* 'description' if defined */
-  if ('description' in schema && schema.description !== undefined) {
-    openapiProps.push(`description:${JSON.stringify(schema.description)}`)
-  }
   return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }

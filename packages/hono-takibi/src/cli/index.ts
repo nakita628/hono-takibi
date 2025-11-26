@@ -150,7 +150,7 @@ export async function honoTakibi(): Promise<
 
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 
-  const results = [takibiResult?.value, rpcResult?.value].filter((v): v is string => Boolean(v))
+  const results = [takibiResult?.value, rpcResult?.value].filter((v) => Boolean(v))
 
   return {
     ok: true,
