@@ -68,7 +68,7 @@ const loadConfigHot = async (
     const mod = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
     const def = isRecord(mod) ? Reflect.get(mod, 'default') : undefined
     if (def === undefined) return { ok: false, error: 'Config must export default object' }
-    // as unknown as Conf
+    // as Conf
     const parsed = parseConfig(def as Conf)
     return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
   } catch (e) {
