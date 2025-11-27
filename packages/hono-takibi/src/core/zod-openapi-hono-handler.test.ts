@@ -80,6 +80,7 @@ const openapi: OpenAPI = {
 describe('zodOpenAPIHonoHandler', () => {
   beforeEach(() => {
     fs.rmSync('tmp-route', { recursive: true, force: true })
+    fs.mkdirSync('tmp-route', { recursive: true })
   })
   afterEach(() => {
     fs.rmSync('tmp-route', { recursive: true, force: true })
