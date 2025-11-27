@@ -159,7 +159,37 @@ export const postTestRoute = createRoute({
   // #5: template
   it('--template', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
-    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template --test true`,
+    )
+
+    const indexResult = fs.readFileSync('tmp-route/index.ts', { encoding: 'utf-8' })
+    const indexExpected = `import { swaggerUI } from '@hono/swagger-ui'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { postTestRouteHandler } from './handlers'
+import { postTestRoute } from './test'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(postTestRoute, postTestRouteHandler)
+
+if (process.env.NODE_ENV === 'development') {
+  app
+    .doc('/doc', { openapi: '3.0.0', info: { title: 'Test API', version: '1.0.0' } })
+    .get('/ui', swaggerUI({ url: '/doc' }))
+}
+
+export type AddType = typeof api
+
+export default app
+`
+    expect(indexResult).toBe(indexExpected)
+
+    const indexRouteResult = fs.readFileSync('tmp-route/handlers/index.ts', { encoding: 'utf-8' })
+    const indexRouteExpected = `export * from './test.ts'
+`
+    expect(indexRouteResult).toBe(indexRouteExpected)
+
     const routeResult = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const routeExpected = `import { createRoute, z } from '@hono/zod-openapi'
 
@@ -185,221 +215,65 @@ import type { postTestRoute } from '../test'
 export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c) => {}
 `
     expect(handlerResult).toBe(handlerExpected)
-  })
-})
-
-describe('--template mode test', () => {
-  const tmpOpenAPI: OpenAPI = {
-    openapi: '3.1.0',
-    info: { title: 'HonoTakibi🔥', version: 'v1' },
-    tags: [{ name: 'Hono' }, { name: 'HonoX' }, { name: 'ZodOpenAPIHono' }],
-    paths: {
-      '/hono': {
-        get: {
-          tags: ['Hono'],
-          summary: 'Hono',
-          description: 'Hono',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: { message: { type: 'string', example: 'Hono🔥' } },
-                    required: ['message'],
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      '/hono-x': {
-        get: {
-          tags: ['HonoX'],
-          summary: 'HonoX',
-          description: 'HonoX',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: { message: { type: 'string', example: 'HonoX🔥' } },
-                    required: ['message'],
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      '/zod-openapi-hono': {
-        get: {
-          tags: ['ZodOpenAPIHono'],
-          summary: 'ZodOpenAPIHono',
-          description: 'ZodOpenAPIHono',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: { message: { type: 'string', example: 'ZodOpenAPIHono🔥' } },
-                    required: ['message'],
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  }
-
-  beforeEach(() => {
-    fs.rmSync('tmp-openapi', { recursive: true, force: true })
-    fs.rmSync('tmp-route', { recursive: true, force: true })
-
-    fs.mkdirSync('tmp-openapi', { recursive: true })
-    fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
-
-    fs.mkdirSync('tmp-route', { recursive: true })
-  })
-
-  afterEach(() => {
-    fs.rmSync('tmp-openapi', { recursive: true, force: true })
-    fs.rmSync('tmp-route', { recursive: true, force: true })
+    expect(fs.existsSync('tmp-route/handlers/test.test.ts')).toBe(true)
   })
 
   it('--template --test false', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
-    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
-    const indexExpected = `export * from './hono.ts'
-export * from './honoX.ts'
-export * from './zodOpenapiHono.ts'
+    const indexResult = fs.readFileSync('tmp-route/index.ts', { encoding: 'utf-8' })
+    const indexExpected = `import { swaggerUI } from '@hono/swagger-ui'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { postTestRouteHandler } from './handlers'
+import { postTestRoute } from './test'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(postTestRoute, postTestRouteHandler)
+
+if (process.env.NODE_ENV === 'development') {
+  app
+    .doc('/doc', { openapi: '3.0.0', info: { title: 'Test API', version: '1.0.0' } })
+    .get('/ui', swaggerUI({ url: '/doc' }))
+}
+
+export type AddType = typeof api
+
+export default app
 `
     expect(indexResult).toBe(indexExpected)
 
-    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
-    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoRoute } from '../test'
-
-export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
+    const indexRouteResult = fs.readFileSync('tmp-route/handlers/index.ts', { encoding: 'utf-8' })
+    const indexRouteExpected = `export * from './test.ts'
 `
-    expect(honoResult).toBe(honoExpected)
+    expect(indexRouteResult).toBe(indexRouteExpected)
 
-    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
-    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoXRoute } from '../test'
+    const routeResult = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
+    const routeExpected = `import { createRoute, z } from '@hono/zod-openapi'
 
-export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
+const TestSchema = z.object({ test: z.string() }).openapi('Test')
+
+export const postTestRoute = createRoute({
+  method: 'post',
+  path: '/test',
+  summary: 'Test endpoint',
+  request: { body: { required: true, content: { 'application/json': { schema: TestSchema } } } },
+  responses: { 200: { description: 'Successful test' } },
+})
 `
-    expect(honoXResult).toBe(honoXExpected)
+    expect(routeResult).toBe(routeExpected)
 
-    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
-    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getZodOpenapiHonoRoute } from '../test'
+    const handlerResult = fs.readFileSync('tmp-route/handlers/test.ts', {
+      encoding: 'utf-8',
+    })
 
-export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
-  c,
-) => {}
+    const handlerExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { postTestRoute } from '../test'
+
+export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c) => {}
 `
-    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
-
-    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(false)
-    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(false)
-    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(false)
-  })
-
-  it('--template --test true', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template --test true`,
-    )
-    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
-    const indexExpected = `export * from './hono.ts'
-export * from './honoX.ts'
-export * from './zodOpenapiHono.ts'
-`
-    expect(indexResult).toBe(indexExpected)
-
-    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
-    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoRoute } from '../test'
-
-export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
-`
-    expect(honoResult).toBe(honoExpected)
-
-    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
-    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoXRoute } from '../test'
-
-export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
-`
-    expect(honoXResult).toBe(honoXExpected)
-
-    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
-    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getZodOpenapiHonoRoute } from '../test'
-
-export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
-  c,
-) => {}
-`
-    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
-
-    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(true)
-    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(true)
-    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(true)
-  })
-
-  it('zodOpenAPIHonoHandler test true', async () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template --test true`,
-    )
-    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
-    const indexExpected = `export * from './hono.ts'
-export * from './honoX.ts'
-export * from './zodOpenapiHono.ts'
-`
-    expect(indexResult).toBe(indexExpected)
-
-    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
-    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoRoute } from '../test'
-
-export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
-`
-    expect(honoResult).toBe(honoExpected)
-
-    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
-    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getHonoXRoute } from '../test'
-
-export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
-`
-    expect(honoXResult).toBe(honoXExpected)
-
-    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
-    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getZodOpenapiHonoRoute } from '../test'
-
-export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
-  c,
-) => {}
-`
-    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
-
-    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(true)
-    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(true)
-    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(true)
+    expect(handlerResult).toBe(handlerExpected)
+    expect(fs.existsSync('tmp-route/handlers/test.test.ts')).toBe(false)
   })
 })
 
