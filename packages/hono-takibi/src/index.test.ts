@@ -188,6 +188,221 @@ export const postTestRouteHandler: RouteHandler<typeof postTestRoute> = async (c
   })
 })
 
+describe('--template mode test', () => {
+  const tmpOpenAPI: OpenAPI = {
+    openapi: '3.1.0',
+    info: { title: 'HonoTakibi🔥', version: 'v1' },
+    tags: [{ name: 'Hono' }, { name: 'HonoX' }, { name: 'ZodOpenAPIHono' }],
+    paths: {
+      '/hono': {
+        get: {
+          tags: ['Hono'],
+          summary: 'Hono',
+          description: 'Hono',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { message: { type: 'string', example: 'Hono🔥' } },
+                    required: ['message'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      '/hono-x': {
+        get: {
+          tags: ['HonoX'],
+          summary: 'HonoX',
+          description: 'HonoX',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { message: { type: 'string', example: 'HonoX🔥' } },
+                    required: ['message'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      '/zod-openapi-hono': {
+        get: {
+          tags: ['ZodOpenAPIHono'],
+          summary: 'ZodOpenAPIHono',
+          description: 'ZodOpenAPIHono',
+          responses: {
+            '200': {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { message: { type: 'string', example: 'ZodOpenAPIHono🔥' } },
+                    required: ['message'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  beforeEach(() => {
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
+
+    fs.mkdirSync('tmp-openapi', { recursive: true })
+    fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(tmpOpenAPI))
+
+    fs.mkdirSync('tmp-route', { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync('tmp-openapi', { recursive: true, force: true })
+    fs.rmSync('tmp-route', { recursive: true, force: true })
+  })
+
+  it('--template --test false', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template`)
+    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
+    const indexExpected = `export * from './hono.ts'
+export * from './honoX.ts'
+export * from './zodOpenapiHono.ts'
+`
+    expect(indexResult).toBe(indexExpected)
+
+    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
+    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoRoute } from '../test'
+
+export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
+`
+    expect(honoResult).toBe(honoExpected)
+
+    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
+    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoXRoute } from '../test'
+
+export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
+`
+    expect(honoXResult).toBe(honoXExpected)
+
+    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
+    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getZodOpenapiHonoRoute } from '../test'
+
+export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
+  c,
+) => {}
+`
+    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
+
+    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(false)
+    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(false)
+    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(false)
+  })
+
+  it('--template --test true', () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template --test true`,
+    )
+    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
+    const indexExpected = `export * from './hono.ts'
+export * from './honoX.ts'
+export * from './zodOpenapiHono.ts'
+`
+    expect(indexResult).toBe(indexExpected)
+
+    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
+    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoRoute } from '../test'
+
+export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
+`
+    expect(honoResult).toBe(honoExpected)
+
+    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
+    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoXRoute } from '../test'
+
+export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
+`
+    expect(honoXResult).toBe(honoXExpected)
+
+    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
+    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getZodOpenapiHonoRoute } from '../test'
+
+export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
+  c,
+) => {}
+`
+    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
+
+    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(true)
+    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(true)
+    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(true)
+  })
+
+  it('zodOpenAPIHonoHandler test true', async () => {
+    const openapiPath = path.join('tmp-openapi/test.json')
+    execSync(
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --template --test true`,
+    )
+    const indexResult = fs.readFileSync('tmp-route/handlers/index.ts', 'utf-8')
+    const indexExpected = `export * from './hono.ts'
+export * from './honoX.ts'
+export * from './zodOpenapiHono.ts'
+`
+    expect(indexResult).toBe(indexExpected)
+
+    const honoResult = fs.readFileSync('tmp-route/handlers/hono.ts', 'utf-8')
+    const honoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoRoute } from '../test'
+
+export const getHonoRouteHandler: RouteHandler<typeof getHonoRoute> = async (c) => {}
+`
+    expect(honoResult).toBe(honoExpected)
+
+    const honoXResult = fs.readFileSync('tmp-route/handlers/honoX.ts', 'utf-8')
+    const honoXExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getHonoXRoute } from '../test'
+
+export const getHonoXRouteHandler: RouteHandler<typeof getHonoXRoute> = async (c) => {}
+`
+    expect(honoXResult).toBe(honoXExpected)
+
+    const zodOpenAPIHonoResult = fs.readFileSync('tmp-route/handlers/zodOpenAPIHono.ts', 'utf-8')
+    const zodOpenAPIHonoExpected = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getZodOpenapiHonoRoute } from '../test'
+
+export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHonoRoute> = async (
+  c,
+) => {}
+`
+    expect(zodOpenAPIHonoResult).toBe(zodOpenAPIHonoExpected)
+
+    expect(fs.existsSync('tmp-route/handlers/hono.test.ts')).toBe(true)
+    expect(fs.existsSync('tmp-route/handlers/honoX.test.ts')).toBe(true)
+    expect(fs.existsSync('tmp-route/handlers/zodOpenapiHono.test.ts')).toBe(true)
+  })
+})
+
 describe('cli test', () => {
   let exitSpy: ReturnType<typeof vi.spyOn>
   let logSpy: ReturnType<typeof vi.spyOn>
