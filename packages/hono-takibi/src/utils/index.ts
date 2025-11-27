@@ -1,3 +1,8 @@
+/**
+ * Parse the config object.
+ *
+ * @param config - The config object to parse.
+ */
 export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
