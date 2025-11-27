@@ -21,18 +21,14 @@ export function requestParameter(
   body: RequestBody | undefined,
 ): string {
   // Early return if no parameters or content
-  if (!(parameters || body?.content)) {
-    return ''
-  }
+  if (!(parameters || body?.content)) return ''
   const requestBodyContentTypes = Object.keys(body?.content || {})
   const params = parameters
     ? (() => {
         const paramsObj = paramsObject(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
-        if (requestParamsArr.length) {
-          // params
-          return `request:{${requestParamsArr.join(',')}},`
-        }
+        // params
+        if (requestParamsArr.length) return `request:{${requestParamsArr.join(',')}},`
         return ''
       })()
     : ''
@@ -47,9 +43,7 @@ export function requestParameter(
     const required = body.required ?? false
     const [firstSchema] = uniqueSchemas.values()
     const requestBodyCode = requestBody(required, body.content, firstSchema)
-    if (params) {
-      return params.replace('request:{', `request:{${requestBodyCode}`)
-    }
+    if (params) return params.replace('request:{', `request:{${requestBodyCode}`)
     return `request:{${requestBodyCode}},`
   }
   return params

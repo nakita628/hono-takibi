@@ -221,7 +221,7 @@ export type Schema = {
   example?: unknown
   examples?: unknown
   properties?: Record<string, Schema>
-  required?: string[]
+  required?: string[] | boolean
   items?: Schema
   enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean

@@ -39,26 +39,6 @@ const FORMAT_STRING: Record<string, string> = {
  * - Otherwise, appends `.min(n)` and/or `.max(n)` individually
  * - Returns the concatenated Zod schema string
  *
- * ```mermaid
- * flowchart TD
- *   A["string(schema)"] --> B["format = schema.format && FORMAT_STRING[format]"]
- *   B --> C{"Format exists?"}
- *   C -- "Yes" --> D["o.push(z.${format})"]
- *   C -- "No"  --> E["o.push(z.string())"]
- *   D --> F{"Pattern exists?"}
- *   E --> F
- *   F -- "Yes" --> G["o.push(regex(schema.pattern))"]
- *   F -- "No"  --> I
- *   G --> I{"minLength and maxLength are equal?"}
- *   I -- "Yes" --> J["o.push(length(minLength))"]
- *   I -- "No"  --> K{"minLength or maxLength?"}
- *   K -- "min" --> L["o.push(min(minLength))"]
- *   K -- "max" --> M["o.push(max(maxLength))"]
- *   L --> N["return o.join('')"]
- *   M --> N
- *   J --> N
- * ```
- *
  * @example
  * ```ts
  * // With format, pattern, and minLength
@@ -70,27 +50,24 @@ const FORMAT_STRING: Record<string, string> = {
  * @returns Concatenated Zod string schema
  */
 export function string(schema: Schema): string {
-  const o: string[] = []
   const format = schema.format && FORMAT_STRING[schema.format]
-  o.push(format ? `z.${format}` : 'z.string()')
-  // pattern
-  if (schema.pattern) {
-    o.push(regex(schema.pattern))
-  }
-  // length
-  if (
+  const base = format ? `z.${format}` : 'z.string()'
+
+  const pattern = schema.pattern ? regex(schema.pattern) : undefined
+
+  const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
-  ) {
-    o.push(`.length(${schema.minLength})`)
-  } else {
-    if (schema.minLength !== undefined) {
-      o.push(`.min(${schema.minLength})`)
-    }
-    if (schema.maxLength !== undefined) {
-      o.push(`.max(${schema.maxLength})`)
-    }
-  }
-  return o.join('')
+
+  return [
+    base,
+    pattern,
+    // minLength === maxLength → .length(n)
+    isFixedLength ? `.length(${schema.minLength})` : undefined,
+    !isFixedLength && schema.minLength !== undefined ? `.min(${schema.minLength})` : undefined,
+    !isFixedLength && schema.maxLength !== undefined ? `.max(${schema.maxLength})` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join('')
 }

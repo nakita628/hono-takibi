@@ -68,7 +68,7 @@ const loadConfigHot = async (
     const mod = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
     const def = isRecord(mod) ? Reflect.get(mod, 'default') : undefined
     if (def === undefined) return { ok: false, error: 'Config must export default object' }
-    // as unknown as Conf
+    // as Conf
     const parsed = parseConfig(def as Conf)
     return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
   } catch (e) {
@@ -107,7 +107,7 @@ const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
           .then(() => f)
           .catch(() => null),
       ),
-    ).then((res) => res.filter((x): x is string => x !== null)),
+    ).then((res) => res.filter((x) => x !== null)),
   )
 
 // Remove unexpected .ts files (shallow) based on an expected set
@@ -128,7 +128,7 @@ const pruneDir = async (dir: string, expected: ReadonlySet<string>): Promise<str
                   .catch(() => null),
               ),
             )
-            return res.filter((x): x is string => x !== null)
+            return res.filter((x) => x !== null)
           })
         : [],
     )

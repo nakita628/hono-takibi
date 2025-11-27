@@ -38,9 +38,9 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
  *   Z --> ZA{"writeResult2.ok ?"}
  *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["handlerResult = zodOpenapiHonoHandler(openAPI, output, test)"]
- *   ZC --> ZD{"handlerResult.ok ?"}
- *   ZD -->|No| ZE["return { ok:false, error: handlerResult.error }"]
+ *   ZA -->|Yes| ZC["zodOpenAPIHonoHandlerResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
+ *   ZC --> ZD{"zodOpenAPIHonoHandlerResult.ok ?"}
+ *   ZD -->|No| ZE["return { ok:false, error: zodOpenAPIHonoHandlerResult.error }"]
  *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
  * ```
  *
@@ -91,9 +91,9 @@ export async function takibi(
       const target = path.join(dir, 'index.ts')
       const writeResult = await writeFile(target, appResult.value)
       if (!writeResult.ok) return { ok: false, error: writeResult.error }
-      const zodOpenapiHonoHandlerResult = await zodOpenapiHonoHandler(openAPI, output, test)
-      if (!zodOpenapiHonoHandlerResult.ok)
-        return { ok: false, error: zodOpenapiHonoHandlerResult.error }
+      const zodOpenAPIHonoHandlerResult = await zodOpenAPIHonoHandler(openAPI, output, test)
+      if (!zodOpenAPIHonoHandlerResult.ok)
+        return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
       return { ok: true, value: 'Generated code and template files written' }
     }
     return {
@@ -113,7 +113,7 @@ export async function takibi(
  * @param test - Whether to generate corresponding empty test files.
  * @returns A `Result` indicating success or error with message.
  */
-async function zodOpenapiHonoHandler(
+async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,

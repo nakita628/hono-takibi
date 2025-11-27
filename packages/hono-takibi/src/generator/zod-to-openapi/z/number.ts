@@ -8,74 +8,67 @@ import type { Schema } from '../../../openapi/index.js'
  * @returns The Zod schema string
  */
 export function number(schema: Schema): string {
-  const o: string[] = [
+  const base =
     schema.format === 'float' || schema.format === 'float32'
       ? 'z.float32()'
       : schema.format === 'float64'
         ? 'z.float64()'
-        : 'z.number()',
-  ]
-  // minimum
-  if (schema.minimum !== undefined) {
-    // > 0
-    // z.number().positive().safeParse(1) // { success: true }
-    // z.number().positive().safeParse(0) // { success: false }
-    if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
-      o.push('.positive()')
+        : 'z.number()'
+
+  const minimum = (() => {
+    if (schema.minimum !== undefined) {
+      // > 0 → .positive()
+      if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
+        return '.positive()'
+      }
+      // >= 0 → .nonnegative()
+      if (schema.minimum === 0 && schema.exclusiveMinimum === false) {
+        return '.nonnegative()'
+      }
+      // > value → .gt(...)
+      if (schema.exclusiveMinimum === true) {
+        return `.gt(${schema.minimum})`
+      }
+      // >= value → .min(...)
+      return `.min(${schema.minimum})`
     }
-    // >= 0
-    // z.number().nonnegative().safeParse(0) // { success: true }
-    // z.number().nonnegative().safeParse(-1) // { success: false }
-    else if (schema.minimum === 0 && schema.exclusiveMinimum === false) {
-      o.push('.nonnegative()')
+
+    if (typeof schema.exclusiveMinimum === 'number') {
+      // > value (no minimum)
+      return `.gt(${schema.exclusiveMinimum})`
     }
-    // > value
-    // z.number().gt(100) // value > 100
-    else if (schema.exclusiveMinimum === true) {
-      o.push(`.gt(${schema.minimum})`)
+
+    return undefined
+  })()
+
+  const maximum = (() => {
+    if (schema.maximum !== undefined) {
+      // < 0 → .negative()
+      if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
+        return '.negative()'
+      }
+      // <= 0 → .nonpositive()
+      if (schema.maximum === 0 && schema.exclusiveMaximum === false) {
+        return '.nonpositive()'
+      }
+      // < value → .lt(...)
+      if (schema.exclusiveMaximum === true) {
+        return `.lt(${schema.maximum})`
+      }
+      // <= value → .max(...)
+      return `.max(${schema.maximum})`
     }
-    // >= value
-    // z.number().min(100) // value >= 100
-    else {
-      o.push(`.min(${schema.minimum})`)
+
+    if (typeof schema.exclusiveMaximum === 'number') {
+      // < value (no maximum)
+      return `.lt(${schema.exclusiveMaximum})`
     }
-  } else if (typeof schema.exclusiveMinimum === 'number') {
-    // > value (no minimum)
-    o.push(`.gt(${schema.exclusiveMinimum})`)
-  }
-  // maximum
-  if (schema.maximum !== undefined) {
-    // < 0
-    // z.number().negative().safeParse(-1) // { success: true }
-    // z.number().negative().safeParse(0) // { success: false }
-    if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
-      o.push('.negative()')
-    }
-    // <= 0
-    // z.number().nonpositive().safeParse(0) // { success: true }
-    // z.number().nonpositive().safeParse(1) // { success: false }
-    else if (schema.maximum === 0 && schema.exclusiveMaximum === false) {
-      o.push('.nonpositive()')
-    }
-    // < value
-    // z.number().lt(100) // value < 100
-    else if (schema.exclusiveMaximum === true) {
-      o.push(`.lt(${schema.maximum})`)
-    }
-    // <= value
-    // z.number().max(100) // value <= 100
-    else {
-      o.push(`.max(${schema.maximum})`)
-    }
-  } else if (typeof schema.exclusiveMaximum === 'number') {
-    // < value (no maximum)
-    o.push(`.lt(${schema.exclusiveMaximum})`)
-  }
-  // multipleOf
-  // z.number().multipleOf(2).safeParse(2) // { success: true }
-  // z.number().multipleOf(2).safeParse(1) // { success: false }
-  if (schema.multipleOf !== undefined) {
-    o.push(`.multipleOf(${schema.multipleOf})`)
-  }
-  return o.join('')
+
+    return undefined
+  })()
+
+  const multipleOf =
+    schema.multipleOf !== undefined ? `.multipleOf(${schema.multipleOf})` : undefined
+
+  return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

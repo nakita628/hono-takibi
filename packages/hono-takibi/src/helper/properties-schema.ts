@@ -56,10 +56,10 @@ export function propertiesSchema(
     return `${safeKey}:${zodToOpenAPI(schema)}${isRequired ? '' : '.optional()'}`
   })
   // Check if all properties are optional
-  const allOptional = objectProperties.every((prop) => prop.includes('.optional()'))
+  const allOptional = objectProperties.every((v) => v.includes('.optional()'))
   // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
-    const cleanProperties = objectProperties.map((prop) => prop.replace('.optional()', ''))
+    const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
     return `z.object({${cleanProperties}}).partial()`
   }
   return `z.object({${objectProperties}})`
