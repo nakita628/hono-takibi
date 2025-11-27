@@ -1,6 +1,5 @@
 import fs from 'node:fs'
-import { beforeEach } from 'node:test'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../openapi/index.js'
 import { zodOpenAPIHonoHandler } from './zod-openapi-hono-handler.js'
 

@@ -91,7 +91,7 @@ const openapi: OpenAPI = {
 
 describe('route', () => {
   it('should generate route code (single file)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-'))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
     try {
       const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
       fs.writeFileSync(input, JSON.stringify(openapi))
@@ -150,7 +150,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 
   it('should generate route code (split)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-'))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
     try {
       const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
       fs.writeFileSync(input, JSON.stringify(openapi))
