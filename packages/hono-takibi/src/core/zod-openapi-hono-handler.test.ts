@@ -80,15 +80,16 @@ const openapi: OpenAPI = {
 describe('zodOpenAPIHonoHandler', () => {
   beforeEach(() => {
     fs.rmSync('tmp-route', { recursive: true, force: true })
-    fs.mkdirSync('tmp-route', { recursive: true })
-    fs.mkdirSync('tmp-route/handlers', { recursive: true })
   })
   afterEach(() => {
     fs.rmSync('tmp-route', { recursive: true, force: true })
-    fs.rmSync('tmp-route/handlers', { recursive: true, force: true })
   })
+
   it('zodOpenAPIHonoHandler test false', async () => {
     const result = await zodOpenAPIHonoHandler(openapi, 'tmp-route/test.ts', false)
+    if (!result.ok) {
+      console.error(result.error)
+    }
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe(undefined)
@@ -134,6 +135,9 @@ export const getZodOpenapiHonoRouteHandler: RouteHandler<typeof getZodOpenapiHon
   it('zodOpenAPIHonoHandler test true', async () => {
     const result = await zodOpenAPIHonoHandler(openapi, 'tmp-route/test.ts', true)
     expect(result.ok).toBe(true)
+    if (!result.ok) {
+      console.error(result.error)
+    }
     if (result.ok) {
       expect(result.value).toBe(undefined)
     }
