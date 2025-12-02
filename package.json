@@ -8,11 +8,11 @@
     "docs": "pnpm -F @docs/hono dev",
     "hono-takibi-deps": "pnpm -F hono-takibi deps",
     "check": "pnpm biome check --write ./",
-    "build": "rm -rf packages/hono-takibi/dist/ && pnpm -F hono-takibi build",
+    "build": "pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "test": "pnpm -F hono-takibi test",
     "coverage": "pnpm -F hono-takibi coverage",
-    "release": "pnpm build && pnpm -F hono-takibi release",
+    "release": "pnpm -F hono-takibi release",
     "takibis": "pnpm -F hono-takibi takibis",
     "fixtures": "pnpm -F @fixtures/generate dev"
   },
