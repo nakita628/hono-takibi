@@ -179,11 +179,9 @@ const createToParameterLikes =
   (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
     Array.isArray(arr)
-      ? arr.reduce<ParameterLike[]>((acc, x) => {
-          const r = resolveParam(x)
-          if (r) acc.push(r)
-          return acc
-        }, [])
+      ? arr
+          .map((x) => resolveParam(x))
+          .filter((param) => param !== undefined)
       : []
 
 /* ─────────────────────────────── RequestBody schema pick ─────────────────────────────── */
@@ -213,6 +211,11 @@ const HTTP_METHODS: readonly HttpMethod[] = [
   'trace',
 ]
 
+type OperationCode = {
+  readonly funcName: string
+  readonly code: string
+}
+
 const hasSchemaProp = (v: unknown): v is { schema?: unknown } => isRecord(v) && 'schema' in v
 
 const pickBodySchema = (op: OperationLike): Schema | undefined => {
@@ -240,16 +243,18 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
 const createBuildParamsType =
   (tsTypeFromSchema: (s: Schema | undefined) => string) =>
   (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
-    const parts: string[] = []
-    if (pathParams.length) {
-      const inner = pathParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')
-      parts.push(`path:{${inner}}`)
-    }
-    if (queryParams.length) {
-      const inner = queryParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')
-      parts.push(`query:{${inner}}`)
-    }
-    return parts.length ? `{${parts.join(',')}}` : ''
+    const pathPart =
+      pathParams.length === 0
+        ? []
+        : [`path:{${pathParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')}}`]
+
+    const queryPart =
+      queryParams.length === 0
+        ? []
+        : [`query:{${queryParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')}}`]
+
+    const parts = [...pathPart, ...queryPart]
+    return parts.length === 0 ? '' : `{${parts.join(',')}}`
   }
 
 const buildArgSignature = (paramsType: string, bodyType: string | null) =>
@@ -267,11 +272,11 @@ const buildClientArgs = (
   queryParams: ParameterLike[],
   hasBody: boolean,
 ) => {
-  const pieces: string[] = []
-  if (pathParams.length) pieces.push('param:params.path')
-  if (queryParams.length) pieces.push('query:params.query')
-  if (hasBody) pieces.push('json:body')
-  return pieces.length ? `{${pieces.join(',')}}` : ''
+  const paramPiece = pathParams.length ? ['param:params.path'] : []
+  const queryPiece = queryParams.length ? ['query:params.query'] : []
+  const bodyPiece = hasBody ? ['json:body'] : []
+  const pieces = [...paramPiece, ...queryPiece, ...bodyPiece]
+  return pieces.length === 0 ? '' : `{${pieces.join(',')}}`
 }
 
 /* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
@@ -327,6 +332,35 @@ const generateOperationCode = (
   return `${docs}\n${func}`
 }
 
+const buildOperationCodes = (
+  paths: OpenAPIPaths,
+  deps: {
+    client: string
+    tsTypeFromSchema: (s: Schema | undefined) => string
+    toParameterLikes: (arr?: unknown) => ParameterLike[]
+  },
+): OperationCode[] =>
+  Object.entries(paths)
+    .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
+    .flatMap(([p, rawItem]) => {
+      const pathItem: PathItemLike = {
+        parameters: rawItem.parameters,
+        get: isOperationLike(rawItem.get) ? rawItem.get : undefined,
+        put: isOperationLike(rawItem.put) ? rawItem.put : undefined,
+        post: isOperationLike(rawItem.post) ? rawItem.post : undefined,
+        delete: isOperationLike(rawItem.delete) ? rawItem.delete : undefined,
+        options: isOperationLike(rawItem.options) ? rawItem.options : undefined,
+        head: isOperationLike(rawItem.head) ? rawItem.head : undefined,
+        patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
+        trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
+      }
+
+      return HTTP_METHODS.map((method) => {
+        const code = generateOperationCode(p, method, pathItem, deps)
+        return code ? { funcName: methodPath(method, p), code } : null
+      }).filter((item): item is OperationCode => item !== null)
+    })
+
 /* ─────────────────────────────── Split ─────────────────────────────── */
 
 const resolveSplitOutDir = (output: string) => {
@@ -359,7 +393,6 @@ export async function rpc(
   const client = 'client'
   const s = `import { client } from '${importPath}'`
   const header = s.length ? `${s}\n\n` : ''
-  const combinedOut: string[] = []
 
   const pathsMaybe = openAPI.paths
   if (!isOpenAPIPaths(pathsMaybe)) {
@@ -374,58 +407,20 @@ export async function rpc(
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)
 
-  // Split-mode: prepare an index file exports collector.
-  const splitExports = new Set<string>()
-
-  // Iterate paths and generate per-operation code
-  for (const p in pathsMaybe) {
-    const rawItem = pathsMaybe[p]
-    if (!isRecord(rawItem)) continue
-
-    const pathItem: PathItemLike = {
-      parameters: rawItem.parameters,
-      get: isOperationLike(rawItem.get) ? rawItem.get : undefined,
-      put: isOperationLike(rawItem.put) ? rawItem.put : undefined,
-      post: isOperationLike(rawItem.post) ? rawItem.post : undefined,
-      delete: isOperationLike(rawItem.delete) ? rawItem.delete : undefined,
-      options: isOperationLike(rawItem.options) ? rawItem.options : undefined,
-      head: isOperationLike(rawItem.head) ? rawItem.head : undefined,
-      patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
-      trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
-    }
-
-    for (const method of HTTP_METHODS) {
-      const code = generateOperationCode(p, method, pathItem, {
-        client,
-        tsTypeFromSchema,
-        toParameterLikes,
-      })
-      if (!code) continue
-
-      if (split) {
-        // One file per RPC function: <funcName>.ts
-        const funcName = methodPath(method, p)
-        const fileSrc = `${header}${code}\n`
-        const fmtResult = await fmt(fileSrc)
-        if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-        const { outDir } = resolveSplitOutDir(output)
-        const filePath = path.join(outDir, `${funcName}.ts`)
-        const mkdirResult = await mkdir(path.dirname(filePath))
-        if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-        const writeResult = await writeFile(filePath, fmtResult.value)
-        if (!writeResult.ok) return { ok: false, error: writeResult.error }
-        splitExports.add(`export * from './${funcName}'`)
-      } else {
-        combinedOut.push(code)
-      }
-    }
+  const deps = {
+    client,
+    tsTypeFromSchema,
+    toParameterLikes,
   }
+
+  const operationCodes = buildOperationCodes(pathsMaybe, deps)
 
   // Non-split: write single file
   if (!split) {
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const code = `${header}${combinedOut.join('\n\n')}${combinedOut.length ? '\n' : ''}`
+    const body = operationCodes.map(({ code }) => code).join('\n\n')
+    const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const fmtResult = await fmt(code)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const writeResult = await writeFile(output, fmtResult.value)
@@ -433,14 +428,32 @@ export async function rpc(
     return { ok: true, value: `Generated rpc code written to ${output}` }
   }
 
-  // Split: write index.ts (barrel)
+  // Split: write each file + index.ts (barrel)
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const index = `${Array.from(splitExports).sort().join('\n')}\n`
+
+  for (const { funcName, code } of operationCodes) {
+    const fileSrc = `${header}${code}\n`
+    const fmtResult = await fmt(fileSrc)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+    const filePath = path.join(outDir, `${funcName}.ts`)
+    const mkdirResult = await mkdir(path.dirname(filePath))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+    const writeResult = await writeFile(filePath, fmtResult.value)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  }
+
+  const exportLines = Array.from(
+    new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
+  ).sort()
+  const index = `${exportLines.join('\n')}\n`
   const fmtResult = await fmt(index)
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
   const mkdirResult = await mkdir(path.dirname(indexPath))
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
   const writeResult = await writeFile(indexPath, fmtResult.value)
   if (!writeResult.ok) return { ok: false, error: writeResult.error }
-  return { ok: true, value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)` }
+  return {
+    ok: true,
+    value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,
+  }
 }
