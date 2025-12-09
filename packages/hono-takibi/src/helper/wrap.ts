@@ -57,7 +57,7 @@ export function wrap(zod: string, schema: Schema, paramName?: string, paramIn?: 
     'description' in schema && schema.description !== undefined
       ? `description:${JSON.stringify(schema.description)}`
       : undefined,
-  ].filter((prop) => prop !== undefined)
+  ].filter((v) => v !== undefined)
 
   return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }

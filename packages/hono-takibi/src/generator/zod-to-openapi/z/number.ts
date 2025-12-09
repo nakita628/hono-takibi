@@ -32,12 +32,10 @@ export function number(schema: Schema): string {
       // >= value → .min(...)
       return `.min(${schema.minimum})`
     }
-
     if (typeof schema.exclusiveMinimum === 'number') {
       // > value (no minimum)
       return `.gt(${schema.exclusiveMinimum})`
     }
-
     return undefined
   })()
 
@@ -58,12 +56,10 @@ export function number(schema: Schema): string {
       // <= value → .max(...)
       return `.max(${schema.maximum})`
     }
-
     if (typeof schema.exclusiveMaximum === 'number') {
       // < value (no maximum)
       return `.lt(${schema.exclusiveMaximum})`
     }
-
     return undefined
   })()
 
