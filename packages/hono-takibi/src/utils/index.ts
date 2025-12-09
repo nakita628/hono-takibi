@@ -19,6 +19,9 @@ export function parseConfig(config: {
       readonly import: string
       readonly split?: boolean
     }
+    readonly type?: {
+      readonly output: `${string}.d.ts`
+    }
   }
   readonly rpc?: {
     readonly output: string | `${string}.ts`
@@ -44,6 +47,9 @@ export function parseConfig(config: {
             readonly import: string
             readonly split?: boolean
           }
+          readonly type?: {
+            readonly output: `${string}.d.ts`
+          }
         }
         readonly rpc?: {
           readonly output: string | `${string}.ts`
@@ -57,7 +63,10 @@ export function parseConfig(config: {
     i: unknown,
   ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
     typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
+  // ts
   const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+  // d.ts
+  const isDts = (o: unknown): o is `${string}.d.ts` => typeof o === 'string' && o.endsWith('.d.ts')
 
   const c = config
 
@@ -84,6 +93,7 @@ export function parseConfig(config: {
 
     const hs = zo.schema !== undefined
     const hr = zo.route !== undefined
+    const ht = zo.type !== undefined
 
     if (hs !== hr) {
       return {
@@ -180,6 +190,16 @@ export function parseConfig(config: {
             ok: false,
             error: `Invalid route output path for non-split mode (must be .ts file): ${r.output}`,
           }
+        }
+      }
+    }
+
+    if (ht) {
+      const t = zo.type
+      if (!isDts(t.output)) {
+        return {
+          ok: false,
+          error: `Invalid type output format: ${String(t.output)} (must be .d.ts file)`,
         }
       }
     }

@@ -178,11 +178,7 @@ const createResolveParameter =
 const createToParameterLikes =
   (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
-    Array.isArray(arr)
-      ? arr
-          .map((x) => resolveParam(x))
-          .filter((param) => param !== undefined)
-      : []
+    Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
 
 /* ─────────────────────────────── RequestBody schema pick ─────────────────────────────── */
 

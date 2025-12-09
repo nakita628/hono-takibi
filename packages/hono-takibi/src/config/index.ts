@@ -20,6 +20,9 @@ type Config = {
       readonly import: string
       readonly split?: boolean
     }
+    readonly type?: {
+      readonly output: `${string}.d.ts`
+    }
   }
   readonly rpc?: {
     readonly output: string | `${string}.ts`
