@@ -14,7 +14,8 @@
       "!**/routes",
       "!**/rpcs",
       "!**/fixtures/vite/src/handlers",
-      "!**/fixtures/vite/src/rpcs"
+      "!**/fixtures/vite/src/rpcs",
+      "!**/fixtures/type/*.ts"
     ]
   },
   "formatter": {

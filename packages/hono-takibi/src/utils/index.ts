@@ -19,9 +19,9 @@ export function parseConfig(config: {
       readonly import: string
       readonly split?: boolean
     }
-    readonly type?: {
-      readonly output: `${string}.d.ts`
-    }
+  }
+  readonly type?: {
+    readonly output: `${string}.ts`
   }
   readonly rpc?: {
     readonly output: string | `${string}.ts`
@@ -47,9 +47,9 @@ export function parseConfig(config: {
             readonly import: string
             readonly split?: boolean
           }
-          readonly type?: {
-            readonly output: `${string}.d.ts`
-          }
+        }
+        readonly type?: {
+          readonly output: `${string}.ts`
         }
         readonly rpc?: {
           readonly output: string | `${string}.ts`
@@ -65,8 +65,6 @@ export function parseConfig(config: {
     typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
   // ts
   const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
-  // d.ts
-  const isDts = (o: unknown): o is `${string}.d.ts` => typeof o === 'string' && o.endsWith('.d.ts')
 
   const c = config
 
@@ -93,7 +91,6 @@ export function parseConfig(config: {
 
     const hs = zo.schema !== undefined
     const hr = zo.route !== undefined
-    const ht = zo.type !== undefined
 
     if (hs !== hr) {
       return {
@@ -123,7 +120,6 @@ export function parseConfig(config: {
     if (hs) {
       const s = zo.schema
       if (!s) return { ok: false, error: 'Invalid config: zod-openapi.schema is undefined' }
-
       if (s.split !== undefined && typeof s.split !== 'boolean') {
         return {
           ok: false,
@@ -133,7 +129,6 @@ export function parseConfig(config: {
       if (typeof s.output !== 'string') {
         return { ok: false, error: `Invalid schema output path: ${String(s.output)}` }
       }
-
       if (s.split === true) {
         if (isTs(s.output)) {
           return {
@@ -149,7 +144,6 @@ export function parseConfig(config: {
           }
         }
       }
-
       if (s.exportType !== undefined && typeof s.exportType !== 'boolean') {
         return {
           ok: false,
@@ -193,17 +187,19 @@ export function parseConfig(config: {
         }
       }
     }
+  }
 
-    if (ht) {
-      const t = zo.type
-      if (!isDts(t.output)) {
-        return {
-          ok: false,
-          error: `Invalid type output format: ${String(t.output)} (must be .d.ts file)`,
-        }
+  // type
+  const t = c.type
+  if (t !== undefined) {
+    if (!isTs(t.output)) {
+      return {
+        ok: false,
+        error: `Invalid type output format: ${String(t.output)} (must be .ts file)`,
       }
     }
   }
+
   // rpc
   const rpc = c.rpc
   if (rpc !== undefined) {

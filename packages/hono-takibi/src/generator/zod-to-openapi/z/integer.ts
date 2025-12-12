@@ -28,11 +28,9 @@ export function integer(schema: Schema): string {
       return undefined
     }
     const value = schema.minimum ?? schema.exclusiveMinimum
-    // > 0  → .positive()
     if (value === 0 && schema.exclusiveMinimum === true) {
       return '.positive()'
     }
-    // >= 0 → .nonnegative()
     if (value === 0 && schema.exclusiveMinimum === false) {
       return '.nonnegative()'
     }
@@ -55,22 +53,18 @@ export function integer(schema: Schema): string {
       return undefined
     }
     const value = schema.maximum ?? schema.exclusiveMaximum
-    // < 0  → .negative()
     if (value === 0 && schema.exclusiveMaximum === true) {
       return '.negative()'
     }
-    // <= 0 → .nonpositive()
     if (value === 0 && schema.exclusiveMaximum === false) {
       return '.nonpositive()'
     }
-    // < value → .lt(...)
     if (
       (schema.exclusiveMaximum === true || schema.maximum === undefined) &&
       typeof value === 'number'
     ) {
       return `.lt(${lit(value)})`
     }
-    // <= value → .max(...)
     if (typeof schema.maximum === 'number') {
       return `.max(${lit(schema.maximum)})`
     }

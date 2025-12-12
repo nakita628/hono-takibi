@@ -9,7 +9,7 @@ import { zodToOpenAPI } from '../index.js'
  * @returns The Zod object schema string.
  */
 export function object(schema: Schema): string {
-  // // allOf, oneOf, anyOf, not
+  // allOf, oneOf, anyOf, not
   if (schema.oneOf) return zodToOpenAPI(schema)
   if (schema.anyOf) return zodToOpenAPI(schema)
   if (schema.allOf) return zodToOpenAPI(schema)

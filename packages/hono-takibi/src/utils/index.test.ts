@@ -282,45 +282,25 @@ describe('utils', () => {
       it.concurrent('passes: type.output is .d.ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
-          'zod-openapi': {
-            output: 'routes/index.ts',
-            type: { output: 'src/types/index.d.ts' },
-          },
+          type: { output: 'src/rpc/index.d.ts' },
         })
         expect(result).toStrictEqual({
           ok: true,
           value: {
             input: 'openapi.yaml',
-            'zod-openapi': { output: 'routes/index.ts', type: { output: 'src/types/index.d.ts' } },
+            type: { output: 'src/rpc/index.d.ts' },
           },
-        })
-      })
-      it.concurrent('passes: type.output is ts file', () => {
-        const result = parseConfig({
-          input: 'openapi.yaml',
-          'zod-openapi': {
-            output: 'routes/index.ts',
-            // biome-ignore lint: test
-            type: { output: 'index.ts' as any },
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error: 'Invalid type output format: index.ts (must be .d.ts file)',
         })
       })
       it.concurrent('fails: type.output not .d.ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
-          'zod-openapi': {
-            output: 'routes/index.ts',
-            // biome-ignore lint: test
-            type: { output: 42 as any },
-          },
+          // biome-ignore lint: test
+          type: { output: 42 as any },
         })
         expect(result).toStrictEqual({
           ok: false,
-          error: 'Invalid type output format: 42 (must be .d.ts file)',
+          error: 'Invalid type output format: 42 (must be .ts file)',
         })
       })
       it.concurrent('fails: rpc.output not string', () => {

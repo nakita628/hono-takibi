@@ -145,9 +145,7 @@ export async function honoTakibi(): Promise<
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** type */
-  const typeResult = c['zod-openapi']?.type
-    ? await type(c.input, c['zod-openapi'].type.output)
-    : undefined
+  const typeResult = c.type ? await type(c.input, c.type.output) : undefined
   if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
 
   /** rpc */
