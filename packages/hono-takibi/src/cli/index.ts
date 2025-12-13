@@ -5,6 +5,7 @@ import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
 import { schema } from '../core/schema.js'
 import { takibi } from '../core/takibi.js'
+import { type } from '../core/type.js'
 // import { honoRpcWithSWR } from '../generator/swr/index.js'
 import { parseCli } from '../utils/index.js'
 
@@ -143,6 +144,10 @@ export async function honoTakibi(): Promise<
     : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
+  /** type */
+  const typeResult = c.type ? await type(c.input, c.type.output) : undefined
+  if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
+
   /** rpc */
   const rpcResult = c.rpc
     ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
@@ -150,7 +155,9 @@ export async function honoTakibi(): Promise<
 
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 
-  const results = [takibiResult?.value, rpcResult?.value].filter((v) => v !== undefined)
+  const results = [takibiResult?.value, typeResult?.value, rpcResult?.value].filter(
+    (v) => v !== undefined,
+  )
 
   return {
     ok: true,

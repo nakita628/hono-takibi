@@ -432,7 +432,7 @@ describe('rpc', () => {
         | `${string}.json`
         | `${string}.tsp`
       const out = path.join(dir, 'index.ts')
-      fs.writeFileSync(input, JSON.stringify(openapi, null, 2), 'utf-8')
+      fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
 
       const result = await rpc(input, out, '../index.ts', false)
 

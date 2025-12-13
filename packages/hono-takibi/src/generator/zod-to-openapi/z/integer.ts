@@ -27,19 +27,13 @@ export function integer(schema: Schema): string {
     if (schema.minimum === undefined && schema.exclusiveMinimum === undefined) {
       return undefined
     }
-
     const value = schema.minimum ?? schema.exclusiveMinimum
-
-    // > 0  → .positive()
     if (value === 0 && schema.exclusiveMinimum === true) {
       return '.positive()'
     }
-
-    // >= 0 → .nonnegative()
     if (value === 0 && schema.exclusiveMinimum === false) {
       return '.nonnegative()'
     }
-
     // > value → .gt(...)
     if (
       (schema.exclusiveMinimum === true || schema.minimum === undefined) &&
@@ -47,12 +41,10 @@ export function integer(schema: Schema): string {
     ) {
       return `.gt(${lit(value)})`
     }
-
     // >= value → .min(...)
     if (typeof schema.minimum === 'number') {
       return `.min(${lit(schema.minimum)})`
     }
-
     return undefined
   })()
 
@@ -60,32 +52,22 @@ export function integer(schema: Schema): string {
     if (schema.maximum === undefined && schema.exclusiveMaximum === undefined) {
       return undefined
     }
-
     const value = schema.maximum ?? schema.exclusiveMaximum
-
-    // < 0  → .negative()
     if (value === 0 && schema.exclusiveMaximum === true) {
       return '.negative()'
     }
-
-    // <= 0 → .nonpositive()
     if (value === 0 && schema.exclusiveMaximum === false) {
       return '.nonpositive()'
     }
-
-    // < value → .lt(...)
     if (
       (schema.exclusiveMaximum === true || schema.maximum === undefined) &&
       typeof value === 'number'
     ) {
       return `.lt(${lit(value)})`
     }
-
-    // <= value → .max(...)
     if (typeof schema.maximum === 'number') {
       return `.max(${lit(schema.maximum)})`
     }
-
     return undefined
   })()
 

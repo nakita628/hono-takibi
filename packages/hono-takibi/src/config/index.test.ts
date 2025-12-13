@@ -86,7 +86,6 @@ export default {
     }
   })
 
-  // XOR を弾く（route だけ）
   it('fails: route only (schema missing)', async () => {
     const p = path.join(process.cwd(), 'hono-takibi.config.ts')
     const c = `

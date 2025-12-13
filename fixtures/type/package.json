@@ -1,0 +1,21 @@
+{
+  "name": "@fixtures/type",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "takibi": "hono-takibi"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.5",
+    "hono": "^4.10.8",
+    "hono-takibi": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@typespec/http": "^1.3.0",
+    "@typespec/openapi3": "^1.3.0",
+    "@typespec/rest": "^0.73.0",
+    "@typespec/versioning": "^0.73.0",
+    "typescript": "^5.9.3"
+  }
+}

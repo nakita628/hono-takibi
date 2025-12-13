@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "files": {
     "ignoreUnknown": true,
     "includes": [
@@ -14,7 +14,8 @@
       "!**/routes",
       "!**/rpcs",
       "!**/fixtures/vite/src/handlers",
-      "!**/fixtures/vite/src/rpcs"
+      "!**/fixtures/vite/src/rpcs",
+      "!**/fixtures/type/*.ts"
     ]
   },
   "formatter": {

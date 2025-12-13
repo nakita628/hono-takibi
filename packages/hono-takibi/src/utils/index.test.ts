@@ -278,6 +278,31 @@ describe('utils', () => {
           error: 'Invalid schema exportType format for zod-openapi: yes',
         })
       })
+      // type
+      it.concurrent('passes: type.output is .d.ts', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          type: { output: 'src/rpc/index.d.ts' },
+        })
+        expect(result).toStrictEqual({
+          ok: true,
+          value: {
+            input: 'openapi.yaml',
+            type: { output: 'src/rpc/index.d.ts' },
+          },
+        })
+      })
+      it.concurrent('fails: type.output not .d.ts', () => {
+        const result = parseConfig({
+          input: 'openapi.yaml',
+          // biome-ignore lint: test
+          type: { output: 42 as any },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error: 'Invalid type output format: 42 (must be .ts file)',
+        })
+      })
       it.concurrent('fails: rpc.output not string', () => {
         const result = parseConfig({
           input: 'openapi.yaml',

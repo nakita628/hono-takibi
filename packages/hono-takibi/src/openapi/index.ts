@@ -206,7 +206,7 @@ export type Schema = {
   name?: string
   description?: string
   type?: Type | [Type, ...Type[]]
-  format?: Format | FormatString | FormatNumber
+  format?: Format
   pattern?: string
   minLength?: number
   maxLength?: number

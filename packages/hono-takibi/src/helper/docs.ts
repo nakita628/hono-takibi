@@ -20,6 +20,6 @@ export function docs(openapi: OpenAPI): Partial<{
       servers: openapi.servers,
       externalDocs: openapi.externalDocs,
       tags: openapi.tags,
-    }).filter(([, value]) => value !== undefined),
+    }).filter(([, v]) => v !== undefined),
   )
 }
