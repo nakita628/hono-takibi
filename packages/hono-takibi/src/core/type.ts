@@ -1,12 +1,14 @@
+import path from 'node:path'
 import ts from 'typescript'
 import { fmt } from '../format/index.js'
+import { mkdir, writeFile } from '../fsp/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
 export async function type(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-  _output: `${string}.ts`,
+  output: `${string}.ts`,
 ): Promise<{ ok: true; value: string } | { ok: false; error: string }> {
   try {
     const openAPIResult = await parseOpenAPI(input)
@@ -55,51 +57,49 @@ export async function type(
 
     const code = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'\n${hono}\nconst app = new OpenAPIHono()\n${routes.join('\n')}\n${appInit}\nexport type AddType = typeof api`
 
-    const type = getAddTypeFromCode(code)
+    const honoType = apiType(code)
 
-    if (type === undefined) {
-      return { ok: false, error: 'not generated type' }
-    }
+    if (honoType === undefined) return { ok: false, error: 'not generated type' }
 
+    const mkdirResult = await mkdir(path.dirname(output))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+
+    const type = `declare const routes:\n${honoType}\nexport default routes`
     const fmtResult = await fmt(type)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
 
+    const writeResult = await writeFile(output, fmtResult.value)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
     return {
       ok: true,
-      value: fmtResult.value,
+      value: `Generated type code written to ${output}`,
     }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 }
 
-function getAddTypeFromCode(code: string): string | undefined {
+function apiType(code: string): string | undefined {
   const VIRTUAL_FILE_NAME = 'virtual.ts'
   const compilerOptions: ts.CompilerOptions = {
     target: ts.ScriptTarget.ESNext,
     module: ts.ModuleKind.NodeNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
     strict: true,
-    noEmit: true,
-    skipLibCheck: true,
   }
 
   const sourceFile = ts.createSourceFile(
     VIRTUAL_FILE_NAME,
     code,
-    ts.ScriptTarget.ESNext,
-    true,
-    ts.ScriptKind.TS,
+    compilerOptions.target ?? ts.ScriptTarget.ESNext,
   )
 
-  const host = ts.createCompilerHost(compilerOptions, true)
+  const host = ts.createCompilerHost(compilerOptions)
   const originalGetSourceFile = host.getSourceFile.bind(host)
 
   host.getSourceFile = (fileName, languageVersionOrOptions, onError, shouldCreateNewSourceFile) => {
-    if (fileName === VIRTUAL_FILE_NAME) {
-      return sourceFile
-    }
-
+    if (fileName === VIRTUAL_FILE_NAME) return sourceFile
     return originalGetSourceFile(
       fileName,
       languageVersionOrOptions,
@@ -111,25 +111,20 @@ function getAddTypeFromCode(code: string): string | undefined {
   const program = ts.createProgram([VIRTUAL_FILE_NAME], compilerOptions, host)
   const checker = program.getTypeChecker()
 
-  const sourceSymbol = checker.getSymbolAtLocation(sourceFile)
-  if (sourceSymbol === undefined) {
-    return undefined
-  }
+  const moduleSymbol = checker.getSymbolAtLocation(sourceFile)
+  if (!moduleSymbol) return undefined
 
-  const exportSymbols = checker.getExportsOfModule(sourceSymbol)
-  const addTypeSymbol = exportSymbols.find((symbol) => symbol.getName() === 'AddType')
-  if (addTypeSymbol === undefined) {
-    return undefined
-  }
+  const apiSymbol = checker.getExportsOfModule(moduleSymbol).find((s) => s.getName() === 'api')
 
-  const addType = checker.getDeclaredTypeOfSymbol(addTypeSymbol)
-  const addTypeText = checker.typeToString(
-    addType,
+  if (!apiSymbol) return undefined
+
+  const type = checker.getTypeOfSymbolAtLocation(apiSymbol, sourceFile)
+
+  return checker.typeToString(
+    type,
     undefined,
     ts.TypeFormatFlags.NoTruncation |
       ts.TypeFormatFlags.UseFullyQualifiedType |
       ts.TypeFormatFlags.WriteTypeArgumentsOfSignature,
   )
-
-  return addTypeText
 }

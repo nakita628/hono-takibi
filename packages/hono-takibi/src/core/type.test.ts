@@ -59,7 +59,7 @@ describe('type', () => {
         | `${string}.yaml`
         | `${string}.json`
         | `${string}.tsp`
-      const out = path.join(dir, 'index.ts') as `${string}.ts`
+      const out = path.join(dir, 'index.d.ts') as `${string}.d.ts`
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
       const result = await type(input, out)
       expect(result.ok).toBe(true)
