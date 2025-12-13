@@ -5,12 +5,18 @@ const CreatedSchema = z
   .openapi({ example: { status: 201, message: 'Created' } })
   .openapi('Created')
 
+const InternalServerErrorSchema = z.object({ message: z.string() }).openapi('InternalServerError')
+
 const NotFoundSchema = z.object({ message: z.string() }).openapi('NotFound')
 
 const OKSchema = z
   .object({ message: z.string() })
   .openapi({ example: { status: 200, message: 'OK' } })
   .openapi('OK')
+
+const ServiceUnavailableSchema = z
+  .object({ message: z.string(), retryAfter: z.string().optional() })
+  .openapi('ServiceUnavailable')
 
 const TodoSchema = z
   .object({
@@ -76,7 +82,14 @@ export const getTodoRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: UnprocessableContentSchema } },
     },
-    503: { description: 'Service unavailable.' },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: InternalServerErrorSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: ServiceUnavailableSchema } },
+    },
   },
 })
 
@@ -103,7 +116,14 @@ export const postTodoRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: UnprocessableContentSchema } },
     },
-    503: { description: 'Service unavailable.' },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: InternalServerErrorSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: ServiceUnavailableSchema } },
+    },
   },
 })
 
@@ -131,7 +151,14 @@ export const getTodoIdRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: UnprocessableContentSchema } },
     },
-    503: { description: 'Service unavailable.' },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: InternalServerErrorSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: ServiceUnavailableSchema } },
+    },
   },
 })
 
@@ -164,7 +191,14 @@ export const putTodoIdRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: UnprocessableContentSchema } },
     },
-    503: { description: 'Service unavailable.' },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: InternalServerErrorSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: ServiceUnavailableSchema } },
+    },
   },
 })
 
@@ -191,6 +225,13 @@ export const deleteTodoIdRoute = createRoute({
       description: 'Client error',
       content: { 'application/json': { schema: UnprocessableContentSchema } },
     },
-    503: { description: 'Service unavailable.' },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: InternalServerErrorSchema } },
+    },
+    503: {
+      description: 'Service unavailable.',
+      content: { 'application/json': { schema: ServiceUnavailableSchema } },
+    },
   },
 })

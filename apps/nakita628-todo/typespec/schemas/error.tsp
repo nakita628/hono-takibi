@@ -14,8 +14,14 @@ model UnprocessableContent {
 }
 
 @error
+model InternalServerError {
+  @statusCode status: 500;
+  message: string;
+}
+
+@error
 model ServiceUnavailable {
   @statusCode status: 503;
-  @header("Retry-After")
+  message: string;
   retryAfter?: string;
 }

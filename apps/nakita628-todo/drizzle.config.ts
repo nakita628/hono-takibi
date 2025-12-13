@@ -7,7 +7,7 @@ if (process.env.DB_FILE_NAME === undefined) {
 
 export default defineConfig({
   out: './drizzle/migrations',
-  schema: './drizzle/schema.ts',
+  schema: './src/db/schema.ts',
   dialect: 'sqlite',
   dbCredentials: {
     url: process.env.DB_FILE_NAME,
