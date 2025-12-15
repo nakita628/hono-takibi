@@ -1,0 +1,37 @@
+{
+  "name": "@apps/nakita628-todo",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepare": "cp .env.example .env",
+    "takibi": "hono-takibi",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/vite-dev-server": "^0.23.0",
+    "@libsql/client": "^0.15.15",
+    "@types/node": "^25.0.1",
+    "@typespec/http": "^1.7.0",
+    "@typespec/openapi3": "^1.7.0",
+    "@typespec/versioning": "^0.77.0",
+    "@vitest/coverage-v8": "^4.0.15",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
+    "hono-takibi": "^0.9.61",
+    "vite": "^7.2.7",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.5",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.10.8",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.1.13"
+  }
+}
