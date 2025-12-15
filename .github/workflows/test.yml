@@ -36,5 +36,3 @@ jobs:
 
       - name: Run Coverage
         run: pnpm -F hono-takibi coverage
-
-      

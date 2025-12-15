@@ -2,8 +2,9 @@
 import { testClient } from 'hono/testing'
 import { errAsync, okAsync } from 'neverthrow'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { DatabaseError, NotFoundError } from '@/domain'
 import { api } from '@/index'
-import * as todoService from '@/services'
+import * as TodoService from '@/services'
 
 // Test run
 // pnpm vitest run ./src/handlers/todo.test.ts
@@ -25,7 +26,7 @@ describe('todo route handlers (transactions mocked)', () => {
 
   describe('POST /todo', () => {
     it.concurrent('200 OK', async () => {
-      vi.mocked(todoService.postTodo).mockReturnValueOnce(okAsync(undefined))
+      vi.mocked(TodoService.postTodo).mockReturnValueOnce(okAsync(undefined))
 
       const res = await client.todo.$post({ json: { content: 'Hono🔥' } })
 
@@ -44,12 +45,8 @@ describe('todo route handlers (transactions mocked)', () => {
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
       ]
-      vi.mocked(todoService.getTodo).mockReturnValueOnce(
-        okAsync<
-          { id: string; content: string; createdAt: string; updatedAt: string }[],
-          { readonly kind: 'DatabaseError'; readonly message: string; readonly cause: unknown }
-        >(todos),
-      )
+
+      vi.mocked(TodoService.getTodo).mockReturnValueOnce(okAsync(todos))
 
       const res = await client.todo.$get({ query: { limit: '10', offset: '0' } })
 
@@ -66,7 +63,7 @@ describe('todo route handlers (transactions mocked)', () => {
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',
       }
-      vi.mocked(todoService.getTodoId).mockReturnValueOnce(okAsync(todo))
+      vi.mocked(TodoService.getTodoId).mockReturnValueOnce(okAsync(todo))
 
       const res = await client.todo[':id'].$get({
         param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
@@ -96,8 +93,8 @@ describe('todo route handlers (transactions mocked)', () => {
     })
 
     it.concurrent('404 Not Found', async () => {
-      vi.mocked(todoService.getTodoId).mockReturnValueOnce(
-        errAsync({ kind: 'NotFound', message: 'Todo not found' } as const),
+      vi.mocked(TodoService.getTodoId).mockReturnValueOnce(
+        errAsync(new NotFoundError('Todo not found')),
       )
 
       const res = await client.todo[':id'].$get({
@@ -111,7 +108,7 @@ describe('todo route handlers (transactions mocked)', () => {
 
   describe('PUT /todo/:id', () => {
     it.concurrent('200 OK', async () => {
-      vi.mocked(todoService.putTodoId).mockReturnValueOnce(
+      vi.mocked(TodoService.putTodoId).mockReturnValueOnce(
         okAsync({
           content: 'updated',
           id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
@@ -132,7 +129,7 @@ describe('todo route handlers (transactions mocked)', () => {
 
   describe('DELETE /todo/:id', () => {
     it.concurrent('200 OK', async () => {
-      vi.mocked(todoService.deleteTodoId).mockReturnValueOnce(
+      vi.mocked(TodoService.deleteTodoId).mockReturnValueOnce(
         okAsync({
           content: 'updated',
           id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
@@ -147,6 +144,32 @@ describe('todo route handlers (transactions mocked)', () => {
 
       expect(res.status).toBe(200)
       expect(await res.json()).toStrictEqual({ message: 'Todo deleted' })
+    })
+  })
+
+  describe('Error handling', () => {
+    it.concurrent('503 Service Unavailable', async () => {
+      vi.mocked(TodoService.getTodo).mockReturnValueOnce(
+        errAsync(new DatabaseError('Database Connection Error')),
+      )
+
+      const res = await client.todo.$get({ query: { limit: '10', offset: '0' } })
+
+      expect(res.status).toBe(503)
+      expect(await res.json()).toStrictEqual({ message: 'Database Connection Error' })
+    })
+
+    it.concurrent('404 Not Found', async () => {
+      vi.mocked(TodoService.getTodoId).mockReturnValueOnce(
+        errAsync(new NotFoundError('Todo not found')),
+      )
+
+      const res = await client.todo[':id'].$get({
+        param: { id: 'c6c0f743-01fa-4c23-80d6-1b358512e213' },
+      })
+
+      expect(res.status).toBe(404)
+      expect(await res.json()).toStrictEqual({ message: 'Todo not found' })
     })
   })
 })

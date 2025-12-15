@@ -6,7 +6,16 @@ export const getFizzBuzzRoute = createRoute({
   summary: 'Get FizzBuzz result',
   description: 'Returns the FizzBuzz result for the given number.',
   request: {
-    query: z.object({ number: z.coerce.number().min(1), details: z.stringbool().optional() }),
+    query: z.object({
+      number: z.coerce
+        .number()
+        .min(1)
+        .openapi({ param: { in: 'query', name: 'number', required: false } }),
+      details: z
+        .string()
+        .openapi({ param: { in: 'query', name: 'details', required: false } })
+        .optional(),
+    }),
   },
   responses: {
     200: {
