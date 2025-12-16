@@ -26,9 +26,12 @@ export function requestParameter(
   const params = parameters
     ? (() => {
         const paramsObj = paramsObject(parameters)
+        console.log('---paramsObj---')
+        console.log(paramsObj)
+        console.log('---paramsObj---')
         const requestParamsArr = requestParamsArray(paramsObj)
         // params
-        if (requestParamsArr.length) return `request:{${requestParamsArr.join(',')}},`
+        // if (requestParamsArr.length) return `request:{${requestParamsArr.join(',')}},`
         return ''
       })()
     : ''

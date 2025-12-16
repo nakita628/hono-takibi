@@ -13,7 +13,7 @@ export function zodToOpenAPI(
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {
-  if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
+  // if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /** ref */
   if (schema.$ref !== undefined) {
     return wrap(refSchema(schema.$ref), schema, paramName, paramIn)

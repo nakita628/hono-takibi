@@ -411,7 +411,7 @@ export function isUniqueContentSchema(
   content: {
     readonly [key: string]: {
       readonly schema: {
-        readonly $ref?: `#/components/schemas/${string}`
+        readonly $ref?: `#/components/schemas/${string}` | `#/components/parameters/${string}`
       }
     }
   },
@@ -432,7 +432,9 @@ export function isUniqueContentSchema(
  * // → 'AddressSchema'
  * ```
  */
-export function refSchema($ref: `#/components/schemas/${string}`): string {
+export function refSchema(
+  $ref: `#/components/schemas/${string}` | `#/components/parameters/${string}`,
+): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element

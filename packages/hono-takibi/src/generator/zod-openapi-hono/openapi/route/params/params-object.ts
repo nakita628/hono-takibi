@@ -1,5 +1,5 @@
 import type { Parameters } from '../../../../../openapi/index.js'
-import { getToSafeIdentifier } from '../../../../../utils/index.js'
+import { getToSafeIdentifier, refSchema } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 import { queryParameter } from './index.js'
@@ -27,6 +27,23 @@ export function paramsObject(parameters: readonly Parameters[]): {
       },
       param,
     ) => {
+      console.log('--------------------------------')
+      console.log(param.$ref)
+      console.log('--------------------------------')
+
+      if (param.$ref !== undefined) {
+        console.log(acc)
+
+        return {
+          ...acc,
+          [param.in]: {
+            [getToSafeIdentifier(param.name)]: refSchema(
+              param.$ref as `#/components/parameters/${string}` | `#/components/schemas/${string}`,
+            ),
+          },
+        }
+      }
+
       // path params are generated with the param name
       const baseSchema = param.in
         ? zodToOpenAPI(param.schema, param.name, param.in)

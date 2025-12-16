@@ -226,7 +226,7 @@ export type Schema = {
   enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
-  $ref?: `#/components/schemas/${string}`
+  $ref?: `#/components/schemas/${string}` | `#/components/parameters/${string}`
   xml?: {
     name?: string
     wrapped?: boolean
@@ -274,6 +274,7 @@ export type Parameters = {
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
   explode?: boolean
+  $ref?: `#/components/parameters/${string}`
 }
 
 /**
