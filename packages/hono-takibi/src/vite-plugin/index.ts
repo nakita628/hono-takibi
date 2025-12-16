@@ -233,7 +233,7 @@ const computeRpcSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<s
 const computeRouteSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
   const spec = await parseOpenAPI(input)
   if (!spec.ok) return new Set<string>()
-  const code = routeCode(spec.value.paths)
+  const code = routeCode(spec.value)
   const blocks = extractRouteBlocks(code)
   const acc = new Set<string>(blocks.map((b) => `${lowerFirst(b.name)}.ts`))
   if (acc.size > 0) acc.add('index.ts')

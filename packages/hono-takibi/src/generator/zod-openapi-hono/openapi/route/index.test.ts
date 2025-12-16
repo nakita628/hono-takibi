@@ -7,25 +7,30 @@ import { routeCode } from '.'
 describe('routeCode', () => {
   it.concurrent('routeCode Test', () => {
     const result = routeCode({
-      '/hono': {
-        get: {
-          tags: ['Hono'],
-          summary: 'Hono',
-          description: 'Hono',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: {
-                        type: 'string',
-                        example: 'Hono🔥',
+      openapi: '3.0.0',
+      info: { title: 'Test', version: '1.0.0' },
+      tags: [{ name: 'Hono' }],
+      paths: {
+        '/hono': {
+          get: {
+            tags: ['Hono'],
+            summary: 'Hono',
+            description: 'Hono',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        message: {
+                          type: 'string',
+                          example: 'Hono🔥',
+                        },
                       },
+                      required: ['message'],
                     },
-                    required: ['message'],
                   },
                 },
               },

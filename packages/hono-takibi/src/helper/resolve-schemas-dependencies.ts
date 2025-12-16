@@ -16,10 +16,14 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
 
   const collectRefs = (schema: Schema): string[] => {
     const refs = new Set<string>()
-    const stack = [schema]
+    const stack: unknown[] = [schema]
 
     while (stack.length) {
       const node = stack.pop()
+      if (Array.isArray(node)) {
+        for (const value of node) stack.push(value)
+        continue
+      }
       if (!isRecord(node)) continue
 
       if ('$ref' in node && typeof node.$ref === 'string') {
@@ -28,7 +32,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
       }
 
       for (const value of Object.values(node)) {
-        if (isRecord(value)) stack.push(value)
+        stack.push(value)
       }
     }
     return Array.from(refs).sort()

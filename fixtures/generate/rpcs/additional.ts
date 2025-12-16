@@ -1,11 +1,11 @@
 import { client } from '../index.ts'
 
 /**
- * zod passthrough
- *
- * zod passthrough
- *
  * GET /passthrough
+ *
+ * zod passthrough
+ *
+ * zod passthrough
  */
 export async function getPassthrough() {
   return await client.passthrough.$get()

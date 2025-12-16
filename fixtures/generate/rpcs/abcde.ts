@@ -1,9 +1,9 @@
 import { client } from '../index.ts'
 
 /**
- * Get example data
- *
  * GET /example
+ *
+ * Get example data
  */
 export async function getExample() {
   return await client.example.$get()

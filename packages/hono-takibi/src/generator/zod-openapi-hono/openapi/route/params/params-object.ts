@@ -2,8 +2,6 @@ import type { Parameters } from '../../../../../openapi/index.js'
 import { getToSafeIdentifier, refSchema } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
-import { queryParameter } from './index.js'
-
 /**
  * Converts OpenAPI component schemas into TypeScript code using Zod.
  *
@@ -27,21 +25,15 @@ export function paramsObject(parameters: readonly Parameters[]): {
       },
       param,
     ) => {
-      console.log('--------------------------------')
-      console.log(param.$ref)
-      console.log('--------------------------------')
+      const shouldOptional =
+        param.in !== 'path' && !param.required && param.schema.default === undefined
 
       if (param.$ref !== undefined) {
-        console.log(acc)
-
-        return {
-          ...acc,
-          [param.in]: {
-            [getToSafeIdentifier(param.name)]: refSchema(
-              param.$ref as `#/components/parameters/${string}` | `#/components/schemas/${string}`,
-            ),
-          },
-        }
+        if (!acc[param.in]) acc[param.in] = {}
+        acc[param.in][getToSafeIdentifier(param.name)] = `${refSchema(
+          param.$ref,
+        )}${shouldOptional ? '.optional()' : ''}`
+        return acc
       }
 
       // path params are generated with the param name
@@ -53,9 +45,18 @@ export function paramsObject(parameters: readonly Parameters[]): {
         acc[param.in] = {}
       }
       // queryParameter check
-      const z = queryParameter(baseSchema, param)
+
+      const z =
+        param.in === 'query' && param.schema.type === 'number'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : param.in === 'query' && param.schema.type === 'boolean'
+            ? baseSchema.replace('boolean', 'stringbool')
+            : param.in === 'query' && param.schema.type === 'date'
+              ? `z.coerce.${baseSchema.replace('z.', '')}`
+              : baseSchema
+
       // Add parameter to its section
-      acc[param.in][getToSafeIdentifier(param.name)] = `${z}${param.required ? '' : '.optional()'}`
+      acc[param.in][getToSafeIdentifier(param.name)] = `${z}${shouldOptional ? '.optional()' : ''}`
       return acc
     },
     {},

@@ -42,7 +42,7 @@ export async function route(
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const routesSrc = routeCode(openAPI.paths)
+  const routesSrc = routeCode(openAPI)
 
   if (!split) {
     const includeZ = routesSrc.includes('z.')

@@ -136,7 +136,13 @@ export const postUsersRoute = createRoute({
   method: 'post',
   path: '/users',
   summary: 'Create a new user',
-  request: { body: { required: true, content: { 'application/json': { schema: NewUserSchema } } } },
+  request: {
+    body: {
+      description: 'User to add',
+      required: true,
+      content: { 'application/json': { schema: NewUserSchema } },
+    },
+  },
   responses: {
     201: {
       description: 'User created successfully',
@@ -165,7 +171,11 @@ export const putUsersUserIdRoute = createRoute({
   path: '/users/{userId}',
   summary: 'Update an existing user',
   request: {
-    body: { required: true, content: { 'application/json': { schema: UpdateUserSchema } } },
+    body: {
+      description: 'Updated user information',
+      required: true,
+      content: { 'application/json': { schema: UpdateUserSchema } },
+    },
     params: z.object({
       userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
     }),
@@ -211,7 +221,11 @@ export const postOrdersRoute = createRoute({
   path: '/orders',
   summary: 'Create a new order',
   request: {
-    body: { required: true, content: { 'application/json': { schema: NewOrderSchema } } },
+    body: {
+      description: 'Order to create',
+      required: true,
+      content: { 'application/json': { schema: NewOrderSchema } },
+    },
   },
   responses: {
     201: {

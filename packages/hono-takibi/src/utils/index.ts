@@ -494,6 +494,7 @@ export function createRoute(args: {
   readonly summary?: string
   readonly description?: string
   readonly security?: string
+  readonly callbacks?: string
   readonly requestParams: string
   readonly responses: string
 }): string {
@@ -505,6 +506,7 @@ export function createRoute(args: {
     args.summary,
     args.description,
     args.security,
+    args.callbacks,
     args.requestParams,
     args.responses,
   ].join('')
@@ -523,7 +525,14 @@ export const requestParamsArray = (
   Object.entries(parameters)
     .filter(([, obj]) => obj && Object.keys(obj).length)
     .map(([section, obj]) => {
-      const name = section === 'path' ? 'params' : section
+      const name =
+        section === 'path'
+          ? 'params'
+          : section === 'header'
+            ? 'headers'
+            : section === 'cookie'
+              ? 'cookies'
+              : section
       const fields = Object.entries(obj)
         .map(([k, v]) => `${k}:${v}`)
         .join(',')

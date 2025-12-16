@@ -1,7 +1,179 @@
 import { resolveSchemasDependencies } from '../../../../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
-import type { Components } from '../../../../openapi/index.js'
+import type {
+  Components,
+  Content,
+  RequestBody,
+  ResponseDefinition,
+} from '../../../../openapi/index.js'
+import { sanitizeIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
+
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+
+const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
+
+const toIdentifier = (raw: string): string => {
+  const sanitized = sanitizeIdentifier(raw)
+  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
+}
+
+const withSuffix = (name: string, suffix: string): string =>
+  name.endsWith(suffix) ? name : `${name}${suffix}`
+
+const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
+  name.endsWith(fromSuffix)
+    ? `${name.slice(0, -fromSuffix.length)}${toSuffix}`
+    : `${name}${toSuffix}`
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const exampleConstName = (key: string): string => toIdentifier(withSuffix(key, 'Example'))
+const headerConstName = (key: string): string => toIdentifier(withSuffix(key, 'Header'))
+const linkConstName = (key: string): string => toIdentifier(withSuffix(key, 'Link'))
+const callbackConstName = (key: string): string => toIdentifier(withSuffix(key, 'Callback'))
+const responseConstName = (key: string): string => toIdentifier(withSuffix(key, 'Response'))
+const requestBodyConstName = (key: string): string =>
+  toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
+const securitySchemeConstName = (key: string): string =>
+  toIdentifier(withSuffix(key, 'SecurityScheme'))
+
+const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
+  if (!$ref.startsWith(prefix)) return undefined
+  const key = $ref.slice(prefix.length)
+  return key ? key : undefined
+}
+
+const inlineExampleExpr = (example: Record<string, unknown>): string => {
+  const fields = [
+    example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
+    example.description !== undefined
+      ? `description:${JSON.stringify(example.description)}`
+      : undefined,
+    example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
+  ].filter((v) => v !== undefined)
+  return `{${fields.join(',')}}`
+}
+
+const exampleExpr = (
+  example: unknown,
+  componentExamples: Components['examples'] | undefined,
+): string => {
+  if (isRef(example)) {
+    const key = resolveComponentKey(example.$ref, '#/components/examples/')
+    const resolved = key && componentExamples ? componentExamples[key] : undefined
+    if (key && resolved) return exampleConstName(key)
+    return `{$ref:${JSON.stringify(example.$ref)}}`
+  }
+  if (isRecord(example)) return inlineExampleExpr(example)
+  return JSON.stringify(example)
+}
+
+const examplesPropExpr = (
+  examples: Content[string]['examples'] | undefined,
+  componentExamples: Components['examples'] | undefined,
+): string | undefined => {
+  if (!(examples && Object.keys(examples).length > 0)) return undefined
+  const entries = Object.entries(examples).map(([exampleKey, example]) => {
+    return `${JSON.stringify(exampleKey)}:${exampleExpr(example, componentExamples)}`
+  })
+  return entries.length > 0 ? `examples:{${entries.join(',')}}` : undefined
+}
+
+const coerceDateIfNeeded = (schemaExpr: string): string =>
+  schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
+
+const mediaTypeExpr = (
+  media: Content[string],
+  componentExamples: Components['examples'] | undefined,
+  options?: { coerceDate?: boolean },
+): string => {
+  const schema = options?.coerceDate
+    ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
+    : zodToOpenAPI(media.schema)
+  const examples = examplesPropExpr(media.examples, componentExamples)
+  return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
+}
+
+const requestBodyExpr = (body: RequestBody, components: Components): string => {
+  const required = body.required ?? false
+  const description =
+    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
+  const content = body.content
+  if (!content) {
+    return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
+  }
+
+  const contentEntries = Object.entries(content).map(([contentType, media]) => {
+    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components.examples, { coerceDate: true })}`
+  })
+  const contentExpr = `content:{${contentEntries.join(',')}}`
+  return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
+}
+
+const headersPropExpr = (
+  headers: ResponseDefinition['headers'] | undefined,
+  components: Components,
+): string | undefined => {
+  if (!headers) return undefined
+  const entries = Object.entries(headers).map(([name, header]) => {
+    if (isRef(header)) {
+      const key = resolveComponentKey(header.$ref, '#/components/headers/')
+      const resolved = key ? components.headers?.[key] : undefined
+      if (key && resolved) return `${JSON.stringify(name)}:${headerConstName(key)}`
+      return `${JSON.stringify(name)}:{$ref:${JSON.stringify(header.$ref)}}`
+    }
+    return `${JSON.stringify(name)}:${JSON.stringify(header)}`
+  })
+  return entries.length > 0 ? `headers:{${entries.join(',')}}` : undefined
+}
+
+const linksPropExpr = (
+  links: ResponseDefinition['links'] | undefined,
+  components: Components,
+): string | undefined => {
+  if (!links) return undefined
+  const entries = Object.entries(links).map(([name, link]) => {
+    if (isRef(link)) {
+      const key = resolveComponentKey(link.$ref, '#/components/links/')
+      const resolved = key ? components.links?.[key] : undefined
+      if (key && resolved) return `${JSON.stringify(name)}:${linkConstName(key)}`
+      return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
+    }
+    return `${JSON.stringify(name)}:${JSON.stringify(link)}`
+  })
+  return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
+}
+
+const responseContentPropExpr = (
+  content: ResponseDefinition['content'] | undefined,
+  components: Components,
+): string | undefined => {
+  if (!content) return undefined
+  const contentEntries = Object.entries(content).map(([contentType, media]) => {
+    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components.examples)}`
+  })
+  return contentEntries.length > 0 ? `content:{${contentEntries.join(',')}}` : undefined
+}
+
+const responseDefinitionExpr = (res: ResponseDefinition, components: Components): string => {
+  const resolved =
+    typeof res.$ref === 'string'
+      ? (() => {
+          const key = resolveComponentKey(res.$ref, '#/components/responses/')
+          return key ? components.responses?.[key] : undefined
+        })()
+      : undefined
+
+  const value = resolved ?? res
+  const description = `description:${JSON.stringify(value.description ?? '')}`
+  const headers = headersPropExpr(value.headers, components)
+  const links = linksPropExpr(value.links, components)
+  const content = responseContentPropExpr(value.content, components)
+  return `{${[description, headers, links, content].filter(Boolean).join(',')}}`
+}
 
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
@@ -21,37 +193,115 @@ export function componentsCode(
   exportSchema: boolean,
   exportType: boolean,
 ): string {
-  // 1. schema extraction
+  const out: string[] = []
+
+  // schemas
   const { schemas } = components
-  // 2. resolve schema dependencies to obtain proper ordering
   const orderedSchemas = schemas ? resolveSchemasDependencies(schemas) : []
-  // 3. if there are no schemas, return an empty string
-  // 4. generate code for each schema
   const schemaDefinitions = orderedSchemas
     .map((schemaName) => {
-      // 4.1 get schema definition corresponding to schema name
       const schema = schemas?.[schemaName]
-      // 4.2 generate zod schema
       const z = schema ? zodToOpenAPI(schema) : ''
-      // 4.3 generate zod schema definition
       return zodToOpenAPISchema(schemaName, z, exportSchema, exportType)
     })
     .join('\n\n')
+  if (schemaDefinitions) out.push(schemaDefinitions)
 
+  // parameters
   const { parameters } = components
-
   const parametersDefinitions = parameters
-    ? Object.entries(parameters)
-        .map(([key, parameter]) => {
+    ? Object.keys(parameters)
+        .sort()
+        .map((key) => {
+          const parameter = parameters[key]
           const z = zodToOpenAPI(parameter.schema, parameter.name, parameter.in)
-          return zodToOpenAPISchema(key, z, exportSchema, exportType)
+          return zodToOpenAPISchema(key, z, exportSchema, exportType, true)
         })
         .join('\n\n')
     : ''
+  if (parametersDefinitions) out.push(parametersDefinitions)
 
-  console.log('---parametersDefinitions---')
-  console.log(`${schemaDefinitions}\n${parametersDefinitions}`)
-  console.log('---parametersDefinitions---')
+  // examples
+  const examplesDefinitions = components.examples
+    ? Object.keys(components.examples)
+        .sort()
+        .map((key) =>
+          declareConst(exampleConstName(key), jsonExpr(components.examples?.[key]), exportSchema),
+        )
+        .join('\n\n')
+    : ''
+  if (examplesDefinitions) out.push(examplesDefinitions)
 
-  return `${schemaDefinitions}\n${parametersDefinitions}`
+  // headers
+  const headersDefinitions = components.headers
+    ? Object.keys(components.headers)
+        .sort()
+        .map((key) =>
+          declareConst(headerConstName(key), jsonExpr(components.headers?.[key]), exportSchema),
+        )
+        .join('\n\n')
+    : ''
+  if (headersDefinitions) out.push(headersDefinitions)
+
+  // links
+  const linksDefinitions = components.links
+    ? Object.keys(components.links)
+        .sort()
+        .map((key) =>
+          declareConst(linkConstName(key), jsonExpr(components.links?.[key]), exportSchema),
+        )
+        .join('\n\n')
+    : ''
+  if (linksDefinitions) out.push(linksDefinitions)
+
+  // requestBodies
+  const requestBodiesDefinitions = components.requestBodies
+    ? Object.keys(components.requestBodies)
+        .sort()
+        .map((key) => {
+          const body = components.requestBodies?.[key]
+          const expr = body ? requestBodyExpr(body, components) : '{}'
+          return declareConst(requestBodyConstName(key), expr, exportSchema)
+        })
+        .join('\n\n')
+    : ''
+  if (requestBodiesDefinitions) out.push(requestBodiesDefinitions)
+
+  // responses
+  const responsesDefinitions = components.responses
+    ? Object.keys(components.responses)
+        .sort()
+        .map((key) => {
+          const res = components.responses?.[key]
+          const expr = res ? responseDefinitionExpr(res, components) : '{}'
+          return declareConst(responseConstName(key), expr, exportSchema)
+        })
+        .join('\n\n')
+    : ''
+  if (responsesDefinitions) out.push(responsesDefinitions)
+
+  // callbacks
+  const callbacksDefinitions = components.callbacks
+    ? Object.keys(components.callbacks)
+        .sort()
+        .map((key) =>
+          declareConst(callbackConstName(key), jsonExpr(components.callbacks?.[key]), exportSchema),
+        )
+        .join('\n\n')
+    : ''
+  if (callbacksDefinitions) out.push(callbacksDefinitions)
+
+  // securitySchemes
+  const securitySchemesDefinitions = components.securitySchemes
+    ? Object.keys(components.securitySchemes)
+        .sort()
+        .map((key) => {
+          const expr = jsonExpr(components.securitySchemes?.[key])
+          return declareConst(securitySchemeConstName(key), expr, exportSchema)
+        })
+        .join('\n\n')
+    : ''
+  if (securitySchemesDefinitions) out.push(securitySchemesDefinitions)
+
+  return out.filter(Boolean).join('\n\n')
 }

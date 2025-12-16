@@ -102,6 +102,40 @@ describe('paramsObject', () => {
     expect(result).toStrictEqual(expected)
   })
 
+  it.concurrent('paramsObject boolean', () => {
+    const result = paramsObject([
+      {
+        schema: { type: 'boolean' },
+        required: true,
+        name: 'active',
+        in: 'query',
+      },
+    ])
+    const expected = {
+      query: {
+        active: 'z.stringbool().openapi({param:{in:"query",name:"active",required:false}})',
+      },
+    }
+    expect(result).toStrictEqual(expected)
+  })
+
+  it.concurrent('paramsObject date', () => {
+    const result = paramsObject([
+      {
+        schema: { type: 'date' },
+        required: true,
+        name: 'createdAt',
+        in: 'query',
+      },
+    ])
+    const expected = {
+      query: {
+        createdAt: 'z.coerce.date().openapi({param:{in:"query",name:"createdAt",required:false}})',
+      },
+    }
+    expect(result).toStrictEqual(expected)
+  })
+
   it.concurrent('paramsObject path with example', () => {
     const result = paramsObject([
       {

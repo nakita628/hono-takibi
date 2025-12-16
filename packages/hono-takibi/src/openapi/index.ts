@@ -144,6 +144,7 @@ export type Content = {
       [exampleKey: string]: {
         summary?: string
         value?: unknown
+        $ref?: string
       }
     }
   }
@@ -174,6 +175,7 @@ export type Operation = {
   }[]
   parameters?: Parameters[]
   requestBody?: RequestBody
+  callbacks?: Record<string, unknown>
   responses: Response
 }
 
@@ -188,6 +190,15 @@ export type ResponseDefinition = {
     [key: string]: {
       description?: string
       schema: Schema
+      $ref?: string
+    }
+  }
+  links?: {
+    [key: string]: {
+      operationId?: string
+      parameters?: Record<string, string>
+      description?: string
+      $ref?: string
     }
   }
 }
@@ -254,6 +265,31 @@ export type Components = {
   schemas?: Record<string, Schema>
   parameters?: Record<string, Parameters>
   requestBodies?: Record<string, RequestBody>
+  responses?: Record<string, ResponseDefinition>
+  headers?: Record<
+    string,
+    {
+      description?: string
+      schema: Schema
+    }
+  >
+  examples?: Record<
+    string,
+    {
+      summary?: string
+      value?: unknown
+      description?: string
+    }
+  >
+  links?: Record<
+    string,
+    {
+      operationId?: string
+      parameters?: Record<string, string>
+      description?: string
+    }
+  >
+  callbacks?: Record<string, unknown>
   securitySchemes?: {
     [key: string]: {
       type?: string

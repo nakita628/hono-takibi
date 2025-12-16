@@ -83,6 +83,7 @@ export const putPetRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: {
+      description: 'Update an existent pet in the store',
       required: true,
       content: {
         'application/json': { schema: PetSchema },
@@ -115,6 +116,7 @@ export const postPetRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: {
+      description: 'Create a new pet in the store',
       required: true,
       content: {
         'application/json': { schema: PetSchema },
@@ -149,8 +151,7 @@ export const getPetFindByStatusRoute = createRoute({
       status: z
         .enum(['available', 'pending', 'sold'])
         .default('available')
-        .openapi({ param: { in: 'query', name: 'status', required: false } })
-        .optional(),
+        .openapi({ param: { in: 'query', name: 'status', required: false } }),
     }),
   },
   responses: {
@@ -254,7 +255,7 @@ export const deletePetPetIdRoute = createRoute({
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    header: z.object({
+    headers: z.object({
       api_key: z
         .string()
         .openapi({ param: { in: 'header', name: 'api_key', required: false } })
@@ -391,6 +392,7 @@ export const postUserRoute = createRoute({
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
+      description: 'Created user object',
       required: false,
       content: {
         'application/json': { schema: UserSchema },
@@ -453,6 +455,16 @@ export const getUserLoginRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
+      headers: {
+        'X-Rate-Limit': {
+          description: 'calls per hour allowed by the user',
+          schema: { type: 'integer', format: 'int32' },
+        },
+        'X-Expires-After': {
+          description: 'date in UTC when token expires',
+          schema: { type: 'string', format: 'date-time' },
+        },
+      },
       content: {
         'application/xml': { schema: z.string() },
         'application/json': { schema: z.string() },
@@ -504,6 +516,7 @@ export const putUserUsernameRoute = createRoute({
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
+      description: 'Update an existent user in the store',
       required: false,
       content: {
         'application/json': { schema: UserSchema },

@@ -1,9 +1,9 @@
 import { client } from '../index.ts'
 
 /**
- * Polymorphic object with discriminator
- *
  * POST /polymorphic
+ *
+ * Polymorphic object with discriminator
  */
 export async function postPolymorphic(
   body:
@@ -14,22 +14,20 @@ export async function postPolymorphic(
 }
 
 /**
- * Search with complex query
- *
  * GET /search
+ *
+ * Search with complex query
  */
 export async function getSearch(params: {
   query: { q: string; filter: string | string[]; exclude: unknown }
 }) {
-  return await client.search.$get({
-    query: { q: params.query.q, filter: params.query.filter, exclude: params.query.exclude },
-  })
+  return await client.search.$get({ query: params.query })
 }
 
 /**
- * Multi-step object definition using allOf
- *
  * PUT /multi-step
+ *
+ * Multi-step object definition using allOf
  */
 export async function putMultiStep(
   body: { id: string; metadata?: { [key: string]: string } | null } & { step?: number },
