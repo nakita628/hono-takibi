@@ -45,6 +45,7 @@ type DevServerLike = {
  * ────────────────────────────────────────────────────────────── */
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+const isConf = (v: unknown): v is Conf => isRecord(v)
 const asRecord = (v: unknown): Record<string, unknown> => (isRecord(v) ? v : {})
 const isOperationLike = (v: unknown): v is { readonly responses?: unknown } =>
   isRecord(v) && 'responses' in v
@@ -67,9 +68,8 @@ const loadConfigHot = async (
 
     const mod = await server.ssrLoadModule(`${abs}?t=${Date.now()}`)
     const def = isRecord(mod) ? Reflect.get(mod, 'default') : undefined
-    if (def === undefined) return { ok: false, error: 'Config must export default object' }
-    // as Conf
-    const parsed = parseConfig(def as Conf)
+    if (!isConf(def)) return { ok: false, error: 'Config must export default object' }
+    const parsed = parseConfig(def)
     return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
@@ -405,7 +405,7 @@ const pickZoTopNonSplit = (c: Conf): ZoTopSpec => {
 }
 
 const reconcileSplitTransition = async (prevC: Conf, nextC: Conf): Promise<string[]> => {
-  const kinds: readonly ('schema' | 'route' | 'rpc')[] = ['schema', 'route', 'rpc'] as const
+  const kinds: readonly ('schema' | 'route' | 'rpc')[] = ['schema', 'route', 'rpc']
   const perKind = await Promise.all(
     kinds.map(async (kind) => {
       const prev = pickSplitSpec(prevC, kind)

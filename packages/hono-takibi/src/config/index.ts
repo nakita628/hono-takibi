@@ -20,6 +20,41 @@ type Config = {
       readonly import: string
       readonly split?: boolean
     }
+    readonly parameter?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly securitySchemes?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly requestBodies?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly responses?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly headers?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly examples?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly links?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly callbacks?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
   }
   readonly type?: {
     readonly output: `${string}.ts`

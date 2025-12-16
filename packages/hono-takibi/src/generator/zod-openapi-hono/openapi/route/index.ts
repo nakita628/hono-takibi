@@ -12,7 +12,7 @@ const METHODS: readonly HttpMethod[] = [
   'options',
   'head',
   'trace',
-] as const
+]
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 

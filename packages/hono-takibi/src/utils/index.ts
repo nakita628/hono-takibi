@@ -9,14 +9,49 @@ export function parseConfig(config: {
     readonly output?: `${string}.ts`
     readonly exportType?: boolean
     readonly exportSchema?: boolean
+    readonly route?: {
+      readonly output: string | `${string}.ts`
+      readonly import: string
+      readonly split?: boolean
+    }
     readonly schema?: {
       readonly output: string | `${string}.ts`
       readonly exportType?: boolean
       readonly split?: boolean
     }
-    readonly route?: {
+    readonly parameter?: {
       readonly output: string | `${string}.ts`
-      readonly import: string
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly securitySchemes?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly requestBodies?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly responses?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly headers?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+    }
+    readonly examples?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly links?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+    }
+    readonly callbacks?: {
+      readonly output: string | `${string}.ts`
       readonly split?: boolean
     }
   }
@@ -37,6 +72,41 @@ export function parseConfig(config: {
           readonly output?: `${string}.ts`
           readonly exportType?: boolean
           readonly exportSchema?: boolean
+          readonly parameter?: {
+            readonly output: string | `${string}.ts`
+            readonly exportType?: boolean
+            readonly split?: boolean
+          }
+          readonly securitySchemes?: {
+            readonly output: string | `${string}.ts`
+            readonly exportType?: boolean
+            readonly split?: boolean
+          }
+          readonly requestBodies?: {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+          }
+          readonly responses?: {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+          }
+          readonly headers?: {
+            readonly output: string | `${string}.ts`
+            readonly exportType?: boolean
+            readonly split?: boolean
+          }
+          readonly examples?: {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+          }
+          readonly links?: {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+          }
+          readonly callbacks?: {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+          }
           readonly schema?: {
             readonly output: string | `${string}.ts`
             readonly exportType?: boolean
@@ -75,6 +145,45 @@ export function parseConfig(config: {
   // zod-openapi
   const zo = c['zod-openapi']
   if (zo !== undefined) {
+    const validateOut = (
+      label: string,
+      o: unknown,
+      split: unknown,
+      exportType: unknown,
+    ): { ok: true } | { ok: false; error: string } => {
+      if (split !== undefined && typeof split !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid ${label} split format for zod-openapi: ${String(split)}`,
+        }
+      }
+      if (typeof o !== 'string') {
+        return { ok: false, error: `Invalid ${label} output path: ${String(o)}` }
+      }
+      if (split === true) {
+        if (isTs(o)) {
+          return {
+            ok: false,
+            error: `Invalid ${label} output path for split mode (must be a directory, not .ts): ${o}`,
+          }
+        }
+      } else {
+        if (!isTs(o)) {
+          return {
+            ok: false,
+            error: `Invalid ${label} output path for non-split mode (must be .ts file): ${o}`,
+          }
+        }
+      }
+      if (exportType !== undefined && typeof exportType !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid ${label} exportType format for zod-openapi: ${String(exportType)}`,
+        }
+      }
+      return { ok: true }
+    }
+
     // boolean flags
     if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
       return {
@@ -91,6 +200,15 @@ export function parseConfig(config: {
 
     const hs = zo.schema !== undefined
     const hr = zo.route !== undefined
+    const hasComponentsOutputs =
+      zo.parameter !== undefined ||
+      zo.securitySchemes !== undefined ||
+      zo.requestBodies !== undefined ||
+      zo.responses !== undefined ||
+      zo.headers !== undefined ||
+      zo.examples !== undefined ||
+      zo.links !== undefined ||
+      zo.callbacks !== undefined
 
     if (hs !== hr) {
       return {
@@ -109,10 +227,20 @@ export function parseConfig(config: {
         }
       }
     } else {
-      if (!isTs(zo.output)) {
-        return {
-          ok: false,
-          error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
+      // legacy output is required only when no other zod-openapi outputs are specified
+      if (hasComponentsOutputs) {
+        if (zo.output !== undefined && !isTs(zo.output)) {
+          return {
+            ok: false,
+            error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
+          }
+        }
+      } else {
+        if (!isTs(zo.output)) {
+          return {
+            ok: false,
+            error: `Invalid output format for zod-openapi: ${String(zo.output)}`,
+          }
         }
       }
     }
@@ -186,6 +314,86 @@ export function parseConfig(config: {
           }
         }
       }
+    }
+
+    if (zo.parameter !== undefined) {
+      const p = zo.parameter
+      const res = validateOut('parameter', p.output, p.split, p.exportType)
+      if (!res.ok) return res
+    }
+
+    if (zo.securitySchemes !== undefined) {
+      const s = zo.securitySchemes
+      const res = validateOut('securitySchemes', s.output, s.split, s.exportType)
+      if (!res.ok) return res
+    }
+
+    if (zo.headers !== undefined) {
+      const h = zo.headers
+      const res = validateOut('headers', h.output, h.split, h.exportType)
+      if (!res.ok) return res
+    }
+
+    const validateOutNoExportType = (
+      label: string,
+      o: unknown,
+      split: unknown,
+    ): { ok: true } | { ok: false; error: string } => {
+      if (split !== undefined && typeof split !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid ${label} split format for zod-openapi: ${String(split)}`,
+        }
+      }
+      if (typeof o !== 'string') {
+        return { ok: false, error: `Invalid ${label} output path: ${String(o)}` }
+      }
+      if (split === true) {
+        if (isTs(o)) {
+          return {
+            ok: false,
+            error: `Invalid ${label} output path for split mode (must be a directory, not .ts): ${o}`,
+          }
+        }
+      } else {
+        if (!isTs(o)) {
+          return {
+            ok: false,
+            error: `Invalid ${label} output path for non-split mode (must be .ts file): ${o}`,
+          }
+        }
+      }
+      return { ok: true }
+    }
+
+    if (zo.requestBodies !== undefined) {
+      const b = zo.requestBodies
+      const res = validateOutNoExportType('requestBodies', b.output, b.split)
+      if (!res.ok) return res
+    }
+
+    if (zo.responses !== undefined) {
+      const r = zo.responses
+      const res = validateOutNoExportType('responses', r.output, r.split)
+      if (!res.ok) return res
+    }
+
+    if (zo.examples !== undefined) {
+      const e = zo.examples
+      const res = validateOutNoExportType('examples', e.output, e.split)
+      if (!res.ok) return res
+    }
+
+    if (zo.links !== undefined) {
+      const l = zo.links
+      const res = validateOutNoExportType('links', l.output, l.split)
+      if (!res.ok) return res
+    }
+
+    if (zo.callbacks !== undefined) {
+      const cb = zo.callbacks
+      const res = validateOutNoExportType('callbacks', cb.output, cb.split)
+      if (!res.ok) return res
     }
   }
 

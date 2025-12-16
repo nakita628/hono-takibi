@@ -40,10 +40,7 @@ export async function parseOpenAPI(input: string): Promise<
       if (!tsp.ok) {
         return { ok: false, error: tsp.error }
       }
-      // to treat `tsp.value` as an OpenAPI specification.
-      // This cast is required both for parsing the spec and for ensuring
-      // type safety in the generator process.
-      const spec = (await SwaggerParser.bundle(tsp.value as unknown as string)) as OpenAPI
+      const spec = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp.value)))) as OpenAPI
       return { ok: true, value: spec }
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.

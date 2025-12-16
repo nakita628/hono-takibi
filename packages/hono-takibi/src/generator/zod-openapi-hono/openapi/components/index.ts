@@ -5,12 +5,14 @@ import type {
   Content,
   RequestBody,
   ResponseDefinition,
+  Schema,
 } from '../../../../openapi/index.js'
 import { sanitizeIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
 
@@ -31,7 +33,14 @@ const declareConst = (name: string, expr: string, exportSchema: boolean): string
   `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
 
 const exampleConstName = (key: string): string => toIdentifier(withSuffix(key, 'Example'))
-const headerConstName = (key: string): string => toIdentifier(withSuffix(key, 'Header'))
+const headerConstName = (key: string): string => {
+  const base = key.endsWith('HeaderSchema')
+    ? key
+    : key.endsWith('Header')
+      ? `${key}Schema`
+      : `${key}HeaderSchema`
+  return toIdentifier(base)
+}
 const linkConstName = (key: string): string => toIdentifier(withSuffix(key, 'Link'))
 const callbackConstName = (key: string): string => toIdentifier(withSuffix(key, 'Callback'))
 const responseConstName = (key: string): string => toIdentifier(withSuffix(key, 'Response'))
@@ -118,16 +127,51 @@ const headersPropExpr = (
   components: Components,
 ): string | undefined => {
   if (!headers) return undefined
-  const entries = Object.entries(headers).map(([name, header]) => {
-    if (isRef(header)) {
-      const key = resolveComponentKey(header.$ref, '#/components/headers/')
-      const resolved = key ? components.headers?.[key] : undefined
-      if (key && resolved) return `${JSON.stringify(name)}:${headerConstName(key)}`
-      return `${JSON.stringify(name)}:{$ref:${JSON.stringify(header.$ref)}}`
+
+  const headerSchemaExpr = (header: unknown): string => {
+    if (!isRecord(header)) return 'z.any()'
+    const rawSchema = header.schema
+    const schema = isSchema(rawSchema) ? rawSchema : {}
+    const description = typeof header.description === 'string' ? header.description : undefined
+    const example = 'example' in header ? header.example : undefined
+
+    const merged: Schema = {
+      ...schema,
+      ...(description !== undefined && schema.description === undefined ? { description } : {}),
+      ...(example !== undefined && schema.example === undefined ? { example } : {}),
     }
-    return `${JSON.stringify(name)}:${JSON.stringify(header)}`
+    return zodToOpenAPI(merged)
+  }
+
+  const shouldOptional = (header: unknown): boolean => {
+    if (!isRecord(header)) return true
+    if (header.required === true) return false
+    const rawSchema = header.schema
+    const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
+    return schemaDefault === undefined
+  }
+
+  const entries = Object.entries(headers).map(([name, header]) => {
+    const schema =
+      isRef(header) && header.$ref.startsWith('#/components/headers/')
+        ? (() => {
+            const key = resolveComponentKey(header.$ref, '#/components/headers/')
+            const resolved = key ? components.headers?.[key] : undefined
+            if (key && resolved) {
+              const base = headerConstName(key)
+              return shouldOptional(resolved) ? `${base}.optional()` : base
+            }
+            return 'z.any().optional()'
+          })()
+        : (() => {
+            const base = headerSchemaExpr(header)
+            return shouldOptional(header) ? `${base}.optional()` : base
+          })()
+
+    return `${JSON.stringify(name)}:${schema}`
   })
-  return entries.length > 0 ? `headers:{${entries.join(',')}}` : undefined
+
+  return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
 }
 
 const linksPropExpr = (
@@ -236,9 +280,21 @@ export function componentsCode(
   const headersDefinitions = components.headers
     ? Object.keys(components.headers)
         .sort()
-        .map((key) =>
-          declareConst(headerConstName(key), jsonExpr(components.headers?.[key]), exportSchema),
-        )
+        .map((key) => {
+          const header = components.headers?.[key]
+          if (!header) return declareConst(headerConstName(key), 'z.any()', exportSchema)
+
+          const schema: Schema = {
+            ...(header.schema ?? {}),
+            ...(header.description !== undefined &&
+            typeof header.description === 'string' &&
+            header.schema?.description === undefined
+              ? { description: header.description }
+              : {}),
+          }
+          const expr = zodToOpenAPI(schema)
+          return declareConst(headerConstName(key), expr, exportSchema)
+        })
         .join('\n\n')
     : ''
   if (headersDefinitions) out.push(headersDefinitions)
