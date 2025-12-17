@@ -857,3 +857,7 @@ export function findSchema(code: string): readonly string[] {
 export function lowerFirst(text: string): string {
   return text ? (text[0]?.toLowerCase() ?? '') + text.slice(1) : text
 }
+
+export function ensureSuffix(text: string, suffix: string): string {
+  return text.endsWith(suffix) ? text : `${text}${suffix}`
+}

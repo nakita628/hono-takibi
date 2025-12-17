@@ -2,12 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { lowerFirst, toIdentifier } from '../utils/index.js'
-
-const securitySchemeConstName = (key: string): string => {
-  const base = key.endsWith('SecurityScheme') ? key : `${key}SecurityScheme`
-  return toIdentifier(base)
-}
+import { ensureSuffix, lowerFirst, toIdentifier } from '../utils/index.js'
 
 export async function securitySchemes(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -30,7 +25,7 @@ export async function securitySchemes(
     .sort()
     .map((key) => {
       const scheme = schemes[key]
-      const name = securitySchemeConstName(key)
+      const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
       const schemaExpr = JSON.stringify(scheme ?? {})
       const typeExpr = exportType ? `\n\nexport type ${toIdentifier(key)} = typeof ${name}` : ''
       return `export const ${name} = ${schemaExpr}${typeExpr}`
@@ -41,7 +36,7 @@ export async function securitySchemes(
 
     for (const key of Object.keys(schemes).sort()) {
       const scheme = schemes[key]
-      const name = securitySchemeConstName(key)
+      const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
       const schemaExpr = JSON.stringify(scheme ?? {})
       const typeExpr = exportType ? `\n\nexport type ${toIdentifier(key)} = typeof ${name}` : ''
       const body = `export const ${name} = ${schemaExpr}${typeExpr}\n`

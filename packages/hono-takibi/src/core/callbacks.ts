@@ -2,14 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { toIdentifier } from '../utils/index.js'
-
-const callbackConstName = (key: string): string => {
-  const base = key.endsWith('Callback') ? key : `${key}Callback`
-  return toIdentifier(base)
-}
-
-const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
+import { ensureSuffix, lowerFirst, toIdentifier } from '../utils/index.js'
 
 export async function callbacks(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -30,7 +23,7 @@ export async function callbacks(
 
     for (const key of Object.keys(cbs).sort()) {
       const val = cbs[key]
-      const name = callbackConstName(key)
+      const name = toIdentifier(ensureSuffix(key, 'Callback'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
       const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
       const fmtResult = await fmt(body)
@@ -43,7 +36,7 @@ export async function callbacks(
 
     const indexBody = `${Object.keys(cbs)
       .sort()
-      .map((n) => `export * from './${lowerFirst(callbackConstName(n))}'`)
+      .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Callback')))}'`)
       .join('\n')}\n`
     const fmtResult = await fmt(indexBody)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
@@ -61,7 +54,10 @@ export async function callbacks(
   const outFile = String(output)
   const defs = Object.keys(cbs)
     .sort()
-    .map((key) => `export const ${callbackConstName(key)} = ${JSON.stringify(cbs[key] ?? {})}`)
+    .map(
+      (key) =>
+        `export const ${toIdentifier(ensureSuffix(key, 'Callback'))} = ${JSON.stringify(cbs[key] ?? {})}`,
+    )
     .join('\n\n')
 
   const fmtResult = await fmt(`${defs}\n`)

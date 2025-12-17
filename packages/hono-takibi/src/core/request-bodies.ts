@@ -4,7 +4,7 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Components, Content, RequestBody } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
+import { ensureSuffix, findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
 import { moduleSpecFrom } from './rel-import.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
@@ -17,9 +17,6 @@ const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): stri
 
 const requestBodyConstName = (key: string): string =>
   toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
-
-const exampleConstName = (key: string): string =>
-  toIdentifier(key.endsWith('Example') ? key : `${key}Example`)
 
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
@@ -64,7 +61,7 @@ const exampleExpr = (
     if (key && resolved) {
       if (imports?.examples) {
         usedExampleKeys.add(key)
-        return exampleConstName(key)
+        return toIdentifier(ensureSuffix(key, 'Example'))
       }
       return inlineExampleExpr(resolved)
     }
@@ -142,7 +139,7 @@ const buildImportExamples = (
   if (!target) return ''
   const names = Array.from(usedExampleKeys)
     .sort()
-    .map((k) => exampleConstName(k))
+    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
   if (names.length === 0) return ''
   const spec = moduleSpecFrom(fromFile, target)
   return `import { ${names.join(',')} } from '${spec}'`

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   createRoute,
+  ensureSuffix,
   escapeStringLiteral,
   findSchema,
   getToSafeIdentifier,
@@ -751,6 +752,17 @@ export type Limit = z.infer<typeof LimitSchema>`)
       ['', ''],
     ])(`lowerFirst('%s') -> '%s'`, (input, expected) => {
       expect(lowerFirst(input)).toBe(expected)
+    })
+  })
+  // ensureSuffix
+  describe('ensureSuffix', () => {
+    it.concurrent.each([
+      ['test', 'Example', 'testExample'],
+      ['Test', 'Link', 'TestLink'],
+      ['TEST', 'Response', 'TESTResponse'],
+      ['', 'Example', 'Example'],
+    ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
+      expect(ensureSuffix(input, suffix)).toBe(expected)
     })
   })
 })

@@ -2,12 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { lowerFirst, toIdentifier } from '../utils/index.js'
-
-const linkConstName = (key: string): string => {
-  const base = key.endsWith('Link') ? key : `${key}Link`
-  return toIdentifier(base)
-}
+import { ensureSuffix, lowerFirst, toIdentifier } from '../utils/index.js'
 
 export async function links(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -28,7 +23,7 @@ export async function links(
 
     for (const key of Object.keys(ls).sort()) {
       const val = ls[key]
-      const name = linkConstName(key)
+      const name = toIdentifier(ensureSuffix(key, 'Link'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
       const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
       const fmtResult = await fmt(body)
@@ -41,7 +36,7 @@ export async function links(
 
     const indexBody = `${Object.keys(ls)
       .sort()
-      .map((n) => `export * from './${lowerFirst(linkConstName(n))}'`)
+      .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Link')))}'`)
       .join('\n')}\n`
     const fmtResult = await fmt(indexBody)
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
@@ -56,7 +51,10 @@ export async function links(
   const outFile = String(output)
   const defs = Object.keys(ls)
     .sort()
-    .map((key) => `export const ${linkConstName(key)} = ${JSON.stringify(ls[key] ?? {})}`)
+    .map(
+      (key) =>
+        `export const ${toIdentifier(ensureSuffix(key, 'Link'))} = ${JSON.stringify(ls[key] ?? {})}`,
+    )
     .join('\n\n')
 
   const fmtResult = await fmt(`${defs}\n`)

@@ -7,7 +7,7 @@ import type {
   ResponseDefinition,
   Schema,
 } from '../../../../openapi/index.js'
-import { sanitizeIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
@@ -15,14 +15,6 @@ const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$re
 const isSchema = (v: unknown): v is Schema => isRecord(v)
 
 const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
-
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
-
-const withSuffix = (name: string, suffix: string): string =>
-  name.endsWith(suffix) ? name : `${name}${suffix}`
 
 const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
   name.endsWith(fromSuffix)
@@ -32,7 +24,6 @@ const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): stri
 const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
   `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
 
-const exampleConstName = (key: string): string => toIdentifier(withSuffix(key, 'Example'))
 const headerConstName = (key: string): string => {
   const base = key.endsWith('HeaderSchema')
     ? key
@@ -41,13 +32,13 @@ const headerConstName = (key: string): string => {
       : `${key}HeaderSchema`
   return toIdentifier(base)
 }
-const linkConstName = (key: string): string => toIdentifier(withSuffix(key, 'Link'))
-const callbackConstName = (key: string): string => toIdentifier(withSuffix(key, 'Callback'))
-const responseConstName = (key: string): string => toIdentifier(withSuffix(key, 'Response'))
+const linkConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Link'))
+const callbackConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Callback'))
+const responseConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Response'))
 const requestBodyConstName = (key: string): string =>
   toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
 const securitySchemeConstName = (key: string): string =>
-  toIdentifier(withSuffix(key, 'SecurityScheme'))
+  toIdentifier(ensureSuffix(key, 'SecurityScheme'))
 
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
@@ -73,7 +64,7 @@ const exampleExpr = (
   if (isRef(example)) {
     const key = resolveComponentKey(example.$ref, '#/components/examples/')
     const resolved = key && componentExamples ? componentExamples[key] : undefined
-    if (key && resolved) return exampleConstName(key)
+    if (key && resolved) return toIdentifier(ensureSuffix(key, 'Example'))
     return `{$ref:${JSON.stringify(example.$ref)}}`
   }
   if (isRecord(example)) return inlineExampleExpr(example)
@@ -270,7 +261,11 @@ export function componentsCode(
     ? Object.keys(components.examples)
         .sort()
         .map((key) =>
-          declareConst(exampleConstName(key), jsonExpr(components.examples?.[key]), exportSchema),
+          declareConst(
+            toIdentifier(ensureSuffix(key, 'Example')),
+            jsonExpr(components.examples?.[key]),
+            exportSchema,
+          ),
         )
         .join('\n\n')
     : ''

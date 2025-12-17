@@ -1,5 +1,6 @@
 import type { Components, Responses, Schema } from '../../../../../openapi/index.js'
 import {
+  ensureSuffix,
   escapeStringLiteral,
   isUniqueContentSchema,
   sanitizeIdentifier,
@@ -33,11 +34,6 @@ export function response(
   }
   const responseConstName = (key: string): string => {
     const base = key.endsWith('Response') ? key : `${key}Response`
-    return toIdentifier(base)
-  }
-
-  const exampleConstName = (key: string): string => {
-    const base = key.endsWith('Example') ? key : `${key}Example`
     return toIdentifier(base)
   }
 
@@ -180,7 +176,7 @@ export function response(
                           components?.examples,
                         )
                         if (key && resolved && options?.useComponentRefs) {
-                          return `${JSON.stringify(exampleKey)}:${exampleConstName(key)}`
+                          return `${JSON.stringify(exampleKey)}:${toIdentifier(ensureSuffix(key, 'Example'))}`
                         }
                       }
                       return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
@@ -302,7 +298,7 @@ export function response(
                         components?.examples,
                       )
                       if (key && resolved && options?.useComponentRefs) {
-                        return `${JSON.stringify(exampleKey)}:${exampleConstName(key)}`
+                        return `${JSON.stringify(exampleKey)}:${toIdentifier(ensureSuffix(key, 'Example'))}`
                       }
                     }
                     return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`

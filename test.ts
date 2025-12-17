@@ -1,25 +1,52 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const UserIdSchema = z
-  .uuid()
-  .openapi({ param: { in: 'path', name: 'id', required: true } })
-  .openapi('UserId')
+const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
-const PageLimitSchema = z
-  .int()
-  .min(1)
-  .max(100)
-  .default(20)
-  .openapi({ param: { in: 'query', name: 'limit', required: false } })
-  .openapi('PageLimit')
+const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
 
-const RequestIdSchema = z
-  .string()
-  .openapi({ param: { in: 'header', name: 'X-Request-Id', required: false } })
-  .openapi('RequestId')
+const ZodOpenAPIHonoSchema = z
+  .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
+  .openapi('ZodOpenAPIHono')
 
-export const getUsersIdRoute = createRoute({
+const HonoUnionSchema = z
+  .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })
+  .openapi('HonoUnion')
+
+export const getHonoRoute = createRoute({
+  tags: ['Hono'],
   method: 'get',
-  path: '/users/{id}',
-  responses: { 200: { description: 'OK' } },
+  path: '/hono',
+  operationId: 'HonoService_hono',
+  responses: {
+    200: {
+      description: 'The request has succeeded.',
+      content: { 'application/json': { schema: HonoSchema } },
+    },
+  },
+})
+
+export const getHonoxRoute = createRoute({
+  tags: ['Hono'],
+  method: 'get',
+  path: '/honox',
+  operationId: 'HonoXService_honox',
+  responses: {
+    200: {
+      description: 'The request has succeeded.',
+      content: { 'application/json': { schema: HonoXSchema } },
+    },
+  },
+})
+
+export const getZodOpenapiHonoRoute = createRoute({
+  tags: ['Hono'],
+  method: 'get',
+  path: '/zod-openapi-hono',
+  operationId: 'ZodOpenAPIHonoService_zod_openapi_hono',
+  responses: {
+    200: {
+      description: 'The request has succeeded.',
+      content: { 'application/json': { schema: ZodOpenAPIHonoSchema } },
+    },
+  },
 })
