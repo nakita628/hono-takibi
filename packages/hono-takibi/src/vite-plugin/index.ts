@@ -1,28 +1,22 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+import { callbacks } from '../core/callbacks.js'
+import { examples } from '../core/examples.js'
+import { headers } from '../core/headers.js'
+import { links } from '../core/links.js'
+import { parameter } from '../core/parameter.js'
+import { moduleSpecFrom } from '../core/rel-import.js'
+import { requestBodies } from '../core/request-bodies.js'
+import { responses } from '../core/responses.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
 import { schema } from '../core/schema.js'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
-import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
-import { methodPath, parseConfig } from '../utils/index.js'
+import { securitySchemes } from '../core/security-schemes.js'
+import { takibi } from '../core/takibi.js'
+import { type } from '../core/type.js'
+import { parseConfig } from '../utils/index.js'
 
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
-
-type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
-const HTTP_METHODS: readonly HttpMethod[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]
 
 // Minimal dev-server surface so we do not depend on Vite's types directly
 type DevServerLike = {
@@ -46,11 +40,8 @@ type DevServerLike = {
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const isConf = (v: unknown): v is Conf => isRecord(v)
-const asRecord = (v: unknown): Record<string, unknown> => (isRecord(v) ? v : {})
-const isOperationLike = (v: unknown): v is { readonly responses?: unknown } =>
-  isRecord(v) && 'responses' in v
-const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s)
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
+const isTsFile = (p: string): p is `${string}.ts` => p.endsWith('.ts')
 
 const loadConfigHot = async (
   server: DevServerLike,
@@ -195,61 +186,6 @@ const purgePath = async (out: string, expected?: ReadonlySet<string>): Promise<s
       return removedParent
     })
 
-/* ──────────────────────────────────────────────────────────────
- * Route block extractor (used by computeRouteSplitFiles)
- * ────────────────────────────────────────────────────────────── */
-
-const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
-  const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
-  const hits: Array<{ name: string; start: number }> = []
-  for (const m of src.matchAll(re)) {
-    const name = (m[1] ?? '').trim()
-    const start = m.index ?? 0
-    if (name) hits.push({ name, start })
-  }
-  return hits.map((h, i) => {
-    const start = h.start
-    const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
-    return { name: h.name, block: src.slice(start, end).trim() }
-  })
-}
-
-const computeRpcSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
-  const spec = await parseOpenAPI(input)
-  if (!spec.ok) return new Set<string>()
-  const acc = new Set<string>()
-  const paths = asRecord(spec.value.paths)
-  for (const p in paths) {
-    const itemRec = asRecord(paths[p])
-    for (const m of HTTP_METHODS) {
-      const op = itemRec[m]
-      if (isOperationLike(op)) acc.add(`${methodPath(m, p)}.ts`)
-    }
-  }
-  if (acc.size > 0) acc.add('index.ts')
-  return acc
-}
-
-const computeRouteSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
-  const spec = await parseOpenAPI(input)
-  if (!spec.ok) return new Set<string>()
-  const code = routeCode(spec.value)
-  const blocks = extractRouteBlocks(code)
-  const acc = new Set<string>(blocks.map((b) => `${lowerFirst(b.name)}.ts`))
-  if (acc.size > 0) acc.add('index.ts')
-  return acc
-}
-
-const computeSchemaSplitFiles = async (input: Conf['input']): Promise<ReadonlySet<string>> => {
-  const spec = await parseOpenAPI(input)
-  if (!spec.ok) return new Set<string>()
-  const schemas = asRecord(spec.value.components?.schemas)
-  const names = Object.keys(schemas)
-  const acc = new Set<string>(names.map((n) => `${lowerFirst(n)}.ts`))
-  if (acc.size > 0) acc.add('index.ts')
-  return acc
-}
-
 const debounce = (ms: number, fn: () => void): (() => void) => {
   const bucket = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
   const wrapped = (): void => {
@@ -264,84 +200,391 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const jobs: Array<Promise<string>> = []
 
   const zo = c['zod-openapi']
-  if (zo) {
-    const exportType = zo.exportType === true
-    const exportSchema = zo.exportSchema !== false
-    const hs = !!zo.schema
-    const hr = !!zo.route
+  const importMap = zo?.imports
 
-    // top-level zod-openapi (non-split)
-    if (!(hs || hr)) {
-      const runZo = async () => {
-        try {
-          const spec = await parseOpenAPI(c.input)
-          if (!spec.ok) return `✗ zod-openapi: ${spec.error}`
-          const code = await fmt(zodOpenAPIHono(spec.value, exportSchema, exportType))
-          if (!code.ok) return `✗ zod-openapi fmt: ${code.error}`
+  const withImport = (
+    target: { readonly output: string | `${string}.ts`; readonly split?: boolean },
+    spec: string | undefined,
+  ): {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+    readonly import?: string
+  } => (spec !== undefined ? { ...target, import: spec } : target)
 
-          const outputMaybe = zo.output
-          if (typeof outputMaybe !== 'string') {
-            return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(outputMaybe)}`
-          }
-          const out = toAbs(outputMaybe)
-          const mk = await mkdir(path.dirname(out))
-          if (!mk.ok) return `✗ zod-openapi mkdir: ${mk.error}`
-          const wr = await writeFile(out, code.value)
-          return wr.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi write: ${wr.error}`
-        } catch (e) {
-          return `✗ zod-openapi: ${e instanceof Error ? e.message : String(e)}`
-        }
-      }
-      jobs.push(runZo())
+  const schemaTarget =
+    zo?.schemas !== undefined
+      ? withImport(
+          { output: toAbs(zo.schemas.output), split: zo.schemas.split === true },
+          importMap?.schemas,
+        )
+      : undefined
+  const examplesTarget =
+    zo?.examples !== undefined
+      ? withImport(
+          { output: toAbs(zo.examples.output), split: zo.examples.split === true },
+          importMap?.examples,
+        )
+      : undefined
+  const headersTarget =
+    zo?.headers !== undefined
+      ? withImport(
+          { output: toAbs(zo.headers.output), split: zo.headers.split === true },
+          importMap?.headers,
+        )
+      : undefined
+  const linksTarget =
+    zo?.links !== undefined
+      ? withImport(
+          { output: toAbs(zo.links.output), split: zo.links.split === true },
+          importMap?.links,
+        )
+      : undefined
+
+  // zod-openapi top-level output (non-split)
+  if (zo && !(zo.schemas || zo.routes) && zo.output) {
+    const runZo = async () => {
+      const out = toAbs(zo.output)
+      if (!isTsFile(out))
+        return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(zo.output)}`
+      const result = await takibi(
+        c.input,
+        out,
+        zo.exportSchema ?? false,
+        zo.exportType ?? false,
+        false,
+        false,
+      )
+      return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
     }
+    jobs.push(runZo())
+  }
 
-    // zod-openapi.schema
-    if (zo.schema) {
-      const s = zo.schema
-      const runSchema = async () => {
-        if (s.split === true) {
-          const outDir = toAbs(s.output)
-          const r = await schema(c.input, outDir, s.exportType === true, true)
-          if (!r.ok) return `✗ schema(split): ${r.error}`
-          const want = await computeSchemaSplitFiles(c.input)
-          const removed = await pruneDir(outDir, want)
-          return removed.length > 0
-            ? `✓ schema(split) -> ${outDir}/*.ts (pruned ${removed.length})`
-            : `✓ schema(split) -> ${outDir}/*.ts`
-        }
-        const outputMaybe = s.output
-        if (typeof outputMaybe !== 'string')
-          return `✗ schema: Invalid schema output path: ${String(outputMaybe)}`
-        const out = toAbs(outputMaybe)
-        const r = await schema(c.input, out, s.exportType === true, false)
-        return r.ok ? `✓ schema -> ${out}` : `✗ schema: ${r.error}`
+  // zod-openapi.schemas
+  if (zo?.schemas) {
+    const s = zo.schemas
+    const runSchema = async () => {
+      if (s.split === true) {
+        const outDir = toAbs(s.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await schema(c.input, outDir, s.exportType === true, true)
+        if (!r.ok) return `✗ schemas(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ schemas(split) -> ${outDir}/*.ts`
       }
-      jobs.push(runSchema())
+      const out = toAbs(s.output)
+      const r = await schema(c.input, out, s.exportType === true, false)
+      return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
     }
+    jobs.push(runSchema())
+  }
 
-    // zod-openapi.route
-    if (zo.route) {
-      const r = zo.route
-      const runRoute = async () => {
-        if (r.split === true) {
-          const outDir = toAbs(r.output)
-          const rr = await route(c.input, outDir, r.import, true)
-          if (!rr.ok) return `✗ route(split): ${rr.error}`
-          const want = await computeRouteSplitFiles(c.input)
-          const removed = await pruneDir(outDir, want)
-          return removed.length > 0
-            ? `✓ route(split) -> ${outDir}/*.ts (pruned ${removed.length})`
-            : `✓ route(split) -> ${outDir}/*.ts`
-        }
-        const outputMaybe = r.output
-        if (typeof outputMaybe !== 'string')
-          return `✗ route: Invalid route output path: ${String(outputMaybe)}`
-        const out = toAbs(outputMaybe)
-        const rr = await route(c.input, out, r.import, false)
-        return rr.ok ? `✓ route -> ${out}` : `✗ route: ${rr.error}`
+  // zod-openapi.parameter
+  if (zo?.parameter) {
+    const p = zo.parameter
+    const runParameter = async () => {
+      if (p.split === true) {
+        const outDir = toAbs(p.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await parameter(
+          c.input,
+          outDir,
+          p.exportType === true,
+          true,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+        if (!r.ok) return `✗ parameter(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ parameter(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ parameter(split) -> ${outDir}/*.ts`
       }
-      jobs.push(runRoute())
+      const out = toAbs(p.output)
+      const r = await parameter(
+        c.input,
+        out,
+        p.exportType === true,
+        false,
+        schemaTarget ? { schemas: schemaTarget } : undefined,
+      )
+      return r.ok ? `✓ parameter -> ${out}` : `✗ parameter: ${r.error}`
     }
+    jobs.push(runParameter())
+  }
+
+  // zod-openapi.headers
+  if (zo?.headers) {
+    const h = zo.headers
+    const runHeaders = async () => {
+      if (h.split === true) {
+        const outDir = toAbs(h.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await headers(
+          c.input,
+          outDir,
+          h.exportType === true,
+          true,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+        if (!r.ok) return `✗ headers(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ headers(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ headers(split) -> ${outDir}/*.ts`
+      }
+      const out = toAbs(h.output)
+      const r = await headers(
+        c.input,
+        out,
+        h.exportType === true,
+        false,
+        schemaTarget ? { schemas: schemaTarget } : undefined,
+      )
+      return r.ok ? `✓ headers -> ${out}` : `✗ headers: ${r.error}`
+    }
+    jobs.push(runHeaders())
+  }
+
+  // zod-openapi.examples
+  if (zo?.examples) {
+    const e = zo.examples
+    const runExamples = async () => {
+      if (e.split === true) {
+        const outDir = toAbs(e.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await examples(c.input, outDir, true)
+        if (!r.ok) return `✗ examples(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ examples(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ examples(split) -> ${outDir}/*.ts`
+      }
+      const out = toAbs(e.output)
+      const r = await examples(c.input, out, false)
+      return r.ok ? `✓ examples -> ${out}` : `✗ examples: ${r.error}`
+    }
+    jobs.push(runExamples())
+  }
+
+  // zod-openapi.links
+  if (zo?.links) {
+    const l = zo.links
+    const runLinks = async () => {
+      if (l.split === true) {
+        const outDir = toAbs(l.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await links(c.input, outDir, true)
+        if (!r.ok) return `✗ links(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ links(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ links(split) -> ${outDir}/*.ts`
+      }
+      const out = toAbs(l.output)
+      const r = await links(c.input, out, false)
+      return r.ok ? `✓ links -> ${out}` : `✗ links: ${r.error}`
+    }
+    jobs.push(runLinks())
+  }
+
+  // zod-openapi.callbacks
+  if (zo?.callbacks) {
+    const cb = zo.callbacks
+    const runCallbacks = async () => {
+      if (cb.split === true) {
+        const outDir = toAbs(cb.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await callbacks(c.input, outDir, true)
+        if (!r.ok) return `✗ callbacks(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ callbacks(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ callbacks(split) -> ${outDir}/*.ts`
+      }
+      const out = toAbs(cb.output)
+      const r = await callbacks(c.input, out, false)
+      return r.ok ? `✓ callbacks -> ${out}` : `✗ callbacks: ${r.error}`
+    }
+    jobs.push(runCallbacks())
+  }
+
+  // zod-openapi.securitySchemes
+  if (zo?.securitySchemes) {
+    const s = zo.securitySchemes
+    const runSecuritySchemes = async () => {
+      if (s.split === true) {
+        const outDir = toAbs(s.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await securitySchemes(c.input, outDir, s.exportType === true, true)
+        if (!r.ok) return `✗ securitySchemes(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ securitySchemes(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ securitySchemes(split) -> ${outDir}/*.ts`
+      }
+      const out = toAbs(s.output)
+      const r = await securitySchemes(c.input, out, s.exportType === true, false)
+      return r.ok ? `✓ securitySchemes -> ${out}` : `✗ securitySchemes: ${r.error}`
+    }
+    jobs.push(runSecuritySchemes())
+  }
+
+  // zod-openapi.requestBodies
+  if (zo?.requestBodies) {
+    const b = zo.requestBodies
+    const runRequestBodies = async () => {
+      const imports =
+        schemaTarget || examplesTarget
+          ? { schemas: schemaTarget, examples: examplesTarget }
+          : undefined
+
+      if (b.split === true) {
+        const outDir = toAbs(b.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const r = await requestBodies(c.input, outDir, true, imports)
+        if (!r.ok) return `✗ requestBodies(split): ${r.error}`
+        return removed.length > 0
+          ? `✓ requestBodies(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ requestBodies(split) -> ${outDir}/*.ts`
+      }
+
+      const out = toAbs(b.output)
+      const r = await requestBodies(c.input, out, false, imports)
+      return r.ok ? `✓ requestBodies -> ${out}` : `✗ requestBodies: ${r.error}`
+    }
+    jobs.push(runRequestBodies())
+  }
+
+  // zod-openapi.responses
+  if (zo?.responses) {
+    const r = zo.responses
+    const runResponses = async () => {
+      const imports =
+        schemaTarget || headersTarget || examplesTarget || linksTarget
+          ? {
+              schemas: schemaTarget,
+              headers: headersTarget,
+              examples: examplesTarget,
+              links: linksTarget,
+            }
+          : undefined
+
+      if (r.split === true) {
+        const outDir = toAbs(r.output)
+        const removed = await deleteAllTsShallow(outDir)
+        const rr = await responses(c.input, outDir, true, imports)
+        if (!rr.ok) return `✗ responses(split): ${rr.error}`
+        return removed.length > 0
+          ? `✓ responses(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ responses(split) -> ${outDir}/*.ts`
+      }
+
+      const out = toAbs(r.output)
+      const rr = await responses(c.input, out, false, imports)
+      return rr.ok ? `✓ responses -> ${out}` : `✗ responses: ${rr.error}`
+    }
+    jobs.push(runResponses())
+  }
+
+  // zod-openapi.routes
+  if (zo?.routes && zo.schemas) {
+    const r = zo.routes
+    const runRoutes = async () => {
+      const out = toAbs(r.output)
+      const fromFile = r.split === true ? path.join(out, 'index.ts') : out
+      const schemasImport =
+        importMap?.schemas ??
+        moduleSpecFrom(fromFile, {
+          output: toAbs(zo.schemas.output),
+          split: zo.schemas.split === true,
+        })
+
+      const removed = r.split === true ? await deleteAllTsShallow(out) : []
+
+      const rr = await route(
+        c.input,
+        out,
+        schemasImport,
+        r.split ?? false,
+        zo.parameter || zo.headers || zo.requestBodies || zo.responses || zo.links || zo.callbacks
+          ? {
+              useComponentRefs:
+                zo.requestBodies !== undefined ||
+                zo.responses !== undefined ||
+                zo.links !== undefined ||
+                zo.callbacks !== undefined ||
+                zo.headers !== undefined,
+              imports: {
+                parameter:
+                  zo.parameter !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.parameter.output), split: zo.parameter.split === true },
+                        importMap?.parameters,
+                      )
+                    : undefined,
+                headers:
+                  zo.headers !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.headers.output), split: zo.headers.split === true },
+                        importMap?.headers,
+                      )
+                    : undefined,
+                requestBodies:
+                  zo.requestBodies !== undefined
+                    ? withImport(
+                        {
+                          output: toAbs(zo.requestBodies.output),
+                          split: zo.requestBodies.split === true,
+                        },
+                        importMap?.requestBodies,
+                      )
+                    : undefined,
+                responses:
+                  zo.responses !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.responses.output), split: zo.responses.split === true },
+                        importMap?.responses,
+                      )
+                    : undefined,
+                links:
+                  zo.links !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.links.output), split: zo.links.split === true },
+                        importMap?.links,
+                      )
+                    : undefined,
+                callbacks:
+                  zo.callbacks !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.callbacks.output), split: zo.callbacks.split === true },
+                        importMap?.callbacks,
+                      )
+                    : undefined,
+                examples:
+                  zo.examples !== undefined
+                    ? withImport(
+                        { output: toAbs(zo.examples.output), split: zo.examples.split === true },
+                        importMap?.examples,
+                      )
+                    : undefined,
+              },
+            }
+          : undefined,
+      )
+      if (!rr.ok) return r.split === true ? `✗ routes(split): ${rr.error}` : `✗ routes: ${rr.error}`
+      if (r.split === true) {
+        return removed.length > 0
+          ? `✓ routes(split) -> ${out}/*.ts (cleaned ${removed.length})`
+          : `✓ routes(split) -> ${out}/*.ts`
+      }
+      return `✓ routes -> ${out}`
+    }
+    jobs.push(runRoutes())
+  }
+
+  // type
+  if (c.type) {
+    const runType = async () => {
+      const out = toAbs(c.type.output)
+      if (!isTsFile(out)) return `✗ type: Invalid type output format: ${String(c.type?.output)}`
+      const result = await type(c.input, out)
+      return result.ok ? `✓ type -> ${out}` : `✗ type: ${result.error}`
+    }
+    jobs.push(runType())
   }
 
   // rpc
@@ -350,19 +593,14 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     const runRpc = async () => {
       if (r.split === true) {
         const outDir = toAbs(r.output)
+        const removed = await deleteAllTsShallow(outDir)
         const rr = await rpc(c.input, outDir, r.import, true)
         if (!rr.ok) return `✗ rpc(split): ${rr.error}`
-        const want = await computeRpcSplitFiles(c.input)
-        const removed = await pruneDir(outDir, want)
         return removed.length > 0
-          ? `✓ rpc(split) -> ${outDir}/*.ts (pruned ${removed.length})`
+          ? `✓ rpc(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ rpc(split) -> ${outDir}/*.ts`
       }
-      const outputMaybe = r.output
-      if (typeof outputMaybe !== 'string') {
-        return `✗ rpc: Invalid output format for rpc (non-split mode must be .ts file): ${String(outputMaybe)}`
-      }
-      const out = toAbs(outputMaybe)
+      const out = toAbs(r.output)
       const rr = await rpc(c.input, out, r.import, false)
       return rr.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rr.error}`
     }
@@ -379,33 +617,100 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 type SplitSpec = { present: false } | { present: true; split: boolean; out: string }
 type ZoTopSpec = { present: false } | { present: true; out: string }
 
-const pickSplitSpec = (c: Conf, kind: 'schema' | 'route' | 'rpc'): SplitSpec => {
-  if (kind === 'schema') {
-    const s = c['zod-openapi']?.schema
-    return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
-  }
-  if (kind === 'route') {
-    const r = c['zod-openapi']?.route
+type OutputKind =
+  | 'schemas'
+  | 'routes'
+  | 'parameter'
+  | 'securitySchemes'
+  | 'requestBodies'
+  | 'responses'
+  | 'headers'
+  | 'examples'
+  | 'links'
+  | 'callbacks'
+  | 'rpc'
+  | 'type'
+
+const pickSplitSpec = (c: Conf, kind: OutputKind): SplitSpec => {
+  if (kind === 'rpc') {
+    const r = c.rpc
     return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
   }
-  const rc = c.rpc
-  return rc
-    ? { present: true, split: rc.split === true, out: toAbs(rc.output) }
+  if (kind === 'type') {
+    const t = c.type
+    return t ? { present: true, split: false, out: toAbs(t.output) } : { present: false }
+  }
+
+  const zo = c['zod-openapi']
+  if (!zo) return { present: false }
+
+  if (kind === 'schemas') {
+    const s = zo.schemas
+    return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
+  }
+  if (kind === 'routes') {
+    const r = zo.routes
+    return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
+  }
+  if (kind === 'parameter') {
+    const p = zo.parameter
+    return p ? { present: true, split: p.split === true, out: toAbs(p.output) } : { present: false }
+  }
+  if (kind === 'securitySchemes') {
+    const s = zo.securitySchemes
+    return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
+  }
+  if (kind === 'requestBodies') {
+    const b = zo.requestBodies
+    return b ? { present: true, split: b.split === true, out: toAbs(b.output) } : { present: false }
+  }
+  if (kind === 'responses') {
+    const r = zo.responses
+    return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
+  }
+  if (kind === 'headers') {
+    const h = zo.headers
+    return h ? { present: true, split: h.split === true, out: toAbs(h.output) } : { present: false }
+  }
+  if (kind === 'examples') {
+    const e = zo.examples
+    return e ? { present: true, split: e.split === true, out: toAbs(e.output) } : { present: false }
+  }
+  if (kind === 'links') {
+    const l = zo.links
+    return l ? { present: true, split: l.split === true, out: toAbs(l.output) } : { present: false }
+  }
+  const cb = zo.callbacks
+  return cb
+    ? { present: true, split: cb.split === true, out: toAbs(cb.output) }
     : { present: false }
 }
 
 const pickZoTopNonSplit = (c: Conf): ZoTopSpec => {
   const zo = c['zod-openapi']
   if (!zo) return { present: false }
-  const hasSchema = !!zo.schema
-  const hasRoute = !!zo.route
-  return !(hasSchema || hasRoute) && zo.output
+  const hasSchemas = !!zo.schemas
+  const hasRoutes = !!zo.routes
+  return !(hasSchemas || hasRoutes) && zo.output
     ? { present: true, out: toAbs(zo.output) }
     : { present: false }
 }
 
 const reconcileSplitTransition = async (prevC: Conf, nextC: Conf): Promise<string[]> => {
-  const kinds: readonly ('schema' | 'route' | 'rpc')[] = ['schema', 'route', 'rpc']
+  const kinds: readonly OutputKind[] = [
+    'schemas',
+    'routes',
+    'parameter',
+    'securitySchemes',
+    'requestBodies',
+    'responses',
+    'headers',
+    'examples',
+    'links',
+    'callbacks',
+    'rpc',
+    'type',
+  ]
   const perKind = await Promise.all(
     kinds.map(async (kind) => {
       const prev = pickSplitSpec(prevC, kind)
@@ -455,11 +760,19 @@ const outputDirsFromConf = (c: Conf): string[] => {
   const zo = c['zod-openapi']
   const dirs: string[] = []
 
-  const s = zo?.schema
-  if (s?.split === true) dirs.push(toAbs(s.output))
-
-  const r = zo?.route
-  if (r?.split === true) dirs.push(toAbs(r.output))
+  const zodDirs: Array<{ readonly output: string | `${string}.ts`; readonly split?: boolean }> = [
+    ...(zo?.schemas ? [zo.schemas] : []),
+    ...(zo?.routes ? [zo.routes] : []),
+    ...(zo?.parameter ? [zo.parameter] : []),
+    ...(zo?.securitySchemes ? [zo.securitySchemes] : []),
+    ...(zo?.requestBodies ? [zo.requestBodies] : []),
+    ...(zo?.responses ? [zo.responses] : []),
+    ...(zo?.headers ? [zo.headers] : []),
+    ...(zo?.examples ? [zo.examples] : []),
+    ...(zo?.links ? [zo.links] : []),
+    ...(zo?.callbacks ? [zo.callbacks] : []),
+  ]
+  for (const t of zodDirs) if (t.split === true) dirs.push(toAbs(t.output))
 
   const rp = c.rpc
   if (rp?.split === true) dirs.push(toAbs(rp.output))

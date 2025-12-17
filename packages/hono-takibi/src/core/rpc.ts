@@ -1,6 +1,5 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
+import { core } from '../helper/core.js'
 import { type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 
@@ -413,14 +412,10 @@ export async function rpc(
 
   // Non-split: write single file
   if (!split) {
-    const mkdirResult = await mkdir(path.dirname(output))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
-    const fmtResult = await fmt(code)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const writeResult = await writeFile(output, fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(code, path.dirname(output), output)
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
     return { ok: true, value: `Generated rpc code written to ${output}` }
   }
 
@@ -429,25 +424,17 @@ export async function rpc(
 
   for (const { funcName, code } of operationCodes) {
     const fileSrc = `${header}${code}\n`
-    const fmtResult = await fmt(fileSrc)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const filePath = path.join(outDir, `${funcName}.ts`)
-    const mkdirResult = await mkdir(path.dirname(filePath))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(filePath, fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(fileSrc, path.dirname(filePath), filePath)
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
   }
 
   const exportLines = Array.from(
     new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
   ).sort()
   const index = `${exportLines.join('\n')}\n`
-  const fmtResult = await fmt(index)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(indexPath))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(indexPath, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const coreResult = await core(index, path.dirname(indexPath), indexPath)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return {
     ok: true,
     value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,

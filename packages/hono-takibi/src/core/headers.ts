@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { core } from '../helper/core.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { Components, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -41,7 +40,11 @@ export async function headers(
   exportType: boolean,
   split?: boolean,
   imports?: {
-    readonly schemas?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
+    readonly schemas?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
   },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
@@ -64,7 +67,7 @@ export async function headers(
     if (!target) return ''
     const tokens = findSchema(code).filter((t) => !exclude.has(t))
     if (tokens.length === 0) return ''
-    const spec = moduleSpecFrom(fromFile, target)
+    const spec = target.import ?? moduleSpecFrom(fromFile, target)
     return `import { ${tokens.join(',')} } from '${spec}'`
   }
 
@@ -82,13 +85,8 @@ export async function headers(
       const filePath = path.join(outDir, `${lowerFirst(schemaName)}.ts`)
       const importSchemas = buildImportSchemas(filePath, code, new Set([schemaVarName(schemaName)]))
       const fileCode = [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
-
-      const fmtResult = await fmt(fileCode)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(filePath))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(filePath, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(fileCode, path.dirname(filePath), filePath)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
     const indexBody = `${Object.keys(hs)
@@ -96,12 +94,12 @@ export async function headers(
       .map((n) => `export * from './${lowerFirst(headerBaseName(n))}'`)
       .join('\n')}\n`
 
-    const fmtResult = await fmt(indexBody)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(path.join(outDir, 'index.ts'), fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(
+      indexBody,
+      path.dirname(path.join(outDir, 'index.ts')),
+      path.join(outDir, 'index.ts'),
+    )
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
     return {
       ok: true,
@@ -124,13 +122,8 @@ export async function headers(
   const locals = new Set(Object.keys(hs).map((k) => schemaVarName(headerBaseName(k))))
   const importSchemas = buildImportSchemas(outFile, defs, locals)
   const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
-
-  const fmtResult = await fmt(fileCode)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(outFile))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(outFile, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const coreResult = await core(fileCode, path.dirname(outFile), outFile)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
   return { ok: true, value: `Generated header code written to ${outFile}` }
 }

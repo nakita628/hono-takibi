@@ -20,7 +20,11 @@ export async function parameter(
   exportType: boolean,
   split?: boolean,
   imports?: {
-    readonly schemas?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
+    readonly schemas?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
   },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
@@ -44,7 +48,7 @@ export async function parameter(
     if (!target) return ''
     const tokens = findSchema(code).filter((t) => !exclude.has(t))
     if (tokens.length === 0) return ''
-    const spec = moduleSpecFrom(fromFile, target)
+    const spec = target.import ?? moduleSpecFrom(fromFile, target)
     return `import { ${tokens.join(',')} } from '${spec}'`
   }
 

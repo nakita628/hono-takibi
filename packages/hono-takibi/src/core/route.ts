@@ -1,13 +1,17 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
+import { core } from '../helper/core.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema } from '../utils/index.js'
 import { moduleSpecFrom } from './rel-import.js'
 
+const stripStringLiterals = (code: string): string => {
+  // Remove simple single/double-quoted string literals to avoid treating object keys as identifiers.
+  return code.replace(/'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"/g, '')
+}
+
 const findTokensBySuffix = (code: string, suffix: string): string[] => {
-  const tokens = code.match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
+  const tokens = stripStringLiterals(code).match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
   if (!tokens) return []
   return Array.from(new Set(tokens.filter((t) => t.endsWith(suffix))))
 }
@@ -37,16 +41,41 @@ export async function route(
   options?: {
     readonly useComponentRefs?: boolean
     readonly imports?: {
-      readonly parameter?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
-      readonly headers?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
+      readonly parameter?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly headers?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
       readonly requestBodies?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
+        readonly import?: string
       }
-      readonly responses?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
-      readonly links?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
-      readonly callbacks?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
-      readonly examples?: { readonly output: string | `${string}.ts`; readonly split?: boolean }
+      readonly responses?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly links?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly callbacks?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly examples?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
     }
   },
 ): Promise<
@@ -65,6 +94,14 @@ export async function route(
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
   const buildImports = (fromFile: string, src: string): string[] => {
+    const specFrom = (target: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }): string => {
+      return target.import ?? moduleSpecFrom(fromFile, target)
+    }
+
     const schemaTokens = findSchema(src)
     if (schemaTokens.length === 0 && !options?.useComponentRefs) return []
 
@@ -120,7 +157,7 @@ export async function route(
 
     const parameterTarget = options.imports.parameter
     if (parameterTarget && parameterImportFromTarget.size > 0) {
-      const spec = moduleSpecFrom(fromFile, parameterTarget)
+      const spec = specFrom(parameterTarget)
       lines.push(
         `import { ${Array.from(parameterImportFromTarget).sort().join(',')} } from '${spec}'`,
       )
@@ -128,7 +165,7 @@ export async function route(
 
     const headersTarget = options.imports.headers
     if (headersTarget && headerImportFromTarget.size > 0) {
-      const spec = moduleSpecFrom(fromFile, headersTarget)
+      const spec = specFrom(headersTarget)
       lines.push(`import { ${Array.from(headerImportFromTarget).sort().join(',')} } from '${spec}'`)
     }
 
@@ -158,33 +195,33 @@ export async function route(
     if (missing) throw new Error(missing)
 
     if (responseTokens.length > 0 && options.imports.responses) {
-      const spec = moduleSpecFrom(fromFile, options.imports.responses)
+      const spec = specFrom(options.imports.responses)
       lines.push(
         `import { ${Array.from(new Set(responseTokens)).sort().join(',')} } from '${spec}'`,
       )
     }
 
     if (requestBodyTokens.length > 0 && options.imports.requestBodies) {
-      const spec = moduleSpecFrom(fromFile, options.imports.requestBodies)
+      const spec = specFrom(options.imports.requestBodies)
       lines.push(
         `import { ${Array.from(new Set(requestBodyTokens)).sort().join(',')} } from '${spec}'`,
       )
     }
 
     if (linkTokens.length > 0 && options.imports.links) {
-      const spec = moduleSpecFrom(fromFile, options.imports.links)
+      const spec = specFrom(options.imports.links)
       lines.push(`import { ${Array.from(new Set(linkTokens)).sort().join(',')} } from '${spec}'`)
     }
 
     if (callbackTokens.length > 0 && options.imports.callbacks) {
-      const spec = moduleSpecFrom(fromFile, options.imports.callbacks)
+      const spec = specFrom(options.imports.callbacks)
       lines.push(
         `import { ${Array.from(new Set(callbackTokens)).sort().join(',')} } from '${spec}'`,
       )
     }
 
     if (exampleTokens.length > 0 && options.imports.examples) {
-      const spec = moduleSpecFrom(fromFile, options.imports.examples)
+      const spec = specFrom(options.imports.examples)
       lines.push(`import { ${Array.from(new Set(exampleTokens)).sort().join(',')} } from '${spec}'`)
     }
 
@@ -198,12 +235,9 @@ export async function route(
       const importLines = buildImports(String(output), routesSrc)
 
       const finalSrc = [importHono, ...importLines, '\n', routesSrc].filter(Boolean).join('\n')
-      const fmtResult = await fmt(finalSrc)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(output))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(output, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
+      const coreResult = await core(finalSrc, path.dirname(output), output)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
       return { ok: true, value: `Generated route code written to ${output}` }
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) }
@@ -220,12 +254,8 @@ export async function route(
       const importLines = buildImports(String(output), routesSrc)
       const finalSrc = [importHono, ...importLines, '\n', routesSrc].filter(Boolean).join('\n')
 
-      const fmtResult = await fmt(finalSrc)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(output))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(output, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(finalSrc, path.dirname(output), output)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
       return { ok: true, value: `Generated route code written to ${output}` }
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) }
@@ -240,12 +270,8 @@ export async function route(
       const importLines = buildImports(filePath, block)
       const fileSrc = [importHono, ...importLines, '\n', block, ''].filter(Boolean).join('\n')
 
-      const fmtResult = await fmt(fileSrc)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(filePath))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(filePath, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(fileSrc, path.dirname(filePath), filePath)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
@@ -255,12 +281,9 @@ export async function route(
     .sort()
     .map(({ name }) => `export * from './${lowerFirst(name)}'`)
     .join('\n')}\n`
-  const fmtResult = await fmt(indexBody)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(`${outDir}/index.ts`))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(`${outDir}/index.ts`, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
+  const coreResult = await core(indexBody, outDir, `${outDir}/index.ts`)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
   return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
 }

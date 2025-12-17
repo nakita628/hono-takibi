@@ -1,6 +1,5 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
+import { core } from '../helper/core.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { ensureSuffix, lowerFirst, toIdentifier } from '../utils/index.js'
 
@@ -26,24 +25,20 @@ export async function examples(
       const name = toIdentifier(ensureSuffix(key, 'Example'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
       const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
-      const fmtResult = await fmt(body)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(filePath))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(filePath, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(body, path.dirname(filePath), filePath)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
     const indexBody = `${Object.keys(ex)
       .sort()
       .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Example')))}'`)
       .join('\n')}\n`
-    const fmtResult = await fmt(indexBody)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(path.join(outDir, 'index.ts'), fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(
+      indexBody,
+      path.dirname(path.join(outDir, 'index.ts')),
+      path.join(outDir, 'index.ts'),
+    )
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
     return {
       ok: true,
@@ -60,12 +55,8 @@ export async function examples(
     )
     .join('\n\n')
 
-  const fmtResult = await fmt(`${defs}\n`)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(outFile))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(outFile, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const coreResult = await core(defs, path.dirname(outFile), outFile)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
   return { ok: true, value: `Generated examples code written to ${outFile}` }
 }

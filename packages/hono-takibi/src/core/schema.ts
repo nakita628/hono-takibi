@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { core } from '../helper/core.js'
 import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -77,13 +76,8 @@ export async function schema(
           : ''
       const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
       const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
-
-      const fmtResult = await fmt(fileCode)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(filePath))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(filePath, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(fileCode, path.dirname(filePath), filePath)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
     // index.ts
@@ -91,12 +85,8 @@ export async function schema(
       .sort()
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
-    const fmtResult = await fmt(index)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const mkdirResult = await mkdir(path.dirname(`${outDir}/index.ts`))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(`${outDir}/index.ts`, fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(index, path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`)
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
     return {
       ok: true,
@@ -118,11 +108,7 @@ export async function schema(
     .join('\n\n')
   const importCode = `import { z } from '@hono/zod-openapi'`
   const schemaDefinitionsCode = `${importCode}\n\n${schemaDefinitions}`
-  const fmtResult = await fmt(schemaDefinitionsCode)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(output))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(output, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated schema code written to ${output}` }
 }

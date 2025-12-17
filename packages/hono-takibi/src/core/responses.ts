@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { core } from '../helper/core.js'
 import type { Components, Content, ResponseDefinition, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { ensureSuffix, findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
@@ -34,7 +33,11 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
   return key ? key : undefined
 }
 
-type OutputTarget = { readonly output: string | `${string}.ts`; readonly split?: boolean }
+type OutputTarget = {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
+}
 type Imports = {
   readonly schemas?: OutputTarget
   readonly headers?: OutputTarget
@@ -211,7 +214,7 @@ const buildImportSchemas = (
   if (!target) return ''
   const tokens = findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
   if (tokens.length === 0) return ''
-  const spec = moduleSpecFrom(fromFile, target)
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return `import { ${tokens.join(',')} } from '${spec}'`
 }
 
@@ -226,7 +229,7 @@ const buildImportHeaders = (
     .sort()
     .map((k) => headerConstName(k))
   if (names.length === 0) return ''
-  const spec = moduleSpecFrom(fromFile, target)
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return `import { ${names.join(',')} } from '${spec}'`
 }
 
@@ -241,7 +244,7 @@ const buildImportExamples = (
     .sort()
     .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
   if (names.length === 0) return ''
-  const spec = moduleSpecFrom(fromFile, target)
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return `import { ${names.join(',')} } from '${spec}'`
 }
 
@@ -256,7 +259,7 @@ const buildImportLinks = (
     .sort()
     .map((k) => linkConstName(k))
   if (names.length === 0) return ''
-  const spec = moduleSpecFrom(fromFile, target)
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return `import { ${names.join(',')} } from '${spec}'`
 }
 
@@ -279,7 +282,6 @@ export async function responses(
   if (!rs || Object.keys(rs).length === 0) return { ok: false, error: 'No responses found' }
 
   const components = openAPI.components ?? {}
-  const importZ = `import { z } from '@hono/zod-openapi'`
 
   const makeOne = (
     key: string,
@@ -320,6 +322,7 @@ export async function responses(
     for (const key of Object.keys(rs).sort()) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
+      const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
       const importSchemas = buildImportSchemas(filePath, one.code, imports)
       const importHeaders = buildImportHeaders(filePath, one.usedHeaderKeys, imports)
       const importExamples = buildImportExamples(filePath, one.usedExampleKeys, imports)
@@ -337,24 +340,21 @@ export async function responses(
         .filter(Boolean)
         .join('\n')
 
-      const fmtResult = await fmt(fileCode)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-      const mkdirResult = await mkdir(path.dirname(filePath))
-      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-      const writeResult = await writeFile(filePath, fmtResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const coreResult = await core(fileCode, path.dirname(filePath), filePath)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
     const indexBody = `${Object.keys(rs)
       .sort()
       .map((n) => `export * from './${lowerFirst(responseConstName(n))}'`)
       .join('\n')}\n`
-    const fmtResult = await fmt(indexBody)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(path.join(outDir, 'index.ts'), fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+
+    const coreResult = await core(
+      indexBody,
+      path.dirname(path.join(outDir, 'index.ts')),
+      path.join(outDir, 'index.ts'),
+    )
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
     return {
       ok: true,
@@ -384,6 +384,7 @@ export async function responses(
     .join('\n\n')
 
   const outFile = String(output)
+  const importZ = defs.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
   const importSchemas = buildImportSchemas(outFile, defs, imports)
   const importHeaders = buildImportHeaders(outFile, usedHeaderKeys, imports)
   const importExamples = buildImportExamples(outFile, usedExampleKeys, imports)
@@ -401,12 +402,8 @@ export async function responses(
     .filter(Boolean)
     .join('\n')
 
-  const fmtResult = await fmt(fileCode)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(path.dirname(outFile))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  const writeResult = await writeFile(outFile, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const coreResult = await core(fileCode, path.dirname(outFile), outFile)
+  if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
   return { ok: true, value: `Generated responses code written to ${outFile}` }
 }
