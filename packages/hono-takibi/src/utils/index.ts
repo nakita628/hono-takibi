@@ -619,7 +619,16 @@ export function isUniqueContentSchema(
   content: {
     readonly [key: string]: {
       readonly schema: {
-        readonly $ref?: `#/components/schemas/${string}` | `#/components/parameters/${string}`
+        readonly $ref?:
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/securitySchemes/${string}`
+          | `#/components/requestBodies/${string}`
+          | `#/components/responses/${string}`
+          | `#/components/headers/${string}`
+          | `#/components/examples/${string}`
+          | `#/components/links/${string}`
+          | `#/components/callbacks/${string}`
       }
     }
   },
@@ -641,7 +650,10 @@ export function isUniqueContentSchema(
  * ```
  */
 export function refSchema(
-  $ref: `#/components/schemas/${string}` | `#/components/parameters/${string}`,
+  $ref:
+    | `#/components/schemas/${string}`
+    | `#/components/parameters/${string}`
+    | `#/components/headers/${string}`,
 ): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
@@ -803,6 +815,16 @@ export function sanitizeIdentifier(text: string): string {
 }
 
 /**
+ *
+ * @param text - The string to convert to a safe identifier.
+ * @returns
+ */
+export function toIdentifier(text: string): string {
+  const sanitized = text.replace(/[^A-Za-z0-9_$]/g, '_')
+  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
+}
+
+/**
  * Appends a properly escaped `.regex(/pattern/)` clause.
  *
  * @param pattern - A raw regex pattern **without** the surrounding slashes.
@@ -810,4 +832,28 @@ export function sanitizeIdentifier(text: string): string {
  */
 export function regex(pattern: string): string {
   return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
+}
+
+/**
+ * Finds all schema tokens in the given code.
+ * @param code - The code to search for schema tokens.
+ * @returns
+ */
+export function findSchema(code: string): readonly string[] {
+  return Array.from(
+    new Set(
+      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
+        .map((m) => m[1] ?? '')
+        .filter(Boolean),
+    ),
+  )
+}
+
+/**
+ * Converts the first character of a string to lowercase.
+ * @param text - The string to convert to lowercase.
+ * @returns
+ */
+export function lowerFirst(text: string): string {
+  return text ? (text[0]?.toLowerCase() ?? '') + text.slice(1) : text
 }
