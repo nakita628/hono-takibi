@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: Components Full Example API
+  version: 1.0.0
+  description: |
+    This spec demonstrates every `components.*` section and how it is referenced
+    from operations (schemas/parameters/securitySchemes/requestBodies/responses/headers/examples/links/callbacks).
+
+servers:
+  - url: https://api.example.com
+
+tags:
+  - name: Pets
+  - name: Webhooks
+
+paths:
+  /pets:
+    get:
+      tags: [Pets]
+      operationId: listPets
+      summary: List pets (uses reusable parameters, responses, headers, examples, links)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/RequestIdHeader"
+      responses:
+        "200":
+          $ref: "#/components/responses/PetsListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Pets]
+      operationId: createPet
+      summary: Create a pet (uses reusable requestBody, responses, callbacks)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/RequestIdHeader"
+      requestBody:
+        $ref: "#/components/requestBodies/PetCreateBody"
+      responses:
+        "201":
+          $ref: "#/components/responses/PetCreatedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      callbacks:
+        petCreated:
+          $ref: "#/components/callbacks/PetCreatedCallback"
+
+  /pets/{petId}:
+    get:
+      tags: [Pets]
+      operationId: getPet
+      summary: Get a pet (uses path parameter + common responses)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PetId"
+        - $ref: "#/components/parameters/RequestIdHeader"
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/XRateLimitRemaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+              examples:
+                petExample:
+                  $ref: "#/components/examples/PetExample"
+          links:
+            UpdateThisPet:
+              $ref: "#/components/links/UpdatePet"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /pets/{petId}/status:
+    patch:
+      tags: [Pets]
+      operationId: updatePetStatus
+      summary: Update pet status (demonstrates a response link target)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PetId"
+      requestBody:
+        description: Status update payload (inline, just to show variety)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PetStatusUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required: [id, name, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        name:
+          type: string
+          example: Pochi
+        tag:
+          type: string
+          nullable: true
+          example: dog
+        status:
+          type: string
+          enum: [available, pending, sold]
+          example: available
+
+    PetCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Tama
+        tag:
+          type: string
+          example: cat
+        callbackUrl:
+          type: string
+          format: uri
+          description: Where we POST webhook callbacks after creation
+          example: https://client.example.com/webhooks/pet-created
+
+    PetStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [available, pending, sold]
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: BAD_REQUEST
+        message:
+          type: string
+          example: Invalid request payload.
+        requestId:
+          type: string
+          example: 7f3a2b9d-2c5a-4c50-aad1-2b6f4f6a6e55
+
+  parameters:
+    PetId:
+      name: petId
+      in: path
+      required: true
+      description: Pet ID
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Max number of items to return
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    RequestIdHeader:
+      name: X-Request-Id
+      in: header
+      required: false
+      description: Optional request correlation ID
+      schema:
+        type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  requestBodies:
+    PetCreateBody:
+      description: Pet creation payload
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PetCreate"
+          examples:
+            createPetExample:
+              $ref: "#/components/examples/PetCreateExample"
+
+  responses:
+    PetsListResponse:
+      description: OK
+      headers:
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/XRateLimitRemaining"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Pet"
+          examples:
+            petsListExample:
+              $ref: "#/components/examples/PetsListExample"
+      links:
+        GetFirstPet:
+          $ref: "#/components/links/GetPetById"
+
+    PetCreatedResponse:
+      description: Created
+      headers:
+        Location:
+          description: URL of the created resource
+          schema:
+            type: string
+            format: uri
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Pet"
+          examples:
+            petExample:
+              $ref: "#/components/examples/PetExample"
+      links:
+        GetCreatedPet:
+          $ref: "#/components/links/GetPetById"
+
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            badRequestExample:
+              $ref: "#/components/examples/BadRequestExample"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            unauthorizedExample:
+              value:
+                code: UNAUTHORIZED
+                message: Missing or invalid access token.
+
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            notFoundExample:
+              value:
+                code: NOT_FOUND
+                message: Resource not found.
+
+  headers:
+    XRateLimitRemaining:
+      description: Requests remaining in the current rate limit window
+      schema:
+        type: integer
+        format: int32
+        example: 42
+
+  examples:
+    PetExample:
+      summary: A single pet example
+      value:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        name: Pochi
+        tag: dog
+        status: available
+
+    PetCreateExample:
+      summary: Create pet example
+      value:
+        name: Tama
+        tag: cat
+        callbackUrl: https://client.example.com/webhooks/pet-created
+
+    PetsListExample:
+      summary: List pets example
+      value:
+        - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          name: Pochi
+          tag: dog
+          status: available
+        - id: 0d5f2a8b-6ce3-4c3b-9b6d-6b0c3b6d6a11
+          name: Tama
+          tag: cat
+          status: pending
+
+    BadRequestExample:
+      summary: Bad request example
+      value:
+        code: BAD_REQUEST
+        message: Invalid request payload.
+        requestId: 7f3a2b9d-2c5a-4c50-aad1-2b6f4f6a6e55
+
+  links:
+    GetPetById:
+      operationId: getPet
+      parameters:
+        petId: "$response.body#/0/id"
+      description: Follow up by fetching the first pet from the list response
+
+    UpdatePet:
+      operationId: updatePetStatus
+      parameters:
+        petId: "$response.body#/id"
+      description: Update this pet's status
+
+  callbacks:
+    PetCreatedCallback:
+      "{$request.body#/callbackUrl}":
+        post:
+          tags: [Webhooks]
+          operationId: onPetCreated
+          summary: Webhook sent to the client when a pet is created
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [event, pet]
+                  properties:
+                    event:
+                      type: string
+                      example: pet.created
+                    pet:
+                      $ref: "#/components/schemas/Pet"
+          responses:
+            "200":
+              description: Webhook received
+            "410":
+              description: Callback URL is gone; stop sending future callbacks

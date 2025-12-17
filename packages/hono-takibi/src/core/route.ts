@@ -14,14 +14,11 @@ const findSchemaTokens = (code: string): string[] =>
     ),
   )
 
-const findTokensBySuffix = (code: string, suffix: string): string[] =>
-  Array.from(
-    new Set(
-      Array.from(code.matchAll(new RegExp(`\\\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\\\b`, 'g')))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
+const findTokensBySuffix = (code: string, suffix: string): string[] => {
+  const tokens = code.match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
+  if (!tokens) return []
+  return Array.from(new Set(tokens.filter((t) => t.endsWith(suffix))))
+}
 
 const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
   const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
@@ -107,6 +104,15 @@ export async function route(
     }
 
     for (const token of headerSchemaTokens) {
+      const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
+      if (schemaKeys.has(base)) {
+        schemaImportFromRoute.add(token)
+        continue
+      }
+      if (parameterKeys.has(base) && options.imports.parameter) {
+        parameterImportFromTarget.add(token)
+        continue
+      }
       if (options.imports.headers) {
         headerImportFromTarget.add(token)
         continue
