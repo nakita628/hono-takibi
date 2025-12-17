@@ -3,16 +3,8 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
+import { findSchema } from '../utils/index.js'
 import { moduleSpecFrom } from './rel-import.js'
-
-const findSchemaTokens = (code: string): string[] =>
-  Array.from(
-    new Set(
-      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
 
 const findTokensBySuffix = (code: string, suffix: string): string[] => {
   const tokens = code.match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
@@ -73,7 +65,7 @@ export async function route(
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
   const buildImports = (fromFile: string, src: string): string[] => {
-    const schemaTokens = findSchemaTokens(src)
+    const schemaTokens = findSchema(src)
     if (schemaTokens.length === 0 && !options?.useComponentRefs) return []
 
     // Default (backward compatible): import all *Schema tokens from importPath

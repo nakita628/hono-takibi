@@ -5,8 +5,8 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import { parseOpenAPI } from '../openapi/index.js'
+import { lowerFirst } from '../utils/index.js'
 
-const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
 const findSchemaRefs = (code: string, selfName: string): string[] => {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
   const out = new Set<string>()

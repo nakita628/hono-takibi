@@ -2,19 +2,12 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { sanitizeIdentifier } from '../utils/index.js'
-
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
+import { lowerFirst, toIdentifier } from '../utils/index.js'
 
 const linkConstName = (key: string): string => {
   const base = key.endsWith('Link') ? key : `${key}Link`
   return toIdentifier(base)
 }
-
-const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
 
 export async function links(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,

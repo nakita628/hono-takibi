@@ -14,10 +14,13 @@ const ensureDotRelative = (spec: string): string => {
  * - If `target.split=true`, imports `.../index` in that directory.
  * - Strips the `.ts` extension to match existing generated output style.
  */
-export function moduleSpecFrom(fromFile: string, target: {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-}): string {
+export function moduleSpecFrom(
+  fromFile: string,
+  target: {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+  },
+): string {
   const fromDir = path.dirname(fromFile)
   const entry = target.split ? path.join(target.output) : target.output
   const rel = path.relative(fromDir, entry).replace(/\\/g, '/')

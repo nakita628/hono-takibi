@@ -4,16 +4,11 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Components, Content, RequestBody } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { sanitizeIdentifier } from '../utils/index.js'
+import { findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
 import { moduleSpecFrom } from './rel-import.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
 
 const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
   name.endsWith(fromSuffix)
@@ -31,17 +26,6 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
   const key = $ref.slice(prefix.length)
   return key ? key : undefined
 }
-
-const findSchemaTokens = (code: string): string[] =>
-  Array.from(
-    new Set(
-      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
-
-const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -143,7 +127,7 @@ const buildImportSchemas = (
 ): string => {
   const target = imports?.schemas
   if (!target) return ''
-  const tokens = findSchemaTokens(code).filter((t) => !locals.has(t))
+  const tokens = findSchema(code).filter((t) => !locals.has(t))
   if (tokens.length === 0) return ''
   const spec = moduleSpecFrom(fromFile, target)
   return `import { ${tokens.join(',')} } from '${spec}'`

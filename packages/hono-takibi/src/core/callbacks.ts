@@ -2,12 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { sanitizeIdentifier } from '../utils/index.js'
-
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
+import { toIdentifier } from '../utils/index.js'
 
 const callbackConstName = (key: string): string => {
   const base = key.endsWith('Callback') ? key : `${key}Callback`

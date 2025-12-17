@@ -129,6 +129,17 @@ export type FormatString =
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
+export type Ref =
+  | `#/components/schemas/${string}`
+  | `#/components/parameters/${string}`
+  | `#/components/securitySchemes/${string}`
+  | `#/components/requestBodies/${string}`
+  | `#/components/responses/${string}`
+  | `#/components/headers/${string}`
+  | `#/components/examples/${string}`
+  | `#/components/links/${string}`
+  | `#/components/callbacks/${string}`
+
 /**
  * Content type definitions with their schemas
  */
@@ -234,7 +245,7 @@ export type Schema = {
   enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
-  $ref?: `#/components/schemas/${string}` | `#/components/parameters/${string}`
+  $ref?: Ref
   xml?: {
     name?: string
     wrapped?: boolean
@@ -307,7 +318,7 @@ export type Parameters = {
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
   explode?: boolean
-  $ref?: `#/components/parameters/${string}`
+  $ref?: Ref
 }
 
 /**

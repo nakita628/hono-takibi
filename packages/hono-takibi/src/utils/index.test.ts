@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   createRoute,
   escapeStringLiteral,
+  findSchema,
   getToSafeIdentifier,
   isHttpMethod,
   isRefObject,
   isUniqueContentSchema,
+  lowerFirst,
   methodPath,
   normalizeTypes,
   parseCli,
@@ -15,6 +17,7 @@ import {
   registerComponent,
   requestParamsArray,
   sanitizeIdentifier,
+  toIdentifier,
 } from '.'
 
 // Test run
@@ -439,9 +442,7 @@ describe('utils', () => {
       })
     })
   })
-  /* ========================================================================== *
-   *  normalizeTypes
-   * ========================================================================== */
+  // normalizeTypes
   describe('normalizeTypes', () => {
     it('should return empty array if type is undefined', () => {
       expect(normalizeTypes(undefined)).toStrictEqual([])
@@ -462,10 +463,6 @@ describe('utils', () => {
       expect(normalizeTypes(['integer', 'null'])).toStrictEqual(['integer', 'null'])
     })
   })
-
-  /* ========================================================================== *
-   *  Handler-Generation Utilities
-   * ========================================================================== */
   // registerComponent
   describe('registerComponent', () => {
     it.concurrent('registerComponent success', () => {
@@ -486,11 +483,6 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  /* ========================================================================== *
-   *  Handler Utilities
-   *    └─ Everything below relates to generating, grouping, or importing route
-   *       handler functions.
-   * ========================================================================== */
   // isRefObject
   describe('isRefObject Test', () => {
     it.concurrent.each([
@@ -520,7 +512,6 @@ describe('utils', () => {
       expect(isHttpMethod(method)).toBe(expected)
     })
   })
-
   // isUniqueContentSchema
   describe('isUniqueContentSchema Test', () => {
     it.concurrent('isUniqueContentSchema -> true', () => {
@@ -537,21 +528,12 @@ describe('utils', () => {
       expect(result).toBe(false)
     })
   })
-  /* ========================================================================== *
-   *  OpenAPI $ref
-   * ========================================================================== */
   // refName
   describe('refSchema', () => {
     it.concurrent(`refSchema('#/components/schemas/Test') -> 'TestSchema'`, () => {
       expect(refSchema('#/components/schemas/Test')).toBe('TestSchema')
     })
   })
-  /* ========================================================================== *
-   *  Route Code Generation
-   *    • createRoute itself
-   *    • utilities that build or modify the `request:{ ... }` object
-   * ========================================================================== */
-
   // methodPath
   describe('methodPath', () => {
     it.concurrent.each([
@@ -630,9 +612,7 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
-  /* ========================================================================== *
-   *  Request Parameters
-   * ========================================================================== */
+  // requestParamsArray
   describe('requestParamsArray', () => {
     it.concurrent.each([
       [
@@ -650,10 +630,6 @@ describe('utils', () => {
       expect(requestParamsArray(input)).toStrictEqual(expected)
     })
   })
-
-  /* ========================================================================== *
-   *  String Escaping
-   * ========================================================================== */
   // escapeStringLiteral
   describe('escapeStringLiteral', () => {
     it.concurrent.each([
@@ -675,9 +651,6 @@ describe('utils', () => {
       expect(escapeStringLiteral(input)).toBe(expected)
     })
   })
-  /* ========================================================================== *
-   *  Identifier
-   * ========================================================================== */
   // getToSafeIdentifier
   describe('getToSafeIdentifier', () => {
     it.concurrent.each([
@@ -715,9 +688,23 @@ describe('utils', () => {
       expect(sanitizeIdentifier(input)).toBe(expected)
     })
   })
-  /* ========================================================================== *
-   *  Zod Schema
-   * ========================================================================== */
+  // toIdentifier
+  describe('toIdentifier', () => {
+    it.concurrent.each([
+      ['test', 'test'],
+      ['test123', 'test123'],
+      ['_test', '_test'],
+      ['$test', '$test'],
+      ['foo-bar', 'foo_bar'],
+      ['foo@bar!baz', 'foo_bar_baz'],
+      ['post.title', 'post_title'],
+      ['テスト', '___'],
+      ['', '_'],
+      ['123startWithNumber', '_123startWithNumber'],
+    ])(`toIdentifier('%s') -> '%s'`, (input, expected) => {
+      expect(toIdentifier(input)).toBe(expected)
+    })
+  })
   // regex
   describe('regex', () => {
     it.concurrent.each([
@@ -736,6 +723,34 @@ describe('utils', () => {
       ['^/api/users$', '.regex(/^\\/api\\/users$/)'],
     ])(`regex('%s') -> '%s'`, (input, expected) => {
       expect(regex(input)).toBe(expected)
+    })
+  })
+  // findSchema
+  describe('findSchema', () => {
+    it.concurrent('findSchema ErrorSchema', () => {
+      const result = findSchema(
+        'export const BadRequestResponse = {description:"Bad Request",content:{"application/json":{schema:ErrorSchema,examples:{"badRequestExample":BadRequestExample}}}}',
+      )
+      expect(result).toStrictEqual(['ErrorSchema'])
+    })
+
+    it.concurrent('findSchema LimitSchema', () => {
+      const result =
+        findSchema(`export const LimitSchema = z.int32().min(1).max(100).default(20).openapi({param:{in:"query",name:"limit",required:false}})
+
+export type Limit = z.infer<typeof LimitSchema>`)
+      expect(result).toStrictEqual(['LimitSchema'])
+    })
+  })
+  // lowerFirst
+  describe('lowerFirst', () => {
+    it.concurrent.each([
+      ['test', 'test'],
+      ['Test', 'test'],
+      ['TEST', 'tEST'],
+      ['', ''],
+    ])(`lowerFirst('%s') -> '%s'`, (input, expected) => {
+      expect(lowerFirst(input)).toBe(expected)
     })
   })
 })

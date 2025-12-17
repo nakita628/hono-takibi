@@ -1,4 +1,4 @@
-import type { Parameters } from '../../../../../openapi/index.js'
+import type { Parameters, Ref } from '../../../../../openapi/index.js'
 import { getToSafeIdentifier, refSchema } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
@@ -28,11 +28,23 @@ export function paramsObject(parameters: readonly Parameters[]): {
       const shouldOptional =
         param.in !== 'path' && !param.required && param.schema.default === undefined
 
+      const isSchemaOrParameterOrHeaderRef = (
+        ref: Ref,
+      ): ref is
+        | `#/components/schemas/${string}`
+        | `#/components/parameters/${string}`
+        | `#/components/headers/${string}` =>
+        ref.startsWith('#/components/schemas/') ||
+        ref.startsWith('#/components/parameters/') ||
+        ref.startsWith('#/components/headers/')
+
       if (param.$ref !== undefined) {
         if (!acc[param.in]) acc[param.in] = {}
-        acc[param.in][getToSafeIdentifier(param.name)] = `${refSchema(
-          param.$ref,
-        )}${shouldOptional ? '.optional()' : ''}`
+        if (isSchemaOrParameterOrHeaderRef(param.$ref)) {
+          acc[param.in][getToSafeIdentifier(param.name)] = `${refSchema(
+            param.$ref,
+          )}${shouldOptional ? '.optional()' : ''}`
+        }
         return acc
       }
 

@@ -1,5 +1,5 @@
 import { wrap } from '../../helper/wrap.js'
-import type { Schema } from '../../openapi/index.js'
+import type { Ref, Schema } from '../../openapi/index.js'
 import { normalizeTypes, refSchema } from '../../utils/index.js'
 import { array } from './z/array.js'
 import { _enum } from './z/enum.js'
@@ -16,7 +16,18 @@ export function zodToOpenAPI(
   // if (schema === undefined) throw new Error('hono-takibi: only #/components/schemas/* is supported')
   /** ref */
   if (schema.$ref !== undefined) {
-    return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
+    const isSchemaOrParameterOrHeaderRef = (
+      ref: Ref,
+    ): ref is
+      | `#/components/schemas/${string}`
+      | `#/components/parameters/${string}`
+      | `#/components/headers/${string}` =>
+      ref.startsWith('#/components/schemas/') ||
+      ref.startsWith('#/components/parameters/') ||
+      ref.startsWith('#/components/headers/')
+    if (isSchemaOrParameterOrHeaderRef(schema.$ref)) {
+      return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
+    }
   }
   /* combinators */
   /** allOf */

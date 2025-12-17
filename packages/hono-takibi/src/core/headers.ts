@@ -5,22 +5,11 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { Components, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { sanitizeIdentifier } from '../utils/index.js'
+import { findSchema, lowerFirst, sanitizeIdentifier } from '../utils/index.js'
 import { moduleSpecFrom } from './rel-import.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const isSchema = (v: unknown): v is Schema => isRecord(v)
-
-const lowerFirst = (s: string) => (s ? (s[0]?.toLowerCase() ?? '') + s.slice(1) : s)
-
-const findSchemaTokens = (code: string): string[] =>
-  Array.from(
-    new Set(
-      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
 
 const headerBaseName = (key: string): string => {
   const safe = sanitizeIdentifier(key)
@@ -73,7 +62,7 @@ export async function headers(
   ): string => {
     const target = imports?.schemas
     if (!target) return ''
-    const tokens = findSchemaTokens(code).filter((t) => !exclude.has(t))
+    const tokens = findSchema(code).filter((t) => !exclude.has(t))
     if (tokens.length === 0) return ''
     const spec = moduleSpecFrom(fromFile, target)
     return `import { ${tokens.join(',')} } from '${spec}'`
