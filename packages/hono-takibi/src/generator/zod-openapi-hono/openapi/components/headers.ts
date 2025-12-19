@@ -16,7 +16,7 @@ import {
  * @param exportSchema - Whether to export the header schema variables.
  * @returns A string of TypeScript code with header definitions.
  */
-export function headersCode(components: Components, exportSchema: boolean): string {
+export function headers(components: Components, exportSchema: boolean): string {
   const { headers } = components
   if (!headers) return ''
 

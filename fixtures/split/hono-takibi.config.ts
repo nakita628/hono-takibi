@@ -50,6 +50,6 @@ export default defineConfig({
         output: 'src/callbacks',
         split: true,
       },
-    }
+    },
   },
 })

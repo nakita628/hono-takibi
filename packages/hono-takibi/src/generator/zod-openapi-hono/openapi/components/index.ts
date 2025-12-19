@@ -1,7 +1,7 @@
 import type { Components } from '../../../../openapi/index.js'
 import { callbacks } from './callbacks.js'
 import { examples } from './examples.js'
-import { headersCode } from './headers.js'
+import { headers } from './headers.js'
 import { links } from './links.js'
 import { parameters } from './parameters.js'
 import { requestBodies } from './request-bodies.js'
@@ -21,6 +21,7 @@ import { securitySchemes } from './securitySchemes.js'
  * - Resolves schema dependency order to avoid reference errors.
  * - Skips generation if no schemas are defined.
  * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
+ * - Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
  */
 export function componentsCode(
   components: Components,
@@ -28,42 +29,32 @@ export function componentsCode(
   exportType: boolean,
 ): string {
   const out: string[] = []
-
   // schemas
   const schemaDefinitions = schemas(components, exportSchema, exportType)
   if (schemaDefinitions) out.push(schemaDefinitions)
-
   // parameters
   const parametersDefinitions = parameters(components, exportSchema, exportType)
   if (parametersDefinitions) out.push(parametersDefinitions)
-
-  // examples
-  const examplesDefinitions = examples(components, exportSchema)
-  if (examplesDefinitions) out.push(examplesDefinitions)
-
-  // headers
-  const headersDefinitions = headersCode(components, exportSchema)
-  if (headersDefinitions) out.push(headersDefinitions)
-
-  // links
-  const linksDefinitions = links(components, exportSchema)
-  if (linksDefinitions) out.push(linksDefinitions)
-
-  // requestBodies
-  const requestBodiesDefinitions = requestBodies(components, exportSchema)
-  if (requestBodiesDefinitions) out.push(requestBodiesDefinitions)
-
-  // responses
-  const responsesDefinitions = responses(components, exportSchema)
-  if (responsesDefinitions) out.push(responsesDefinitions)
-
-  // callbacks
-  const callbacksDefinitions = callbacks(components, exportSchema)
-  if (callbacksDefinitions) out.push(callbacksDefinitions)
-
   // securitySchemes
   const securitySchemesDefinitions = securitySchemes(components, exportSchema)
   if (securitySchemesDefinitions) out.push(securitySchemesDefinitions)
-
+  // requestBodies
+  const requestBodiesDefinitions = requestBodies(components, exportSchema)
+  if (requestBodiesDefinitions) out.push(requestBodiesDefinitions)
+  // responses
+  const responsesDefinitions = responses(components, exportSchema)
+  if (responsesDefinitions) out.push(responsesDefinitions)
+  // headers
+  const headersDefinitions = headers(components, exportSchema)
+  if (headersDefinitions) out.push(headersDefinitions)
+  // examples
+  const examplesDefinitions = examples(components, exportSchema)
+  if (examplesDefinitions) out.push(examplesDefinitions)
+  // links
+  const linksDefinitions = links(components, exportSchema)
+  if (linksDefinitions) out.push(linksDefinitions)
+  // callbacks
+  const callbacksDefinitions = callbacks(components, exportSchema)
+  if (callbacksDefinitions) out.push(callbacksDefinitions)
   return out.filter(Boolean).join('\n\n')
 }
