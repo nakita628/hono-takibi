@@ -45,4 +45,18 @@ describe('resolveSchemasDependencies', () => {
     const expected = ['B', 'C', 'A']
     expect(result).toStrictEqual(expected)
   })
+
+  it('handles self references without error', () => {
+    const result = resolveSchemasDependencies({
+      Node: {
+        type: 'object',
+        properties: {
+          child: {
+            $ref: '#/components/schemas/Node',
+          },
+        },
+      },
+    })
+    expect(result).toStrictEqual(['Node'])
+  })
 })

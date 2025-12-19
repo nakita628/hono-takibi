@@ -453,19 +453,20 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const out = toAbs(r.output)
       const removed = r.split === true ? await deleteAllTsShallow(out) : []
 
-      const rr = await route(c.input, out, {
-        split: r.split ?? false,
-        components: {
-          schemas: schemaTarget,
-          parameters: configToTarget(components?.parameters, toAbs),
-          headers: configToTarget(components?.headers, toAbs),
-          requestBodies: configToTarget(components?.requestBodies, toAbs),
-          responses: configToTarget(components?.responses, toAbs),
-          links: configToTarget(components?.links, toAbs),
-          callbacks: configToTarget(components?.callbacks, toAbs),
-          examples: configToTarget(components?.examples, toAbs),
-        },
-      })
+      const routeComponents = components
+        ? {
+            schemas: schemaTarget,
+            parameters: configToTarget(components?.parameters, toAbs),
+            headers: configToTarget(components?.headers, toAbs),
+            requestBodies: configToTarget(components?.requestBodies, toAbs),
+            responses: configToTarget(components?.responses, toAbs),
+            links: configToTarget(components?.links, toAbs),
+            callbacks: configToTarget(components?.callbacks, toAbs),
+            examples: configToTarget(components?.examples, toAbs),
+          }
+        : undefined
+
+      const rr = await route(c.input, { output: out, split: r.split ?? false }, routeComponents)
       if (!rr.ok) return r.split === true ? `✗ routes(split): ${rr.error}` : `✗ routes: ${rr.error}`
       if (r.split === true) {
         return removed.length > 0

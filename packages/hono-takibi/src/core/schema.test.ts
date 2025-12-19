@@ -89,6 +89,24 @@ const openapi: OpenAPI = {
   },
 }
 
+const recursiveOpenapi: OpenAPI = {
+  openapi: '3.0.0',
+  info: { title: 'Recursive', version: '0.0.0' },
+  paths: {},
+  components: {
+    schemas: {
+      Node: {
+        type: 'object',
+        required: ['value', 'child'],
+        properties: {
+          value: { type: 'string' },
+          child: { $ref: '#/components/schemas/Node' },
+        },
+      },
+    },
+  },
+}
+
 describe('schema() (sandbox)', () => {
   it('generates schema (exportType: true, split: false)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
@@ -266,6 +284,27 @@ export type ZodOpenAPIHono = z.infer<typeof ZodOpenAPIHonoSchema>
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('generates schema with self references using z.lazy', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
+    try {
+      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
+      fs.writeFileSync(input, JSON.stringify(recursiveOpenapi))
+      const out = path.join(dir, 'index.ts')
+
+      const result = await schema(input, out, true)
+      const index = fs.readFileSync(out, 'utf-8')
+
+      expect(index).toContain('.lazy(() =>')
+      expect(index).toContain('child: NodeSchema')
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated schema code written to ${out}`,
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })

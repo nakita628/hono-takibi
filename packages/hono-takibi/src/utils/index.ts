@@ -722,6 +722,24 @@ export function regex(pattern: string): string {
 }
 
 /**
+ * Builds a named import line for a module specifier.
+ *
+ * @param names - Import names to include.
+ * @param spec - Module specifier.
+ * @param options - Optional sorting behavior.
+ * @returns Import line or empty string when no names exist.
+ */
+export function renderNamedImport(
+  names: readonly string[],
+  spec: string,
+  options?: { readonly sort?: boolean },
+): string {
+  const unique = Array.from(new Set(names))
+  const list = options?.sort ? [...unique].sort() : unique
+  return list.length > 0 ? `import { ${list.join(',')} } from '${spec}'` : ''
+}
+
+/**
  * Finds all schema tokens in the given code.
  * @param code - The code to search for schema tokens.
  * @returns

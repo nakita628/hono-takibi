@@ -756,8 +756,16 @@ export type Limit = z.infer<typeof LimitSchema>`)
       expect(result).toStrictEqual({ output: 'src/schemas/index.ts' })
     })
     it.concurrent('creates target with all options', () => {
-      const result = configToTarget({ output: 'src/schemas', split: true, import: '@packages/schemas' })
-      expect(result).toStrictEqual({ output: 'src/schemas', split: true, import: '@packages/schemas' })
+      const result = configToTarget({
+        output: 'src/schemas',
+        split: true,
+        import: '@packages/schemas',
+      })
+      expect(result).toStrictEqual({
+        output: 'src/schemas',
+        split: true,
+        import: '@packages/schemas',
+      })
     })
     it.concurrent('applies transform to output path', () => {
       const result = configToTarget({ output: 'schemas' }, (p) => `/abs/${p}`)
@@ -768,7 +776,11 @@ export type Limit = z.infer<typeof LimitSchema>`)
         { output: 'schemas', split: true, import: '@packages/schemas' },
         (p) => `/abs/${p}`,
       )
-      expect(result).toStrictEqual({ output: '/abs/schemas', split: true, import: '@packages/schemas' })
+      expect(result).toStrictEqual({
+        output: '/abs/schemas',
+        split: true,
+        import: '@packages/schemas',
+      })
     })
   })
 })

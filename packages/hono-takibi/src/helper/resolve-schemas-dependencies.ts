@@ -10,7 +10,7 @@ import { isRecord } from '../utils/index.js'
  *
  * @param schemas - A map of schema names to their OpenAPI Schema objects.
  * @returns A list of schema names sorted in topological order.
- * @throws If a circular reference is detected among the schemas.
+ * @throws If a circular reference (excluding self refs) is detected among the schemas.
  */
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): readonly string[] {
   const collectRefs = (schema: Schema): string[] => {
@@ -50,7 +50,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
 
     temp.add(name)
     for (const ref of collectRefs(schema)) {
-      if (ref in schemas) visit(ref)
+      if (ref !== name && ref in schemas) visit(ref)
     }
     temp.delete(name)
 

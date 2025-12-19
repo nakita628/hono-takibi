@@ -235,22 +235,7 @@ export async function honoTakibi(): Promise<
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
 
   /** route */
-  const routeResult =
-    zo?.routes && schemaTarget
-      ? await route(c.input, zo.routes.output, {
-          split: zo.routes.split ?? false,
-          components: {
-            schemas: schemaTarget,
-            parameters: configToTarget(comp?.parameters),
-            headers: configToTarget(comp?.headers),
-            requestBodies: configToTarget(comp?.requestBodies),
-            responses: configToTarget(comp?.responses),
-            links: configToTarget(comp?.links),
-            callbacks: configToTarget(comp?.callbacks),
-            examples: configToTarget(comp?.examples),
-          },
-        })
-      : undefined
+  const routeResult = zo?.routes ? await route(c.input, zo.routes, comp) : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** type */

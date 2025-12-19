@@ -3,7 +3,7 @@ import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { findSchema, lowerFirst } from '../utils/index.js'
+import { findSchema, lowerFirst, renderNamedImport } from '../utils/index.js'
 
 const stripStringLiterals = (code: string): string => {
   // Remove simple single/double-quoted string literals to avoid treating object keys as identifiers.
@@ -20,12 +20,12 @@ const extractRouteBlocks = (
   src: string,
 ): readonly { readonly name: string; readonly block: string }[] => {
   const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
-  const hits: Array<{ readonly name: string; readonly start: number }> = []
-  for (const m of src.matchAll(re)) {
-    const name = (m[1] ?? '').trim()
-    const start = m.index ?? 0
-    if (name) hits.push({ name, start })
-  }
+  const hits = Array.from(src.matchAll(re))
+    .map((m) => ({
+      name: (m[1] ?? '').trim(),
+      start: m.index ?? 0,
+    }))
+    .filter((h) => h.name.length > 0)
   return hits.map((h, i) => {
     const start = h.start
     const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
@@ -35,76 +35,91 @@ const extractRouteBlocks = (
 
 export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
-  output: string | `${string}.ts`,
-  options?: {
+  routes?: {
+    readonly output: string | `${string}.ts`
     readonly split?: boolean
-    readonly components?: {
-      readonly schemas?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly parameters?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly securitySchemes?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly requestBodies?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly responses?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly headers?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly examples?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly links?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly callbacks?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-    }
   },
+  components?: {
+    // # Reusable schemas (data models)
+    readonly schemas?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable path, query, header and cookie parameters
+    readonly parameters?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Security scheme definitions (see Authentication)
+    readonly securitySchemes?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable request bodies
+    readonly requestBodies?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable responses, such as 401 Unauthorized or 400 Bad Request
+    readonly responses?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable response headers
+    readonly headers?: {
+      readonly output: string | `${string}.ts`
+      readonly exportType?: boolean
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable examples
+    readonly examples?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable links
+    readonly links?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+    // # Reusable callbacks
+    readonly callbacks?: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+  }
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
+  if (!routes?.output) return { ok: false, error: 'routes.output is required' }
+  const output = routes.output
+  const split = routes.split ?? false
+
   const openAPIResult = await parseOpenAPI(input)
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const components = options?.components
-  const schemas = components?.schemas
-  const split = options?.split ?? false
+  const componentConfig = components
+  const schemas = componentConfig?.schemas
 
   // Determine if we should use component refs (when non-schema components are defined)
   const hasNonSchemaComponents =
-    components?.requestBodies !== undefined ||
-    components?.responses !== undefined ||
-    components?.links !== undefined ||
-    components?.callbacks !== undefined ||
-    components?.headers !== undefined ||
-    components?.examples !== undefined
+    componentConfig?.requestBodies !== undefined ||
+    componentConfig?.responses !== undefined ||
+    componentConfig?.links !== undefined ||
+    componentConfig?.callbacks !== undefined ||
+    componentConfig?.headers !== undefined ||
+    componentConfig?.examples !== undefined
 
   const routesSrc = routeCode(
     openAPI,
@@ -115,39 +130,32 @@ export async function route(
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
   const buildImports = (fromFile: string, src: string): readonly string[] => {
-    const specFrom = (target: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }): string => target.import ?? moduleSpecFrom(fromFile, target)
-
     const schemaTokens = findSchema(src)
     if (schemaTokens.length === 0 && !hasNonSchemaComponents) return []
 
-    // If no schemas config, return empty (no imports)
-    if (!schemas) {
-      return schemaTokens.length > 0
-        ? ['// Warning: schemas config is missing, cannot resolve schema imports']
-        : []
-    }
-
-    const schemasSpec = specFrom(schemas)
-
     // Check if we have other components that require import classification
     const hasOtherComponents =
-      components?.parameters !== undefined ||
-      components?.headers !== undefined ||
-      components?.requestBodies !== undefined ||
-      components?.responses !== undefined ||
-      components?.links !== undefined ||
-      components?.callbacks !== undefined ||
-      components?.examples !== undefined
+      componentConfig?.parameters !== undefined ||
+      componentConfig?.headers !== undefined ||
+      componentConfig?.requestBodies !== undefined ||
+      componentConfig?.responses !== undefined ||
+      componentConfig?.links !== undefined ||
+      componentConfig?.callbacks !== undefined ||
+      componentConfig?.examples !== undefined
 
     // Default (backward compatible): import all *Schema tokens from schemas module spec
     if (!hasOtherComponents) {
-      return schemaTokens.length > 0
-        ? [`import { ${schemaTokens.join(',')} } from '${schemasSpec}'`]
-        : []
+      if (!schemas) {
+        if (schemaTokens.length > 0) {
+          throw new Error(
+            'Missing zod-openapi.components.schemas output (required because generated routes reference schemas)',
+          )
+        }
+        return []
+      }
+      const schemaSpec = schemas.import ?? moduleSpecFrom(fromFile, schemas)
+      const line = renderNamedImport(schemaTokens, schemaSpec)
+      return line ? [line] : []
     }
 
     const headerSchemaTokens = schemaTokens.filter((t) => t.endsWith('HeaderSchema'))
@@ -156,8 +164,8 @@ export async function route(
     const classifyToken = (token: string, isHeader: boolean): 'schema' | 'parameter' | 'header' => {
       const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
       if (schemaKeys.has(base)) return 'schema'
-      if (parameterKeys.has(base) && components?.parameters) return 'parameter'
-      if (isHeader && components?.headers) return 'header'
+      if (parameterKeys.has(base)) return 'parameter'
+      if (isHeader) return 'header'
       return 'schema'
     }
 
@@ -175,6 +183,22 @@ export async function route(
       headerSchemaTokens.filter((t) => classifyToken(t, true) === 'header'),
     )
 
+    if (schemaImportFromRoute.size > 0 && !schemas) {
+      throw new Error(
+        'Missing zod-openapi.components.schemas output (required because generated routes reference schemas)',
+      )
+    }
+    if (parameterImportFromTarget.size > 0 && !componentConfig?.parameters) {
+      throw new Error(
+        'Missing zod-openapi.components.parameters output (required because generated routes reference parameters)',
+      )
+    }
+    if (headerImportFromTarget.size > 0 && !componentConfig?.headers) {
+      throw new Error(
+        'Missing zod-openapi.components.headers output (required because generated routes reference headers)',
+      )
+    }
+
     const requireTarget = (
       suffix: string,
       target:
@@ -188,7 +212,7 @@ export async function route(
     ): string | undefined =>
       tokens.length === 0 || target
         ? undefined
-        : `Missing zod-openapi.${suffix} output (required because generated routes reference ${suffix} components)`
+        : `Missing zod-openapi.components.${suffix} output (required because generated routes reference ${suffix} components)`
 
     const responseTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Response') : []
     const requestBodyTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'RequestBody') : []
@@ -197,11 +221,11 @@ export async function route(
     const exampleTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Example') : []
 
     const missing =
-      requireTarget('responses', components?.responses, responseTokens) ??
-      requireTarget('requestBodies', components?.requestBodies, requestBodyTokens) ??
-      requireTarget('links', components?.links, linkTokens) ??
-      requireTarget('callbacks', components?.callbacks, callbackTokens) ??
-      requireTarget('examples', components?.examples, exampleTokens)
+      requireTarget('responses', componentConfig?.responses, responseTokens) ??
+      requireTarget('requestBodies', componentConfig?.requestBodies, requestBodyTokens) ??
+      requireTarget('links', componentConfig?.links, linkTokens) ??
+      requireTarget('callbacks', componentConfig?.callbacks, callbackTokens) ??
+      requireTarget('examples', componentConfig?.examples, exampleTokens)
 
     if (missing) throw new Error(missing)
 
@@ -217,22 +241,27 @@ export async function route(
     ): string | undefined => {
       const arr = Array.isArray(tokens) ? tokens : Array.from(tokens)
       if (arr.length === 0 || !target) return undefined
-      const spec = specFrom(target)
-      return `import { ${Array.from(new Set(arr)).sort().join(',')} } from '${spec}'`
+      const spec = target.import ?? moduleSpecFrom(fromFile, target)
+      const line = renderNamedImport(arr, spec, { sort: true })
+      return line || undefined
     }
 
+    const schemaSpec = schemas ? schemas.import ?? moduleSpecFrom(fromFile, schemas) : undefined
+    const schemaImportLine =
+      schemaImportFromRoute.size > 0 && schemaSpec
+        ? renderNamedImport(Array.from(schemaImportFromRoute), schemaSpec, { sort: true })
+        : undefined
+
     return [
-      schemaImportFromRoute.size > 0
-        ? `import { ${Array.from(schemaImportFromRoute).sort().join(',')} } from '${schemasSpec}'`
-        : undefined,
-      makeImportLine(parameterImportFromTarget, components?.parameters),
-      makeImportLine(headerImportFromTarget, components?.headers),
-      makeImportLine(responseTokens, components?.responses),
-      makeImportLine(requestBodyTokens, components?.requestBodies),
-      makeImportLine(linkTokens, components?.links),
-      makeImportLine(callbackTokens, components?.callbacks),
-      makeImportLine(exampleTokens, components?.examples),
-    ].filter((line): line is string => line !== undefined)
+      schemaImportLine,
+      makeImportLine(parameterImportFromTarget, componentConfig?.parameters),
+      makeImportLine(headerImportFromTarget, componentConfig?.headers),
+      makeImportLine(responseTokens, componentConfig?.responses),
+      makeImportLine(requestBodyTokens, componentConfig?.requestBodies),
+      makeImportLine(linkTokens, componentConfig?.links),
+      makeImportLine(callbackTokens, componentConfig?.callbacks),
+      makeImportLine(exampleTokens, componentConfig?.examples),
+    ].filter((line): line is string => Boolean(line))
   }
 
   if (!split) {

@@ -7,7 +7,7 @@ export { isRecord }
  * Type guard for checking if a value is a $ref object.
  */
 export const isRef = (v: unknown): v is { $ref: string } =>
-  typeof v === 'object' && v !== null && typeof (v as Record<string, unknown>).$ref === 'string'
+  isRecord(v) && typeof v.$ref === 'string'
 
 /**
  * Type guard for checking if a value is a Schema object.

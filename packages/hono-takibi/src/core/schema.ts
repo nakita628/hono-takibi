@@ -65,8 +65,10 @@ export async function schema(
     for (const schemaName of Object.keys(schemas)) {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
+      const selfToken = `${schemaName}Schema`
+      const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
       // export schema must be true
-      const zs = zodToOpenAPISchema(schemaName, z, true, exportType)
+      const zs = zodToOpenAPISchema(schemaName, zExpr, true, exportType)
 
       const importZ = `import { z } from '@hono/zod-openapi'`
       const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
@@ -103,7 +105,9 @@ export async function schema(
     .map((schemaName) => {
       const schema = schemas[schemaName]
       const z = zodToOpenAPI(schema)
-      return zodToOpenAPISchema(schemaName, z, true, exportType)
+      const selfToken = `${schemaName}Schema`
+      const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
+      return zodToOpenAPISchema(schemaName, zExpr, true, exportType)
     })
     .join('\n\n')
   const importCode = `import { z } from '@hono/zod-openapi'`

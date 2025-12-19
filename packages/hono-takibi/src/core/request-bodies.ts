@@ -4,10 +4,16 @@ import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, RequestBody } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { ensureSuffix, findSchema, isRecord, lowerFirst, toIdentifier } from '../utils/index.js'
+import {
+  ensureSuffix,
+  findSchema,
+  isRecord,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifier,
+} from '../utils/index.js'
 
-const isRef = (v: unknown): v is { $ref: string } =>
-  typeof v === 'object' && v !== null && typeof (v as Record<string, unknown>).$ref === 'string'
+const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
 const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
   name.endsWith(fromSuffix)
@@ -123,34 +129,34 @@ const requestBodyExpr = (
   return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
 }
 
-const buildImportSchemas = (
-  fromFile: string,
-  code: string,
-  locals: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.schemas
-  if (!target) return ''
-  const tokens = findSchema(code).filter((t) => !locals.has(t))
-  if (tokens.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return `import { ${tokens.join(',')} } from '${spec}'`
-}
+  const buildImportSchemas = (
+    fromFile: string,
+    code: string,
+    locals: ReadonlySet<string>,
+    imports: Imports | undefined,
+  ): string => {
+    const target = imports?.schemas
+    if (!target) return ''
+    const tokens = findSchema(code).filter((t) => !locals.has(t))
+    if (tokens.length === 0) return ''
+    const spec = target.import ?? moduleSpecFrom(fromFile, target)
+    return renderNamedImport(tokens, spec)
+  }
 
-const buildImportExamples = (
-  fromFile: string,
-  usedExampleKeys: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.examples
-  if (!target) return ''
-  const names = Array.from(usedExampleKeys)
-    .sort()
-    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
-  if (names.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return `import { ${names.join(',')} } from '${spec}'`
-}
+  const buildImportExamples = (
+    fromFile: string,
+    usedExampleKeys: ReadonlySet<string>,
+    imports: Imports | undefined,
+  ): string => {
+    const target = imports?.examples
+    if (!target) return ''
+    const names = Array.from(usedExampleKeys)
+      .sort()
+      .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
+    if (names.length === 0) return ''
+    const spec = target.import ?? moduleSpecFrom(fromFile, target)
+    return renderNamedImport(names, spec)
+  }
 
 /**
  * Generates `components.requestBodies` constants (objects containing Zod schemas).

@@ -86,9 +86,10 @@ describe('route import override', () => {
       fs.writeFileSync(inputFile, JSON.stringify(openapi))
       const outFile = path.join(dir, 'routes.ts')
 
-      const result = await route(toInputPath(inputFile), outFile, {
-        split: false,
-        components: {
+      const result = await route(
+        toInputPath(inputFile),
+        { output: outFile, split: false },
+        {
           schemas: {
             output: path.join(dir, 'schemas'),
             split: true,
@@ -110,7 +111,7 @@ describe('route import override', () => {
             import: '@pkg/callbacks',
           },
         },
-      })
+      )
 
       expect(result.ok).toBe(true)
 

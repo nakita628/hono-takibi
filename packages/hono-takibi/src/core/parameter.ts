@@ -6,7 +6,7 @@ import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { Parameters } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { findSchema, lowerFirst, sanitizeIdentifier } from '../utils/index.js'
+import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
 /**
  * Generates `components.parameters` schemas as Zod definitions.
@@ -49,7 +49,7 @@ export async function parameter(
     const tokens = findSchema(code).filter((t) => !exclude.has(t))
     if (tokens.length === 0) return ''
     const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return `import { ${tokens.join(',')} } from '${spec}'`
+    return renderNamedImport(tokens, spec)
   }
 
   if (split) {
