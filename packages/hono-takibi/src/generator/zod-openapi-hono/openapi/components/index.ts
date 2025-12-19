@@ -28,33 +28,18 @@ export function componentsCode(
   exportSchema: boolean,
   exportType: boolean,
 ): string {
-  const out: string[] = []
-  // schemas
-  const schemaDefinitions = schemas(components, exportSchema, exportType)
-  if (schemaDefinitions) out.push(schemaDefinitions)
-  // parameters
-  const parametersDefinitions = parameters(components, exportSchema, exportType)
-  if (parametersDefinitions) out.push(parametersDefinitions)
-  // securitySchemes
-  const securitySchemesDefinitions = securitySchemes(components, exportSchema)
-  if (securitySchemesDefinitions) out.push(securitySchemesDefinitions)
-  // requestBodies
-  const requestBodiesDefinitions = requestBodies(components, exportSchema)
-  if (requestBodiesDefinitions) out.push(requestBodiesDefinitions)
-  // responses
-  const responsesDefinitions = responses(components, exportSchema)
-  if (responsesDefinitions) out.push(responsesDefinitions)
-  // headers
-  const headersDefinitions = headers(components, exportSchema)
-  if (headersDefinitions) out.push(headersDefinitions)
-  // examples
-  const examplesDefinitions = examples(components, exportSchema)
-  if (examplesDefinitions) out.push(examplesDefinitions)
-  // links
-  const linksDefinitions = links(components, exportSchema)
-  if (linksDefinitions) out.push(linksDefinitions)
-  // callbacks
-  const callbacksDefinitions = callbacks(components, exportSchema)
-  if (callbacksDefinitions) out.push(callbacksDefinitions)
-  return out.filter(Boolean).join('\n\n')
+  // Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
+  return [
+    schemas(components, exportSchema, exportType),
+    parameters(components, exportSchema, exportType),
+    securitySchemes(components, exportSchema),
+    requestBodies(components, exportSchema),
+    responses(components, exportSchema),
+    headers(components, exportSchema),
+    examples(components, exportSchema),
+    links(components, exportSchema),
+    callbacks(components, exportSchema),
+  ]
+    .filter((v) => v !== undefined)
+    .join('\n\n')
 }

@@ -3,7 +3,7 @@ import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { findSchema } from '../utils/index.js'
+import { findSchema, lowerFirst } from '../utils/index.js'
 
 const stripStringLiterals = (code: string): string => {
   // Remove simple single/double-quoted string literals to avoid treating object keys as identifiers.
@@ -30,8 +30,6 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
     return { name: h.name, block: src.slice(start, end).trim() }
   })
 }
-
-const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s)
 
 export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -75,14 +73,12 @@ export async function route(
   const schemaKeys = new Set(Object.keys(openAPI.components?.schemas ?? {}))
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
-  const buildImports = (fromFile: string, src: string): string[] => {
+  const buildImports = (fromFile: string, src: string): readonly string[] => {
     const specFrom = (target: {
       readonly output: string | `${string}.ts`
       readonly split?: boolean
       readonly import?: string
-    }): string => {
-      return target.import ?? moduleSpecFrom(fromFile, target)
-    }
+    }): string => target.import ?? moduleSpecFrom(fromFile, target)
 
     const schemaTokens = findSchema(src)
     if (schemaTokens.length === 0 && !options?.useComponentRefs) return []
@@ -99,69 +95,42 @@ export async function route(
     const headerSchemaTokens = schemaTokens.filter((t) => t.endsWith('HeaderSchema'))
     const nonHeaderSchemaTokens = schemaTokens.filter((t) => !t.endsWith('HeaderSchema'))
 
-    const schemaImportFromRoute = new Set<string>()
-    const parameterImportFromTarget = new Set<string>()
-    const headerImportFromTarget = new Set<string>()
-
-    for (const token of nonHeaderSchemaTokens) {
+    const classifyToken = (token: string, isHeader: boolean): 'schema' | 'parameter' | 'header' => {
       const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
-      if (schemaKeys.has(base)) {
-        schemaImportFromRoute.add(token)
-        continue
-      }
-      if (parameterKeys.has(base) && options.imports.parameters) {
-        parameterImportFromTarget.add(token)
-        continue
-      }
-      schemaImportFromRoute.add(token)
+      if (schemaKeys.has(base)) return 'schema'
+      if (parameterKeys.has(base) && options.imports?.parameters) return 'parameter'
+      if (isHeader && options.imports?.headers) return 'header'
+      return 'schema'
     }
 
-    for (const token of headerSchemaTokens) {
-      const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
-      if (schemaKeys.has(base)) {
-        schemaImportFromRoute.add(token)
-        continue
-      }
-      if (parameterKeys.has(base) && options.imports.parameters) {
-        parameterImportFromTarget.add(token)
-        continue
-      }
-      if (options.imports.headers) {
-        headerImportFromTarget.add(token)
-        continue
-      }
-      schemaImportFromRoute.add(token)
-    }
-
-    const lines: string[] = []
-
-    const schemaNames = Array.from(schemaImportFromRoute)
-    if (schemaNames.length > 0)
-      lines.push(`import { ${schemaNames.sort().join(',')} } from '${schemasSpec}'`)
-
-    const parameterTarget = options.imports.parameters
-    if (parameterTarget && parameterImportFromTarget.size > 0) {
-      const spec = specFrom(parameterTarget)
-      lines.push(
-        `import { ${Array.from(parameterImportFromTarget).sort().join(',')} } from '${spec}'`,
-      )
-    }
-
-    const headersTarget = options.imports.headers
-    if (headersTarget && headerImportFromTarget.size > 0) {
-      const spec = specFrom(headersTarget)
-      lines.push(`import { ${Array.from(headerImportFromTarget).sort().join(',')} } from '${spec}'`)
-    }
+    const schemaImportFromRoute = new Set<string>(
+      [...nonHeaderSchemaTokens, ...headerSchemaTokens].filter(
+        (t) => classifyToken(t, t.endsWith('HeaderSchema')) === 'schema',
+      ),
+    )
+    const parameterImportFromTarget = new Set<string>(
+      [...nonHeaderSchemaTokens, ...headerSchemaTokens].filter(
+        (t) => classifyToken(t, t.endsWith('HeaderSchema')) === 'parameter',
+      ),
+    )
+    const headerImportFromTarget = new Set<string>(
+      headerSchemaTokens.filter((t) => classifyToken(t, true) === 'header'),
+    )
 
     const requireTarget = (
       suffix: string,
-      target: unknown,
-      tokens: string[],
-    ): string | undefined => {
-      if (tokens.length === 0) return undefined
-      if (target) return undefined
-      return `Missing zod-openapi.${suffix} output (required because generated routes reference ${suffix} components)`
-    }
+      target:
+        | {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+            readonly import?: string
+          }
+        | undefined,
+      tokens: readonly string[],
+    ): string | undefined =>
+      tokens.length === 0 || target
+        ? undefined
+        : `Missing zod-openapi.${suffix} output (required because generated routes reference ${suffix} components)`
 
     const responseTokens = options.useComponentRefs ? findTokensBySuffix(src, 'Response') : []
     const requestBodyTokens = options.useComponentRefs ? findTokensBySuffix(src, 'RequestBody') : []
@@ -178,38 +147,34 @@ export async function route(
 
     if (missing) throw new Error(missing)
 
-    if (responseTokens.length > 0 && options.imports.responses) {
-      const spec = specFrom(options.imports.responses)
-      lines.push(
-        `import { ${Array.from(new Set(responseTokens)).sort().join(',')} } from '${spec}'`,
-      )
+    const makeImportLine = (
+      tokens: ReadonlySet<string> | readonly string[],
+      target:
+        | {
+            readonly output: string | `${string}.ts`
+            readonly split?: boolean
+            readonly import?: string
+          }
+        | undefined,
+    ): string | undefined => {
+      const arr = Array.isArray(tokens) ? tokens : Array.from(tokens)
+      if (arr.length === 0 || !target) return undefined
+      const spec = specFrom(target)
+      return `import { ${Array.from(new Set(arr)).sort().join(',')} } from '${spec}'`
     }
 
-    if (requestBodyTokens.length > 0 && options.imports.requestBodies) {
-      const spec = specFrom(options.imports.requestBodies)
-      lines.push(
-        `import { ${Array.from(new Set(requestBodyTokens)).sort().join(',')} } from '${spec}'`,
-      )
-    }
-
-    if (linkTokens.length > 0 && options.imports.links) {
-      const spec = specFrom(options.imports.links)
-      lines.push(`import { ${Array.from(new Set(linkTokens)).sort().join(',')} } from '${spec}'`)
-    }
-
-    if (callbackTokens.length > 0 && options.imports.callbacks) {
-      const spec = specFrom(options.imports.callbacks)
-      lines.push(
-        `import { ${Array.from(new Set(callbackTokens)).sort().join(',')} } from '${spec}'`,
-      )
-    }
-
-    if (exampleTokens.length > 0 && options.imports.examples) {
-      const spec = specFrom(options.imports.examples)
-      lines.push(`import { ${Array.from(new Set(exampleTokens)).sort().join(',')} } from '${spec}'`)
-    }
-
-    return lines
+    return [
+      schemaImportFromRoute.size > 0
+        ? `import { ${Array.from(schemaImportFromRoute).sort().join(',')} } from '${schemasSpec}'`
+        : undefined,
+      makeImportLine(parameterImportFromTarget, options.imports.parameters),
+      makeImportLine(headerImportFromTarget, options.imports.headers),
+      makeImportLine(responseTokens, options.imports.responses),
+      makeImportLine(requestBodyTokens, options.imports.requestBodies),
+      makeImportLine(linkTokens, options.imports.links),
+      makeImportLine(callbackTokens, options.imports.callbacks),
+      makeImportLine(exampleTokens, options.imports.examples),
+    ].filter((line): line is string => line !== undefined)
   }
 
   if (!split) {

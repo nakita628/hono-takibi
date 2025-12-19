@@ -732,12 +732,12 @@ export function ensureSuffix(text: string, suffix: string): string {
 }
 
 /**
- * Creates an ImportTarget object with the given configuration.
+ * Creates an import target object with the given configuration.
  *
  * @param output - The output path for the import target.
  * @param split - Whether to split the output into multiple files.
  * @param importSpec - The import specifier to use.
- * @returns An ImportTarget object.
+ * @returns An import target object.
  */
 export function importTarget(
   output: string | `${string}.ts`,
