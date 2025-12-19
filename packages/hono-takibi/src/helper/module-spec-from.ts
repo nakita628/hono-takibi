@@ -13,6 +13,10 @@ const ensureDotRelative = (spec: string): string => {
  *
  * - If `target.split=true`, imports `.../index` in that directory.
  * - Strips the `.ts` extension to match existing generated output style.
+ *
+ * @param fromFile - The file path to resolve the module specifier from.
+ * @param target - The target configuration with output and split options.
+ * @returns A relative module specifier string.
  */
 export function moduleSpecFrom(
   fromFile: string,

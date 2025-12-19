@@ -730,3 +730,27 @@ export function lowerFirst(text: string): string {
 export function ensureSuffix(text: string, suffix: string): string {
   return text.endsWith(suffix) ? text : `${text}${suffix}`
 }
+
+/**
+ * Creates an ImportTarget object with the given configuration.
+ *
+ * @param output - The output path for the import target.
+ * @param split - Whether to split the output into multiple files.
+ * @param importSpec - The import specifier to use.
+ * @returns An ImportTarget object.
+ */
+export function importTarget(
+  output: string | `${string}.ts`,
+  split?: boolean,
+  importSpec?: string,
+): {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
+} {
+  return {
+    output,
+    ...(split !== undefined ? { split } : {}),
+    ...(importSpec !== undefined ? { import: importSpec } : {}),
+  }
+}

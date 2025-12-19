@@ -3,7 +3,6 @@ import path from 'node:path'
 import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
-import { makeImportTarget } from '../core/import-target.js'
 import { links } from '../core/links.js'
 import { parameter } from '../core/parameter.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -14,7 +13,7 @@ import { schema } from '../core/schema.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
-import { parseConfig } from '../utils/index.js'
+import { importTarget, parseConfig } from '../utils/index.js'
 
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -204,7 +203,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 
   const schemaTarget =
     components?.schemas !== undefined
-      ? makeImportTarget(
+      ? importTarget(
           toAbs(components.schemas.output),
           components.schemas.split,
           components.schemas.import,
@@ -212,7 +211,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       : undefined
   const examplesTarget =
     components?.examples !== undefined
-      ? makeImportTarget(
+      ? importTarget(
           toAbs(components.examples.output),
           components.examples.split,
           components.examples.import,
@@ -220,7 +219,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       : undefined
   const headersTarget =
     components?.headers !== undefined
-      ? makeImportTarget(
+      ? importTarget(
           toAbs(components.headers.output),
           components.headers.split,
           components.headers.import,
@@ -228,7 +227,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       : undefined
   const linksTarget =
     components?.links !== undefined
-      ? makeImportTarget(
+      ? importTarget(
           toAbs(components.links.output),
           components.links.split,
           components.links.import,
@@ -506,7 +505,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
               imports: {
                 parameters:
                   components?.parameters !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.parameters.output),
                         components.parameters.split,
                         components.parameters.import,
@@ -514,7 +513,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 headers:
                   components?.headers !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.headers.output),
                         components.headers.split,
                         components.headers.import,
@@ -522,7 +521,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 requestBodies:
                   components?.requestBodies !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.requestBodies.output),
                         components.requestBodies.split,
                         components.requestBodies.import,
@@ -530,7 +529,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 responses:
                   components?.responses !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.responses.output),
                         components.responses.split,
                         components.responses.import,
@@ -538,7 +537,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 links:
                   components?.links !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.links.output),
                         components.links.split,
                         components.links.import,
@@ -546,7 +545,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 callbacks:
                   components?.callbacks !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.callbacks.output),
                         components.callbacks.split,
                         components.callbacks.import,
@@ -554,7 +553,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
                     : undefined,
                 examples:
                   components?.examples !== undefined
-                    ? makeImportTarget(
+                    ? importTarget(
                         toAbs(components.examples.output),
                         components.examples.split,
                         components.examples.import,

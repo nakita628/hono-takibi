@@ -2,11 +2,11 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { Parameters } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, sanitizeIdentifier } from '../utils/index.js'
-import { moduleSpecFrom } from './rel-import.js'
 
 /**
  * Generates `components.parameters` schemas as Zod definitions.

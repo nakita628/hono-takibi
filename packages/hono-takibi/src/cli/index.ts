@@ -4,7 +4,6 @@ import { config } from '../config/index.js'
 import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
-import { makeImportTarget } from '../core/import-target.js'
 import { links } from '../core/links.js'
 import { parameter } from '../core/parameter.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -15,8 +14,7 @@ import { schema } from '../core/schema.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
-// import { honoRpcWithSWR } from '../generator/swr/index.js'
-import { parseCli } from '../utils/index.js'
+import { importTarget, parseCli } from '../utils/index.js'
 
 /**
  * CLI usage help text shown when `-h`/`--help` is provided.
@@ -122,19 +120,19 @@ export async function honoTakibi(): Promise<
 
   const schemaTarget =
     comp?.schemas !== undefined
-      ? makeImportTarget(comp.schemas.output, comp.schemas.split, comp.schemas.import)
+      ? importTarget(comp.schemas.output, comp.schemas.split, comp.schemas.import)
       : undefined
   const examplesTarget =
     comp?.examples !== undefined
-      ? makeImportTarget(comp.examples.output, comp.examples.split, comp.examples.import)
+      ? importTarget(comp.examples.output, comp.examples.split, comp.examples.import)
       : undefined
   const headersTarget =
     comp?.headers !== undefined
-      ? makeImportTarget(comp.headers.output, comp.headers.split, comp.headers.import)
+      ? importTarget(comp.headers.output, comp.headers.split, comp.headers.import)
       : undefined
   const linksTarget =
     comp?.links !== undefined
-      ? makeImportTarget(comp.links.output, comp.links.split, comp.links.import)
+      ? importTarget(comp.links.output, comp.links.split, comp.links.import)
       : undefined
 
   /** takibi */
@@ -274,7 +272,7 @@ export async function honoTakibi(): Promise<
                 imports: {
                   parameters:
                     comp?.parameters !== undefined
-                      ? makeImportTarget(
+                      ? importTarget(
                           comp.parameters.output,
                           comp.parameters.split,
                           comp.parameters.import,
@@ -282,15 +280,11 @@ export async function honoTakibi(): Promise<
                       : undefined,
                   headers:
                     comp?.headers !== undefined
-                      ? makeImportTarget(
-                          comp.headers.output,
-                          comp.headers.split,
-                          comp.headers.import,
-                        )
+                      ? importTarget(comp.headers.output, comp.headers.split, comp.headers.import)
                       : undefined,
                   requestBodies:
                     comp?.requestBodies !== undefined
-                      ? makeImportTarget(
+                      ? importTarget(
                           comp.requestBodies.output,
                           comp.requestBodies.split,
                           comp.requestBodies.import,
@@ -298,7 +292,7 @@ export async function honoTakibi(): Promise<
                       : undefined,
                   responses:
                     comp?.responses !== undefined
-                      ? makeImportTarget(
+                      ? importTarget(
                           comp.responses.output,
                           comp.responses.split,
                           comp.responses.import,
@@ -306,11 +300,11 @@ export async function honoTakibi(): Promise<
                       : undefined,
                   links:
                     comp?.links !== undefined
-                      ? makeImportTarget(comp.links.output, comp.links.split, comp.links.import)
+                      ? importTarget(comp.links.output, comp.links.split, comp.links.import)
                       : undefined,
                   callbacks:
                     comp?.callbacks !== undefined
-                      ? makeImportTarget(
+                      ? importTarget(
                           comp.callbacks.output,
                           comp.callbacks.split,
                           comp.callbacks.import,
@@ -318,7 +312,7 @@ export async function honoTakibi(): Promise<
                       : undefined,
                   examples:
                     comp?.examples !== undefined
-                      ? makeImportTarget(
+                      ? importTarget(
                           comp.examples.output,
                           comp.examples.split,
                           comp.examples.import,

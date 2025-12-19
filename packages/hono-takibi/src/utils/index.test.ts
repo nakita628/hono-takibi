@@ -5,6 +5,7 @@ import {
   escapeStringLiteral,
   findSchema,
   getToSafeIdentifier,
+  importTarget,
   isHttpMethod,
   isRefObject,
   isUniqueContentSchema,
@@ -725,6 +726,33 @@ export type Limit = z.infer<typeof LimitSchema>`)
       ['', 'Example', 'Example'],
     ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
       expect(ensureSuffix(input, suffix)).toBe(expected)
+    })
+  })
+  // importTarget
+  describe('makeImportTarget', () => {
+    it.concurrent('creates ImportTarget with output only', () => {
+      const result = importTarget('src/schemas/index.ts')
+      expect(result).toStrictEqual({ output: 'src/schemas/index.ts' })
+    })
+    it.concurrent('creates ImportTarget with split', () => {
+      const result = importTarget('src/schemas', true)
+      expect(result).toStrictEqual({ output: 'src/schemas', split: true })
+    })
+    it.concurrent('creates ImportTarget with import specifier', () => {
+      const result = importTarget('src/schemas/index.ts', undefined, '@/schemas')
+      expect(result).toStrictEqual({ output: 'src/schemas/index.ts', import: '@/schemas' })
+    })
+    it.concurrent('creates ImportTarget with all options', () => {
+      const result = importTarget('src/schemas', true, '@/schemas')
+      expect(result).toStrictEqual({ output: 'src/schemas', split: true, import: '@/schemas' })
+    })
+    it.concurrent('excludes undefined split', () => {
+      const result = importTarget('src/schemas/index.ts', undefined, '@/schemas')
+      expect(result).not.toHaveProperty('split')
+    })
+    it.concurrent('excludes undefined import', () => {
+      const result = importTarget('src/schemas', true)
+      expect(result).not.toHaveProperty('import')
     })
   })
 })

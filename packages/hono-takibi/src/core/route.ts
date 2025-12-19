@@ -1,10 +1,9 @@
 import path from 'node:path'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
 import { core } from '../helper/core.js'
+import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema } from '../utils/index.js'
-import type { ImportTarget } from './import-target.js'
-import { moduleSpecFrom } from './rel-import.js'
 
 const stripStringLiterals = (code: string): string => {
   // Remove simple single/double-quoted string literals to avoid treating object keys as identifiers.
@@ -37,18 +36,28 @@ const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : 
 export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
-  schemas: ImportTarget,
+  schemas: {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+    readonly import?: string
+  },
   split?: boolean,
   options?: {
     readonly useComponentRefs?: boolean
     readonly imports?: {
-      readonly parameters?: ImportTarget
-      readonly headers?: ImportTarget
-      readonly requestBodies?: ImportTarget
-      readonly responses?: ImportTarget
-      readonly links?: ImportTarget
-      readonly callbacks?: ImportTarget
-      readonly examples?: ImportTarget
+      readonly [K in
+        | 'parameters'
+        | 'securitySchemes'
+        | 'requestBodies'
+        | 'responses'
+        | 'headers'
+        | 'examples'
+        | 'links'
+        | 'callbacks']?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
     }
   },
 ): Promise<
@@ -67,7 +76,11 @@ export async function route(
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
   const buildImports = (fromFile: string, src: string): string[] => {
-    const specFrom = (target: ImportTarget): string => {
+    const specFrom = (target: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }): string => {
       return target.import ?? moduleSpecFrom(fromFile, target)
     }
 

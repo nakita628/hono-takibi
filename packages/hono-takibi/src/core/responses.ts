@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
+import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, ResponseDefinition, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { ensureSuffix, findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
-import { moduleSpecFrom } from './rel-import.js'
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
