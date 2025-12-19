@@ -1,6 +1,6 @@
 import type { OpenAPI } from '../../../openapi/index.js'
 import { componentsCode } from './components/index.js'
-import { routeCode } from './route/index.js'
+import { routeCode } from './routes/index.js'
 
 /**
  * Generates Hono-compatible TypeScript code from an OpenAPI object.

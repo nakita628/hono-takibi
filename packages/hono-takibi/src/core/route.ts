@@ -1,8 +1,9 @@
 import path from 'node:path'
-import { routeCode } from '../generator/zod-openapi-hono/openapi/route/index.js'
+import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
 import { core } from '../helper/core.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema } from '../utils/index.js'
+import type { ImportTarget } from './import-target.js'
 import { moduleSpecFrom } from './rel-import.js'
 
 const stripStringLiterals = (code: string): string => {
@@ -36,46 +37,18 @@ const lowerFirst = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : 
 export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
-  importPath: string,
+  schemas: ImportTarget,
   split?: boolean,
   options?: {
     readonly useComponentRefs?: boolean
     readonly imports?: {
-      readonly parameter?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly headers?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly requestBodies?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly responses?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly links?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly callbacks?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
-      readonly examples?: {
-        readonly output: string | `${string}.ts`
-        readonly split?: boolean
-        readonly import?: string
-      }
+      readonly parameters?: ImportTarget
+      readonly headers?: ImportTarget
+      readonly requestBodies?: ImportTarget
+      readonly responses?: ImportTarget
+      readonly links?: ImportTarget
+      readonly callbacks?: ImportTarget
+      readonly examples?: ImportTarget
     }
   },
 ): Promise<
@@ -94,21 +67,19 @@ export async function route(
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
 
   const buildImports = (fromFile: string, src: string): string[] => {
-    const specFrom = (target: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }): string => {
+    const specFrom = (target: ImportTarget): string => {
       return target.import ?? moduleSpecFrom(fromFile, target)
     }
 
     const schemaTokens = findSchema(src)
     if (schemaTokens.length === 0 && !options?.useComponentRefs) return []
 
-    // Default (backward compatible): import all *Schema tokens from importPath
+    const schemasSpec = specFrom(schemas)
+
+    // Default (backward compatible): import all *Schema tokens from schemas module spec
     if (!options?.imports) {
       return schemaTokens.length > 0
-        ? [`import { ${schemaTokens.join(',')} } from '${importPath}'`]
+        ? [`import { ${schemaTokens.join(',')} } from '${schemasSpec}'`]
         : []
     }
 
@@ -125,7 +96,7 @@ export async function route(
         schemaImportFromRoute.add(token)
         continue
       }
-      if (parameterKeys.has(base) && options.imports.parameter) {
+      if (parameterKeys.has(base) && options.imports.parameters) {
         parameterImportFromTarget.add(token)
         continue
       }
@@ -138,7 +109,7 @@ export async function route(
         schemaImportFromRoute.add(token)
         continue
       }
-      if (parameterKeys.has(base) && options.imports.parameter) {
+      if (parameterKeys.has(base) && options.imports.parameters) {
         parameterImportFromTarget.add(token)
         continue
       }
@@ -153,9 +124,9 @@ export async function route(
 
     const schemaNames = Array.from(schemaImportFromRoute)
     if (schemaNames.length > 0)
-      lines.push(`import { ${schemaNames.sort().join(',')} } from '${importPath}'`)
+      lines.push(`import { ${schemaNames.sort().join(',')} } from '${schemasSpec}'`)
 
-    const parameterTarget = options.imports.parameter
+    const parameterTarget = options.imports.parameters
     if (parameterTarget && parameterImportFromTarget.size > 0) {
       const spec = specFrom(parameterTarget)
       lines.push(

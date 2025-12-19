@@ -46,6 +46,8 @@ export function response(
     return toIdentifier(base)
   }
 
+  const linkConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Link'))
+
   const resolveRef = <T>(
     $ref: string,
     prefix: string,
@@ -253,22 +255,35 @@ export function response(
         return entries.length > 0 ? `headers:z.object({${entries.join(',')}}),` : ''
       })()
 
-      const links = (() => {
+      const linksString = (() => {
         const raw = responseValue.links
-        if (!(raw && isRecord(raw))) return undefined
-        const out: Record<string, unknown> = {}
-        for (const [name, link] of Object.entries(raw)) {
+        if (!(raw && isRecord(raw))) return ''
+
+        if (!options?.useComponentRefs) {
+          const out: Record<string, unknown> = {}
+          for (const [name, link] of Object.entries(raw)) {
+            if (isRef(link)) {
+              const resolved = resolveRef(link.$ref, '#/components/links/', components?.links)
+              out[name] = resolved ?? link
+              continue
+            }
+            out[name] = link
+          }
+          return Object.keys(out).length > 0 ? `links:${JSON.stringify(out)},` : ''
+        }
+
+        const entries = Object.entries(raw).map(([name, link]) => {
           if (isRef(link)) {
             const resolved = resolveRef(link.$ref, '#/components/links/', components?.links)
-            out[name] = resolved ?? link
-            continue
+            const key = resolved ? link.$ref.split('/').pop() : undefined
+            if (key && resolved) return `${JSON.stringify(name)}:${linkConstName(key)}`
+            return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
           }
-          out[name] = link
-        }
-        return Object.keys(out).length > 0 ? out : undefined
-      })()
+          return `${JSON.stringify(name)}:${JSON.stringify(link)}`
+        })
 
-      const linksString = links ? `links:${JSON.stringify(links)},` : ''
+        return entries.length > 0 ? `links:{${entries.join(',')}},` : ''
+      })()
 
       const content = responseValue.content
       if (!content) {

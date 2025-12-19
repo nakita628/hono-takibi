@@ -141,8 +141,10 @@ describe('honoTakibiVite (no marker behavior)', () => {
     const conf = {
       input: 'openapi.yaml',
       'zod-openapi': {
-        schema: { output: 'out/schema', split: true, exportType: true },
-        route: { output: 'out/route', split: true, import: '@routes' },
+        components: {
+          schemas: { output: 'out/schema', split: true, exportType: true },
+        },
+        routes: { output: 'out/route', split: true },
       },
       rpc: { output: 'out/rpc', split: true, import: '@rpc' },
     }

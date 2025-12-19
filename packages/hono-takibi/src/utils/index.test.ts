@@ -53,19 +53,21 @@ describe('utils', () => {
           },
         })
       })
-      it.concurrent('passes: schema+route non-split mode (.ts outputs)', () => {
+      it.concurrent('passes: schemas+routes non-split mode (.ts outputs)', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
             exportType: true,
             exportSchema: false,
-            schema: {
-              output: 'src/schemas/index.ts',
-              exportType: true,
+            components: {
+              schemas: {
+                output: 'src/schemas/index.ts',
+                import: '../schemas',
+                exportType: true,
+              },
             },
-            route: {
+            routes: {
               output: 'src/routes/index.ts',
-              import: '../schemas',
             },
           },
           rpc: {
@@ -75,17 +77,18 @@ describe('utils', () => {
         })
         expect(result.ok).toBe(true)
       })
-      it.concurrent('passes: schema+route split mode (dir outputs) + rpc split dir', () => {
+      it.concurrent('passes: schemas+routes split mode (dir outputs) + rpc split dir', () => {
         const result = parseConfig({
           input: 'openapi.json',
           'zod-openapi': {
-            schema: {
-              output: 'src/schemas', // dir
-              split: true,
+            components: {
+              schemas: {
+                output: 'src/schemas', // dir
+                split: true,
+              },
             },
-            route: {
+            routes: {
               output: 'src/routes', // dir
-              import: '../schemas',
               split: true,
             },
           },
@@ -97,144 +100,102 @@ describe('utils', () => {
         })
         expect(result.ok).toBe(true)
       })
-      it.concurrent('fails: XOR - schema only (route missing)', () => {
+      it.concurrent('fails: schemas.split=true but .ts file given', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            schema: { output: 'src/schemas/index.ts' },
+            components: {
+              schemas: { output: 'src/schemas/index.ts', split: true },
+            },
+            routes: { output: 'src/routes', split: true },
           },
         })
         expect(result).toStrictEqual({
           ok: false,
           error:
-            "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
+            'Invalid schemas output path for split mode (must be a directory, not .ts): src/schemas/index.ts',
         })
       })
-      it.concurrent('fails: XOR - route only (schema missing)', () => {
+      it.concurrent('fails: schemas non-split but output not .ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            route: { output: 'src/routes/index.ts', import: '../schemas' },
+            components: {
+              schemas: { output: 'src/schemas' },
+            },
+            routes: { output: 'src/routes/index.ts' },
           },
         })
         expect(result).toStrictEqual({
           ok: false,
-          error:
-            "Invalid config: 'zod-openapi.schema' and 'zod-openapi.route' must be defined together (both or neither).",
+          error: 'Invalid schemas output path for non-split mode (must be .ts file): src/schemas',
         })
       })
-      it.concurrent('fails: schema+route present but top-level output also set', () => {
+      it.concurrent('fails: schemas.import not string', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            output: 'routes/index.ts',
-            schema: { output: 'src/schemas/index.ts' },
-            route: { output: 'src/routes/index.ts', import: '../schemas' },
+            components: {
+              schemas: {
+                output: 'src/schemas/index.ts',
+                // biome-ignore lint: test
+                import: 123 as any,
+              },
+            },
+            routes: { output: 'src/routes/index.ts' },
           },
         })
         expect(result).toStrictEqual({
           ok: false,
-          error:
-            "Invalid config: When using 'zod-openapi.schema' or 'zod-openapi.route', do NOT set 'zod-openapi.output'.",
+          error: 'Invalid import format for components.schemas: 123',
         })
       })
-      it.concurrent('fails: legacy top-level output not .ts', () => {
+      it.concurrent('fails: routes.split not boolean', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            // biome-ignore lint: test
-            output: 'routes/' as any, // not .ts
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error: 'Invalid output format for zod-openapi: routes/',
-        })
-      })
-      it.concurrent('fails: schema.split=true but .ts file given', () => {
-        const result = parseConfig({
-          input: 'openapi.yaml',
-          'zod-openapi': {
-            schema: { output: 'src/schemas/index.ts', split: true },
-            route: { output: 'src/routes', import: '../schemas', split: true },
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error:
-            'Invalid schema output path for split mode (must be a directory, not .ts): src/schemas/index.ts',
-        })
-      })
-      it.concurrent('fails: schema non-split but output not .ts', () => {
-        const result = parseConfig({
-          input: 'openapi.yaml',
-          'zod-openapi': {
-            schema: { output: 'src/schemas' },
-            route: { output: 'src/routes/index.ts', import: '../schemas' },
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error: 'Invalid schema output path for non-split mode (must be .ts file): src/schemas',
-        })
-      })
-      it.concurrent('fails: route.import not string', () => {
-        const result = parseConfig({
-          input: 'openapi.yaml',
-          'zod-openapi': {
-            schema: { output: 'src/schemas/index.ts' },
-            // biome-ignore lint: test
-            route: { output: 'src/routes/index.ts', import: 123 as any },
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error: 'Invalid route import format for zod-openapi: 123',
-        })
-      })
-      it.concurrent('fails: route.split not boolean', () => {
-        const result = parseConfig({
-          input: 'openapi.yaml',
-          'zod-openapi': {
-            schema: { output: 'src/schemas/index.ts' },
-            route: {
+            components: {
+              schemas: { output: 'src/schemas/index.ts' },
+            },
+            routes: {
               output: 'src/routes/index.ts',
-              import: '../schemas',
               // biome-ignore lint: test
               split: 'yes' as any,
             },
           },
         })
+
         expect(result).toStrictEqual({
           ok: false,
-          error: 'Invalid route split format for zod-openapi: yes',
+          error: 'Invalid split format for routes: yes',
         })
       })
-      it.concurrent('fails: route non-split but output not .ts', () => {
+      it.concurrent('fails: routes non-split but output not .ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            schema: { output: 'src/schemas/index.ts' },
-            route: { output: 'src/routes/', import: '../schemas' },
-          },
-        })
-        expect(result).toStrictEqual({
-          ok: false,
-          error: 'Invalid route output path for non-split mode (must be .ts file): src/routes/',
-        })
-      })
-      it.concurrent('fails: route.split=true but .ts file given', () => {
-        const result = parseConfig({
-          input: 'openapi.json',
-          'zod-openapi': {
-            schema: { output: 'src/schemas', split: true },
-            route: { output: 'src/routes/index.ts', import: '../schemas', split: true },
+            routes: { output: 'src/routes/index.ts', split: true },
           },
         })
         expect(result).toStrictEqual({
           ok: false,
           error:
-            'Invalid route output path for split mode (must be a directory, not .ts): src/routes/index.ts',
+            'Invalid routes output path for split mode (must be a directory, not .ts): src/routes/index.ts',
+        })
+      })
+      it.concurrent('fails: routes.split=true but .ts file given', () => {
+        const result = parseConfig({
+          input: 'openapi.json',
+          'zod-openapi': {
+            components: {
+              schemas: { output: 'src/schemas/index.ts', split: true },
+            },
+          },
+        })
+        expect(result).toStrictEqual({
+          ok: false,
+          error:
+            'Invalid schemas output path for split mode (must be a directory, not .ts): src/schemas/index.ts',
         })
       })
       it.concurrent('fails: zod-openapi.exportSchema not boolean', () => {
@@ -265,24 +226,26 @@ describe('utils', () => {
           error: 'Invalid exportType format for zod-openapi: 1',
         })
       })
-      it.concurrent('fails: schema.exportType not boolean', () => {
+      it.concurrent('fails: schemas.exportType not boolean', () => {
         const result = parseConfig({
           input: 'openapi.json',
           'zod-openapi': {
-            schema: {
-              output: 'src/schemas/index.ts',
-              // biome-ignore lint: test
-              exportType: 'yes' as any,
+            components: {
+              schemas: {
+                output: 'src/schemas/index.ts',
+                // biome-ignore lint: test
+                exportType: 'yes' as any,
+              },
             },
-            route: { output: 'src/routes/index.ts', import: '../schemas' },
+            routes: { output: 'src/routes/index.ts' },
           },
         })
         expect(result).toStrictEqual({
           ok: false,
-          error: 'Invalid schema exportType format for zod-openapi: yes',
+          error: 'Invalid exportType format for components.schemas: yes',
         })
       })
-      // type
+      //   // type
       it.concurrent('passes: type.output is .d.ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
@@ -337,7 +300,6 @@ describe('utils', () => {
           error: 'Invalid import format for rpc: true',
         })
       })
-
       it.concurrent('fails: rpc.split not boolean', () => {
         const result = parseConfig({
           input: 'openapi.json',

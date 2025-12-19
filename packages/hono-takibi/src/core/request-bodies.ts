@@ -1,6 +1,4 @@
 import path from 'node:path'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import type { Components, Content, RequestBody } from '../openapi/index.js'

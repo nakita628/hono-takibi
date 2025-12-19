@@ -6,14 +6,13 @@ export default defineConfig({
     // output: 'src/routes/index.ts',
     // exportType: true,
     // exportSchema: true,
-    schema: {
+    schemas: {
       output: './src/schemas',
       exportType: true,
       split: true,
     },
-    route: {
+    routes: {
       output: './src/routes',
-      import: '../schemas',
       split: true,
     },
   },

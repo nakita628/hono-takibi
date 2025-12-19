@@ -3,9 +3,9 @@ import path from 'node:path'
 import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
+import { makeImportTarget } from '../core/import-target.js'
 import { links } from '../core/links.js'
 import { parameter } from '../core/parameter.js'
-import { moduleSpecFrom } from '../core/rel-import.js'
 import { requestBodies } from '../core/request-bodies.js'
 import { responses } from '../core/responses.js'
 import { route } from '../core/route.js'
@@ -200,52 +200,48 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const jobs: Array<Promise<string>> = []
 
   const zo = c['zod-openapi']
-  const importMap = zo?.imports
-
-  const withImport = (
-    target: { readonly output: string | `${string}.ts`; readonly split?: boolean },
-    spec: string | undefined,
-  ): {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  } => (spec !== undefined ? { ...target, import: spec } : target)
+  const components = zo?.components
 
   const schemaTarget =
-    zo?.schemas !== undefined
-      ? withImport(
-          { output: toAbs(zo.schemas.output), split: zo.schemas.split === true },
-          importMap?.schemas,
+    components?.schemas !== undefined
+      ? makeImportTarget(
+          toAbs(components.schemas.output),
+          components.schemas.split,
+          components.schemas.import,
         )
       : undefined
   const examplesTarget =
-    zo?.examples !== undefined
-      ? withImport(
-          { output: toAbs(zo.examples.output), split: zo.examples.split === true },
-          importMap?.examples,
+    components?.examples !== undefined
+      ? makeImportTarget(
+          toAbs(components.examples.output),
+          components.examples.split,
+          components.examples.import,
         )
       : undefined
   const headersTarget =
-    zo?.headers !== undefined
-      ? withImport(
-          { output: toAbs(zo.headers.output), split: zo.headers.split === true },
-          importMap?.headers,
+    components?.headers !== undefined
+      ? makeImportTarget(
+          toAbs(components.headers.output),
+          components.headers.split,
+          components.headers.import,
         )
       : undefined
   const linksTarget =
-    zo?.links !== undefined
-      ? withImport(
-          { output: toAbs(zo.links.output), split: zo.links.split === true },
-          importMap?.links,
+    components?.links !== undefined
+      ? makeImportTarget(
+          toAbs(components.links.output),
+          components.links.split,
+          components.links.import,
         )
       : undefined
 
   // zod-openapi top-level output (non-split)
-  if (zo && !(zo.schemas || zo.routes) && zo.output) {
+  if (zo && !(components?.schemas || zo.routes) && zo.output) {
+    const output = zo.output
+    const out = toAbs(output)
     const runZo = async () => {
-      const out = toAbs(zo.output)
       if (!isTsFile(out))
-        return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(zo.output)}`
+        return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(output)}`
       const result = await takibi(
         c.input,
         out,
@@ -259,9 +255,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runZo())
   }
 
-  // zod-openapi.schemas
-  if (zo?.schemas) {
-    const s = zo.schemas
+  // components.schemas
+  if (components?.schemas) {
+    const s = components.schemas
     const runSchema = async () => {
       if (s.split === true) {
         const outDir = toAbs(s.output)
@@ -279,41 +275,41 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runSchema())
   }
 
-  // zod-openapi.parameter
-  if (zo?.parameter) {
-    const p = zo.parameter
-    const runParameter = async () => {
-      if (p.split === true) {
-        const outDir = toAbs(p.output)
+  // components.parameters
+  if (components?.parameters) {
+    const parameters = components.parameters
+    const runParameters = async () => {
+      if (parameters.split === true) {
+        const outDir = toAbs(parameters.output)
         const removed = await deleteAllTsShallow(outDir)
         const r = await parameter(
           c.input,
           outDir,
-          p.exportType === true,
+          parameters.exportType === true,
           true,
           schemaTarget ? { schemas: schemaTarget } : undefined,
         )
-        if (!r.ok) return `✗ parameter(split): ${r.error}`
+        if (!r.ok) return `✗ parameters(split): ${r.error}`
         return removed.length > 0
-          ? `✓ parameter(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
-          : `✓ parameter(split) -> ${outDir}/*.ts`
+          ? `✓ parameters(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
+          : `✓ parameters(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(p.output)
+      const out = toAbs(parameters.output)
       const r = await parameter(
         c.input,
         out,
-        p.exportType === true,
+        parameters.exportType === true,
         false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
-      return r.ok ? `✓ parameter -> ${out}` : `✗ parameter: ${r.error}`
+      return r.ok ? `✓ parameters -> ${out}` : `✗ parameters: ${r.error}`
     }
-    jobs.push(runParameter())
+    jobs.push(runParameters())
   }
 
-  // zod-openapi.headers
-  if (zo?.headers) {
-    const h = zo.headers
+  // components.headers
+  if (components?.headers) {
+    const h = components.headers
     const runHeaders = async () => {
       if (h.split === true) {
         const outDir = toAbs(h.output)
@@ -343,9 +339,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runHeaders())
   }
 
-  // zod-openapi.examples
-  if (zo?.examples) {
-    const e = zo.examples
+  // components.examples
+  if (components?.examples) {
+    const e = components.examples
     const runExamples = async () => {
       if (e.split === true) {
         const outDir = toAbs(e.output)
@@ -363,9 +359,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runExamples())
   }
 
-  // zod-openapi.links
-  if (zo?.links) {
-    const l = zo.links
+  // components.links
+  if (components?.links) {
+    const l = components.links
     const runLinks = async () => {
       if (l.split === true) {
         const outDir = toAbs(l.output)
@@ -383,9 +379,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runLinks())
   }
 
-  // zod-openapi.callbacks
-  if (zo?.callbacks) {
-    const cb = zo.callbacks
+  // components.callbacks
+  if (components?.callbacks) {
+    const cb = components.callbacks
     const runCallbacks = async () => {
       if (cb.split === true) {
         const outDir = toAbs(cb.output)
@@ -403,29 +399,29 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runCallbacks())
   }
 
-  // zod-openapi.securitySchemes
-  if (zo?.securitySchemes) {
-    const s = zo.securitySchemes
+  // components.securitySchemes
+  if (components?.securitySchemes) {
+    const s = components.securitySchemes
     const runSecuritySchemes = async () => {
       if (s.split === true) {
         const outDir = toAbs(s.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await securitySchemes(c.input, outDir, s.exportType === true, true)
+        const r = await securitySchemes(c.input, outDir, false, true)
         if (!r.ok) return `✗ securitySchemes(split): ${r.error}`
         return removed.length > 0
           ? `✓ securitySchemes(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ securitySchemes(split) -> ${outDir}/*.ts`
       }
       const out = toAbs(s.output)
-      const r = await securitySchemes(c.input, out, s.exportType === true, false)
+      const r = await securitySchemes(c.input, out, false, false)
       return r.ok ? `✓ securitySchemes -> ${out}` : `✗ securitySchemes: ${r.error}`
     }
     jobs.push(runSecuritySchemes())
   }
 
-  // zod-openapi.requestBodies
-  if (zo?.requestBodies) {
-    const b = zo.requestBodies
+  // components.requestBodies
+  if (components?.requestBodies) {
+    const b = components.requestBodies
     const runRequestBodies = async () => {
       const imports =
         schemaTarget || examplesTarget
@@ -449,9 +445,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
     jobs.push(runRequestBodies())
   }
 
-  // zod-openapi.responses
-  if (zo?.responses) {
-    const r = zo.responses
+  // components.responses
+  if (components?.responses) {
+    const r = components.responses
     const runResponses = async () => {
       const imports =
         schemaTarget || headersTarget || examplesTarget || linksTarget
@@ -481,84 +477,87 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // zod-openapi.routes
-  if (zo?.routes && zo.schemas) {
+  if (zo?.routes && schemaTarget) {
     const r = zo.routes
     const runRoutes = async () => {
       const out = toAbs(r.output)
-      const fromFile = r.split === true ? path.join(out, 'index.ts') : out
-      const schemasImport =
-        importMap?.schemas ??
-        moduleSpecFrom(fromFile, {
-          output: toAbs(zo.schemas.output),
-          split: zo.schemas.split === true,
-        })
-
       const removed = r.split === true ? await deleteAllTsShallow(out) : []
 
       const rr = await route(
         c.input,
         out,
-        schemasImport,
+        schemaTarget,
         r.split ?? false,
-        zo.parameter || zo.headers || zo.requestBodies || zo.responses || zo.links || zo.callbacks
+        components?.parameters ||
+          components?.headers ||
+          components?.requestBodies ||
+          components?.responses ||
+          components?.links ||
+          components?.callbacks ||
+          components?.examples
           ? {
               useComponentRefs:
-                zo.requestBodies !== undefined ||
-                zo.responses !== undefined ||
-                zo.links !== undefined ||
-                zo.callbacks !== undefined ||
-                zo.headers !== undefined,
+                components?.requestBodies !== undefined ||
+                components?.responses !== undefined ||
+                components?.links !== undefined ||
+                components?.callbacks !== undefined ||
+                components?.headers !== undefined ||
+                components?.examples !== undefined,
               imports: {
-                parameter:
-                  zo.parameter !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.parameter.output), split: zo.parameter.split === true },
-                        importMap?.parameters,
+                parameters:
+                  components?.parameters !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.parameters.output),
+                        components.parameters.split,
+                        components.parameters.import,
                       )
                     : undefined,
                 headers:
-                  zo.headers !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.headers.output), split: zo.headers.split === true },
-                        importMap?.headers,
+                  components?.headers !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.headers.output),
+                        components.headers.split,
+                        components.headers.import,
                       )
                     : undefined,
                 requestBodies:
-                  zo.requestBodies !== undefined
-                    ? withImport(
-                        {
-                          output: toAbs(zo.requestBodies.output),
-                          split: zo.requestBodies.split === true,
-                        },
-                        importMap?.requestBodies,
+                  components?.requestBodies !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.requestBodies.output),
+                        components.requestBodies.split,
+                        components.requestBodies.import,
                       )
                     : undefined,
                 responses:
-                  zo.responses !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.responses.output), split: zo.responses.split === true },
-                        importMap?.responses,
+                  components?.responses !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.responses.output),
+                        components.responses.split,
+                        components.responses.import,
                       )
                     : undefined,
                 links:
-                  zo.links !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.links.output), split: zo.links.split === true },
-                        importMap?.links,
+                  components?.links !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.links.output),
+                        components.links.split,
+                        components.links.import,
                       )
                     : undefined,
                 callbacks:
-                  zo.callbacks !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.callbacks.output), split: zo.callbacks.split === true },
-                        importMap?.callbacks,
+                  components?.callbacks !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.callbacks.output),
+                        components.callbacks.split,
+                        components.callbacks.import,
                       )
                     : undefined,
                 examples:
-                  zo.examples !== undefined
-                    ? withImport(
-                        { output: toAbs(zo.examples.output), split: zo.examples.split === true },
-                        importMap?.examples,
+                  components?.examples !== undefined
+                    ? makeImportTarget(
+                        toAbs(components.examples.output),
+                        components.examples.split,
+                        components.examples.import,
                       )
                     : undefined,
               },
@@ -578,9 +577,10 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 
   // type
   if (c.type) {
+    const t = c.type
+    const out = toAbs(t.output)
     const runType = async () => {
-      const out = toAbs(c.type.output)
-      if (!isTsFile(out)) return `✗ type: Invalid type output format: ${String(c.type?.output)}`
+      if (!isTsFile(out)) return `✗ type: Invalid type output format: ${String(t.output)}`
       const result = await type(c.input, out)
       return result.ok ? `✓ type -> ${out}` : `✗ type: ${result.error}`
     }
@@ -620,7 +620,7 @@ type ZoTopSpec = { present: false } | { present: true; out: string }
 type OutputKind =
   | 'schemas'
   | 'routes'
-  | 'parameter'
+  | 'parameters'
   | 'securitySchemes'
   | 'requestBodies'
   | 'responses'
@@ -643,44 +643,45 @@ const pickSplitSpec = (c: Conf, kind: OutputKind): SplitSpec => {
 
   const zo = c['zod-openapi']
   if (!zo) return { present: false }
+  const comp = zo.components
 
   if (kind === 'schemas') {
-    const s = zo.schemas
+    const s = comp?.schemas
     return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
   }
   if (kind === 'routes') {
     const r = zo.routes
     return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
   }
-  if (kind === 'parameter') {
-    const p = zo.parameter
+  if (kind === 'parameters') {
+    const p = comp?.parameters
     return p ? { present: true, split: p.split === true, out: toAbs(p.output) } : { present: false }
   }
   if (kind === 'securitySchemes') {
-    const s = zo.securitySchemes
+    const s = comp?.securitySchemes
     return s ? { present: true, split: s.split === true, out: toAbs(s.output) } : { present: false }
   }
   if (kind === 'requestBodies') {
-    const b = zo.requestBodies
+    const b = comp?.requestBodies
     return b ? { present: true, split: b.split === true, out: toAbs(b.output) } : { present: false }
   }
   if (kind === 'responses') {
-    const r = zo.responses
+    const r = comp?.responses
     return r ? { present: true, split: r.split === true, out: toAbs(r.output) } : { present: false }
   }
   if (kind === 'headers') {
-    const h = zo.headers
+    const h = comp?.headers
     return h ? { present: true, split: h.split === true, out: toAbs(h.output) } : { present: false }
   }
   if (kind === 'examples') {
-    const e = zo.examples
+    const e = comp?.examples
     return e ? { present: true, split: e.split === true, out: toAbs(e.output) } : { present: false }
   }
   if (kind === 'links') {
-    const l = zo.links
+    const l = comp?.links
     return l ? { present: true, split: l.split === true, out: toAbs(l.output) } : { present: false }
   }
-  const cb = zo.callbacks
+  const cb = comp?.callbacks
   return cb
     ? { present: true, split: cb.split === true, out: toAbs(cb.output) }
     : { present: false }
@@ -689,7 +690,7 @@ const pickSplitSpec = (c: Conf, kind: OutputKind): SplitSpec => {
 const pickZoTopNonSplit = (c: Conf): ZoTopSpec => {
   const zo = c['zod-openapi']
   if (!zo) return { present: false }
-  const hasSchemas = !!zo.schemas
+  const hasSchemas = !!zo.components?.schemas
   const hasRoutes = !!zo.routes
   return !(hasSchemas || hasRoutes) && zo.output
     ? { present: true, out: toAbs(zo.output) }
@@ -700,7 +701,7 @@ const reconcileSplitTransition = async (prevC: Conf, nextC: Conf): Promise<strin
   const kinds: readonly OutputKind[] = [
     'schemas',
     'routes',
-    'parameter',
+    'parameters',
     'securitySchemes',
     'requestBodies',
     'responses',
@@ -758,19 +759,20 @@ const addInputGlobs = (server: DevServerLike, absInput: string) => {
 
 const outputDirsFromConf = (c: Conf): string[] => {
   const zo = c['zod-openapi']
+  const comp = zo?.components
   const dirs: string[] = []
 
   const zodDirs: Array<{ readonly output: string | `${string}.ts`; readonly split?: boolean }> = [
-    ...(zo?.schemas ? [zo.schemas] : []),
+    ...(comp?.schemas ? [comp.schemas] : []),
     ...(zo?.routes ? [zo.routes] : []),
-    ...(zo?.parameter ? [zo.parameter] : []),
-    ...(zo?.securitySchemes ? [zo.securitySchemes] : []),
-    ...(zo?.requestBodies ? [zo.requestBodies] : []),
-    ...(zo?.responses ? [zo.responses] : []),
-    ...(zo?.headers ? [zo.headers] : []),
-    ...(zo?.examples ? [zo.examples] : []),
-    ...(zo?.links ? [zo.links] : []),
-    ...(zo?.callbacks ? [zo.callbacks] : []),
+    ...(comp?.parameters ? [comp.parameters] : []),
+    ...(comp?.securitySchemes ? [comp.securitySchemes] : []),
+    ...(comp?.requestBodies ? [comp.requestBodies] : []),
+    ...(comp?.responses ? [comp.responses] : []),
+    ...(comp?.headers ? [comp.headers] : []),
+    ...(comp?.examples ? [comp.examples] : []),
+    ...(comp?.links ? [comp.links] : []),
+    ...(comp?.callbacks ? [comp.callbacks] : []),
   ]
   for (const t of zodDirs) if (t.split === true) dirs.push(toAbs(t.output))
 

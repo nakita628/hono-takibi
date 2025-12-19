@@ -4,6 +4,7 @@ import { config } from '../config/index.js'
 import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
+import { makeImportTarget } from '../core/import-target.js'
 import { links } from '../core/links.js'
 import { parameter } from '../core/parameter.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -117,21 +118,23 @@ export async function honoTakibi(): Promise<
   const c = configResult.value
 
   const zo = c['zod-openapi']
+  const comp = zo?.components
+
   const schemaTarget =
-    zo?.schema !== undefined
-      ? { output: zo.schema.output, split: zo.schema.split === true }
+    comp?.schemas !== undefined
+      ? makeImportTarget(comp.schemas.output, comp.schemas.split, comp.schemas.import)
       : undefined
   const examplesTarget =
-    zo?.examples !== undefined
-      ? { output: zo.examples.output, split: zo.examples.split === true }
+    comp?.examples !== undefined
+      ? makeImportTarget(comp.examples.output, comp.examples.split, comp.examples.import)
       : undefined
   const headersTarget =
-    zo?.headers !== undefined
-      ? { output: zo.headers.output, split: zo.headers.split === true }
+    comp?.headers !== undefined
+      ? makeImportTarget(comp.headers.output, comp.headers.split, comp.headers.import)
       : undefined
   const linksTarget =
-    zo?.links !== undefined
-      ? { output: zo.links.output, split: zo.links.split === true }
+    comp?.links !== undefined
+      ? makeImportTarget(comp.links.output, comp.links.split, comp.links.import)
       : undefined
 
   /** takibi */
@@ -149,76 +152,76 @@ export async function honoTakibi(): Promise<
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
 
   /** schema */
-  const schemaResult = zo?.schema
+  const schemaResult = comp?.schemas
     ? await schema(
         c.input,
-        zo.schema.output,
-        zo.schema.exportType ?? false,
-        zo.schema.split ?? false,
+        comp.schemas.output,
+        comp.schemas.exportType ?? false,
+        comp.schemas.split ?? false,
       )
     : undefined
   if (schemaResult && !schemaResult.ok) return { ok: false, error: schemaResult.error }
 
   /** parameter */
-  const parameterResult = zo?.parameter
+  const parameterResult = comp?.parameters
     ? await parameter(
         c.input,
-        zo.parameter.output,
-        zo.parameter.exportType ?? false,
-        zo.parameter.split ?? false,
+        comp.parameters.output,
+        comp.parameters.exportType ?? false,
+        comp.parameters.split ?? false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (parameterResult && !parameterResult.ok) return { ok: false, error: parameterResult.error }
 
   /** headers */
-  const headersResult = zo?.headers
+  const headersResult = comp?.headers
     ? await headers(
         c.input,
-        zo.headers.output,
-        zo.headers.exportType ?? false,
-        zo.headers.split ?? false,
+        comp.headers.output,
+        comp.headers.exportType ?? false,
+        comp.headers.split ?? false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
 
   /** examples */
-  const examplesResult = zo?.examples
-    ? await examples(c.input, zo.examples.output, zo.examples.split ?? false)
+  const examplesResult = comp?.examples
+    ? await examples(c.input, comp.examples.output, comp.examples.split ?? false)
     : undefined
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
 
   /** links */
-  const linksResult = zo?.links
-    ? await links(c.input, zo.links.output, zo.links.split ?? false)
+  const linksResult = comp?.links
+    ? await links(c.input, comp.links.output, comp.links.split ?? false)
     : undefined
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
 
   /** callbacks */
-  const callbacksResult = zo?.callbacks
-    ? await callbacks(c.input, zo.callbacks.output, zo.callbacks.split ?? false)
+  const callbacksResult = comp?.callbacks
+    ? await callbacks(c.input, comp.callbacks.output, comp.callbacks.split ?? false)
     : undefined
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
 
   /** securitySchemes */
-  const securitySchemesResult = zo?.securitySchemes
+  const securitySchemesResult = comp?.securitySchemes
     ? await securitySchemes(
         c.input,
-        zo.securitySchemes.output,
-        zo.securitySchemes.exportType ?? false,
-        zo.securitySchemes.split ?? false,
+        comp.securitySchemes.output,
+        false, // securitySchemes does not support exportType in config
+        comp.securitySchemes.split ?? false,
       )
     : undefined
   if (securitySchemesResult && !securitySchemesResult.ok)
     return { ok: false, error: securitySchemesResult.error }
 
   /** requestBodies */
-  const requestBodiesResult = zo?.requestBodies
+  const requestBodiesResult = comp?.requestBodies
     ? await requestBodies(
         c.input,
-        zo.requestBodies.output,
-        zo.requestBodies.split ?? false,
+        comp.requestBodies.output,
+        comp.requestBodies.split ?? false,
         schemaTarget || examplesTarget
           ? { schemas: schemaTarget, examples: examplesTarget }
           : undefined,
@@ -228,11 +231,11 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: requestBodiesResult.error }
 
   /** responses */
-  const responsesResult = zo?.responses
+  const responsesResult = comp?.responses
     ? await responses(
         c.input,
-        zo.responses.output,
-        zo.responses.split ?? false,
+        comp.responses.output,
+        comp.responses.split ?? false,
         schemaTarget || headersTarget || examplesTarget || linksTarget
           ? {
               schemas: schemaTarget,
@@ -246,54 +249,86 @@ export async function honoTakibi(): Promise<
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
 
   /** route */
-  const routeResult = zo?.route
-    ? await route(
-        c.input,
-        zo.route.output,
-        zo.route.import,
-        zo.route.split ?? false,
-        zo.parameter || zo.headers || zo.requestBodies || zo.responses || zo.links || zo.callbacks
-          ? {
-              useComponentRefs:
-                zo.requestBodies !== undefined ||
-                zo.responses !== undefined ||
-                zo.links !== undefined ||
-                zo.callbacks !== undefined ||
-                zo.headers !== undefined,
-              imports: {
-                parameter:
-                  zo.parameter !== undefined
-                    ? { output: zo.parameter.output, split: zo.parameter.split === true }
-                    : undefined,
-                headers:
-                  zo.headers !== undefined
-                    ? { output: zo.headers.output, split: zo.headers.split === true }
-                    : undefined,
-                requestBodies:
-                  zo.requestBodies !== undefined
-                    ? { output: zo.requestBodies.output, split: zo.requestBodies.split === true }
-                    : undefined,
-                responses:
-                  zo.responses !== undefined
-                    ? { output: zo.responses.output, split: zo.responses.split === true }
-                    : undefined,
-                links:
-                  zo.links !== undefined
-                    ? { output: zo.links.output, split: zo.links.split === true }
-                    : undefined,
-                callbacks:
-                  zo.callbacks !== undefined
-                    ? { output: zo.callbacks.output, split: zo.callbacks.split === true }
-                    : undefined,
-                examples:
-                  zo.examples !== undefined
-                    ? { output: zo.examples.output, split: zo.examples.split === true }
-                    : undefined,
-              },
-            }
-          : undefined,
-      )
-    : undefined
+  const routeResult =
+    zo?.routes && schemaTarget
+      ? await route(
+          c.input,
+          zo.routes.output,
+          schemaTarget,
+          zo.routes.split ?? false,
+          comp?.parameters ||
+            comp?.headers ||
+            comp?.requestBodies ||
+            comp?.responses ||
+            comp?.links ||
+            comp?.callbacks ||
+            comp?.examples
+            ? {
+                useComponentRefs:
+                  comp?.requestBodies !== undefined ||
+                  comp?.responses !== undefined ||
+                  comp?.links !== undefined ||
+                  comp?.callbacks !== undefined ||
+                  comp?.headers !== undefined ||
+                  comp?.examples !== undefined,
+                imports: {
+                  parameters:
+                    comp?.parameters !== undefined
+                      ? makeImportTarget(
+                          comp.parameters.output,
+                          comp.parameters.split,
+                          comp.parameters.import,
+                        )
+                      : undefined,
+                  headers:
+                    comp?.headers !== undefined
+                      ? makeImportTarget(
+                          comp.headers.output,
+                          comp.headers.split,
+                          comp.headers.import,
+                        )
+                      : undefined,
+                  requestBodies:
+                    comp?.requestBodies !== undefined
+                      ? makeImportTarget(
+                          comp.requestBodies.output,
+                          comp.requestBodies.split,
+                          comp.requestBodies.import,
+                        )
+                      : undefined,
+                  responses:
+                    comp?.responses !== undefined
+                      ? makeImportTarget(
+                          comp.responses.output,
+                          comp.responses.split,
+                          comp.responses.import,
+                        )
+                      : undefined,
+                  links:
+                    comp?.links !== undefined
+                      ? makeImportTarget(comp.links.output, comp.links.split, comp.links.import)
+                      : undefined,
+                  callbacks:
+                    comp?.callbacks !== undefined
+                      ? makeImportTarget(
+                          comp.callbacks.output,
+                          comp.callbacks.split,
+                          comp.callbacks.import,
+                        )
+                      : undefined,
+                  examples:
+                    comp?.examples !== undefined
+                      ? makeImportTarget(
+                          comp.examples.output,
+                          comp.examples.split,
+                          comp.examples.import,
+                        )
+                      : undefined,
+                },
+              }
+            : undefined,
+        )
+      : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** type */
