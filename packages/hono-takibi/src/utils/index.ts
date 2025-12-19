@@ -428,6 +428,24 @@ export function registerComponent(securitySchemes: {
 }
 
 /**
+ * Checks if a value is a non-null object (record-like).
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a non-null object.
+ *
+ * @example
+ * ```ts
+ * isRecord({ key: 'value' }) // true
+ * isRecord(null)             // false
+ * isRecord('text')           // false
+ * isRecord([])               // true (arrays are objects)
+ * ```
+ */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+/**
  * Checks if a value is a non-null object (e.g., a potential `$ref` object).
  *
  * @param value - The value to check.
@@ -732,25 +750,31 @@ export function ensureSuffix(text: string, suffix: string): string {
 }
 
 /**
- * Creates an import target object with the given configuration.
+ * Creates an import target from a component config object.
  *
- * @param output - The output path for the import target.
- * @param split - Whether to split the output into multiple files.
- * @param importSpec - The import specifier to use.
- * @returns An import target object.
+ * @param config - The component configuration object.
+ * @param transform - Optional function to transform the output path (e.g., toAbs for absolute paths).
+ * @returns An import target object or undefined if config is undefined.
  */
-export function importTarget(
-  output: string | `${string}.ts`,
-  split?: boolean,
-  importSpec?: string,
-): {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-  readonly import?: string
-} {
+export function configToTarget(
+  config?: {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+    readonly import?: string
+  },
+  transform?: (output: string) => string,
+):
+  | {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+  | undefined {
+  if (!config) return undefined
+  const output = transform ? transform(config.output) : config.output
   return {
     output,
-    ...(split !== undefined ? { split } : {}),
-    ...(importSpec !== undefined ? { import: importSpec } : {}),
+    ...(config.split !== undefined ? { split: config.split } : {}),
+    ...(config.import !== undefined ? { import: config.import } : {}),
   }
 }

@@ -40,6 +40,6 @@ export function componentsCode(
     links(components, exportSchema),
     callbacks(components, exportSchema),
   ]
-    .filter((v) => v !== undefined)
+    .filter(Boolean)
     .join('\n\n')
 }

@@ -1,22 +1,18 @@
 import type { Schema } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 
-/**
- * Type guard for checking if a value is a non-null object.
- */
-export const isRecord = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null
+export { isRecord }
 
 /**
  * Type guard for checking if a value is a $ref object.
  */
 export const isRef = (v: unknown): v is { $ref: string } =>
-  isRecord(v) && typeof v.$ref === 'string'
+  typeof v === 'object' && v !== null && typeof (v as Record<string, unknown>).$ref === 'string'
 
 /**
  * Type guard for checking if a value is a Schema object.
  */
-export const isSchema = (v: unknown): v is Schema => isRecord(v)
+export const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 /**
  * Converts a value to a JSON expression string.

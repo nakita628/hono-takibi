@@ -98,9 +98,13 @@ describe('route', () => {
       const out = path.join(dir, 'test.ts')
 
       const result = await route(input, out, {
-        output: path.join(dir, 'schemas'),
-        split: true,
-        import: '@packages/schemas',
+        components: {
+          schemas: {
+            output: path.join(dir, 'schemas'),
+            split: true,
+            import: '@packages/schemas',
+          },
+        },
       })
       const index = fs.readFileSync(out, 'utf-8')
 
@@ -160,12 +164,16 @@ export const getZodOpenapiHonoRoute = createRoute({
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
-      const result = await route(
-        input,
-        outDir,
-        { output: path.join(dir, 'schemas'), split: true, import: '@packages/schemas' },
-        true,
-      )
+      const result = await route(input, outDir, {
+        split: true,
+        components: {
+          schemas: {
+            output: path.join(dir, 'schemas'),
+            split: true,
+            import: '@packages/schemas',
+          },
+        },
+      })
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       const indexExpected = `export * from './getHono'

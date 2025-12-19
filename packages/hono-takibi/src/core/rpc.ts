@@ -1,11 +1,9 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
 import { type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
-import { methodPath } from '../utils/index.js'
+import { isRecord, methodPath } from '../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
-
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 
 const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   if (!isRecord(v)) return false

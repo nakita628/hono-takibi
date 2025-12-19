@@ -49,27 +49,26 @@ describe('route links import override', () => {
       fs.writeFileSync(inputFile, JSON.stringify(openapi))
       const outFile = path.join(dir, 'routes.ts')
 
-      const result = await route(
-        toInputPath(inputFile),
-        outFile,
-        { output: path.join(dir, 'schemas'), split: true, import: '@pkg/schemas' },
-        false,
-        {
-          useComponentRefs: true,
-          imports: {
-            links: {
-              output: path.join(dir, 'links'),
-              split: true,
-              import: '@pkg/links',
-            },
+      const result = await route(toInputPath(inputFile), outFile, {
+        split: false,
+        components: {
+          schemas: {
+            output: path.join(dir, 'schemas'),
+            split: true,
+            import: '@packages/schemas',
+          },
+          links: {
+            output: path.join(dir, 'links'),
+            split: true,
+            import: '@packages/links',
           },
         },
-      )
+      })
 
       expect(result.ok).toBe(true)
 
       const code = fs.readFileSync(outFile, 'utf-8')
-      expect(code).toContain("from '@pkg/links'")
+      expect(code).toContain("from '@packages/links'")
       expect(code).toContain('UpdatePetLink')
       expect(code).not.toContain("from './links")
     } finally {

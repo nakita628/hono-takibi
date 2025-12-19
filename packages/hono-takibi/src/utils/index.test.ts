@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  configToTarget,
   createRoute,
   ensureSuffix,
   escapeStringLiteral,
   findSchema,
   getToSafeIdentifier,
-  importTarget,
   isHttpMethod,
+  isRecord,
   isRefObject,
   isUniqueContentSchema,
   lowerFirst,
@@ -447,6 +448,22 @@ describe('utils', () => {
       expect(result).toBe(expected)
     })
   })
+  // isRecord
+  describe('isRecord Test', () => {
+    it.concurrent.each([
+      [{ key: 'value' }, true],
+      [{ type: 'object' }, true],
+      [[], true],
+      [{}, true],
+      [null, false],
+      [undefined, false],
+      ['string', false],
+      [123, false],
+      [true, false],
+    ])('isRecord(%j) -> %s', (input, expected) => {
+      expect(isRecord(input)).toBe(expected)
+    })
+  })
   // isRefObject
   describe('isRefObject Test', () => {
     it.concurrent.each([
@@ -728,31 +745,30 @@ export type Limit = z.infer<typeof LimitSchema>`)
       expect(ensureSuffix(input, suffix)).toBe(expected)
     })
   })
-  // importTarget
-  describe('makeImportTarget', () => {
-    it.concurrent('creates ImportTarget with output only', () => {
-      const result = importTarget('src/schemas/index.ts')
+  // configToTarget
+  describe('configToTarget', () => {
+    it.concurrent('returns undefined for undefined config', () => {
+      const result = configToTarget(undefined)
+      expect(result).toBeUndefined()
+    })
+    it.concurrent('creates target from config object', () => {
+      const result = configToTarget({ output: 'src/schemas/index.ts' })
       expect(result).toStrictEqual({ output: 'src/schemas/index.ts' })
     })
-    it.concurrent('creates ImportTarget with split', () => {
-      const result = importTarget('src/schemas', true)
-      expect(result).toStrictEqual({ output: 'src/schemas', split: true })
+    it.concurrent('creates target with all options', () => {
+      const result = configToTarget({ output: 'src/schemas', split: true, import: '@packages/schemas' })
+      expect(result).toStrictEqual({ output: 'src/schemas', split: true, import: '@packages/schemas' })
     })
-    it.concurrent('creates ImportTarget with import specifier', () => {
-      const result = importTarget('src/schemas/index.ts', undefined, '@/schemas')
-      expect(result).toStrictEqual({ output: 'src/schemas/index.ts', import: '@/schemas' })
+    it.concurrent('applies transform to output path', () => {
+      const result = configToTarget({ output: 'schemas' }, (p) => `/abs/${p}`)
+      expect(result).toStrictEqual({ output: '/abs/schemas' })
     })
-    it.concurrent('creates ImportTarget with all options', () => {
-      const result = importTarget('src/schemas', true, '@/schemas')
-      expect(result).toStrictEqual({ output: 'src/schemas', split: true, import: '@/schemas' })
-    })
-    it.concurrent('excludes undefined split', () => {
-      const result = importTarget('src/schemas/index.ts', undefined, '@/schemas')
-      expect(result).not.toHaveProperty('split')
-    })
-    it.concurrent('excludes undefined import', () => {
-      const result = importTarget('src/schemas', true)
-      expect(result).not.toHaveProperty('import')
+    it.concurrent('preserves split and import with transform', () => {
+      const result = configToTarget(
+        { output: 'schemas', split: true, import: '@packages/schemas' },
+        (p) => `/abs/${p}`,
+      )
+      expect(result).toStrictEqual({ output: '/abs/schemas', split: true, import: '@packages/schemas' })
     })
   })
 })

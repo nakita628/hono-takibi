@@ -7,8 +7,7 @@ import type { Components, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, sanitizeIdentifier } from '../utils/index.js'
 
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 const headerBaseName = (key: string): string => {
   const safe = sanitizeIdentifier(key)

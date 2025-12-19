@@ -13,7 +13,7 @@ import { schema } from '../core/schema.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
-import { importTarget, parseConfig } from '../utils/index.js'
+import { configToTarget, isRecord, parseConfig } from '../utils/index.js'
 
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -37,8 +37,7 @@ type DevServerLike = {
  * Small helpers (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-const isConf = (v: unknown): v is Conf => isRecord(v)
+const isConf = (v: unknown): v is Conf => typeof v === 'object' && v !== null
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
 const isTsFile = (p: string): p is `${string}.ts` => p.endsWith('.ts')
 
@@ -201,38 +200,10 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const zo = c['zod-openapi']
   const components = zo?.components
 
-  const schemaTarget =
-    components?.schemas !== undefined
-      ? importTarget(
-          toAbs(components.schemas.output),
-          components.schemas.split,
-          components.schemas.import,
-        )
-      : undefined
-  const examplesTarget =
-    components?.examples !== undefined
-      ? importTarget(
-          toAbs(components.examples.output),
-          components.examples.split,
-          components.examples.import,
-        )
-      : undefined
-  const headersTarget =
-    components?.headers !== undefined
-      ? importTarget(
-          toAbs(components.headers.output),
-          components.headers.split,
-          components.headers.import,
-        )
-      : undefined
-  const linksTarget =
-    components?.links !== undefined
-      ? importTarget(
-          toAbs(components.links.output),
-          components.links.split,
-          components.links.import,
-        )
-      : undefined
+  const schemaTarget = configToTarget(components?.schemas, toAbs)
+  const examplesTarget = configToTarget(components?.examples, toAbs)
+  const headersTarget = configToTarget(components?.headers, toAbs)
+  const linksTarget = configToTarget(components?.links, toAbs)
 
   // zod-openapi top-level output (non-split)
   if (zo && !(components?.schemas || zo.routes) && zo.output) {
@@ -482,87 +453,19 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const out = toAbs(r.output)
       const removed = r.split === true ? await deleteAllTsShallow(out) : []
 
-      const rr = await route(
-        c.input,
-        out,
-        schemaTarget,
-        r.split ?? false,
-        components?.parameters ||
-          components?.headers ||
-          components?.requestBodies ||
-          components?.responses ||
-          components?.links ||
-          components?.callbacks ||
-          components?.examples
-          ? {
-              useComponentRefs:
-                components?.requestBodies !== undefined ||
-                components?.responses !== undefined ||
-                components?.links !== undefined ||
-                components?.callbacks !== undefined ||
-                components?.headers !== undefined ||
-                components?.examples !== undefined,
-              imports: {
-                parameters:
-                  components?.parameters !== undefined
-                    ? importTarget(
-                        toAbs(components.parameters.output),
-                        components.parameters.split,
-                        components.parameters.import,
-                      )
-                    : undefined,
-                headers:
-                  components?.headers !== undefined
-                    ? importTarget(
-                        toAbs(components.headers.output),
-                        components.headers.split,
-                        components.headers.import,
-                      )
-                    : undefined,
-                requestBodies:
-                  components?.requestBodies !== undefined
-                    ? importTarget(
-                        toAbs(components.requestBodies.output),
-                        components.requestBodies.split,
-                        components.requestBodies.import,
-                      )
-                    : undefined,
-                responses:
-                  components?.responses !== undefined
-                    ? importTarget(
-                        toAbs(components.responses.output),
-                        components.responses.split,
-                        components.responses.import,
-                      )
-                    : undefined,
-                links:
-                  components?.links !== undefined
-                    ? importTarget(
-                        toAbs(components.links.output),
-                        components.links.split,
-                        components.links.import,
-                      )
-                    : undefined,
-                callbacks:
-                  components?.callbacks !== undefined
-                    ? importTarget(
-                        toAbs(components.callbacks.output),
-                        components.callbacks.split,
-                        components.callbacks.import,
-                      )
-                    : undefined,
-                examples:
-                  components?.examples !== undefined
-                    ? importTarget(
-                        toAbs(components.examples.output),
-                        components.examples.split,
-                        components.examples.import,
-                      )
-                    : undefined,
-              },
-            }
-          : undefined,
-      )
+      const rr = await route(c.input, out, {
+        split: r.split ?? false,
+        components: {
+          schemas: schemaTarget,
+          parameters: configToTarget(components?.parameters, toAbs),
+          headers: configToTarget(components?.headers, toAbs),
+          requestBodies: configToTarget(components?.requestBodies, toAbs),
+          responses: configToTarget(components?.responses, toAbs),
+          links: configToTarget(components?.links, toAbs),
+          callbacks: configToTarget(components?.callbacks, toAbs),
+          examples: configToTarget(components?.examples, toAbs),
+        },
+      })
       if (!rr.ok) return r.split === true ? `✗ routes(split): ${rr.error}` : `✗ routes: ${rr.error}`
       if (r.split === true) {
         return removed.length > 0

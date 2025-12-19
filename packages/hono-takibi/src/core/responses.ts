@@ -4,11 +4,11 @@ import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, ResponseDefinition, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { ensureSuffix, findSchema, lowerFirst, toIdentifier } from '../utils/index.js'
+import { ensureSuffix, findSchema, isRecord, lowerFirst, toIdentifier } from '../utils/index.js'
 
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isRef = (v: unknown): v is { $ref: string } =>
+  typeof v === 'object' && v !== null && typeof (v as Record<string, unknown>).$ref === 'string'
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 function withSuffix(name: string, suffix: string): string {
   return name.endsWith(suffix) ? name : `${name}${suffix}`

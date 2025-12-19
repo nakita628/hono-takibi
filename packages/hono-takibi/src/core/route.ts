@@ -10,15 +10,17 @@ const stripStringLiterals = (code: string): string => {
   return code.replace(/'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"/g, '')
 }
 
-const findTokensBySuffix = (code: string, suffix: string): string[] => {
+const findTokensBySuffix = (code: string, suffix: string): readonly string[] => {
   const tokens = stripStringLiterals(code).match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
   if (!tokens) return []
   return Array.from(new Set(tokens.filter((t) => t.endsWith(suffix))))
 }
 
-const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
+const extractRouteBlocks = (
+  src: string,
+): readonly { readonly name: string; readonly block: string }[] => {
   const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
-  const hits: Array<{ name: string; start: number }> = []
+  const hits: Array<{ readonly name: string; readonly start: number }> = []
   for (const m of src.matchAll(re)) {
     const name = (m[1] ?? '').trim()
     const start = m.index ?? 0
@@ -34,24 +36,50 @@ const extractRouteBlocks = (src: string): { name: string; block: string }[] => {
 export async function route(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
-  schemas: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  },
-  split?: boolean,
   options?: {
-    readonly useComponentRefs?: boolean
-    readonly imports?: {
-      readonly [K in
-        | 'parameters'
-        | 'securitySchemes'
-        | 'requestBodies'
-        | 'responses'
-        | 'headers'
-        | 'examples'
-        | 'links'
-        | 'callbacks']?: {
+    readonly split?: boolean
+    readonly components?: {
+      readonly schemas?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly parameters?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly securitySchemes?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly requestBodies?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly responses?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly headers?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly examples?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly links?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      readonly callbacks?: {
         readonly output: string | `${string}.ts`
         readonly split?: boolean
         readonly import?: string
@@ -65,9 +93,22 @@ export async function route(
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
+  const components = options?.components
+  const schemas = components?.schemas
+  const split = options?.split ?? false
+
+  // Determine if we should use component refs (when non-schema components are defined)
+  const hasNonSchemaComponents =
+    components?.requestBodies !== undefined ||
+    components?.responses !== undefined ||
+    components?.links !== undefined ||
+    components?.callbacks !== undefined ||
+    components?.headers !== undefined ||
+    components?.examples !== undefined
+
   const routesSrc = routeCode(
     openAPI,
-    options?.useComponentRefs ? { useComponentRefs: true } : undefined,
+    hasNonSchemaComponents ? { useComponentRefs: true } : undefined,
   )
 
   const schemaKeys = new Set(Object.keys(openAPI.components?.schemas ?? {}))
@@ -81,12 +122,29 @@ export async function route(
     }): string => target.import ?? moduleSpecFrom(fromFile, target)
 
     const schemaTokens = findSchema(src)
-    if (schemaTokens.length === 0 && !options?.useComponentRefs) return []
+    if (schemaTokens.length === 0 && !hasNonSchemaComponents) return []
+
+    // If no schemas config, return empty (no imports)
+    if (!schemas) {
+      return schemaTokens.length > 0
+        ? ['// Warning: schemas config is missing, cannot resolve schema imports']
+        : []
+    }
 
     const schemasSpec = specFrom(schemas)
 
+    // Check if we have other components that require import classification
+    const hasOtherComponents =
+      components?.parameters !== undefined ||
+      components?.headers !== undefined ||
+      components?.requestBodies !== undefined ||
+      components?.responses !== undefined ||
+      components?.links !== undefined ||
+      components?.callbacks !== undefined ||
+      components?.examples !== undefined
+
     // Default (backward compatible): import all *Schema tokens from schemas module spec
-    if (!options?.imports) {
+    if (!hasOtherComponents) {
       return schemaTokens.length > 0
         ? [`import { ${schemaTokens.join(',')} } from '${schemasSpec}'`]
         : []
@@ -98,8 +156,8 @@ export async function route(
     const classifyToken = (token: string, isHeader: boolean): 'schema' | 'parameter' | 'header' => {
       const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
       if (schemaKeys.has(base)) return 'schema'
-      if (parameterKeys.has(base) && options.imports?.parameters) return 'parameter'
-      if (isHeader && options.imports?.headers) return 'header'
+      if (parameterKeys.has(base) && components?.parameters) return 'parameter'
+      if (isHeader && components?.headers) return 'header'
       return 'schema'
     }
 
@@ -132,18 +190,18 @@ export async function route(
         ? undefined
         : `Missing zod-openapi.${suffix} output (required because generated routes reference ${suffix} components)`
 
-    const responseTokens = options.useComponentRefs ? findTokensBySuffix(src, 'Response') : []
-    const requestBodyTokens = options.useComponentRefs ? findTokensBySuffix(src, 'RequestBody') : []
-    const linkTokens = options.useComponentRefs ? findTokensBySuffix(src, 'Link') : []
-    const callbackTokens = options.useComponentRefs ? findTokensBySuffix(src, 'Callback') : []
-    const exampleTokens = options.useComponentRefs ? findTokensBySuffix(src, 'Example') : []
+    const responseTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Response') : []
+    const requestBodyTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'RequestBody') : []
+    const linkTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Link') : []
+    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callback') : []
+    const exampleTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Example') : []
 
     const missing =
-      requireTarget('responses', options.imports.responses, responseTokens) ??
-      requireTarget('requestBodies', options.imports.requestBodies, requestBodyTokens) ??
-      requireTarget('links', options.imports.links, linkTokens) ??
-      requireTarget('callbacks', options.imports.callbacks, callbackTokens) ??
-      requireTarget('examples', options.imports.examples, exampleTokens)
+      requireTarget('responses', components?.responses, responseTokens) ??
+      requireTarget('requestBodies', components?.requestBodies, requestBodyTokens) ??
+      requireTarget('links', components?.links, linkTokens) ??
+      requireTarget('callbacks', components?.callbacks, callbackTokens) ??
+      requireTarget('examples', components?.examples, exampleTokens)
 
     if (missing) throw new Error(missing)
 
@@ -167,13 +225,13 @@ export async function route(
       schemaImportFromRoute.size > 0
         ? `import { ${Array.from(schemaImportFromRoute).sort().join(',')} } from '${schemasSpec}'`
         : undefined,
-      makeImportLine(parameterImportFromTarget, options.imports.parameters),
-      makeImportLine(headerImportFromTarget, options.imports.headers),
-      makeImportLine(responseTokens, options.imports.responses),
-      makeImportLine(requestBodyTokens, options.imports.requestBodies),
-      makeImportLine(linkTokens, options.imports.links),
-      makeImportLine(callbackTokens, options.imports.callbacks),
-      makeImportLine(exampleTokens, options.imports.examples),
+      makeImportLine(parameterImportFromTarget, components?.parameters),
+      makeImportLine(headerImportFromTarget, components?.headers),
+      makeImportLine(responseTokens, components?.responses),
+      makeImportLine(requestBodyTokens, components?.requestBodies),
+      makeImportLine(linkTokens, components?.links),
+      makeImportLine(callbackTokens, components?.callbacks),
+      makeImportLine(exampleTokens, components?.examples),
     ].filter((line): line is string => line !== undefined)
   }
 
@@ -227,7 +285,7 @@ export async function route(
   }
 
   const indexBody = `${blocks
-    .sort()
+    .toSorted((a, b) => a.name.localeCompare(b.name))
     .map(({ name }) => `export * from './${lowerFirst(name)}'`)
     .join('\n')}\n`
 
