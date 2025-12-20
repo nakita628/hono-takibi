@@ -23,12 +23,22 @@ import { configToTarget, parseCli } from '../utils/index.js'
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-types        export TypeScript type aliases
-  --export-schemas      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command`
 
 /**
  * CLI entry point for `hono-takibi`.
@@ -50,16 +60,22 @@ Options:
  * ```
  *
  * **Options**
- * - `--export-type`        Export TypeScript type aliases
- * - `--export-schema`      Export Zod schema objects
- * - `--template`           Generate app file and handler stubs
- * - `--test`               Generate empty `*.test.ts` files
- * - `--base-path <path>`   API prefix (default: `/`)
- * - `-h, --help`           Show help and exit
- *
- * @returns A Result-like object:
- * - `{ ok: true, value: string }` with either help text or generation message
- * - `{ ok: false, error: string }` on validation or generation errors
+ * - `--export-schemas-types`      export schemas types
+ * - `--export-schemas`            export schemas
+ * - `--export-parameters-types`   export parameters types
+ * - `--export-parameters`         export parameters
+ * - `--export-security-schemes`   export securitySchemes
+ * - `--export-request-bodies`     export requestBodies
+ * - `--export-responses`          export responses
+ * - `--export-headers-types`      export headers types
+ * - `--export-headers`            export headers
+ * - `--export-examples`           export examples
+ * - `--export-links`              export links
+ * - `--export-callbacks`          export callbacks
+ * - `--template`                  generate app file and handler stubs
+ * - `--test`                      generate empty *.test.ts files
+ * - `--base-path <path>`          api prefix (default: /)
+ * - `-h, --help`                  display help for command
  */
 export async function honoTakibi(): Promise<
   | {
@@ -91,14 +107,43 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const cli = cliResult.value
+    const {
+      input,
+      output,
+      exportSchemasTypes,
+      exportSchemas,
+      exportParametersTypes,
+      exportParameters,
+      exportSecuritySchemes,
+      exportRequestBodies,
+      exportResponses,
+      exportHeadersTypes,
+      exportHeaders,
+      exportExamples,
+      exportLinks,
+      exportCallbacks,
+      template,
+      test,
+      basePath,
+    } = cli
     const takibiResult = await takibi(
-      cli.input,
-      cli.output,
-      cli.exportSchemas ?? false,
-      cli.exportTypes ?? false,
-      cli.template ?? false,
-      cli.test ?? false,
-      cli.basePath,
+      input,
+      output,
+      exportSchemasTypes,
+      exportSchemas,
+      exportParametersTypes,
+      exportParameters,
+      exportSecuritySchemes,
+      exportRequestBodies,
+      exportResponses,
+      exportHeadersTypes,
+      exportHeaders,
+      exportExamples,
+      exportLinks,
+      exportCallbacks,
+      template,
+      test,
+      basePath,
     )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
@@ -128,8 +173,18 @@ export async function honoTakibi(): Promise<
     ? await takibi(
         c.input,
         zo.output,
+        zo.exportSchemasTypes ?? false,
         zo.exportSchemas ?? false,
-        zo.exportTypes ?? false,
+        zo.exportParametersTypes ?? false,
+        zo.exportParameters ?? false,
+        zo.exportSecuritySchemes ?? false,
+        zo.exportRequestBodies ?? false,
+        zo.exportResponses ?? false,
+        zo.exportHeadersTypes ?? false,
+        zo.exportHeaders ?? false,
+        zo.exportExamples ?? false,
+        zo.exportLinks ?? false,
+        zo.exportCallbacks ?? false,
         false, // template
         false, // test
       )
@@ -142,7 +197,7 @@ export async function honoTakibi(): Promise<
     ? await schema(
         c.input,
         components.schemas.output,
-        components.schemas.exportType ?? false,
+        components.schemas.exportTypes ?? false,
         components.schemas.split ?? false,
       )
     : undefined
@@ -195,7 +250,7 @@ export async function honoTakibi(): Promise<
     ? await securitySchemes(
         c.input,
         components.securitySchemes.output,
-        false, // securitySchemes does not support exportType in config
+        false, // securitySchemes does not support exportTypes in config
         components.securitySchemes.split ?? false,
       )
     : undefined

@@ -30,8 +30,8 @@ export default {
   input: 'openapi.yaml',
   'zod-openapi': {
     output: 'routes/index.ts',
-    exportType: true,
-    exportSchema: true
+    exportSchemasTypes: true,
+    exportSchemas: true
   },
   rpc: {
     output: 'rpc/index.ts',
@@ -47,8 +47,8 @@ export default {
         input: 'openapi.yaml',
         'zod-openapi': {
           output: 'routes/index.ts',
-          exportType: true,
-          exportSchema: true,
+          exportSchemasTypes: true,
+          exportSchemas: true,
         },
         rpc: {
           output: 'rpc/index.ts',
