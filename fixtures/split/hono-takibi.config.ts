@@ -55,48 +55,58 @@
 // })
 
 
+// import { defineConfig } from 'hono-takibi/config'
+
+// export default defineConfig({
+//   input: 'openapi.yaml',
+//   'zod-openapi': {
+//     // output: 'src/routes/index.ts',
+//     exportType: false,
+//     exportSchema: false,
+//     routes: {
+//       output: 'src/routes/index.ts',
+//     },
+//     components: {
+//       schemas: {
+//         output: 'src/schemas/index.ts',
+//         exportType: true,
+//       },
+//       parameters: {
+//         output: 'src/parameters/index.ts',
+//         exportType: true,
+//       },
+//       securitySchemes: {
+//         output: 'src/securitySchemes/index.ts',
+//       },
+//       requestBodies: {
+//         output: 'src/requestBodies/index.ts',
+//       },
+//       responses: {
+//         output: 'src/responses/index.ts',
+//       },
+//       headers: {
+//         output: 'src/headers/index.ts',
+//         exportType: true,
+//       },
+//       examples: {
+//         output: 'src/examples/index.ts',
+//       },
+//       links: {
+//         output: 'src/links/index.ts',
+//       },
+//       callbacks: {
+//         output: 'src/callbacks/index.ts',
+//       },
+//     },
+//   },
+// })
+
+
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
-    // output: 'src/routes/index.ts',
-    exportType: false,
-    exportSchema: false,
-    routes: {
-      output: 'src/routes/index.ts',
-    },
-    components: {
-      schemas: {
-        output: 'src/schemas/index.ts',
-        exportType: true,
-      },
-      parameters: {
-        output: 'src/parameters/index.ts',
-        exportType: true,
-      },
-      securitySchemes: {
-        output: 'src/securitySchemes/index.ts',
-      },
-      requestBodies: {
-        output: 'src/requestBodies/index.ts',
-      },
-      responses: {
-        output: 'src/responses/index.ts',
-      },
-      headers: {
-        output: 'src/headers/index.ts',
-        exportType: true,
-      },
-      examples: {
-        output: 'src/examples/index.ts',
-      },
-      links: {
-        output: 'src/links/index.ts',
-      },
-      callbacks: {
-        output: 'src/callbacks/index.ts',
-      },
-    },
+    output: 'src/routes/index.ts',
   },
 })
