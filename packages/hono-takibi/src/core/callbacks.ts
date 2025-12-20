@@ -20,7 +20,7 @@ export async function callbacks(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(cbs).sort()) {
+    for (const key of Object.keys(cbs)) {
       const val = cbs[key]
       const name = toIdentifier(ensureSuffix(key, 'Callback'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
@@ -30,7 +30,6 @@ export async function callbacks(
     }
 
     const indexBody = `${Object.keys(cbs)
-      .sort()
       .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Callback')))}'`)
       .join('\n')}\n`
     const coreResult = await core(

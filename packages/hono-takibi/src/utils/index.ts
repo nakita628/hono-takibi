@@ -3,12 +3,27 @@
  *
  * @param config - The config object to parse.
  */
+const invalidBoolean = (value: unknown, name: string, scope: string): string | undefined =>
+  value !== undefined && typeof value !== 'boolean'
+    ? `Invalid ${name} format for ${scope}: ${String(value)}`
+    : undefined
+
 export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportTypes?: boolean
+    readonly exportSchemasTypes?: boolean
     readonly exportSchemas?: boolean
+    readonly exportParametersTypes?: boolean
+    readonly exportParameters?: boolean
+    readonly exportSecuritySchemes?: boolean
+    readonly exportRequestBodies?: boolean
+    readonly exportResponses?: boolean
+    readonly exportHeadersTypes?: boolean
+    readonly exportHeaders?: boolean
+    readonly exportExamples?: boolean
+    readonly exportLinks?: boolean
+    readonly exportCallbacks?: boolean
     readonly routes?: {
       readonly output: string | `${string}.ts`
       readonly split?: boolean
@@ -52,8 +67,18 @@ export function parseConfig(config: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly 'zod-openapi'?: {
           readonly output?: `${string}.ts`
-          readonly exportTypes?: boolean
+          readonly exportSchemasTypes?: boolean
           readonly exportSchemas?: boolean
+          readonly exportParametersTypes?: boolean
+          readonly exportParameters?: boolean
+          readonly exportSecuritySchemes?: boolean
+          readonly exportRequestBodies?: boolean
+          readonly exportResponses?: boolean
+          readonly exportHeadersTypes?: boolean
+          readonly exportHeaders?: boolean
+          readonly exportExamples?: boolean
+          readonly exportLinks?: boolean
+          readonly exportCallbacks?: boolean
           readonly routes?: {
             readonly output: string | `${string}.ts`
             readonly split?: boolean
@@ -135,15 +160,13 @@ export function parseConfig(config: {
       return { ok: false, error: `Invalid config: zod-openapi.components.${k} is undefined` }
 
     if (k === 'schemas' || k === 'parameters' || k === 'headers') {
-      if ('exportTypes' in v && v.exportTypes !== undefined && typeof v.exportTypes !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid exportTypes format for components.${k}: ${String(v.exportTypes)}`,
-        }
-      }
+      const exportTypesValue = 'exportTypes' in v ? v.exportTypes : undefined
+      const exportTypesError = invalidBoolean(exportTypesValue, 'exportTypes', `components.${k}`)
+      if (exportTypesError) return { ok: false, error: exportTypesError }
     }
 
-    if (v.split === true) {
+    const isSplit = v.split === true
+    if (isSplit) {
       if (isTs(v.output)) {
         return {
           ok: false,
@@ -151,12 +174,8 @@ export function parseConfig(config: {
         }
       }
     } else {
-      if (v.split !== undefined && typeof v.split !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid split format for components.${k}: ${String(v.split)}`,
-        }
-      }
+      const splitError = invalidBoolean(v.split, 'split', `components.${k}`)
+      if (splitError) return { ok: false, error: splitError }
       if (!isTs(v.output)) {
         return {
           ok: false,
@@ -165,31 +184,10 @@ export function parseConfig(config: {
       }
     }
 
-    if (v.split === true) {
-      if (isTs(v.output)) {
-        return {
-          ok: false,
-          error: `Invalid ${k} output path for split mode (must be a directory, not .ts): ${v.output}`,
-        }
-      }
-    } else {
-      if (!isTs(v.output)) {
-        return {
-          ok: false,
-          error: `Invalid ${k} output path for non-split mode (must be .ts file): ${v.output}`,
-        }
-      }
-      if (v.split !== undefined && typeof v.split !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid split format for components.${k}: ${String(v.split)}`,
-        }
-      }
-      if (v.import !== undefined && typeof v.import !== 'string') {
-        return {
-          ok: false,
-          error: `Invalid import format for components.${k}: ${String(v.import)}`,
-        }
+    if (v.import !== undefined && typeof v.import !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid import format for components.${k}: ${String(v.import)}`,
       }
     }
 
@@ -206,24 +204,30 @@ export function parseConfig(config: {
   const zo = c['zod-openapi']
 
   if (zo !== undefined) {
-    // boolean flags
-    if (zo.exportSchemas !== undefined && typeof zo.exportSchemas !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportSchemas format for zod-openapi: ${String(zo.exportSchemas)}`,
-      }
-    }
-    if (zo.exportTypes !== undefined && typeof zo.exportTypes !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportTypes format for zod-openapi: ${String(zo.exportTypes)}`,
-      }
-    }
+    const flagChecks: Array<[string, unknown]> = [
+      ['exportSchemasTypes', zo.exportSchemasTypes],
+      ['exportSchemas', zo.exportSchemas],
+      ['exportParametersTypes', zo.exportParametersTypes],
+      ['exportParameters', zo.exportParameters],
+      ['exportSecuritySchemes', zo.exportSecuritySchemes],
+      ['exportRequestBodies', zo.exportRequestBodies],
+      ['exportResponses', zo.exportResponses],
+      ['exportHeadersTypes', zo.exportHeadersTypes],
+      ['exportHeaders', zo.exportHeaders],
+      ['exportExamples', zo.exportExamples],
+      ['exportLinks', zo.exportLinks],
+      ['exportCallbacks', zo.exportCallbacks],
+    ]
+    const flagError = flagChecks
+      .map(([name, value]) => invalidBoolean(value, name, 'zod-openapi'))
+      .find((error): error is string => error !== undefined)
+    if (flagError) return { ok: false, error: flagError }
   }
 
   const routes = zo?.routes
   if (routes !== undefined) {
-    if (routes.split === true) {
+    const isSplit = routes.split === true
+    if (isSplit) {
       if (isTs(routes.output)) {
         return {
           ok: false,
@@ -237,12 +241,8 @@ export function parseConfig(config: {
           error: `Invalid routes output path for non-split mode (must be .ts file): ${routes.output}`,
         }
       }
-      if (routes.split !== undefined && typeof routes.split !== 'boolean') {
-        return {
-          ok: false,
-          error: `Invalid split format for routes: ${String(routes.split)}`,
-        }
-      }
+      const splitError = invalidBoolean(routes.split, 'split', 'routes')
+      if (splitError) return { ok: false, error: splitError }
     }
   }
 
@@ -286,9 +286,8 @@ export function parseConfig(config: {
     if (typeof rpc.import !== 'string') {
       return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
     }
-    if (rpc.split !== undefined && typeof rpc.split !== 'boolean') {
-      return { ok: false, error: `Invalid split format for rpc: ${String(rpc.split)}` }
-    }
+    const splitError = invalidBoolean(rpc.split, 'split', 'rpc')
+    if (splitError) return { ok: false, error: splitError }
     // split
     const isSplit = rpc.split === true
     if (isSplit) {
@@ -315,7 +314,7 @@ export function parseConfig(config: {
  *
  * - Validates `<input>` ends with `.yaml`/`.json`/`.tsp`
  * - Requires `-o <output.ts>`
- * - Extracts boolean flags (`--export-type`, `--export-schema`, `--template`, `--test`)
+ * - Extracts boolean flags for component exports and templates/tests
  * - Extracts optional `--base-path <path>`
  *
  * ```mermaid
@@ -323,7 +322,7 @@ export function parseConfig(config: {
  *   A["parseCli(args)"] --> B["Extract input & output (-o)"]
  *   B --> C{"input endsWith .yaml/.json/.tsp AND output endsWith .ts?"}
  *   C -->|No| D["return { ok:false, error:'Usage: hono-takibi ...' }"]
- *   C -->|Yes| E["Read flags (--export-type, --export-schema, --template, --test)"]
+ *   C -->|Yes| E["Read flags (--export-schemas-types, --export-schemas, ..., --template, --test)"]
  *   E --> F["Read optional --base-path value"]
  *   F --> G["return { ok:true, value:{ input, output, flags... } }"]
  * ```
@@ -337,8 +336,18 @@ export function parseCli(args: readonly string[]):
       readonly value: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
-        readonly exportTypes: boolean
+        readonly exportSchemasTypes: boolean
         readonly exportSchemas: boolean
+        readonly exportParametersTypes: boolean
+        readonly exportParameters: boolean
+        readonly exportSecuritySchemes: boolean
+        readonly exportRequestBodies: boolean
+        readonly exportResponses: boolean
+        readonly exportHeadersTypes: boolean
+        readonly exportHeaders: boolean
+        readonly exportExamples: boolean
+        readonly exportLinks: boolean
+        readonly exportCallbacks: boolean
         readonly template: boolean
         readonly test: boolean
         readonly basePath?: string
@@ -373,8 +382,18 @@ export function parseCli(args: readonly string[]):
     value: {
       input,
       output,
-      exportTypes: args.includes('--export-types'),
+      exportSchemasTypes: args.includes('--export-schemas-types'),
       exportSchemas: args.includes('--export-schemas'),
+      exportParametersTypes: args.includes('--export-parameters-types'),
+      exportParameters: args.includes('--export-parameters'),
+      exportSecuritySchemes: args.includes('--export-security-schemes'),
+      exportRequestBodies: args.includes('--export-request-bodies'),
+      exportResponses: args.includes('--export-responses'),
+      exportHeadersTypes: args.includes('--export-headers-types'),
+      exportHeaders: args.includes('--export-headers'),
+      exportExamples: args.includes('--export-examples'),
+      exportLinks: args.includes('--export-links'),
+      exportCallbacks: args.includes('--export-callbacks'),
       template: args.includes('--template'),
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path'),

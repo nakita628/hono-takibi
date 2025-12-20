@@ -9,12 +9,26 @@ import { responses } from './responses.js'
 import { schemas } from './schemas.js'
 import { securitySchemes } from './securitySchemes.js'
 
+export type ComponentsExportOptions = {
+  readonly exportSchemasTypes: boolean
+  readonly exportSchemas: boolean
+  readonly exportParametersTypes: boolean
+  readonly exportParameters: boolean
+  readonly exportSecuritySchemes: boolean
+  readonly exportRequestBodies: boolean
+  readonly exportResponses: boolean
+  readonly exportHeadersTypes: boolean
+  readonly exportHeaders: boolean
+  readonly exportExamples: boolean
+  readonly exportLinks: boolean
+  readonly exportCallbacks: boolean
+}
+
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
  *
  * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the Zod schema variables.
- * @param exportType - Whether to export the inferred Zod types.
+ * @param options - Export flags for each component kind.
  * @returns A string of TypeScript code with Zod schema and type definitions, or an empty string if no schemas exist.
  *
  * @remarks
@@ -23,22 +37,18 @@ import { securitySchemes } from './securitySchemes.js'
  * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
  * - Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
  */
-export function componentsCode(
-  components: Components,
-  exportSchema: boolean,
-  exportType: boolean,
-): string {
+export function componentsCode(components: Components, options: ComponentsExportOptions): string {
   // Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
   return [
-    schemas(components, exportSchema, exportType),
-    parameters(components, exportSchema, exportType),
-    securitySchemes(components, exportSchema),
-    requestBodies(components, exportSchema),
-    responses(components, exportSchema),
-    headers(components, exportSchema),
-    examples(components, exportSchema),
-    links(components, exportSchema),
-    callbacks(components, exportSchema),
+    schemas(components, options.exportSchemas, options.exportSchemasTypes),
+    parameters(components, options.exportParameters, options.exportParametersTypes),
+    securitySchemes(components, options.exportSecuritySchemes),
+    requestBodies(components, options.exportRequestBodies),
+    responses(components, options.exportResponses),
+    headers(components, options.exportHeaders, options.exportHeadersTypes),
+    examples(components, options.exportExamples),
+    links(components, options.exportLinks),
+    callbacks(components, options.exportCallbacks),
   ]
     .filter(Boolean)
     .join('\n\n')

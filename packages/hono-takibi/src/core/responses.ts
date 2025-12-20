@@ -325,7 +325,7 @@ export async function responses(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(rs).sort()) {
+    for (const key of Object.keys(rs)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
@@ -351,7 +351,6 @@ export async function responses(
     }
 
     const indexBody = `${Object.keys(rs)
-      .sort()
       .map((n) => `export * from './${lowerFirst(responseConstName(n))}'`)
       .join('\n')}\n`
 

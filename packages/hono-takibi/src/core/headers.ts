@@ -73,7 +73,7 @@ export async function headers(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(hs).sort()) {
+    for (const key of Object.keys(hs)) {
       const header = hs[key]
       if (!header) continue
 
@@ -89,7 +89,6 @@ export async function headers(
     }
 
     const indexBody = `${Object.keys(hs)
-      .sort()
       .map((n) => `export * from './${lowerFirst(headerBaseName(n))}'`)
       .join('\n')}\n`
 

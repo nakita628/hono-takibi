@@ -20,7 +20,7 @@ export async function links(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(ls).sort()) {
+    for (const key of Object.keys(ls)) {
       const val = ls[key]
       const name = toIdentifier(ensureSuffix(key, 'Link'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
@@ -30,7 +30,6 @@ export async function links(
     }
 
     const indexBody = `${Object.keys(ls)
-      .sort()
       .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Link')))}'`)
       .join('\n')}\n`
     const coreResult = await core(

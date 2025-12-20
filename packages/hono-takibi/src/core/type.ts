@@ -13,7 +13,20 @@ export async function type(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const hono = zodOpenAPIHono(openAPI, false, false)
+    const hono = zodOpenAPIHono(openAPI, {
+      exportSchemasTypes: false,
+      exportSchemas: false,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    })
 
     const paths = openAPI.paths
     const routes = Object.entries(paths).flatMap(([p, pathItem]) =>
@@ -50,7 +63,6 @@ export async function type(
     const appInit =
       'export const api = app' +
       routeMappings
-        .sort((a, b) => (a.routeName < b.routeName ? -1 : a.routeName > b.routeName ? 1 : 0))
         .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
         .join('')
 

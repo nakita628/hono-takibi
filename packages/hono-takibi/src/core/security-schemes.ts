@@ -45,7 +45,6 @@ export async function securitySchemes(
     }
 
     const indexBody = `${Object.keys(schemes)
-      .sort()
       .map((n) => `export * from './${lowerFirst(toIdentifier(n))}'`)
       .join('\n')}\n`
     const fmtResult = await fmt(indexBody)

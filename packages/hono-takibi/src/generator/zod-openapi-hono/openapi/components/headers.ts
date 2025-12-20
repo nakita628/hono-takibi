@@ -14,6 +14,12 @@ const headerConstName = (key: string): string => {
   return toIdentifier(base)
 }
 
+const stripSchemaSuffix = (name: string): string =>
+  name.endsWith('Schema') ? name.slice(0, -'Schema'.length) : name
+
+const headerTypeDecl = (name: string, exportType: boolean): string =>
+  exportType ? `\n\nexport type ${stripSchemaSuffix(name)} = z.infer<typeof ${name}>` : ''
+
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
 const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
@@ -29,16 +35,24 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
  *
  * @param components - The OpenAPI components object.
  * @param exportSchema - Whether to export the header schema variables.
+ * @param exportType - Whether to export the inferred header types.
  * @returns A string of TypeScript code with header definitions.
  */
-export function headers(components: Components, exportSchema: boolean): string {
+export function headers(
+  components: Components,
+  exportSchema: boolean,
+  exportType: boolean,
+): string {
   const { headers } = components
   if (!headers) return ''
 
   return Object.keys(headers)
     .map((key) => {
       const header = headers[key]
-      if (!header) return declareConst(headerConstName(key), 'z.any()', exportSchema)
+      if (!header) {
+        const constName = headerConstName(key)
+        return `${declareConst(constName, 'z.any()', exportSchema)}${headerTypeDecl(constName, exportType)}`
+      }
 
       const schema: Schema = {
         ...(header.schema ?? {}),
@@ -49,7 +63,8 @@ export function headers(components: Components, exportSchema: boolean): string {
           : {}),
       }
       const expr = zodToOpenAPI(schema)
-      return declareConst(headerConstName(key), expr, exportSchema)
+      const constName = headerConstName(key)
+      return `${declareConst(constName, expr, exportSchema)}${headerTypeDecl(constName, exportType)}`
     })
     .join('\n\n')
 }

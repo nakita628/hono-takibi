@@ -35,7 +35,7 @@ describe('utils', () => {
           input: 'openapi.yaml',
           'zod-openapi': {
             output: 'routes/index.ts',
-            exportTypes: true,
+            exportSchemasTypes: true,
             exportSchemas: true,
           },
           rpc: {
@@ -47,7 +47,11 @@ describe('utils', () => {
           ok: true,
           value: {
             input: 'openapi.yaml',
-            'zod-openapi': { output: 'routes/index.ts', exportTypes: true, exportSchemas: true },
+            'zod-openapi': {
+              output: 'routes/index.ts',
+              exportSchemasTypes: true,
+              exportSchemas: true,
+            },
             rpc: {
               output: 'rpc/index.ts',
               import: "import { client } from '../index.ts'",
@@ -59,7 +63,7 @@ describe('utils', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
           'zod-openapi': {
-            exportTypes: true,
+            exportSchemasTypes: true,
             exportSchemas: false,
             components: {
               schemas: {
@@ -140,8 +144,8 @@ describe('utils', () => {
             components: {
               schemas: {
                 output: 'src/schemas/index.ts',
-                // biome-ignore lint: test
-                import: 123 as any,
+                // @ts-expect-error - test invalid import
+                import: 123,
               },
             },
             routes: { output: 'src/routes/index.ts' },
@@ -161,8 +165,8 @@ describe('utils', () => {
             },
             routes: {
               output: 'src/routes/index.ts',
-              // biome-ignore lint: test
-              split: 'yes' as any,
+              // @ts-expect-error - test invalid boolean
+              split: 'yes',
             },
           },
         })
@@ -205,8 +209,8 @@ describe('utils', () => {
           input: 'openapi.json',
           'zod-openapi': {
             output: 'routes/index.ts',
-            // biome-ignore lint: test
-            exportSchemas: 'true' as any,
+            // @ts-expect-error - test invalid boolean
+            exportSchemas: 'true',
           },
         })
         expect(result).toStrictEqual({
@@ -214,18 +218,18 @@ describe('utils', () => {
           error: 'Invalid exportSchemas format for zod-openapi: true',
         })
       })
-      it.concurrent('fails: zod-openapi.exportTypes not boolean', () => {
+      it.concurrent('fails: zod-openapi.exportSchemasTypes not boolean', () => {
         const result = parseConfig({
           input: 'openapi.json',
           'zod-openapi': {
             output: 'routes/index.ts',
-            // biome-ignore lint: test
-            exportTypes: 1 as any,
+            // @ts-expect-error - test invalid boolean
+            exportSchemasTypes: 1,
           },
         })
         expect(result).toStrictEqual({
           ok: false,
-          error: 'Invalid exportTypes format for zod-openapi: 1',
+          error: 'Invalid exportSchemasTypes format for zod-openapi: 1',
         })
       })
       it.concurrent('fails: schemas.exportTypes not boolean', () => {
@@ -235,8 +239,8 @@ describe('utils', () => {
             components: {
               schemas: {
                 output: 'src/schemas/index.ts',
-                // biome-ignore lint: test
-                exportTypes: 'yes' as any,
+                // @ts-expect-error - test invalid boolean
+                exportTypes: 'yes',
               },
             },
             routes: { output: 'src/routes/index.ts' },
@@ -264,8 +268,8 @@ describe('utils', () => {
       it.concurrent('fails: type.output not .d.ts', () => {
         const result = parseConfig({
           input: 'openapi.yaml',
-          // biome-ignore lint: test
-          type: { output: 42 as any },
+          // @ts-expect-error - test invalid output
+          type: { output: 42 },
         })
         expect(result).toStrictEqual({
           ok: false,
@@ -277,8 +281,8 @@ describe('utils', () => {
           input: 'openapi.yaml',
           'zod-openapi': { output: 'routes/index.ts' },
           rpc: {
-            // biome-ignore lint: test
-            output: 42 as any,
+            // @ts-expect-error - test invalid output
+            output: 42,
             import: '../client',
           },
         })
@@ -293,8 +297,8 @@ describe('utils', () => {
           'zod-openapi': { output: 'routes/index.ts' },
           rpc: {
             output: 'rpc/index.ts',
-            // biome-ignore lint: test
-            import: true as any,
+            // @ts-expect-error - test invalid import
+            import: true,
           },
         })
         expect(result).toStrictEqual({
@@ -309,8 +313,8 @@ describe('utils', () => {
           rpc: {
             output: 'rpc/index.ts',
             import: '../client',
-            // biome-ignore lint: test
-            split: 'nope' as any,
+            // @ts-expect-error - test invalid boolean
+            split: 'nope',
           },
         })
         expect(result).toStrictEqual({
@@ -350,8 +354,8 @@ describe('utils', () => {
       })
       it.concurrent('fails: invalid input extension (.yml is not allowed)', () => {
         const result = parseConfig({
-          // biome-ignore lint: test
-          input: 'openapi.yml' as any,
+          // @ts-expect-error - test invalid input extension
+          input: 'openapi.yml',
           'zod-openapi': { output: 'routes/index.ts' },
         })
         expect(result).toStrictEqual({
@@ -371,8 +375,18 @@ describe('utils', () => {
         value: {
           input: 'input.yaml',
           output: 'output.ts',
-          exportTypes: false,
+          exportSchemasTypes: false,
           exportSchemas: false,
+          exportParametersTypes: false,
+          exportParameters: false,
+          exportSecuritySchemes: false,
+          exportRequestBodies: false,
+          exportResponses: false,
+          exportHeadersTypes: false,
+          exportHeaders: false,
+          exportExamples: false,
+          exportLinks: false,
+          exportCallbacks: false,
           template: false,
           test: false,
           basePath: undefined,
@@ -384,8 +398,18 @@ describe('utils', () => {
         'input.yaml',
         '-o',
         'output.ts',
-        '--export-types',
+        '--export-schemas-types',
         '--export-schemas',
+        '--export-parameters-types',
+        '--export-parameters',
+        '--export-security-schemes',
+        '--export-request-bodies',
+        '--export-responses',
+        '--export-headers-types',
+        '--export-headers',
+        '--export-examples',
+        '--export-links',
+        '--export-callbacks',
         '--template',
         '--test',
         '--base-path',
@@ -398,8 +422,18 @@ describe('utils', () => {
         value: {
           input: 'input.yaml',
           output: 'output.ts',
-          exportTypes: true,
+          exportSchemasTypes: true,
           exportSchemas: true,
+          exportParametersTypes: true,
+          exportParameters: true,
+          exportSecuritySchemes: true,
+          exportRequestBodies: true,
+          exportResponses: true,
+          exportHeadersTypes: true,
+          exportHeaders: true,
+          exportExamples: true,
+          exportLinks: true,
+          exportCallbacks: true,
           template: true,
           test: true,
           basePath: '/api/v1',

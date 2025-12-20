@@ -429,7 +429,7 @@ export async function rpc(
 
   const exportLines = Array.from(
     new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
-  ).sort()
+  )
   const index = `${exportLines.join('\n')}\n`
   const coreResult = await core(index, path.dirname(indexPath), indexPath)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

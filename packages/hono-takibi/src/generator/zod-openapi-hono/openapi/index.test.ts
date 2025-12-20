@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../../openapi'
-import { zodOpenAPIHono } from './index.js'
+import { type OpenAPIExportOptions, zodOpenAPIHono } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/index.test.ts
@@ -87,9 +87,27 @@ const abcdeOpenAPI: OpenAPI = {
 }
 
 describe('zodOpenAPIHono', () => {
+  const baseOptions: OpenAPIExportOptions = {
+    exportSchemasTypes: false,
+    exportSchemas: false,
+    exportParametersTypes: false,
+    exportParameters: false,
+    exportSecuritySchemes: false,
+    exportRequestBodies: false,
+    exportResponses: false,
+    exportHeadersTypes: false,
+    exportHeaders: false,
+    exportExamples: false,
+    exportLinks: false,
+    exportCallbacks: false,
+  }
   // #1: exportSchema=true, exportType=true
   it.concurrent('zodOpenAPIHono exportSchema=true, exportType=true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, true, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, {
+      ...baseOptions,
+      exportSchemas: true,
+      exportSchemasTypes: true,
+    })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -118,7 +136,10 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // #2: exportSchema=true, exportType=false
   it.concurrent('zodOpenAPIHono exportSchema=true, exportType=false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, true, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, {
+      ...baseOptions,
+      exportSchemas: true,
+    })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -146,7 +167,10 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // #3: exportSchema=false, exportType=true
   it.concurrent('zodOpenAPIHono exportSchema=false, exportType=true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, false, true)
+    const result = zodOpenAPIHono(abcdeOpenAPI, {
+      ...baseOptions,
+      exportSchemasTypes: true,
+    })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
@@ -174,7 +198,7 @@ export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'
   })
   // #4: exportSchema=false, exportType=false
   it.concurrent('exportSchema=false, exportType=false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, false, false)
+    const result = zodOpenAPIHono(abcdeOpenAPI, baseOptions)
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')

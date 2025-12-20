@@ -43,14 +43,14 @@ export async function route(
     // # Reusable schemas (data models)
     readonly schemas?: {
       readonly output: string | `${string}.ts`
-      readonly exportType?: boolean
+      readonly exportTypes?: boolean
       readonly split?: boolean
       readonly import?: string
     }
     // # Reusable path, query, header and cookie parameters
     readonly parameters?: {
       readonly output: string | `${string}.ts`
-      readonly exportType?: boolean
+      readonly exportTypes?: boolean
       readonly split?: boolean
       readonly import?: string
     }
@@ -75,7 +75,7 @@ export async function route(
     // # Reusable response headers
     readonly headers?: {
       readonly output: string | `${string}.ts`
-      readonly exportType?: boolean
+      readonly exportTypes?: boolean
       readonly split?: boolean
       readonly import?: string
     }
@@ -333,10 +333,7 @@ export async function route(
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 
-  const indexBody = `${blocks
-    .toSorted((a, b) => a.name.localeCompare(b.name))
-    .map(({ name }) => `export * from './${lowerFirst(name)}'`)
-    .join('\n')}\n`
+  const indexBody = `${blocks.map(({ name }) => `export * from './${lowerFirst(name)}'`).join('\n')}\n`
 
   const coreResult = await core(indexBody, outDir, `${outDir}/index.ts`)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

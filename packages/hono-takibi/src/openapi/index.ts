@@ -181,7 +181,7 @@ export type Operation = {
   security?: {
     [key: string]: string[]
   }[]
-  parameters?: Parameters[]
+  parameters?: Parameters[] | unknown
   requestBody?: RequestBody
   callbacks?: Record<string, unknown>
   responses: Response

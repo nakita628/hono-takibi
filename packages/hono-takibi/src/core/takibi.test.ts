@@ -79,6 +79,61 @@ const openapi: OpenAPI = {
   },
 }
 
+type ExportFlags = {
+  readonly exportSchemasTypes: boolean
+  readonly exportSchemas: boolean
+  readonly exportParametersTypes: boolean
+  readonly exportParameters: boolean
+  readonly exportSecuritySchemes: boolean
+  readonly exportRequestBodies: boolean
+  readonly exportResponses: boolean
+  readonly exportHeadersTypes: boolean
+  readonly exportHeaders: boolean
+  readonly exportExamples: boolean
+  readonly exportLinks: boolean
+  readonly exportCallbacks: boolean
+}
+
+const defaultExports: ExportFlags = {
+  exportSchemasTypes: true,
+  exportSchemas: true,
+  exportParametersTypes: false,
+  exportParameters: false,
+  exportSecuritySchemes: false,
+  exportRequestBodies: false,
+  exportResponses: false,
+  exportHeadersTypes: false,
+  exportHeaders: false,
+  exportExamples: false,
+  exportLinks: false,
+  exportCallbacks: false,
+}
+
+const runTakibi = async (
+  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  output: `${string}.ts`,
+  options: { readonly template: boolean; readonly test: boolean; readonly basePath?: string },
+) =>
+  takibi(
+    input,
+    output,
+    defaultExports.exportSchemasTypes,
+    defaultExports.exportSchemas,
+    defaultExports.exportParametersTypes,
+    defaultExports.exportParameters,
+    defaultExports.exportSecuritySchemes,
+    defaultExports.exportRequestBodies,
+    defaultExports.exportResponses,
+    defaultExports.exportHeadersTypes,
+    defaultExports.exportHeaders,
+    defaultExports.exportExamples,
+    defaultExports.exportLinks,
+    defaultExports.exportCallbacks,
+    options.template,
+    options.test,
+    options.basePath,
+  )
+
 describe('takibi generate (sandbox)', () => {
   it('should generate Hono app with OpenAPI routes (no template/test)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-'))
@@ -90,7 +145,7 @@ describe('takibi generate (sandbox)', () => {
       const out = path.join(dir, 'zod-openapi-hono.ts') as `${string}.ts`
       fs.writeFileSync(input, JSON.stringify(openapi))
 
-      const result = await takibi(input, out, true, true, false, false)
+      const result = await runTakibi(input, out, { template: false, test: false })
 
       expect(result.ok).toBe(true)
       if (result.ok) {
@@ -170,7 +225,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const out = path.join(dir, 'zod-openapi-hono.ts') as `${string}.ts`
       fs.writeFileSync(input, JSON.stringify(openapi))
 
-      const result = await takibi(input, out, true, true, true, true)
+      const result = await runTakibi(input, out, { template: true, test: true })
 
       expect(result.ok).toBe(true)
       if (result.ok) {
@@ -195,7 +250,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await takibi(input, out, true, true, true, true)
+      const result = await runTakibi(input, out, { template: true, test: true })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -222,7 +277,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await takibi(input, out, true, true, true, false)
+      const result = await runTakibi(input, out, { template: true, test: false })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -246,7 +301,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await takibi(input, out, true, true, true, true, 'api')
+      const result = await runTakibi(input, out, { template: true, test: true, basePath: 'api' })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -277,7 +332,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await takibi(input, out, true, true, true, false, 'api')
+      const result = await runTakibi(input, out, { template: true, test: false, basePath: 'api' })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)

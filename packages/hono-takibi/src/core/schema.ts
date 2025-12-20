@@ -84,7 +84,6 @@ export async function schema(
 
     // index.ts
     const index = `${Object.keys(schemas)
-      .sort()
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
     const coreResult = await core(index, path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`)

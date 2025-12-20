@@ -190,7 +190,7 @@ export async function requestBodies(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(bodies).sort()) {
+    for (const key of Object.keys(bodies)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
@@ -205,7 +205,6 @@ export async function requestBodies(
     }
 
     const indexBody = `${Object.keys(bodies)
-      .sort()
       .map((n) => `export * from './${lowerFirst(requestBodyConstName(n))}'`)
       .join('\n')}\n`
 

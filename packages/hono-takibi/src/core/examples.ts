@@ -20,7 +20,7 @@ export async function examples(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(ex).sort()) {
+    for (const key of Object.keys(ex)) {
       const val = ex[key]
       const name = toIdentifier(ensureSuffix(key, 'Example'))
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
@@ -30,7 +30,6 @@ export async function examples(
     }
 
     const indexBody = `${Object.keys(ex)
-      .sort()
       .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Example')))}'`)
       .join('\n')}\n`
     const coreResult = await core(

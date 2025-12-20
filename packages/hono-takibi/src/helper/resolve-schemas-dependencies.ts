@@ -34,7 +34,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
         stack.push(value)
       }
     }
-    return Array.from(refs).sort()
+    return Array.from(refs)
   }
 
   const sorted: string[] = []
@@ -58,7 +58,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
     sorted.push(name)
   }
 
-  for (const name of Object.keys(schemas).sort()) {
+  for (const name of Object.keys(schemas)) {
     visit(name)
   }
   return sorted

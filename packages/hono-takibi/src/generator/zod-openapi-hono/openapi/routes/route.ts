@@ -81,7 +81,8 @@ export function route(
   })()
 
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  const requestParams = requestParameter(parameters, requestBody, components, options)
+
+  const requestParams = requestParameter(Array.isArray(parameters) ? parameters : [parameters], requestBody, components, options)
 
   const args = {
     routeName: `${methodPath(method, path)}Route`,

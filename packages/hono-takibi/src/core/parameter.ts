@@ -61,7 +61,7 @@ export async function parameter(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(params).sort()) {
+    for (const key of Object.keys(params)) {
       const p: Parameters | undefined = params[key]
       if (!p) continue
 
@@ -86,7 +86,6 @@ export async function parameter(
     }
 
     const indexBody = `${Object.keys(params)
-      .sort()
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
 
