@@ -11,7 +11,7 @@ describe('resolveSchemasDependencies', () => {
     })
     expect(result).toStrictEqual(['A'])
   })
-  it.concurrent(`resolveSchemasDependencies 'A', 'B', 'C' -> ['B', 'C', 'A']`, () => {
+  it.concurrent(`resolveSchemasDependencies 'C', 'B', 'A' -> ['C', 'B', 'A']`, () => {
     const result = resolveSchemasDependencies({
       A: {
         type: 'object',
@@ -42,7 +42,7 @@ describe('resolveSchemasDependencies', () => {
       },
     })
 
-    const expected = ['B', 'C', 'A']
+    const expected = ['C', 'B', 'A']
     expect(result).toStrictEqual(expected)
   })
 

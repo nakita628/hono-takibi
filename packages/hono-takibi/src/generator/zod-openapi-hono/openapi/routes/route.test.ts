@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { route } from './route'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/route.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/route.test.ts
 
 describe('route', () => {
   it.concurrent('route Test', () => {

@@ -1,30 +1,115 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../../../openapi'
-import { type OpenAPIExportOptions, zodOpenAPIHono } from './index.js'
+import { zodOpenAPIHono } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/index.test.ts
 
-const abcdeOpenAPI: OpenAPI = {
-  openapi: '3.1.0',
+const openapi: OpenAPI = {
+  openapi: '3.0.3',
   info: {
-    title: 'Sample API',
+    title: 'ABC only / components x3 (B -> C -> A)',
     version: '1.0.0',
   },
   paths: {
-    '/example': {
-      get: {
-        summary: 'Get example data',
+    '/A/{C}': {
+      post: {
+        operationId: 'A',
+        security: [
+          {
+            A: [],
+          },
+        ],
+        parameters: [
+          {
+            $ref: '#/components/parameters/C',
+          },
+          {
+            $ref: '#/components/parameters/B',
+          },
+          {
+            $ref: '#/components/parameters/A',
+          },
+        ],
+        requestBody: {
+          $ref: '#/components/requestBodies/A',
+        },
         responses: {
           '200': {
-            description: 'OK',
-            content: {
-              'application/json': {
-                schema: {
-                  $ref: '#/components/schemas/A',
-                },
-              },
-            },
+            $ref: '#/components/responses/A',
+          },
+        },
+        callbacks: {
+          A: {
+            $ref: '#/components/callbacks/A',
+          },
+        },
+      },
+    },
+    '/B/{C}': {
+      post: {
+        operationId: 'B',
+        security: [
+          {
+            B: [],
+          },
+        ],
+        parameters: [
+          {
+            $ref: '#/components/parameters/C',
+          },
+          {
+            $ref: '#/components/parameters/B',
+          },
+          {
+            $ref: '#/components/parameters/A',
+          },
+        ],
+        requestBody: {
+          $ref: '#/components/requestBodies/B',
+        },
+        responses: {
+          '200': {
+            $ref: '#/components/responses/B',
+          },
+        },
+        callbacks: {
+          B: {
+            $ref: '#/components/callbacks/B',
+          },
+        },
+      },
+    },
+    '/C/{C}': {
+      post: {
+        operationId: 'C',
+        security: [
+          {
+            C: [],
+          },
+        ],
+        parameters: [
+          {
+            $ref: '#/components/parameters/C',
+          },
+          {
+            $ref: '#/components/parameters/B',
+          },
+          {
+            $ref: '#/components/parameters/A',
+          },
+        ],
+        requestBody: {
+          $ref: '#/components/requestBodies/C',
+        },
+        responses: {
+          '200': {
+            $ref: '#/components/responses/C',
+          },
+        },
+        callbacks: {
+          C: {
+            $ref: '#/components/callbacks/C',
           },
         },
       },
@@ -32,53 +117,325 @@ const abcdeOpenAPI: OpenAPI = {
   },
   components: {
     schemas: {
-      A: {
-        type: 'object',
-        required: ['a'],
-        properties: {
-          a: {
-            type: 'string',
-            example: 'a',
-          },
-        },
-      },
       B: {
         type: 'object',
-        required: ['b'],
+        required: ['B', 'C'],
         properties: {
-          b: {
+          B: {
             type: 'string',
-            example: 'b',
+            format: 'uri',
+          },
+          C: {
+            $ref: '#/components/schemas/C',
           },
         },
       },
       C: {
         type: 'object',
-        required: ['c'],
+        required: ['B', 'A'],
         properties: {
-          c: {
+          B: {
             type: 'string',
-            example: 'c',
+            format: 'uri',
+          },
+          A: {
+            $ref: '#/components/schemas/A',
           },
         },
       },
-      D: {
+      A: {
         type: 'object',
-        required: ['d'],
+        required: ['B', 'A'],
         properties: {
-          d: {
+          B: {
             type: 'string',
-            example: 'd',
+            format: 'uri',
+          },
+          A: {
+            type: 'string',
           },
         },
       },
-      E: {
-        type: 'object',
-        required: ['e'],
-        properties: {
-          e: {
-            type: 'string',
-            example: 'e',
+    },
+    parameters: {
+      B: {
+        name: 'B',
+        in: 'query',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+      C: {
+        name: 'C',
+        in: 'path',
+        required: true,
+        schema: {
+          type: 'string',
+        },
+      },
+      A: {
+        name: 'A',
+        in: 'header',
+        required: false,
+        schema: {
+          type: 'string',
+        },
+      },
+    },
+    securitySchemes: {
+      B: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      C: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      A: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+    },
+    requestBodies: {
+      B: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/B',
+            },
+            examples: {
+              B: {
+                $ref: '#/components/examples/B',
+              },
+            },
+          },
+        },
+      },
+      C: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/C',
+            },
+            examples: {
+              C: {
+                $ref: '#/components/examples/C',
+              },
+            },
+          },
+        },
+      },
+      A: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/A',
+            },
+            examples: {
+              A: {
+                $ref: '#/components/examples/A',
+              },
+            },
+          },
+        },
+      },
+    },
+    responses: {
+      B: {
+        description: 'B',
+        headers: {
+          B: {
+            $ref: '#/components/headers/B',
+          },
+          C: {
+            $ref: '#/components/headers/C',
+          },
+          A: {
+            $ref: '#/components/headers/A',
+          },
+        },
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/B',
+            },
+            examples: {
+              B: {
+                $ref: '#/components/examples/B',
+              },
+            },
+          },
+        },
+        links: {
+          B: {
+            $ref: '#/components/links/B',
+          },
+        },
+      },
+      C: {
+        description: 'C',
+        headers: {
+          B: {
+            $ref: '#/components/headers/B',
+          },
+          C: {
+            $ref: '#/components/headers/C',
+          },
+          A: {
+            $ref: '#/components/headers/A',
+          },
+        },
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/C',
+            },
+            examples: {
+              C: {
+                $ref: '#/components/examples/C',
+              },
+            },
+          },
+        },
+        links: {
+          C: {
+            $ref: '#/components/links/C',
+          },
+        },
+      },
+      A: {
+        description: 'A',
+        headers: {
+          B: {
+            $ref: '#/components/headers/B',
+          },
+          C: {
+            $ref: '#/components/headers/C',
+          },
+          A: {
+            $ref: '#/components/headers/A',
+          },
+        },
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/A',
+            },
+            examples: {
+              A: {
+                $ref: '#/components/examples/A',
+              },
+            },
+          },
+        },
+        links: {
+          A: {
+            $ref: '#/components/links/A',
+          },
+        },
+      },
+    },
+    headers: {
+      B: {
+        schema: {
+          type: 'string',
+        },
+      },
+      C: {
+        schema: {
+          type: 'string',
+        },
+      },
+      A: {
+        schema: {
+          type: 'string',
+        },
+      },
+    },
+    examples: {
+      B: {
+        value: {
+          B: 'https://example.com/B',
+          C: {
+            B: 'https://example.com/C',
+            A: {
+              B: 'https://example.com/A',
+              A: 'A',
+            },
+          },
+        },
+      },
+      C: {
+        value: {
+          B: 'https://example.com/C',
+          A: {
+            B: 'https://example.com/A',
+            A: 'A',
+          },
+        },
+      },
+      A: {
+        value: {
+          B: 'https://example.com/A',
+          A: 'A',
+        },
+      },
+    },
+    links: {
+      B: {
+        operationId: 'B',
+      },
+      C: {
+        operationId: 'C',
+      },
+      A: {
+        operationId: 'A',
+      },
+    },
+    callbacks: {
+      B: {
+        '{$request.body#/B}': {
+          post: {
+            requestBody: {
+              $ref: '#/components/requestBodies/B',
+            },
+            responses: {
+              '200': {
+                $ref: '#/components/responses/B',
+              },
+            },
+          },
+        },
+      },
+      C: {
+        '{$request.body#/B}': {
+          post: {
+            requestBody: {
+              $ref: '#/components/requestBodies/C',
+            },
+            responses: {
+              '200': {
+                $ref: '#/components/responses/C',
+              },
+            },
+          },
+        },
+      },
+      A: {
+        '{$request.body#/B}': {
+          post: {
+            requestBody: {
+              $ref: '#/components/requestBodies/A',
+            },
+            responses: {
+              '200': {
+                $ref: '#/components/responses/A',
+              },
+            },
           },
         },
       },
@@ -87,141 +444,94 @@ const abcdeOpenAPI: OpenAPI = {
 }
 
 describe('zodOpenAPIHono', () => {
-  const baseOptions: OpenAPIExportOptions = {
-    exportSchemasTypes: false,
-    exportSchemas: false,
-    exportParametersTypes: false,
-    exportParameters: false,
-    exportSecuritySchemes: false,
-    exportRequestBodies: false,
-    exportResponses: false,
-    exportHeadersTypes: false,
-    exportHeaders: false,
-    exportExamples: false,
-    exportLinks: false,
-    exportCallbacks: false,
-  }
-  // #1: exportSchema=true, exportType=true
   it.concurrent('zodOpenAPIHono exportSchema=true, exportType=true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, {
-      ...baseOptions,
-      exportSchemas: true,
-      exportSchemasTypes: true,
+    const result = zodOpenAPIHono(openapi, {
+      exportSchemasTypes: false,
+      exportSchemas: false,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
     })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
-export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
-
-export type A = z.infer<typeof ASchema>
-
-export const BSchema = z.object({b:z.string().openapi({example:"b"})}).openapi('B')
-
-export type B = z.infer<typeof BSchema>
-
-export const CSchema = z.object({c:z.string().openapi({example:"c"})}).openapi('C')
-
-export type C = z.infer<typeof CSchema>
-
-export const DSchema = z.object({d:z.string().openapi({example:"d"})}).openapi('D')
-
-export type D = z.infer<typeof DSchema>
-
-export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
-
-export type E = z.infer<typeof ESchema>
-
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
-
-    expect(result).toBe(expected)
-  })
-  // #2: exportSchema=true, exportType=false
-  it.concurrent('zodOpenAPIHono exportSchema=true, exportType=false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, {
-      ...baseOptions,
-      exportSchemas: true,
-    })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+const ASchema = z.object({B:z.url(),A:z.string()}).openapi('A')
 
 
 
-export const BSchema = z.object({b:z.string().openapi({example:"b"})}).openapi('B')
+const CSchema = z.object({B:z.url(),A:ASchema}).openapi('C')
 
 
 
-export const CSchema = z.object({c:z.string().openapi({example:"c"})}).openapi('C')
+const BSchema = z.object({B:z.url(),C:CSchema}).openapi('B')
 
 
 
-export const DSchema = z.object({d:z.string().openapi({example:"d"})}).openapi('D')
+const BParamsSchema = z.string().openapi({param:{in:"query",name:"B",required:false}})
 
 
 
-export const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
+const CParamsSchema = z.string().openapi({param:{in:"path",name:"C",required:true}})
 
 
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
-    expect(result).toBe(expected)
-  })
-  // #3: exportSchema=false, exportType=true
-  it.concurrent('zodOpenAPIHono exportSchema=false, exportType=true', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, {
-      ...baseOptions,
-      exportSchemasTypes: true,
-    })
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
-
-export type A = z.infer<typeof ASchema>
-
-const BSchema = z.object({b:z.string().openapi({example:"b"})}).openapi('B')
-
-export type B = z.infer<typeof BSchema>
-
-const CSchema = z.object({c:z.string().openapi({example:"c"})}).openapi('C')
-
-export type C = z.infer<typeof CSchema>
-
-const DSchema = z.object({d:z.string().openapi({example:"d"})}).openapi('D')
-
-export type D = z.infer<typeof DSchema>
-
-const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
-
-export type E = z.infer<typeof ESchema>
-
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
-    expect(result).toBe(expected)
-  })
-  // #4: exportSchema=false, exportType=false
-  it.concurrent('exportSchema=false, exportType=false', () => {
-    const result = zodOpenAPIHono(abcdeOpenAPI, baseOptions)
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-const ASchema = z.object({a:z.string().openapi({example:"a"})}).openapi('A')
+const AParamsSchema = z.string().openapi({param:{in:"header",name:"A",required:false}})
 
 
 
-const BSchema = z.object({b:z.string().openapi({example:"b"})}).openapi('B')
+const BSecurityScheme = {"type":"http","scheme":"bearer"}
 
+const CSecurityScheme = {"type":"http","scheme":"bearer"}
 
+const ASecurityScheme = {"type":"http","scheme":"bearer"}
 
-const CSchema = z.object({c:z.string().openapi({example:"c"})}).openapi('C')
+const BRequestBody = {required:true,content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
 
+const CRequestBody = {required:true,content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
 
+const ARequestBody = {required:true,content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
-const DSchema = z.object({d:z.string().openapi({example:"d"})}).openapi('D')
+const BResponse = {description:"B",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"B":{$ref:"#/components/links/B"}},content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
 
+const CResponse = {description:"C",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"C":{$ref:"#/components/links/C"}},content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
 
+const AResponse = {description:"A",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"A":{$ref:"#/components/links/A"}},content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
-const ESchema = z.object({e:z.string().openapi({example:"e"})}).openapi('E')
+const BHeaderSchema = z.string()
 
+const CHeaderSchema = z.string()
 
+const AHeaderSchema = z.string()
 
-export const getExampleRoute=createRoute({method:'get',path:'/example',summary:'Get example data',responses:{200:{description:'OK',content:{'application/json':{schema:ASchema}}},}})`
+const BExample = {"value":{"B":"https://example.com/B","C":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}}
+
+const CExample = {"value":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}
+
+const AExample = {"value":{"B":"https://example.com/A","A":"A"}}
+
+const BLink = {"operationId":"B"}
+
+const CLink = {"operationId":"C"}
+
+const ALink = {"operationId":"A"}
+
+const BCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/B"},"responses":{"200":{"$ref":"#/components/responses/B"}}}}}
+
+const CCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/C"},"responses":{"200":{"$ref":"#/components/responses/C"}}}}}
+
+const ACallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/A"},"responses":{"200":{"$ref":"#/components/responses/A"}}}}}
+
+export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallback},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:AResponse,}})
+
+export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallback},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:BResponse,}})
+
+export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallback},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:CResponse,}})`
     expect(result).toBe(expected)
   })
 })

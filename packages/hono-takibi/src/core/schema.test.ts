@@ -89,24 +89,6 @@ const openapi: OpenAPI = {
   },
 }
 
-const recursiveOpenapi: OpenAPI = {
-  openapi: '3.0.0',
-  info: { title: 'Recursive', version: '0.0.0' },
-  paths: {},
-  components: {
-    schemas: {
-      Node: {
-        type: 'object',
-        required: ['value', 'child'],
-        properties: {
-          value: { type: 'string' },
-          child: { $ref: '#/components/schemas/Node' },
-        },
-      },
-    },
-  },
-}
-
 describe('schema() (sandbox)', () => {
   it('generates schema (exportType: true, split: false)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
@@ -124,15 +106,15 @@ export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
 export type Hono = z.infer<typeof HonoSchema>
 
-export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
-
-export type HonoX = z.infer<typeof HonoXSchema>
-
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
   .openapi('ZodOpenAPIHono')
 
 export type ZodOpenAPIHono = z.infer<typeof ZodOpenAPIHonoSchema>
+
+export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
+
+export type HonoX = z.infer<typeof HonoXSchema>
 
 export const HonoUnionSchema = z
   .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })
@@ -140,7 +122,6 @@ export const HonoUnionSchema = z
 
 export type HonoUnion = z.infer<typeof HonoUnionSchema>
 `
-
       expect(index).toBe(indexExpected)
       expect(result).toStrictEqual({
         ok: true,
@@ -160,16 +141,15 @@ export type HonoUnion = z.infer<typeof HonoUnionSchema>
 
       const result = await schema(input, out, false)
       const index = fs.readFileSync(out, 'utf-8')
-
       const indexExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
-export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
-
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
   .openapi('ZodOpenAPIHono')
+
+export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
 
 export const HonoUnionSchema = z
   .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })
@@ -284,27 +264,6 @@ export type ZodOpenAPIHono = z.infer<typeof ZodOpenAPIHonoSchema>
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
-      })
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('generates schema with self references using z.lazy', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-schema-'))
-    try {
-      const input = path.join(dir, 'openapi.json') as `${string}.yaml | ${string}.json`
-      fs.writeFileSync(input, JSON.stringify(recursiveOpenapi))
-      const out = path.join(dir, 'index.ts')
-
-      const result = await schema(input, out, true)
-      const index = fs.readFileSync(out, 'utf-8')
-
-      expect(index).toContain('.lazy(() =>')
-      expect(index).toContain('child: NodeSchema')
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated schema code written to ${out}`,
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })

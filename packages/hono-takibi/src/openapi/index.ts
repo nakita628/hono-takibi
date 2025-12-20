@@ -129,9 +129,12 @@ export type FormatString =
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
+type SchemaRef = `#/components/schemas/${string}`
+type ParameterRef = `#/components/parameters/${string}`
+
 export type Ref =
-  | `#/components/schemas/${string}`
-  | `#/components/parameters/${string}`
+  | SchemaRef
+  | ParameterRef
   | `#/components/securitySchemes/${string}`
   | `#/components/requestBodies/${string}`
   | `#/components/responses/${string}`
@@ -181,7 +184,7 @@ export type Operation = {
   security?: {
     [key: string]: string[]
   }[]
-  parameters?: Parameters[] | unknown
+  parameters?: Parameters[]
   requestBody?: RequestBody
   callbacks?: Record<string, unknown>
   responses: Response
@@ -195,11 +198,13 @@ export type ResponseDefinition = {
   content?: Content
   $ref?: string
   headers?: {
-    [key: string]: {
-      description?: string
-      schema: Schema
-      $ref?: string
-    }
+    [key: string]:
+      | {
+          description?: string
+          schema: Schema
+          $ref?: Ref
+        }
+      | unknown
   }
   links?: {
     [key: string]: {
@@ -311,7 +316,7 @@ export type Components = {
 /**
  * Parameter definition
  */
-export type Parameters = {
+type ParameterObject = {
   schema: Schema
   description?: string
   required?: boolean
@@ -334,3 +339,7 @@ export type RequestBody = {
  * Response definitions mapped by status code
  */
 export type Responses = Record<string, ResponseDefinition>
+type ReferenceObject<R extends Ref = Ref> = {
+  $ref: R
+}
+export type Parameters = ParameterObject | ReferenceObject<ParameterRef>

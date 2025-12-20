@@ -1,56 +1,56 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ASchema = z.object({ name: z.string() }).partial().openapi('A')
-
-const BSchema = z.object({ id: z.string() }).partial().openapi('B')
-
-const CSchema = z.object({ value: z.number() }).partial().openapi('C')
-
-const DSchema = z.object({ description: z.string() }).partial().openapi('D')
-
-const ESchema = z.object({ flag: z.boolean() }).partial().openapi('E')
-
-const FSchema = z.object({ title: z.string() }).partial().openapi('F')
-
-const GSchema = z.object({ summary: z.string() }).partial().openapi('G')
-
-const HSchema = z.object({ info: z.string() }).partial().openapi('H')
-
-const ISchema = z.object({ data: z.string() }).partial().openapi('I')
-
-const JSchema = z.object({ code: z.string() }).partial().openapi('J')
-
-const KSchema = z.object({ key: z.string() }).partial().openapi('K')
-
-const LSchema = z.object({ label: z.string() }).partial().openapi('L')
+const NSchema = z.object({ number: z.int() }).partial().openapi('N')
 
 const MSchema = z.object({ meta: z.string() }).partial().openapi('M')
 
-const NSchema = z.object({ number: z.int() }).partial().openapi('N')
-
-const OSchema = z.object({ option: z.string() }).partial().openapi('O')
-
-const PSchema = z.object({ price: z.number() }).partial().openapi('P')
-
-const QSchema = z.object({ quantity: z.int() }).partial().openapi('Q')
-
-const RSchema = z.object({ rating: z.number() }).partial().openapi('R')
-
-const SSchema = z.object({ status: z.string() }).partial().openapi('S')
-
-const TSchema = z.object({ time: z.string() }).partial().openapi('T')
-
-const USchema = z.object({ unit: z.string() }).partial().openapi('U')
-
-const VSchema = z.object({ volume: z.number() }).partial().openapi('V')
-
-const WSchema = z.object({ weight: z.number() }).partial().openapi('W')
-
-const XSchema = z.object({ xFactor: z.string() }).partial().openapi('X')
+const ZSchema = z.object({ zone: z.string() }).partial().openapi('Z')
 
 const YSchema = z.object({ yield: z.string() }).partial().openapi('Y')
 
-const ZSchema = z.object({ zone: z.string() }).partial().openapi('Z')
+const XSchema = z.object({ xFactor: z.string() }).partial().openapi('X')
+
+const WSchema = z.object({ weight: z.number() }).partial().openapi('W')
+
+const VSchema = z.object({ volume: z.number() }).partial().openapi('V')
+
+const USchema = z.object({ unit: z.string() }).partial().openapi('U')
+
+const BSchema = z.object({ id: z.string() }).partial().openapi('B')
+
+const ASchema = z.object({ name: z.string() }).partial().openapi('A')
+
+const ESchema = z.object({ flag: z.boolean() }).partial().openapi('E')
+
+const DSchema = z.object({ description: z.string() }).partial().openapi('D')
+
+const CSchema = z.object({ value: z.number() }).partial().openapi('C')
+
+const TSchema = z.object({ time: z.string() }).partial().openapi('T')
+
+const SSchema = z.object({ status: z.string() }).partial().openapi('S')
+
+const RSchema = z.object({ rating: z.number() }).partial().openapi('R')
+
+const QSchema = z.object({ quantity: z.int() }).partial().openapi('Q')
+
+const PSchema = z.object({ price: z.number() }).partial().openapi('P')
+
+const OSchema = z.object({ option: z.string() }).partial().openapi('O')
+
+const LSchema = z.object({ label: z.string() }).partial().openapi('L')
+
+const KSchema = z.object({ key: z.string() }).partial().openapi('K')
+
+const JSchema = z.object({ code: z.string() }).partial().openapi('J')
+
+const ISchema = z.object({ data: z.string() }).partial().openapi('I')
+
+const HSchema = z.object({ info: z.string() }).partial().openapi('H')
+
+const GSchema = z.object({ summary: z.string() }).partial().openapi('G')
+
+const FSchema = z.object({ title: z.string() }).partial().openapi('F')
 
 const RootSchema = z
   .object({
