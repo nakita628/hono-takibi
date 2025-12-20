@@ -22,6 +22,7 @@ export function parameters(
   exportType: boolean,
 ): string {
   const { parameters } = components
+
   if (!parameters) return ''
 
   return Object.keys(parameters)
