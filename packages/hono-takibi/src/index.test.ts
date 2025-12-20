@@ -66,11 +66,11 @@ describe('Hono Takibi Normal Test', () => {
     fs.rmSync('tmp-route', { recursive: true, force: true })
   })
 
-  // #1: exportSchema=true, exportType=true
-  it('--export-schema --export-type', () => {
+  // #1: exportSchemas=true, exportTypes=true
+  it('--export-schemas --export-types', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema --export-type`,
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas --export-types`,
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -90,11 +90,11 @@ export const postTestRoute = createRoute({
     expect(result).toBe(expected)
   })
 
-  // #2: exportSchema=true, exportType=false
-  it('--export-schema', () => {
+  // #2: exportSchemas=true, exportTypes=false
+  it('--export-schemas', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schema`,
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas`,
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -112,11 +112,11 @@ export const postTestRoute = createRoute({
     expect(result).toBe(expected)
   })
 
-  // #3: exportSchema=false, exportType=true
-  it('--export-type', () => {
+  // #3: exportSchemas=false, exportTypes=true
+  it('--export-types', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-type`,
+      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-types`,
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
@@ -136,8 +136,8 @@ export const postTestRoute = createRoute({
     expect(result).toBe(expected)
   })
 
-  // #4: exportSchema=false, exportType=false
-  it('exportSchema=false, exportType=false', () => {
+  // #4: exportSchemas=false, exportTypes=false
+  it('exportSchemas=false, exportTypes=false', () => {
     const openapiPath = path.join('tmp-openapi/test.json')
     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`)
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })

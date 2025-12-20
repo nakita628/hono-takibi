@@ -54,7 +54,6 @@
 //   },
 // })
 
-
 // import { defineConfig } from 'hono-takibi/config'
 
 // export default defineConfig({
@@ -100,7 +99,6 @@
 //     },
 //   },
 // })
-
 
 import { defineConfig } from 'hono-takibi/config'
 

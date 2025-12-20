@@ -1,19 +1,29 @@
 import type { Components, ResponseDefinition } from '../../../../openapi/index.js'
+import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 import { headersPropExpr } from './headers.js'
-import { declareConst, resolveComponentKey, responseConstName } from './helpers.js'
 import { linksPropExpr } from './links.js'
 import { mediaTypeExpr } from './request-bodies.js'
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const responseConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Response'))
+
+const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
+  if (!$ref.startsWith(prefix)) return undefined
+  const key = $ref.slice(prefix.length)
+  return key ? key : undefined
+}
 
 /**
  * Generates a response content property expression.
  */
 const responseContentPropExpr = (
   content: ResponseDefinition['content'] | undefined,
-  components: Components,
 ): string | undefined => {
   if (!content) return undefined
   const contentEntries = Object.entries(content).map(([contentType, media]) => {
-    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components.examples)}`
+    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
   })
   return contentEntries.length > 0 ? `content:{${contentEntries.join(',')}}` : undefined
 }
@@ -33,8 +43,8 @@ const responseDefinitionExpr = (res: ResponseDefinition, components: Components)
   const value = resolved ?? res
   const description = `description:${JSON.stringify(value.description ?? '')}`
   const headers = headersPropExpr(value.headers, components)
-  const links = linksPropExpr(value.links, components)
-  const content = responseContentPropExpr(value.content, components)
+  const links = linksPropExpr(value.links)
+  const content = responseContentPropExpr(value.content)
   return `{${[description, headers, links, content].filter(Boolean).join(',')}}`
 }
 

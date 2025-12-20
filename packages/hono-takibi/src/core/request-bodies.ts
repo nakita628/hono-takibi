@@ -129,34 +129,34 @@ const requestBodyExpr = (
   return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
 }
 
-  const buildImportSchemas = (
-    fromFile: string,
-    code: string,
-    locals: ReadonlySet<string>,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.schemas
-    if (!target) return ''
-    const tokens = findSchema(code).filter((t) => !locals.has(t))
-    if (tokens.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(tokens, spec)
-  }
+const buildImportSchemas = (
+  fromFile: string,
+  code: string,
+  locals: ReadonlySet<string>,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.schemas
+  if (!target) return ''
+  const tokens = findSchema(code).filter((t) => !locals.has(t))
+  if (tokens.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(tokens, spec)
+}
 
-  const buildImportExamples = (
-    fromFile: string,
-    usedExampleKeys: ReadonlySet<string>,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.examples
-    if (!target) return ''
-    const names = Array.from(usedExampleKeys)
-      .sort()
-      .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
-    if (names.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(names, spec)
-  }
+const buildImportExamples = (
+  fromFile: string,
+  usedExampleKeys: ReadonlySet<string>,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.examples
+  if (!target) return ''
+  const names = Array.from(usedExampleKeys)
+    .sort()
+    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
+  if (names.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(names, spec)
+}
 
 /**
  * Generates `components.requestBodies` constants (objects containing Zod schemas).

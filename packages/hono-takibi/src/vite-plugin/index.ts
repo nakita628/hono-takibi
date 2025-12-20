@@ -215,8 +215,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const result = await takibi(
         c.input,
         out,
-        zo.exportSchema ?? false,
-        zo.exportType ?? false,
+        zo.exportSchemas ?? false,
+        zo.exportTypes ?? false,
         false,
         false,
       )
@@ -232,14 +232,14 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       if (s.split === true) {
         const outDir = toAbs(s.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await schema(c.input, outDir, s.exportType === true, true)
+        const r = await schema(c.input, outDir, s.exportTypes === true, true)
         if (!r.ok) return `✗ schemas(split): ${r.error}`
         return removed.length > 0
           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ schemas(split) -> ${outDir}/*.ts`
       }
       const out = toAbs(s.output)
-      const r = await schema(c.input, out, s.exportType === true, false)
+      const r = await schema(c.input, out, s.exportTypes === true, false)
       return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
     }
     jobs.push(runSchema())
@@ -255,7 +255,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         const r = await parameter(
           c.input,
           outDir,
-          parameters.exportType === true,
+          parameters.exportTypes === true,
           true,
           schemaTarget ? { schemas: schemaTarget } : undefined,
         )
@@ -268,7 +268,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const r = await parameter(
         c.input,
         out,
-        parameters.exportType === true,
+        parameters.exportTypes === true,
         false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
@@ -287,7 +287,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         const r = await headers(
           c.input,
           outDir,
-          h.exportType === true,
+          h.exportTypes === true,
           true,
           schemaTarget ? { schemas: schemaTarget } : undefined,
         )
@@ -300,7 +300,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const r = await headers(
         c.input,
         out,
-        h.exportType === true,
+        h.exportTypes === true,
         false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
@@ -447,7 +447,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // zod-openapi.routes
-  if (zo?.routes && schemaTarget) {
+  if (zo?.routes) {
     const r = zo.routes
     const runRoutes = async () => {
       const out = toAbs(r.output)

@@ -1,8 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const CategorySchema: z.ZodType<{ id: string, name: string }> = z.lazy(() => 
-  z.object({ id: z.string(), name: z.string(), parent: CategorySchema.optional() })
-  .openapi('Category')
+const CategorySchema: z.ZodType<{ id: string; name: string }> = z.lazy(() =>
+  z
+    .object({ id: z.string(), name: z.string(), parent: CategorySchema.optional() })
+    .openapi('Category'),
 )
 
 type Category = z.infer<typeof CategorySchema>

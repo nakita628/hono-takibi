@@ -211,63 +211,63 @@ const responseDefinitionExpr = (
   return `{${[description, headers, links, content].filter(Boolean).join(',')}}`
 }
 
-  const buildImportSchemas = (
-    fromFile: string,
-    code: string,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.schemas
-    if (!target) return ''
-    const tokens = findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
-    if (tokens.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(tokens, spec)
-  }
+const buildImportSchemas = (
+  fromFile: string,
+  code: string,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.schemas
+  if (!target) return ''
+  const tokens = findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
+  if (tokens.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(tokens, spec)
+}
 
-  const buildImportHeaders = (
-    fromFile: string,
-    usedHeaderKeys: ReadonlySet<string>,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.headers
-    if (!target) return ''
-    const names = Array.from(usedHeaderKeys)
-      .sort()
-      .map((k) => headerConstName(k))
-    if (names.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(names, spec)
-  }
+const buildImportHeaders = (
+  fromFile: string,
+  usedHeaderKeys: ReadonlySet<string>,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.headers
+  if (!target) return ''
+  const names = Array.from(usedHeaderKeys)
+    .sort()
+    .map((k) => headerConstName(k))
+  if (names.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(names, spec)
+}
 
-  const buildImportExamples = (
-    fromFile: string,
-    usedExampleKeys: ReadonlySet<string>,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.examples
-    if (!target) return ''
-    const names = Array.from(usedExampleKeys)
-      .sort()
-      .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
-    if (names.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(names, spec)
-  }
+const buildImportExamples = (
+  fromFile: string,
+  usedExampleKeys: ReadonlySet<string>,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.examples
+  if (!target) return ''
+  const names = Array.from(usedExampleKeys)
+    .sort()
+    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
+  if (names.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(names, spec)
+}
 
-  const buildImportLinks = (
-    fromFile: string,
-    usedLinkKeys: ReadonlySet<string>,
-    imports: Imports | undefined,
-  ): string => {
-    const target = imports?.links
-    if (!target) return ''
-    const names = Array.from(usedLinkKeys)
-      .sort()
-      .map((k) => linkConstName(k))
-    if (names.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(names, spec)
-  }
+const buildImportLinks = (
+  fromFile: string,
+  usedLinkKeys: ReadonlySet<string>,
+  imports: Imports | undefined,
+): string => {
+  const target = imports?.links
+  if (!target) return ''
+  const names = Array.from(usedLinkKeys)
+    .sort()
+    .map((k) => linkConstName(k))
+  if (names.length === 0) return ''
+  const spec = target.import ?? moduleSpecFrom(fromFile, target)
+  return renderNamedImport(names, spec)
+}
 
 /**
  * Generates `components.responses` constants (objects containing Zod schemas).

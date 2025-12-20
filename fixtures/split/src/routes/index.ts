@@ -6,11 +6,11 @@ const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
 
 const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
 
-const BSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
+const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
 
-const CSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
+const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
 
-const ASchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
+const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
 
 const BSecurityScheme = { type: 'http', scheme: 'bearer' }
 
@@ -18,52 +18,64 @@ const CSecurityScheme = { type: 'http', scheme: 'bearer' }
 
 const ASecurityScheme = { type: 'http', scheme: 'bearer' }
 
-const ARequestBody = {
-  required: true,
-  content: { 'application/json': { schema: ASchema, examples: { A: AExample } } },
-}
-
 const BRequestBody = {
   required: true,
-  content: { 'application/json': { schema: BSchema, examples: { B: BExample } } },
+  content: {
+    'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
+  },
 }
 
 const CRequestBody = {
   required: true,
-  content: { 'application/json': { schema: CSchema, examples: { C: CExample } } },
+  content: {
+    'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
+  },
+}
+
+const ARequestBody = {
+  required: true,
+  content: {
+    'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
+  },
 }
 
 const BResponse = {
   description: 'B',
   headers: z.object({
-    B: BHeaderSchema.optional(),
-    C: CHeaderSchema.optional(),
-    A: AHeaderSchema.optional(),
+    B: z.string().optional(),
+    C: z.string().optional(),
+    A: z.string().optional(),
   }),
-  links: { B: BLink },
-  content: { 'application/json': { schema: BSchema, examples: { B: BExample } } },
+  links: { B: { $ref: '#/components/links/B' } },
+  content: {
+    'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
+  },
 }
 
 const CResponse = {
   description: 'C',
   headers: z.object({
-    B: BHeaderSchema.optional(),
-    C: CHeaderSchema.optional(),
-    A: AHeaderSchema.optional(),
+    B: z.string().optional(),
+    C: z.string().optional(),
+    A: z.string().optional(),
   }),
-  links: { C: CLink },
-  content: { 'application/json': { schema: CSchema, examples: { C: CExample } } },
+  links: { C: { $ref: '#/components/links/C' } },
+  content: {
+    'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
+  },
 }
 
 const AResponse = {
   description: 'A',
   headers: z.object({
-    B: BHeaderSchema.optional(),
-    C: CHeaderSchema.optional(),
-    A: AHeaderSchema.optional(),
+    B: z.string().optional(),
+    C: z.string().optional(),
+    A: z.string().optional(),
   }),
-  links: { A: ALink },
-  content: { 'application/json': { schema: ASchema, examples: { A: AExample } } },
+  links: { A: { $ref: '#/components/links/A' } },
+  content: {
+    'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
+  },
 }
 
 const BHeaderSchema = z.string()
@@ -126,9 +138,9 @@ export const postACRoute = createRoute({
   callbacks: { A: ACallback },
   request: {
     body: ARequestBody,
-    params: z.object({ C: CSchema }),
-    query: z.object({ B: BSchema.optional() }),
-    headers: z.object({ A: ASchema.optional() }),
+    params: z.object({ C: CParamsSchema }),
+    query: z.object({ B: BParamsSchema.optional() }),
+    headers: z.object({ A: AParamsSchema.optional() }),
   },
   responses: { 200: AResponse },
 })
@@ -141,9 +153,9 @@ export const postBCRoute = createRoute({
   callbacks: { B: BCallback },
   request: {
     body: BRequestBody,
-    params: z.object({ C: CSchema }),
-    query: z.object({ B: BSchema.optional() }),
-    headers: z.object({ A: ASchema.optional() }),
+    params: z.object({ C: CParamsSchema }),
+    query: z.object({ B: BParamsSchema.optional() }),
+    headers: z.object({ A: AParamsSchema.optional() }),
   },
   responses: { 200: BResponse },
 })
@@ -156,9 +168,9 @@ export const postCCRoute = createRoute({
   callbacks: { C: CCallback },
   request: {
     body: CRequestBody,
-    params: z.object({ C: CSchema }),
-    query: z.object({ B: BSchema.optional() }),
-    headers: z.object({ A: ASchema.optional() }),
+    params: z.object({ C: CParamsSchema }),
+    query: z.object({ B: BParamsSchema.optional() }),
+    headers: z.object({ A: AParamsSchema.optional() }),
   },
   responses: { 200: CResponse },
 })

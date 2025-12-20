@@ -97,7 +97,7 @@ export async function route(
       readonly split?: boolean
       readonly import?: string
     }
-  }
+  },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -128,6 +128,19 @@ export async function route(
 
   const schemaKeys = new Set(Object.keys(openAPI.components?.schemas ?? {}))
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
+  const headerKeys = new Set(Object.keys(openAPI.components?.headers ?? {}))
+
+  const schemaConstName = (key: string): string => `${key}Schema`
+  const parameterConstName = (key: string): string => {
+    if (key.endsWith('ParamsSchema')) return key
+    if (key.endsWith('Params')) return `${key}Schema`
+    return `${key}ParamsSchema`
+  }
+  const headerConstName = (key: string): string => {
+    if (key.endsWith('HeaderSchema')) return key
+    if (key.endsWith('Header')) return `${key}Schema`
+    return `${key}HeaderSchema`
+  }
 
   const buildImports = (fromFile: string, src: string): readonly string[] => {
     const schemaTokens = findSchema(src)
@@ -158,30 +171,37 @@ export async function route(
       return line ? [line] : []
     }
 
-    const headerSchemaTokens = schemaTokens.filter((t) => t.endsWith('HeaderSchema'))
-    const nonHeaderSchemaTokens = schemaTokens.filter((t) => !t.endsWith('HeaderSchema'))
+    const schemaConstNames = new Set<string>(Array.from(schemaKeys, schemaConstName))
+    const parameterConstNames = new Set<string>(Array.from(parameterKeys, parameterConstName))
+    const headerConstNames = new Set<string>(Array.from(headerKeys, headerConstName))
 
-    const classifyToken = (token: string, isHeader: boolean): 'schema' | 'parameter' | 'header' => {
-      const base = token.endsWith('Schema') ? token.slice(0, -'Schema'.length) : token
-      if (schemaKeys.has(base)) return 'schema'
-      if (parameterKeys.has(base)) return 'parameter'
-      if (isHeader) return 'header'
-      return 'schema'
+    const schemaImportFromRoute = new Set<string>()
+    const parameterImportFromTarget = new Set<string>()
+    const headerImportFromTarget = new Set<string>()
+
+    for (const token of schemaTokens) {
+      if (headerConstNames.has(token)) {
+        headerImportFromTarget.add(token)
+        continue
+      }
+      if (parameterConstNames.has(token)) {
+        parameterImportFromTarget.add(token)
+        continue
+      }
+      if (schemaConstNames.has(token)) {
+        schemaImportFromRoute.add(token)
+        continue
+      }
+      if (token.endsWith('HeaderSchema')) {
+        headerImportFromTarget.add(token)
+        continue
+      }
+      if (token.endsWith('ParamsSchema')) {
+        parameterImportFromTarget.add(token)
+        continue
+      }
+      schemaImportFromRoute.add(token)
     }
-
-    const schemaImportFromRoute = new Set<string>(
-      [...nonHeaderSchemaTokens, ...headerSchemaTokens].filter(
-        (t) => classifyToken(t, t.endsWith('HeaderSchema')) === 'schema',
-      ),
-    )
-    const parameterImportFromTarget = new Set<string>(
-      [...nonHeaderSchemaTokens, ...headerSchemaTokens].filter(
-        (t) => classifyToken(t, t.endsWith('HeaderSchema')) === 'parameter',
-      ),
-    )
-    const headerImportFromTarget = new Set<string>(
-      headerSchemaTokens.filter((t) => classifyToken(t, true) === 'header'),
-    )
 
     if (schemaImportFromRoute.size > 0 && !schemas) {
       throw new Error(
@@ -246,7 +266,7 @@ export async function route(
       return line || undefined
     }
 
-    const schemaSpec = schemas ? schemas.import ?? moduleSpecFrom(fromFile, schemas) : undefined
+    const schemaSpec = schemas ? (schemas.import ?? moduleSpecFrom(fromFile, schemas)) : undefined
     const schemaImportLine =
       schemaImportFromRoute.size > 0 && schemaSpec
         ? renderNamedImport(Array.from(schemaImportFromRoute), schemaSpec, { sort: true })

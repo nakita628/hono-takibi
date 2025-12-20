@@ -1,6 +1,12 @@
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
-import { declareConst, isRecord, isRef, jsonExpr, resolveComponentKey } from './helpers.js'
+import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
+
+const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
 /**
  * Generates TypeScript code for OpenAPI component examples.
@@ -27,14 +33,8 @@ export function examples(components: Components, exportSchema: boolean): string 
 /**
  * Generates an example expression from an example value.
  */
-export const exampleExpr = (
-  example: unknown,
-  componentExamples: Components['examples'] | undefined,
-): string => {
+export const exampleExpr = (example: unknown): string => {
   if (isRef(example)) {
-    const key = resolveComponentKey(example.$ref, '#/components/examples/')
-    const resolved = key && componentExamples ? componentExamples[key] : undefined
-    if (key && resolved) return toIdentifier(ensureSuffix(key, 'Example'))
     return `{$ref:${JSON.stringify(example.$ref)}}`
   }
   if (isRecord(example)) return inlineExampleExpr(example)
@@ -60,11 +60,10 @@ const inlineExampleExpr = (example: Record<string, unknown>): string => {
  */
 export const examplesPropExpr = (
   examples: Record<string, unknown> | undefined,
-  componentExamples: Components['examples'] | undefined,
 ): string | undefined => {
   if (!(examples && Object.keys(examples).length > 0)) return undefined
   const entries = Object.entries(examples).map(([exampleKey, example]) => {
-    return `${JSON.stringify(exampleKey)}:${exampleExpr(example, componentExamples)}`
+    return `${JSON.stringify(exampleKey)}:${exampleExpr(example)}`
   })
   return entries.length > 0 ? `examples:{${entries.join(',')}}` : undefined
 }

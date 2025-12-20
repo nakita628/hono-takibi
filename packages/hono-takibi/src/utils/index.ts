@@ -7,8 +7,8 @@ export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportType?: boolean
-    readonly exportSchema?: boolean
+    readonly exportTypes?: boolean
+    readonly exportSchemas?: boolean
     readonly routes?: {
       readonly output: string | `${string}.ts`
       readonly split?: boolean
@@ -26,7 +26,7 @@ export function parseConfig(config: {
         | 'callbacks']?: K extends 'schemas' | 'parameters' | 'headers'
         ? {
             readonly output: string | `${string}.ts`
-            readonly exportType?: boolean
+            readonly exportTypes?: boolean
             readonly split?: boolean
             readonly import?: string
           }
@@ -52,8 +52,8 @@ export function parseConfig(config: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly 'zod-openapi'?: {
           readonly output?: `${string}.ts`
-          readonly exportType?: boolean
-          readonly exportSchema?: boolean
+          readonly exportTypes?: boolean
+          readonly exportSchemas?: boolean
           readonly routes?: {
             readonly output: string | `${string}.ts`
             readonly split?: boolean
@@ -71,7 +71,7 @@ export function parseConfig(config: {
               | 'callbacks']?: K extends 'schemas' | 'parameters' | 'headers'
               ? {
                   readonly output: string | `${string}.ts`
-                  readonly exportType?: boolean
+                  readonly exportTypes?: boolean
                   readonly split?: boolean
                   readonly import?: string
                 }
@@ -119,7 +119,7 @@ export function parseConfig(config: {
     v?: K extends 'schemas' | 'parameters' | 'headers'
       ? {
           readonly output: string | `${string}.ts`
-          readonly exportType?: boolean
+          readonly exportTypes?: boolean
           readonly split?: boolean
           readonly import?: string
         }
@@ -135,10 +135,10 @@ export function parseConfig(config: {
       return { ok: false, error: `Invalid config: zod-openapi.components.${k} is undefined` }
 
     if (k === 'schemas' || k === 'parameters' || k === 'headers') {
-      if ('exportType' in v && v.exportType !== undefined && typeof v.exportType !== 'boolean') {
+      if ('exportTypes' in v && v.exportTypes !== undefined && typeof v.exportTypes !== 'boolean') {
         return {
           ok: false,
-          error: `Invalid exportType format for components.${k}: ${String(v.exportType)}`,
+          error: `Invalid exportTypes format for components.${k}: ${String(v.exportTypes)}`,
         }
       }
     }
@@ -207,16 +207,16 @@ export function parseConfig(config: {
 
   if (zo !== undefined) {
     // boolean flags
-    if (zo.exportSchema !== undefined && typeof zo.exportSchema !== 'boolean') {
+    if (zo.exportSchemas !== undefined && typeof zo.exportSchemas !== 'boolean') {
       return {
         ok: false,
-        error: `Invalid exportSchema format for zod-openapi: ${String(zo.exportSchema)}`,
+        error: `Invalid exportSchemas format for zod-openapi: ${String(zo.exportSchemas)}`,
       }
     }
-    if (zo.exportType !== undefined && typeof zo.exportType !== 'boolean') {
+    if (zo.exportTypes !== undefined && typeof zo.exportTypes !== 'boolean') {
       return {
         ok: false,
-        error: `Invalid exportType format for zod-openapi: ${String(zo.exportType)}`,
+        error: `Invalid exportTypes format for zod-openapi: ${String(zo.exportTypes)}`,
       }
     }
   }
@@ -337,8 +337,8 @@ export function parseCli(args: readonly string[]):
       readonly value: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
-        readonly exportType: boolean
-        readonly exportSchema: boolean
+        readonly exportTypes: boolean
+        readonly exportSchemas: boolean
         readonly template: boolean
         readonly test: boolean
         readonly basePath?: string
@@ -373,8 +373,8 @@ export function parseCli(args: readonly string[]):
     value: {
       input,
       output,
-      exportType: args.includes('--export-type'),
-      exportSchema: args.includes('--export-schema'),
+      exportTypes: args.includes('--export-types'),
+      exportSchemas: args.includes('--export-schemas'),
       template: args.includes('--template'),
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path'),
@@ -547,6 +547,17 @@ export function refSchema(
   // pop() to get the last element
   // 2. "Address"
   const ref = $ref.split('/').pop()
+  if (!ref) return 'Schema'
+  if ($ref.startsWith('#/components/parameters/')) {
+    if (ref.endsWith('ParamsSchema')) return ref
+    if (ref.endsWith('Params')) return `${ref}Schema`
+    return `${ref}ParamsSchema`
+  }
+  if ($ref.startsWith('#/components/headers/')) {
+    if (ref.endsWith('HeaderSchema')) return ref
+    if (ref.endsWith('Header')) return `${ref}Schema`
+    return `${ref}HeaderSchema`
+  }
   return `${ref}Schema`
 }
 

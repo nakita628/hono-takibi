@@ -187,8 +187,8 @@ describe('honoTakibi --help', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
+  --export-types        export TypeScript type aliases
+  --export-schemas      export Zod schema objects
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
@@ -209,8 +209,8 @@ describe('honoTakibi -h', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
+  --export-types        export TypeScript type aliases
+  --export-schemas      export Zod schema objects
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)

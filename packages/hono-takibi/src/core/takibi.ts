@@ -56,8 +56,8 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
-  exportSchema: boolean,
-  exportType: boolean,
+  exportSchemas: boolean,
+  exportTypes: boolean,
   template: boolean,
   test: boolean,
   basePath?: string,
@@ -75,7 +75,7 @@ export async function takibi(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const honoResult = await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))
+    const honoResult = await fmt(zodOpenAPIHono(openAPI, exportSchemas, exportTypes))
     if (!honoResult.ok) return { ok: false, error: honoResult.error }
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }

@@ -8,8 +8,8 @@ type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportType?: boolean
-    readonly exportSchema?: boolean
+    readonly exportTypes?: boolean
+    readonly exportSchemas?: boolean
     readonly routes?: {
       readonly output: string | `${string}.ts`
       readonly split?: boolean
@@ -25,7 +25,7 @@ type Config = {
       // # Reusable path, query, header and cookie parameters
       readonly parameters?: {
         readonly output: string | `${string}.ts`
-        readonly exportType?: boolean
+        readonly exportTypes?: boolean
         readonly split?: boolean
         readonly import?: string
       }
@@ -50,7 +50,7 @@ type Config = {
       // # Reusable response headers
       readonly headers?: {
         readonly output: string | `${string}.ts`
-        readonly exportType?: boolean
+        readonly exportTypes?: boolean
         readonly split?: boolean
         readonly import?: string
       }

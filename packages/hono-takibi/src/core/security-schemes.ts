@@ -22,14 +22,13 @@ export async function securitySchemes(
     return { ok: false, error: 'No securitySchemes found' }
   }
 
-  const defs = Object.keys(schemes)
-    .map((key) => {
-      const scheme = schemes[key]
-      const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
-      const schemaExpr = JSON.stringify(scheme ?? {})
-      const typeExpr = exportType ? `\n\nexport type ${toIdentifier(key)} = typeof ${name}` : ''
-      return `export const ${name} = ${schemaExpr}${typeExpr}`
-    })
+  const defs = Object.keys(schemes).map((key) => {
+    const scheme = schemes[key]
+    const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
+    const schemaExpr = JSON.stringify(scheme ?? {})
+    const typeExpr = exportType ? `\n\nexport type ${toIdentifier(key)} = typeof ${name}` : ''
+    return `export const ${name} = ${schemaExpr}${typeExpr}`
+  })
 
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')

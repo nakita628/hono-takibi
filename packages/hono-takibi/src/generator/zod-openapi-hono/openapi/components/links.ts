@@ -1,5 +1,14 @@
 import type { Components, ResponseDefinition } from '../../../../openapi/index.js'
-import { declareConst, isRef, jsonExpr, linkConstName, resolveComponentKey } from './helpers.js'
+import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
+
+const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const linkConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Link'))
+
+const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
 /**
  * Generates TypeScript code for OpenAPI component links.
@@ -22,15 +31,11 @@ export function links(components: Components, exportSchema: boolean): string {
  */
 export const linksPropExpr = (
   links: ResponseDefinition['links'] | undefined,
-  components: Components,
 ): string | undefined => {
   if (!links) return undefined
 
   const entries = Object.entries(links).map(([name, link]) => {
     if (isRef(link)) {
-      const key = resolveComponentKey(link.$ref, '#/components/links/')
-      const resolved = key ? components.links?.[key] : undefined
-      if (key && resolved) return `${JSON.stringify(name)}:${linkConstName(key)}`
       return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
     }
     return `${JSON.stringify(name)}:${JSON.stringify(link)}`

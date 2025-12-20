@@ -8,6 +8,12 @@ import type { Parameters } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
+const parameterBaseName = (key: string): string => {
+  if (key.endsWith('ParamsSchema')) return key.slice(0, -'Schema'.length)
+  if (key.endsWith('Params')) return key
+  return `${key}Params`
+}
+
 /**
  * Generates `components.parameters` schemas as Zod definitions.
  *
@@ -59,11 +65,11 @@ export async function parameter(
       const p: Parameters | undefined = params[key]
       if (!p) continue
 
-      const schemaName = key
+      const schemaName = parameterBaseName(key)
       const z = zodToOpenAPI(p.schema, p.name, p.in)
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
-      const filePath = path.join(outDir, `${lowerFirst(schemaName)}.ts`)
+      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       const importSchemas = buildImportSchemas(
         filePath,
         code,
@@ -100,14 +106,16 @@ export async function parameter(
   const defs = Object.keys(params)
     .map((key) => {
       const p: Parameters | undefined = params[key]
-      const schemaName = key
+      const schemaName = parameterBaseName(key)
       const z = p ? zodToOpenAPI(p.schema, p.name, p.in) : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')
 
   const outFile = String(output)
-  const locals = new Set(Object.keys(params).map((k) => sanitizeIdentifier(`${k}Schema`)))
+  const locals = new Set(
+    Object.keys(params).map((k) => sanitizeIdentifier(`${parameterBaseName(k)}Schema`)),
+  )
   const importSchemas = buildImportSchemas(outFile, defs, locals)
   const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
 

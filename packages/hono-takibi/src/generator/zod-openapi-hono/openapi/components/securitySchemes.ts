@@ -1,5 +1,13 @@
 import type { Components } from '../../../../openapi/index.js'
-import { declareConst, jsonExpr, securitySchemeConstName } from './helpers.js'
+import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+
+const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const securitySchemeConstName = (key: string): string =>
+  toIdentifier(ensureSuffix(key, 'SecurityScheme'))
 
 /**
  * Generates TypeScript code for OpenAPI component securitySchemes.

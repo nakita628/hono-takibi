@@ -1,13 +1,28 @@
 import type { Components, ResponseDefinition, Schema } from '../../../../openapi/index.js'
+import { isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-import {
-  declareConst,
-  headerConstName,
-  isRecord,
-  isRef,
-  isSchema,
-  resolveComponentKey,
-} from './helpers.js'
+
+const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
+  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+
+const headerConstName = (key: string): string => {
+  const base = key.endsWith('HeaderSchema')
+    ? key
+    : key.endsWith('Header')
+      ? `${key}Schema`
+      : `${key}HeaderSchema`
+  return toIdentifier(base)
+}
+
+const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
+
+const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
+  if (!$ref.startsWith(prefix)) return undefined
+  const key = $ref.slice(prefix.length)
+  return key ? key : undefined
+}
 
 /**
  * Generates TypeScript code for OpenAPI component headers.
@@ -78,22 +93,16 @@ export const headersPropExpr = (
   if (!headers) return undefined
 
   const entries = Object.entries(headers).map(([name, header]) => {
-    const schema =
+    const resolved =
       isRef(header) && header.$ref.startsWith('#/components/headers/')
         ? (() => {
             const key = resolveComponentKey(header.$ref, '#/components/headers/')
-            const resolved = key ? components.headers?.[key] : undefined
-            if (key && resolved) {
-              const base = headerConstName(key)
-              return shouldOptional(resolved) ? `${base}.optional()` : base
-            }
-            return 'z.any().optional()'
+            return key ? components.headers?.[key] : undefined
           })()
-        : (() => {
-            const base = headerSchemaExpr(header)
-            return shouldOptional(header) ? `${base}.optional()` : base
-          })()
-
+        : undefined
+    const target = resolved ?? header
+    const base = headerSchemaExpr(target)
+    const schema = shouldOptional(target) ? `${base}.optional()` : base
     return `${JSON.stringify(name)}:${schema}`
   })
 

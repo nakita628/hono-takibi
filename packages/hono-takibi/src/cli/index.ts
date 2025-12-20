@@ -23,8 +23,8 @@ import { configToTarget, parseCli } from '../utils/index.js'
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
+  --export-types        export TypeScript type aliases
+  --export-schemas      export Zod schema objects
   --template           generate app file and handler stubs
   --test               generate empty *.test.ts files
   --base-path <path>   api prefix (default: /)
@@ -94,8 +94,8 @@ export async function honoTakibi(): Promise<
     const takibiResult = await takibi(
       cli.input,
       cli.output,
-      cli.exportSchema ?? false,
-      cli.exportType ?? false,
+      cli.exportSchemas ?? false,
+      cli.exportTypes ?? false,
       cli.template ?? false,
       cli.test ?? false,
       cli.basePath,
@@ -116,20 +116,20 @@ export async function honoTakibi(): Promise<
   const c = configResult.value
 
   const zo = c['zod-openapi']
-  const comp = zo?.components
+  const components = zo?.components
 
-  const schemaTarget = configToTarget(comp?.schemas)
-  const examplesTarget = configToTarget(comp?.examples)
-  const headersTarget = configToTarget(comp?.headers)
-  const linksTarget = configToTarget(comp?.links)
+  const schemaTarget = configToTarget(components?.schemas)
+  const examplesTarget = configToTarget(components?.examples)
+  const headersTarget = configToTarget(components?.headers)
+  const linksTarget = configToTarget(components?.links)
 
   /** takibi */
   const takibiResult = zo?.output
     ? await takibi(
         c.input,
         zo.output,
-        zo.exportSchema ?? false,
-        zo.exportType ?? false,
+        zo.exportSchemas ?? false,
+        zo.exportTypes ?? false,
         false, // template
         false, // test
       )
@@ -138,76 +138,76 @@ export async function honoTakibi(): Promise<
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
 
   /** schema */
-  const schemaResult = comp?.schemas
+  const schemaResult = components?.schemas
     ? await schema(
         c.input,
-        comp.schemas.output,
-        comp.schemas.exportType ?? false,
-        comp.schemas.split ?? false,
+        components.schemas.output,
+        components.schemas.exportType ?? false,
+        components.schemas.split ?? false,
       )
     : undefined
   if (schemaResult && !schemaResult.ok) return { ok: false, error: schemaResult.error }
 
   /** parameter */
-  const parameterResult = comp?.parameters
+  const parameterResult = components?.parameters
     ? await parameter(
         c.input,
-        comp.parameters.output,
-        comp.parameters.exportType ?? false,
-        comp.parameters.split ?? false,
+        components.parameters.output,
+        components.parameters.exportTypes ?? false,
+        components.parameters.split ?? false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (parameterResult && !parameterResult.ok) return { ok: false, error: parameterResult.error }
 
   /** headers */
-  const headersResult = comp?.headers
+  const headersResult = components?.headers
     ? await headers(
         c.input,
-        comp.headers.output,
-        comp.headers.exportType ?? false,
-        comp.headers.split ?? false,
+        components.headers.output,
+        components.headers.exportTypes ?? false,
+        components.headers.split ?? false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
 
   /** examples */
-  const examplesResult = comp?.examples
-    ? await examples(c.input, comp.examples.output, comp.examples.split ?? false)
+  const examplesResult = components?.examples
+    ? await examples(c.input, components.examples.output, components.examples.split ?? false)
     : undefined
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
 
   /** links */
-  const linksResult = comp?.links
-    ? await links(c.input, comp.links.output, comp.links.split ?? false)
+  const linksResult = components?.links
+    ? await links(c.input, components.links.output, components.links.split ?? false)
     : undefined
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
 
   /** callbacks */
-  const callbacksResult = comp?.callbacks
-    ? await callbacks(c.input, comp.callbacks.output, comp.callbacks.split ?? false)
+  const callbacksResult = components?.callbacks
+    ? await callbacks(c.input, components.callbacks.output, components.callbacks.split ?? false)
     : undefined
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
 
   /** securitySchemes */
-  const securitySchemesResult = comp?.securitySchemes
+  const securitySchemesResult = components?.securitySchemes
     ? await securitySchemes(
         c.input,
-        comp.securitySchemes.output,
+        components.securitySchemes.output,
         false, // securitySchemes does not support exportType in config
-        comp.securitySchemes.split ?? false,
+        components.securitySchemes.split ?? false,
       )
     : undefined
   if (securitySchemesResult && !securitySchemesResult.ok)
     return { ok: false, error: securitySchemesResult.error }
 
   /** requestBodies */
-  const requestBodiesResult = comp?.requestBodies
+  const requestBodiesResult = components?.requestBodies
     ? await requestBodies(
         c.input,
-        comp.requestBodies.output,
-        comp.requestBodies.split ?? false,
+        components.requestBodies.output,
+        components.requestBodies.split ?? false,
         schemaTarget || examplesTarget
           ? { schemas: schemaTarget, examples: examplesTarget }
           : undefined,
@@ -217,11 +217,11 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: requestBodiesResult.error }
 
   /** responses */
-  const responsesResult = comp?.responses
+  const responsesResult = components?.responses
     ? await responses(
         c.input,
-        comp.responses.output,
-        comp.responses.split ?? false,
+        components.responses.output,
+        components.responses.split ?? false,
         schemaTarget || headersTarget || examplesTarget || linksTarget
           ? {
               schemas: schemaTarget,
@@ -235,7 +235,7 @@ export async function honoTakibi(): Promise<
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
 
   /** route */
-  const routeResult = zo?.routes ? await route(c.input, zo.routes, comp) : undefined
+  const routeResult = zo?.routes ? await route(c.input, zo.routes, components) : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** type */
