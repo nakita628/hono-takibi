@@ -1,11 +1,11 @@
 import { client } from '../index.ts'
 
 /**
+ * PUT /pet
+ *
  * Update an existing pet
  *
  * Update an existing pet by Id
- *
- * PUT /pet
  */
 export async function putPet(body: {
   id?: number
@@ -19,11 +19,11 @@ export async function putPet(body: {
 }
 
 /**
- * Add a new pet to the store
- *
- * Add a new pet to the store
- *
  * POST /pet
+ *
+ * Add a new pet to the store
+ *
+ * Add a new pet to the store
  */
 export async function postPet(body: {
   id?: number
@@ -37,99 +37,96 @@ export async function postPet(body: {
 }
 
 /**
+ * GET /pet/findByStatus
+ *
  * Finds Pets by status
  *
  * Multiple status values can be provided with comma separated strings
- *
- * GET /pet/findByStatus
  */
 export async function getPetFindByStatus(params: {
   query: { status: 'available' | 'pending' | 'sold' }
 }) {
-  return await client.pet.findByStatus.$get({ query: { status: params.query.status } })
+  return await client.pet.findByStatus.$get({ query: params.query })
 }
 
 /**
+ * GET /pet/findByTags
+ *
  * Finds Pets by tags
  *
  * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
- *
- * GET /pet/findByTags
  */
 export async function getPetFindByTags(params: { query: { tags: string[] } }) {
-  return await client.pet.findByTags.$get({ query: { tags: params.query.tags } })
+  return await client.pet.findByTags.$get({ query: params.query })
 }
 
 /**
+ * GET /pet/{petId}
+ *
  * Find pet by ID
  *
  * Returns a single pet
- *
- * GET /pet/{petId}
  */
 export async function getPetPetId(params: { path: { petId: number } }) {
-  return await client.pet[':petId'].$get({ param: { petId: params.path.petId } })
+  return await client.pet[':petId'].$get({ param: params.path })
 }
 
 /**
- * Updates a pet in the store with form data
- *
  * POST /pet/{petId}
+ *
+ * Updates a pet in the store with form data
  */
 export async function postPetPetId(params: {
   path: { petId: number }
   query: { name: string; status: string }
 }) {
-  return await client.pet[':petId'].$post({
-    param: { petId: params.path.petId },
-    query: { name: params.query.name, status: params.query.status },
-  })
+  return await client.pet[':petId'].$post({ param: params.path, query: params.query })
 }
 
 /**
+ * DELETE /pet/{petId}
+ *
  * Deletes a pet
  *
  * delete a pet
- *
- * DELETE /pet/{petId}
  */
 export async function deletePetPetId(params: { path: { petId: number } }) {
-  return await client.pet[':petId'].$delete({ param: { petId: params.path.petId } })
+  return await client.pet[':petId'].$delete({ param: params.path })
 }
 
 /**
- * uploads an image
- *
  * POST /pet/{petId}/uploadImage
+ *
+ * uploads an image
  */
 export async function postPetPetIdUploadImage(
   params: { path: { petId: number }; query: { additionalMetadata: string } },
   body: string,
 ) {
   return await client.pet[':petId'].uploadImage.$post({
-    param: { petId: params.path.petId },
-    query: { additionalMetadata: params.query.additionalMetadata },
+    param: params.path,
+    query: params.query,
     json: body,
   })
 }
 
 /**
+ * GET /store/inventory
+ *
  * Returns pet inventories by status
  *
  * Returns a map of status codes to quantities
- *
- * GET /store/inventory
  */
 export async function getStoreInventory() {
   return await client.store.inventory.$get()
 }
 
 /**
+ * POST /store/order
+ *
  * Place an order for a pet
  *
  * Place a new order in the store
- *
- * POST /store/order
  */
 export async function postStoreOrder(body: {
   id?: number
@@ -143,33 +140,33 @@ export async function postStoreOrder(body: {
 }
 
 /**
+ * GET /store/order/{orderId}
+ *
  * Find purchase order by ID
  *
  * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
- *
- * GET /store/order/{orderId}
  */
 export async function getStoreOrderOrderId(params: { path: { orderId: number } }) {
-  return await client.store.order[':orderId'].$get({ param: { orderId: params.path.orderId } })
+  return await client.store.order[':orderId'].$get({ param: params.path })
 }
 
 /**
+ * DELETE /store/order/{orderId}
+ *
  * Delete purchase order by ID
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
- *
- * DELETE /store/order/{orderId}
  */
 export async function deleteStoreOrderOrderId(params: { path: { orderId: number } }) {
-  return await client.store.order[':orderId'].$delete({ param: { orderId: params.path.orderId } })
+  return await client.store.order[':orderId'].$delete({ param: params.path })
 }
 
 /**
+ * POST /user
+ *
  * Create user
  *
  * This can only be done by the logged in user.
- *
- * POST /user
  */
 export async function postUser(body: {
   id?: number
@@ -185,11 +182,11 @@ export async function postUser(body: {
 }
 
 /**
- * Creates list of users with given input array
- *
- * Creates list of users with given input array
- *
  * POST /user/createWithList
+ *
+ * Creates list of users with given input array
+ *
+ * Creates list of users with given input array
  */
 export async function postUserCreateWithList(
   body: {
@@ -207,40 +204,38 @@ export async function postUserCreateWithList(
 }
 
 /**
- * Logs user into the system
- *
  * GET /user/login
+ *
+ * Logs user into the system
  */
 export async function getUserLogin(params: { query: { username: string; password: string } }) {
-  return await client.user.login.$get({
-    query: { username: params.query.username, password: params.query.password },
-  })
+  return await client.user.login.$get({ query: params.query })
 }
 
 /**
- * Logs out current logged in user session
- *
  * GET /user/logout
+ *
+ * Logs out current logged in user session
  */
 export async function getUserLogout() {
   return await client.user.logout.$get()
 }
 
 /**
- * Get user by user name
- *
  * GET /user/{username}
+ *
+ * Get user by user name
  */
 export async function getUserUsername(params: { path: { username: string } }) {
-  return await client.user[':username'].$get({ param: { username: params.path.username } })
+  return await client.user[':username'].$get({ param: params.path })
 }
 
 /**
+ * PUT /user/{username}
+ *
  * Update user
  *
  * This can only be done by the logged in user.
- *
- * PUT /user/{username}
  */
 export async function putUserUsername(
   params: { path: { username: string } },
@@ -255,19 +250,16 @@ export async function putUserUsername(
     userStatus?: number
   },
 ) {
-  return await client.user[':username'].$put({
-    param: { username: params.path.username },
-    json: body,
-  })
+  return await client.user[':username'].$put({ param: params.path, json: body })
 }
 
 /**
+ * DELETE /user/{username}
+ *
  * Delete user
  *
  * This can only be done by the logged in user.
- *
- * DELETE /user/{username}
  */
 export async function deleteUserUsername(params: { path: { username: string } }) {
-  return await client.user[':username'].$delete({ param: { username: params.path.username } })
+  return await client.user[':username'].$delete({ param: params.path })
 }

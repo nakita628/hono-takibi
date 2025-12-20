@@ -1,34 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const AddressSchema = z
-  .object({
-    street: z.string().openapi({ example: '437 Lytton' }),
-    city: z.string().openapi({ example: 'Palo Alto' }),
-    state: z.string().openapi({ example: 'CA' }),
-    zip: z.string().openapi({ example: '94301' }),
-  })
-  .partial()
-  .openapi('Address')
-
-const ApiResponseSchema = z
-  .object({ code: z.int32(), type: z.string(), message: z.string() })
-  .partial()
-  .openapi('ApiResponse')
-
-const CategorySchema = z
-  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
-  .partial()
-  .openapi('Category')
-
-const CustomerSchema = z
-  .object({
-    id: z.int64().openapi({ example: 100000 }),
-    username: z.string().openapi({ example: 'fehguy' }),
-    address: z.array(AddressSchema),
-  })
-  .partial()
-  .openapi('Customer')
-
 const OrderSchema = z
   .object({
     id: z.int64().openapi({ example: 10 }),
@@ -42,6 +13,44 @@ const OrderSchema = z
   })
   .partial()
   .openapi('Order')
+
+const AddressSchema = z
+  .object({
+    street: z.string().openapi({ example: '437 Lytton' }),
+    city: z.string().openapi({ example: 'Palo Alto' }),
+    state: z.string().openapi({ example: 'CA' }),
+    zip: z.string().openapi({ example: '94301' }),
+  })
+  .partial()
+  .openapi('Address')
+
+const CustomerSchema = z
+  .object({
+    id: z.int64().openapi({ example: 100000 }),
+    username: z.string().openapi({ example: 'fehguy' }),
+    address: z.array(AddressSchema),
+  })
+  .partial()
+  .openapi('Customer')
+
+const CategorySchema = z
+  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
+  .partial()
+  .openapi('Category')
+
+const UserSchema = z
+  .object({
+    id: z.int64().openapi({ example: 10 }),
+    username: z.string().openapi({ example: 'theUser' }),
+    firstName: z.string().openapi({ example: 'John' }),
+    lastName: z.string().openapi({ example: 'James' }),
+    email: z.string().openapi({ example: 'john@email.com' }),
+    password: z.string().openapi({ example: '12345' }),
+    phone: z.string().openapi({ example: '12345' }),
+    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
+  })
+  .partial()
+  .openapi('User')
 
 const TagSchema = z.object({ id: z.int64(), name: z.string() }).partial().openapi('Tag')
 
@@ -59,19 +68,34 @@ const PetSchema = z
   })
   .openapi('Pet')
 
-const UserSchema = z
-  .object({
-    id: z.int64().openapi({ example: 10 }),
-    username: z.string().openapi({ example: 'theUser' }),
-    firstName: z.string().openapi({ example: 'John' }),
-    lastName: z.string().openapi({ example: 'James' }),
-    email: z.string().openapi({ example: 'john@email.com' }),
-    password: z.string().openapi({ example: '12345' }),
-    phone: z.string().openapi({ example: '12345' }),
-    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
-  })
+const ApiResponseSchema = z
+  .object({ code: z.int32(), type: z.string(), message: z.string() })
   .partial()
-  .openapi('User')
+  .openapi('ApiResponse')
+
+const petstore_authSecurityScheme = {
+  type: 'oauth2',
+  flows: {
+    implicit: {
+      authorizationUrl: 'https://petstore3.swagger.io/oauth/authorize',
+      scopes: { 'write:pets': 'modify pets in your account', 'read:pets': 'read your pets' },
+    },
+  },
+}
+
+const api_keySecurityScheme = { type: 'apiKey', name: 'api_key', in: 'header' }
+
+const PetRequestBody = {
+  description: 'Pet object that needs to be added to the store',
+  required: false,
+  content: { 'application/json': { schema: PetSchema }, 'application/xml': { schema: PetSchema } },
+}
+
+const UserArrayRequestBody = {
+  description: 'List of user object',
+  required: false,
+  content: { 'application/json': { schema: z.array(UserSchema) } },
+}
 
 export const putPetRoute = createRoute({
   tags: ['pet'],
@@ -83,6 +107,7 @@ export const putPetRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: {
+      description: 'Update an existent pet in the store',
       required: true,
       content: {
         'application/json': { schema: PetSchema },
@@ -115,6 +140,7 @@ export const postPetRoute = createRoute({
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
     body: {
+      description: 'Create a new pet in the store',
       required: true,
       content: {
         'application/json': { schema: PetSchema },
@@ -149,8 +175,7 @@ export const getPetFindByStatusRoute = createRoute({
       status: z
         .enum(['available', 'pending', 'sold'])
         .default('available')
-        .openapi({ param: { in: 'query', name: 'status', required: false } })
-        .optional(),
+        .openapi({ param: { in: 'query', name: 'status', required: false } }),
     }),
   },
   responses: {
@@ -254,7 +279,7 @@ export const deletePetPetIdRoute = createRoute({
   description: 'delete a pet',
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
   request: {
-    header: z.object({
+    headers: z.object({
       api_key: z
         .string()
         .openapi({ param: { in: 'header', name: 'api_key', required: false } })
@@ -391,6 +416,7 @@ export const postUserRoute = createRoute({
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
+      description: 'Created user object',
       required: false,
       content: {
         'application/json': { schema: UserSchema },
@@ -453,6 +479,16 @@ export const getUserLoginRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
+      headers: z.object({
+        'X-Rate-Limit': z
+          .int32()
+          .openapi({ description: 'calls per hour allowed by the user' })
+          .optional(),
+        'X-Expires-After': z.iso
+          .datetime()
+          .openapi({ description: 'date in UTC when token expires' })
+          .optional(),
+      }),
       content: {
         'application/xml': { schema: z.string() },
         'application/json': { schema: z.string() },
@@ -504,6 +540,7 @@ export const putUserUsernameRoute = createRoute({
   description: 'This can only be done by the logged in user.',
   request: {
     body: {
+      description: 'Update an existent user in the store',
       required: false,
       content: {
         'application/json': { schema: UserSchema },

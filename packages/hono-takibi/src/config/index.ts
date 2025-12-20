@@ -8,17 +8,80 @@ type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportType?: boolean
-    readonly exportSchema?: boolean
-    readonly schema?: {
+    readonly exportSchemasTypes?: boolean
+    readonly exportSchemas?: boolean
+    readonly exportParametersTypes?: boolean
+    readonly exportParameters?: boolean
+    readonly exportSecuritySchemes?: boolean
+    readonly exportRequestBodies?: boolean
+    readonly exportResponses?: boolean
+    readonly exportHeadersTypes?: boolean
+    readonly exportHeaders?: boolean
+    readonly exportExamples?: boolean
+    readonly exportLinks?: boolean
+    readonly exportCallbacks?: boolean
+    readonly routes?: {
       readonly output: string | `${string}.ts`
-      readonly exportType?: boolean
       readonly split?: boolean
     }
-    readonly route?: {
-      readonly output: string | `${string}.ts`
-      readonly import: string
-      readonly split?: boolean
+    readonly components?: {
+      // # Reusable schemas (data models)
+      readonly schemas?: {
+        readonly output: string | `${string}.ts`
+        readonly exportTypes?: boolean
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable path, query, header and cookie parameters
+      readonly parameters?: {
+        readonly output: string | `${string}.ts`
+        readonly exportTypes?: boolean
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Security scheme definitions (see Authentication)
+      readonly securitySchemes?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable request bodies
+      readonly requestBodies?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable responses, such as 401 Unauthorized or 400 Bad Request
+      readonly responses?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable response headers
+      readonly headers?: {
+        readonly output: string | `${string}.ts`
+        readonly exportTypes?: boolean
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable examples
+      readonly examples?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable links
+      readonly links?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
+      // # Reusable callbacks
+      readonly callbacks?: {
+        readonly output: string | `${string}.ts`
+        readonly split?: boolean
+        readonly import?: string
+      }
     }
   }
   readonly type?: {

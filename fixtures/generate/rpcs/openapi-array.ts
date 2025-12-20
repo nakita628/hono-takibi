@@ -1,11 +1,11 @@
 import { client } from '../index.ts'
 
 /**
- * zod array
- *
- * zod array
- *
  * GET /array
+ *
+ * zod array
+ *
+ * zod array
  */
 export async function getArray() {
   return await client.array.$get()

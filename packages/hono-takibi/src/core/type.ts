@@ -1,8 +1,7 @@
 import path from 'node:path'
 import ts from 'typescript'
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
+import { core } from '../helper/core.js'
 import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
@@ -14,7 +13,20 @@ export async function type(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const hono = zodOpenAPIHono(openAPI, false, false)
+    const hono = zodOpenAPIHono(openAPI, {
+      exportSchemasTypes: false,
+      exportSchemas: false,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    })
 
     const paths = openAPI.paths
     const routes = Object.entries(paths).flatMap(([p, pathItem]) =>
@@ -51,7 +63,6 @@ export async function type(
     const appInit =
       'export const api = app' +
       routeMappings
-        .sort((a, b) => (a.routeName < b.routeName ? -1 : a.routeName > b.routeName ? 1 : 0))
         .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
         .join('')
 
@@ -61,16 +72,10 @@ export async function type(
 
     if (honoType === undefined) return { ok: false, error: 'not generated type' }
 
-    const mkdirResult = await mkdir(path.dirname(output))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+    const typeCode = `declare const routes:\n${honoType}\nexport default routes`
 
-    const type = `declare const routes:\n${honoType}\nexport default routes`
-    const fmtResult = await fmt(type)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-
-    const writeResult = await writeFile(output, fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
-
+    const coreResult = await core(typeCode, path.dirname(output), output)
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
     return {
       ok: true,
       value: `Generated type code written to ${output}`,

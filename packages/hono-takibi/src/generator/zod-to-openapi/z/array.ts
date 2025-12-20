@@ -1,4 +1,4 @@
-import type { Schema } from '../../../openapi/index.js'
+import type { Ref, Schema } from '../../../openapi/index.js'
 import { refSchema } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
@@ -51,8 +51,22 @@ import { zodToOpenAPI } from '../index.js'
  * ```
  */
 export function array(schema: Schema): string {
+  const isSchemaOrParameterOrHeaderRef = (
+    ref: Ref,
+  ): ref is
+    | `#/components/schemas/${string}`
+    | `#/components/parameters/${string}`
+    | `#/components/headers/${string}` =>
+    ref.startsWith('#/components/schemas/') ||
+    ref.startsWith('#/components/parameters/') ||
+    ref.startsWith('#/components/headers/')
+
   const item = schema.items?.$ref
-    ? refSchema(schema.items.$ref)
+    ? isSchemaOrParameterOrHeaderRef(schema.items.$ref)
+      ? refSchema(schema.items.$ref)
+      : schema.items
+        ? zodToOpenAPI(schema.items)
+        : 'z.any()'
     : schema.items
       ? zodToOpenAPI(schema.items)
       : 'z.any()'

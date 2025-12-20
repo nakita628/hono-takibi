@@ -1,4 +1,5 @@
 import type { Schema } from '../openapi/index.js'
+import { isRecord } from '../utils/index.js'
 
 /**
  * Resolves schema dependencies in topological order based on `$ref` links.
@@ -9,17 +10,19 @@ import type { Schema } from '../openapi/index.js'
  *
  * @param schemas - A map of schema names to their OpenAPI Schema objects.
  * @returns A list of schema names sorted in topological order.
- * @throws If a circular reference is detected among the schemas.
+ * @throws If a circular reference (excluding self refs) is detected among the schemas.
  */
 export function resolveSchemasDependencies(schemas: Record<string, Schema>): readonly string[] {
-  const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-
   const collectRefs = (schema: Schema): string[] => {
     const refs = new Set<string>()
-    const stack = [schema]
+    const stack: unknown[] = [schema]
 
     while (stack.length) {
       const node = stack.pop()
+      if (Array.isArray(node)) {
+        for (const value of node) stack.push(value)
+        continue
+      }
       if (!isRecord(node)) continue
 
       if ('$ref' in node && typeof node.$ref === 'string') {
@@ -28,10 +31,10 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
       }
 
       for (const value of Object.values(node)) {
-        if (isRecord(value)) stack.push(value)
+        stack.push(value)
       }
     }
-    return Array.from(refs).sort()
+    return Array.from(refs)
   }
 
   const sorted: string[] = []
@@ -47,7 +50,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
 
     temp.add(name)
     for (const ref of collectRefs(schema)) {
-      if (ref in schemas) visit(ref)
+      if (ref !== name && ref in schemas) visit(ref)
     }
     temp.delete(name)
 
@@ -55,7 +58,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schema>): rea
     sorted.push(name)
   }
 
-  for (const name of Object.keys(schemas).sort()) {
+  for (const name of Object.keys(schemas)) {
     visit(name)
   }
   return sorted

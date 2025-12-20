@@ -1,9 +1,9 @@
 import { client } from '../index.ts'
 
 /**
- * Test endpoint for comprehensive schema references
- *
  * GET /test
+ *
+ * Test endpoint for comprehensive schema references
  */
 export async function getTest() {
   return await client.test.$get()

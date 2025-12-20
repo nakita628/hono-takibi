@@ -1,11 +1,20 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const Base64UrlSchema = z
-  .base64url()
-  .min(4)
-  .max(8192)
-  .openapi({ example: 'U2l6dWt1LUVuY29kZWQ' })
-  .openapi('Base64Url')
+const Int32Schema = z
+  .int32()
+  .min(-2147483648)
+  .max(2147483647)
+  .default(2147483647)
+  .openapi({ example: 42 })
+  .openapi('Int32')
+
+const Int64Schema = z
+  .int64()
+  .min(-9223372036854776000n)
+  .max(9223372036854776000n)
+  .default(9223372036854776000n)
+  .openapi({ example: '-9223372036854776000' })
+  .openapi('Int64')
 
 const BigIntSchema = z
   .bigint()
@@ -14,14 +23,6 @@ const BigIntSchema = z
   .default(BigInt(1.2345678901234568e29))
   .openapi({ example: '123456789012345678901234567890' })
   .openapi('BigInt')
-
-const DecimalSchema = z
-  .number()
-  .min(-9999999999.9999)
-  .max(9999999999.9999)
-  .default(9999999999.9999)
-  .openapi({ example: 12345.6789 })
-  .openapi('Decimal')
 
 const Float32Schema = z
   .float32()
@@ -39,28 +40,22 @@ const Float64Schema = z
   .openapi({ example: 2.718281828459045 })
   .openapi('Float64')
 
-const Int32Schema = z
+const DecimalSchema = z
+  .number()
+  .min(-9999999999.9999)
+  .max(9999999999.9999)
+  .default(9999999999.9999)
+  .openapi({ example: 12345.6789 })
+  .openapi('Decimal')
+
+const NullableInt32Schema = z
   .int32()
   .min(-2147483648)
   .max(2147483647)
   .default(2147483647)
-  .openapi({ example: 42 })
-  .openapi('Int32')
-
-const Int64Schema = z
-  .int64()
-  .min(-9223372036854776000n)
-  .max(9223372036854776000n)
-  .default(9223372036854776000n)
-  .openapi({ example: '-9223372036854776000' })
-  .openapi('Int64')
-
-const IsoDurationSchema = z.iso
-  .duration()
-  .min(3)
-  .max(64)
-  .openapi({ example: 'P3Y6M4DT12H30M5S' })
-  .openapi('IsoDuration')
+  .nullable()
+  .openapi({ example: null })
+  .openapi('NullableInt32')
 
 const JwtTokenSchema = z
   .jwt()
@@ -72,14 +67,27 @@ const JwtTokenSchema = z
   })
   .openapi('JwtToken')
 
-const NullableInt32Schema = z
-  .int32()
-  .min(-2147483648)
-  .max(2147483647)
-  .default(2147483647)
-  .nullable()
-  .openapi({ example: null })
-  .openapi('NullableInt32')
+const UuidV7Schema = z
+  .uuidv7()
+  .length(36)
+  .openapi({ example: '018f38a8-fa52-7d23-b2d4-c2bb9e9a8c2e' })
+  .openapi('UuidV7')
+
+const Base64UrlSchema = z
+  .base64url()
+  .min(4)
+  .max(8192)
+  .openapi({ example: 'U2l6dWt1LUVuY29kZWQ' })
+  .openapi('Base64Url')
+
+const IsoDurationSchema = z.iso
+  .duration()
+  .min(3)
+  .max(64)
+  .openapi({ example: 'P3Y6M4DT12H30M5S' })
+  .openapi('IsoDuration')
+
+const ShortCodeSchema = z.string().min(3).max(8).openapi({ example: 'aB3x5' }).openapi('ShortCode')
 
 const NullableShortCodeSchema = z
   .string()
@@ -88,14 +96,6 @@ const NullableShortCodeSchema = z
   .nullable()
   .openapi({ example: null })
   .openapi('NullableShortCode')
-
-const ShortCodeSchema = z.string().min(3).max(8).openapi({ example: 'aB3x5' }).openapi('ShortCode')
-
-const UuidV7Schema = z
-  .uuidv7()
-  .length(36)
-  .openapi({ example: '018f38a8-fa52-7d23-b2d4-c2bb9e9a8c2e' })
-  .openapi('UuidV7')
 
 const CustomFormatModelSchema = z
   .object({

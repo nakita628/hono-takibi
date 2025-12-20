@@ -632,15 +632,15 @@ describe('rpc (split mode)', () => {
       const result = await rpc(input, out, '../index.ts', true)
 
       const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './deleteUsersId'
-export * from './getHono'
+      const indexExpected = `export * from './getHono'
 export * from './getHonoX'
-export * from './getUsers'
-export * from './getUsersId'
 export * from './getZodOpenapiHono'
-export * from './patchUsersId'
+export * from './getUsers'
 export * from './postUsers'
+export * from './getUsersId'
 export * from './putUsersId'
+export * from './deleteUsersId'
+export * from './patchUsersId'
 `
       expect(index).toBe(indexExpected)
 

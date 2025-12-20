@@ -40,10 +40,7 @@ export async function parseOpenAPI(input: string): Promise<
       if (!tsp.ok) {
         return { ok: false, error: tsp.error }
       }
-      // to treat `tsp.value` as an OpenAPI specification.
-      // This cast is required both for parsing the spec and for ensuring
-      // type safety in the generator process.
-      const spec = (await SwaggerParser.bundle(tsp.value as unknown as string)) as OpenAPI
+      const spec = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp.value)))) as OpenAPI
       return { ok: true, value: spec }
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
@@ -132,6 +129,17 @@ export type FormatString =
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
+export type Ref =
+  | `#/components/schemas/${string}`
+  | `#/components/parameters/${string}`
+  | `#/components/securitySchemes/${string}`
+  | `#/components/requestBodies/${string}`
+  | `#/components/responses/${string}`
+  | `#/components/headers/${string}`
+  | `#/components/examples/${string}`
+  | `#/components/links/${string}`
+  | `#/components/callbacks/${string}`
+
 /**
  * Content type definitions with their schemas
  */
@@ -144,6 +152,7 @@ export type Content = {
       [exampleKey: string]: {
         summary?: string
         value?: unknown
+        $ref?: string
       }
     }
   }
@@ -174,6 +183,7 @@ export type Operation = {
   }[]
   parameters?: Parameters[]
   requestBody?: RequestBody
+  callbacks?: Record<string, unknown>
   responses: Response
 }
 
@@ -185,9 +195,20 @@ export type ResponseDefinition = {
   content?: Content
   $ref?: string
   headers?: {
+    [key: string]:
+      | {
+          description?: string
+          schema: Schema
+          $ref?: Ref
+        }
+      | unknown
+  }
+  links?: {
     [key: string]: {
+      operationId?: string
+      parameters?: Record<string, string>
       description?: string
-      schema: Schema
+      $ref?: string
     }
   }
 }
@@ -226,7 +247,7 @@ export type Schema = {
   enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean
   additionalProperties?: Schema | boolean
-  $ref?: `#/components/schemas/${string}`
+  $ref?: Ref
   xml?: {
     name?: string
     wrapped?: boolean
@@ -254,6 +275,31 @@ export type Components = {
   schemas?: Record<string, Schema>
   parameters?: Record<string, Parameters>
   requestBodies?: Record<string, RequestBody>
+  responses?: Record<string, ResponseDefinition>
+  headers?: Record<
+    string,
+    {
+      description?: string
+      schema: Schema
+    }
+  >
+  examples?: Record<
+    string,
+    {
+      summary?: string
+      value?: unknown
+      description?: string
+    }
+  >
+  links?: Record<
+    string,
+    {
+      operationId?: string
+      parameters?: Record<string, string>
+      description?: string
+    }
+  >
+  callbacks?: Record<string, unknown>
   securitySchemes?: {
     [key: string]: {
       type?: string
@@ -274,6 +320,7 @@ export type Parameters = {
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
   explode?: boolean
+  $ref?: Ref
 }
 
 /**

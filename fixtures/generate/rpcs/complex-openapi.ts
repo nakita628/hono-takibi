@@ -1,18 +1,18 @@
 import { client } from '../index.ts'
 
 /**
- * List all users
- *
  * GET /users
+ *
+ * List all users
  */
 export async function getUsers() {
   return await client.users.$get()
 }
 
 /**
- * Create a new user
- *
  * POST /users
+ *
+ * Create a new user
  */
 export async function postUsers(body: {
   name: string
@@ -24,18 +24,18 @@ export async function postUsers(body: {
 }
 
 /**
- * Retrieve a user by ID
- *
  * GET /users/{userId}
+ *
+ * Retrieve a user by ID
  */
 export async function getUsersUserId(params: { path: { userId: string } }) {
-  return await client.users[':userId'].$get({ param: { userId: params.path.userId } })
+  return await client.users[':userId'].$get({ param: params.path })
 }
 
 /**
- * Update an existing user
- *
  * PUT /users/{userId}
+ *
+ * Update an existing user
  */
 export async function putUsersUserId(
   params: { path: { userId: string } },
@@ -46,31 +46,31 @@ export async function putUsersUserId(
     profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
   },
 ) {
-  return await client.users[':userId'].$put({ param: { userId: params.path.userId }, json: body })
+  return await client.users[':userId'].$put({ param: params.path, json: body })
 }
 
 /**
- * Delete a user
- *
  * DELETE /users/{userId}
+ *
+ * Delete a user
  */
 export async function deleteUsersUserId(params: { path: { userId: string } }) {
-  return await client.users[':userId'].$delete({ param: { userId: params.path.userId } })
+  return await client.users[':userId'].$delete({ param: params.path })
 }
 
 /**
- * List all orders
- *
  * GET /orders
+ *
+ * List all orders
  */
 export async function getOrders() {
   return await client.orders.$get()
 }
 
 /**
- * Create a new order
- *
  * POST /orders
+ *
+ * Create a new order
  */
 export async function postOrders(body: {
   userId: string

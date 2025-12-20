@@ -106,15 +106,15 @@ export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
 export type Hono = z.infer<typeof HonoSchema>
 
-export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
-
-export type HonoX = z.infer<typeof HonoXSchema>
-
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
   .openapi('ZodOpenAPIHono')
 
 export type ZodOpenAPIHono = z.infer<typeof ZodOpenAPIHonoSchema>
+
+export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
+
+export type HonoX = z.infer<typeof HonoXSchema>
 
 export const HonoUnionSchema = z
   .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })
@@ -122,7 +122,6 @@ export const HonoUnionSchema = z
 
 export type HonoUnion = z.infer<typeof HonoUnionSchema>
 `
-
       expect(index).toBe(indexExpected)
       expect(result).toStrictEqual({
         ok: true,
@@ -142,16 +141,15 @@ export type HonoUnion = z.infer<typeof HonoUnionSchema>
 
       const result = await schema(input, out, false)
       const index = fs.readFileSync(out, 'utf-8')
-
       const indexExpected = `import { z } from '@hono/zod-openapi'
 
 export const HonoSchema = z.object({ hono: z.literal('Hono') }).openapi('Hono')
 
-export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
-
 export const ZodOpenAPIHonoSchema = z
   .object({ 'zod-openapi-hono': z.literal('ZodOpenAPIHono') })
   .openapi('ZodOpenAPIHono')
+
+export const HonoXSchema = z.object({ honoX: z.literal('HonoX') }).openapi('HonoX')
 
 export const HonoUnionSchema = z
   .object({ 'hono-union': z.union([HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema]) })

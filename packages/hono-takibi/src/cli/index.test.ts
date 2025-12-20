@@ -187,12 +187,22 @@ describe('honoTakibi --help', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`,
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command`,
     })
   })
 })
@@ -209,12 +219,22 @@ describe('honoTakibi -h', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
-  -h, --help           display help for command`,
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command`,
     })
   })
 

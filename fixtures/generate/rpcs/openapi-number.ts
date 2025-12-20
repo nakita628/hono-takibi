@@ -1,11 +1,11 @@
 import { client } from '../index.ts'
 
 /**
- * zod number
- *
- * zod number
- *
  * GET /number
+ *
+ * zod number
+ *
+ * zod number
  */
 export async function getNumber() {
   return await client.number.$get()

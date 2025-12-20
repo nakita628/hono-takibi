@@ -15,7 +15,7 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  *   B --> C{"openAPIResult.ok ?"}
  *   C -->|No| D["return { ok:false, error: openAPIResult.error }"]
  *   C -->|Yes| E["openAPI = openAPIResult.value"]
- *   E --> F["honoResult = fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))"]
+ *   E --> F["honoResult = fmt(zodOpenAPIHono(openAPI, exportOptions))"]
  *   F --> G{"honoResult.ok ?"}
  *   G -->|No| H["return { ok:false, error: honoResult.error }"]
  *   G -->|Yes| I["mkdirResult = mkdir(dirname(output))"]
@@ -46,8 +46,18 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  *
  * @param input - Input OpenAPI file (`.yaml`, `.json`, or `.tsp`).
  * @param output - Output `.ts` file path.
- * @param exportSchema - Whether to export schemas.
- * @param exportType - Whether to export types.
+ * @param exportSchemasTypes - Whether to export inferred schema types.
+ * @param exportSchemas - Whether to export schema constants.
+ * @param exportParametersTypes - Whether to export inferred parameter types.
+ * @param exportParameters - Whether to export parameter constants.
+ * @param exportSecuritySchemes - Whether to export security scheme constants.
+ * @param exportRequestBodies - Whether to export request body constants.
+ * @param exportResponses - Whether to export response constants.
+ * @param exportHeadersTypes - Whether to export inferred header types.
+ * @param exportHeaders - Whether to export header constants.
+ * @param exportExamples - Whether to export example constants.
+ * @param exportLinks - Whether to export link constants.
+ * @param exportCallbacks - Whether to export callback constants.
  * @param template - Whether to generate templates.
  * @param test - Whether to generate test files.
  * @param basePath - Optional base path for template output.
@@ -56,8 +66,18 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
-  exportSchema: boolean,
-  exportType: boolean,
+  exportSchemasTypes: boolean,
+  exportSchemas: boolean,
+  exportParametersTypes: boolean,
+  exportParameters: boolean,
+  exportSecuritySchemes: boolean,
+  exportRequestBodies: boolean,
+  exportResponses: boolean,
+  exportHeadersTypes: boolean,
+  exportHeaders: boolean,
+  exportExamples: boolean,
+  exportLinks: boolean,
+  exportCallbacks: boolean,
   template: boolean,
   test: boolean,
   basePath?: string,
@@ -75,7 +95,22 @@ export async function takibi(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const honoResult = await fmt(zodOpenAPIHono(openAPI, exportSchema, exportType))
+    const honoResult = await fmt(
+      zodOpenAPIHono(openAPI, {
+        exportSchemasTypes,
+        exportSchemas,
+        exportParametersTypes,
+        exportParameters,
+        exportSecuritySchemes,
+        exportRequestBodies,
+        exportResponses,
+        exportHeadersTypes,
+        exportHeaders,
+        exportExamples,
+        exportLinks,
+        exportCallbacks,
+      }),
+    )
     if (!honoResult.ok) return { ok: false, error: honoResult.error }
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
@@ -229,8 +264,8 @@ async function zodOpenAPIHonoHandler(
     }
   }
 
-  const sorted = mergedHandlers.map((h) => h.fileName).sort()
-  const exports = sorted.map((h) => `export * from './${h}'`).join('\n')
+  const handlerFiles = mergedHandlers.map((h) => h.fileName)
+  const exports = handlerFiles.map((h) => `export * from './${h}'`).join('\n')
 
   const fmtResult = await fmt(exports)
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }

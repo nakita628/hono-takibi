@@ -18,12 +18,18 @@ export function zodToOpenAPISchema(
   zodSchema: string,
   exportSchema: boolean,
   exportType: boolean,
+  notComponentSchema?: boolean,
 ): string {
   const variableName = `${schemaName}Schema`
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)
-  // schema code
+
   const schemaCode = exportSchema
+    ? `export const ${safeVariableName} = ${zodSchema}`
+    : `const ${safeVariableName} = ${zodSchema}`
+
+  // schema code
+  const componentSchemaCode = exportSchema
     ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
     : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
   // zod infer code
@@ -32,6 +38,7 @@ export function zodToOpenAPISchema(
   const zodInferCode = exportType
     ? `export type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
     : ''
-  // return code
-  return `${schemaCode}\n\n${zodInferCode}`
+
+  if (notComponentSchema) return `${schemaCode}\n\n${zodInferCode}`
+  return `${componentSchemaCode}\n\n${zodInferCode}`
 }

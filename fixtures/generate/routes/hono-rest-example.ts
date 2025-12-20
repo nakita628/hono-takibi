@@ -13,7 +13,7 @@ const PostSchema = z
   })
   .openapi('Post')
 
-export const getIndexRoute = createRoute({
+export const getRoute = createRoute({
   tags: ['Hono'],
   method: 'get',
   path: '/',

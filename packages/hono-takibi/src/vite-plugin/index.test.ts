@@ -98,6 +98,7 @@ vi.mock('../fsp/index.js', () => ({
   writeFile: vi.fn(async () => ({ ok: true })),
 }))
 
+import { route } from '../core/route.js'
 // ──────────────────────────────────────────────────────────────
 // SUT import (after mocks)
 // ──────────────────────────────────────────────────────────────
@@ -109,6 +110,7 @@ import { honoTakibiVite } from './index'
 const state: { cwdBefore: string; sandbox: string } = { cwdBefore: '', sandbox: '' }
 
 beforeEach(async () => {
+  vi.clearAllMocks()
   state.cwdBefore = process.cwd()
   state.sandbox = await fsp.mkdtemp(path.join(os.tmpdir(), 'takibi-test-'))
   process.chdir(state.sandbox)
@@ -141,8 +143,10 @@ describe('honoTakibiVite (no marker behavior)', () => {
     const conf = {
       input: 'openapi.yaml',
       'zod-openapi': {
-        schema: { output: 'out/schema', split: true, exportType: true },
-        route: { output: 'out/route', split: true, import: '@routes' },
+        components: {
+          schemas: { output: 'out/schema', split: true, exportTypes: true },
+        },
+        routes: { output: 'out/route', split: true },
       },
       rpc: { output: 'out/rpc', split: true, import: '@rpc' },
     }
@@ -169,5 +173,22 @@ describe('honoTakibiVite (no marker behavior)', () => {
     expect(fs.existsSync('out/schema')).toBe(true)
     expect(fs.existsSync('out/route')).toBe(true)
     expect(fs.existsSync('out/rpc')).toBe(true)
+  })
+
+  it('runs routes even without schema outputs', async () => {
+    const conf = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const { server, reloaded } = makeDevServerMock(conf)
+    const plugin = honoTakibiVite()
+
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(route).toHaveBeenCalled()
   })
 })
