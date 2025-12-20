@@ -3,8 +3,8 @@ import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js
 
 const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
 
-const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
-  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
+const declareConst = (name: string, expr: string, exportExamples: boolean): string =>
+  `${exportExamples ? 'export const' : 'const'} ${name} = ${expr}`
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 

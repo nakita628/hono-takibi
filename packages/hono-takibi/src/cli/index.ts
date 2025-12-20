@@ -155,9 +155,7 @@ export async function honoTakibi(): Promise<
   /** If config file exists, parse config file */
   const configResult = await config()
 
-  if (!configResult.ok) {
-    return { ok: false, error: configResult.error }
-  }
+  if (!configResult.ok) return { ok: false, error: configResult.error }
   const c = configResult.value
 
   const zo = c['zod-openapi']
@@ -301,7 +299,6 @@ export async function honoTakibi(): Promise<
   const rpcResult = c.rpc
     ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
-
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 
   const results = [

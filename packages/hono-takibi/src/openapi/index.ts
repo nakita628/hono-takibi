@@ -129,12 +129,9 @@ export type FormatString =
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 
-type SchemaRef = `#/components/schemas/${string}`
-type ParameterRef = `#/components/parameters/${string}`
-
 export type Ref =
-  | SchemaRef
-  | ParameterRef
+  | `#/components/schemas/${string}`
+  | `#/components/parameters/${string}`
   | `#/components/securitySchemes/${string}`
   | `#/components/requestBodies/${string}`
   | `#/components/responses/${string}`
@@ -316,7 +313,7 @@ export type Components = {
 /**
  * Parameter definition
  */
-type ParameterObject = {
+export type Parameters = {
   schema: Schema
   description?: string
   required?: boolean
@@ -339,7 +336,3 @@ export type RequestBody = {
  * Response definitions mapped by status code
  */
 export type Responses = Record<string, ResponseDefinition>
-type ReferenceObject<R extends Ref = Ref> = {
-  $ref: R
-}
-export type Parameters = ParameterObject | ReferenceObject<ParameterRef>
