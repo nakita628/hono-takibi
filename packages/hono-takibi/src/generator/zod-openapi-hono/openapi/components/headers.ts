@@ -21,7 +21,6 @@ export function headers(components: Components, exportSchema: boolean): string {
   if (!headers) return ''
 
   return Object.keys(headers)
-    .sort()
     .map((key) => {
       const header = headers[key]
       if (!header) return declareConst(headerConstName(key), 'z.any()', exportSchema)

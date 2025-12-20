@@ -13,7 +13,6 @@ export function callbacks(components: Components, exportSchema: boolean): string
   if (!callbacks) return ''
 
   return Object.keys(callbacks)
-    .sort()
     .map((key) => declareConst(callbackConstName(key), jsonExpr(callbacks[key]), exportSchema))
     .join('\n\n')
 }

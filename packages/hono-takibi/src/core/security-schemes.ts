@@ -23,7 +23,6 @@ export async function securitySchemes(
   }
 
   const defs = Object.keys(schemes)
-    .sort()
     .map((key) => {
       const scheme = schemes[key]
       const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
@@ -35,7 +34,7 @@ export async function securitySchemes(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(schemes).sort()) {
+    for (const key of Object.keys(schemes)) {
       const scheme = schemes[key]
       const name = toIdentifier(ensureSuffix(key, 'SecurityScheme'))
       const schemaExpr = JSON.stringify(scheme ?? {})

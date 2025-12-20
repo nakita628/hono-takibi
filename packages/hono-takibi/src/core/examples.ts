@@ -48,7 +48,6 @@ export async function examples(
 
   const outFile = String(output)
   const defs = Object.keys(ex)
-    .sort()
     .map(
       (key) =>
         `export const ${toIdentifier(ensureSuffix(key, 'Example'))} = ${JSON.stringify(ex[key] ?? {})}`,

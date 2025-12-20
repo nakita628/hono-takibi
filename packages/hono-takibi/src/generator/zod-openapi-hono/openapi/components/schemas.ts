@@ -23,15 +23,11 @@ export function schemas(
 ): string {
   // 1. schema extraction
   const { schemas } = components
-  if (!schemas) {
-    return ''
-  }
+  if (!schemas) return ''
   // 2. resolve schema dependencies to obtain proper ordering
   const orderedSchemas = resolveSchemasDependencies(schemas)
   // 3. if there are no schemas, return an empty string
-  if (orderedSchemas.length === 0) {
-    return ''
-  }
+  if (orderedSchemas.length === 0) return ''
   // 4. generate code for each schema
   const schemaDefinitions = orderedSchemas
     .map((schemaName) => {

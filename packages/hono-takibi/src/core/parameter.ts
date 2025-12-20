@@ -98,7 +98,6 @@ export async function parameter(
   }
 
   const defs = Object.keys(params)
-    .sort()
     .map((key) => {
       const p: Parameters | undefined = params[key]
       const schemaName = key

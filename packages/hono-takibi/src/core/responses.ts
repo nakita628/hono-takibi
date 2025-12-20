@@ -372,7 +372,6 @@ export async function responses(
   const usedExampleKeys = new Set<string>()
   const usedLinkKeys = new Set<string>()
   const defs = Object.keys(rs)
-    .sort()
     .map((key) => {
       const res = rs[key]
       const expr = res

@@ -14,7 +14,6 @@ export function examples(components: Components, exportSchema: boolean): string 
   if (!examples) return ''
 
   return Object.keys(examples)
-    .sort()
     .map((key) =>
       declareConst(
         toIdentifier(ensureSuffix(key, 'Example')),

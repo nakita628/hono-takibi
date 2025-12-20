@@ -107,7 +107,6 @@ export async function headers(
   }
 
   const defs = Object.keys(hs)
-    .sort()
     .map((key) => {
       const header = hs[key]
       const schemaName = headerBaseName(key)

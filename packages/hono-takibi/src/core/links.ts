@@ -45,7 +45,6 @@ export async function links(
 
   const outFile = String(output)
   const defs = Object.keys(ls)
-    .sort()
     .map(
       (key) =>
         `export const ${toIdentifier(ensureSuffix(key, 'Link'))} = ${JSON.stringify(ls[key] ?? {})}`,

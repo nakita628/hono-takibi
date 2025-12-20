@@ -50,7 +50,6 @@ export function responses(components: Components, exportSchema: boolean): string
   if (!responses) return ''
 
   return Object.keys(responses)
-    .sort()
     .map((key) => {
       const res = responses[key]
       const expr = res ? responseDefinitionExpr(res, components) : '{}'

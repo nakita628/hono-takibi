@@ -48,7 +48,6 @@ export async function callbacks(
 
   const outFile = String(output)
   const defs = Object.keys(cbs)
-    .sort()
     .map(
       (key) =>
         `export const ${toIdentifier(ensureSuffix(key, 'Callback'))} = ${JSON.stringify(cbs[key] ?? {})}`,

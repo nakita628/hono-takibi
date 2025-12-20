@@ -13,7 +13,6 @@ export function securitySchemes(components: Components, exportSchema: boolean): 
   if (!securitySchemes) return ''
 
   return Object.keys(securitySchemes)
-    .sort()
     .map((key) => {
       const expr = jsonExpr(securitySchemes[key])
       return declareConst(securitySchemeConstName(key), expr, exportSchema)

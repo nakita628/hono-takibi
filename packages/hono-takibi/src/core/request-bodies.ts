@@ -224,7 +224,6 @@ export async function requestBodies(
 
   const usedExampleKeys = new Set<string>()
   const defs = Object.keys(bodies)
-    .sort()
     .map((key) => {
       const body = bodies[key]
       const expr = body ? requestBodyExpr(body, components, usedExampleKeys, imports) : '{}'

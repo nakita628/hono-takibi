@@ -13,7 +13,6 @@ export function links(components: Components, exportSchema: boolean): string {
   if (!links) return ''
 
   return Object.keys(links)
-    .sort()
     .map((key) => declareConst(linkConstName(key), jsonExpr(links[key]), exportSchema))
     .join('\n\n')
 }

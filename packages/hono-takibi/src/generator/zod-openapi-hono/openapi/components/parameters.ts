@@ -19,7 +19,6 @@ export function parameters(
   if (!parameters) return ''
 
   return Object.keys(parameters)
-    .sort()
     .map((key) => {
       const parameter = parameters[key]
       const z = zodToOpenAPI(parameter.schema, parameter.name, parameter.in)
