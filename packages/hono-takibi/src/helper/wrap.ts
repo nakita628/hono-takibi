@@ -68,7 +68,20 @@ export function wrap(
       : undefined,
   ].filter((v) => v !== undefined)
 
-  if (meta?.parameters?.required || meta?.headers?.required) {
+  if (
+    (schemas.required !== undefined &&
+      typeof schemas.required === 'boolean' &&
+      schemas.required === false) ||
+    (meta?.parameters !== undefined &&
+      typeof meta.parameters.required === 'boolean' &&
+      meta.parameters.required === false) ||
+    (meta?.parameters !== undefined &&
+      typeof meta.parameters.required === 'boolean' &&
+      meta.parameters.required === false) ||
+    (meta?.headers !== undefined &&
+      typeof meta.headers.required === 'boolean' &&
+      meta.headers.required === false)
+  ) {
     return openapiProps.length === 0 ? z : `${z}.optional().openapi({${openapiProps.join(',')}})`
   }
   return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`

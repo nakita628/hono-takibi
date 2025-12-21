@@ -211,7 +211,7 @@ describe('wrap', () => {
       },
     )
     const expected =
-      'z.string().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
+      'z.string().optional().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
     expect(result).toBe(expected)
   })
 
