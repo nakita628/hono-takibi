@@ -4,7 +4,7 @@ export function wrap(
   zod: string,
   schemas: Schemas,
   meta?: {
-    parameters?: Parameters
+    parameters?: Omit<Parameters, 'schema'>
     headers?: Headers
   },
 ): string {
@@ -47,6 +47,7 @@ export function wrap(
 
   const openapiProps = [
     // param
+    // TODO other properties
     meta?.parameters
       ? (() => {
           const required = meta.parameters.required ? true : false
