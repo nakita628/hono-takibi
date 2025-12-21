@@ -5,7 +5,7 @@ export function wrap(
   schemas: Schemas,
   meta?: {
     parameters?: Omit<Parameters, 'schema'>
-    headers?: Headers
+    headers?: Omit<Headers, 'schema'>
   },
 ): string {
   const formatLiteral = (v: unknown): string => {
@@ -50,7 +50,7 @@ export function wrap(
     // TODO other properties
     meta?.parameters
       ? (() => {
-          const required = meta.parameters.required ? true : false
+          const required = !!meta.parameters.required
           return `param:{in:"${meta.parameters.in}",name:${JSON.stringify(meta.parameters.name)},required:${required}}`
         })()
       : undefined,
