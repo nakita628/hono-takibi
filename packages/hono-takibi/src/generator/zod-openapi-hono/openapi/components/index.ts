@@ -9,21 +9,6 @@ import { responses } from './responses.js'
 import { schemas } from './schemas.js'
 import { securitySchemes } from './securitySchemes.js'
 
-export type ComponentsExportOptions = {
-  readonly exportSchemasTypes: boolean
-  readonly exportSchemas: boolean
-  readonly exportParametersTypes: boolean
-  readonly exportParameters: boolean
-  readonly exportSecuritySchemes: boolean
-  readonly exportRequestBodies: boolean
-  readonly exportResponses: boolean
-  readonly exportHeadersTypes: boolean
-  readonly exportHeaders: boolean
-  readonly exportExamples: boolean
-  readonly exportLinks: boolean
-  readonly exportCallbacks: boolean
-}
-
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
  *

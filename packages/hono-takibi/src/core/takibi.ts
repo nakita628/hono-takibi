@@ -66,18 +66,20 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
-  exportSchemasTypes: boolean,
-  exportSchemas: boolean,
-  exportParametersTypes: boolean,
-  exportParameters: boolean,
-  exportSecuritySchemes: boolean,
-  exportRequestBodies: boolean,
-  exportResponses: boolean,
-  exportHeadersTypes: boolean,
-  exportHeaders: boolean,
-  exportExamples: boolean,
-  exportLinks: boolean,
-  exportCallbacks: boolean,
+  componentsOptions: {
+    readonly exportSchemasTypes: boolean
+    readonly exportSchemas: boolean
+    readonly exportParametersTypes: boolean
+    readonly exportParameters: boolean
+    readonly exportSecuritySchemes: boolean
+    readonly exportRequestBodies: boolean
+    readonly exportResponses: boolean
+    readonly exportHeadersTypes: boolean
+    readonly exportHeaders: boolean
+    readonly exportExamples: boolean
+    readonly exportLinks: boolean
+    readonly exportCallbacks: boolean
+  },
   template: boolean,
   test: boolean,
   basePath?: string,
@@ -95,22 +97,7 @@ export async function takibi(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const honoResult = await fmt(
-      zodOpenAPIHono(openAPI, {
-        exportSchemasTypes,
-        exportSchemas,
-        exportParametersTypes,
-        exportParameters,
-        exportSecuritySchemes,
-        exportRequestBodies,
-        exportResponses,
-        exportHeadersTypes,
-        exportHeaders,
-        exportExamples,
-        exportLinks,
-        exportCallbacks,
-      }),
-    )
+    const honoResult = await fmt(zodOpenAPIHono(openAPI, componentsOptions))
     if (!honoResult.ok) return { ok: false, error: honoResult.error }
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
