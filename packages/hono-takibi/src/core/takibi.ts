@@ -43,41 +43,24 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  *   ZD -->|No| ZE["return { ok:false, error: zodOpenAPIHonoHandlerResult.error }"]
  *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
  * ```
- *
- * @param input - Input OpenAPI file (`.yaml`, `.json`, or `.tsp`).
- * @param output - Output `.ts` file path.
- * @param exportSchemasTypes - Whether to export inferred schema types.
- * @param exportSchemas - Whether to export schema constants.
- * @param exportParametersTypes - Whether to export inferred parameter types.
- * @param exportParameters - Whether to export parameter constants.
- * @param exportSecuritySchemes - Whether to export security scheme constants.
- * @param exportRequestBodies - Whether to export request body constants.
- * @param exportResponses - Whether to export response constants.
- * @param exportHeadersTypes - Whether to export inferred header types.
- * @param exportHeaders - Whether to export header constants.
- * @param exportExamples - Whether to export example constants.
- * @param exportLinks - Whether to export link constants.
- * @param exportCallbacks - Whether to export callback constants.
- * @param template - Whether to generate templates.
- * @param test - Whether to generate test files.
- * @param basePath - Optional base path for template output.
- * @returns A `Result` containing a success message or an error string.
  */
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
-  exportSchemasTypes: boolean,
-  exportSchemas: boolean,
-  exportParametersTypes: boolean,
-  exportParameters: boolean,
-  exportSecuritySchemes: boolean,
-  exportRequestBodies: boolean,
-  exportResponses: boolean,
-  exportHeadersTypes: boolean,
-  exportHeaders: boolean,
-  exportExamples: boolean,
-  exportLinks: boolean,
-  exportCallbacks: boolean,
+  componentsOptions: {
+    readonly exportSchemasTypes: boolean
+    readonly exportSchemas: boolean
+    readonly exportParametersTypes: boolean
+    readonly exportParameters: boolean
+    readonly exportSecuritySchemes: boolean
+    readonly exportRequestBodies: boolean
+    readonly exportResponses: boolean
+    readonly exportHeadersTypes: boolean
+    readonly exportHeaders: boolean
+    readonly exportExamples: boolean
+    readonly exportLinks: boolean
+    readonly exportCallbacks: boolean
+  },
   template: boolean,
   test: boolean,
   basePath?: string,
@@ -95,22 +78,7 @@ export async function takibi(
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
-    const honoResult = await fmt(
-      zodOpenAPIHono(openAPI, {
-        exportSchemasTypes,
-        exportSchemas,
-        exportParametersTypes,
-        exportParameters,
-        exportSecuritySchemes,
-        exportRequestBodies,
-        exportResponses,
-        exportHeadersTypes,
-        exportHeaders,
-        exportExamples,
-        exportLinks,
-        exportCallbacks,
-      }),
-    )
+    const honoResult = await fmt(zodOpenAPIHono(openAPI, componentsOptions))
     if (!honoResult.ok) return { ok: false, error: honoResult.error }
     const mkdirResult = await mkdir(path.dirname(output))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
