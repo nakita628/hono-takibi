@@ -1,2 +1,2 @@
 export { paramsObject } from './params-object.js'
-export { requestParameter } from './request-parameter.js'
+export {request} from './request.js'

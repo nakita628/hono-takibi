@@ -16,7 +16,7 @@ import { paramsObject } from './index.js'
  * - Deduplicates schemas if multiple content types share the same body schema.
  * - Uses `params` instead of `path` for Hono compatibility.
  */
-export function requestParameter(
+export function request(
   parameters: readonly Parameters[] | undefined,
   body: RequestBodies | undefined,
   components?: Components,
