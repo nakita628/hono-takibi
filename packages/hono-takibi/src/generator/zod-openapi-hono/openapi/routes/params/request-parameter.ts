@@ -1,4 +1,4 @@
-import type { Components, Parameters, RequestBody } from '../../../../../openapi/index.js'
+import type { Components, Parameters, RequestBodies } from '../../../../../openapi/index.js'
 import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
@@ -18,7 +18,7 @@ import { paramsObject } from './index.js'
  */
 export function requestParameter(
   parameters: readonly Parameters[] | undefined,
-  body: RequestBody | undefined,
+  body: RequestBodies | undefined,
   components?: Components,
   options?: { readonly useComponentRefs?: boolean },
 ): string {
@@ -46,7 +46,7 @@ export function requestParameter(
     return { key, constName: requestBodyConstName(key) }
   })()
 
-  const resolvedBody: RequestBody | undefined = (() => {
+  const resolvedBody: RequestBodies | undefined = (() => {
     if (!body) return undefined
     if (!isRef(body)) return body
     if (!body.$ref.startsWith('#/components/requestBodies/')) return body

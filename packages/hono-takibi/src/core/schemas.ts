@@ -36,7 +36,7 @@ const findSchemaRefs = (code: string, selfName: string): string[] => {
  *   H --> I
  * ```
  */
-export async function schema(
+export async function schemas(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
   exportType: boolean,

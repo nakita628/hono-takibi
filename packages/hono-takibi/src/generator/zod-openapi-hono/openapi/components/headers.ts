@@ -1,4 +1,4 @@
-import type { Components, ResponseDefinition, Schema } from '../../../../openapi/index.js'
+import type { Components, ResponseDefinition, Schemas } from '../../../../openapi/index.js'
 import { isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
@@ -22,7 +22,7 @@ const headerTypeDecl = (name: string, exportType: boolean): string =>
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
-const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
 
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
@@ -54,7 +54,7 @@ export function headers(
         return `${declareConst(constName, 'z.any()', exportSchema)}${headerTypeDecl(constName, exportType)}`
       }
 
-      const schema: Schema = {
+      const schema: Schemas = {
         ...(header.schema ?? {}),
         ...(header.description !== undefined &&
         typeof header.description === 'string' &&
@@ -79,23 +79,12 @@ const headerSchemaExpr = (header: unknown): string => {
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
 
-  const merged: Schema = {
+  const merged: Schemas = {
     ...schema,
     ...(description !== undefined && schema.description === undefined ? { description } : {}),
     ...(example !== undefined && schema.example === undefined ? { example } : {}),
   }
   return zodToOpenAPI(merged)
-}
-
-/**
- * Checks if a header should be optional.
- */
-const shouldOptional = (header: unknown): boolean => {
-  if (!isRecord(header)) return true
-  if (header.required === true) return false
-  const rawSchema = header.schema
-  const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
-  return schemaDefault === undefined
 }
 
 /**
@@ -117,8 +106,7 @@ export const headersPropExpr = (
         : undefined
     const target = resolved ?? header
     const base = headerSchemaExpr(target)
-    const schema = shouldOptional(target) ? `${base}.optional()` : base
-    return `${JSON.stringify(name)}:${schema}`
+    return `${JSON.stringify(name)}:${base}`
   })
 
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined

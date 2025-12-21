@@ -20,7 +20,7 @@ const parameterBaseName = (key: string): string => {
  * - Always emits `export const ...Schema = ...`.
  * - When `split=true`, writes one file per parameter (and an `index.ts`).
  */
-export async function parameter(
+export async function parameters(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: string | `${string}.ts`,
   exportType: boolean,
@@ -66,7 +66,14 @@ export async function parameter(
       if (!p) continue
 
       const schemaName = parameterBaseName(key)
-      const z = zodToOpenAPI(p.schema, p.name, p.in)
+      const meta = {
+        parameters: {
+          name: p.name,
+          in: p.in,
+          required: p.required,
+        },
+      }
+      const z = zodToOpenAPI(p.schema, meta)
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
@@ -106,7 +113,14 @@ export async function parameter(
     .map((key) => {
       const p: Parameters | undefined = params[key]
       const schemaName = parameterBaseName(key)
-      const z = p ? zodToOpenAPI(p.schema, p.name, p.in) : 'z.any()'
+      const meta = {
+        parameters: {
+          name: p.name,
+          in: p.in,
+          required: p.required,
+        },
+      }
+      const z = p ? zodToOpenAPI(p.schema, meta) : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')
