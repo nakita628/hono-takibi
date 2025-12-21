@@ -1,5 +1,5 @@
 import { wrap } from '../../helper/wrap.js'
-import type { Ref, Schema } from '../../openapi/index.js'
+import type { Ref, Schemas } from '../../openapi/index.js'
 import { normalizeTypes, refSchema } from '../../utils/index.js'
 import { array } from './z/array.js'
 import { _enum } from './z/enum.js'
@@ -9,7 +9,7 @@ import { object } from './z/object.js'
 import { string } from './z/string.js'
 
 export function zodToOpenAPI(
-  schema: Schema,
+  schema: Schemas,
   paramName?: string,
   paramIn?: 'path' | 'query' | 'header' | 'cookie',
 ): string {

@@ -182,8 +182,17 @@ describe('wrap', () => {
         example: 'uuid-example',
         description: 'UUID parameter',
       },
-      'id',
-      'path',
+      {
+        parameters: {
+          name: 'id',
+          in: 'path',
+          schema: {
+            type: 'string',
+            example: 'uuid-example',
+            description: 'UUID parameter',
+          },
+        },
+      }
     )
     const expected =
       'z.string().openapi({param:{in:"path",name:"id",required:true},example:"uuid-example",description:"UUID parameter"})'
