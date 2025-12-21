@@ -5,12 +5,12 @@ import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
 import { links } from '../core/links.js'
-import { parameter } from '../core/parameter.js'
+import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
 import { responses } from '../core/responses.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
-import { schema } from '../core/schema.js'
+import { schemas } from '../core/schemas.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
@@ -129,18 +129,20 @@ export async function honoTakibi(): Promise<
     const takibiResult = await takibi(
       input,
       output,
-      exportSchemasTypes,
-      exportSchemas,
-      exportParametersTypes,
-      exportParameters,
-      exportSecuritySchemes,
-      exportRequestBodies,
-      exportResponses,
-      exportHeadersTypes,
-      exportHeaders,
-      exportExamples,
-      exportLinks,
-      exportCallbacks,
+      {
+        exportSchemasTypes,
+        exportSchemas,
+        exportParametersTypes,
+        exportParameters,
+        exportSecuritySchemes,
+        exportRequestBodies,
+        exportResponses,
+        exportHeadersTypes,
+        exportHeaders,
+        exportExamples,
+        exportLinks,
+        exportCallbacks,
+      },
       template,
       test,
       basePath,
@@ -171,18 +173,20 @@ export async function honoTakibi(): Promise<
     ? await takibi(
         c.input,
         zo.output,
-        zo.exportSchemasTypes ?? false,
-        zo.exportSchemas ?? false,
-        zo.exportParametersTypes ?? false,
-        zo.exportParameters ?? false,
-        zo.exportSecuritySchemes ?? false,
-        zo.exportRequestBodies ?? false,
-        zo.exportResponses ?? false,
-        zo.exportHeadersTypes ?? false,
-        zo.exportHeaders ?? false,
-        zo.exportExamples ?? false,
-        zo.exportLinks ?? false,
-        zo.exportCallbacks ?? false,
+        {
+          exportSchemasTypes: zo.exportSchemasTypes ?? false,
+          exportSchemas: zo.exportSchemas ?? false,
+          exportParametersTypes: zo.exportParametersTypes ?? false,
+          exportParameters: zo.exportParameters ?? false,
+          exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
+          exportRequestBodies: zo.exportRequestBodies ?? false,
+          exportResponses: zo.exportResponses ?? false,
+          exportHeadersTypes: zo.exportHeadersTypes ?? false,
+          exportHeaders: zo.exportHeaders ?? false,
+          exportExamples: zo.exportExamples ?? false,
+          exportLinks: zo.exportLinks ?? false,
+          exportCallbacks: zo.exportCallbacks ?? false,
+        },
         false, // template
         false, // test
       )
@@ -192,7 +196,7 @@ export async function honoTakibi(): Promise<
 
   /** schema */
   const schemaResult = components?.schemas
-    ? await schema(
+    ? await schemas(
         c.input,
         components.schemas.output,
         components.schemas.exportTypes ?? false,
@@ -203,7 +207,7 @@ export async function honoTakibi(): Promise<
 
   /** parameter */
   const parameterResult = components?.parameters
-    ? await parameter(
+    ? await parameters(
         c.input,
         components.parameters.output,
         components.parameters.exportTypes ?? false,

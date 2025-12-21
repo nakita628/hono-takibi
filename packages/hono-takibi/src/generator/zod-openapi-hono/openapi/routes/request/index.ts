@@ -1,8 +1,8 @@
-import type { Components, Parameters, RequestBody } from '../../../../../openapi/index.js'
+import type { Components, Parameters, RequestBodies } from '../../../../../openapi/index.js'
 import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
-import { paramsObject } from './index.js'
+import { params } from '../params/index.js'
 
 /**
  * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.
@@ -16,9 +16,9 @@ import { paramsObject } from './index.js'
  * - Deduplicates schemas if multiple content types share the same body schema.
  * - Uses `params` instead of `path` for Hono compatibility.
  */
-export function requestParameter(
+export function request(
   parameters: readonly Parameters[] | undefined,
-  body: RequestBody | undefined,
+  body: RequestBodies | undefined,
   components?: Components,
   options?: { readonly useComponentRefs?: boolean },
 ): string {
@@ -46,7 +46,7 @@ export function requestParameter(
     return { key, constName: requestBodyConstName(key) }
   })()
 
-  const resolvedBody: RequestBody | undefined = (() => {
+  const resolvedBody: RequestBodies | undefined = (() => {
     if (!body) return undefined
     if (!isRef(body)) return body
     if (!body.$ref.startsWith('#/components/requestBodies/')) return body
@@ -59,9 +59,9 @@ export function requestParameter(
   if (!(parameters || resolvedBodyRef || resolvedBody?.content)) return ''
 
   const requestBodyContentTypes = Object.keys(resolvedBody?.content || {})
-  const params = parameters
+  const requestParams = parameters
     ? (() => {
-        const paramsObj = paramsObject(parameters)
+        const paramsObj = params(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
         return requestParamsArr.length ? `request:{${requestParamsArr.join(',')}},` : ''
       })()
@@ -69,7 +69,7 @@ export function requestParameter(
 
   if (resolvedBodyRef && options?.useComponentRefs) {
     const requestBodyCode = `body:${resolvedBodyRef.constName},`
-    if (params) return params.replace('request:{', `request:{${requestBodyCode}`)
+    if (requestParams) return requestParams.replace('request:{', `request:{${requestBodyCode}`)
     return `request:{${requestBodyCode}},`
   }
 
@@ -110,8 +110,8 @@ export function requestParameter(
     const requestBodyCode = requestBody(required, contentWithResolvedExamples, firstSchema, {
       description: resolvedBody.description,
     })
-    if (params) return params.replace('request:{', `request:{${requestBodyCode}`)
+    if (requestParams) return requestParams.replace('request:{', `request:{${requestBodyCode}`)
     return `request:{${requestBodyCode}},`
   }
-  return params
+  return requestParams
 }

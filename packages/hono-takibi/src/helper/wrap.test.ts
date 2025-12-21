@@ -182,11 +182,15 @@ describe('wrap', () => {
         example: 'uuid-example',
         description: 'UUID parameter',
       },
-      'id',
-      'path',
+      {
+        parameters: {
+          name: 'id',
+          in: 'path',
+        },
+      },
     )
     const expected =
-      'z.string().openapi({param:{in:"path",name:"id",required:true},example:"uuid-example",description:"UUID parameter"})'
+      'z.string().openapi({param:{in:"path",name:"id",required:false},example:"uuid-example",description:"UUID parameter"})'
     expect(result).toBe(expected)
   })
 
@@ -199,17 +203,25 @@ describe('wrap', () => {
         description: 'Optional query parameter',
         required: false,
       },
-      'q',
-      'query',
+      {
+        parameters: {
+          name: 'q',
+          in: 'query',
+        },
+      },
     )
     const expected =
-      'z.string().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
+      'z.string().optional().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
     expect(result).toBe(expected)
   })
 
   it('should insert only param if no example or description is given', () => {
-    const result = wrap('z.string()', { type: 'string', required: true }, 'x', 'header')
-    const expected = 'z.string().openapi({param:{in:"header",name:"x",required:true}})'
+    const result = wrap(
+      'z.string()',
+      { type: 'string', required: true },
+      { parameters: { name: 'x', in: 'header' } },
+    )
+    const expected = 'z.string().openapi({param:{in:"header",name:"x",required:false}})'
     expect(result).toBe(expected)
   })
 

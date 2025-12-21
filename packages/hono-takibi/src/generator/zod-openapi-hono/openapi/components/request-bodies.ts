@@ -1,4 +1,4 @@
-import type { Components, Content, RequestBody } from '../../../../openapi/index.js'
+import type { Components, Content, RequestBodies } from '../../../../openapi/index.js'
 import { toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
@@ -33,7 +33,7 @@ export const mediaTypeExpr = (
 /**
  * Generates a requestBody expression.
  */
-const requestBodyExpr = (body: RequestBody): string => {
+const requestBodyExpr = (body: RequestBodies): string => {
   const required = body.required ?? false
   const description =
     body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined

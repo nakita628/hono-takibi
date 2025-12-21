@@ -1,4 +1,4 @@
-import type { Ref, Schema } from '../../../openapi/index.js'
+import type { Ref, Schemas } from '../../../openapi/index.js'
 import { refSchema } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
@@ -29,7 +29,7 @@ import { zodToOpenAPI } from '../index.js'
  *   P -- "No"  --> R[z]
  * ```
  *
- * @param schema - OpenAPI or JSON Schema object representing an array type.
+ * @param schemas - OpenAPI or JSON Schema object representing an array type.
  *                 - `items` may be a `$ref` or an inline schema.
  *                 - `minItems` / `maxItems` control `.min()`, `.max()`, or `.length()`.
  * @returns Zod schema string for the array, e.g. `z.array(z.string()).min(1).max(5)`.
@@ -50,7 +50,7 @@ import { zodToOpenAPI } from '../index.js'
  * // → "z.array(z.string()).min(1).max(3)"
  * ```
  */
-export function array(schema: Schema): string {
+export function array(schemas: Schemas): string {
   const isSchemaOrParameterOrHeaderRef = (
     ref: Ref,
   ): ref is
@@ -61,24 +61,24 @@ export function array(schema: Schema): string {
     ref.startsWith('#/components/parameters/') ||
     ref.startsWith('#/components/headers/')
 
-  const item = schema.items?.$ref
-    ? isSchemaOrParameterOrHeaderRef(schema.items.$ref)
-      ? refSchema(schema.items.$ref)
-      : schema.items
-        ? zodToOpenAPI(schema.items)
+  const item = schemas.items?.$ref
+    ? isSchemaOrParameterOrHeaderRef(schemas.items.$ref)
+      ? refSchema(schemas.items.$ref)
+      : schemas.items
+        ? zodToOpenAPI(schemas.items)
         : 'z.any()'
-    : schema.items
-      ? zodToOpenAPI(schema.items)
+    : schemas.items
+      ? zodToOpenAPI(schemas.items)
       : 'z.any()'
 
   const z = `z.array(${item})`
 
-  if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
-    return schema.minItems === schema.maxItems
-      ? `${z}.length(${schema.minItems})`
-      : `${z}.min(${schema.minItems}).max(${schema.maxItems})`
+  if (typeof schemas.minItems === 'number' && typeof schemas.maxItems === 'number') {
+    return schemas.minItems === schemas.maxItems
+      ? `${z}.length(${schemas.minItems})`
+      : `${z}.min(${schemas.minItems}).max(${schemas.maxItems})`
   }
-  if (typeof schema.minItems === 'number') return `${z}.min(${schema.minItems})`
-  if (typeof schema.maxItems === 'number') return `${z}.max(${schema.maxItems})`
+  if (typeof schemas.minItems === 'number') return `${z}.min(${schemas.minItems})`
+  if (typeof schemas.maxItems === 'number') return `${z}.max(${schemas.maxItems})`
   return z
 }

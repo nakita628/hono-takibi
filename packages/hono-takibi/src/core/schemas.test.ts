@@ -3,10 +3,10 @@ import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { OpenAPI } from '../openapi'
-import { schema } from './schema'
+import { schemas } from './schemas'
 
 // Test run
-// pnpm vitest run ./src/core/schema.test.ts
+// pnpm vitest run ./src/core/schemas.test.ts
 
 const openapi: OpenAPI = {
   openapi: '3.0.0',
@@ -97,7 +97,7 @@ describe('schema() (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
       const out = path.join(dir, 'index.ts')
 
-      const result = await schema(input, out, true)
+      const result = await schemas(input, out, true)
       const index = fs.readFileSync(out, 'utf-8')
 
       const indexExpected = `import { z } from '@hono/zod-openapi'
@@ -139,7 +139,7 @@ export type HonoUnion = z.infer<typeof HonoUnionSchema>
       fs.writeFileSync(input, JSON.stringify(openapi))
       const out = path.join(dir, 'index.ts')
 
-      const result = await schema(input, out, false)
+      const result = await schemas(input, out, false)
       const index = fs.readFileSync(out, 'utf-8')
       const indexExpected = `import { z } from '@hono/zod-openapi'
 
@@ -173,7 +173,7 @@ export const HonoUnionSchema = z
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
-      const result = await schema(input, outDir, false, true)
+      const result = await schemas(input, outDir, false, true)
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       const indexExpected = `export * from './hono'
@@ -222,7 +222,7 @@ export const ZodOpenAPIHonoSchema = z
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
-      const result = await schema(input, outDir, true, true)
+      const result = await schemas(input, outDir, true, true)
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       const indexExpected = `export * from './hono'

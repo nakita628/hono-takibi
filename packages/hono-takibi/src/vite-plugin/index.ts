@@ -4,12 +4,12 @@ import { callbacks } from '../core/callbacks.js'
 import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
 import { links } from '../core/links.js'
-import { parameter } from '../core/parameter.js'
+import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
 import { responses } from '../core/responses.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
-import { schema } from '../core/schema.js'
+import { schemas } from '../core/schemas.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
@@ -215,18 +215,20 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const result = await takibi(
         c.input,
         out,
-        zo.exportSchemasTypes ?? false,
-        zo.exportSchemas ?? false,
-        zo.exportParametersTypes ?? false,
-        zo.exportParameters ?? false,
-        zo.exportSecuritySchemes ?? false,
-        zo.exportRequestBodies ?? false,
-        zo.exportResponses ?? false,
-        zo.exportHeadersTypes ?? false,
-        zo.exportHeaders ?? false,
-        zo.exportExamples ?? false,
-        zo.exportLinks ?? false,
-        zo.exportCallbacks ?? false,
+        {
+          exportSchemasTypes: zo.exportSchemasTypes ?? false,
+          exportSchemas: zo.exportSchemas ?? false,
+          exportParametersTypes: zo.exportParametersTypes ?? false,
+          exportParameters: zo.exportParameters ?? false,
+          exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
+          exportRequestBodies: zo.exportRequestBodies ?? false,
+          exportResponses: zo.exportResponses ?? false,
+          exportHeadersTypes: zo.exportHeadersTypes ?? false,
+          exportHeaders: zo.exportHeaders ?? false,
+          exportExamples: zo.exportExamples ?? false,
+          exportLinks: zo.exportLinks ?? false,
+          exportCallbacks: zo.exportCallbacks ?? false,
+        },
         false,
         false,
       )
@@ -242,14 +244,14 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       if (s.split === true) {
         const outDir = toAbs(s.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await schema(c.input, outDir, s.exportTypes === true, true)
+        const r = await schemas(c.input, outDir, s.exportTypes === true, true)
         if (!r.ok) return `✗ schemas(split): ${r.error}`
         return removed.length > 0
           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ schemas(split) -> ${outDir}/*.ts`
       }
       const out = toAbs(s.output)
-      const r = await schema(c.input, out, s.exportTypes === true, false)
+      const r = await schemas(c.input, out, s.exportTypes === true, false)
       return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
     }
     jobs.push(runSchema())
@@ -257,15 +259,15 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 
   // components.parameters
   if (components?.parameters) {
-    const parameters = components.parameters
+    const p = components.parameters
     const runParameters = async () => {
-      if (parameters.split === true) {
-        const outDir = toAbs(parameters.output)
+      if (p.split === true) {
+        const outDir = toAbs(p.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await parameter(
+        const r = await parameters(
           c.input,
           outDir,
-          parameters.exportTypes === true,
+          p.exportTypes === true,
           true,
           schemaTarget ? { schemas: schemaTarget } : undefined,
         )
@@ -274,11 +276,11 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
           ? `✓ parameters(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ parameters(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(parameters.output)
-      const r = await parameter(
+      const out = toAbs(p.output)
+      const r = await parameters(
         c.input,
         out,
-        parameters.exportTypes === true,
+        p.exportTypes === true,
         false,
         schemaTarget ? { schemas: schemaTarget } : undefined,
       )

@@ -5,7 +5,7 @@ import {
   methodPath,
   sanitizeIdentifier,
 } from '../../../../utils/index.js'
-import { requestParameter } from './params/index.js'
+import { request } from './request/index.js'
 import { response } from './response/index.js'
 
 /**
@@ -82,7 +82,7 @@ export function route(
 
   const tagList = tags ? JSON.stringify(tags) : '[]'
   
-  const requestParams = requestParameter(parameters, requestBody, components, options)
+  const requestParams = request(parameters, requestBody, components, options)
 
   const args = {
     routeName: `${methodPath(method, path)}Route`,

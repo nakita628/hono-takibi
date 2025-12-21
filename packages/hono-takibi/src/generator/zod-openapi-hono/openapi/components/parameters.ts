@@ -25,10 +25,17 @@ export function parameters(
   if (!parameters) return ''
 
   return Object.keys(parameters)
-    .map((key) => {
-      const parameter = parameters[key]
-      const z = zodToOpenAPI(parameter.schema, parameter.name, parameter.in)
-      return zodToOpenAPISchema(parameterBaseName(key), z, exportSchema, exportType, true)
+    .map((k) => {
+      const parameter = parameters[k]
+      const meta = {
+        parameters: {
+          name: parameter.name,
+          in: parameter.in,
+          required: parameter.required,
+        },
+      }
+      const z = zodToOpenAPI(parameter.schema, meta)
+      return zodToOpenAPISchema(parameterBaseName(k), z, exportSchema, exportType, true)
     })
     .join('\n\n')
 }

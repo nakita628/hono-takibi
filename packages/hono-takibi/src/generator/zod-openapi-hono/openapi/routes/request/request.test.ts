@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { requestParameter } from '.'
+import { request } from './index.js'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/params/request-parameter.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/params/request.test.ts
 
-describe('requestParameter', () => {
-  it.concurrent('requestParameter parameters undefined', () => {
-    const result = requestParameter(undefined, {
+describe('request', () => {
+  it.concurrent('request parameters undefined', () => {
+    const result = request(undefined, {
       required: true,
       content: {
         'application/json': {
@@ -29,7 +29,7 @@ describe('requestParameter', () => {
   })
 
   it.concurrent('requestParameter parameters requestBody undefined', () => {
-    const result = requestParameter(
+    const result = request(
       [
         {
           schema: { type: 'string' },
@@ -47,12 +47,12 @@ describe('requestParameter', () => {
       undefined,
     )
 
-    const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:false}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:false}})})},`
+    const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:true}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:true}})})},`
     expect(result).toBe(expected)
   })
 
   it.concurrent('requestParameter parameters and requestBody not undefined', () => {
-    const result = requestParameter(
+    const result = request(
       [
         {
           schema: { type: 'string', format: 'uuid' },
@@ -85,8 +85,8 @@ describe('requestParameter', () => {
     expect(result).toBe(expected)
   })
 
-  it.concurrent('requestParameter parameters and requestBody not undefined binary', () => {
-    const result = requestParameter(
+  it.concurrent('request parameters and requestBody not undefined binary', () => {
+    const result = request(
       [
         {
           name: 'petId',
@@ -120,7 +120,7 @@ describe('requestParameter', () => {
       },
     )
 
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}}},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().openapi({param:{in:"query",name:"additionalMetadata",required:false}}).optional()})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}}},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().optional().openapi({param:{in:"query",name:"additionalMetadata",required:false}})})},`
     expect(result).toBe(expected)
   })
 })

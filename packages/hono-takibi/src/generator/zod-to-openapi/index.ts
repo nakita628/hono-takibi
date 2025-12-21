@@ -1,5 +1,5 @@
 import { wrap } from '../../helper/wrap.js'
-import type { Ref, Schema } from '../../openapi/index.js'
+import type { Headers, Parameters, Ref, Schemas } from '../../openapi/index.js'
 import { normalizeTypes, refSchema } from '../../utils/index.js'
 import { array } from './z/array.js'
 import { _enum } from './z/enum.js'
@@ -9,13 +9,15 @@ import { object } from './z/object.js'
 import { string } from './z/string.js'
 
 export function zodToOpenAPI(
-  schema: Schema,
-  paramName?: string,
-  paramIn?: 'path' | 'query' | 'header' | 'cookie',
+  schemas: Schemas,
+  meta?: {
+    parameters?: Omit<Parameters, 'schema'>
+    headers?: Omit<Headers, 'schema'>
+  },
 ): string {
-  if (schema === undefined) throw new Error('Schema is undefined')
+  if (schemas === undefined) throw new Error('Schema is undefined')
   /** ref */
-  if (schema.$ref !== undefined) {
+  if (schemas.$ref !== undefined) {
     const isSchemaOrParameterOrHeaderRef = (
       ref: Ref,
     ): ref is
@@ -25,18 +27,18 @@ export function zodToOpenAPI(
       ref.startsWith('#/components/schemas/') ||
       ref.startsWith('#/components/parameters/') ||
       ref.startsWith('#/components/headers/')
-    if (isSchemaOrParameterOrHeaderRef(schema.$ref)) {
-      return wrap(refSchema(schema.$ref), schema, paramName, paramIn)
+    if (isSchemaOrParameterOrHeaderRef(schemas.$ref)) {
+      return wrap(refSchema(schemas.$ref), schemas, meta)
     }
   }
   /* combinators */
   /** allOf */
-  if (schema.allOf !== undefined) {
-    if (!schema.allOf || schema.allOf.length === 0) {
-      return wrap('z.any()', schema, paramName, paramIn)
+  if (schemas.allOf !== undefined) {
+    if (!schemas.allOf || schemas.allOf.length === 0) {
+      return wrap('z.any()', schemas, meta)
     }
-    const { schemas, nullable } = schema.allOf.reduce<{
-      schemas: string[]
+    const { allOfSchemas, nullable } = schemas.allOf.reduce<{
+      allOfSchemas: string[]
       nullable: boolean
     }>(
       (acc, s) => {
@@ -46,53 +48,53 @@ export function zodToOpenAPI(
 
         if (isOnlyNullable) {
           return {
-            schemas: acc.schemas,
+            allOfSchemas: acc.allOfSchemas,
             nullable: true,
           }
         }
 
-        const z = zodToOpenAPI(s, paramName, paramIn)
+        const z = zodToOpenAPI(s, meta)
         return {
-          schemas: [...acc.schemas, z],
+          allOfSchemas: [...acc.allOfSchemas, z],
           nullable: acc.nullable,
         }
       },
       {
-        schemas: [],
+        allOfSchemas: [],
         nullable:
-          schema.nullable === true ||
-          (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null'),
+          schemas.nullable === true ||
+          (Array.isArray(schemas.type) ? schemas.type.includes('null') : schemas.type === 'null'),
       },
     )
-    if (schemas.length === 0) {
-      return wrap('z.any()', { ...schema, nullable }, paramName, paramIn)
+    if (allOfSchemas.length === 0) {
+      return wrap('z.any()', { ...schemas, nullable }, meta)
     }
-    if (schemas.length === 1) {
-      return wrap(schemas[0], { ...schema, nullable }, paramName, paramIn)
+    if (allOfSchemas.length === 1) {
+      return wrap(allOfSchemas[0], { ...schemas, nullable }, meta)
     }
-    const z = `z.intersection(${schemas.join(',')})`
-    return wrap(z, schema, paramName, paramIn)
+    const z = `z.intersection(${allOfSchemas.join(',')})`
+    return wrap(z, schemas, meta)
   }
 
   /* anyOf */
-  if (schema.anyOf !== undefined) {
-    if (!schema.anyOf || schema.anyOf.length === 0) {
-      return wrap('z.any()', schema, paramName, paramIn)
+  if (schemas.anyOf !== undefined) {
+    if (!schemas.anyOf || schemas.anyOf.length === 0) {
+      return wrap('z.any()', schemas, meta)
     }
-    const schemas = schema.anyOf.map((subSchema) => {
-      return zodToOpenAPI(subSchema, paramName, paramIn)
+    const anyOfSchemas = schemas.anyOf.map((subSchema) => {
+      return zodToOpenAPI(subSchema, meta)
     })
-    const z = `z.union([${schemas.join(',')}])`
-    return wrap(z, schema, paramName, paramIn)
+    const z = `z.union([${anyOfSchemas.join(',')}])`
+    return wrap(z, schemas, meta)
   }
 
   /* oneOf */
-  if (schema.oneOf !== undefined) {
-    if (!schema.oneOf || schema.oneOf.length === 0) {
-      return wrap('z.any()', schema, paramName, paramIn)
+  if (schemas.oneOf !== undefined) {
+    if (!schemas.oneOf || schemas.oneOf.length === 0) {
+      return wrap('z.any()', schemas, meta)
     }
-    const schemas = schema.oneOf.map((schema) => {
-      return zodToOpenAPI(schema, paramName, paramIn)
+    const oneOfSchemas = schemas.oneOf.map((schema) => {
+      return zodToOpenAPI(schema, meta)
     })
     // discriminatedUnion Support hesitant
     // This is because using intersection causes a type error.
@@ -101,53 +103,57 @@ export function zodToOpenAPI(
     //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
     //   : `z.union([${schemas.join(',')}])`
     // return wrap(z, schema, paramName, paramIn)
-    const z = `z.union([${schemas.join(',')}])`
-    return wrap(z, schema, paramName, paramIn)
+    const z = `z.union([${oneOfSchemas.join(',')}])`
+    return wrap(z, schemas, meta)
   }
 
   /* not */
-  if (schema.not !== undefined) {
-    if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
-      const predicate = `(v) => typeof v !== '${schema.not.type}'`
+  if (schemas.not !== undefined) {
+    if (
+      typeof schemas.not === 'object' &&
+      schemas.not.type &&
+      typeof schemas.not.type === 'string'
+    ) {
+      const predicate = `(v) => typeof v !== '${schemas.not.type}'`
       const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, paramName, paramIn)
+      return wrap(z, schemas, meta)
     }
-    if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
-      const list = JSON.stringify(schema.not.enum)
+    if (typeof schemas.not === 'object' && Array.isArray(schemas.not.enum)) {
+      const list = JSON.stringify(schemas.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
       const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, paramName, paramIn)
+      return wrap(z, schemas, meta)
     }
-    return wrap('z.any()', schema, paramName, paramIn)
+    return wrap('z.any()', schemas, meta)
   }
 
   /* const */
-  if (schema.const !== undefined) {
-    const z = `z.literal(${JSON.stringify(schema.const)})`
-    return wrap(z, schema, paramName, paramIn)
+  if (schemas.const !== undefined) {
+    const z = `z.literal(${JSON.stringify(schemas.const)})`
+    return wrap(z, schemas, meta)
   }
 
   /* enum */
-  if (schema.enum !== undefined) return wrap(_enum(schema), schema, paramName, paramIn)
+  if (schemas.enum !== undefined) return wrap(_enum(schemas), schemas, meta)
   /* properties */
-  if (schema.properties !== undefined) return wrap(object(schema), schema, paramName, paramIn)
-  const t = normalizeTypes(schema.type)
+  if (schemas.properties !== undefined) return wrap(object(schemas), schemas, meta)
+  const t = normalizeTypes(schemas.type)
   /* string */
-  if (t.includes('string')) return wrap(string(schema), schema, paramName, paramIn)
+  if (t.includes('string')) return wrap(string(schemas), schemas, meta)
   /* number */
-  if (t.includes('number')) return wrap(number(schema), schema, paramName, paramIn)
+  if (t.includes('number')) return wrap(number(schemas), schemas, meta)
   /* integer & bigint */
-  if (t.includes('integer')) return wrap(integer(schema), schema, paramName, paramIn)
+  if (t.includes('integer')) return wrap(integer(schemas), schemas, meta)
   /* boolean */
-  if (t.includes('boolean')) return wrap('z.boolean()', schema, paramName, paramIn)
+  if (t.includes('boolean')) return wrap('z.boolean()', schemas, meta)
   /* array */
-  if (t.includes('array')) return wrap(array(schema), schema, paramName, paramIn)
+  if (t.includes('array')) return wrap(array(schemas), schemas, meta)
   /* object */
-  if (t.includes('object')) return wrap(object(schema), schema, paramName, paramIn)
+  if (t.includes('object')) return wrap(object(schemas), schemas, meta)
   /* date */
-  if (t.includes('date')) return wrap('z.date()', schema, paramName, paramIn)
+  if (t.includes('date')) return wrap('z.date()', schemas, meta)
   /* null only */
-  if (t.length === 1 && t[0] === 'null') return wrap('z.null()', schema, paramName, paramIn)
-  console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
-  return wrap('z.any()', schema, paramName, paramIn)
+  if (t.length === 1 && t[0] === 'null') return wrap('z.null()', schemas, meta)
+  console.warn(`fallback to z.any(): schema=${JSON.stringify(schemas)}`)
+  return wrap('z.any()', schemas, meta)
 }

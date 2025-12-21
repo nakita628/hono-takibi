@@ -1,63 +1,63 @@
 import { propertiesSchema } from '../../../helper/properties-schema.js'
-import type { Schema } from '../../../openapi/index.js'
+import type { Schemas } from '../../../openapi/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.
  *
- * @param schema - Schema definition.
+ * @param schemas - Schema definition.
  * @returns The Zod object schema string.
  */
-export function object(schema: Schema): string {
+export function object(schemas: Schemas): string {
   // allOf, oneOf, anyOf, not
-  if (schema.oneOf) return zodToOpenAPI(schema)
-  if (schema.anyOf) return zodToOpenAPI(schema)
-  if (schema.allOf) return zodToOpenAPI(schema)
-  if (schema.not) return zodToOpenAPI(schema)
-  if (schema.additionalProperties) {
-    if (typeof schema.additionalProperties === 'boolean') {
-      if (schema.properties) {
+  if (schemas.oneOf) return zodToOpenAPI(schemas)
+  if (schemas.anyOf) return zodToOpenAPI(schemas)
+  if (schemas.allOf) return zodToOpenAPI(schemas)
+  if (schemas.not) return zodToOpenAPI(schemas)
+  if (schemas.additionalProperties) {
+    if (typeof schemas.additionalProperties === 'boolean') {
+      if (schemas.properties) {
         const s = propertiesSchema(
-          schema.properties,
-          Array.isArray(schema.required) ? schema.required : [],
+          schemas.properties,
+          Array.isArray(schemas.required) ? schemas.required : [],
         )
-        if (schema.additionalProperties === true) {
+        if (schemas.additionalProperties === true) {
           return s.replace('object', 'looseObject')
         }
-        if (schema.additionalProperties === false) {
+        if (schemas.additionalProperties === false) {
           return s.replace('object', 'strictObject')
         }
         return s
       }
       const s = 'z.object({})'
-      if (schema.additionalProperties === true) {
+      if (schemas.additionalProperties === true) {
         return s.replace('object', 'looseObject')
       }
-      if (schema.additionalProperties === false) {
+      if (schemas.additionalProperties === false) {
         return s.replace('object', 'strictObject')
       }
       return s
     }
-    const s = zodToOpenAPI(schema.additionalProperties)
+    const s = zodToOpenAPI(schemas.additionalProperties)
     return `z.record(z.string(),${s})`
   }
-  if (schema.properties) {
+  if (schemas.properties) {
     const s = propertiesSchema(
-      schema.properties,
-      Array.isArray(schema.required) ? schema.required : [],
+      schemas.properties,
+      Array.isArray(schemas.required) ? schemas.required : [],
     )
-    if (schema.additionalProperties === false) {
+    if (schemas.additionalProperties === false) {
       return s.replace('object', 'strictObject')
     }
-    if (schema.additionalProperties === true) {
+    if (schemas.additionalProperties === true) {
       return s.replace('object', 'looseObject')
     }
     return s
   }
-  if (schema.additionalProperties === false) {
+  if (schemas.additionalProperties === false) {
     return 'z.strictObject({})'
   }
-  if (schema.additionalProperties === true) {
+  if (schemas.additionalProperties === true) {
     return 'z.looseObject({})'
   }
   return 'z.object({})'

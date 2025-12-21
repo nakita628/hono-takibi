@@ -1,4 +1,4 @@
-import type { Components, Responses, Schema } from '../../../../../openapi/index.js'
+import type { Components, Responses, Schemas } from '../../../../../openapi/index.js'
 import {
   ensureSuffix,
   escapeStringLiteral,
@@ -26,7 +26,7 @@ export function response(
 ): string {
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
   const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-  const isSchema = (v: unknown): v is Schema => isRecord(v)
+  const isSchema = (v: unknown): v is Schemas => isRecord(v)
 
   const toIdentifier = (raw: string): string => {
     const sanitized = sanitizeIdentifier(raw)
@@ -94,7 +94,7 @@ export function response(
             const description =
               typeof header.description === 'string' ? header.description : undefined
             const example = 'example' in header ? header.example : undefined
-            const merged: Schema = {
+            const merged: Schemas = {
               ...schema,
               ...(description !== undefined && schema.description === undefined
                 ? { description }
@@ -104,13 +104,6 @@ export function response(
             return zodToOpenAPI(merged)
           }
 
-          const shouldOptional = (header: unknown): boolean => {
-            if (!isRecord(header)) return true
-            if (header.required === true) return false
-            const rawSchema = header.schema
-            const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
-            return schemaDefault === undefined
-          }
 
           const entries = Object.entries(raw).map(([name, header]) => {
             if (isRef(header) && header.$ref.startsWith('#/components/headers/')) {
@@ -118,16 +111,13 @@ export function response(
               const resolved = resolveRef(header.$ref, '#/components/headers/', components?.headers)
               if (key && resolved && options?.useComponentRefs) {
                 const base = headerConstName(key)
-                const expr = shouldOptional(resolved) ? `${base}.optional()` : base
-                return `${JSON.stringify(name)}:${expr}`
+                return `${JSON.stringify(name)}:${base}`
               }
               const base = headerSchemaExpr(resolved ?? header)
-              const expr = shouldOptional(resolved ?? header) ? `${base}.optional()` : base
-              return `${JSON.stringify(name)}:${expr}`
+              return `${JSON.stringify(name)}:${base}`
             }
             const base = headerSchemaExpr(header)
-            const expr = shouldOptional(header) ? `${base}.optional()` : base
-            return `${JSON.stringify(name)}:${expr}`
+            return `${JSON.stringify(name)}:${base}`
           })
 
           return entries.length > 0 ? `headers:z.object({${entries.join(',')}}),` : ''
@@ -216,7 +206,7 @@ export function response(
           const description =
             typeof header.description === 'string' ? header.description : undefined
           const example = 'example' in header ? header.example : undefined
-          const merged: Schema = {
+          const merged: Schemas = {
             ...schema,
             ...(description !== undefined && schema.description === undefined
               ? { description }
@@ -226,30 +216,19 @@ export function response(
           return zodToOpenAPI(merged)
         }
 
-        const shouldOptional = (header: unknown): boolean => {
-          if (!isRecord(header)) return true
-          if (header.required === true) return false
-          const rawSchema = header.schema
-          const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
-          return schemaDefault === undefined
-        }
-
         const entries = Object.entries(raw).map(([name, header]) => {
           if (isRef(header) && header.$ref.startsWith('#/components/headers/')) {
             const key = header.$ref.split('/').pop()
             const resolved = resolveRef(header.$ref, '#/components/headers/', components?.headers)
             if (key && resolved && options?.useComponentRefs) {
               const base = headerConstName(key)
-              const expr = shouldOptional(resolved) ? `${base}.optional()` : base
-              return `${JSON.stringify(name)}:${expr}`
+              return `${JSON.stringify(name)}:${base}`
             }
             const base = headerSchemaExpr(resolved ?? header)
-            const expr = shouldOptional(resolved ?? header) ? `${base}.optional()` : base
-            return `${JSON.stringify(name)}:${expr}`
+            return `${JSON.stringify(name)}:${base}`
           }
           const base = headerSchemaExpr(header)
-          const expr = shouldOptional(header) ? `${base}.optional()` : base
-          return `${JSON.stringify(name)}:${expr}`
+          return `${JSON.stringify(name)}:${base}`
         })
 
         return entries.length > 0 ? `headers:z.object({${entries.join(',')}}),` : ''

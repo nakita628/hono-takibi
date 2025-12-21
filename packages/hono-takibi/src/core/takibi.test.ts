@@ -79,36 +79,6 @@ const openapi: OpenAPI = {
   },
 }
 
-type ExportFlags = {
-  readonly exportSchemasTypes: boolean
-  readonly exportSchemas: boolean
-  readonly exportParametersTypes: boolean
-  readonly exportParameters: boolean
-  readonly exportSecuritySchemes: boolean
-  readonly exportRequestBodies: boolean
-  readonly exportResponses: boolean
-  readonly exportHeadersTypes: boolean
-  readonly exportHeaders: boolean
-  readonly exportExamples: boolean
-  readonly exportLinks: boolean
-  readonly exportCallbacks: boolean
-}
-
-const defaultExports: ExportFlags = {
-  exportSchemasTypes: true,
-  exportSchemas: true,
-  exportParametersTypes: false,
-  exportParameters: false,
-  exportSecuritySchemes: false,
-  exportRequestBodies: false,
-  exportResponses: false,
-  exportHeadersTypes: false,
-  exportHeaders: false,
-  exportExamples: false,
-  exportLinks: false,
-  exportCallbacks: false,
-}
-
 const runTakibi = async (
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
@@ -117,18 +87,20 @@ const runTakibi = async (
   takibi(
     input,
     output,
-    defaultExports.exportSchemasTypes,
-    defaultExports.exportSchemas,
-    defaultExports.exportParametersTypes,
-    defaultExports.exportParameters,
-    defaultExports.exportSecuritySchemes,
-    defaultExports.exportRequestBodies,
-    defaultExports.exportResponses,
-    defaultExports.exportHeadersTypes,
-    defaultExports.exportHeaders,
-    defaultExports.exportExamples,
-    defaultExports.exportLinks,
-    defaultExports.exportCallbacks,
+    {
+      exportSchemasTypes: true,
+      exportSchemas: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    },
     options.template,
     options.test,
     options.basePath,
