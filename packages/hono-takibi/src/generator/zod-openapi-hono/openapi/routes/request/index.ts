@@ -2,7 +2,7 @@ import type { Components, Parameters, RequestBodies } from '../../../../../opena
 import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
-import { paramsObject } from './index.js'
+import { params } from '../params/index.js'
 
 /**
  * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.
@@ -59,9 +59,9 @@ export function request(
   if (!(parameters || resolvedBodyRef || resolvedBody?.content)) return ''
 
   const requestBodyContentTypes = Object.keys(resolvedBody?.content || {})
-  const params = parameters
+  const requestParams = parameters
     ? (() => {
-        const paramsObj = paramsObject(parameters)
+        const paramsObj = params(parameters)
         const requestParamsArr = requestParamsArray(paramsObj)
         return requestParamsArr.length ? `request:{${requestParamsArr.join(',')}},` : ''
       })()
@@ -69,7 +69,7 @@ export function request(
 
   if (resolvedBodyRef && options?.useComponentRefs) {
     const requestBodyCode = `body:${resolvedBodyRef.constName},`
-    if (params) return params.replace('request:{', `request:{${requestBodyCode}`)
+    if (requestParams) return requestParams.replace('request:{', `request:{${requestBodyCode}`)
     return `request:{${requestBodyCode}},`
   }
 
@@ -110,8 +110,8 @@ export function request(
     const requestBodyCode = requestBody(required, contentWithResolvedExamples, firstSchema, {
       description: resolvedBody.description,
     })
-    if (params) return params.replace('request:{', `request:{${requestBodyCode}`)
+    if (requestParams) return requestParams.replace('request:{', `request:{${requestBodyCode}`)
     return `request:{${requestBodyCode}},`
   }
-  return params
+  return requestParams
 }

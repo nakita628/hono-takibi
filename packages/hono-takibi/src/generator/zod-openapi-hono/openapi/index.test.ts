@@ -5,7 +5,7 @@ import { zodOpenAPIHono } from './index.js'
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/index.test.ts
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.0.3',
   info: {
     title: 'ABC only / components x3 (B -> C -> A)',
@@ -445,7 +445,7 @@ const openapi: OpenAPI = {
 
 describe('zodOpenAPIHono', () => {
   it.concurrent('zodOpenAPIHono exportSchema=true, exportType=true', () => {
-    const result = zodOpenAPIHono(openapi, {
+    const result = zodOpenAPIHono(openapi as unknown as OpenAPI, {
       exportSchemasTypes: false,
       exportSchemas: false,
       exportParametersTypes: false,
@@ -459,6 +459,7 @@ describe('zodOpenAPIHono', () => {
       exportLinks: false,
       exportCallbacks: false,
     })
+
     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
 const ASchema = z.object({B:z.url(),A:z.string()}).openapi('A')
@@ -473,7 +474,7 @@ const BSchema = z.object({B:z.url(),C:CSchema}).openapi('B')
 
 
 
-const BParamsSchema = z.string().openapi({param:{in:"query",name:"B",required:false}})
+const BParamsSchema = z.string().optional().openapi({param:{in:"query",name:"B",required:false}})
 
 
 
@@ -481,7 +482,7 @@ const CParamsSchema = z.string().openapi({param:{in:"path",name:"C",required:tru
 
 
 
-const AParamsSchema = z.string().openapi({param:{in:"header",name:"A",required:false}})
+const AParamsSchema = z.string().optional().openapi({param:{in:"header",name:"A",required:false}})
 
 
 
@@ -497,11 +498,11 @@ const CRequestBody = {required:true,content:{"application/json":{schema:CSchema,
 
 const ARequestBody = {required:true,content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
-const BResponse = {description:"B",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"B":{$ref:"#/components/links/B"}},content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
+const BResponse = {description:"B",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"B":{$ref:"#/components/links/B"}},content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
 
-const CResponse = {description:"C",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"C":{$ref:"#/components/links/C"}},content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
+const CResponse = {description:"C",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"C":{$ref:"#/components/links/C"}},content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
 
-const AResponse = {description:"A",headers:z.object({"B":z.string().optional(),"C":z.string().optional(),"A":z.string().optional()}),links:{"A":{$ref:"#/components/links/A"}},content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
+const AResponse = {description:"A",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"A":{$ref:"#/components/links/A"}},content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
 const BHeaderSchema = z.string()
 
@@ -527,11 +528,12 @@ const CCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/compon
 
 const ACallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/A"},"responses":{"200":{"$ref":"#/components/responses/A"}}}}}
 
-export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallback},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:AResponse,}})
+export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallback},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:AResponse,}})
 
-export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallback},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:BResponse,}})
+export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallback},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:BResponse,}})
 
-export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallback},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema.optional()}),headers:z.object({A:AParamsSchema.optional()})},responses:{200:CResponse,}})`
+export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallback},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:CResponse,}})`
+
     expect(result).toBe(expected)
   })
 })
