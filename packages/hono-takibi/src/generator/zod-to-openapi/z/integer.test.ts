@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../openapi'
+import type { Schemas } from '../../../openapi'
 import { integer } from './integer'
 
 // Test run
@@ -7,7 +7,7 @@ import { integer } from './integer'
 
 describe('integer', () => {
   describe('type: integer', () => {
-    it.concurrent.each<[Schema, string]>([
+    it.concurrent.each<[Schemas, string]>([
       [{ type: 'integer' }, 'z.int()'],
       [{ type: 'integer', minimum: 0, exclusiveMinimum: true }, 'z.int().positive()'],
       [{ type: 'integer', minimum: 0, exclusiveMinimum: false }, 'z.int().nonnegative()'],
@@ -27,7 +27,7 @@ describe('integer', () => {
   })
 
   describe('type: integer, format: int32', () => {
-    it.concurrent.each<[Schema, string]>([
+    it.concurrent.each<[Schemas, string]>([
       [{ type: 'integer', format: 'int32' }, 'z.int32()'],
       [
         { type: 'integer', format: 'int32', minimum: 0, exclusiveMinimum: true },
@@ -65,7 +65,7 @@ describe('integer', () => {
   })
 
   describe('type: integer, format: int64', () => {
-    it.concurrent.each<[Schema, string]>([
+    it.concurrent.each<[Schemas, string]>([
       [{ type: 'integer', format: 'int64' }, 'z.int64()'],
       [
         { type: 'integer', format: 'int64', minimum: 0, exclusiveMinimum: true },
@@ -103,7 +103,7 @@ describe('integer', () => {
   })
 
   describe('type: integer, format: bigint', () => {
-    it.concurrent.each<[Schema, string]>([
+    it.concurrent.each<[Schemas, string]>([
       [{ type: 'integer', format: 'bigint' }, 'z.bigint()'],
       [
         { type: 'integer', format: 'bigint', minimum: 0, exclusiveMinimum: true },

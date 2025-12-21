@@ -1,60 +1,60 @@
-import type { Schema } from '../../../openapi/index.js'
+import type { Schemas } from '../../../openapi/index.js'
 
 /**
  * Generates a Zod schema for number types based on OpenAPI schema.
  * Supports float, float32, float64, and number formats.
  *
- * @param schema - The OpenAPI schema object
+ * @param schemas - The OpenAPI schema object
  * @returns The Zod schema string
  */
-export function number(schema: Schema): string {
+export function number(schemas: Schemas): string {
   const base =
-    schema.format === 'float' || schema.format === 'float32'
+    schemas.format === 'float' || schemas.format === 'float32'
       ? 'z.float32()'
-      : schema.format === 'float64'
+      : schemas.format === 'float64'
         ? 'z.float64()'
         : 'z.number()'
 
   const minimum = (() => {
-    if (schema.minimum !== undefined) {
-      if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
+    if (schemas.minimum !== undefined) {
+      if (schemas.minimum === 0 && schemas.exclusiveMinimum === true) {
         return '.positive()'
       }
-      if (schema.minimum === 0 && schema.exclusiveMinimum === false) {
+      if (schemas.minimum === 0 && schemas.exclusiveMinimum === false) {
         return '.nonnegative()'
       }
-      if (schema.exclusiveMinimum === true) {
-        return `.gt(${schema.minimum})`
+      if (schemas.exclusiveMinimum === true) {
+        return `.gt(${schemas.minimum})`
       }
-      return `.min(${schema.minimum})`
+      return `.min(${schemas.minimum})`
     }
-    if (typeof schema.exclusiveMinimum === 'number') {
-      return `.gt(${schema.exclusiveMinimum})`
+    if (typeof schemas.exclusiveMinimum === 'number') {
+      return `.gt(${schemas.exclusiveMinimum})`
     }
     return undefined
   })()
 
   const maximum = (() => {
-    if (schema.maximum !== undefined) {
-      if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
+    if (schemas.maximum !== undefined) {
+      if (schemas.maximum === 0 && schemas.exclusiveMaximum === true) {
         return '.negative()'
       }
-      if (schema.maximum === 0 && schema.exclusiveMaximum === false) {
+      if (schemas.maximum === 0 && schemas.exclusiveMaximum === false) {
         return '.nonpositive()'
       }
-      if (schema.exclusiveMaximum === true) {
-        return `.lt(${schema.maximum})`
+      if (schemas.exclusiveMaximum === true) {
+        return `.lt(${schemas.maximum})`
       }
-      return `.max(${schema.maximum})`
+      return `.max(${schemas.maximum})`
     }
-    if (typeof schema.exclusiveMaximum === 'number') {
-      return `.lt(${schema.exclusiveMaximum})`
+    if (typeof schemas.exclusiveMaximum === 'number') {
+      return `.lt(${schemas.exclusiveMaximum})`
     }
     return undefined
   })()
 
   const multipleOf =
-    schema.multipleOf !== undefined ? `.multipleOf(${schema.multipleOf})` : undefined
+    schemas.multipleOf !== undefined ? `.multipleOf(${schemas.multipleOf})` : undefined
 
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

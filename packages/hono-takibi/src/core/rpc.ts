@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
-import { type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
+import { type OpenAPIPaths, parseOpenAPI, type Schemas } from '../openapi/index.js'
 import { isRecord, methodPath } from '../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
@@ -13,7 +13,7 @@ const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   return true
 }
 
-const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isSchema = (v: unknown): v is Schemas => isRecord(v)
 
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
@@ -54,7 +54,7 @@ const toTypeArray = (t: unknown): JSONTypeName[] => {
   return []
 }
 
-const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
+const literalFromEnum = (vals: NonNullable<Schemas['enum']>): string => {
   const toLit = (v: unknown) =>
     typeof v === 'string'
       ? `'${v.replace(/'/g, "\\'")}'`
@@ -67,8 +67,8 @@ const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
 }
 
 const createResolveRef =
-  (schemas: Record<string, Schema>) =>
-  (ref?: string): Schema | undefined => {
+  (schemas: Record<string, Schemas>) =>
+  (ref?: string): Schemas | undefined => {
     if (!ref) return undefined
     const m = ref.match(/^#\/components\/schemas\/(.+)$/)
     if (!m) return undefined
@@ -77,8 +77,8 @@ const createResolveRef =
   }
 
 /** TS type printer (handles $ref / enums / combinators / additionalProperties / nullable) */
-const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined) => {
-  const tt = (schema: Schema | undefined, seen: Set<Schema> = new Set()): string => {
+const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schemas | undefined) => {
+  const tt = (schema: Schemas | undefined, seen: Set<Schemas> = new Set()): string => {
     if (!schema) return 'unknown'
 
     if (schema.$ref) {
@@ -147,7 +147,7 @@ type ParameterLike = {
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
   required?: boolean
-  schema?: Schema
+  schema?: Schemas
 }
 const isParameterObject = (v: unknown): v is ParameterLike => {
   if (!isRecord(v)) return false
@@ -211,7 +211,7 @@ type OperationCode = {
 
 const hasSchemaProp = (v: unknown): v is { schema?: unknown } => isRecord(v) && 'schema' in v
 
-const pickBodySchema = (op: OperationLike): Schema | undefined => {
+const pickBodySchema = (op: OperationLike): Schemas | undefined => {
   const rb = op.requestBody
   if (!isRecord(rb)) return undefined
   const content = rb.content
@@ -234,7 +234,7 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
 /* ─────────────────────────────── Args builders ─────────────────────────────── */
 
 const createBuildParamsType =
-  (tsTypeFromSchema: (s: Schema | undefined) => string) =>
+  (tsTypeFromSchema: (s: Schemas | undefined) => string) =>
   (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
     const pathPart =
       pathParams.length === 0
@@ -280,7 +280,7 @@ const generateOperationCode = (
   item: PathItemLike,
   deps: {
     client: string
-    tsTypeFromSchema: (s: Schema | undefined) => string
+    tsTypeFromSchema: (s: Schemas | undefined) => string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
   },
 ): string => {
@@ -329,7 +329,7 @@ const buildOperationCodes = (
   paths: OpenAPIPaths,
   deps: {
     client: string
-    tsTypeFromSchema: (s: Schema | undefined) => string
+    tsTypeFromSchema: (s: Schemas | undefined) => string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
   },
 ): OperationCode[] =>

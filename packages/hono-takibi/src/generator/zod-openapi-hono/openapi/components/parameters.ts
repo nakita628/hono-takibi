@@ -28,7 +28,7 @@ export function parameters(
   return Object.keys(parameters)
     .map((key) => {
       const parameter = parameters[key]
-      const z = zodToOpenAPI(parameter.schema, parameter.name, parameter.in)
+      const z = zodToOpenAPI({ parameters: { parameter } })
       return zodToOpenAPISchema(parameterBaseName(key), z, exportSchema, exportType, true)
     })
     .join('\n\n')

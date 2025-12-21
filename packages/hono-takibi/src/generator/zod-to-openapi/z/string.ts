@@ -1,4 +1,4 @@
-import type { Schema } from '../../../openapi/index.js'
+import type { Schemas } from '../../../openapi/index.js'
 import { regex } from '../../../utils/index.js'
 
 const FORMAT_STRING: Record<string, string> = {
@@ -49,24 +49,24 @@ const FORMAT_STRING: Record<string, string> = {
  * @param schema - OpenAPI string schema
  * @returns Concatenated Zod string schema
  */
-export function string(schema: Schema): string {
-  const format = schema.format && FORMAT_STRING[schema.format]
+export function string(schemas: Schemas): string {
+  const format = schemas.format && FORMAT_STRING[schemas.format]
   const base = format ? `z.${format}` : 'z.string()'
 
-  const pattern = schema.pattern ? regex(schema.pattern) : undefined
+  const pattern = schemas.pattern ? regex(schemas.pattern) : undefined
 
   const isFixedLength =
-    schema.minLength !== undefined &&
-    schema.maxLength !== undefined &&
-    schema.minLength === schema.maxLength
+    schemas.minLength !== undefined &&
+    schemas.maxLength !== undefined &&
+    schemas.minLength === schemas.maxLength
 
   return [
     base,
     pattern,
     // minLength === maxLength → .length(n)
-    isFixedLength ? `.length(${schema.minLength})` : undefined,
-    !isFixedLength && schema.minLength !== undefined ? `.min(${schema.minLength})` : undefined,
-    !isFixedLength && schema.maxLength !== undefined ? `.max(${schema.maxLength})` : undefined,
+    isFixedLength ? `.length(${schemas.minLength})` : undefined,
+    !isFixedLength && schemas.minLength !== undefined ? `.min(${schemas.minLength})` : undefined,
+    !isFixedLength && schemas.maxLength !== undefined ? `.max(${schemas.maxLength})` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join('')

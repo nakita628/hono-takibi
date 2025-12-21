@@ -1,4 +1,4 @@
-import type { Schema } from '../openapi/index.js'
+import type { Schemas } from '../openapi/index.js'
 import { isRecord } from '../utils/index.js'
 
 /**
@@ -12,8 +12,8 @@ import { isRecord } from '../utils/index.js'
  * @returns A list of schema names sorted in topological order.
  * @throws If a circular reference (excluding self refs) is detected among the schemas.
  */
-export function resolveSchemasDependencies(schemas: Record<string, Schema>): readonly string[] {
-  const collectRefs = (schema: Schema): string[] => {
+export function resolveSchemasDependencies(schemas: Record<string, Schemas>): readonly string[] {
+  const collectRefs = (schema: Schemas): string[] => {
     const refs = new Set<string>()
     const stack: unknown[] = [schema]
 

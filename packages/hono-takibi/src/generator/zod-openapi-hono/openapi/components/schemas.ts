@@ -34,7 +34,7 @@ export function schemas(
       // 4.1 get schema definition corresponding to schema name
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
-      const z = zodToOpenAPI(schema)
+      const z = zodToOpenAPI({ schemas: { schema } })
       // 4.3 generate zod schema definition
       return zodToOpenAPISchema(schemaName, z, exportSchema, exportType)
     })
