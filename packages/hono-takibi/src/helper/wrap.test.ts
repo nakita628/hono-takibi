@@ -9,9 +9,13 @@ describe('wrap', () => {
     it.concurrent('adds .default and .nullable for z.string() when default and nullable=true', () => {
       expect(
         wrap('z.string()', {
-          type: 'string',
-          default: 'test',
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'string',
+              default: 'test',
+              nullable: true,
+            },
+          },
         }),
       ).toBe(`z.string().default("test").nullable()`)
     })
@@ -19,8 +23,12 @@ describe('wrap', () => {
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
         wrap('z.string()', {
-          type: ['string', 'null'],
-          default: 'test',
+          schemas: {
+            Test: {
+              type: ['string', 'null'],
+              default: 'test',
+            },
+          },
         }),
       ).toBe(`z.string().default("test").nullable()`)
     })
@@ -30,9 +38,13 @@ describe('wrap', () => {
     it.concurrent('adds .default and .nullable for z.number() when default and nullable=true', () => {
       expect(
         wrap('z.number()', {
-          type: 'number',
-          default: 0,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'number',
+              default: 0,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.number().default(0).nullable()')
     })
@@ -40,8 +52,12 @@ describe('wrap', () => {
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
         wrap('z.number()', {
-          type: ['number', 'null'],
-          default: 0,
+          schemas: {
+            Test: {
+              type: ['number', 'null'],
+              default: 0,
+            },
+          },
         }),
       ).toBe('z.number().default(0).nullable()')
     })
@@ -51,10 +67,14 @@ describe('wrap', () => {
     it.concurrent('adds .default and .nullable for z.int32() with format int32 when default and nullable=true', () => {
       expect(
         wrap('z.int32()', {
-          type: 'integer',
-          format: 'int32',
-          default: 0,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'integer',
+              format: 'int32',
+              default: 0,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.int32().default(0).nullable()')
     })
@@ -62,9 +82,13 @@ describe('wrap', () => {
     it.concurrent('marks schema as nullable and adds default for z.int32() when type includes null', () => {
       expect(
         wrap('z.int32()', {
-          type: ['integer', 'null'],
-          format: 'int32',
-          default: 0,
+          schemas: {
+            Test: {
+              type: ['integer', 'null'],
+              format: 'int32',
+              default: 0,
+            },
+          },
         }),
       ).toBe('z.int32().default(0).nullable()')
     })
@@ -74,10 +98,14 @@ describe('wrap', () => {
     it.concurrent('converts default number to BigInt and adds .nullable for z.int64()', () => {
       expect(
         wrap('z.int64()', {
-          type: 'integer',
-          format: 'int64',
-          default: 0,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'integer',
+              format: 'int64',
+              default: 0,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.int64().default(0n).nullable()')
     })
@@ -85,9 +113,13 @@ describe('wrap', () => {
     it.concurrent('handles default number and marks schema nullable when type includes null', () => {
       expect(
         wrap('z.int64()', {
-          type: ['integer', 'null'],
-          format: 'int64',
-          default: 0,
+          schemas: {
+            Test: {
+              type: ['integer', 'null'],
+              format: 'int64',
+              default: 0,
+            },
+          },
         }),
       ).toBe('z.int64().default(0n).nullable()')
     })
@@ -95,10 +127,14 @@ describe('wrap', () => {
     it.concurrent('uses BigInt default and adds .nullable for z.int64()', () => {
       expect(
         wrap('z.int64()', {
-          type: 'integer',
-          format: 'int64',
-          default: 0,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'integer',
+              format: 'int64',
+              default: 0,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.int64().default(0n).nullable()')
     })
@@ -106,9 +142,13 @@ describe('wrap', () => {
     it.concurrent('uses BigInt default and marks schema nullable when type includes null', () => {
       expect(
         wrap('z.int64()', {
-          type: ['integer', 'null'],
-          format: 'int64',
-          default: 0,
+          schemas: {
+            Test: {
+              type: ['integer', 'null'],
+              format: 'int64',
+              default: 0,
+            },
+          },
         }),
       ).toBe('z.int64().default(0n).nullable()')
     })
@@ -118,10 +158,14 @@ describe('wrap', () => {
     it.concurrent('adds .default with BigInt and .nullable for z.bigint()', () => {
       expect(
         wrap('z.bigint()', {
-          type: 'integer',
-          format: 'bigint',
-          default: 0,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'integer',
+              format: 'bigint',
+              default: 0,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.bigint().default(BigInt(0)).nullable()')
     })
@@ -129,9 +173,13 @@ describe('wrap', () => {
     it.concurrent('handles BigInt default and marks schema nullable when type includes null', () => {
       expect(
         wrap('z.bigint()', {
-          type: ['integer', 'null'],
-          format: 'bigint',
-          default: 0,
+          schemas: {
+            Test: {
+              type: ['integer', 'null'],
+              format: 'bigint',
+              default: 0,
+            },
+          },
         }),
       ).toBe('z.bigint().default(BigInt(0)).nullable()')
     })
@@ -141,9 +189,13 @@ describe('wrap', () => {
     it.concurrent('adds .default and .nullable for z.boolean() when default and nullable=true', () => {
       expect(
         wrap('z.boolean()', {
-          type: 'boolean',
-          default: true,
-          nullable: true,
+          schemas: {
+            Test: {
+              type: 'boolean',
+              default: true,
+              nullable: true,
+            },
+          },
         }),
       ).toBe('z.boolean().default(true).nullable()')
     })
@@ -151,70 +203,112 @@ describe('wrap', () => {
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
       expect(
         wrap('z.boolean()', {
-          type: ['boolean', 'null'],
-          default: true,
+          schemas: {
+            Test: {
+              type: ['boolean', 'null'],
+              default: true,
+            },
+          },
         }),
       ).toBe('z.boolean().default(true).nullable()')
     })
   })
 
   it('zodToOpenAPI not exists openapi()', () => {
-    const result = wrap('z.string()', { type: 'string' })
+    const result = wrap('z.string()', { schemas: { Test: { type: 'string' } } })
     const expected = 'z.string()'
     expect(result).toBe(expected)
   })
 
   it('should include only example and description in order', () => {
     const result = wrap('z.string()', {
-      type: 'string',
-      example: 'hello',
-      description: 'Example string',
+      schemas: {
+        Test: {
+          type: 'string',
+          example: 'hello',
+          description: 'Example string',
+        },
+      },
     })
     const expected = 'z.string().openapi({example:"hello",description:"Example string"})'
     expect(result).toBe(expected)
   })
 
   it('should insert param first when param info is provided', () => {
-    const result = wrap(
-      'z.string()',
-      {
-        type: 'string',
-        example: 'uuid-example',
-        description: 'UUID parameter',
+    const result = wrap('z.string()', {
+      parameters: {
+        Test: {
+          schema: {
+            type: 'string',
+          },
+          description: 'UUID parameter',
+          name: 'id',
+          in: 'path',
+        },
       },
-      'id',
-      'path',
-    )
-    const expected =
-      'z.string().openapi({param:{in:"path",name:"id",required:true},example:"uuid-example",description:"UUID parameter"})'
+    })
+    const expected = 'z.string().openapi({param:{in:"path",name:"id",required:false}})'
     expect(result).toBe(expected)
   })
 
   it('should handle non-required query param correctly', () => {
-    const result = wrap(
-      'z.string()',
-      {
-        type: 'string',
-        example: 'query-value',
-        description: 'Optional query parameter',
-        required: false,
+    const result = wrap('z.string()', {
+      parameters: {
+        Test: {
+          schema: {
+            type: 'string',
+          },
+          description: 'Optional query parameter',
+          name: 'q',
+          in: 'query',
+          required: false,
+        },
       },
-      'q',
-      'query',
-    )
-    const expected =
-      'z.string().openapi({param:{in:"query",name:"q",required:false},example:"query-value",description:"Optional query parameter"})'
+    })
+    const expected = 'z.string().optional().openapi({param:{in:"query",name:"q",required:false}})'
+
     expect(result).toBe(expected)
   })
 
   it('should insert only param if no example or description is given', () => {
-    const result = wrap('z.string()', { type: 'string', required: true }, 'x', 'header')
+    const result = wrap('z.string()', {
+      parameters: {
+        Test: {
+          schema: {
+            type: 'string',
+          },
+          name: 'x',
+          in: 'header',
+          required: true,
+        },
+      },
+    })
+
     const expected = 'z.string().openapi({param:{in:"header",name:"x",required:true}})'
     expect(result).toBe(expected)
   })
 
+  it('should include style and explode when provided', () => {
+    const result = wrap('z.string()', {
+      parameters: {
+        Test: {
+          schema: { type: 'string' },
+          name: 'ids',
+          in: 'query',
+          style: 'form',
+          explode: true,
+        },
+      },
+    })
+    const expected =
+      'z.string().openapi({param:{in:"query",name:"ids",required:false,style:"form",explode:true}})'
+    expect(result).toBe(expected)
+  })
+
   it('should return examples', () => {
-    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] })
+    const result = wrap('z.string()', {
+      schemas: { Test: { type: 'string', examples: ['example1', 'example2'] } },
+    })
     const expected = 'z.string().openapi({examples:["example1","example2"]})'
     expect(result).toBe(expected)
   })

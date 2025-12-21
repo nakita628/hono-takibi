@@ -328,7 +328,7 @@ describe('zodToOpenAPI', () => {
       })
     })
 
-      // TODO add not
+    // TODO add not
 
     describe('const', () => {
       it.concurrent.each<[Components, string]>([
@@ -1241,7 +1241,10 @@ describe('zodToOpenAPI', () => {
           [{ schemas: { Test: { type: 'date' } } }, 'z.date()'],
           [{ schemas: { Test: { type: 'date', nullable: true } } }, 'z.date().nullable()'],
           [{ schemas: { Test: { type: ['date', 'null'] } } }, 'z.date().nullable()'],
-          [{ schemas: { Test: { type: 'date', default: '2023-01-01' } } }, 'z.date().default(new Date("2023-01-01"))'],
+          [
+            { schemas: { Test: { type: 'date', default: '2023-01-01' } } },
+            'z.date().default(new Date("2023-01-01"))',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

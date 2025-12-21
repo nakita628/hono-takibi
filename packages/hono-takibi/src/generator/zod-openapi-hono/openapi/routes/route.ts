@@ -5,7 +5,7 @@ import {
   methodPath,
   sanitizeIdentifier,
 } from '../../../../utils/index.js'
-import { requestParameter } from './params/index.js'
+import { request } from './params/index.js'
 import { response } from './response/index.js'
 
 /**
@@ -39,7 +39,6 @@ export function route(
     responses,
     callbacks,
   } = operation
-
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
   const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
@@ -82,8 +81,6 @@ export function route(
 
   const tagList = tags ? JSON.stringify(tags) : '[]'
   
-  const requestParams = requestParameter(parameters, requestBody, components, options)
-
   const args = {
     routeName: `${methodPath(method, path)}Route`,
     tags: tags ? `tags:${tagList},` : '',
@@ -94,7 +91,7 @@ export function route(
     description: description ? `description:'${escapeStringLiteral(description)}',` : '',
     security: security ? `security:${JSON.stringify(security)},` : '',
     callbacks: callbacksCode,
-    requestParams: requestParams ? `${requestParams}` : '',
+    request: request ? request(parameters, requestBody, components, options) : '',
     responses: responses ? `responses:{${response(responses, components, options)}}` : '',
   }
   return createRoute(args)

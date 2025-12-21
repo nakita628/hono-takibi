@@ -64,7 +64,7 @@ export async function schema(
     const outDir = output.replace(/\.ts$/, '')
     for (const schemaName of Object.keys(schemas)) {
       const schema = schemas[schemaName]
-      const z = zodToOpenAPI(schema)
+      const z = zodToOpenAPI({ schemas: { schema } })
       const selfToken = `${schemaName}Schema`
       const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
       // export schema must be true
@@ -103,7 +103,7 @@ export async function schema(
   const schemaDefinitions = orderedSchemas
     .map((schemaName) => {
       const schema = schemas[schemaName]
-      const z = zodToOpenAPI(schema)
+      const z = zodToOpenAPI({ schemas: { schema } })
       const selfToken = `${schemaName}Schema`
       const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
       return zodToOpenAPISchema(schemaName, zExpr, true, exportType)

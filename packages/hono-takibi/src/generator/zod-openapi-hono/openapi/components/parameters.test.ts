@@ -38,5 +38,18 @@ describe('parameters', () => {
       false,
       false,
     )
+    const expected = `const BParamsSchema = z.string().optional().openapi({param:{in:"query",name:"B",required:false}})
+
+
+
+const CParamsSchema = z.string().openapi({param:{in:"path",name:"C",required:true}})
+
+
+
+const AParamsSchema = z.string().optional().openapi({param:{in:"header",name:"A",required:false}})
+
+`
+
+    expect(result).toBe(expected)
   })
 })

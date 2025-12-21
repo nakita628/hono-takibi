@@ -1,4 +1,4 @@
-import type { Components, Content, RequestBody } from '../../../../openapi/index.js'
+import type { Components, Content, RequestBodies } from '../../../../openapi/index.js'
 import { toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
@@ -24,8 +24,8 @@ export const mediaTypeExpr = (
   options?: { coerceDate?: boolean },
 ): string => {
   const schema = options?.coerceDate
-    ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
-    : zodToOpenAPI(media.schema)
+    ? coerceDateIfNeeded(zodToOpenAPI({ schemas: { schema: media.schema } }))
+    : zodToOpenAPI({ schemas: { schema: media.schema } })
   const examples = examplesPropExpr(media.examples)
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
 }
@@ -33,7 +33,7 @@ export const mediaTypeExpr = (
 /**
  * Generates a requestBody expression.
  */
-const requestBodyExpr = (body: RequestBody): string => {
+const requestBodyExpr = (body: RequestBodies): string => {
   const required = body.required ?? false
   const description =
     body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
@@ -42,7 +42,8 @@ const requestBodyExpr = (body: RequestBody): string => {
     return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
   }
 
-  const contentEntries = Object.entries(content).map(([contentType, media]) => {
+  const contentEntries = Object.keys(content).map((contentType) => {
+    const media = content[contentType]
     return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, { coerceDate: true })}`
   })
   const contentExpr = `content:{${contentEntries.join(',')}}`

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { requestBody } from './'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/request/body/index.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/request/body/index.test.ts
 
 describe('requestBody', () => {
   it.concurrent('requestBody 1', () => {

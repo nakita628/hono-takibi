@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../openapi'
+import type { Schemas } from '../../../openapi'
 import { array } from './array'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/array.test.ts
 
 describe('array()', () => {
-  it.concurrent.each<[Schema, string]>([
+  it.concurrent.each<[Schemas, string]>([
     [{ type: 'array', items: { type: 'string' } }, 'z.array(z.string())'],
     [
       { type: 'array', items: { type: 'string', nullable: true } },

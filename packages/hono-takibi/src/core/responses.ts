@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, ResponseDefinition, Schema } from '../openapi/index.js'
+import type { Components, Content, ResponseDefinition, Schemas } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -14,7 +14,7 @@ import {
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
 
 function withSuffix(name: string, suffix: string): string {
   return name.endsWith(suffix) ? name : `${name}${suffix}`
@@ -68,13 +68,13 @@ const inlineExampleExpr = (example: ExampleFields): string => {
   return `{${fields.join(',')}}`
 }
 
-const shouldOptionalHeader = (header: unknown): boolean => {
-  if (!isRecord(header)) return true
-  if (header.required === true) return false
-  const rawSchema = header.schema
-  const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
-  return schemaDefault === undefined
-}
+// const shouldOptionalHeader = (header: unknown): boolean => {
+//   if (!isRecord(header)) return true
+//   if (header.required === true) return false
+//   const rawSchema = header.schema
+//   const schemaDefault = isSchema(rawSchema) ? rawSchema.default : undefined
+//   return schemaDefault === undefined
+// }
 
 const headerSchemaExpr = (header: unknown): string => {
   if (!isRecord(header)) return 'z.any()'
@@ -82,12 +82,12 @@ const headerSchemaExpr = (header: unknown): string => {
   const schema = isSchema(rawSchema) ? rawSchema : {}
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
-  const merged: Schema = {
+  const merged: Schemas = {
     ...schema,
     ...(description !== undefined && schema.description === undefined ? { description } : {}),
     ...(example !== undefined && schema.example === undefined ? { example } : {}),
   }
-  return zodToOpenAPI(merged)
+  return zodToOpenAPI({ schemas: { schema: merged } })
 }
 
 const headersPropExpr = (
@@ -104,16 +104,13 @@ const headersPropExpr = (
       if (key && resolved && imports?.headers) {
         usedHeaderKeys.add(key)
         const base = headerConstName(key)
-        const expr = shouldOptionalHeader(resolved) ? `${base}.optional()` : base
-        return `${JSON.stringify(name)}:${expr}`
+        return `${JSON.stringify(name)}:${base}`
       }
       const base = headerSchemaExpr(resolved ?? header)
-      const expr = shouldOptionalHeader(resolved ?? header) ? `${base}.optional()` : base
-      return `${JSON.stringify(name)}:${expr}`
+      return `${JSON.stringify(name)}:${base}`
     }
     const base = headerSchemaExpr(header)
-    const expr = shouldOptionalHeader(header) ? `${base}.optional()` : base
-    return `${JSON.stringify(name)}:${expr}`
+    return `${JSON.stringify(name)}:${base}`
   })
 
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
@@ -160,7 +157,7 @@ const mediaTypeExpr = (
   usedExampleKeys: Set<string>,
   imports: Imports | undefined,
 ): string => {
-  const schema = zodToOpenAPI(media.schema)
+  const schema = zodToOpenAPI({ schemas: { schema: media.schema } })
   const examples = examplesPropExpr(media.examples, components, usedExampleKeys, imports)
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
 }

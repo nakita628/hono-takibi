@@ -3,11 +3,11 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Components, Schema } from '../openapi/index.js'
+import type { Components, Schemas } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
-const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
 
 const headerBaseName = (key: string): string => {
   const safe = sanitizeIdentifier(key)
@@ -20,7 +20,7 @@ const schemaVarName = (schemaName: string): string => sanitizeIdentifier(`${sche
 
 type HeaderComponent = NonNullable<Components['headers']>[string]
 
-const mergeHeaderSchema = (header: HeaderComponent): Schema => {
+const mergeHeaderSchema = (header: HeaderComponent): Schemas => {
   const base = header.schema
   return header.description !== undefined && base.description === undefined
     ? { ...base, description: header.description }
@@ -78,7 +78,7 @@ export async function headers(
       if (!header) continue
 
       const schemaName = headerBaseName(key)
-      const z = zodToOpenAPI(mergeHeaderSchema(header))
+      const z = zodToOpenAPI({ schemas: { schema: mergeHeaderSchema(header) } })
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
       const filePath = path.join(outDir, `${lowerFirst(schemaName)}.ts`)
@@ -110,7 +110,7 @@ export async function headers(
       const header = hs[key]
       const schemaName = headerBaseName(key)
       const schema = header ? mergeHeaderSchema(header) : {}
-      const z = isSchema(schema) ? zodToOpenAPI(schema) : 'z.any()'
+      const z = isSchema(schema) ? zodToOpenAPI({ schemas: { schema } }) : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')

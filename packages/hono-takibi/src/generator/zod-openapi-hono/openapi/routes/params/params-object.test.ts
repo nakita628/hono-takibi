@@ -23,8 +23,8 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.string().openapi({param:{in:"query",name:"page",required:false}})',
-        rows: 'z.string().openapi({param:{in:"query",name:"rows",required:false}})',
+        page: 'z.string().openapi({param:{in:"query",name:"page",required:true}})',
+        rows: 'z.string().openapi({param:{in:"query",name:"rows",required:true}})',
       },
     }
     expect(result).toStrictEqual(expected)
@@ -48,8 +48,8 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"page",required:false}})',
-        rows: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"rows",required:false}})',
+        page: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"page",required:true}})',
+        rows: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"rows",required:true}})',
       },
     }
     expect(result).toStrictEqual(expected)
@@ -72,7 +72,7 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().min(0).default(1).openapi({param:{in:"query",name:"page",required:false},example:1})',
+        page: 'z.coerce.number().min(0).default(1).openapi({param:{in:"query",name:"page",required:true},example:1})',
       },
     }
 
@@ -96,7 +96,7 @@ describe('paramsObject', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().max(10).default(10).openapi({param:{in:"query",name:"page",required:false},example:10})',
+        page: 'z.coerce.number().max(10).default(10).openapi({param:{in:"query",name:"page",required:true},example:10})',
       },
     }
     expect(result).toStrictEqual(expected)
@@ -113,7 +113,7 @@ describe('paramsObject', () => {
     ])
     const expected = {
       query: {
-        active: 'z.stringbool().openapi({param:{in:"query",name:"active",required:false}})',
+        active: 'z.stringbool().openapi({param:{in:"query",name:"active",required:true}})',
       },
     }
     expect(result).toStrictEqual(expected)
@@ -130,7 +130,7 @@ describe('paramsObject', () => {
     ])
     const expected = {
       query: {
-        createdAt: 'z.coerce.date().openapi({param:{in:"query",name:"createdAt",required:false}})',
+        createdAt: 'z.coerce.date().openapi({param:{in:"query",name:"createdAt",required:true}})',
       },
     }
     expect(result).toStrictEqual(expected)

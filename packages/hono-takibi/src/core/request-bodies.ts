@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, RequestBody } from '../openapi/index.js'
+import type { Components, Content, RequestBodies } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -103,13 +103,13 @@ const mediaTypeExpr = (
   usedExampleKeys: Set<string>,
   imports: Imports | undefined,
 ): string => {
-  const schema = coerceDateIfNeeded(zodToOpenAPI(media.schema))
+  const schema = coerceDateIfNeeded(zodToOpenAPI({ schemas: { schema: media.schema } }))
   const examples = examplesPropExpr(media.examples, components, usedExampleKeys, imports)
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
 }
 
 const requestBodyExpr = (
-  body: RequestBody,
+  body: RequestBodies,
   components: Components,
   usedExampleKeys: Set<string>,
   imports: Imports | undefined,
@@ -122,7 +122,8 @@ const requestBodyExpr = (
     return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
   }
 
-  const contentEntries = Object.entries(content).map(([contentType, media]) => {
+  const contentEntries = Object.keys(content).map((contentType) => {
+    const media = content[contentType]
     return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components, usedExampleKeys, imports)}`
   })
   const contentExpr = `content:{${contentEntries.join(',')}}`

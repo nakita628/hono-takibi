@@ -624,7 +624,7 @@ describe('utils', () => {
         summary: '',
         description: '',
         security: '',
-        requestParams:
+        request:
           "request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},",
         responses:
           "responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}",

@@ -25,9 +25,6 @@ export function paramsObject(parameters: readonly Parameters[]): {
       },
       param,
     ) => {
-      const shouldOptional =
-        param.in !== 'path' && !param.required && param.schema.default === undefined
-
       const isSchemaOrParameterOrHeaderRef = (
         ref: Ref,
       ): ref is
@@ -41,17 +38,13 @@ export function paramsObject(parameters: readonly Parameters[]): {
       if (param.$ref !== undefined) {
         if (!acc[param.in]) acc[param.in] = {}
         if (isSchemaOrParameterOrHeaderRef(param.$ref)) {
-          acc[param.in][getToSafeIdentifier(param.name)] = `${refSchema(
-            param.$ref,
-          )}${shouldOptional ? '.optional()' : ''}`
+          const isParameterRef = param.$ref.startsWith('#/components/parameters/')
         }
         return acc
       }
 
       // path params are generated with the param name
-      const baseSchema = param.in
-        ? zodToOpenAPI(param.schema, param.name, param.in)
-        : zodToOpenAPI(param.schema, param.name)
+      const baseSchema = zodToOpenAPI({ parameters: { parameter: param } })
       // Initialize section if it doesn't exist
       if (!acc[param.in]) {
         acc[param.in] = {}
@@ -68,7 +61,7 @@ export function paramsObject(parameters: readonly Parameters[]): {
               : baseSchema
 
       // Add parameter to its section
-      acc[param.in][getToSafeIdentifier(param.name)] = `${z}${shouldOptional ? '.optional()' : ''}`
+      acc[param.in][getToSafeIdentifier(param.name)] = z
       return acc
     },
     {},

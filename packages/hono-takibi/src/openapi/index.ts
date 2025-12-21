@@ -145,11 +145,11 @@ export type Ref =
  */
 
 export type Content = {
-  [key: string]: {
-    schema: Schema
+  [k: string]: {
+    schema: Schemas
     example?: unknown
     examples?: {
-      [exampleKey: string]: {
+      [k: string]: {
         summary?: string
         value?: unknown
         $ref?: string
@@ -179,12 +179,12 @@ export type Operation = {
   description?: string
   operationId?: string
   security?: {
-    [key: string]: string[]
+    [k: string]: string[]
   }[]
   parameters?: Parameters[]
-  requestBody?: RequestBody
+  requestBody?: RequestBodies
   callbacks?: Record<string, unknown>
-  responses: Response
+  responses: Responses
 }
 
 /**
@@ -195,16 +195,16 @@ export type ResponseDefinition = {
   content?: Content
   $ref?: string
   headers?: {
-    [key: string]:
+    [k: string]:
       | {
           description?: string
-          schema: Schema
+          schema: Schemas
           $ref?: Ref
         }
       | unknown
   }
   links?: {
-    [key: string]: {
+    [k: string]: {
       operationId?: string
       parameters?: Record<string, string>
       description?: string
@@ -216,14 +216,14 @@ export type ResponseDefinition = {
 /**
  * Response object with status codes
  */
-type Response = {
+export type Responses = {
   [statusCode: string]: ResponseDefinition
 }
 
 /**
  * Schema definition for OpenAPI
  */
-export type Schema = {
+export type Schemas = {
   name?: string
   description?: string
   type?: Type | [Type, ...Type[]]
@@ -241,24 +241,24 @@ export type Schema = {
   default?: unknown
   example?: unknown
   examples?: unknown
-  properties?: Record<string, Schema>
+  properties?: Record<string, Schemas>
   required?: string[] | boolean
-  items?: Schema
+  items?: Schemas
   enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   nullable?: boolean
-  additionalProperties?: Schema | boolean
+  additionalProperties?: Schemas | boolean
   $ref?: Ref
   xml?: {
     name?: string
     wrapped?: boolean
   }
   security?: {
-    [key: string]: string[]
+    [k: string]: string[]
   }[]
-  oneOf?: Schema[]
-  allOf?: Schema[]
-  anyOf?: Schema[]
-  not?: Schema
+  oneOf?: Schemas[]
+  allOf?: Schemas[]
+  anyOf?: Schemas[]
+  not?: Schemas
   discriminator?: {
     propertyName?: string
   }
@@ -272,15 +272,16 @@ export type Schema = {
  * Components section of OpenAPI spec
  */
 export type Components = {
-  schemas?: Record<string, Schema>
+  schemas?: Record<string, Schemas>
   parameters?: Record<string, Parameters>
-  requestBodies?: Record<string, RequestBody>
+  requestBodies?: Record<string, RequestBodies>
   responses?: Record<string, ResponseDefinition>
   headers?: Record<
     string,
     {
+      required: boolean | undefined
       description?: string
-      schema: Schema
+      schema: Schemas
     }
   >
   examples?: Record<
@@ -301,7 +302,7 @@ export type Components = {
   >
   callbacks?: Record<string, unknown>
   securitySchemes?: {
-    [key: string]: {
+    [k: string]: {
       type?: string
       name?: string
       scheme?: string
@@ -314,11 +315,12 @@ export type Components = {
  * Parameter definition
  */
 export type Parameters = {
-  schema: Schema
+  schema: Schemas
   description?: string
   required?: boolean
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
+  style?: 'matrix' | 'label' | 'simple' | 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
   explode?: boolean
   $ref?: Ref
 }
@@ -326,13 +328,8 @@ export type Parameters = {
 /**
  * Request body definition
  */
-export type RequestBody = {
+export type RequestBodies = {
   description?: string
   required?: boolean
   content?: Content
 }
-
-/**
- * Response definitions mapped by status code
- */
-export type Responses = Record<string, ResponseDefinition>

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Schema } from '../../../openapi'
+import type { Schemas } from '../../../openapi'
 import { object } from './object'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/object.test.ts
 
 describe('object', () => {
-  it.concurrent.each<[Schema, string]>([
+  it.concurrent.each<[Schemas, string]>([
     [{ type: 'object' }, 'z.object({})'],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },

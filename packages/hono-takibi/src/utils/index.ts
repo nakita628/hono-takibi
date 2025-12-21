@@ -1,13 +1,3 @@
-/**
- * Parse the config object.
- *
- * @param config - The config object to parse.
- */
-const invalidBoolean = (value: unknown, name: string, scope: string): string | undefined =>
-  value !== undefined && typeof value !== 'boolean'
-    ? `Invalid ${name} format for ${scope}: ${String(value)}`
-    : undefined
-
 export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
@@ -127,6 +117,11 @@ export function parseConfig(config: {
     typeof i === 'string' && (i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp'))
   // ts
   const isTs = (o: unknown): o is `${string}.ts` => typeof o === 'string' && o.endsWith('.ts')
+
+  const invalidBoolean = (value: unknown, name: string, scope: string): string | undefined =>
+    value !== undefined && typeof value !== 'boolean'
+      ? `Invalid ${name} format for ${scope}: ${String(value)}`
+      : undefined
 
   const parseComponentsValue = <
     K extends
@@ -632,7 +627,7 @@ export function createRoute(args: {
   readonly description?: string
   readonly security?: string
   readonly callbacks?: string
-  readonly requestParams: string
+  readonly request: string
   readonly responses: string
 }): string {
   const properties = [
@@ -644,7 +639,7 @@ export function createRoute(args: {
     args.description,
     args.security,
     args.callbacks,
-    args.requestParams,
+    args.request,
     args.responses,
   ].join('')
   return `export const ${args.routeName}=createRoute({${properties}})`
