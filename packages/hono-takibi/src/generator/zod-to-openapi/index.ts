@@ -1,7 +1,7 @@
+import { propertiesSchema } from '../../helper/properties-schema.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Headers, Parameters, Ref, Schemas } from '../../openapi/index.js'
 import { normalizeTypes, refSchema } from '../../utils/index.js'
-import { array } from './z/array.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
@@ -28,6 +28,9 @@ export function zodToOpenAPI(
       ref.startsWith('#/components/parameters/') ||
       ref.startsWith('#/components/headers/')
     if (isSchemaOrParameterOrHeaderRef(schemas.$ref)) {
+      if (Object.keys(schemas).length === 1) {
+        return refSchema(schemas.$ref)
+      }
       return wrap(refSchema(schemas.$ref), schemas, meta)
     }
   }
@@ -37,9 +40,20 @@ export function zodToOpenAPI(
     if (!schemas.allOf || schemas.allOf.length === 0) {
       return wrap('z.any()', schemas, meta)
     }
-    const { allOfSchemas, nullable } = schemas.allOf.reduce<{
+    const isSchemaOrParameterOrHeaderRef = (
+      ref: Ref,
+    ): ref is
+      | `#/components/schemas/${string}`
+      | `#/components/parameters/${string}`
+      | `#/components/headers/${string}` =>
+      ref.startsWith('#/components/schemas/') ||
+      ref.startsWith('#/components/parameters/') ||
+      ref.startsWith('#/components/headers/')
+
+    const { allOfSchemas, nullable, onlyRefSchemas } = schemas.allOf.reduce<{
       allOfSchemas: string[]
       nullable: boolean
+      onlyRefSchemas: boolean
     }>(
       (acc, s) => {
         const isOnlyNullable =
@@ -50,6 +64,15 @@ export function zodToOpenAPI(
           return {
             allOfSchemas: acc.allOfSchemas,
             nullable: true,
+            onlyRefSchemas: acc.onlyRefSchemas,
+          }
+        }
+
+        if (s.$ref && Object.keys(s).length === 1 && isSchemaOrParameterOrHeaderRef(s.$ref)) {
+          return {
+            allOfSchemas: [...acc.allOfSchemas, refSchema(s.$ref)],
+            nullable: acc.nullable,
+            onlyRefSchemas: acc.onlyRefSchemas,
           }
         }
 
@@ -57,6 +80,7 @@ export function zodToOpenAPI(
         return {
           allOfSchemas: [...acc.allOfSchemas, z],
           nullable: acc.nullable,
+          onlyRefSchemas: false,
         }
       },
       {
@@ -64,12 +88,19 @@ export function zodToOpenAPI(
         nullable:
           schemas.nullable === true ||
           (Array.isArray(schemas.type) ? schemas.type.includes('null') : schemas.type === 'null'),
+        onlyRefSchemas: true,
       },
+    )
+    const isBareAllOf = Object.keys(schemas).every(
+      (key) => key === 'allOf' || key === 'nullable' || key === 'type',
     )
     if (allOfSchemas.length === 0) {
       return wrap('z.any()', { ...schemas, nullable }, meta)
     }
     if (allOfSchemas.length === 1) {
+      if (onlyRefSchemas && isBareAllOf) {
+        return nullable ? `${allOfSchemas[0]}.nullable()` : allOfSchemas[0]
+      }
       return wrap(allOfSchemas[0], { ...schemas, nullable }, meta)
     }
     const z = `z.intersection(${allOfSchemas.join(',')})`
@@ -82,6 +113,21 @@ export function zodToOpenAPI(
       return wrap('z.any()', schemas, meta)
     }
     const anyOfSchemas = schemas.anyOf.map((subSchema) => {
+      if (subSchema.$ref && Object.keys(subSchema).length === 1) {
+        const isSchemaOrParameterOrHeaderRef = (
+          ref: Ref,
+        ): ref is
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/headers/${string}` =>
+          ref.startsWith('#/components/schemas/') ||
+          ref.startsWith('#/components/parameters/') ||
+          ref.startsWith('#/components/headers/')
+
+        if (isSchemaOrParameterOrHeaderRef(subSchema.$ref)) {
+          return refSchema(subSchema.$ref)
+        }
+      }
       return zodToOpenAPI(subSchema, meta)
     })
     const z = `z.union([${anyOfSchemas.join(',')}])`
@@ -94,6 +140,21 @@ export function zodToOpenAPI(
       return wrap('z.any()', schemas, meta)
     }
     const oneOfSchemas = schemas.oneOf.map((schema) => {
+      if (schema.$ref && Object.keys(schema).length === 1) {
+        const isSchemaOrParameterOrHeaderRef = (
+          ref: Ref,
+        ): ref is
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/headers/${string}` =>
+          ref.startsWith('#/components/schemas/') ||
+          ref.startsWith('#/components/parameters/') ||
+          ref.startsWith('#/components/headers/')
+
+        if (isSchemaOrParameterOrHeaderRef(schema.$ref)) {
+          return refSchema(schema.$ref)
+        }
+      }
       return zodToOpenAPI(schema, meta)
     })
     // discriminatedUnion Support hesitant
@@ -147,9 +208,114 @@ export function zodToOpenAPI(
   /* boolean */
   if (t.includes('boolean')) return wrap('z.boolean()', schemas, meta)
   /* array */
-  if (t.includes('array')) return wrap(array(schemas), schemas, meta)
+  if (t.includes('array')) {
+    const isSchemaOrParameterOrHeaderRef = (
+      ref: Ref,
+    ): ref is
+      | `#/components/schemas/${string}`
+      | `#/components/parameters/${string}`
+      | `#/components/headers/${string}` =>
+      ref.startsWith('#/components/schemas/') ||
+      ref.startsWith('#/components/parameters/') ||
+      ref.startsWith('#/components/headers/')
+
+    const item = schemas.items?.$ref
+      ? isSchemaOrParameterOrHeaderRef(schemas.items.$ref)
+        ? refSchema(schemas.items.$ref)
+        : schemas.items
+          ? zodToOpenAPI(schemas.items, meta)
+          : 'z.any()'
+      : schemas.items
+        ? zodToOpenAPI(schemas.items, meta)
+        : 'z.any()'
+    const z = `z.array(${item})`
+
+    if (typeof schemas.minItems === 'number' && typeof schemas.maxItems === 'number') {
+      // return schemas.minItems === schemas.maxItems
+      //   ? `${z}.length(${schemas.minItems})`
+      //   : `${z}.min(${schemas.minItems}).max(${schemas.maxItems})`
+      return schemas.minItems === schemas.maxItems
+        ? wrap(`${z}.length(${schemas.minItems})`, schemas, meta)
+        : wrap(`${z}.min(${schemas.minItems}).max(${schemas.maxItems})`, schemas, meta)
+    }
+    // if (typeof schemas.minItems === 'number') return `${z}.min(${schemas.minItems})`
+    // if (typeof schemas.maxItems === 'number') return `${z}.max(${schemas.maxItems})`
+    if (typeof schemas.minItems === 'number')
+      return wrap(`${z}.min(${schemas.minItems})`, schemas, meta)
+    if (typeof schemas.maxItems === 'number')
+      return wrap(`${z}.max(${schemas.maxItems})`, schemas, meta)
+
+    return wrap(z, schemas, meta)
+  }
+  // if (t.includes('array')) return wrap(array(schemas), schemas, meta)
   /* object */
-  if (t.includes('object')) return wrap(object(schemas), schemas, meta)
+  // if (t.includes('object')) return wrap(object(schemas), schemas, meta)
+  if (t.includes('object')) {
+    // allOf, oneOf, anyOf, not
+    if (schemas.oneOf) return wrap(zodToOpenAPI(schemas, meta), schemas, meta)
+    if (schemas.anyOf) return wrap(zodToOpenAPI(schemas, meta), schemas, meta)
+    if (schemas.allOf) return wrap(zodToOpenAPI(schemas, meta), schemas, meta)
+    if (schemas.not) return wrap(zodToOpenAPI(schemas, meta), schemas, meta)
+    if (schemas.additionalProperties) {
+      if (typeof schemas.additionalProperties === 'boolean') {
+        if (schemas.properties) {
+          const s = propertiesSchema(
+            schemas.properties,
+            Array.isArray(schemas.required) ? schemas.required : [],
+          )
+          if (schemas.additionalProperties === true) {
+            // return s.replace('object', 'looseObject')
+            return wrap(s.replace('object', 'looseObject'), schemas, meta)
+          }
+          if (schemas.additionalProperties === false) {
+            // return s.replace('object', 'strictObject')
+            return wrap(s.replace('object', 'strictObject'), schemas, meta)
+          }
+          return wrap(s, schemas, meta)
+        }
+        const s = 'z.object({})'
+        if (schemas.additionalProperties === true) {
+          // return s.replace('object', 'looseObject')
+          return wrap(s.replace('object', 'looseObject'), schemas, meta)
+        }
+        if (schemas.additionalProperties === false) {
+          // return s.replace('object', 'strictObject')
+          return wrap(s.replace('object', 'strictObject'), schemas, meta)
+        }
+        // return s
+        return wrap(s, schemas, meta)
+      }
+      const s = zodToOpenAPI(schemas.additionalProperties, meta)
+      // return `z.record(z.string(),${s})`
+      return wrap(`z.record(z.string(),${s})`, schemas, meta)
+    }
+    if (schemas.properties) {
+      const s = propertiesSchema(
+        schemas.properties,
+        Array.isArray(schemas.required) ? schemas.required : [],
+      )
+      if (schemas.additionalProperties === false) {
+        // return s.replace('object', 'strictObject')
+        return wrap(s.replace('object', 'strictObject'), schemas, meta)
+      }
+      if (schemas.additionalProperties === true) {
+        // return s.replace('object', 'looseObject')
+        return wrap(s.replace('object', 'looseObject'), schemas, meta)
+      }
+      // return s
+      return wrap(s, schemas, meta)
+    }
+    if (schemas.additionalProperties === false) {
+      // return 'z.strictObject({})'
+      return wrap('z.strictObject({})', schemas, meta)
+    }
+    if (schemas.additionalProperties === true) {
+      // return 'z.looseObject({})'
+      return wrap('z.looseObject({})', schemas, meta)
+    }
+    // return 'z.object({})'
+    return wrap('z.object({})', schemas, meta)
+  }
   /* date */
   if (t.includes('date')) return wrap('z.date()', schemas, meta)
   /* null only */

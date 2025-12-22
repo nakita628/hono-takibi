@@ -45,12 +45,25 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  // ignore schemas required
-  const { required, nullable, ...rest } = schemas
+  // ignore schemas required and nullable and additionalProperties and discriminator and const
+  const {
+    required,
+    nullable,
+    additionalProperties,
+    discriminator,
+    const: unknown,
+    $ref,
+    ...rest
+  } = schemas
 
+  const openapiSchema = schemas ? JSON.stringify(rest) : undefined
+  const openapiSchemaBody =
+    openapiSchema && openapiSchema.startsWith('{') && openapiSchema.endsWith('}')
+      ? openapiSchema.slice(1, -1)
+      : openapiSchema
   const openapiProps = [
     meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
-    schemas ? `${JSON.stringify(rest)}`.replace('{', '').replace('}', '') : undefined,
+    openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
 
   // required true
