@@ -45,44 +45,32 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
+  // ignore schemas required
+  const { required, nullable, ...rest } = schemas
+
   const openapiProps = [
-    // param
-    // TODO other properties
-    meta?.parameters
-      ? (() => {
-          const required = !!meta.parameters.required
-          return `param:{in:"${meta.parameters.in}",name:${JSON.stringify(meta.parameters.name)},required:${required}}`
-        })()
-      : undefined,
-    // example
-    'example' in schemas && schemas.example !== undefined
-      ? `example:${JSON.stringify(schemas.example)}`
-      : undefined,
-    // examples
-    'examples' in schemas && Array.isArray(schemas.examples) && schemas.examples.length > 0
-      ? `examples:${JSON.stringify(schemas.examples)}`
-      : undefined,
-    // description
-    'description' in schemas && schemas.description !== undefined
-      ? `description:${JSON.stringify(schemas.description)}`
-      : undefined,
+    meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
+    schemas ? `${JSON.stringify(rest)}`.replace('{', '').replace('}', '') : undefined,
   ].filter((v) => v !== undefined)
 
+  // required true
   if (
     (schemas.required !== undefined &&
       typeof schemas.required === 'boolean' &&
-      schemas.required === false) ||
+      schemas.required === true) ||
     (meta?.parameters !== undefined &&
       typeof meta.parameters.required === 'boolean' &&
-      meta.parameters.required === false) ||
+      meta.parameters.required === true) ||
     (meta?.parameters !== undefined &&
       typeof meta.parameters.required === 'boolean' &&
-      meta.parameters.required === false) ||
+      meta.parameters.required === true) ||
     (meta?.headers !== undefined &&
       typeof meta.headers.required === 'boolean' &&
-      meta.headers.required === false)
+      meta.headers.required === true)
   ) {
-    return openapiProps.length === 0 ? z : `${z}.optional().openapi({${openapiProps.join(',')}})`
+    return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
   }
-  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  return openapiProps.length === 0
+    ? `${z}.optional()`
+    : `${z}.optional().openapi({${openapiProps.join(',')}})`
 }

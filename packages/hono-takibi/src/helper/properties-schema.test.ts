@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { propertiesSchema } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod/helper/properties-schema.test.ts
+// pnpm vitest run ./src/helper/properties-schema.test.ts
 
 describe('propertiesSchema', () => {
   it.concurrent('propertiesSchema -> z.object({test:z.string()}).partial()', () => {
@@ -13,10 +13,10 @@ describe('propertiesSchema', () => {
         },
         [],
       ),
-    ).toBe('z.object({test:z.string()}).partial()')
+    ).toBe('z.object({test:z.string().openapi({"type":"string"})}).partial()')
   })
 
-  it.concurrent('z.object({test:z.string()})', () => {
+  it.concurrent('z.object({test:z.string().optional().openapi({"type":"string"})})', () => {
     expect(
       propertiesSchema(
         {
@@ -24,10 +24,10 @@ describe('propertiesSchema', () => {
         },
         ['test'],
       ),
-    ).toBe('z.object({test:z.string()})')
+    ).toBe('z.object({test:z.string().optional().openapi({"type":"string"})})')
   })
 
-  it.concurrent('z.object({id:z.int(),note:z.string().optional()})', () => {
+  it.concurrent('z.object({id:z.int().optional().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})', () => {
     const result = propertiesSchema(
       {
         id: { type: 'integer' },
@@ -35,15 +35,19 @@ describe('propertiesSchema', () => {
       },
       ['id'],
     )
-    expect(result).toBe('z.object({id:z.int(),note:z.string().optional()})')
+    expect(result).toBe(
+      'z.object({id:z.int().optional().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})',
+    )
   })
 
-  it.concurrent('z.object({"invalid-key":z.boolean()})', () => {
+  it.concurrent('z.object({"invalid-key":z.boolean().optional().openapi({"type":"boolean"})})', () => {
     const result = propertiesSchema({ 'invalid-key': { type: 'boolean' } }, ['invalid-key'])
-    expect(result).toBe(`z.object({"invalid-key":z.boolean()})`)
+    expect(result).toBe(
+      `z.object({"invalid-key":z.boolean().optional().openapi({"type":"boolean"})})`,
+    )
   })
 
-  it.concurrent('z.object({a:z.string(),b:z.string().optional()})', () => {
+  it.concurrent('z.object({a:z.string().optional().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})', () => {
     const result = propertiesSchema(
       {
         a: { type: 'string' },
@@ -51,6 +55,8 @@ describe('propertiesSchema', () => {
       },
       ['a'],
     )
-    expect(result).toBe('z.object({a:z.string(),b:z.string().optional()})')
+    expect(result).toBe(
+      'z.object({a:z.string().optional().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})',
+    )
   })
 })

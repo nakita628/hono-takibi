@@ -51,9 +51,8 @@ export function propertiesSchema(
   required: readonly string[],
 ): string {
   const objectProperties = Object.entries(properties).map(([k, schemas]) => {
-    const isRequired = required.includes(k)
     const safeKey = getToSafeIdentifier(k)
-    return `${safeKey}:${zodToOpenAPI(schemas)}${isRequired ? '' : '.optional()'}`
+    return `${safeKey}:${zodToOpenAPI(schemas)}`
   })
   // Check if all properties are optional
   const allOptional = objectProperties.every((v) => v.includes('.optional()'))
