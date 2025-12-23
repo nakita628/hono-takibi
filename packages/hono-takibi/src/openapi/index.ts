@@ -69,12 +69,12 @@ export type OpenAPI = BaseOpenAPI & {
     readonly summary?: string
     readonly description?: string
     readonly termsOfService?: string
-    readonly contact: {
+    readonly contact?: {
       readonly name?: string
       readonly url?: string
       readonly email?: string
     }
-    readonly license: {
+    readonly license?: {
       readonly name?: string
       readonly identifier?: string
       readonly url?: string
@@ -86,15 +86,17 @@ export type OpenAPI = BaseOpenAPI & {
   readonly paths: PathItem
   readonly webhooks?: Record<string, PathItem>
   readonly components?: Components
-  readonly security?: readonly string[]
-  readonly tags: {
+  readonly security?: {
+    readonly name?: readonly string[]
+  }
+  readonly tags?: {
     readonly name: string
     readonly summary?: string
     readonly description?: string
     readonly externalDocs?: ExternalDocs
     readonly parent?: string
     readonly kind?: string
-  }
+  }[]
   readonly externalDocs?: ExternalDocs
 } & {
   paths: OpenAPIPaths
@@ -328,8 +330,8 @@ export type Operation = {
   >
   readonly deprecated?: boolean
   readonly security?: {
-    readonly [k: string]: readonly string[]
-  }[]
+    readonly name?: readonly string[]
+  }
   readonly servers?: readonly {
     readonly url: string
     readonly description?: string
@@ -405,7 +407,7 @@ export type Schema = {
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
   readonly security?: {
-    readonly [k: string]: readonly string[]
+    readonly name?: readonly string[]
   }[]
   readonly oneOf?: readonly Schema[]
   readonly allOf?: readonly Schema[]

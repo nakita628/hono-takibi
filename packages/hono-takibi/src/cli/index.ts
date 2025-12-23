@@ -107,22 +107,8 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const cli = cliResult.value
-    const {
-      input,
-      output,
-      template,
-      test,
-      basePath,
-      componentsOptions,
-    } = cli
-    const takibiResult = await takibi(
-      input,
-      output,
-      template,
-      test,
-      basePath,
-      componentsOptions,
-    )
+    const { input, output, template, test, basePath, componentsOptions } = cli
+    const takibiResult = await takibi(input, output, template, test, basePath, componentsOptions)
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
       ok: true,

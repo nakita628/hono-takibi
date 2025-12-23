@@ -9,21 +9,6 @@ import { responses } from './responses.js'
 import { schemas } from './schemas.js'
 import { securitySchemes } from './securitySchemes.js'
 
-export type ComponentsExportOptions = {
-  readonly exportSchemasTypes: boolean
-  readonly exportSchemas: boolean
-  readonly exportParametersTypes: boolean
-  readonly exportParameters: boolean
-  readonly exportSecuritySchemes: boolean
-  readonly exportRequestBodies: boolean
-  readonly exportResponses: boolean
-  readonly exportHeadersTypes: boolean
-  readonly exportHeaders: boolean
-  readonly exportExamples: boolean
-  readonly exportLinks: boolean
-  readonly exportCallbacks: boolean
-}
-
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
  *
@@ -37,7 +22,23 @@ export type ComponentsExportOptions = {
  * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
  * - Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
  */
-export function componentsCode(components: Components, options: ComponentsExportOptions): string {
+export function componentsCode(
+  components: Components,
+  options: {
+    readonly exportSchemasTypes: boolean
+    readonly exportSchemas: boolean
+    readonly exportParametersTypes: boolean
+    readonly exportParameters: boolean
+    readonly exportSecuritySchemes: boolean
+    readonly exportRequestBodies: boolean
+    readonly exportResponses: boolean
+    readonly exportHeadersTypes: boolean
+    readonly exportHeaders: boolean
+    readonly exportExamples: boolean
+    readonly exportLinks: boolean
+    readonly exportCallbacks: boolean
+  },
+): string {
   // Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
   return [
     schemas(components, options.exportSchemas, options.exportSchemasTypes),

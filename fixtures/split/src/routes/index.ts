@@ -116,6 +116,10 @@ const CHeaderSchema = z.string().optional().openapi({ type: 'string' })
 
 const AHeaderSchema = z.string().optional().openapi({ type: 'string' })
 
+const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
+
+export type Test = z.infer<typeof TestSchema>
+
 const BExample = {
   value: {
     B: 'https://example.com/B',
