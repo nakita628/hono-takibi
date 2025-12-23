@@ -1,11 +1,11 @@
-import type { Headers, Parameters, Schemas } from '../openapi/index.js'
+import type { Header, Parameter, Schema } from '../openapi/index.js'
 
 export function wrap(
   zod: string,
-  schemas: Schemas,
+  schema: Schema,
   meta?: {
-    parameters?: Omit<Parameters, 'schema'>
-    headers?: Omit<Headers, 'schema'>
+    parameters?: Parameter
+    headers?: Header
   },
 ): string {
   const formatLiteral = (v: unknown): string => {
@@ -15,16 +15,16 @@ export function wrap(
     }
     /* number */
     if (typeof v === 'number') {
-      if (schemas.format === 'int64') {
+      if (schema.format === 'int64') {
         return `${v}n`
       }
-      if (schemas.format === 'bigint') {
+      if (schema.format === 'bigint') {
         return `BigInt(${v})`
       }
       return `${v}`
     }
     /* date */
-    if (schemas.type === 'date' && typeof v === 'string') {
+    if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
     /* string */
@@ -37,11 +37,11 @@ export function wrap(
 
   /* why schema.default !== undefined becasue schema.default === 0  // → falsy */
   const s =
-    schemas.default !== undefined ? `${zod}.default(${formatLiteral(schemas.default)})` : zod
+    schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
 
   const isNullable =
-    schemas.nullable === true ||
-    (Array.isArray(schemas.type) ? schemas.type.includes('null') : schemas.type === 'null')
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
   const z = isNullable ? `${s}.nullable()` : s
 
@@ -54,9 +54,9 @@ export function wrap(
     const: unknown,
     $ref,
     ...rest
-  } = schemas
+  } = schema
 
-  const openapiSchema = schemas ? JSON.stringify(rest) : undefined
+  const openapiSchema = schema ? JSON.stringify(rest) : undefined
   const openapiSchemaBody =
     openapiSchema && openapiSchema.startsWith('{') && openapiSchema.endsWith('}')
       ? openapiSchema.slice(1, -1)
@@ -68,9 +68,9 @@ export function wrap(
 
   // required true
   if (
-    (schemas.required !== undefined &&
-      typeof schemas.required === 'boolean' &&
-      schemas.required === true) ||
+    (schema.required !== undefined &&
+      typeof schema.required === 'boolean' &&
+      schema.required === true) ||
     (meta?.parameters !== undefined &&
       typeof meta.parameters.required === 'boolean' &&
       meta.parameters.required === true) ||

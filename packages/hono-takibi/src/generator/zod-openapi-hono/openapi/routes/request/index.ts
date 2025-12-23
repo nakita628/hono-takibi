@@ -1,4 +1,4 @@
-import type { Components, Parameters, RequestBodies } from '../../../../../openapi/index.js'
+import type { Components, Parameter, RequestBody } from '../../../../../openapi/index.js'
 import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
@@ -17,8 +17,8 @@ import { params } from '../params/index.js'
  * - Uses `params` instead of `path` for Hono compatibility.
  */
 export function request(
-  parameters: readonly Parameters[] | undefined,
-  body: RequestBodies | undefined,
+  parameters: readonly Parameter[] | undefined,
+  body: RequestBody | undefined,
   components?: Components,
   options?: { readonly useComponentRefs?: boolean },
 ): string {
@@ -46,7 +46,7 @@ export function request(
     return { key, constName: requestBodyConstName(key) }
   })()
 
-  const resolvedBody: RequestBodies | undefined = (() => {
+  const resolvedBody: RequestBody | undefined = (() => {
     if (!body) return undefined
     if (!isRef(body)) return body
     if (!body.$ref.startsWith('#/components/requestBodies/')) return body

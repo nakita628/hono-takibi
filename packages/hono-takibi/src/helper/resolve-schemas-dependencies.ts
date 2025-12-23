@@ -1,4 +1,4 @@
-import type { Schemas } from '../openapi/index.js'
+import type { Schema } from '../openapi/index.js'
 import { isRecord } from '../utils/index.js'
 
 /**
@@ -8,12 +8,12 @@ import { isRecord } from '../utils/index.js'
  * order in which schemas should be processed or emitted, ensuring that
  * referenced schemas appear before the ones that depend on them.
  *
- * @param schemas - A map of schema names to their OpenAPI Schema objects.
+ * @param schema - A map of schema names to their OpenAPI Schema objects.
  * @returns A list of schema names sorted in topological order.
  * @throws If a circular reference (excluding self refs) is detected among the schemas.
  */
-export function resolveSchemasDependencies(schemas: Record<string, Schemas>): readonly string[] {
-  const collectRefs = (schema: Schemas): string[] => {
+export function resolveSchemasDependencies(schema: Record<string, Schema>): readonly string[] {
+  const collectRefs = (schema: Schema): string[] => {
     const refs = new Set<string>()
     const stack: unknown[] = [schema]
 
@@ -45,12 +45,12 @@ export function resolveSchemasDependencies(schemas: Record<string, Schemas>): re
     if (perm.has(name)) return
     if (temp.has(name)) throw new Error(`Circular dependency: ${name}`)
 
-    const schema = schemas[name]
-    if (!schema) return
+    const s = schema[name]
+    if (!s) return
 
     temp.add(name)
-    for (const ref of collectRefs(schema)) {
-      if (ref !== name && ref in schemas) visit(ref)
+    for (const ref of collectRefs(s)) {
+      if (ref !== name && ref in schema) visit(ref)
     }
     temp.delete(name)
 
@@ -58,7 +58,7 @@ export function resolveSchemasDependencies(schemas: Record<string, Schemas>): re
     sorted.push(name)
   }
 
-  for (const name of Object.keys(schemas)) {
+  for (const name of Object.keys(schema)) {
     visit(name)
   }
   return sorted

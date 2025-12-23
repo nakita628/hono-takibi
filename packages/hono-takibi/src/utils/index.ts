@@ -607,50 +607,6 @@ export function methodPath(method: string, path: string): string {
 }
 
 /**
- * Generates a Hono route definition as a TypeScript export string.
- *
- * @param args - Route metadata and OpenAPI friendly fragments (`method`, `path`, `requestParams`, `responses`, etc.).
- * @returns A string representing an `export const <name> = createRoute({ ... })` statement.
- *
- * @example
- * createRoute({
- *   routeName: 'getUserRoute',
- *   method: 'method:"get",',
- *   path: 'path:"/user",',
- *   requestParams: 'request:{query:z.object({ id: z.string() })},',
- *   responses: 'responses:{200:{description:"OK"}}'
- * })
- * // => export const getUserRoute = createRoute({method:"get",path:"/user",request:{query:...},responses:{...}})
- */
-export function createRoute(args: {
-  readonly routeName: string
-  readonly tags?: string
-  readonly method: string
-  readonly path: string
-  readonly operationId?: string
-  readonly summary?: string
-  readonly description?: string
-  readonly security?: string
-  readonly callbacks?: string
-  readonly requestParams: string
-  readonly responses: string
-}): string {
-  const properties = [
-    args.tags,
-    args.method,
-    args.path,
-    args.operationId,
-    args.summary,
-    args.description,
-    args.security,
-    args.callbacks,
-    args.requestParams,
-    args.responses,
-  ].join('')
-  return `export const ${args.routeName}=createRoute({${properties}})`
-}
-
-/**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
  *
  * @param parameters - An object containing `query`, `path`, and `header` parameters.

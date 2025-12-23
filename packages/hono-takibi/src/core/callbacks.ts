@@ -1,7 +1,16 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { ensureSuffix, lowerFirst, toIdentifier } from '../utils/index.js'
+import { lowerFirst, toIdentifier } from '../utils/index.js'
+
+const callbackConstName = (key: string): string => {
+  const base = key.endsWith('Callbacks')
+    ? key
+    : key.endsWith('Callback')
+      ? `${key}s`
+      : `${key}Callbacks`
+  return toIdentifier(base)
+}
 
 export async function callbacks(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -22,7 +31,7 @@ export async function callbacks(
 
     for (const key of Object.keys(cbs)) {
       const val = cbs[key]
-      const name = toIdentifier(ensureSuffix(key, 'Callback'))
+      const name = callbackConstName(key)
       const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
       const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
       const coreResult = await core(body, path.dirname(filePath), filePath)
@@ -30,7 +39,7 @@ export async function callbacks(
     }
 
     const indexBody = `${Object.keys(cbs)
-      .map((n) => `export * from './${lowerFirst(toIdentifier(ensureSuffix(n, 'Callback')))}'`)
+      .map((n) => `export * from './${lowerFirst(callbackConstName(n))}'`)
       .join('\n')}\n`
     const coreResult = await core(
       indexBody,
@@ -47,10 +56,7 @@ export async function callbacks(
 
   const outFile = String(output)
   const defs = Object.keys(cbs)
-    .map(
-      (key) =>
-        `export const ${toIdentifier(ensureSuffix(key, 'Callback'))} = ${JSON.stringify(cbs[key] ?? {})}`,
-    )
+    .map((key) => `export const ${callbackConstName(key)} = ${JSON.stringify(cbs[key] ?? {})}`)
     .join('\n\n')
 
   const coreResult = await core(defs, path.dirname(outFile), outFile)

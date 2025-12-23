@@ -1,4 +1,4 @@
-import type { Components, ResponseDefinition } from '../../../../openapi/index.js'
+import type { Components, Responses } from '../../../../openapi/index.js'
 import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 
 const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
@@ -30,7 +30,7 @@ export function links(components: Components, exportSchema: boolean): string {
  * Generates a links property expression for responses.
  */
 export const linksPropExpr = (
-  links: ResponseDefinition['links'] | undefined,
+  links: Responses['links'] | undefined,
 ): string | undefined => {
   if (!links) return undefined
 

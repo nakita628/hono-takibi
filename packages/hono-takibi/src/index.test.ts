@@ -573,29 +573,29 @@ const CLink = { operationId: 'C' }
 
 const ALink = { operationId: 'A' }
 
-const BCallback = {
+const BCallbacks = {
   '{$request.body#/B}': {
     post: {
-      requestBody: { $ref: '#/components/requestBodies/B' },
-      responses: { '200': { $ref: '#/components/responses/B' } },
+      requestBody: BRequestBody,
+      responses: { '200': BResponse },
     },
   },
 }
 
-const CCallback = {
+const CCallbacks = {
   '{$request.body#/B}': {
     post: {
-      requestBody: { $ref: '#/components/requestBodies/C' },
-      responses: { '200': { $ref: '#/components/responses/C' } },
+      requestBody: CRequestBody,
+      responses: { '200': CResponse },
     },
   },
 }
 
-const ACallback = {
+const ACallbacks = {
   '{$request.body#/B}': {
     post: {
-      requestBody: { $ref: '#/components/requestBodies/A' },
-      responses: { '200': { $ref: '#/components/responses/A' } },
+      requestBody: ARequestBody,
+      responses: { '200': AResponse },
     },
   },
 }
@@ -605,7 +605,7 @@ export const postACRoute = createRoute({
   path: '/A/{C}',
   operationId: 'A',
   security: [{ A: [] }],
-  callbacks: { A: ACallback },
+  callbacks: { A: ACallbacks },
   request: {
     body: ARequestBody,
     params: z.object({ C: CParamsSchema }),
@@ -620,7 +620,7 @@ export const postBCRoute = createRoute({
   path: '/B/{C}',
   operationId: 'B',
   security: [{ B: [] }],
-  callbacks: { B: BCallback },
+  callbacks: { B: BCallbacks },
   request: {
     body: BRequestBody,
     params: z.object({ C: CParamsSchema }),
@@ -635,7 +635,7 @@ export const postCCRoute = createRoute({
   path: '/C/{C}',
   operationId: 'C',
   security: [{ C: [] }],
-  callbacks: { C: CCallback },
+  callbacks: { C: CCallbacks },
   request: {
     body: CRequestBody,
     params: z.object({ C: CParamsSchema }),

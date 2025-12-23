@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, ResponseDefinition, Schemas } from '../openapi/index.js'
+import type { Components, Content, Responses, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -14,7 +14,7 @@ import {
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 function withSuffix(name: string, suffix: string): string {
   return name.endsWith(suffix) ? name : `${name}${suffix}`
@@ -74,7 +74,7 @@ const headerSchemaExpr = (header: unknown): string => {
   const schema = isSchema(rawSchema) ? rawSchema : {}
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
-  const merged: Schemas = {
+  const merged: Schema = {
     ...schema,
     ...(description !== undefined && schema.description === undefined ? { description } : {}),
     ...(example !== undefined && schema.example === undefined ? { example } : {}),
@@ -83,7 +83,7 @@ const headerSchemaExpr = (header: unknown): string => {
 }
 
 const headersPropExpr = (
-  headers: ResponseDefinition['headers'] | undefined,
+  headers: Responses['headers'] | undefined,
   components: Components,
   usedHeaderKeys: Set<string>,
   imports: Imports | undefined,
@@ -155,7 +155,7 @@ const mediaTypeExpr = (
 }
 
 const linksPropExpr = (
-  links: ResponseDefinition['links'] | undefined,
+  links: Responses['links'] | undefined,
   components: Components,
   usedLinkKeys: Set<string>,
   imports: Imports | undefined,
@@ -178,7 +178,7 @@ const linksPropExpr = (
 }
 
 const responseDefinitionExpr = (
-  res: ResponseDefinition,
+  res: Responses,
   components: Components,
   usedHeaderKeys: Set<string>,
   usedExampleKeys: Set<string>,

@@ -3,11 +3,11 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Components, Schemas } from '../openapi/index.js'
+import type { Components, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
-const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 const headerBaseName = (key: string): string => {
   const safe = sanitizeIdentifier(key)
@@ -20,7 +20,7 @@ const schemaVarName = (schemaName: string): string => sanitizeIdentifier(`${sche
 
 type HeaderComponent = NonNullable<Components['headers']>[string]
 
-const mergeHeaderSchema = (header: HeaderComponent): Schemas => {
+const mergeHeaderSchema = (header: HeaderComponent): Schema => {
   const base = header.schema
   return header.description !== undefined && base.description === undefined
     ? { ...base, description: header.description }

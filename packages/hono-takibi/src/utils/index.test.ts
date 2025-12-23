@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   configToTarget,
-  createRoute,
   ensureSuffix,
   escapeStringLiteral,
   findSchema,
@@ -610,27 +609,6 @@ describe('utils', () => {
       ['get', '/emails/{email.id}', 'getEmailsEmailId'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
-    })
-  })
-  // createRoute
-  describe('createRoute', () => {
-    it.concurrent('createRoute Test', () => {
-      const result = createRoute({
-        routeName: 'postHonoRoute',
-        tags: 'tags:["Hono"],',
-        method: "method:'post',",
-        path: "path:'/hono',",
-        operationId: "operationId:'HonoService_create',",
-        summary: '',
-        description: '',
-        security: '',
-        requestParams:
-          "request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},",
-        responses:
-          "responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}",
-      })
-      const expected = `export const postHonoRoute=createRoute({tags:["Hono"],method:'post',path:'/hono',operationId:'HonoService_create',request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}})`
-      expect(result).toBe(expected)
     })
   })
   // requestParamsArray

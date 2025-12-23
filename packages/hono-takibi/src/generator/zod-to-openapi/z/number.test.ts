@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Schemas } from '../../../openapi'
+import type { Schema } from '../../../openapi'
 import { number } from './number'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/number.test.ts
 
 describe('number', () => {
-  it.concurrent.each<[Schemas, string]>([
+  it.concurrent.each<[Schema, string]>([
     [{ type: 'number' }, 'z.number()'],
     [
       {
@@ -39,7 +39,7 @@ describe('number', () => {
 })
 
 describe('type: number, format: float', () => {
-  it.concurrent.each<[Schemas, string]>([
+  it.concurrent.each<[Schema, string]>([
     [{ type: 'number', format: 'float' }, 'z.float32()'],
     [{ type: 'number', format: 'float64' }, 'z.float64()'],
   ])('number(%o) → %s', (input, expected) => {

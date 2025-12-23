@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, RequestBodies } from '../openapi/index.js'
+import type { Components, Content, RequestBody } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -109,7 +109,7 @@ const mediaTypeExpr = (
 }
 
 const requestBodyExpr = (
-  body: RequestBodies,
+  body: RequestBody,
   components: Components,
   usedExampleKeys: Set<string>,
   imports: Imports | undefined,

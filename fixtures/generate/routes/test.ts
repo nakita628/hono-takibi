@@ -1,9 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getHonoRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/hono',
+  tags: ['Hono'],
   summary: 'Hono',
   description: 'Hono',
   responses: {
@@ -11,7 +11,15 @@ export const getHonoRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'Hono🔥' }) }),
+          schema: z
+            .object({
+              message: z.string().optional().openapi({ type: 'string', example: 'Hono🔥' }),
+            })
+            .optional()
+            .openapi({
+              type: 'object',
+              properties: { message: { type: 'string', example: 'Hono🔥' } },
+            }),
         },
       },
     },
@@ -19,9 +27,9 @@ export const getHonoRoute = createRoute({
 })
 
 export const getHonoXRoute = createRoute({
-  tags: ['HonoX'],
   method: 'get',
   path: '/hono-x',
+  tags: ['HonoX'],
   summary: 'HonoX',
   description: 'HonoX',
   responses: {
@@ -29,7 +37,15 @@ export const getHonoXRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'HonoX🔥' }) }),
+          schema: z
+            .object({
+              message: z.string().optional().openapi({ type: 'string', example: 'HonoX🔥' }),
+            })
+            .optional()
+            .openapi({
+              type: 'object',
+              properties: { message: { type: 'string', example: 'HonoX🔥' } },
+            }),
         },
       },
     },
@@ -37,9 +53,9 @@ export const getHonoXRoute = createRoute({
 })
 
 export const getZodOpenapiHonoRoute = createRoute({
-  tags: ['ZodOpenAPIHono'],
   method: 'get',
   path: '/zod-openapi-hono',
+  tags: ['ZodOpenAPIHono'],
   summary: 'ZodOpenAPIHono',
   description: 'ZodOpenAPIHono',
   responses: {
@@ -47,7 +63,18 @@ export const getZodOpenapiHonoRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'ZodOpenAPIHono🔥' }) }),
+          schema: z
+            .object({
+              message: z
+                .string()
+                .optional()
+                .openapi({ type: 'string', example: 'ZodOpenAPIHono🔥' }),
+            })
+            .optional()
+            .openapi({
+              type: 'object',
+              properties: { message: { type: 'string', example: 'ZodOpenAPIHono🔥' } },
+            }),
         },
       },
     },

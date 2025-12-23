@@ -1,4 +1,4 @@
-import type { Components, Responses, Schemas } from '../../../../../openapi/index.js'
+import type { Components, Responses, Schema } from '../../../../../openapi/index.js'
 import {
   ensureSuffix,
   escapeStringLiteral,
@@ -20,13 +20,13 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  * - Escapes all descriptions safely for inline code.
  */
 export function response(
-  responses: Responses,
+  responses: { [k: string]: Responses },
   components?: Components,
   options?: { readonly useComponentRefs?: boolean },
 ): string {
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
   const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-  const isSchema = (v: unknown): v is Schemas => isRecord(v)
+  const isSchema = (v: unknown): v is Schema => isRecord(v)
 
   const toIdentifier = (raw: string): string => {
     const sanitized = sanitizeIdentifier(raw)
@@ -94,7 +94,7 @@ export function response(
             const description =
               typeof header.description === 'string' ? header.description : undefined
             const example = 'example' in header ? header.example : undefined
-            const merged: Schemas = {
+            const merged: Schema = {
               ...schema,
               ...(description !== undefined && schema.description === undefined
                 ? { description }
@@ -206,7 +206,7 @@ export function response(
           const description =
             typeof header.description === 'string' ? header.description : undefined
           const example = 'example' in header ? header.example : undefined
-          const merged: Schemas = {
+          const merged: Schema = {
             ...schema,
             ...(description !== undefined && schema.description === undefined
               ? { description }

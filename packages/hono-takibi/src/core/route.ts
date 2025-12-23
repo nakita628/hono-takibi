@@ -237,7 +237,7 @@ export async function route(
     const responseTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Response') : []
     const requestBodyTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'RequestBody') : []
     const linkTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Link') : []
-    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callback') : []
+    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callbacks') : []
     const exampleTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Example') : []
 
     const missing =

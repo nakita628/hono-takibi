@@ -140,22 +140,97 @@ export type Ref =
   | `#/components/links/${string}`
   | `#/components/callbacks/${string}`
 
+type Examples = {
+  readonly [k: string]:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly value?: unknown
+        readonly externalValue?: string
+      }
+    | Reference
+}
+
+type Server = {
+  readonly url: string
+  readonly description?: string
+  readonly name: string
+  readonly variables?: {
+    readonly [k: string]: {
+      readonly enum?: readonly string[]
+      readonly default?: string
+      readonly description?: string
+    }
+  }
+}
+
+export type Header = {
+  readonly description?: string
+  readonly required?: boolean
+  readonly deprecated?: boolean
+  readonly example?: unknown
+  readonly examples?: Examples
+}
+
+type Link = {
+  readonly operationRef?: string
+  readonly operationId?: string
+  readonly parameters?: {
+    readonly [k: string]: unknown
+  }
+  readonly requestBody?: unknown
+  readonly description?: string
+  readonly server?: Server
+}
+
+type Reference = {
+  readonly $ref?: Ref
+  readonly summary?: string
+  readonly description?: string
+}
+
+type Encoding = {
+  readonly contentType?: string
+  readonly headers?: {
+    readonly [k: string]:
+      | {
+          readonly $ref?: Ref
+          readonly summary?: string
+          readonly description?: string
+        }
+      | Reference
+  }
+  readonly encoding?: {
+    readonly [k: string]: Encoding
+  }[]
+  readonly prefixEncoding?: Encoding
+  readonly itemEncoding?: Encoding
+}[]
+
 /**
  * Content type definitions with their schemas
  */
-
 export type Content = {
-  readonly [k: string]: {
-    readonly schema: Schemas
-    readonly example?: unknown
-    readonly examples?: {
-      readonly [k: string]: {
-        readonly summary?: string
-        readonly value?: unknown
-        readonly $ref?: string
+  readonly [k: string]:
+    | {
+        readonly schema: Schema
+        readonly itemSchema?: Schema
+        readonly example?: unknown
+        readonly examples?: {
+          readonly [k: string]: {
+            readonly summary?: string
+            readonly description?: string
+            readonly value?: unknown
+            readonly externalValue?: string
+          }
+        }
+        readonly encoding?: {
+          readonly [k: string]: Encoding
+        }
+        readonly prefixEncoding?: Encoding
+        readonly itemEncoding?: Encoding
       }
-    }
-  }
+    | Reference
 }
 
 /**
@@ -177,54 +252,103 @@ export type Operation = {
   readonly tags?: readonly string[]
   readonly summary?: string
   readonly description?: string
+  readonly externalDocs?: {
+    readonly description?: string
+    readonly url: string
+  }
   readonly operationId?: string
+  readonly parameters?: readonly Parameter[] | Reference
+  readonly requestBody?: RequestBody | Reference
+  readonly responses: Responses
+  readonly callbacks?: Record<
+    string,
+    {
+      $ref?: string
+      summary?: string
+      description?: string
+    }
+  >
+  readonly deprecated?: boolean
   readonly security?: {
     readonly [k: string]: readonly string[]
   }[]
-  readonly parameters?: readonly Parameters[]
-  readonly requestBody?: RequestBodies
-  readonly callbacks?: Record<string, unknown>
-  readonly responses: Responses
+  readonly servers?: readonly {
+    readonly url: string
+    readonly description?: string
+    readonly variables?: Record<
+      string,
+      {
+        enum?: readonly string[]
+        default?: string
+        description?: string
+      }
+    >
+  }[]
 }
 
 /**
  * Response definition with description and content
  */
-export type ResponseDefinition = {
-  description?: string
-  content?: Content
-  $ref?: string
-  readonly headers?: Headers
-  readonly links?: {
-    readonly [k: string]: {
-      readonly required?: boolean
-      readonly operationId?: string
-      readonly parameters?: Record<string, string>
-      readonly description?: string
-      $ref?: string
-    }
-  }
-}
+// export type ResponseDefinition = {
+//   description?: string
+//   content?: Content
+//   $ref?: string
+//   readonly headers?: Headers
+//   readonly links?: {
+//     readonly [k: string]: {
+//       readonly required?: boolean
+//       readonly operationId?: string
+//       readonly parameters?: Record<string, string>
+//       readonly description?: string
+//       $ref?: string
+//     }
+//   }
+// }
 
-/**
- * Response object with status codes
- */
+
 export type Responses = {
-  [statusCode: string]: ResponseDefinition
+  readonly summary?: string
+  readonly description?: string
+  readonly content?: {
+    [k: string]: Media | Reference
+  }
+  readonly headers?: {
+    readonly [k: string]: Header | Reference
+  },
+  readonly links?: {
+    readonly [k: string]: Link | Reference
+  }
+
 }
 
-export type Headers = {
-  readonly [k: string]: {
-    readonly description?: string
-    readonly schema: Schemas
-    readonly $ref?: Ref
-  }
+type Discriminator = {
+  readonly propertyName?: string
+  readonly mapping?: Record<string, string>
+  readonly defaultMapping?: string
+}
+
+type ExternalDocs = {
+  readonly url: string
+  readonly description?: string
 }
 
 /**
  * Schema definition for OpenAPI
  */
-export type Schemas = {
+export type Schema = {
+  readonly discriminator?: Discriminator
+  readonly xml?: {
+    readonly nodeType?: string
+    readonly name?: string
+    readonly namespace?: string
+    readonly prefix?: string
+    readonly attribute?: boolean
+    readonly wrapped?: boolean
+  }
+  readonly externalDocs?: ExternalDocs
+  readonly example?: unknown
+  //
+  readonly examples?: Examples
   readonly name?: string
   readonly description?: string
   readonly type?: Type | [Type, ...Type[]]
@@ -240,32 +364,21 @@ export type Schemas = {
   readonly minItems?: number
   readonly maxItems?: number
   readonly default?: unknown
-  readonly example?: unknown
-  readonly examples?: unknown
-  readonly properties?: Record<string, Schemas>
+  readonly properties?: Record<string, Schema>
   readonly required?: string[] | boolean
-  readonly items?: Schemas
+  readonly items?: Schema
   readonly enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
   readonly nullable?: boolean
-  readonly additionalProperties?: Schemas | boolean
+  readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
-  readonly xml?: {
-    readonly name?: string
-    readonly wrapped?: boolean
-  }
   readonly security?: {
     readonly [k: string]: readonly string[]
   }[]
-  readonly oneOf?: readonly Schemas[]
-  readonly allOf?: readonly Schemas[]
-  readonly anyOf?: readonly Schemas[]
-  readonly not?: Schemas
-  readonly discriminator?: {
-    readonly propertyName?: string
-  }
-  readonly externalDocs?: {
-    readonly url: string
-  }
+  readonly oneOf?: readonly Schema[]
+  readonly allOf?: readonly Schema[]
+  readonly anyOf?: readonly Schema[]
+  readonly not?: Schema
+
   readonly const?: unknown
 }
 
@@ -273,16 +386,16 @@ export type Schemas = {
  * Components section of OpenAPI spec
  */
 export type Components = {
-  readonly schemas?: Record<string, Schemas>
-  readonly parameters?: Record<string, Parameters>
-  readonly requestBodies?: Record<string, RequestBodies>
-  readonly responses?: Record<string, ResponseDefinition>
+  readonly schemas?: Record<string, Schema>
+  readonly parameters?: Record<string, Parameter>
+  readonly requestBodies?: Record<string, RequestBody>
+  readonly responses?: Record<string, Responses>
   readonly headers?: Record<
     string,
     {
       readonly required: boolean | undefined
       readonly description?: string
-      readonly schema: Schemas
+      readonly schema: Schema
     }
   >
   readonly examples?: Record<
@@ -315,29 +428,36 @@ export type Components = {
 /**
  * Parameter definition
  */
-export type Parameters = {
-  readonly schema: Schemas
-  readonly description?: string
-  readonly required?: boolean
+export type Parameter = {
   readonly name: string
   readonly in: 'path' | 'query' | 'header' | 'cookie'
-  readonly style?:
-    | 'matrix'
-    | 'label'
-    | 'simple'
-    | 'form'
-    | 'spaceDelimited'
-    | 'pipeDelimited'
-    | 'deepObject'
-  readonly explode?: boolean
-  readonly $ref?: Ref
+  readonly description?: string
+  readonly required?: boolean
+  readonly deprecated?: boolean
+  readonly allowEmptyValue?: boolean
+  readonly example?: unknown
+  readonly examples?: Examples
 }
 
 /**
  * Request body definition
  */
-export type RequestBodies = {
+export type RequestBody = {
   readonly description?: string
+  readonly rcontent?: {
+    readonly [k: string]: Media | Reference
+  }
   readonly required?: boolean
-  readonly content?: Content
+}
+
+type Media = {
+  readonly schema: Schema
+  readonly itemSchema?: Schema
+  readonly example?: unknown
+  readonly examples?: Examples
+  readonly encoding?: {
+    readonly [k: string]: Encoding
+  }
+  readonly prefixEncoding?: Encoding[]
+  readonly itemEncoding?: Encoding[]
 }

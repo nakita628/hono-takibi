@@ -522,17 +522,17 @@ const CLink = {"operationId":"C"}
 
 const ALink = {"operationId":"A"}
 
-const BCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/B"},"responses":{"200":{"$ref":"#/components/responses/B"}}}}}
+const BCallbacks = {"{$request.body#/B}":{post:{requestBody:BRequestBody,responses:{"200":BResponse}}}}
 
-const CCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/C"},"responses":{"200":{"$ref":"#/components/responses/C"}}}}}
+const CCallbacks = {"{$request.body#/B}":{post:{requestBody:CRequestBody,responses:{"200":CResponse}}}}
 
-const ACallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/A"},"responses":{"200":{"$ref":"#/components/responses/A"}}}}}
+const ACallbacks = {"{$request.body#/B}":{post:{requestBody:ARequestBody,responses:{"200":AResponse}}}}
 
-export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallback},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:AResponse,}})
+export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallbacks},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:AResponse,}})
 
-export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallback},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:BResponse,}})
+export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallbacks},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:BResponse,}})
 
-export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallback},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:CResponse,}})`
+export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallbacks},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:CResponse,}})`
 
     expect(result).toBe(expected)
   })

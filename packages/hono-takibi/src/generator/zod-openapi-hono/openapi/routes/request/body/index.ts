@@ -16,6 +16,12 @@ export function requestBody(
   schema: string,
   options?: { description?: string },
 ): string {
+  const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null
+
+  const isRef = (value: unknown): value is { $ref: string } =>
+    isRecord(value) && typeof value.$ref === 'string'
+
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
 
@@ -30,25 +36,47 @@ export function requestBody(
     .map((contentType) => {
       const media = content[contentType]
       const examples = media.examples
-      const examplesString =
-        examples && Object.keys(examples).length > 0
-          ? `,examples:{${Object.entries(examples)
-              .map(([exampleKey, example]) => {
-                if (example?.$ref) {
-                  return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
-                }
-                const fields = [
-                  example?.summary !== undefined
-                    ? `summary:${JSON.stringify(example.summary)}`
-                    : undefined,
-                  example?.value !== undefined
-                    ? `value:${JSON.stringify(example.value)}`
-                    : undefined,
-                ].filter((field) => field !== undefined)
-                return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
-              })
-              .join(',')}}`
-          : ''
+      // const examplesString =
+      //   examples && Object.keys(examples).length > 0
+      //     ? `,examples:{${Object.entries(examples)
+      //         .map(([exampleKey, example]) => {
+      //           if (isRef(example)) {
+      //             return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
+      //           }
+      //           const fields = [
+      //             example?.summary !== undefined
+      //               ? `summary:${JSON.stringify(example.summary)}`
+      //               : undefined,
+      //             example?.value !== undefined
+      //               ? `value:${JSON.stringify(example.value)}`
+      //               : undefined,
+      //           ].filter((field) => field !== undefined)
+      //           return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
+      //         })
+      //         .join(',')}}`
+      //     : ''
+
+      const {
+        required,
+        nullable,
+        additionalProperties,
+        discriminator,
+        const: unknown,
+        $ref,
+        ...rest
+      } = media.schema
+
+      const openapiSchema = rest ? JSON.stringify(rest) : undefined
+      const openapiSchemaBody =
+        openapiSchema && openapiSchema.startsWith('{') && openapiSchema.endsWith('}')
+          ? openapiSchema.slice(1, -1)
+          : openapiSchema
+      const openapiProps = [
+        meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
+        openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
+      ].filter((v) => v !== undefined)
+
+
 
       const schemaCode = schema.includes('z.date()')
         ? `z.coerce.${schema.replace('z.', '')}`

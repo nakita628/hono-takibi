@@ -1,4 +1,4 @@
-import type { Components, ResponseDefinition, Schemas } from '../../../../openapi/index.js'
+import type { Components, Responses, Schema } from '../../../../openapi/index.js'
 import { isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
@@ -22,7 +22,7 @@ const headerTypeDecl = (name: string, exportType: boolean): string =>
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
-const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
@@ -79,7 +79,7 @@ const headerSchemaExpr = (header: unknown): string => {
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
 
-  const merged: Schemas = {
+  const merged: Schema = {
     ...schema,
     ...(description !== undefined && schema.description === undefined ? { description } : {}),
     ...(example !== undefined && schema.example === undefined ? { example } : {}),
@@ -91,7 +91,7 @@ const headerSchemaExpr = (header: unknown): string => {
  * Generates a headers property expression for responses.
  */
 export const headersPropExpr = (
-  headers: ResponseDefinition['headers'] | undefined,
+  headers: Responses['headers'] | undefined,
   components: Components,
 ): string | undefined => {
   if (!headers) return undefined

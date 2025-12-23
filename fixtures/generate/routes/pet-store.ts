@@ -2,75 +2,228 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
-    id: z.int64().openapi({ example: 10 }),
-    petId: z.int64().openapi({ example: 198772 }),
-    quantity: z.int32().openapi({ example: 7 }),
-    shipDate: z.iso.datetime(),
+    id: z.int64().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    petId: z.int64().openapi({ type: 'integer', format: 'int64', example: 198772 }),
+    quantity: z.int32().openapi({ type: 'integer', format: 'int32', example: 7 }),
+    shipDate: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     status: z
       .enum(['placed', 'approved', 'delivered'])
-      .openapi({ example: 'approved', description: 'Order Status' }),
-    complete: z.boolean(),
+      .openapi({
+        type: 'string',
+        description: 'Order Status',
+        example: 'approved',
+        enum: ['placed', 'approved', 'delivered'],
+      }),
+    complete: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'integer', format: 'int64', example: 10 },
+      petId: { type: 'integer', format: 'int64', example: 198772 },
+      quantity: { type: 'integer', format: 'int32', example: 7 },
+      shipDate: { type: 'string', format: 'date-time' },
+      status: {
+        type: 'string',
+        description: 'Order Status',
+        example: 'approved',
+        enum: ['placed', 'approved', 'delivered'],
+      },
+      complete: { type: 'boolean' },
+    },
+    xml: { name: 'order' },
+  })
   .openapi('Order')
 
 const AddressSchema = z
   .object({
-    street: z.string().openapi({ example: '437 Lytton' }),
-    city: z.string().openapi({ example: 'Palo Alto' }),
-    state: z.string().openapi({ example: 'CA' }),
-    zip: z.string().openapi({ example: '94301' }),
+    street: z.string().openapi({ type: 'string', example: '437 Lytton' }),
+    city: z.string().openapi({ type: 'string', example: 'Palo Alto' }),
+    state: z.string().openapi({ type: 'string', example: 'CA' }),
+    zip: z.string().openapi({ type: 'string', example: '94301' }),
   })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      street: { type: 'string', example: '437 Lytton' },
+      city: { type: 'string', example: 'Palo Alto' },
+      state: { type: 'string', example: 'CA' },
+      zip: { type: 'string', example: '94301' },
+    },
+    xml: { name: 'address' },
+  })
   .openapi('Address')
 
 const CustomerSchema = z
   .object({
-    id: z.int64().openapi({ example: 100000 }),
-    username: z.string().openapi({ example: 'fehguy' }),
-    address: z.array(AddressSchema),
+    id: z.int64().openapi({ type: 'integer', format: 'int64', example: 100000 }),
+    username: z.string().openapi({ type: 'string', example: 'fehguy' }),
+    address: z
+      .array(AddressSchema)
+      .openapi({
+        type: 'array',
+        xml: { name: 'addresses', wrapped: true },
+        items: { $ref: '#/components/schemas/Address' },
+      }),
   })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'integer', format: 'int64', example: 100000 },
+      username: { type: 'string', example: 'fehguy' },
+      address: {
+        type: 'array',
+        xml: { name: 'addresses', wrapped: true },
+        items: { $ref: '#/components/schemas/Address' },
+      },
+    },
+    xml: { name: 'customer' },
+  })
   .openapi('Customer')
 
 const CategorySchema = z
-  .object({ id: z.int64().openapi({ example: 1 }), name: z.string().openapi({ example: 'Dogs' }) })
+  .object({
+    id: z.int64().openapi({ type: 'integer', format: 'int64', example: 1 }),
+    name: z.string().openapi({ type: 'string', example: 'Dogs' }),
+  })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'integer', format: 'int64', example: 1 },
+      name: { type: 'string', example: 'Dogs' },
+    },
+    xml: { name: 'category' },
+  })
   .openapi('Category')
 
 const UserSchema = z
   .object({
-    id: z.int64().openapi({ example: 10 }),
-    username: z.string().openapi({ example: 'theUser' }),
-    firstName: z.string().openapi({ example: 'John' }),
-    lastName: z.string().openapi({ example: 'James' }),
-    email: z.string().openapi({ example: 'john@email.com' }),
-    password: z.string().openapi({ example: '12345' }),
-    phone: z.string().openapi({ example: '12345' }),
-    userStatus: z.int32().openapi({ example: 1, description: 'User Status' }),
+    id: z.int64().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    username: z.string().openapi({ type: 'string', example: 'theUser' }),
+    firstName: z.string().openapi({ type: 'string', example: 'John' }),
+    lastName: z.string().openapi({ type: 'string', example: 'James' }),
+    email: z.string().openapi({ type: 'string', example: 'john@email.com' }),
+    password: z.string().openapi({ type: 'string', example: '12345' }),
+    phone: z.string().openapi({ type: 'string', example: '12345' }),
+    userStatus: z
+      .int32()
+      .openapi({ type: 'integer', description: 'User Status', format: 'int32', example: 1 }),
   })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'integer', format: 'int64', example: 10 },
+      username: { type: 'string', example: 'theUser' },
+      firstName: { type: 'string', example: 'John' },
+      lastName: { type: 'string', example: 'James' },
+      email: { type: 'string', example: 'john@email.com' },
+      password: { type: 'string', example: '12345' },
+      phone: { type: 'string', example: '12345' },
+      userStatus: { type: 'integer', description: 'User Status', format: 'int32', example: 1 },
+    },
+    xml: { name: 'user' },
+  })
   .openapi('User')
 
-const TagSchema = z.object({ id: z.int64(), name: z.string() }).partial().openapi('Tag')
+const TagSchema = z
+  .object({
+    id: z.int64().openapi({ type: 'integer', format: 'int64' }),
+    name: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' } },
+    xml: { name: 'tag' },
+  })
+  .openapi('Tag')
 
 const PetSchema = z
   .object({
-    id: z.int64().openapi({ example: 10 }).optional(),
-    name: z.string().openapi({ example: 'doggie' }),
-    category: CategorySchema.optional(),
-    photoUrls: z.array(z.string()),
-    tags: z.array(TagSchema).optional(),
+    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    name: z.string().optional().openapi({ type: 'string', example: 'doggie' }),
+    category: CategorySchema,
+    photoUrls: z
+      .array(
+        z
+          .string()
+          .optional()
+          .openapi({ type: 'string', xml: { name: 'photoUrl' } }),
+      )
+      .optional()
+      .openapi({
+        type: 'array',
+        xml: { wrapped: true },
+        items: { type: 'string', xml: { name: 'photoUrl' } },
+      }),
+    tags: z
+      .array(TagSchema)
+      .optional()
+      .openapi({
+        type: 'array',
+        xml: { wrapped: true },
+        items: { $ref: '#/components/schemas/Tag' },
+      }),
     status: z
       .enum(['available', 'pending', 'sold'])
-      .openapi({ description: 'pet status in the store' })
-      .optional(),
+      .optional()
+      .openapi({
+        type: 'string',
+        description: 'pet status in the store',
+        enum: ['available', 'pending', 'sold'],
+      }),
+  })
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'integer', format: 'int64', example: 10 },
+      name: { type: 'string', example: 'doggie' },
+      category: { $ref: '#/components/schemas/Category' },
+      photoUrls: {
+        type: 'array',
+        xml: { wrapped: true },
+        items: { type: 'string', xml: { name: 'photoUrl' } },
+      },
+      tags: { type: 'array', xml: { wrapped: true }, items: { $ref: '#/components/schemas/Tag' } },
+      status: {
+        type: 'string',
+        description: 'pet status in the store',
+        enum: ['available', 'pending', 'sold'],
+      },
+    },
+    xml: { name: 'pet' },
   })
   .openapi('Pet')
 
 const ApiResponseSchema = z
-  .object({ code: z.int32(), type: z.string(), message: z.string() })
+  .object({
+    code: z.int32().openapi({ type: 'integer', format: 'int32' }),
+    type: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
+  })
   .partial()
+  .optional()
+  .openapi({
+    type: 'object',
+    properties: {
+      code: { type: 'integer', format: 'int32' },
+      type: { type: 'string' },
+      message: { type: 'string' },
+    },
+    xml: { name: '##default' },
+  })
   .openapi('ApiResponse')
 
 const petstore_authSecurityScheme = {
@@ -94,17 +247,23 @@ const PetRequestBody = {
 const UserArrayRequestBody = {
   description: 'List of user object',
   required: false,
-  content: { 'application/json': { schema: z.array(UserSchema) } },
+  content: {
+    'application/json': {
+      schema: z
+        .array(UserSchema)
+        .optional()
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+    },
+  },
 }
 
 export const putPetRoute = createRoute({
-  tags: ['pet'],
   method: 'put',
   path: '/pet',
-  operationId: 'updatePet',
+  tags: ['pet'],
   summary: 'Update an existing pet',
   description: 'Update an existing pet by Id',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'updatePet',
   request: {
     body: {
       description: 'Update an existent pet in the store',
@@ -128,16 +287,16 @@ export const putPetRoute = createRoute({
     404: { description: 'Pet not found' },
     422: { description: 'Validation exception' },
   },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const postPetRoute = createRoute({
-  tags: ['pet'],
   method: 'post',
   path: '/pet',
-  operationId: 'addPet',
+  tags: ['pet'],
   summary: 'Add a new pet to the store',
   description: 'Add a new pet to the store',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'addPet',
   request: {
     body: {
       description: 'Create a new pet in the store',
@@ -160,76 +319,117 @@ export const postPetRoute = createRoute({
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
   },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const getPetFindByStatusRoute = createRoute({
-  tags: ['pet'],
   method: 'get',
   path: '/pet/findByStatus',
-  operationId: 'findPetsByStatus',
+  tags: ['pet'],
   summary: 'Finds Pets by status',
   description: 'Multiple status values can be provided with comma separated strings',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'findPetsByStatus',
   request: {
     query: z.object({
       status: z
         .enum(['available', 'pending', 'sold'])
         .default('available')
-        .openapi({ param: { in: 'query', name: 'status', required: false } }),
+        .optional()
+        .openapi({
+          param: { name: 'status', in: 'query', required: false },
+          type: 'string',
+          default: 'available',
+          enum: ['available', 'pending', 'sold'],
+        }),
     }),
   },
   responses: {
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(PetSchema) },
-        'application/xml': { schema: z.array(PetSchema) },
+        'application/json': {
+          schema: z
+            .array(PetSchema)
+            .optional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
+        },
+        'application/xml': {
+          schema: z
+            .array(PetSchema)
+            .optional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
+        },
       },
     },
     400: { description: 'Invalid status value' },
   },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const getPetFindByTagsRoute = createRoute({
-  tags: ['pet'],
   method: 'get',
   path: '/pet/findByTags',
-  operationId: 'findPetsByTags',
+  tags: ['pet'],
   summary: 'Finds Pets by tags',
   description:
     'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'findPetsByTags',
   request: {
     query: z.object({
       tags: z
-        .array(z.string())
-        .openapi({ param: { in: 'query', name: 'tags', required: false } })
-        .optional(),
+        .array(
+          z
+            .string()
+            .optional()
+            .openapi({ param: { name: 'tags', in: 'query', required: false }, type: 'string' }),
+        )
+        .optional()
+        .openapi({
+          param: { name: 'tags', in: 'query', required: false },
+          type: 'array',
+          items: { type: 'string' },
+        }),
     }),
   },
   responses: {
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: z.array(PetSchema) },
-        'application/xml': { schema: z.array(PetSchema) },
+        'application/json': {
+          schema: z
+            .array(PetSchema)
+            .optional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
+        },
+        'application/xml': {
+          schema: z
+            .array(PetSchema)
+            .optional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
+        },
       },
     },
     400: { description: 'Invalid tag value' },
   },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const getPetPetIdRoute = createRoute({
-  tags: ['pet'],
   method: 'get',
   path: '/pet/{petId}',
-  operationId: 'getPetById',
+  tags: ['pet'],
   summary: 'Find pet by ID',
   description: 'Returns a single pet',
-  security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'getPetById',
   request: {
     params: z.object({
-      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z
+        .int64()
+        .openapi({
+          param: { name: 'petId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
   },
   responses: {
@@ -243,72 +443,100 @@ export const getPetPetIdRoute = createRoute({
     400: { description: 'Invalid ID supplied' },
     404: { description: 'Pet not found' },
   },
+  security: [{ api_key: [] }, { petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const postPetPetIdRoute = createRoute({
-  tags: ['pet'],
   method: 'post',
   path: '/pet/{petId}',
-  operationId: 'updatePetWithForm',
+  tags: ['pet'],
   summary: 'Updates a pet in the store with form data',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'updatePetWithForm',
   request: {
     params: z.object({
-      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z
+        .int64()
+        .openapi({
+          param: { name: 'petId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
     query: z.object({
       name: z
         .string()
-        .openapi({ param: { in: 'query', name: 'name', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'name', in: 'query' }, type: 'string' }),
       status: z
         .string()
-        .openapi({ param: { in: 'query', name: 'status', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'status', in: 'query' }, type: 'string' }),
     }),
   },
   responses: { 400: { description: 'Invalid input' } },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const deletePetPetIdRoute = createRoute({
-  tags: ['pet'],
   method: 'delete',
   path: '/pet/{petId}',
-  operationId: 'deletePet',
+  tags: ['pet'],
   summary: 'Deletes a pet',
   description: 'delete a pet',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'deletePet',
   request: {
     headers: z.object({
       api_key: z
         .string()
-        .openapi({ param: { in: 'header', name: 'api_key', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'api_key', in: 'header', required: false }, type: 'string' }),
     }),
     params: z.object({
-      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z
+        .int64()
+        .openapi({
+          param: { name: 'petId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const postPetPetIdUploadImageRoute = createRoute({
-  tags: ['pet'],
   method: 'post',
   path: '/pet/{petId}/uploadImage',
-  operationId: 'uploadFile',
+  tags: ['pet'],
   summary: 'uploads an image',
-  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
+  operationId: 'uploadFile',
   request: {
-    body: { required: false, content: { 'application/octet-stream': { schema: z.file() } } },
+    body: {
+      required: false,
+      content: {
+        'application/octet-stream': {
+          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+        },
+      },
+    },
     params: z.object({
-      petId: z.int64().openapi({ param: { in: 'path', name: 'petId', required: true } }),
+      petId: z
+        .int64()
+        .openapi({
+          param: { name: 'petId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
     query: z.object({
       additionalMetadata: z
         .string()
-        .openapi({ param: { in: 'query', name: 'additionalMetadata', required: false } })
-        .optional(),
+        .optional()
+        .openapi({
+          param: { name: 'additionalMetadata', in: 'query', required: false },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -317,31 +545,39 @@ export const postPetPetIdUploadImageRoute = createRoute({
       content: { 'application/json': { schema: ApiResponseSchema } },
     },
   },
+  security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
 })
 
 export const getStoreInventoryRoute = createRoute({
-  tags: ['store'],
   method: 'get',
   path: '/store/inventory',
-  operationId: 'getInventory',
+  tags: ['store'],
   summary: 'Returns pet inventories by status',
   description: 'Returns a map of status codes to quantities',
-  security: [{ api_key: [] }],
+  operationId: 'getInventory',
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: z.record(z.string(), z.int32()) } },
+      content: {
+        'application/json': {
+          schema: z
+            .record(z.string(), z.int32().optional().openapi({ type: 'integer', format: 'int32' }))
+            .optional()
+            .openapi({ type: 'object' }),
+        },
+      },
     },
   },
+  security: [{ api_key: [] }],
 })
 
 export const postStoreOrderRoute = createRoute({
-  tags: ['store'],
   method: 'post',
   path: '/store/order',
-  operationId: 'placeOrder',
+  tags: ['store'],
   summary: 'Place an order for a pet',
   description: 'Place a new order in the store',
+  operationId: 'placeOrder',
   request: {
     body: {
       required: false,
@@ -363,16 +599,22 @@ export const postStoreOrderRoute = createRoute({
 })
 
 export const getStoreOrderOrderIdRoute = createRoute({
-  tags: ['store'],
   method: 'get',
   path: '/store/order/{orderId}',
-  operationId: 'getOrderById',
+  tags: ['store'],
   summary: 'Find purchase order by ID',
   description:
     'For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.',
+  operationId: 'getOrderById',
   request: {
     params: z.object({
-      orderId: z.int64().openapi({ param: { in: 'path', name: 'orderId', required: true } }),
+      orderId: z
+        .int64()
+        .openapi({
+          param: { name: 'orderId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
   },
   responses: {
@@ -389,16 +631,22 @@ export const getStoreOrderOrderIdRoute = createRoute({
 })
 
 export const deleteStoreOrderOrderIdRoute = createRoute({
-  tags: ['store'],
   method: 'delete',
   path: '/store/order/{orderId}',
-  operationId: 'deleteOrder',
+  tags: ['store'],
   summary: 'Delete purchase order by ID',
   description:
     'For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors',
+  operationId: 'deleteOrder',
   request: {
     params: z.object({
-      orderId: z.int64().openapi({ param: { in: 'path', name: 'orderId', required: true } }),
+      orderId: z
+        .int64()
+        .openapi({
+          param: { name: 'orderId', in: 'path', required: true },
+          type: 'integer',
+          format: 'int64',
+        }),
     }),
   },
   responses: {
@@ -408,12 +656,12 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
 })
 
 export const postUserRoute = createRoute({
-  tags: ['user'],
   method: 'post',
   path: '/user',
-  operationId: 'createUser',
+  tags: ['user'],
   summary: 'Create user',
   description: 'This can only be done by the logged in user.',
+  operationId: 'createUser',
   request: {
     body: {
       description: 'Created user object',
@@ -437,14 +685,24 @@ export const postUserRoute = createRoute({
 })
 
 export const postUserCreateWithListRoute = createRoute({
-  tags: ['user'],
   method: 'post',
   path: '/user/createWithList',
-  operationId: 'createUsersWithListInput',
+  tags: ['user'],
   summary: 'Creates list of users with given input array',
   description: 'Creates list of users with given input array',
+  operationId: 'createUsersWithListInput',
   request: {
-    body: { required: false, content: { 'application/json': { schema: z.array(UserSchema) } } },
+    body: {
+      required: false,
+      content: {
+        'application/json': {
+          schema: z
+            .array(UserSchema)
+            .optional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+        },
+      },
+    },
   },
   responses: {
     200: {
@@ -459,21 +717,21 @@ export const postUserCreateWithListRoute = createRoute({
 })
 
 export const getUserLoginRoute = createRoute({
-  tags: ['user'],
   method: 'get',
   path: '/user/login',
-  operationId: 'loginUser',
+  tags: ['user'],
   summary: 'Logs user into the system',
+  operationId: 'loginUser',
   request: {
     query: z.object({
       username: z
         .string()
-        .openapi({ param: { in: 'query', name: 'username', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'username', in: 'query', required: false }, type: 'string' }),
       password: z
         .string()
-        .openapi({ param: { in: 'query', name: 'password', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'password', in: 'query', required: false }, type: 'string' }),
     }),
   },
   responses: {
@@ -482,16 +740,24 @@ export const getUserLoginRoute = createRoute({
       headers: z.object({
         'X-Rate-Limit': z
           .int32()
-          .openapi({ description: 'calls per hour allowed by the user' })
-          .optional(),
+          .optional()
+          .openapi({
+            type: 'integer',
+            format: 'int32',
+            description: 'calls per hour allowed by the user',
+          }),
         'X-Expires-After': z.iso
           .datetime()
-          .openapi({ description: 'date in UTC when token expires' })
-          .optional(),
+          .optional()
+          .openapi({
+            type: 'string',
+            format: 'date-time',
+            description: 'date in UTC when token expires',
+          }),
       }),
       content: {
-        'application/xml': { schema: z.string() },
-        'application/json': { schema: z.string() },
+        'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) },
+        'application/json': { schema: z.string().optional().openapi({ type: 'string' }) },
       },
     },
     400: { description: 'Invalid username/password supplied' },
@@ -499,23 +765,25 @@ export const getUserLoginRoute = createRoute({
 })
 
 export const getUserLogoutRoute = createRoute({
-  tags: ['user'],
   method: 'get',
   path: '/user/logout',
-  operationId: 'logoutUser',
+  tags: ['user'],
   summary: 'Logs out current logged in user session',
+  operationId: 'logoutUser',
   responses: { default: { description: 'successful operation' } },
 })
 
 export const getUserUsernameRoute = createRoute({
-  tags: ['user'],
   method: 'get',
   path: '/user/{username}',
-  operationId: 'getUserByName',
+  tags: ['user'],
   summary: 'Get user by user name',
+  operationId: 'getUserByName',
   request: {
     params: z.object({
-      username: z.string().openapi({ param: { in: 'path', name: 'username', required: true } }),
+      username: z
+        .string()
+        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
     }),
   },
   responses: {
@@ -532,12 +800,12 @@ export const getUserUsernameRoute = createRoute({
 })
 
 export const putUserUsernameRoute = createRoute({
-  tags: ['user'],
   method: 'put',
   path: '/user/{username}',
-  operationId: 'updateUser',
+  tags: ['user'],
   summary: 'Update user',
   description: 'This can only be done by the logged in user.',
+  operationId: 'updateUser',
   request: {
     body: {
       description: 'Update an existent user in the store',
@@ -549,22 +817,26 @@ export const putUserUsernameRoute = createRoute({
       },
     },
     params: z.object({
-      username: z.string().openapi({ param: { in: 'path', name: 'username', required: true } }),
+      username: z
+        .string()
+        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
     }),
   },
   responses: { default: { description: 'successful operation' } },
 })
 
 export const deleteUserUsernameRoute = createRoute({
-  tags: ['user'],
   method: 'delete',
   path: '/user/{username}',
-  operationId: 'deleteUser',
+  tags: ['user'],
   summary: 'Delete user',
   description: 'This can only be done by the logged in user.',
+  operationId: 'deleteUser',
   request: {
     params: z.object({
-      username: z.string().openapi({ param: { in: 'path', name: 'username', required: true } }),
+      username: z
+        .string()
+        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
     }),
   },
   responses: {

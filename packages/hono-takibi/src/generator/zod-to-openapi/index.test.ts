@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Schemas } from '../../openapi/index.js'
+import type { Schema } from '../../openapi/index.js'
 import { zodToOpenAPI } from './index.js'
 
 // Test run
@@ -7,7 +7,7 @@ import { zodToOpenAPI } from './index.js'
 
 describe('zodToOpenAPI', () => {
   describe('ref', () => {
-    it.concurrent.each<[Schemas, string]>([
+    it.concurrent.each<[Schema, string]>([
       [{ $ref: '#/components/schemas/Test' }, 'TestSchema'],
       [
         {
@@ -28,7 +28,7 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('oneOf', () => {
-    it.concurrent.each<[Schemas, string]>([
+    it.concurrent.each<[Schema, string]>([
       [
         {
           type: 'object',
@@ -75,7 +75,7 @@ describe('zodToOpenAPI', () => {
     // anyOf
     // not support zod-to-openapi
     describe('anyOf', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [
           {
             type: 'object',
@@ -123,7 +123,7 @@ describe('zodToOpenAPI', () => {
     // allOf
     // not support zod-to-openapi
     describe('allOf', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [
           {
             description:
@@ -289,7 +289,7 @@ describe('zodToOpenAPI', () => {
     // TODO add not
 
     describe('const', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [{ const: 'fixed' }, 'z.literal("fixed").optional()'],
         [{ const: 'fixed', nullable: true }, 'z.literal("fixed").nullable().optional()'],
         [
@@ -303,7 +303,7 @@ describe('zodToOpenAPI', () => {
 
     // enum
     describe('enum', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [{ enum: ['A', 'B'] }, 'z.enum(["A","B"]).optional().openapi({"enum":["A","B"]})'],
         [
           { enum: ['A', 'B'], type: ['string'], nullable: true },
@@ -403,7 +403,7 @@ describe('zodToOpenAPI', () => {
 
     // string
     describe('string', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [{ type: 'string' }, 'z.string().optional().openapi({"type":"string"})'],
         [
           { type: ['string'], nullable: true },
@@ -531,7 +531,7 @@ describe('zodToOpenAPI', () => {
       // number
       describe('number', () => {
         describe('type: number', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [{ type: 'number' }, 'z.number().optional().openapi({"type":"number"})'],
             [
               { type: ['number'], nullable: true },
@@ -611,7 +611,7 @@ describe('zodToOpenAPI', () => {
         })
 
         describe('type: number, format: float', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [
               { type: 'number', format: 'float' },
               'z.float32().optional().openapi({"type":"number","format":"float"})',
@@ -645,7 +645,7 @@ describe('zodToOpenAPI', () => {
       // integer
       describe('integer', () => {
         describe('type: integer', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [{ type: 'integer' }, 'z.int().optional().openapi({"type":"integer"})'],
             [
               { type: ['integer'], nullable: true },
@@ -721,7 +721,7 @@ describe('zodToOpenAPI', () => {
         })
 
         describe('type: integer, format: int32', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [
               { type: 'integer', format: 'int32' },
               'z.int32().optional().openapi({"type":"integer","format":"int32"})',
@@ -800,7 +800,7 @@ describe('zodToOpenAPI', () => {
         })
 
         describe('type: integer, format: int64', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [
               { type: 'integer', format: 'int64' },
               'z.int64().optional().openapi({"type":"integer","format":"int64"})',
@@ -879,7 +879,7 @@ describe('zodToOpenAPI', () => {
         })
 
         describe('type: integer, format: bigint', () => {
-          it.concurrent.each<[Schemas, string]>([
+          it.concurrent.each<[Schema, string]>([
             [
               { type: 'integer', format: 'bigint' },
               'z.bigint().optional().openapi({"type":"integer","format":"bigint"})',
@@ -960,7 +960,7 @@ describe('zodToOpenAPI', () => {
 
       // boolean
       describe('boolean', () => {
-        it.concurrent.each<[Schemas, string]>([
+        it.concurrent.each<[Schema, string]>([
           [{ type: 'boolean' }, 'z.boolean().optional().openapi({"type":"boolean"})'],
           [
             { type: ['boolean'], nullable: true },
@@ -994,7 +994,7 @@ describe('zodToOpenAPI', () => {
 
     // array
     describe('array', () => {
-      it.concurrent.each<[Schemas, string]>([
+      it.concurrent.each<[Schema, string]>([
         [
           { type: 'array', items: { type: 'string' } },
           'z.array(z.string().optional().openapi({"type":"string"})).optional().openapi({"type":"array","items":{"type":"string"}})',
@@ -1110,7 +1110,7 @@ describe('zodToOpenAPI', () => {
 
       // object
       describe('object', () => {
-        it.concurrent.each<[Schemas, string]>([
+        it.concurrent.each<[Schema, string]>([
           [{ type: 'object' }, 'z.object({}).optional().openapi({"type":"object"})'],
           [
             { type: 'object', nullable: true },
@@ -1208,7 +1208,7 @@ describe('zodToOpenAPI', () => {
 
       // null
       describe('null', () => {
-        it.concurrent.each<[Schemas, string]>([
+        it.concurrent.each<[Schema, string]>([
           [{ type: 'null' }, 'z.null().nullable().optional().openapi({"type":"null"})'],
           [
             { type: 'null', nullable: true },
@@ -1228,7 +1228,7 @@ describe('zodToOpenAPI', () => {
       })
 
       describe('any', () => {
-        it.concurrent.each<[Schemas, string]>([
+        it.concurrent.each<[Schema, string]>([
           [
             {
               // biome-ignore lint: test
