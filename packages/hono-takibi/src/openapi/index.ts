@@ -70,6 +70,59 @@ export type OpenAPI = BaseOpenAPI & {
 }
 
 /**
+ * Components section of OpenAPI spec
+ */
+export type Components = {
+  readonly schemas?: Record<string, Schema>
+  readonly responses?: Record<string, Responses>
+  readonly parameters?: Record<string, Parameter>
+  readonly examples?: Record<
+    string,
+    {
+      readonly summary?: string
+      readonly description?: string
+      readonly dataValue: unknown
+      readonly serializedValue: string
+      readonly externalValue?: string
+      readonly value: unknown
+    }
+  >
+  readonly requestBodies?: Record<string, RequestBody>
+  readonly headers?: Record<string, Header | Reference>
+  readonly securitySchemes?: {
+    readonly [k: string]:
+      | {
+          readonly type?: string
+          readonly description?: string
+          readonly name?: string
+          readonly in?: string
+          readonly scheme?: string
+          readonly bearerFormat?: string
+          readonly flows?: OAuthFlow
+          readonly password?: OAuthFlow
+          readonly clientCredentials?: OAuthFlow
+          readonly authorizationCode?: OAuthFlow
+          readonly deviceAuthorization?: OAuthFlow
+          readonly openIdConnectUrl?: string
+          readonly oauth2MetadataUrl?: string
+          readonly deprecated?: boolean
+        }
+      | Reference
+  }
+  readonly links?: Record<string, Link | Reference>
+  readonly callbacks?: Record<string, unknown>
+}
+
+type OAuthFlow = {
+  readonly implicit?: {
+    readonly authorizationUrl: string
+    readonly deviceAuthorizationUrl: string
+    readonly tokenUrl: string
+    readonly refreshUrl: string
+    readonly scopes: Record<string, string>
+  }
+}
+/**
  * OpenAPI paths with PathItem definitions
  */
 export type OpenAPIPaths = {
@@ -202,35 +255,16 @@ type Encoding = {
   }
   readonly encoding?: {
     readonly [k: string]: Encoding
-  }[]
+  }
   readonly prefixEncoding?: Encoding
   readonly itemEncoding?: Encoding
-}[]
+}
 
 /**
  * Content type definitions with their schemas
  */
 export type Content = {
-  readonly [k: string]:
-    | {
-        readonly schema: Schema
-        readonly itemSchema?: Schema
-        readonly example?: unknown
-        readonly examples?: {
-          readonly [k: string]: {
-            readonly summary?: string
-            readonly description?: string
-            readonly value?: unknown
-            readonly externalValue?: string
-          }
-        }
-        readonly encoding?: {
-          readonly [k: string]: Encoding
-        }
-        readonly prefixEncoding?: Encoding
-        readonly itemEncoding?: Encoding
-      }
-    | Reference
+  readonly [k: string]: Media
 }
 
 /**
@@ -238,11 +272,20 @@ export type Content = {
  */
 
 export type PathItem = {
+  readonly $ref?: Ref
   readonly summary?: string
   readonly description?: string
-  readonly parameters?: readonly string[]
-} & {
-  [Method in 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options' | 'trace']?: Operation
+  readonly get?: Operation
+  readonly put?: Operation
+  readonly post?: Operation
+  readonly options?: Operation
+  readonly head?: Operation
+  readonly patch?: Operation
+  readonly trace?: Operation
+  readonly query?: Operation
+  readonly additionalOperations?: Record<string, Operation>
+  readonly servers?: readonly Server[]
+  readonly parameters?: readonly Parameter[] | Reference[]
 }
 
 /**
@@ -257,9 +300,9 @@ export type Operation = {
     readonly url: string
   }
   readonly operationId?: string
-  readonly parameters?: readonly Parameter[] | Reference
-  readonly requestBody?: RequestBody | Reference
-  readonly responses: Responses
+  readonly parameters?: readonly Parameter[]
+  readonly requestBody?: RequestBody
+  readonly responses: Record<string, Responses>
   readonly callbacks?: Record<
     string,
     {
@@ -305,20 +348,17 @@ export type Operation = {
 //   }
 // }
 
-
 export type Responses = {
+  readonly $ref?: Ref
   readonly summary?: string
   readonly description?: string
-  readonly content?: {
-    [k: string]: Media | Reference
-  }
+  readonly content?: Content
   readonly headers?: {
     readonly [k: string]: Header | Reference
-  },
+  }
   readonly links?: {
     readonly [k: string]: Link | Reference
   }
-
 }
 
 type Discriminator = {
@@ -383,58 +423,18 @@ export type Schema = {
 }
 
 /**
- * Components section of OpenAPI spec
- */
-export type Components = {
-  readonly schemas?: Record<string, Schema>
-  readonly parameters?: Record<string, Parameter>
-  readonly requestBodies?: Record<string, RequestBody>
-  readonly responses?: Record<string, Responses>
-  readonly headers?: Record<
-    string,
-    {
-      readonly required: boolean | undefined
-      readonly description?: string
-      readonly schema: Schema
-    }
-  >
-  readonly examples?: Record<
-    string,
-    {
-      readonly summary?: string
-      readonly value?: unknown
-      readonly description?: string
-    }
-  >
-  readonly links?: Record<
-    string,
-    {
-      readonly operationId?: string
-      readonly parameters?: Record<string, string>
-      readonly description?: string
-    }
-  >
-  readonly callbacks?: Record<string, unknown>
-  readonly securitySchemes?: {
-    readonly [k: string]: {
-      readonly type?: string
-      readonly name?: string
-      readonly scheme?: string
-      readonly bearerFormat?: string
-    }
-  }
-}
-
-/**
  * Parameter definition
  */
 export type Parameter = {
+  readonly $ref?: Ref
   readonly name: string
   readonly in: 'path' | 'query' | 'header' | 'cookie'
   readonly description?: string
   readonly required?: boolean
   readonly deprecated?: boolean
   readonly allowEmptyValue?: boolean
+  readonly schema: Schema
+  readonly content?: Content
   readonly example?: unknown
   readonly examples?: Examples
 }
@@ -444,9 +444,7 @@ export type Parameter = {
  */
 export type RequestBody = {
   readonly description?: string
-  readonly rcontent?: {
-    readonly [k: string]: Media | Reference
-  }
+  readonly content?: Record<string, Media | Reference>
   readonly required?: boolean
 }
 
@@ -458,6 +456,6 @@ type Media = {
   readonly encoding?: {
     readonly [k: string]: Encoding
   }
-  readonly prefixEncoding?: Encoding[]
-  readonly itemEncoding?: Encoding[]
+  readonly prefixEncoding?: Encoding
+  readonly itemEncoding?: Encoding
 }
