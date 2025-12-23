@@ -1,5 +1,5 @@
-import type { Components, Content, RequestBody } from '../../../../openapi/index.js'
-import { toIdentifier } from '../../../../utils/index.js'
+import type { Components, Content, RequestBody, Schema } from '../../../../openapi/index.js'
+import { isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
 
@@ -16,13 +16,14 @@ const requestBodyConstName = (key: string): string => {
   return toIdentifier(base)
 }
 
+const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
+
 /**
  * Generates a media type expression.
  */
-export const mediaTypeExpr = (
-  media: Content[string],
-  options?: { coerceDate?: boolean },
-): string => {
+export const mediaTypeExpr = (media: unknown, options?: { coerceDate?: boolean }): string => {
+  if (!isMedia(media)) return '{schema:z.any()}'
   const schema = options?.coerceDate
     ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
     : zodToOpenAPI(media.schema)

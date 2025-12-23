@@ -29,9 +29,7 @@ export function links(components: Components, exportSchema: boolean): string {
 /**
  * Generates a links property expression for responses.
  */
-export const linksPropExpr = (
-  links: Responses['links'] | undefined,
-): string | undefined => {
+export const linksPropExpr = (links: Responses['links'] | undefined): string | undefined => {
   if (!links) return undefined
 
   const entries = Object.entries(links).map(([name, link]) => {

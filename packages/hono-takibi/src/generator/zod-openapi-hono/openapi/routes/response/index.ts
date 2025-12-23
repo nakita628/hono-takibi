@@ -157,7 +157,7 @@ export function response(
           const examples = media.examples
           const exampleString =
             examples && Object.keys(examples).length > 0
-              ? `,examples:{${Object.entries(examples)
+              ? `,examples:{${Object.entries(examples as Record<string, unknown>)
                   .map(([exampleKey, example]) => {
                     if (isRef(example)) {
                       if (example.$ref.startsWith('#/components/examples/')) {
@@ -174,6 +174,9 @@ export function response(
                       return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
                     }
 
+                    if (!isRecord(example)) {
+                      return `${JSON.stringify(exampleKey)}:${JSON.stringify(example)}`
+                    }
                     const fields = [
                       example.summary !== undefined
                         ? `summary:${JSON.stringify(example.summary)}`
@@ -278,14 +281,14 @@ export function response(
         const media = content[ct]
         const z = sharedZ ?? zodToOpenAPI(media.schema)
 
-        const examples = media.examples
-        const exampleString =
-          examples && Object.keys(examples).length > 0
-            ? `,examples:{${Object.entries(examples)
-                .map(([exampleKey, example]) => {
-                  if (isRef(example)) {
-                    if (example.$ref.startsWith('#/components/examples/')) {
-                      const key = example.$ref.split('/').pop()
+      const examples = media.examples
+      const exampleString =
+        examples && Object.keys(examples).length > 0
+          ? `,examples:{${Object.entries(examples as Record<string, unknown>)
+              .map(([exampleKey, example]) => {
+                if (isRef(example)) {
+                  if (example.$ref.startsWith('#/components/examples/')) {
+                    const key = example.$ref.split('/').pop()
                       const resolved = resolveRef(
                         example.$ref,
                         '#/components/examples/',
@@ -294,18 +297,21 @@ export function response(
                       if (key && resolved && options?.useComponentRefs) {
                         return `${JSON.stringify(exampleKey)}:${toIdentifier(ensureSuffix(key, 'Example'))}`
                       }
-                    }
-                    return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
                   }
+                  return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
+                }
 
-                  const fields = [
-                    example.summary !== undefined
-                      ? `summary:${JSON.stringify(example.summary)}`
-                      : undefined,
-                    example.value !== undefined
-                      ? `value:${JSON.stringify(example.value)}`
-                      : undefined,
-                  ].filter((field) => field !== undefined)
+                if (!isRecord(example)) {
+                  return `${JSON.stringify(exampleKey)}:${JSON.stringify(example)}`
+                }
+                const fields = [
+                  example.summary !== undefined
+                    ? `summary:${JSON.stringify(example.summary)}`
+                    : undefined,
+                  example.value !== undefined
+                    ? `value:${JSON.stringify(example.value)}`
+                    : undefined,
+                ].filter((field) => field !== undefined)
 
                   return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
                 })

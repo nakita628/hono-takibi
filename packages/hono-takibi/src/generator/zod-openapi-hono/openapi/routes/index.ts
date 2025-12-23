@@ -1,4 +1,4 @@
-import type { OpenAPI, Operation, Parameters } from '../../../../openapi/index.js'
+import type { OpenAPI, Operation, Parameter } from '../../../../openapi/index.js'
 import { route } from './route.js'
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
@@ -21,8 +21,8 @@ const isComponentsParameterRef = (ref: string): ref is `#/components/parameters/
 
 const resolveParamRef = (
   p: { $ref: string },
-  componentsParameters: Record<string, Parameters> | undefined,
-): Parameters | undefined => {
+  componentsParameters: Record<string, Parameter> | undefined,
+): Parameter | undefined => {
   if (!componentsParameters) return undefined
   if (!isComponentsParameterRef(p.$ref)) return undefined
   const key = p.$ref.split('/').pop()
@@ -43,7 +43,7 @@ export function routeCode(
   const components = openapi.components
 
   const isOp = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
-  const isParam = (p: unknown): p is Parameters => isRecord(p) && 'name' in p && 'in' in p
+  const isParam = (p: unknown): p is Parameter => isRecord(p) && 'name' in p && 'in' in p
   const isParamRef = (p: unknown): p is { $ref: string } =>
     isRecord(p) && typeof p.$ref === 'string'
 
@@ -54,8 +54,8 @@ export function routeCode(
     for (const method of METHODS) {
       const maybeOp = pathItem[method]
       if (!isOp(maybeOp)) continue
-      const mergedParams: Parameters[] | undefined = (() => {
-        const out: Parameters[] = []
+      const mergedParams: Parameter[] | undefined = (() => {
+        const out: Parameter[] = []
         const push = (p: unknown) => {
           if (isParam(p)) return void out.push(p)
           if (isParamRef(p)) {

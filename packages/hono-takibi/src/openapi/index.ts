@@ -63,15 +63,43 @@ type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.bundle>>
  */
 export type OpenAPI = BaseOpenAPI & {
   readonly openapi?: string
-  readonly servers?: string | readonly { readonly url: string }[]
+  readonly $self?: string
+  readonly info?: {
+    readonly title?: string
+    readonly summary?: string
+    readonly description?: string
+    readonly termsOfService?: string
+    readonly contact: {
+      readonly name?: string
+      readonly url?: string
+      readonly email?: string
+    }
+    readonly license: {
+      readonly name?: string
+      readonly identifier?: string
+      readonly url?: string
+    }
+    readonly version?: string
+  }
+  readonly jsonSchemaDialect?: string
+  readonly servers?: readonly Server[]
+  readonly paths: PathItem
+  readonly webhooks?: Record<string, PathItem>
   readonly components?: Components
+  readonly security?: readonly string[]
+  readonly tags: {
+    readonly name: string
+    readonly summary?: string
+    readonly description?: string
+    readonly externalDocs?: ExternalDocs
+    readonly parent?: string
+    readonly kind?: string
+  }
+  readonly externalDocs?: ExternalDocs
 } & {
   paths: OpenAPIPaths
 }
 
-/**
- * Components section of OpenAPI spec
- */
 export type Components = {
   readonly schemas?: Record<string, Schema>
   readonly responses?: Record<string, Responses>
@@ -129,9 +157,6 @@ export type OpenAPIPaths = {
   readonly [P in keyof NonNullable<BaseOpenAPI['paths']>]: PathItem
 }
 
-/**
- * Data types supported in OpenAPI schemas
- */
 export type Type =
   | 'string'
   | 'number'
@@ -144,9 +169,6 @@ export type Type =
 
 export type Format = FormatString | FormatNumber
 
-/**
- * Format specifications for string types
- */
 export type FormatString =
   // validations
   // | 'max'
@@ -260,18 +282,11 @@ type Encoding = {
   readonly itemEncoding?: Encoding
 }
 
-/**
- * Content type definitions with their schemas
- */
 export type Content = {
   readonly [k: string]: Media
 }
 
-/**
- * Path item definition with HTTP methods and parameters
- */
-
-export type PathItem = {
+type PathItem = {
   readonly $ref?: Ref
   readonly summary?: string
   readonly description?: string
@@ -329,25 +344,6 @@ export type Operation = {
   }[]
 }
 
-/**
- * Response definition with description and content
- */
-// export type ResponseDefinition = {
-//   description?: string
-//   content?: Content
-//   $ref?: string
-//   readonly headers?: Headers
-//   readonly links?: {
-//     readonly [k: string]: {
-//       readonly required?: boolean
-//       readonly operationId?: string
-//       readonly parameters?: Record<string, string>
-//       readonly description?: string
-//       $ref?: string
-//     }
-//   }
-// }
-
 export type Responses = {
   readonly $ref?: Ref
   readonly summary?: string
@@ -372,9 +368,6 @@ type ExternalDocs = {
   readonly description?: string
 }
 
-/**
- * Schema definition for OpenAPI
- */
 export type Schema = {
   readonly discriminator?: Discriminator
   readonly xml?: {
@@ -387,7 +380,7 @@ export type Schema = {
   }
   readonly externalDocs?: ExternalDocs
   readonly example?: unknown
-  //
+  // search properties
   readonly examples?: Examples
   readonly name?: string
   readonly description?: string
@@ -422,9 +415,6 @@ export type Schema = {
   readonly const?: unknown
 }
 
-/**
- * Parameter definition
- */
 export type Parameter = {
   readonly $ref?: Ref
   readonly name: string
@@ -439,9 +429,6 @@ export type Parameter = {
   readonly examples?: Examples
 }
 
-/**
- * Request body definition
- */
 export type RequestBody = {
   readonly description?: string
   readonly content?: Record<string, Media | Reference>

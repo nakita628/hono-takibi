@@ -110,42 +110,18 @@ export async function honoTakibi(): Promise<
     const {
       input,
       output,
-      exportSchemasTypes,
-      exportSchemas,
-      exportParametersTypes,
-      exportParameters,
-      exportSecuritySchemes,
-      exportRequestBodies,
-      exportResponses,
-      exportHeadersTypes,
-      exportHeaders,
-      exportExamples,
-      exportLinks,
-      exportCallbacks,
       template,
       test,
       basePath,
+      componentsOptions,
     } = cli
     const takibiResult = await takibi(
       input,
       output,
-      {
-        exportSchemasTypes,
-        exportSchemas,
-        exportParametersTypes,
-        exportParameters,
-        exportSecuritySchemes,
-        exportRequestBodies,
-        exportResponses,
-        exportHeadersTypes,
-        exportHeaders,
-        exportExamples,
-        exportLinks,
-        exportCallbacks,
-      },
       template,
       test,
       basePath,
+      componentsOptions,
     )
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
@@ -173,6 +149,9 @@ export async function honoTakibi(): Promise<
     ? await takibi(
         c.input,
         zo.output,
+        false, // template
+        false, // test
+        '/', // basePath
         {
           exportSchemasTypes: zo.exportSchemasTypes ?? false,
           exportSchemas: zo.exportSchemas ?? false,
@@ -187,8 +166,6 @@ export async function honoTakibi(): Promise<
           exportLinks: zo.exportLinks ?? false,
           exportCallbacks: zo.exportCallbacks ?? false,
         },
-        false, // template
-        false, // test
       )
     : undefined
 

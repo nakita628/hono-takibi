@@ -336,21 +336,23 @@ export function parseCli(args: readonly string[]):
       readonly value: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
-        readonly exportSchemasTypes: boolean
-        readonly exportSchemas: boolean
-        readonly exportParametersTypes: boolean
-        readonly exportParameters: boolean
-        readonly exportSecuritySchemes: boolean
-        readonly exportRequestBodies: boolean
-        readonly exportResponses: boolean
-        readonly exportHeadersTypes: boolean
-        readonly exportHeaders: boolean
-        readonly exportExamples: boolean
-        readonly exportLinks: boolean
-        readonly exportCallbacks: boolean
         readonly template: boolean
         readonly test: boolean
-        readonly basePath?: string
+        readonly basePath: string
+        readonly componentsOptions?: {
+          readonly exportSchemasTypes: boolean
+          readonly exportSchemas: boolean
+          readonly exportParametersTypes: boolean
+          readonly exportParameters: boolean
+          readonly exportSecuritySchemes: boolean
+          readonly exportRequestBodies: boolean
+          readonly exportResponses: boolean
+          readonly exportHeadersTypes: boolean
+          readonly exportHeaders: boolean
+          readonly exportExamples: boolean
+          readonly exportLinks: boolean
+          readonly exportCallbacks: boolean
+        }
       }
     }
   | {
@@ -382,21 +384,23 @@ export function parseCli(args: readonly string[]):
     value: {
       input,
       output,
-      exportSchemasTypes: args.includes('--export-schemas-types'),
-      exportSchemas: args.includes('--export-schemas'),
-      exportParametersTypes: args.includes('--export-parameters-types'),
-      exportParameters: args.includes('--export-parameters'),
-      exportSecuritySchemes: args.includes('--export-security-schemes'),
-      exportRequestBodies: args.includes('--export-request-bodies'),
-      exportResponses: args.includes('--export-responses'),
-      exportHeadersTypes: args.includes('--export-headers-types'),
-      exportHeaders: args.includes('--export-headers'),
-      exportExamples: args.includes('--export-examples'),
-      exportLinks: args.includes('--export-links'),
-      exportCallbacks: args.includes('--export-callbacks'),
       template: args.includes('--template'),
       test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path'),
+      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
+      componentsOptions: {
+        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
+        exportSchemas: args.includes('--export-schemas') ?? false,
+        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
+        exportParameters: args.includes('--export-parameters') ?? false,
+        exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
+        exportRequestBodies: args.includes('--export-request-bodies') ?? false,
+        exportResponses: args.includes('--export-responses') ?? false,
+        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
+        exportHeaders: args.includes('--export-headers') ?? false,
+        exportExamples: args.includes('--export-examples') ?? false,
+        exportLinks: args.includes('--export-links') ?? false,
+        exportCallbacks: args.includes('--export-callbacks') ?? false,
+      },
     },
   }
 }
@@ -431,14 +435,7 @@ export function normalizeTypes(
  * @param securitySchemes - Record of scheme name to scheme properties.
  * @returns Multiline string of registration statements.
  */
-export function registerComponent(securitySchemes: {
-  readonly [key: string]: {
-    readonly type?: string
-    readonly name?: string
-    readonly scheme?: string
-    readonly bearerFormat?: string
-  }
-}): string {
+export function registerComponent(securitySchemes: Record<string, unknown>): string {
   return Object.entries(securitySchemes)
     .map(([name, scheme]) => {
       return `app.openAPIRegistry.registerComponent('securitySchemes','${name}',${JSON.stringify(scheme)})`

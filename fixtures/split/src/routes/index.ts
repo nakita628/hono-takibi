@@ -151,8 +151,6 @@ export const postACRoute = createRoute({
   method: 'post',
   path: '/A/{C}',
   operationId: 'A',
-  security: [{ A: [] }],
-  callbacks: { A: ACallbacks },
   request: {
     body: ARequestBody,
     params: z.object({ C: CParamsSchema }),
@@ -160,14 +158,14 @@ export const postACRoute = createRoute({
     headers: z.object({ A: AParamsSchema }),
   },
   responses: { 200: AResponse },
+  callbacks: { A: ACallbacks },
+  security: [{ A: [] }],
 })
 
 export const postBCRoute = createRoute({
   method: 'post',
   path: '/B/{C}',
   operationId: 'B',
-  security: [{ B: [] }],
-  callbacks: { B: BCallbacks },
   request: {
     body: BRequestBody,
     params: z.object({ C: CParamsSchema }),
@@ -175,14 +173,14 @@ export const postBCRoute = createRoute({
     headers: z.object({ A: AParamsSchema }),
   },
   responses: { 200: BResponse },
+  callbacks: { B: BCallbacks },
+  security: [{ B: [] }],
 })
 
 export const postCCRoute = createRoute({
   method: 'post',
   path: '/C/{C}',
   operationId: 'C',
-  security: [{ C: [] }],
-  callbacks: { C: CCallbacks },
   request: {
     body: CRequestBody,
     params: z.object({ C: CParamsSchema }),
@@ -190,4 +188,6 @@ export const postCCRoute = createRoute({
     headers: z.object({ A: AParamsSchema }),
   },
   responses: { 200: CResponse },
+  callbacks: { C: CCallbacks },
+  security: [{ C: [] }],
 })

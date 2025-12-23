@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, RequestBody } from '../openapi/index.js'
+import type { Components, Content, RequestBody, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -14,6 +14,8 @@ import {
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
 
 const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
   name.endsWith(fromSuffix)
@@ -98,11 +100,12 @@ const examplesPropExpr = (
 }
 
 const mediaTypeExpr = (
-  media: Content[string],
+  media: unknown,
   components: Components,
   usedExampleKeys: Set<string>,
   imports: Imports | undefined,
 ): string => {
+  if (!isMedia(media)) return '{schema:z.any()}'
   const schema = coerceDateIfNeeded(zodToOpenAPI(media.schema))
   const examples = examplesPropExpr(media.examples, components, usedExampleKeys, imports)
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`

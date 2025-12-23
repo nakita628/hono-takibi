@@ -18,9 +18,7 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
 /**
  * Generates a response content property expression.
  */
-const responseContentPropExpr = (
-  content: Responses['content'] | undefined,
-): string | undefined => {
+const responseContentPropExpr = (content: Responses['content'] | undefined): string | undefined => {
   if (!content) return undefined
   const contentEntries = Object.entries(content).map(([contentType, media]) => {
     return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`

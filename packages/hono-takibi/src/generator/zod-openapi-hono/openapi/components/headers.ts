@@ -24,6 +24,12 @@ const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$re
 
 const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
+const headerSchema = (header: unknown): Schema => {
+  if (!isRecord(header)) return {}
+  const raw = header.schema
+  return isSchema(raw) ? raw : {}
+}
+
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
   const key = $ref.slice(prefix.length)
@@ -54,11 +60,12 @@ export function headers(
         return `${declareConst(constName, 'z.any()', exportSchema)}${headerTypeDecl(constName, exportType)}`
       }
 
-      const schema: Schemas = {
-        ...(header.schema ?? {}),
+      const baseSchema = headerSchema(header)
+      const schema: Schema = {
+        ...baseSchema,
         ...(header.description !== undefined &&
         typeof header.description === 'string' &&
-        header.schema?.description === undefined
+        baseSchema.description === undefined
           ? { description: header.description }
           : {}),
       }

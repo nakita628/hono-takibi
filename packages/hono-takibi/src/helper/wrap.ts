@@ -1,10 +1,12 @@
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 
+type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
+
 export function wrap(
   zod: string,
   schema: Schema,
   meta?: {
-    parameters?: Parameter
+    parameters?: ParameterMeta
     headers?: Header
   },
 ): string {
@@ -36,8 +38,7 @@ export function wrap(
   }
 
   /* why schema.default !== undefined becasue schema.default === 0  // → falsy */
-  const s =
-    schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
+  const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
 
   const isNullable =
     schema.nullable === true ||
@@ -58,7 +59,7 @@ export function wrap(
 
   const openapiSchema = schema ? JSON.stringify(rest) : undefined
   const openapiSchemaBody =
-    openapiSchema && openapiSchema.startsWith('{') && openapiSchema.endsWith('}')
+    openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
   const openapiProps = [

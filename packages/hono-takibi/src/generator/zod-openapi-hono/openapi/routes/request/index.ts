@@ -1,4 +1,4 @@
-import type { Components, Parameter, RequestBody } from '../../../../../openapi/index.js'
+import type { Components, Content, Parameter, RequestBody, Schema } from '../../../../../openapi/index.js'
 import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
@@ -24,6 +24,18 @@ export function request(
 ): string {
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
   const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+  const isSchema = (v: unknown): v is Schema => isRecord(v)
+  const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
+  const isExampleValue = (
+    v: unknown,
+  ): v is NonNullable<Content[string]['examples']>[string] => {
+    if (!isRecord(v)) return false
+    if (isRef(v)) return true
+    const summaryOk = v.summary === undefined || typeof v.summary === 'string'
+    const descriptionOk = v.description === undefined || typeof v.description === 'string'
+    const externalValueOk = v.externalValue === undefined || typeof v.externalValue === 'string'
+    return summaryOk && descriptionOk && externalValueOk
+  }
 
   const toIdentifier = (raw: string): string => {
     const sanitized = sanitizeIdentifier(raw)
@@ -58,7 +70,6 @@ export function request(
   // Early return if no parameters or content
   if (!(parameters || resolvedBodyRef || resolvedBody?.content)) return ''
 
-  const requestBodyContentTypes = Object.keys(resolvedBody?.content || {})
   const requestParams = parameters
     ? (() => {
         const paramsObj = params(parameters)
@@ -73,36 +84,47 @@ export function request(
     return `request:{${requestBodyCode}},`
   }
 
-  if (requestBodyContentTypes.length > 0 && resolvedBody?.content) {
-    const contentWithResolvedExamples = (() => {
-      if (!components?.examples) return resolvedBody.content
-      const out = Object.fromEntries(
-        Object.entries(resolvedBody.content).map(([contentType, media]) => {
-          const examples = media.examples
-          if (!examples || Object.keys(examples).length === 0) return [contentType, media]
+  if (resolvedBody?.content) {
+    const contentEntries = Object.entries(resolvedBody.content).filter(
+      (entry): entry is [string, Content[string]] => isMedia(entry[1]),
+    )
+    if (contentEntries.length === 0) return requestParams
 
-          const resolvedExamples = Object.fromEntries(
-            Object.entries(examples).map(([exampleKey, example]) => {
-              if (isRef(example) && example.$ref.startsWith('#/components/examples/')) {
-                const name = example.$ref.split('/').pop()
-                const resolved = name ? components.examples?.[name] : undefined
-                return [exampleKey, resolved ?? example]
-              }
-              return [exampleKey, example]
-            }),
-          )
+    const contentWithResolvedExamples: Record<string, Content[string]> = {}
+    for (const [contentType, media] of contentEntries) {
+      if (!components?.examples) {
+        contentWithResolvedExamples[contentType] = media
+        continue
+      }
 
-          return [contentType, { ...media, examples: resolvedExamples }]
-        }),
-      )
-      return out
-    })()
+      const examples = media.examples
+      if (!examples || Object.keys(examples).length === 0) {
+        contentWithResolvedExamples[contentType] = media
+        continue
+      }
+
+      const resolvedExamples: Record<string, NonNullable<Content[string]['examples']>[string]> = {}
+      for (const [exampleKey, example] of Object.entries(examples)) {
+        if (isRef(example) && example.$ref.startsWith('#/components/examples/')) {
+          const name = example.$ref.split('/').pop()
+          const resolved = name ? components.examples?.[name] : undefined
+          if (isExampleValue(resolved)) {
+            resolvedExamples[exampleKey] = resolved
+            continue
+          }
+        }
+        if (isExampleValue(example)) {
+          resolvedExamples[exampleKey] = example
+        }
+      }
+
+      contentWithResolvedExamples[contentType] = { ...media, examples: resolvedExamples }
+    }
 
     // Eliminate schema duplication
     const uniqueSchemas = new Map<string, string>()
-    for (const contentType of requestBodyContentTypes) {
-      const { schema } = resolvedBody.content[contentType]
-      const z = zodToOpenAPI(schema)
+    for (const [, media] of contentEntries) {
+      const z = zodToOpenAPI(media.schema)
       uniqueSchemas.set(z, z)
     }
     const required = resolvedBody.required ?? false

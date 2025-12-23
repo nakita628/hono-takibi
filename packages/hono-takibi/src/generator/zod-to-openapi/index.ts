@@ -1,5 +1,6 @@
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Ref, Schema } from '../../openapi/index.js'
+
 import { normalizeTypes, refSchema } from '../../utils/index.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
@@ -10,7 +11,7 @@ import { string } from './z/string.js'
 export function zodToOpenAPI(
   schema: Schema,
   meta?: {
-    parameters?: Parameter
+    parameters?: Pick<Parameter, 'name' | 'in' | 'required'>
     headers?: Header
   },
 ): string {
@@ -154,7 +155,7 @@ export function zodToOpenAPI(
           return refSchema(s.$ref)
         }
       }
-      return zodToOpenAPI(schema, meta)
+      return zodToOpenAPI(s, meta)
     })
     // discriminatedUnion Support hesitant
     // This is because using intersection causes a type error.
