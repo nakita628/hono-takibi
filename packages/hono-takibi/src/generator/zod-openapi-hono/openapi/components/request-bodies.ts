@@ -1,10 +1,7 @@
 import type { Components, Content, RequestBody, Schema } from '../../../../openapi/index.js'
-import { isRecord, toIdentifier } from '../../../../utils/index.js'
+import { isRecord, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
-
-const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
-  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -32,40 +29,45 @@ export const mediaTypeExpr = (media: unknown, options?: { coerceDate?: boolean }
 }
 
 /**
- * Generates a requestBody expression.
- */
-const requestBodyExpr = (body: RequestBody): string => {
-  const required = body.required ?? false
-  const description =
-    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
-  const content = body.content
-  if (!content) {
-    return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
-  }
-
-  const contentEntries = Object.entries(content).map(([contentType, media]) => {
-    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, { coerceDate: true })}`
-  })
-  const contentExpr = `content:{${contentEntries.join(',')}}`
-  return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
-}
-
-/**
  * Generates TypeScript code for OpenAPI component requestBodies.
  *
  * @param components - The OpenAPI components object.
  * @param exportSchema - Whether to export the requestBody variables.
  * @returns A string of TypeScript code with requestBody definitions.
  */
-export function requestBodies(components: Components, exportSchema: boolean): string {
-  const { requestBodies } = components
+export function requestBodies(components: Components, exportRequestBodies: boolean): string {
+  const requestBodies = components.requestBodies
   if (!requestBodies) return ''
 
-  return Object.keys(requestBodies)
-    .map((key) => {
-      const body = requestBodies[key]
-      const expr = body ? requestBodyExpr(body) : '{}'
-      return declareConst(requestBodyConstName(key), expr, exportSchema)
+  const isComponentsRef = (ref: unknown): ref is `#/components/${string}/${string}` =>
+    typeof ref === 'string' && ref.startsWith('#/components/')
+
+  return Object.entries(requestBodies)
+    .flatMap(([name, body]) => {
+      if (body.content) {
+        const content = Object.entries(body.content)
+          .map(([k, mediaOrReference]) => {
+            if ('schema' in mediaOrReference) {
+              return `${JSON.stringify(k)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
+            }
+            if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
+              return `${JSON.stringify(k)}:${refSchema(mediaOrReference.$ref)}`
+            }
+            return undefined
+          })
+          .filter((v): v is string => v !== undefined)
+          .join(',')
+
+        const props = [
+          body.description ? `description:${JSON.stringify(body.description)}` : undefined,
+          `content:{${content}}`,
+          body.required ? `required:${body.required}` : undefined,
+        ]
+          .filter((v) => v !== undefined)
+          .join(',')
+
+        return `${exportRequestBodies ? 'export const' : 'const'} ${requestBodyConstName(name)}={${props}}`
+      }
     })
     .join('\n\n')
 }

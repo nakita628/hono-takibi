@@ -29,9 +29,7 @@ export function parameters(
       const parameter = parameters[k]
       const meta = {
         parameters: {
-          name: parameter.name,
-          in: parameter.in,
-          required: parameter.required,
+          ...parameter,
         },
       }
       const z = zodToOpenAPI(parameter.schema, meta)
