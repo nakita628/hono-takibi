@@ -268,16 +268,10 @@ export type Reference = {
   readonly description?: string
 }
 
-type Encoding = {
+export type Encoding = {
   readonly contentType?: string
   readonly headers?: {
-    readonly [k: string]:
-      | {
-          readonly $ref?: Ref
-          readonly summary?: string
-          readonly description?: string
-        }
-      | Reference
+    readonly [k: string]: Header | Reference
   }
   readonly encoding?: {
     readonly [k: string]: Encoding
