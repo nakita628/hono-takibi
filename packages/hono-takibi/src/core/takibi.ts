@@ -50,7 +50,7 @@ export async function takibi(
   template: boolean,
   test: boolean,
   basePath: string,
-  componentsOptions?: {
+  componentsOptions: {
     readonly exportSchemasTypes: boolean
     readonly exportSchemas: boolean
     readonly exportParametersTypes: boolean

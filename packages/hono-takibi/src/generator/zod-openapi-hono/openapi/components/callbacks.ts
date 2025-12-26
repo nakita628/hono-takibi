@@ -19,8 +19,7 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
   const isCallbacks = (v: unknown): v is Callbacks =>
     typeof v === 'object' && v !== null && !('$ref' in v)
 
-  const isPathItem = (v: unknown): v is PathItem =>
-    typeof v === 'object' && v !== null
+  const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
 
   const isOperation = (v: unknown): v is Operation =>
     typeof v === 'object' && v !== null && 'responses' in v
@@ -67,8 +66,12 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
 
     const props = [
       `content:{${contentEntries}}`,
-      requestBody.required !== undefined ? `required:${JSON.stringify(requestBody.required)}` : undefined,
-      requestBody.description ? `description:${JSON.stringify(requestBody.description)}` : undefined,
+      requestBody.required !== undefined
+        ? `required:${JSON.stringify(requestBody.required)}`
+        : undefined,
+      requestBody.description
+        ? `description:${JSON.stringify(requestBody.description)}`
+        : undefined,
     ]
       .filter(Boolean)
       .join(',')
@@ -101,7 +104,9 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
         }
         const props = [
           callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
-          callbackRef.description ? `description:${JSON.stringify(callbackRef.description)}` : undefined,
+          callbackRef.description
+            ? `description:${JSON.stringify(callbackRef.description)}`
+            : undefined,
         ]
           .filter(Boolean)
           .join(',')
@@ -115,7 +120,9 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
 
   const buildOperationCode = (method: string, operation: Operation): string => {
     const parametersCode = buildParametersCode(operation.parameters)
-    const requestBodyCode = operation.requestBody ? buildRequestBodyCode(operation.requestBody) : undefined
+    const requestBodyCode = operation.requestBody
+      ? buildRequestBodyCode(operation.requestBody)
+      : undefined
     const callbacksCode = buildOperationCallbacksCode(operation.callbacks)
 
     const props = [

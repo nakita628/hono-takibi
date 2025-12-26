@@ -262,7 +262,7 @@ type Link = {
   readonly server?: Server
 }
 
-type Reference = {
+export type Reference = {
   readonly $ref?: Ref
   readonly summary?: string
   readonly description?: string
@@ -290,13 +290,14 @@ export type Content = {
   readonly [k: string]: Media
 }
 
-type PathItem = {
+export type PathItem = {
   readonly $ref?: Ref
   readonly summary?: string
   readonly description?: string
   readonly get?: Operation
   readonly put?: Operation
   readonly post?: Operation
+  readonly delete?: Operation
   readonly options?: Operation
   readonly head?: Operation
   readonly patch?: Operation
@@ -439,7 +440,7 @@ export type RequestBody = {
   readonly required?: boolean
 }
 
-type Media = {
+export type Media = {
   readonly schema: Schema
   readonly itemSchema?: Schema
   readonly example?: unknown
@@ -451,6 +452,6 @@ type Media = {
   readonly itemEncoding?: Encoding
 }
 
-type Callbacks = {
+export type Callbacks = {
   readonly [k: string]: PathItem
 }
