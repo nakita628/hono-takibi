@@ -140,7 +140,9 @@ export type Components = {
       | Reference
   }
   readonly links?: Record<string, Link | Reference>
-  readonly callbacks?: Record<string, unknown>
+  readonly callbacks?: Record<string, Callbacks | Reference>
+  readonly pathItems?: Record<string, PathItem>
+  readonly mediaTypes?: Record<string, Media | Reference>
 }
 
 type OAuthFlow = {
@@ -447,4 +449,8 @@ type Media = {
   }
   readonly prefixEncoding?: Encoding
   readonly itemEncoding?: Encoding
+}
+
+type Callbacks = {
+  readonly [k: string]: PathItem
 }

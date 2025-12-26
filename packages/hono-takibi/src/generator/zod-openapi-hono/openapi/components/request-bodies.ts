@@ -1,4 +1,4 @@
-import type { Components, Content, RequestBody, Schema } from '../../../../openapi/index.js'
+import type { Components, Content, Schema } from '../../../../openapi/index.js'
 import { isRecord, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
@@ -43,7 +43,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
     typeof ref === 'string' && ref.startsWith('#/components/')
 
   return Object.entries(requestBodies)
-    .flatMap(([name, body]) => {
+    .map(([name, body]) => {
       if (body.content) {
         const content = Object.entries(body.content)
           .map(([k, mediaOrReference]) => {
@@ -68,6 +68,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
 
         return `${exportRequestBodies ? 'export const' : 'const'} ${requestBodyConstName(name)}={${props}}`
       }
+      return undefined
     })
     .join('\n\n')
 }

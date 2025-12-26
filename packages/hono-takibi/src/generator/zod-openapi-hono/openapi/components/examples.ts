@@ -1,32 +1,23 @@
 import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 
-const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
-
-const declareConst = (name: string, expr: string, exportExamples: boolean): string =>
-  `${exportExamples ? 'export const' : 'const'} ${name} = ${expr}`
-
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
 /**
  * Generates TypeScript code for OpenAPI component examples.
  *
  * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the example variables.
+ * @param exportExamples - Whether to export the example variables.
  * @returns A string of TypeScript code with example definitions.
  */
-export function examples(components: Components, exportSchema: boolean): string {
+export function examples(components: Components, exportExamples: boolean): string {
   const { examples } = components
   if (!examples) return ''
 
   return Object.keys(examples)
-    .map((key) =>
-      declareConst(
-        toIdentifier(ensureSuffix(key, 'Example')),
-        jsonExpr(examples[key]),
-        exportSchema,
-      ),
-    )
+    .map((k) => {
+      return `${exportExamples ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Example'))} = ${JSON.stringify(examples[k])}`
+    })
     .join('\n\n')
 }
 

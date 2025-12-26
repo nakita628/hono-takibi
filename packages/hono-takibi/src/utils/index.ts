@@ -432,7 +432,7 @@ export function parseCli(args: readonly string[]):
         readonly template: boolean
         readonly test: boolean
         readonly basePath: string
-        readonly componentsOptions?: {
+        readonly componentsOptions: {
           readonly exportSchemasTypes: boolean
           readonly exportSchemas: boolean
           readonly exportParametersTypes: boolean
@@ -646,10 +646,17 @@ export function isUniqueContentSchema(
  * ```
  */
 export function refSchema(
-  $ref:
-    | `#/components/schemas/${string}`
-    | `#/components/parameters/${string}`
-    | `#/components/headers/${string}`,
+  $ref: `#/components/${string}/${string}`,
+  // $ref:
+  // | `#/components/schemas/${string}`
+  // | `#/components/parameters/${string}`
+  // | `#/components/securitySchemes/${string}`
+  // | `#/components/requestBodies/${string}`
+  // | `#/components/responses/${string}`
+  // | `#/components/headers/${string}`
+  // | `#/components/examples/${string}`
+  // | `#/components/links/${string}`
+  // | `#/components/callbacks/${string}`
 ): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
@@ -666,6 +673,34 @@ export function refSchema(
     if (ref.endsWith('HeaderSchema')) return ref
     if (ref.endsWith('Header')) return `${ref}Schema`
     return `${ref}HeaderSchema`
+  }
+  if ($ref.startsWith('#/components/securitySchemes/')) {
+    if (ref.endsWith('SecurityScheme')) return ref
+    return `${ref}SecurityScheme`
+  }
+  if ($ref.startsWith('#/components/requestBodies/')) {
+    if (ref.endsWith('RequestBody')) return ref
+    return `${ref}RequestBody`
+  }
+  if ($ref.startsWith('#/components/responses/')) {
+    if (ref.endsWith('Response')) return ref
+    return `${ref}Response`
+  }
+  if ($ref.startsWith('#/components/headers/')) {
+    if (ref.endsWith('Header')) return ref
+    return `${ref}Header`
+  }
+  if ($ref.startsWith('#/components/examples/')) {
+    if (ref.endsWith('Example')) return ref
+    return `${ref}Example`
+  }
+  if ($ref.startsWith('#/components/links/')) {
+    if (ref.endsWith('Link')) return ref
+    return `${ref}Link`
+  }
+  if ($ref.startsWith('#/components/callbacks/')) {
+    if (ref.endsWith('Callback')) return ref
+    return `${ref}Callback`
   }
   return `${ref}Schema`
 }
