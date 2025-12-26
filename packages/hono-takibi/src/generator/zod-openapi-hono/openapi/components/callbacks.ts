@@ -89,17 +89,45 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
     return `{${entries}}`
   }
 
+  const buildOperationCallbacksCode = (
+    operationCallbacks: Operation['callbacks'],
+  ): string | undefined => {
+    if (!operationCallbacks) return undefined
+
+    const entries = Object.entries(operationCallbacks)
+      .map(([callbackName, callbackRef]) => {
+        if (callbackRef.$ref && isComponentsRef(callbackRef.$ref)) {
+          return `${JSON.stringify(callbackName)}:${refSchema(callbackRef.$ref)}`
+        }
+        const props = [
+          callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
+          callbackRef.description ? `description:${JSON.stringify(callbackRef.description)}` : undefined,
+        ]
+          .filter(Boolean)
+          .join(',')
+        return props ? `${JSON.stringify(callbackName)}:{${props}}` : undefined
+      })
+      .filter(Boolean)
+      .join(',')
+
+    return entries ? `{${entries}}` : undefined
+  }
+
   const buildOperationCode = (method: string, operation: Operation): string => {
+    const parametersCode = buildParametersCode(operation.parameters)
+    const requestBodyCode = operation.requestBody ? buildRequestBodyCode(operation.requestBody) : undefined
+    const callbacksCode = buildOperationCallbacksCode(operation.callbacks)
+
     const props = [
       operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
       operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
       operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
       operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
       operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-      operation.parameters ? `parameters:${buildParametersCode(operation.parameters)}` : undefined,
-      operation.requestBody ? `requestBody:${buildRequestBodyCode(operation.requestBody)}` : undefined,
+      parametersCode ? `parameters:${parametersCode}` : undefined,
+      requestBodyCode ? `requestBody:${requestBodyCode}` : undefined,
       operation.responses ? `responses:${buildResponsesCode(operation.responses)}` : undefined,
-      operation.callbacks ? `callbacks:${JSON.stringify(operation.callbacks)}` : undefined,
+      callbacksCode ? `callbacks:${callbacksCode}` : undefined,
       operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
       operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
       operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
