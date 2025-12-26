@@ -1,25 +1,23 @@
-import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+import { makeCallbacks } from '../../../../helper/components.js'
+import type { Callbacks, Components } from '../../../../openapi/index.js'
 
-const jsonExpr = (value: unknown): string => JSON.stringify(value) ?? 'undefined'
-
-const declareConst = (name: string, expr: string, exportCallbacks: boolean): string =>
-  `${exportCallbacks ? 'export const' : 'const'} ${name} = ${expr}`
-
-const callbackConstName = (key: string): string => toIdentifier(ensureSuffix(key, 'Callback'))
-
-/**
- * Generates TypeScript code for OpenAPI component callbacks.
- *
- * @param components - The OpenAPI components object.
- * @param exportCallbacks - Whether to export the callback variables.
- * @returns A string of TypeScript code with callback definitions.
- */
 export function callbacks(components: Components, exportCallbacks: boolean): string {
   const { callbacks } = components
   if (!callbacks) return ''
 
-  return Object.keys(callbacks)
-    .map((key) => declareConst(callbackConstName(key), jsonExpr(callbacks[key]), exportCallbacks))
+  const isCallbacks = (v: unknown): v is Callbacks =>
+    typeof v === 'object' && v !== null && !('$ref' in v)
+
+  const exportKeyword = exportCallbacks ? 'export ' : ''
+
+  return Object.entries(callbacks)
+    .map(([callbackName, callbackOrRef]) => {
+      if (!isCallbacks(callbackOrRef)) return undefined
+      const callbackCode = makeCallbacks(callbackOrRef)
+      return callbackCode
+        ? `${exportKeyword}const ${callbackName}Callbacks = {${callbackCode}}`
+        : undefined
+    })
+    .filter(Boolean)
     .join('\n\n')
 }

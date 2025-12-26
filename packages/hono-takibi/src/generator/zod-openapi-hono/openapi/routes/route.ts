@@ -1,6 +1,5 @@
 import type { Components, Operation } from '../../../../openapi/index.js'
 import {
-  createRoute,
   escapeStringLiteral,
   methodPath,
   sanitizeIdentifier,
@@ -30,14 +29,17 @@ export function route(
 ): string {
   const {
     tags,
-    operationId,
     summary,
     description,
-    security,
+    externalDocs,
+    operationId,
     parameters,
     requestBody,
     responses,
     callbacks,
+    deprecated,
+    security,
+    servers,
   } = operation
 
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
@@ -48,7 +50,11 @@ export function route(
     return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
   }
   const callbackConstName = (key: string): string => {
-    const base = key.endsWith('Callback') ? key : `${key}Callback`
+    const base = key.endsWith('Callbacks')
+      ? key
+      : key.endsWith('Callback')
+        ? `${key}s`
+        : `${key}Callbacks`
     return toIdentifier(base)
   }
 
@@ -84,18 +90,28 @@ export function route(
   
   const requestParams = request(parameters, requestBody, components, options)
 
+  const routeName = `${methodPath(method, path)}Route`
+  const methodName = `method:'${method}',`
+  const pathName = `path:'${path}',`
   const args = {
-    routeName: `${methodPath(method, path)}Route`,
     tags: tags ? `tags:${tagList},` : '',
-    method: `method:'${method}',`,
-    path: `path:'${path}',`,
-    operationId: operationId ? `operationId:'${operationId}',` : '',
     summary: summary ? `summary:'${escapeStringLiteral(summary)}',` : '',
     description: description ? `description:'${escapeStringLiteral(description)}',` : '',
-    security: security ? `security:${JSON.stringify(security)},` : '',
+    externalDocs: externalDocs ? `externalDocs:${JSON.stringify(externalDocs)},` : '',
+    operationId: operationId ? `operationId:'${operationId}',` : '',
+    request: requestParams ? `${requestParams}` : '',
+    responses: responses ? `responses:{${response(responses, components, options)}},` : '',
     callbacks: callbacksCode,
-    requestParams: requestParams ? `${requestParams}` : '',
-    responses: responses ? `responses:{${response(responses, components, options)}}` : '',
+    deprecated: deprecated ? `deprecated:${deprecated},` : '',
+    security: security ? `security:${JSON.stringify(security)},` : '',
+    servers: servers ? `servers:${JSON.stringify(servers)},` : '',
   }
-  return createRoute(args)
+
+  const properties = [
+    methodName,
+    pathName,
+    ...Object.values(args)
+  ].join('')
+
+  return `export const ${routeName}=createRoute({${properties}})`
 }

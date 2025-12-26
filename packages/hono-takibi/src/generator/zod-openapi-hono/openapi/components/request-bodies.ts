@@ -1,10 +1,7 @@
-import type { Components, Content, RequestBodies } from '../../../../openapi/index.js'
-import { toIdentifier } from '../../../../utils/index.js'
+import type { Components, Content, Schema } from '../../../../openapi/index.js'
+import { isRecord, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { examplesPropExpr } from './examples.js'
-
-const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
-  `${exportSchema ? 'export const' : 'const'} ${name} = ${expr}`
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -16,37 +13,19 @@ const requestBodyConstName = (key: string): string => {
   return toIdentifier(base)
 }
 
+const isSchema = (v: unknown): v is Schema => isRecord(v)
+const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
+
 /**
  * Generates a media type expression.
  */
-export const mediaTypeExpr = (
-  media: Content[string],
-  options?: { coerceDate?: boolean },
-): string => {
+export const mediaTypeExpr = (media: unknown, options?: { coerceDate?: boolean }): string => {
+  if (!isMedia(media)) return '{schema:z.any()}'
   const schema = options?.coerceDate
     ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
     : zodToOpenAPI(media.schema)
   const examples = examplesPropExpr(media.examples)
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
-}
-
-/**
- * Generates a requestBody expression.
- */
-const requestBodyExpr = (body: RequestBodies): string => {
-  const required = body.required ?? false
-  const description =
-    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
-  const content = body.content
-  if (!content) {
-    return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
-  }
-
-  const contentEntries = Object.entries(content).map(([contentType, media]) => {
-    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, { coerceDate: true })}`
-  })
-  const contentExpr = `content:{${contentEntries.join(',')}}`
-  return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
 }
 
 /**
@@ -56,15 +35,40 @@ const requestBodyExpr = (body: RequestBodies): string => {
  * @param exportSchema - Whether to export the requestBody variables.
  * @returns A string of TypeScript code with requestBody definitions.
  */
-export function requestBodies(components: Components, exportSchema: boolean): string {
-  const { requestBodies } = components
+export function requestBodies(components: Components, exportRequestBodies: boolean): string {
+  const requestBodies = components.requestBodies
   if (!requestBodies) return ''
 
-  return Object.keys(requestBodies)
-    .map((key) => {
-      const body = requestBodies[key]
-      const expr = body ? requestBodyExpr(body) : '{}'
-      return declareConst(requestBodyConstName(key), expr, exportSchema)
+  const isComponentsRef = (ref: unknown): ref is `#/components/${string}/${string}` =>
+    typeof ref === 'string' && ref.startsWith('#/components/')
+
+  return Object.entries(requestBodies)
+    .map(([name, body]) => {
+      if (body.content) {
+        const content = Object.entries(body.content)
+          .map(([k, mediaOrReference]) => {
+            if ('schema' in mediaOrReference) {
+              return `${JSON.stringify(k)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
+            }
+            if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
+              return `${JSON.stringify(k)}:${refSchema(mediaOrReference.$ref)}`
+            }
+            return undefined
+          })
+          .filter((v): v is string => v !== undefined)
+          .join(',')
+
+        const props = [
+          body.description ? `description:${JSON.stringify(body.description)}` : undefined,
+          `content:{${content}}`,
+          body.required ? `required:${body.required}` : undefined,
+        ]
+          .filter((v) => v !== undefined)
+          .join(',')
+
+        return `${exportRequestBodies ? 'export const' : 'const'} ${requestBodyConstName(name)}={${props}}`
+      }
+      return undefined
     })
     .join('\n\n')
 }

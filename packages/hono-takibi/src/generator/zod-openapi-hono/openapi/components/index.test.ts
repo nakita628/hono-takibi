@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Components } from '../../../../openapi/index.js'
-import { type ComponentsExportOptions, componentsCode } from './index.js'
+import { componentsCode } from './index.js'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/components/index.test.ts
@@ -19,61 +19,87 @@ const testComponents: Components = {
   },
 }
 
-describe('generateComponentsCode Test', () => {
-  const baseOptions: ComponentsExportOptions = {
-    exportSchemasTypes: false,
-    exportSchemas: false,
-    exportParametersTypes: false,
-    exportParameters: false,
-    exportSecuritySchemes: false,
-    exportRequestBodies: false,
-    exportResponses: false,
-    exportHeadersTypes: false,
-    exportHeaders: false,
-    exportExamples: false,
-    exportLinks: false,
-    exportCallbacks: false,
-  }
-  // #1: exportSchema=true, exportType=true
-  it.concurrent('exportSchema=true, exportType=true', () => {
+describe('componentsCode Test', () => {
+  // #1: exportSchemasTypes=true, exportSchemas=true
+  it.concurrent('exportSchemasTypes=true, exportSchemas=true', () => {
     const result = componentsCode(testComponents, {
-      ...baseOptions,
-      exportSchemas: true,
       exportSchemasTypes: true,
+      exportSchemas: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
     })
-    const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
+    const expected = `export const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
 
 export type Test = z.infer<typeof TestSchema>`
     expect(result).toBe(expected)
   })
-  // #2: exportSchema=true, exportType=false
-  it.concurrent('exportSchema=true, exportType=false', () => {
+  // #2: exportSchemasTypes=true, exportSchemas=false
+  it.concurrent('exportSchemasTypes=true, exportSchemas=false', () => {
     const result = componentsCode(testComponents, {
-      ...baseOptions,
-      exportSchemas: true,
-      exportSchemasTypes: false,
+      exportSchemasTypes: true,
+      exportSchemas: false,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
     })
-    const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
+    const expected = `const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
+
+export type Test = z.infer<typeof TestSchema>`
+    expect(result).toBe(expected)
+  })
+  // #3: exportSchemasTypes=false, exportSchemas=true
+  it.concurrent('exportSchemasTypes=false, exportSchemas=true', () => {
+    const result = componentsCode(testComponents, {
+      exportSchemasTypes: false,
+      exportSchemas: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
+    })
+    const expected = `export const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
 
 `
     expect(result).toBe(expected)
   })
-  // #3: exportSchema=false, exportType=true
-  it.concurrent('exportSchema=false, exportType=true', () => {
+  // #4: exportSchemasTypes=false, exportSchemas=false
+  it.concurrent('exportSchemasTypes=false, exportSchemas=false', () => {
     const result = componentsCode(testComponents, {
-      ...baseOptions,
+      exportSchemasTypes: false,
       exportSchemas: false,
-      exportSchemasTypes: true,
+      exportParametersTypes: false,
+      exportParameters: false,
+      exportSecuritySchemes: false,
+      exportRequestBodies: false,
+      exportResponses: false,
+      exportHeadersTypes: false,
+      exportHeaders: false,
+      exportExamples: false,
+      exportLinks: false,
+      exportCallbacks: false,
     })
-    const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
-
-export type Test = z.infer<typeof TestSchema>`
-    expect(result).toBe(expected)
-  })
-  // #4: exportSchema=false, exportType=false
-  it.concurrent('exportSchema=false, exportType=false', () => {
-    const result = componentsCode(testComponents, baseOptions)
-    const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
+    const expected = `const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
 
 `
     expect(result).toBe(expected)

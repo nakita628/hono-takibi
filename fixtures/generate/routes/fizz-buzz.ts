@@ -10,21 +10,40 @@ export const getFizzbuzzRoute = createRoute({
       number: z.coerce
         .number()
         .min(1)
-        .openapi({ param: { in: 'query', name: 'number', required: false } }),
+        .openapi({
+          param: { name: 'number', in: 'query', required: true },
+          type: 'number',
+          minimum: 1,
+        }),
       details: z
         .stringbool()
-        .openapi({ param: { in: 'query', name: 'details', required: false } })
-        .optional(),
+        .optional()
+        .openapi({ param: { name: 'details', in: 'query', required: false }, type: 'boolean' }),
     }),
   },
   responses: {
     200: {
       description: 'FizzBuzz result',
-      content: { 'application/json': { schema: z.object({ result: z.string() }) } },
+      content: {
+        'application/json': {
+          schema: z
+            .object({ result: z.string().optional().openapi({ type: 'string' }) })
+            .optional()
+            .openapi({ type: 'object', properties: { result: { type: 'string' } } }),
+        },
+      },
     },
     400: {
       description: 'Invalid input',
-      content: { 'application/json': { schema: z.object({ error: z.string() }).partial() } },
+      content: {
+        'application/json': {
+          schema: z
+            .object({ error: z.string().openapi({ type: 'string' }) })
+            .partial()
+            .optional()
+            .openapi({ type: 'object', properties: { error: { type: 'string' } } }),
+        },
+      },
     },
   },
 })

@@ -215,6 +215,9 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const result = await takibi(
         c.input,
         out,
+        false, // template
+        false, // test
+        '/',
         {
           exportSchemasTypes: zo.exportSchemasTypes ?? false,
           exportSchemas: zo.exportSchemas ?? false,
@@ -229,8 +232,6 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
           exportLinks: zo.exportLinks ?? false,
           exportCallbacks: zo.exportCallbacks ?? false,
         },
-        false,
-        false,
       )
       return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
     }

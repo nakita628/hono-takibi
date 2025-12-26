@@ -23,9 +23,9 @@ describe('params', () => {
 
     const expected = {
       query: {
-        page: 'z.string().openapi({param:{in:"query",name:"page",required:true}})',
-        rows: 'z.string().openapi({param:{in:"query",name:"rows",required:true}})',
-      },
+        page: 'z.string().openapi({param:{"name":"page","in":"query","required":true},"type":"string"})',
+        rows: 'z.string().openapi({param:{"name":"rows","in":"query","required":true},"type":"string"})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })
@@ -45,12 +45,11 @@ describe('params', () => {
         in: 'query',
       },
     ])
-
     const expected = {
       query: {
-        page: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"page",required:true}})',
-        rows: 'z.coerce.number().min(0).openapi({param:{in:"query",name:"rows",required:true}})',
-      },
+        page: 'z.coerce.number().min(0).openapi({param:{"name":"page","in":"query","required":true},"type":"number","minimum":0})',
+        rows: 'z.coerce.number().min(0).openapi({param:{"name":"rows","in":"query","required":true},"type":"number","minimum":0})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })
@@ -69,13 +68,11 @@ describe('params', () => {
         in: 'query',
       },
     ])
-
     const expected = {
       query: {
-        page: 'z.coerce.number().min(0).default(1).openapi({param:{in:"query",name:"page",required:true},example:1})',
-      },
+        page: 'z.coerce.number().min(0).default(1).openapi({param:{"name":"page","in":"query","required":true},"type":"number","minimum":0,"default":1,"example":1})'
+      }
     }
-
     expect(result).toStrictEqual(expected)
   })
 
@@ -96,8 +93,8 @@ describe('params', () => {
 
     const expected = {
       query: {
-        page: 'z.coerce.number().max(10).default(10).openapi({param:{in:"query",name:"page",required:true},example:10})',
-      },
+        page: 'z.coerce.number().max(10).default(10).openapi({param:{"name":"page","in":"query","required":true},"type":"number","maximum":10,"default":10,"example":10})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })
@@ -113,8 +110,8 @@ describe('params', () => {
     ])
     const expected = {
       query: {
-        active: 'z.stringbool().openapi({param:{in:"query",name:"active",required:true}})',
-      },
+        active: 'z.stringbool().openapi({param:{"name":"active","in":"query","required":true},"type":"boolean"})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })
@@ -130,8 +127,8 @@ describe('params', () => {
     ])
     const expected = {
       query: {
-        createdAt: 'z.coerce.date().openapi({param:{in:"query",name:"createdAt",required:true}})',
-      },
+        createdAt: 'z.coerce.date().openapi({param:{"name":"createdAt","in":"query","required":true},"type":"date"})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })
@@ -150,11 +147,10 @@ describe('params', () => {
         description: 'Unique identifier of the post.',
       },
     ])
-
     const expected = {
       path: {
-        id: 'z.uuid().openapi({param:{in:"path",name:"id",required:true},example:"123e4567-e89b-12d3-a456-426614174000"})',
-      },
+        id: 'z.uuid().openapi({param:{"name":"id","in":"path","required":true},"type":"string","format":"uuid","example":"123e4567-e89b-12d3-a456-426614174000"})'
+      }
     }
     expect(result).toStrictEqual(expected)
   })

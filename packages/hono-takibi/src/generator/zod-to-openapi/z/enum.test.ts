@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Schemas } from '../../../openapi'
+import type { Schema } from '../../../openapi'
 import { _enum } from './enum'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/enum.test.ts
 
 describe('_enum', () => {
-  it.concurrent.each<[Schemas, string]>([
+  it.concurrent.each<[Schema, string]>([
     [{ enum: ['A', 'B'] }, 'z.enum(["A","B"])'],
     [{ enum: [1, 2] }, 'z.union([z.literal(1),z.literal(2)])'],
     [{ enum: [true, false] }, 'z.union([z.literal(true),z.literal(false)])'],

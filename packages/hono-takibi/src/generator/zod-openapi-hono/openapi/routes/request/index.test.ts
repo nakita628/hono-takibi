@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { request } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/params/request.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/request/index.test.ts
 
 describe('request', () => {
   it.concurrent('request parameters undefined', () => {
@@ -24,7 +24,7 @@ describe('request', () => {
         },
       },
     })
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}}},},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140).optional().openapi({"type":"string","minLength":1,"maxLength":140})}).optional().openapi({"type":"object","properties":{"post":{"type":"string","minLength":1,"maxLength":140}}})}}},},`
     expect(result).toBe(expected)
   })
 
@@ -47,7 +47,7 @@ describe('request', () => {
       undefined,
     )
 
-    const expected = `request:{query:z.object({page:z.string().openapi({param:{in:"query",name:"page",required:true}}),rows:z.string().openapi({param:{in:"query",name:"rows",required:true}})})},`
+    const expected = `request:{query:z.object({page:z.string().openapi({param:{"name":"page","in":"query","required":true},"type":"string"}),rows:z.string().openapi({param:{"name":"rows","in":"query","required":true},"type":"string"})})},`
     expect(result).toBe(expected)
   })
 
@@ -80,8 +80,7 @@ describe('request', () => {
         },
       },
     )
-
-    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140)})}}},params:z.object({id:z.uuid().openapi({param:{in:"path",name:"id",required:true}})})},`
+    const expected = `request:{body:{required:true,content:{'application/json':{schema:z.object({post:z.string().min(1).max(140).optional().openapi({"type":"string","minLength":1,"maxLength":140})}).optional().openapi({"type":"object","properties":{"post":{"type":"string","minLength":1,"maxLength":140}}})}}},params:z.object({id:z.uuid().openapi({param:{"name":"id","in":"path","required":true},"type":"string","format":"uuid"})})},`
     expect(result).toBe(expected)
   })
 
@@ -119,8 +118,7 @@ describe('request', () => {
         },
       },
     )
-
-    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file()}}},params:z.object({petId:z.int64().openapi({param:{in:"path",name:"petId",required:true}})}),query:z.object({additionalMetadata:z.string().optional().openapi({param:{in:"query",name:"additionalMetadata",required:false}})})},`
+    const expected = `request:{body:{required:false,content:{'application/octet-stream':{schema:z.file().optional().openapi({"type":"string","format":"binary"})}}},params:z.object({petId:z.int64().openapi({param:{"name":"petId","in":"path","required":true},"type":"integer","format":"int64"})}),query:z.object({additionalMetadata:z.string().optional().openapi({param:{"name":"additionalMetadata","in":"query","required":false},"type":"string"})})},`
     expect(result).toBe(expected)
   })
 })

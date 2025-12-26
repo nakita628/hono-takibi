@@ -107,46 +107,8 @@ export async function honoTakibi(): Promise<
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const cli = cliResult.value
-    const {
-      input,
-      output,
-      exportSchemasTypes,
-      exportSchemas,
-      exportParametersTypes,
-      exportParameters,
-      exportSecuritySchemes,
-      exportRequestBodies,
-      exportResponses,
-      exportHeadersTypes,
-      exportHeaders,
-      exportExamples,
-      exportLinks,
-      exportCallbacks,
-      template,
-      test,
-      basePath,
-    } = cli
-    const takibiResult = await takibi(
-      input,
-      output,
-      {
-        exportSchemasTypes,
-        exportSchemas,
-        exportParametersTypes,
-        exportParameters,
-        exportSecuritySchemes,
-        exportRequestBodies,
-        exportResponses,
-        exportHeadersTypes,
-        exportHeaders,
-        exportExamples,
-        exportLinks,
-        exportCallbacks,
-      },
-      template,
-      test,
-      basePath,
-    )
+    const { input, output, template, test, basePath, componentsOptions } = cli
+    const takibiResult = await takibi(input, output, template, test, basePath, componentsOptions)
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
       ok: true,
@@ -173,6 +135,9 @@ export async function honoTakibi(): Promise<
     ? await takibi(
         c.input,
         zo.output,
+        false, // template
+        false, // test
+        '/', // basePath
         {
           exportSchemasTypes: zo.exportSchemasTypes ?? false,
           exportSchemas: zo.exportSchemas ?? false,
@@ -187,8 +152,6 @@ export async function honoTakibi(): Promise<
           exportLinks: zo.exportLinks ?? false,
           exportCallbacks: zo.exportCallbacks ?? false,
         },
-        false, // template
-        false, // test
       )
     : undefined
 

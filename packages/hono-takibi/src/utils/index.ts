@@ -3,11 +3,6 @@
  *
  * @param config - The config object to parse.
  */
-const invalidBoolean = (value: unknown, name: string, scope: string): string | undefined =>
-  value !== undefined && typeof value !== 'boolean'
-    ? `Invalid ${name} format for ${scope}: ${String(value)}`
-    : undefined
-
 export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
@@ -161,11 +156,23 @@ export function parseConfig(config: {
 
     if (k === 'schemas' || k === 'parameters' || k === 'headers') {
       const exportTypesValue = 'exportTypes' in v ? v.exportTypes : undefined
-      const exportTypesError = invalidBoolean(exportTypesValue, 'exportTypes', `components.${k}`)
-      if (exportTypesError) return { ok: false, error: exportTypesError }
+      if (exportTypesValue !== undefined && typeof exportTypesValue !== 'boolean') {
+        return {
+          ok: false,
+          error: `Invalid exportTypes format for components.${k}: ${String(exportTypesValue)}`,
+        }
+      }
+      const exportTypes = exportTypesValue ?? false
     }
 
-    const isSplit = v.split === true
+    const splitValue = v.split
+    if (splitValue !== undefined && typeof splitValue !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid split format for components.${k}: ${String(splitValue)}`,
+      }
+    }
+    const isSplit = splitValue ?? false
     if (isSplit) {
       if (isTs(v.output)) {
         return {
@@ -174,8 +181,6 @@ export function parseConfig(config: {
         }
       }
     } else {
-      const splitError = invalidBoolean(v.split, 'split', `components.${k}`)
-      if (splitError) return { ok: false, error: splitError }
       if (!isTs(v.output)) {
         return {
           ok: false,
@@ -204,29 +209,117 @@ export function parseConfig(config: {
   const zo = c['zod-openapi']
 
   if (zo !== undefined) {
-    const flagChecks: Array<[string, unknown]> = [
-      ['exportSchemasTypes', zo.exportSchemasTypes],
-      ['exportSchemas', zo.exportSchemas],
-      ['exportParametersTypes', zo.exportParametersTypes],
-      ['exportParameters', zo.exportParameters],
-      ['exportSecuritySchemes', zo.exportSecuritySchemes],
-      ['exportRequestBodies', zo.exportRequestBodies],
-      ['exportResponses', zo.exportResponses],
-      ['exportHeadersTypes', zo.exportHeadersTypes],
-      ['exportHeaders', zo.exportHeaders],
-      ['exportExamples', zo.exportExamples],
-      ['exportLinks', zo.exportLinks],
-      ['exportCallbacks', zo.exportCallbacks],
-    ]
-    const flagError = flagChecks
-      .map(([name, value]) => invalidBoolean(value, name, 'zod-openapi'))
-      .find((error): error is string => error !== undefined)
-    if (flagError) return { ok: false, error: flagError }
+    if (zo.exportSchemasTypes !== undefined && typeof zo.exportSchemasTypes !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportSchemasTypes format for zod-openapi: ${String(zo.exportSchemasTypes)}`,
+      }
+    }
+    const exportSchemasTypes = zo.exportSchemasTypes ?? false
+
+    if (zo.exportSchemas !== undefined && typeof zo.exportSchemas !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportSchemas format for zod-openapi: ${String(zo.exportSchemas)}`,
+      }
+    }
+    const exportSchemas = zo.exportSchemas ?? false
+
+    if (zo.exportParametersTypes !== undefined && typeof zo.exportParametersTypes !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportParametersTypes format for zod-openapi: ${String(zo.exportParametersTypes)}`,
+      }
+    }
+    const exportParametersTypes = zo.exportParametersTypes ?? false
+
+    if (zo.exportParameters !== undefined && typeof zo.exportParameters !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportParameters format for zod-openapi: ${String(zo.exportParameters)}`,
+      }
+    }
+    const exportParameters = zo.exportParameters ?? false
+
+    if (zo.exportSecuritySchemes !== undefined && typeof zo.exportSecuritySchemes !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportSecuritySchemes format for zod-openapi: ${String(
+          zo.exportSecuritySchemes,
+        )}`,
+      }
+    }
+    const exportSecuritySchemes = zo.exportSecuritySchemes ?? false
+
+    if (zo.exportRequestBodies !== undefined && typeof zo.exportRequestBodies !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportRequestBodies format for zod-openapi: ${String(
+          zo.exportRequestBodies,
+        )}`,
+      }
+    }
+    const exportRequestBodies = zo.exportRequestBodies ?? false
+
+    if (zo.exportResponses !== undefined && typeof zo.exportResponses !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportResponses format for zod-openapi: ${String(zo.exportResponses)}`,
+      }
+    }
+    const exportResponses = zo.exportResponses ?? false
+
+    if (zo.exportHeadersTypes !== undefined && typeof zo.exportHeadersTypes !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportHeadersTypes format for zod-openapi: ${String(zo.exportHeadersTypes)}`,
+      }
+    }
+    const exportHeadersTypes = zo.exportHeadersTypes ?? false
+
+    if (zo.exportHeaders !== undefined && typeof zo.exportHeaders !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportHeaders format for zod-openapi: ${String(zo.exportHeaders)}`,
+      }
+    }
+    const exportHeaders = zo.exportHeaders ?? false
+
+    if (zo.exportExamples !== undefined && typeof zo.exportExamples !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportExamples format for zod-openapi: ${String(zo.exportExamples)}`,
+      }
+    }
+    const exportExamples = zo.exportExamples ?? false
+
+    if (zo.exportLinks !== undefined && typeof zo.exportLinks !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportLinks format for zod-openapi: ${String(zo.exportLinks)}`,
+      }
+    }
+    const exportLinks = zo.exportLinks ?? false
+
+    if (zo.exportCallbacks !== undefined && typeof zo.exportCallbacks !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid exportCallbacks format for zod-openapi: ${String(zo.exportCallbacks)}`,
+      }
+    }
+    const exportCallbacks = zo.exportCallbacks ?? false
   }
 
   const routes = zo?.routes
   if (routes !== undefined) {
-    const isSplit = routes.split === true
+    const splitValue = routes.split
+    if (splitValue !== undefined && typeof splitValue !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid split format for routes: ${String(splitValue)}`,
+      }
+    }
+    const isSplit = splitValue ?? false
     if (isSplit) {
       if (isTs(routes.output)) {
         return {
@@ -241,8 +334,6 @@ export function parseConfig(config: {
           error: `Invalid routes output path for non-split mode (must be .ts file): ${routes.output}`,
         }
       }
-      const splitError = invalidBoolean(routes.split, 'split', 'routes')
-      if (splitError) return { ok: false, error: splitError }
     }
   }
 
@@ -286,10 +377,12 @@ export function parseConfig(config: {
     if (typeof rpc.import !== 'string') {
       return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
     }
-    const splitError = invalidBoolean(rpc.split, 'split', 'rpc')
-    if (splitError) return { ok: false, error: splitError }
+    const splitValue = rpc.split
+    if (splitValue !== undefined && typeof splitValue !== 'boolean') {
+      return { ok: false, error: `Invalid split format for rpc: ${String(splitValue)}` }
+    }
     // split
-    const isSplit = rpc.split === true
+    const isSplit = splitValue ?? false
     if (isSplit) {
       if (isTs(rpc.output)) {
         return {
@@ -336,21 +429,23 @@ export function parseCli(args: readonly string[]):
       readonly value: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly output: `${string}.ts`
-        readonly exportSchemasTypes: boolean
-        readonly exportSchemas: boolean
-        readonly exportParametersTypes: boolean
-        readonly exportParameters: boolean
-        readonly exportSecuritySchemes: boolean
-        readonly exportRequestBodies: boolean
-        readonly exportResponses: boolean
-        readonly exportHeadersTypes: boolean
-        readonly exportHeaders: boolean
-        readonly exportExamples: boolean
-        readonly exportLinks: boolean
-        readonly exportCallbacks: boolean
         readonly template: boolean
         readonly test: boolean
-        readonly basePath?: string
+        readonly basePath: string
+        readonly componentsOptions: {
+          readonly exportSchemasTypes: boolean
+          readonly exportSchemas: boolean
+          readonly exportParametersTypes: boolean
+          readonly exportParameters: boolean
+          readonly exportSecuritySchemes: boolean
+          readonly exportRequestBodies: boolean
+          readonly exportResponses: boolean
+          readonly exportHeadersTypes: boolean
+          readonly exportHeaders: boolean
+          readonly exportExamples: boolean
+          readonly exportLinks: boolean
+          readonly exportCallbacks: boolean
+        }
       }
     }
   | {
@@ -382,21 +477,23 @@ export function parseCli(args: readonly string[]):
     value: {
       input,
       output,
-      exportSchemasTypes: args.includes('--export-schemas-types'),
-      exportSchemas: args.includes('--export-schemas'),
-      exportParametersTypes: args.includes('--export-parameters-types'),
-      exportParameters: args.includes('--export-parameters'),
-      exportSecuritySchemes: args.includes('--export-security-schemes'),
-      exportRequestBodies: args.includes('--export-request-bodies'),
-      exportResponses: args.includes('--export-responses'),
-      exportHeadersTypes: args.includes('--export-headers-types'),
-      exportHeaders: args.includes('--export-headers'),
-      exportExamples: args.includes('--export-examples'),
-      exportLinks: args.includes('--export-links'),
-      exportCallbacks: args.includes('--export-callbacks'),
       template: args.includes('--template'),
       test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path'),
+      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
+      componentsOptions: {
+        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
+        exportSchemas: args.includes('--export-schemas') ?? false,
+        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
+        exportParameters: args.includes('--export-parameters') ?? false,
+        exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
+        exportRequestBodies: args.includes('--export-request-bodies') ?? false,
+        exportResponses: args.includes('--export-responses') ?? false,
+        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
+        exportHeaders: args.includes('--export-headers') ?? false,
+        exportExamples: args.includes('--export-examples') ?? false,
+        exportLinks: args.includes('--export-links') ?? false,
+        exportCallbacks: args.includes('--export-callbacks') ?? false,
+      },
     },
   }
 }
@@ -431,14 +528,7 @@ export function normalizeTypes(
  * @param securitySchemes - Record of scheme name to scheme properties.
  * @returns Multiline string of registration statements.
  */
-export function registerComponent(securitySchemes: {
-  readonly [key: string]: {
-    readonly type?: string
-    readonly name?: string
-    readonly scheme?: string
-    readonly bearerFormat?: string
-  }
-}): string {
+export function registerComponent(securitySchemes: Record<string, unknown>): string {
   return Object.entries(securitySchemes)
     .map(([name, scheme]) => {
       return `app.openAPIRegistry.registerComponent('securitySchemes','${name}',${JSON.stringify(scheme)})`
@@ -556,10 +646,17 @@ export function isUniqueContentSchema(
  * ```
  */
 export function refSchema(
-  $ref:
-    | `#/components/schemas/${string}`
-    | `#/components/parameters/${string}`
-    | `#/components/headers/${string}`,
+  $ref: `#/components/${string}/${string}`,
+  // $ref:
+  // | `#/components/schemas/${string}`
+  // | `#/components/parameters/${string}`
+  // | `#/components/securitySchemes/${string}`
+  // | `#/components/requestBodies/${string}`
+  // | `#/components/responses/${string}`
+  // | `#/components/headers/${string}`
+  // | `#/components/examples/${string}`
+  // | `#/components/links/${string}`
+  // | `#/components/callbacks/${string}`
 ): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
@@ -576,6 +673,34 @@ export function refSchema(
     if (ref.endsWith('HeaderSchema')) return ref
     if (ref.endsWith('Header')) return `${ref}Schema`
     return `${ref}HeaderSchema`
+  }
+  if ($ref.startsWith('#/components/securitySchemes/')) {
+    if (ref.endsWith('SecurityScheme')) return ref
+    return `${ref}SecurityScheme`
+  }
+  if ($ref.startsWith('#/components/requestBodies/')) {
+    if (ref.endsWith('RequestBody')) return ref
+    return `${ref}RequestBody`
+  }
+  if ($ref.startsWith('#/components/responses/')) {
+    if (ref.endsWith('Response')) return ref
+    return `${ref}Response`
+  }
+  if ($ref.startsWith('#/components/headers/')) {
+    if (ref.endsWith('Header')) return ref
+    return `${ref}Header`
+  }
+  if ($ref.startsWith('#/components/examples/')) {
+    if (ref.endsWith('Example')) return ref
+    return `${ref}Example`
+  }
+  if ($ref.startsWith('#/components/links/')) {
+    if (ref.endsWith('Link')) return ref
+    return `${ref}Link`
+  }
+  if ($ref.startsWith('#/components/callbacks/')) {
+    if (ref.endsWith('Callback')) return ref
+    return `${ref}Callback`
   }
   return `${ref}Schema`
 }
@@ -604,50 +729,6 @@ export function methodPath(method: string, path: string): string {
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   return apiPath ? `${method}${apiPath}` : `${method}`
-}
-
-/**
- * Generates a Hono route definition as a TypeScript export string.
- *
- * @param args - Route metadata and OpenAPI friendly fragments (`method`, `path`, `requestParams`, `responses`, etc.).
- * @returns A string representing an `export const <name> = createRoute({ ... })` statement.
- *
- * @example
- * createRoute({
- *   routeName: 'getUserRoute',
- *   method: 'method:"get",',
- *   path: 'path:"/user",',
- *   requestParams: 'request:{query:z.object({ id: z.string() })},',
- *   responses: 'responses:{200:{description:"OK"}}'
- * })
- * // => export const getUserRoute = createRoute({method:"get",path:"/user",request:{query:...},responses:{...}})
- */
-export function createRoute(args: {
-  readonly routeName: string
-  readonly tags?: string
-  readonly method: string
-  readonly path: string
-  readonly operationId?: string
-  readonly summary?: string
-  readonly description?: string
-  readonly security?: string
-  readonly callbacks?: string
-  readonly requestParams: string
-  readonly responses: string
-}): string {
-  const properties = [
-    args.tags,
-    args.method,
-    args.path,
-    args.operationId,
-    args.summary,
-    args.description,
-    args.security,
-    args.callbacks,
-    args.requestParams,
-    args.responses,
-  ].join('')
-  return `export const ${args.routeName}=createRoute({${properties}})`
 }
 
 /**

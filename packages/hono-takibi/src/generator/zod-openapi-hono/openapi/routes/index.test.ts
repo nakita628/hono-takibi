@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { routeCode } from '.'
 
 // Test run
-// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/route/index.test.ts
+// pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/index.test.ts
 
 describe('routeCode', () => {
   it.concurrent('routeCode Test', () => {
@@ -39,7 +39,7 @@ describe('routeCode', () => {
         },
       },
     })
-    const expected = `export const getHonoRoute=createRoute({tags:["Hono"],method:'get',path:'/hono',summary:'Hono',description:'Hono',responses:{200:{description:'OK',content:{'application/json':{schema:z.object({message:z.string().openapi({example:"Hono🔥"})})}}},}})`
+    const expected = `export const getHonoRoute=createRoute({method:'get',path:'/hono',tags:["Hono"],summary:'Hono',description:'Hono',responses:{200:{description:'OK',content:{'application/json':{schema:z.object({message:z.string().optional().openapi({"type":"string","example":"Hono🔥"})}).optional().openapi({"type":"object","properties":{"message":{"type":"string","example":"Hono🔥"}}})}}},},})`
     expect(result).toBe(expected)
   })
 })

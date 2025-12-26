@@ -1,11 +1,13 @@
-import type { Headers, Parameters, Schemas } from '../openapi/index.js'
+import type { Header, Parameter, Schema } from '../openapi/index.js'
+
+type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
 
 export function wrap(
   zod: string,
-  schemas: Schemas,
+  schema: Schema,
   meta?: {
-    parameters?: Omit<Parameters, 'schema'>
-    headers?: Omit<Headers, 'schema'>
+    parameters?: ParameterMeta
+    headers?: Header
   },
 ): string {
   const formatLiteral = (v: unknown): string => {
@@ -15,16 +17,16 @@ export function wrap(
     }
     /* number */
     if (typeof v === 'number') {
-      if (schemas.format === 'int64') {
+      if (schema.format === 'int64') {
         return `${v}n`
       }
-      if (schemas.format === 'bigint') {
+      if (schema.format === 'bigint') {
         return `BigInt(${v})`
       }
       return `${v}`
     }
     /* date */
-    if (schemas.type === 'date' && typeof v === 'string') {
+    if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
     /* string */
@@ -36,53 +38,53 @@ export function wrap(
   }
 
   /* why schema.default !== undefined becasue schema.default === 0  // → falsy */
-  const s =
-    schemas.default !== undefined ? `${zod}.default(${formatLiteral(schemas.default)})` : zod
+  const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
 
   const isNullable =
-    schemas.nullable === true ||
-    (Array.isArray(schemas.type) ? schemas.type.includes('null') : schemas.type === 'null')
+    schema.nullable === true ||
+    (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
 
   const z = isNullable ? `${s}.nullable()` : s
 
+  // ignore schemas required and nullable and additionalProperties and discriminator and const
+  const {
+    required,
+    nullable,
+    additionalProperties,
+    discriminator,
+    const: unknown,
+    $ref,
+    ...rest
+  } = schema
+
+  const openapiSchema = schema ? JSON.stringify(rest) : undefined
+  const openapiSchemaBody =
+    openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
+      ? openapiSchema.slice(1, -1)
+      : openapiSchema
   const openapiProps = [
-    // param
-    // TODO other properties
-    meta?.parameters
-      ? (() => {
-          const required = !!meta.parameters.required
-          return `param:{in:"${meta.parameters.in}",name:${JSON.stringify(meta.parameters.name)},required:${required}}`
-        })()
-      : undefined,
-    // example
-    'example' in schemas && schemas.example !== undefined
-      ? `example:${JSON.stringify(schemas.example)}`
-      : undefined,
-    // examples
-    'examples' in schemas && Array.isArray(schemas.examples) && schemas.examples.length > 0
-      ? `examples:${JSON.stringify(schemas.examples)}`
-      : undefined,
-    // description
-    'description' in schemas && schemas.description !== undefined
-      ? `description:${JSON.stringify(schemas.description)}`
-      : undefined,
+    meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
+    openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
 
+  // required true
   if (
-    (schemas.required !== undefined &&
-      typeof schemas.required === 'boolean' &&
-      schemas.required === false) ||
+    (schema.required !== undefined &&
+      typeof schema.required === 'boolean' &&
+      schema.required === true) ||
     (meta?.parameters !== undefined &&
       typeof meta.parameters.required === 'boolean' &&
-      meta.parameters.required === false) ||
+      meta.parameters.required === true) ||
     (meta?.parameters !== undefined &&
       typeof meta.parameters.required === 'boolean' &&
-      meta.parameters.required === false) ||
+      meta.parameters.required === true) ||
     (meta?.headers !== undefined &&
       typeof meta.headers.required === 'boolean' &&
-      meta.headers.required === false)
+      meta.headers.required === true)
   ) {
-    return openapiProps.length === 0 ? z : `${z}.optional().openapi({${openapiProps.join(',')}})`
+    return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
   }
-  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  return openapiProps.length === 0
+    ? `${z}.optional()`
+    : `${z}.optional().openapi({${openapiProps.join(',')}})`
 }

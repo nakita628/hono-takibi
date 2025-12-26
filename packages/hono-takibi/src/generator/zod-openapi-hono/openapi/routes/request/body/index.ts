@@ -25,7 +25,6 @@ export function requestBody(
   const description = options?.description
   const descriptionPart = description ? `description:${JSON.stringify(description)},` : ''
 
-  // if z.date() → z.coerce.date()
   const contentParts = contentTypes
     .map((contentType) => {
       const media = content[contentType]
@@ -33,23 +32,28 @@ export function requestBody(
       const examplesString =
         examples && Object.keys(examples).length > 0
           ? `,examples:{${Object.entries(examples)
-              .map(([exampleKey, example]) => {
-                if (example?.$ref) {
-                  return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
-                }
+            .map(([exampleKey, example]) => {
+              if ('$ref' in example && example.$ref) {
+                return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
+              }
+              if ('value' in example) {
                 const fields = [
-                  example?.summary !== undefined
+                  example.summary !== undefined
                     ? `summary:${JSON.stringify(example.summary)}`
                     : undefined,
-                  example?.value !== undefined
-                    ? `value:${JSON.stringify(example.value)}`
+                  example.description !== undefined
+                    ? `description:${JSON.stringify(example.description)}`
                     : undefined,
+                  example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
                 ].filter((field) => field !== undefined)
                 return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
-              })
-              .join(',')}}`
+              }
+              return `${JSON.stringify(exampleKey)}:${JSON.stringify(example)}`
+            })
+            .join(',')}}`
           : ''
 
+      // if z.date() → z.coerce.date()
       const schemaCode = schema.includes('z.date()')
         ? `z.coerce.${schema.replace('z.', '')}`
         : schema

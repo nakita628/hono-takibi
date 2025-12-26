@@ -8,7 +8,14 @@ export const getPassthroughRoute = createRoute({
   responses: {
     200: {
       description: 'zod passthrough',
-      content: { 'application/json': { schema: z.strictObject({ test: z.string() }) } },
+      content: {
+        'application/json': {
+          schema: z
+            .strictObject({ test: z.string().optional().openapi({ type: 'string' }) })
+            .optional()
+            .openapi({ type: 'object', properties: { test: { type: 'string' } } }),
+        },
+      },
     },
   },
 })

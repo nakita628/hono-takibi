@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { Schemas } from '../../../openapi'
+import type { Schema } from '../../../openapi'
 import { string } from './string'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/string.test.ts
 
 describe('string', () => {
-  it.concurrent.each<[Schemas, string]>([
+  it.concurrent.each<[Schema, string]>([
     [{ type: 'string' }, 'z.string()'],
     [{ type: 'string', minLength: 1, maxLength: 10 }, 'z.string().min(1).max(10)'],
     [{ type: 'string', pattern: '^\\w+$' }, 'z.string().regex(/^\\w+$/)'],

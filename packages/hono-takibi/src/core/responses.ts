@@ -1,8 +1,9 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
+import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, ResponseDefinition, Schemas } from '../openapi/index.js'
+import type { Components, Content, Responses, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -14,7 +15,7 @@ import {
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-const isSchema = (v: unknown): v is Schemas => typeof v === 'object' && v !== null
+const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 function withSuffix(name: string, suffix: string): string {
   return name.endsWith(suffix) ? name : `${name}${suffix}`
@@ -51,30 +52,13 @@ type Imports = {
   readonly links?: OutputTarget
 }
 
-type ExampleFields = {
-  readonly summary?: unknown
-  readonly description?: unknown
-  readonly value?: unknown
-}
-
-const inlineExampleExpr = (example: ExampleFields): string => {
-  const fields = [
-    example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
-    example.description !== undefined
-      ? `description:${JSON.stringify(example.description)}`
-      : undefined,
-    example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
-  ].filter((v) => v !== undefined)
-  return `{${fields.join(',')}}`
-}
-
 const headerSchemaExpr = (header: unknown): string => {
   if (!isRecord(header)) return 'z.any()'
   const rawSchema = header.schema
   const schema = isSchema(rawSchema) ? rawSchema : {}
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
-  const merged: Schemas = {
+  const merged: Schema = {
     ...schema,
     ...(description !== undefined && schema.description === undefined ? { description } : {}),
     ...(example !== undefined && schema.example === undefined ? { example } : {}),
@@ -83,7 +67,7 @@ const headerSchemaExpr = (header: unknown): string => {
 }
 
 const headersPropExpr = (
-  headers: ResponseDefinition['headers'] | undefined,
+  headers: Responses['headers'] | undefined,
   components: Components,
   usedHeaderKeys: Set<string>,
   imports: Imports | undefined,
@@ -108,41 +92,6 @@ const headersPropExpr = (
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
 }
 
-const exampleExpr = (
-  example: unknown,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
-  if (isRef(example) && example.$ref.startsWith('#/components/examples/')) {
-    const key = resolveComponentKey(example.$ref, '#/components/examples/')
-    const resolved = key ? components.examples?.[key] : undefined
-    if (key && resolved) {
-      if (imports?.examples) {
-        usedExampleKeys.add(key)
-        return toIdentifier(ensureSuffix(key, 'Example'))
-      }
-      return inlineExampleExpr(resolved)
-    }
-    return `{$ref:${JSON.stringify(example.$ref)}}`
-  }
-  if (isRecord(example)) return inlineExampleExpr(example)
-  return JSON.stringify(example)
-}
-
-const examplesPropExpr = (
-  examples: Content[string]['examples'] | undefined,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string | undefined => {
-  if (!(examples && Object.keys(examples).length > 0)) return undefined
-  const entries = Object.entries(examples).map(([exampleKey, example]) => {
-    return `${JSON.stringify(exampleKey)}:${exampleExpr(example, components, usedExampleKeys, imports)}`
-  })
-  return entries.length > 0 ? `examples:{${entries.join(',')}}` : undefined
-}
-
 const mediaTypeExpr = (
   media: Content[string],
   components: Components,
@@ -155,7 +104,7 @@ const mediaTypeExpr = (
 }
 
 const linksPropExpr = (
-  links: ResponseDefinition['links'] | undefined,
+  links: Responses['links'] | undefined,
   components: Components,
   usedLinkKeys: Set<string>,
   imports: Imports | undefined,
@@ -178,7 +127,7 @@ const linksPropExpr = (
 }
 
 const responseDefinitionExpr = (
-  res: ResponseDefinition,
+  res: Responses,
   components: Components,
   usedHeaderKeys: Set<string>,
   usedExampleKeys: Set<string>,

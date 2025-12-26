@@ -1,4 +1,4 @@
-import type { Parameters, Ref } from '../../../../../openapi/index.js'
+import type { Parameter, Ref } from '../../../../../openapi/index.js'
 import { getToSafeIdentifier, refSchema } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
@@ -15,7 +15,7 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  * - Uses `zodToOpenAPI` for schema conversion and `zodToOpenAPISchema` for output generation.
  * - Supports conditional `export` statements for both schemas and types.
  */
-export function params(parameters: readonly Parameters[]): {
+export function params(parameters: readonly Parameter[]): {
   [section: string]: Record<string, string>
 } {
   return parameters.reduce(

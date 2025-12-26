@@ -47,6 +47,9 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
 export async function takibi(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
   output: `${string}.ts`,
+  template: boolean,
+  test: boolean,
+  basePath: string,
   componentsOptions: {
     readonly exportSchemasTypes: boolean
     readonly exportSchemas: boolean
@@ -61,9 +64,6 @@ export async function takibi(
     readonly exportLinks: boolean
     readonly exportCallbacks: boolean
   },
-  template: boolean,
-  test: boolean,
-  basePath?: string,
 ): Promise<
   | {
       readonly ok: true

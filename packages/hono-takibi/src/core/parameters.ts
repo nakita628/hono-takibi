@@ -4,7 +4,7 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Parameters } from '../openapi/index.js'
+import type { Parameter } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
@@ -62,7 +62,7 @@ export async function parameters(
     const outDir = String(output).replace(/\.ts$/, '')
 
     for (const key of Object.keys(params)) {
-      const p: Parameters | undefined = params[key]
+      const p: Parameter | undefined = params[key]
       if (!p) continue
 
       const schemaName = parameterBaseName(key)
@@ -111,7 +111,7 @@ export async function parameters(
 
   const defs = Object.keys(params)
     .map((key) => {
-      const p: Parameters | undefined = params[key]
+      const p: Parameter | undefined = params[key]
       const schemaName = parameterBaseName(key)
       const meta = {
         parameters: {

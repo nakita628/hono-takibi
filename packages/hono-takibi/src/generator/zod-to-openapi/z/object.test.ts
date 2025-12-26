@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import type { Schemas } from '../../../openapi'
+import type { Schema } from '../../../openapi'
 import { object } from './object'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-to-openapi/z/object.test.ts
 
 describe('object', () => {
-  it.concurrent.each<[Schemas, string]>([
+  it.concurrent.each<[Schema, string]>([
     [{ type: 'object' }, 'z.object({})'],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
-      'z.object({foo:z.string()})',
+      'z.object({foo:z.string().optional().openapi({"type":"string"})})',
     ],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
-      'z.object({foo:z.string()})',
+      'z.object({foo:z.string().optional().openapi({"type":"string"})})',
     ],
     [
       {
@@ -30,7 +30,7 @@ describe('object', () => {
           propertyName: 'type',
         },
       },
-      'z.object({type:z.enum(["A","B","C"])})',
+      'z.object({type:z.enum(["A","B","C"]).optional().openapi({"type":"string","enum":["A","B","C"]})})',
     ],
     [
       {
@@ -43,7 +43,7 @@ describe('object', () => {
         required: ['test'],
         additionalProperties: false,
       },
-      'z.strictObject({test:z.string()})',
+      'z.strictObject({test:z.string().optional().openapi({"type":"string"})})',
     ],
 
     [
@@ -57,7 +57,7 @@ describe('object', () => {
         required: ['test'],
         additionalProperties: true,
       },
-      'z.looseObject({test:z.string()})',
+      'z.looseObject({test:z.string().optional().openapi({"type":"string"})})',
     ],
   ])('object(%o) → %s', (input, expected) => {
     expect(object(input)).toBe(expected)

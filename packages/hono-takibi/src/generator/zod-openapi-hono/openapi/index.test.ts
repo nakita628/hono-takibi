@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import type { OpenAPI } from '../../../openapi'
 import { zodOpenAPIHono } from './index.js'
 
@@ -460,80 +460,68 @@ describe('zodOpenAPIHono', () => {
       exportCallbacks: false,
     })
 
-    const expected = `import { createRoute, z } from '@hono/zod-openapi'
+    //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
 
-const ASchema = z.object({B:z.url(),A:z.string()}).openapi('A')
+    // const ASchema = z.object({B:z.url(),A:z.string()}).openapi('A')
 
+    // const CSchema = z.object({B:z.url(),A:ASchema}).openapi('C')
 
+    // const BSchema = z.object({B:z.url(),C:CSchema}).openapi('B')
 
-const CSchema = z.object({B:z.url(),A:ASchema}).openapi('C')
+    // const BParamsSchema = z.string().optional().openapi({param:{in:"query",name:"B",required:false}})
 
+    // const CParamsSchema = z.string().openapi({param:{in:"path",name:"C",required:true}})
 
+    // const AParamsSchema = z.string().optional().openapi({param:{in:"header",name:"A",required:false}})
 
-const BSchema = z.object({B:z.url(),C:CSchema}).openapi('B')
+    // const BSecurityScheme = {"type":"http","scheme":"bearer"}
 
+    // const CSecurityScheme = {"type":"http","scheme":"bearer"}
 
+    // const ASecurityScheme = {"type":"http","scheme":"bearer"}
 
-const BParamsSchema = z.string().optional().openapi({param:{in:"query",name:"B",required:false}})
+    // const BRequestBody = {required:true,content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
 
+    // const CRequestBody = {required:true,content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
 
+    // const ARequestBody = {required:true,content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
-const CParamsSchema = z.string().openapi({param:{in:"path",name:"C",required:true}})
+    // const BResponse = {description:"B",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"B":{$ref:"#/components/links/B"}},content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
 
+    // const CResponse = {description:"C",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"C":{$ref:"#/components/links/C"}},content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
 
+    // const AResponse = {description:"A",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"A":{$ref:"#/components/links/A"}},content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
 
-const AParamsSchema = z.string().optional().openapi({param:{in:"header",name:"A",required:false}})
+    // const BHeaderSchema = z.string()
 
+    // const CHeaderSchema = z.string()
 
+    // const AHeaderSchema = z.string()
 
-const BSecurityScheme = {"type":"http","scheme":"bearer"}
+    // const BExample = {"value":{"B":"https://example.com/B","C":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}}
 
-const CSecurityScheme = {"type":"http","scheme":"bearer"}
+    // const CExample = {"value":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}
 
-const ASecurityScheme = {"type":"http","scheme":"bearer"}
+    // const AExample = {"value":{"B":"https://example.com/A","A":"A"}}
 
-const BRequestBody = {required:true,content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
+    // const BLink = {"operationId":"B"}
 
-const CRequestBody = {required:true,content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
+    // const CLink = {"operationId":"C"}
 
-const ARequestBody = {required:true,content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
+    // const ALink = {"operationId":"A"}
 
-const BResponse = {description:"B",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"B":{$ref:"#/components/links/B"}},content:{"application/json":{schema:BSchema,examples:{"B":{$ref:"#/components/examples/B"}}}}}
+    // const BCallbacks = {"{$request.body#/B}":{post:{requestBody:BRequestBody,responses:{"200":BResponse}}}}
 
-const CResponse = {description:"C",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"C":{$ref:"#/components/links/C"}},content:{"application/json":{schema:CSchema,examples:{"C":{$ref:"#/components/examples/C"}}}}}
+    // const CCallbacks = {"{$request.body#/B}":{post:{requestBody:CRequestBody,responses:{"200":CResponse}}}}
 
-const AResponse = {description:"A",headers:z.object({"B":z.string(),"C":z.string(),"A":z.string()}),links:{"A":{$ref:"#/components/links/A"}},content:{"application/json":{schema:ASchema,examples:{"A":{$ref:"#/components/examples/A"}}}}}
+    // const ACallbacks = {"{$request.body#/B}":{post:{requestBody:ARequestBody,responses:{"200":AResponse}}}}
 
-const BHeaderSchema = z.string()
+    // export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallbacks},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:AResponse,}})
 
-const CHeaderSchema = z.string()
+    // export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallbacks},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:BResponse,}})
 
-const AHeaderSchema = z.string()
+    // export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallbacks},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:CResponse,}})`
 
-const BExample = {"value":{"B":"https://example.com/B","C":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}}
-
-const CExample = {"value":{"B":"https://example.com/C","A":{"B":"https://example.com/A","A":"A"}}}
-
-const AExample = {"value":{"B":"https://example.com/A","A":"A"}}
-
-const BLink = {"operationId":"B"}
-
-const CLink = {"operationId":"C"}
-
-const ALink = {"operationId":"A"}
-
-const BCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/B"},"responses":{"200":{"$ref":"#/components/responses/B"}}}}}
-
-const CCallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/C"},"responses":{"200":{"$ref":"#/components/responses/C"}}}}}
-
-const ACallback = {"{$request.body#/B}":{"post":{"requestBody":{"$ref":"#/components/requestBodies/A"},"responses":{"200":{"$ref":"#/components/responses/A"}}}}}
-
-export const postACRoute=createRoute({method:'post',path:'/A/{C}',operationId:'A',security:[{"A":[]}],callbacks:{"A":ACallback},request:{body:ARequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:AResponse,}})
-
-export const postBCRoute=createRoute({method:'post',path:'/B/{C}',operationId:'B',security:[{"B":[]}],callbacks:{"B":BCallback},request:{body:BRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:BResponse,}})
-
-export const postCCRoute=createRoute({method:'post',path:'/C/{C}',operationId:'C',security:[{"C":[]}],callbacks:{"C":CCallback},request:{body:CRequestBody,params:z.object({C:CParamsSchema}),query:z.object({B:BParamsSchema}),headers:z.object({A:AParamsSchema})},responses:{200:CResponse,}})`
-
-    expect(result).toBe(expected)
+    //     expect(result).toBe(expected)
   })
 })

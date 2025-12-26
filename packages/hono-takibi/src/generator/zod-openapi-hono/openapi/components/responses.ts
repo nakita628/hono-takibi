@@ -1,4 +1,4 @@
-import type { Components, ResponseDefinition } from '../../../../openapi/index.js'
+import type { Components, Responses } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 import { headersPropExpr } from './headers.js'
 import { linksPropExpr } from './links.js'
@@ -18,9 +18,7 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
 /**
  * Generates a response content property expression.
  */
-const responseContentPropExpr = (
-  content: ResponseDefinition['content'] | undefined,
-): string | undefined => {
+const responseContentPropExpr = (content: Responses['content'] | undefined): string | undefined => {
   if (!content) return undefined
   const contentEntries = Object.entries(content).map(([contentType, media]) => {
     return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
@@ -31,7 +29,7 @@ const responseContentPropExpr = (
 /**
  * Generates a response definition expression.
  */
-const responseDefinitionExpr = (res: ResponseDefinition, components: Components): string => {
+const responseDefinitionExpr = (res: Responses, components: Components): string => {
   const resolved =
     typeof res.$ref === 'string'
       ? (() => {

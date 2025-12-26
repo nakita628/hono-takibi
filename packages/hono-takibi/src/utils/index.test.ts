@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   configToTarget,
-  createRoute,
   ensureSuffix,
   escapeStringLiteral,
   findSchema,
@@ -375,21 +374,23 @@ describe('utils', () => {
         value: {
           input: 'input.yaml',
           output: 'output.ts',
-          exportSchemasTypes: false,
-          exportSchemas: false,
-          exportParametersTypes: false,
-          exportParameters: false,
-          exportSecuritySchemes: false,
-          exportRequestBodies: false,
-          exportResponses: false,
-          exportHeadersTypes: false,
-          exportHeaders: false,
-          exportExamples: false,
-          exportLinks: false,
-          exportCallbacks: false,
           template: false,
           test: false,
-          basePath: undefined,
+          basePath: '/',
+          componentsOptions: {
+            exportSchemasTypes: false,
+            exportSchemas: false,
+            exportParametersTypes: false,
+            exportParameters: false,
+            exportSecuritySchemes: false,
+            exportRequestBodies: false,
+            exportResponses: false,
+            exportHeadersTypes: false,
+            exportHeaders: false,
+            exportExamples: false,
+            exportLinks: false,
+            exportCallbacks: false,
+          },
         },
       })
     })
@@ -422,21 +423,23 @@ describe('utils', () => {
         value: {
           input: 'input.yaml',
           output: 'output.ts',
-          exportSchemasTypes: true,
-          exportSchemas: true,
-          exportParametersTypes: true,
-          exportParameters: true,
-          exportSecuritySchemes: true,
-          exportRequestBodies: true,
-          exportResponses: true,
-          exportHeadersTypes: true,
-          exportHeaders: true,
-          exportExamples: true,
-          exportLinks: true,
-          exportCallbacks: true,
           template: true,
           test: true,
           basePath: '/api/v1',
+          componentsOptions: {
+            exportSchemasTypes: true,
+            exportSchemas: true,
+            exportParametersTypes: true,
+            exportParameters: true,
+            exportSecuritySchemes: true,
+            exportRequestBodies: true,
+            exportResponses: true,
+            exportHeadersTypes: true,
+            exportHeaders: true,
+            exportExamples: true,
+            exportLinks: true,
+            exportCallbacks: true,
+          },
         },
       })
     })
@@ -610,27 +613,6 @@ describe('utils', () => {
       ['get', '/emails/{email.id}', 'getEmailsEmailId'],
     ])(`methodPath('%s', '%s') -> '%s'`, (method, path, expected) => {
       expect(methodPath(method, path)).toBe(expected)
-    })
-  })
-  // createRoute
-  describe('createRoute', () => {
-    it.concurrent('createRoute Test', () => {
-      const result = createRoute({
-        routeName: 'postHonoRoute',
-        tags: 'tags:["Hono"],',
-        method: "method:'post',",
-        path: "path:'/hono',",
-        operationId: "operationId:'HonoService_create',",
-        summary: '',
-        description: '',
-        security: '',
-        requestParams:
-          "request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},",
-        responses:
-          "responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}",
-      })
-      const expected = `export const postHonoRoute=createRoute({tags:["Hono"],method:'post',path:'/hono',operationId:'HonoService_create',request:{body:{required:true,content:{'application/json':{schema:HonoSchema}}},},responses:{200:{description:'The request has succeeded.',content:{'application/json':{schema:HonoSchema}}},}})`
-      expect(result).toBe(expected)
     })
   })
   // requestParamsArray
