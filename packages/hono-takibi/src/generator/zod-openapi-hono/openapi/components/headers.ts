@@ -1,5 +1,5 @@
 import type { Components, Responses, Schema } from '../../../../openapi/index.js'
-import { isRecord, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 const declareConst = (name: string, expr: string, exportSchema: boolean): string =>
@@ -44,37 +44,37 @@ const resolveComponentKey = ($ref: string, prefix: string): string | undefined =
  * @param exportType - Whether to export the inferred header types.
  * @returns A string of TypeScript code with header definitions.
  */
-export function headers(
-  components: Components,
-  exportSchema: boolean,
-  exportType: boolean,
-): string {
-  const { headers } = components
-  if (!headers) return ''
+// export function headers(
+//   components: Components,
+//   exportSchema: boolean,
+//   exportType: boolean,
+// ): string {
+//   const { headers } = components
+//   if (!headers) return ''
 
-  return Object.keys(headers)
-    .map((key) => {
-      const header = headers[key]
-      if (!header) {
-        const constName = headerConstName(key)
-        return `${declareConst(constName, 'z.any()', exportSchema)}${headerTypeDecl(constName, exportType)}`
-      }
+//   return Object.keys(headers)
+//     .map((key) => {
+//       const header = headers[key]
+//       if (!header) {
+//         const constName = headerConstName(key)
+//         return `${declareConst(constName, 'z.any()', exportSchema)}${headerTypeDecl(constName, exportType)}`
+//       }
 
-      const baseSchema = headerSchema(header)
-      const schema: Schema = {
-        ...baseSchema,
-        ...(header.description !== undefined &&
-        typeof header.description === 'string' &&
-        baseSchema.description === undefined
-          ? { description: header.description }
-          : {}),
-      }
-      const expr = zodToOpenAPI(schema)
-      const constName = headerConstName(key)
-      return `${declareConst(constName, expr, exportSchema)}${headerTypeDecl(constName, exportType)}`
-    })
-    .join('\n\n')
-}
+//       const baseSchema = headerSchema(header)
+//       const schema: Schema = {
+//         ...baseSchema,
+//         ...(header.description !== undefined &&
+//         typeof header.description === 'string' &&
+//         baseSchema.description === undefined
+//           ? { description: header.description }
+//           : {}),
+//       }
+//       const expr = zodToOpenAPI(schema)
+//       const constName = headerConstName(key)
+//       return `${declareConst(constName, expr, exportSchema)}${headerTypeDecl(constName, exportType)}`
+//     })
+//     .join('\n\n')
+// }
 
 /**
  * Generates a header schema expression.
@@ -117,4 +117,29 @@ export const headersPropExpr = (
   })
 
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
+}
+
+export function headers(
+  components: Components,
+  exportSchema: boolean,
+  exportHeadersTypes: boolean,
+) {
+  const { headers } = components
+  if (!headers) return ''
+
+  return Object.keys(headers)
+    .map((k) => {
+      const header = headers[k]
+      const meta = {
+        headers: {
+          ...header,
+        },
+      }
+      const z = zodToOpenAPI(header, meta)
+      const zInfer = exportHeadersTypes
+        ? `export type ${toIdentifier(ensureSuffix(k, 'Header'))} = z.infer<typeof ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))}>`
+        : ''
+      return `${exportSchema ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))} = ${z}${zInfer ? `\n\n${zInfer}` : ''}`
+    })
+    .join('\n\n')
 }
