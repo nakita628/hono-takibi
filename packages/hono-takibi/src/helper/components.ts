@@ -2,7 +2,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Callbacks, Operation, Parameter, PathItem } from '../openapi/index.js'
 import { refSchema } from '../utils/index.js'
 
-function makeCallbacks(callbacks: Callbacks): string {
+export function makeCallbacks(callbacks: Callbacks): string {
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
@@ -76,7 +76,8 @@ function makeCallbacks(callbacks: Callbacks): string {
               return refSchema(operation.requestBody.$ref)
             }
             // Handle inline requestBody with content
-            if (!('content' in operation.requestBody) || !operation.requestBody.content) return undefined
+            if (!('content' in operation.requestBody && operation.requestBody.content))
+              return undefined
             const contentEntries = Object.entries(operation.requestBody.content)
               .map(([mediaType, mediaOrReference]) => {
                 if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {

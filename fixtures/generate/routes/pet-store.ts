@@ -240,13 +240,11 @@ const api_keySecurityScheme = { type: 'apiKey', name: 'api_key', in: 'header' }
 
 const PetRequestBody = {
   description: 'Pet object that needs to be added to the store',
-  required: false,
   content: { 'application/json': { schema: PetSchema }, 'application/xml': { schema: PetSchema } },
 }
 
 const UserArrayRequestBody = {
   description: 'List of user object',
-  required: false,
   content: {
     'application/json': {
       schema: z
@@ -737,24 +735,6 @@ export const getUserLoginRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      headers: z.object({
-        'X-Rate-Limit': z
-          .int32()
-          .optional()
-          .openapi({
-            type: 'integer',
-            format: 'int32',
-            description: 'calls per hour allowed by the user',
-          }),
-        'X-Expires-After': z.iso
-          .datetime()
-          .optional()
-          .openapi({
-            type: 'string',
-            format: 'date-time',
-            description: 'date in UTC when token expires',
-          }),
-      }),
       content: {
         'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) },
         'application/json': { schema: z.string().optional().openapi({ type: 'string' }) },

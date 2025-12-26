@@ -109,14 +109,13 @@ describe('route', () => {
         },
       )
       const index = fs.readFileSync(out, 'utf-8')
-
       const expected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema, HonoXSchema, ZodOpenAPIHonoSchema } from '@packages/schemas'
 
 export const getHonoRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/hono',
+  tags: ['Hono'],
   operationId: 'HonoService_hono',
   responses: {
     200: {
@@ -127,9 +126,9 @@ export const getHonoRoute = createRoute({
 })
 
 export const getHonoxRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/honox',
+  tags: ['Hono'],
   operationId: 'HonoXService_honox',
   responses: {
     200: {
@@ -140,9 +139,9 @@ export const getHonoxRoute = createRoute({
 })
 
 export const getZodOpenapiHonoRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/zod-openapi-hono',
+  tags: ['Hono'],
   operationId: 'ZodOpenAPIHonoService_zod_openapi_hono',
   responses: {
     200: {
@@ -191,9 +190,9 @@ export * from './getZodOpenapiHono'
 import { HonoSchema } from '@packages/schemas'
 
 export const getHonoRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/hono',
+  tags: ['Hono'],
   operationId: 'HonoService_hono',
   responses: {
     200: {
@@ -207,9 +206,9 @@ export const getHonoRoute = createRoute({
 import { HonoXSchema } from '@packages/schemas'
 
 export const getHonoxRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/honox',
+  tags: ['Hono'],
   operationId: 'HonoXService_honox',
   responses: {
     200: {
@@ -223,9 +222,9 @@ export const getHonoxRoute = createRoute({
 import { ZodOpenAPIHonoSchema } from '@packages/schemas'
 
 export const getZodOpenapiHonoRoute = createRoute({
-  tags: ['Hono'],
   method: 'get',
   path: '/zod-openapi-hono',
+  tags: ['Hono'],
   operationId: 'ZodOpenAPIHonoService_zod_openapi_hono',
   responses: {
     200: {

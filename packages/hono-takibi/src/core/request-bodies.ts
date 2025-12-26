@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
+import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, RequestBody, Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -13,7 +14,6 @@ import {
   toIdentifier,
 } from '../utils/index.js'
 
-const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 const isSchema = (v: unknown): v is Schema => isRecord(v)
 const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
 
@@ -24,12 +24,6 @@ const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): stri
 
 const requestBodyConstName = (key: string): string =>
   toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
-
-const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
-  if (!$ref.startsWith(prefix)) return undefined
-  const key = $ref.slice(prefix.length)
-  return key ? key : undefined
-}
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -45,58 +39,6 @@ type Imports = {
     readonly split?: boolean
     readonly import?: string
   }
-}
-
-type ExampleFields = {
-  readonly summary?: unknown
-  readonly description?: unknown
-  readonly value?: unknown
-}
-
-const inlineExampleExpr = (example: ExampleFields): string => {
-  const fields = [
-    example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
-    example.description !== undefined
-      ? `description:${JSON.stringify(example.description)}`
-      : undefined,
-    example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
-  ].filter((v) => v !== undefined)
-  return `{${fields.join(',')}}`
-}
-
-const exampleExpr = (
-  example: unknown,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
-  if (isRef(example)) {
-    const key = resolveComponentKey(example.$ref, '#/components/examples/')
-    const resolved = key ? components.examples?.[key] : undefined
-    if (key && resolved) {
-      if (imports?.examples) {
-        usedExampleKeys.add(key)
-        return toIdentifier(ensureSuffix(key, 'Example'))
-      }
-      return inlineExampleExpr(resolved)
-    }
-    return `{$ref:${JSON.stringify(example.$ref)}}`
-  }
-  if (isRecord(example)) return inlineExampleExpr(example)
-  return JSON.stringify(example)
-}
-
-const examplesPropExpr = (
-  examples: Content[string]['examples'] | undefined,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string | undefined => {
-  if (!(examples && Object.keys(examples).length > 0)) return undefined
-  const entries = Object.entries(examples).map(([exampleKey, example]) => {
-    return `${JSON.stringify(exampleKey)}:${exampleExpr(example, components, usedExampleKeys, imports)}`
-  })
-  return entries.length > 0 ? `examples:{${entries.join(',')}}` : undefined
 }
 
 const mediaTypeExpr = (

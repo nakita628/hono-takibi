@@ -16,12 +16,6 @@ export function requestBody(
   schema: string,
   options?: { description?: string },
 ): string {
-  const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null
-
-  const isRef = (value: unknown): value is { $ref: string } =>
-    isRecord(value) && typeof value.$ref === 'string'
-
   const contentTypes = Object.keys(content)
   if (contentTypes.length === 0) return ''
 
@@ -37,24 +31,24 @@ export function requestBody(
       const examples = media.examples
       const examplesString =
         examples && Object.keys(examples).length > 0
-          ? `,examples:{${Object.entries(examples as Record<string, unknown>)
+          ? `,examples:{${Object.entries(examples)
             .map(([exampleKey, example]) => {
-              if (isRef(example)) {
+              if ('$ref' in example && example.$ref) {
                 return `${JSON.stringify(exampleKey)}:{$ref:${JSON.stringify(example.$ref)}}`
               }
-              if (!isRecord(example)) {
-                return `${JSON.stringify(exampleKey)}:${JSON.stringify(example)}`
+              if ('value' in example) {
+                const fields = [
+                  example.summary !== undefined
+                    ? `summary:${JSON.stringify(example.summary)}`
+                    : undefined,
+                  example.description !== undefined
+                    ? `description:${JSON.stringify(example.description)}`
+                    : undefined,
+                  example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
+                ].filter((field) => field !== undefined)
+                return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
               }
-              const fields = [
-                example.summary !== undefined
-                  ? `summary:${JSON.stringify(example.summary)}`
-                  : undefined,
-                example.description !== undefined
-                  ? `description:${JSON.stringify(example.description)}`
-                  : undefined,
-                example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
-              ].filter((field) => field !== undefined)
-              return `${JSON.stringify(exampleKey)}:{${fields.join(',')}}`
+              return `${JSON.stringify(exampleKey)}:${JSON.stringify(example)}`
             })
             .join(',')}}`
           : ''
