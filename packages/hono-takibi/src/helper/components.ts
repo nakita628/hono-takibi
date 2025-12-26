@@ -1,5 +1,12 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import type { Callbacks, Operation, Parameter, PathItem } from '../openapi/index.js'
+import type {
+  Callbacks,
+  Content,
+  Encoding,
+  Operation,
+  Parameter,
+  PathItem,
+} from '../openapi/index.js'
 import { refSchema } from '../utils/index.js'
 
 export function makeCallbacks(callbacks: Callbacks): string {
@@ -139,4 +146,129 @@ export function makeCallbacks(callbacks: Callbacks): string {
     })
     .filter(Boolean)
     .join(',')
+}
+
+export function makeContent(content: Content) {
+  const makeEncoding = (contentType: string, encodingName: string, encoding: Encoding) => {
+    const headers = encoding.headers
+      ? Object.entries(encoding.headers).map(([headerKey, header]) => {
+          // Reference
+          if ('$ref' in header && header.$ref) {
+            return refSchema(header.$ref)
+          }
+          // Header
+          const props = [
+            'description' in header && header.description
+              ? `description:${JSON.stringify(header.description)}`
+              : undefined,
+            'required' in header && header.required
+              ? `required:${JSON.stringify(header.required)}`
+              : undefined,
+            'deprecated' in header && header.deprecated
+              ? `deprecated:${JSON.stringify(header.deprecated)}`
+              : undefined,
+            'example' in header && header.example
+              ? `example:${JSON.stringify(header.example)}`
+              : undefined,
+            'examples' in header && header.examples
+              ? `examples:${JSON.stringify(header.examples)}`
+              : undefined,
+          ]
+            .filter((v) => v !== undefined)
+            .join(',')
+          return `${JSON.stringify(headerKey)}:{${props}}`
+        })
+      : undefined
+    const props = [
+      contentType ? `contentType:${JSON.stringify(contentType)}` : undefined,
+      headers ? `headers:${headers}` : undefined,
+      // encoding ? `encoding:{${makeEncoding(contentType, encodingName, encoding)}}` : undefined,
+      // encoding.prefixEncoding
+      //   ? `prefixEncoding:{${makeEncoding(contentType, encodingName, encoding.prefixEncoding)}}`
+      //   : undefined,
+      // encoding.itemEncoding
+      //   ? `itemEncoding:{${makeEncoding(contentType, encodingName, encoding.itemEncoding)}}`
+      //   : undefined,
+    ]
+      .filter((v) => v !== undefined)
+      .join(',')
+
+    return `${JSON.stringify(encodingName)}:{${props}}`
+  }
+
+  return Object.entries(content).map(([contentType, media]) => {
+    // const meta = {
+    //   headers: media.encoding?.headers
+    // }
+    const zSchema = zodToOpenAPI(media.schema)
+    const zItemSchema = media.itemSchema ? zodToOpenAPI(media.itemSchema) : undefined
+
+    const encoding = media.encoding
+      ? Object.entries(media.encoding).map(([encodingName, encoding]) => {
+          // const headers = encoding.headers
+          //   ? Object.entries(encoding.headers)
+          //       .map(([headerKey, header]) => {
+          //         // Reference
+          //         if ('$ref' in header && header.$ref) {
+          //           return refSchema(header.$ref)
+          //           // const props = [
+          //           //   header.summary ? `summary:${JSON.stringify(header.summary)}` : undefined,
+          //           //   header.description ? `description:${JSON.stringify(header.description)}` : undefined,
+          //           // ].filter(v => v !== undefined).join(',')
+          //           // return `${JSON.stringify(headerKey)}:{${props}}`
+          //         }
+          //         // Header
+          //         const props = [
+          //           'description' in header && header.description
+          //             ? `description:${JSON.stringify(header.description)}`
+          //             : undefined,
+          //           'required' in header && header.required
+          //             ? `required:${JSON.stringify(header.required)}`
+          //             : undefined,
+          //           'deprecated' in header && header.deprecated
+          //             ? `deprecated:${JSON.stringify(header.deprecated)}`
+          //             : undefined,
+          //           'example' in header && header.example
+          //             ? `example:${JSON.stringify(header.example)}`
+          //             : undefined,
+          //           'examples' in header && header.examples
+          //             ? `examples:${JSON.stringify(header.examples)}`
+          //             : undefined,
+          //         ]
+          //           .filter((v) => v !== undefined)
+          //           .join(',')
+          //         return `${JSON.stringify(headerKey)}:{${props}}`
+          //       })
+          //       .filter((v) => v !== undefined)
+          //       .join(',')
+          //   : undefined
+
+          // const props = [
+          //   contentType ? `contentType:${JSON.stringify(contentType)}` : undefined,
+          //   headers ? `headers:${headers}` : undefined,
+          // ]
+          //   .filter((v) => v !== undefined)
+          //   .join(',')
+
+          return makeEncoding(contentType, encodingName, encoding)
+        })
+      : undefined
+
+    const props = [
+      `schema:${zSchema}`,
+      zItemSchema ? `itemSchema:${zItemSchema}` : undefined,
+      media.example ? `example:${JSON.stringify(media.example)}` : undefined,
+      media.examples ? `examples:${JSON.stringify(media.examples)}` : undefined,
+      media.encoding ? `encoding:{${encoding}}` : undefined,
+      media.prefixEncoding
+        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', media.prefixEncoding)}}`
+        : undefined,
+      media.itemEncoding
+        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', media.itemEncoding)}}`
+        : undefined,
+    ]
+      .filter((v) => v !== undefined)
+      .join(',')
+    return `${JSON.stringify(contentType)}:{${props}}`
+  })
 }
