@@ -102,8 +102,8 @@ export function route(
     request: requestParams ? `${requestParams}` : '',
     responses: responses ? `responses:{${response(responses, components, options)}},` : '',
     callbacks: callbacksCode,
-    security: security ? `security:${JSON.stringify(security)},` : '',
     deprecated: deprecated ? `deprecated:${deprecated},` : '',
+    security: security ? `security:${JSON.stringify(security)},` : '',
     servers: servers ? `servers:${JSON.stringify(servers)},` : '',
   }
 
