@@ -1,3 +1,4 @@
+import { makeContent } from '../../../../helper/components.js'
 import type { Components, Responses } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 import { headersPropExpr } from './headers.js'
@@ -58,10 +59,30 @@ export function responses(components: Components, exportSchema: boolean): string
   if (!responses) return ''
 
   return Object.keys(responses)
-    .map((key) => {
-      const res = responses[key]
-      const expr = res ? responseDefinitionExpr(res, components) : '{}'
-      return declareConst(responseConstName(key), expr, exportSchema)
+    .map((k) => {
+      const res = responses[k]
+
+      const content = res.content ? makeContent(res.content) : undefined
+
+      const props = [
+        res.summary ? `summary:${JSON.stringify(res.summary)}` : undefined,
+        res.description ? `description:${JSON.stringify(res.description)}` : undefined,
+        res.content ? `content:{${content}}` : undefined,
+      ]
+        .filter((v) => v !== undefined)
+        .join(',')
+
+      return `${exportSchema ? 'export const' : 'const'} ${responseConstName(k)}={${props}}`
     })
     .join('\n\n')
+
+  // console.log(JSON.stringify(responses, null, 2))
+
+  // return Object.keys(responses)
+  //   .map((key) => {
+  //     const res = responses[key]
+  //     const expr = res ? responseDefinitionExpr(res, components) : '{}'
+  //     return declareConst(responseConstName(key), expr, exportSchema)
+  //   })
+  //   .join('\n\n')
 }
