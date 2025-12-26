@@ -1,4 +1,5 @@
 import type { Components } from '../../../../openapi/index.js'
+import { inlineExampleExpr } from '../../../../helper/examples.js'
 import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
@@ -22,7 +23,7 @@ export function examples(components: Components, exportExamples: boolean): strin
 }
 
 /**
- * Generates an example expression from an example value.
+ * Generates an example expression from an example value (simple version without $ref resolution).
  */
 export const exampleExpr = (example: unknown): string => {
   if (isRef(example)) {
@@ -33,21 +34,7 @@ export const exampleExpr = (example: unknown): string => {
 }
 
 /**
- * Generates an inline example expression.
- */
-const inlineExampleExpr = (example: Record<string, unknown>): string => {
-  const fields = [
-    example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
-    example.description !== undefined
-      ? `description:${JSON.stringify(example.description)}`
-      : undefined,
-    example.value !== undefined ? `value:${JSON.stringify(example.value)}` : undefined,
-  ].filter((v) => v !== undefined)
-  return `{${fields.join(',')}}`
-}
-
-/**
- * Generates an examples property expression.
+ * Generates an examples property expression (simple version without $ref resolution).
  */
 export const examplesPropExpr = (
   examples: Record<string, unknown> | undefined,

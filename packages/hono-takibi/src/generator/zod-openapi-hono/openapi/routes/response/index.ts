@@ -15,13 +15,11 @@ const responseConstName = (key: string): string =>
  *
  * @param responses - OpenAPI response object keyed by HTTP status code.
  * @param components - Optional OpenAPI components for resolving references.
- * @param options - Optional settings for code generation.
  * @returns A string of TypeScript code representing the response schema.
  */
 export function response(
   responses: { [k: string]: Responses },
   components?: Components,
-  options?: { readonly useComponentRefs?: boolean },
 ): string {
   const buildExamplesCode = (examples: NonNullable<Responses['content']>[string]['examples']): string => {
     if (!examples || Object.keys(examples).length === 0) return ''
@@ -60,13 +58,10 @@ export function response(
     if (res.$ref) {
       if (res.$ref.startsWith('#/components/responses/')) {
         const key = res.$ref.split('/').pop()
-        if (key && options?.useComponentRefs) {
-          return `${code}:${responseConstName(key)},`
-        }
-        // Resolve the reference
         const resolved = key ? components?.responses?.[key] : undefined
-        if (resolved) {
-          return buildResponseCode(code, resolved)
+        // Use component const name when the component exists
+        if (key && resolved) {
+          return `${code}:${responseConstName(key)},`
         }
       }
       return `${code}:{$ref:${JSON.stringify(res.$ref)}},`

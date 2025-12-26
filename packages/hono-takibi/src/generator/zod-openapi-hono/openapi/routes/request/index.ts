@@ -148,14 +148,12 @@ const mergeRequestCode = (requestParams: string, bodyCode: string): string => {
  * @param parameters - OpenAPI `parameters` array (query, path, header).
  * @param body - OpenAPI `requestBody` object.
  * @param components - OpenAPI components for resolving references.
- * @param options - Options for code generation.
  * @returns A formatted `request:{ ... }` string or empty string if neither is defined.
  */
 export function request(
   parameters: readonly Parameter[] | undefined,
   body: RequestBody | undefined,
   components?: Components,
-  options?: { readonly useComponentRefs?: boolean },
 ): string {
   const resolvedBodyRef = body ? resolveBodyRef(body, components) : undefined
   const resolvedBody = body ? resolveBody(body, components) : undefined
@@ -165,8 +163,8 @@ export function request(
 
   const requestParams = parameters ? buildRequestParams(parameters) : ''
 
-  // Handle component reference mode
-  if (resolvedBodyRef && options?.useComponentRefs) {
+  // Use component const name when the component exists
+  if (resolvedBodyRef) {
     const bodyCode = `body:${resolvedBodyRef.constName},`
     return mergeRequestCode(requestParams, bodyCode)
   }

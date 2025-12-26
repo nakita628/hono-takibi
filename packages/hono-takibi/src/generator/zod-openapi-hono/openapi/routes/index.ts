@@ -32,10 +32,7 @@ const resolveParamRef = (
   return { ...param, $ref: p.$ref }
 }
 
-export function routeCode(
-  openapi: OpenAPI,
-  options?: { readonly useComponentRefs?: boolean },
-): string {
+export function routeCode(openapi: OpenAPI): string {
   const routes: string[] = []
 
   const parametersMap = openapi.components?.parameters
@@ -75,7 +72,7 @@ export function routeCode(
         if (mergedParams) return { ...maybeOp, parameters: mergedParams }
         return maybeOp
       })()
-      routes.push(route(path, method, op, components, options))
+      routes.push(route(path, method, op, components))
     }
   }
   return routes.filter(Boolean).join('\n\n')
