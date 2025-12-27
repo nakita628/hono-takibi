@@ -29,7 +29,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
             }
             return undefined
           })
-          .filter((v): v is string => v !== undefined)
+          .filter((v) => v !== undefined)
           .join(',')
 
         const props = [
