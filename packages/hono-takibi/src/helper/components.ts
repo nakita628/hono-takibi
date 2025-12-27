@@ -11,6 +11,11 @@ import type {
 } from '../openapi/index.js'
 import { buildExamples, refSchema } from '../utils/index.js'
 
+/**
+ * generates callbacks
+ * @param callbacks 
+ * @returns 
+ */
 export function makeCallbacks(callbacks: Callbacks): string {
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
@@ -150,6 +155,11 @@ export function makeCallbacks(callbacks: Callbacks): string {
     .join(',')
 }
 
+/**
+ * generates content
+ * @param content 
+ * @returns 
+ */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
 ): string[] {
