@@ -1,27 +1,5 @@
-import type { Components, Responses } from '../../../../openapi/index.js'
+import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, refSchema, toIdentifier } from '../../../../utils/index.js'
-
-/**
- * Generates TypeScript code for OpenAPI component links.
- *
- * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the link variables.
- * @returns A string of TypeScript code with link definitions.
- */
-export const linksPropExpr = (links: Responses['links'] | undefined): string | undefined => {
-  const isRefO = (v: unknown): v is { $ref: string } =>
-    typeof v === 'object' && v !== null && '$ref' in v
-  if (!links) return undefined
-
-  const entries = Object.entries(links).map(([name, link]) => {
-    if (isRefO(link)) {
-      return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
-    }
-    return `${JSON.stringify(name)}:${JSON.stringify(link)}`
-  })
-
-  return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
-}
 
 export function links(components: Components, exportLinks: boolean) {
   const { links } = components
