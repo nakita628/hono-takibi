@@ -3,7 +3,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Components, Schema } from '../openapi/index.js'
+import type { Schema } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   findSchema,
@@ -21,21 +21,6 @@ const headerBaseName = (key: string): string => {
 }
 
 const schemaVarName = (schemaName: string): string => sanitizeIdentifier(`${schemaName}Schema`)
-
-type HeaderComponent = NonNullable<Components['headers']>[string]
-
-const headerSchema = (header: unknown): Schema => {
-  if (!isRecord(header)) return {}
-  const raw = header.schema
-  return isRecord(raw) ? (raw as Schema) : {}
-}
-
-const mergeHeaderSchema = (header: HeaderComponent): Schema => {
-  const base = headerSchema(header)
-  return header.description !== undefined && base.description === undefined
-    ? { ...base, description: header.description }
-    : base
-}
 
 /**
  * Generates `components.headers` as Zod schemas.
@@ -88,7 +73,13 @@ export async function headers(
       if (!header) continue
 
       const schemaName = headerBaseName(key)
-      const z = zodToOpenAPI(mergeHeaderSchema(header))
+      const h: Record<string, unknown> = isRecord(header) ? header : {}
+      const rawSchema = isRecord(h.schema) ? (h.schema as Schema) : {}
+      const mergedSchema: Schema =
+        header.description !== undefined && rawSchema.description === undefined
+          ? { ...rawSchema, description: header.description }
+          : rawSchema
+      const z = zodToOpenAPI(mergedSchema)
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
       const filePath = path.join(outDir, `${lowerFirst(schemaName)}.ts`)
@@ -119,7 +110,14 @@ export async function headers(
     .map((key) => {
       const header = hs[key]
       const schemaName = headerBaseName(key)
-      const schema = header ? mergeHeaderSchema(header) : {}
+      const schema: Schema = (() => {
+        if (!header) return {}
+        const h: Record<string, unknown> = isRecord(header) ? header : {}
+        const rawSchema = isRecord(h.schema) ? (h.schema as Schema) : {}
+        return header.description !== undefined && rawSchema.description === undefined
+          ? { ...rawSchema, description: header.description }
+          : rawSchema
+      })()
       const z = isRecord(schema) ? zodToOpenAPI(schema) : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })

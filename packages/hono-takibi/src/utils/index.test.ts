@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  configToTarget,
   ensureSuffix,
   escapeStringLiteral,
   findSchema,
@@ -765,44 +764,6 @@ export type Limit = z.infer<typeof LimitSchema>`)
       ['', 'Example', 'Example'],
     ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
       expect(ensureSuffix(input, suffix)).toBe(expected)
-    })
-  })
-  // configToTarget
-  describe('configToTarget', () => {
-    it.concurrent('returns undefined for undefined config', () => {
-      const result = configToTarget(undefined)
-      expect(result).toBeUndefined()
-    })
-    it.concurrent('creates target from config object', () => {
-      const result = configToTarget({ output: 'src/schemas/index.ts' })
-      expect(result).toStrictEqual({ output: 'src/schemas/index.ts' })
-    })
-    it.concurrent('creates target with all options', () => {
-      const result = configToTarget({
-        output: 'src/schemas',
-        split: true,
-        import: '@packages/schemas',
-      })
-      expect(result).toStrictEqual({
-        output: 'src/schemas',
-        split: true,
-        import: '@packages/schemas',
-      })
-    })
-    it.concurrent('applies transform to output path', () => {
-      const result = configToTarget({ output: 'schemas' }, (p) => `/abs/${p}`)
-      expect(result).toStrictEqual({ output: '/abs/schemas' })
-    })
-    it.concurrent('preserves split and import with transform', () => {
-      const result = configToTarget(
-        { output: 'schemas', split: true, import: '@packages/schemas' },
-        (p) => `/abs/${p}`,
-      )
-      expect(result).toStrictEqual({
-        output: '/abs/schemas',
-        split: true,
-        import: '@packages/schemas',
-      })
     })
   })
 })

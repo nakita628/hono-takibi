@@ -1,10 +1,5 @@
 import type { Content, Parameter, RequestBody } from '../../../../../openapi/index.js'
-import {
-  isRecord,
-  replaceSuffix,
-  requestParamsArray,
-  toIdentifier,
-} from '../../../../../utils/index.js'
+import { isRecord, requestParamsArray, toIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
 import { params } from '../params/index.js'
@@ -18,7 +13,11 @@ const isMedia = (v: unknown): v is Content[string] =>
 
 // Helper functions
 const requestBodyConstName = (key: string): string =>
-  toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
+  toIdentifier(
+    key.endsWith('Body')
+      ? `${key.slice(0, -'Body'.length)}RequestBody`
+      : `${key}RequestBody`,
+  )
 
 // Builder functions
 const buildRequestParams = (parameters: readonly Parameter[]): string => {

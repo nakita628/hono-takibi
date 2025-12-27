@@ -11,7 +11,6 @@ import {
   isRecord,
   lowerFirst,
   renderNamedImport,
-  replaceSuffix,
   toIdentifier,
 } from '../utils/index.js'
 
@@ -19,7 +18,9 @@ const isMedia = (v: unknown): v is Content[string] =>
   isRecord(v) && 'schema' in v && isRecord(v.schema)
 
 const requestBodyConstName = (key: string): string =>
-  toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
+  toIdentifier(
+    key.endsWith('Body') ? `${key.slice(0, -'Body'.length)}RequestBody` : `${key}RequestBody`,
+  )
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr

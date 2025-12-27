@@ -13,7 +13,7 @@ import { schemas } from '../core/schemas.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
-import { configToTarget, isRecord, parseConfig } from '../utils/index.js'
+import { isRecord, parseConfig } from '../utils/index.js'
 
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -40,6 +40,8 @@ type DevServerLike = {
 const isConf = (v: unknown): v is Conf => typeof v === 'object' && v !== null
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
 const isTsFile = (p: string): p is `${string}.ts` => p.endsWith('.ts')
+const withAbsOutput = <T extends { output: string }>(config: T | undefined): T | undefined =>
+  config ? { ...config, output: toAbs(config.output) } : undefined
 
 const loadConfigHot = async (
   server: DevServerLike,
@@ -200,10 +202,10 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const zo = c['zod-openapi']
   const components = zo?.components
 
-  const schemaTarget = configToTarget(components?.schemas, toAbs)
-  const examplesTarget = configToTarget(components?.examples, toAbs)
-  const headersTarget = configToTarget(components?.headers, toAbs)
-  const linksTarget = configToTarget(components?.links, toAbs)
+  const schemaTarget = withAbsOutput(components?.schemas)
+  const examplesTarget = withAbsOutput(components?.examples)
+  const headersTarget = withAbsOutput(components?.headers)
+  const linksTarget = withAbsOutput(components?.links)
 
   // zod-openapi top-level output (non-split)
   if (zo && !(components?.schemas || zo.routes) && zo.output) {
@@ -469,13 +471,13 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
       const routeComponents = components
         ? {
             schemas: schemaTarget,
-            parameters: configToTarget(components?.parameters, toAbs),
-            headers: configToTarget(components?.headers, toAbs),
-            requestBodies: configToTarget(components?.requestBodies, toAbs),
-            responses: configToTarget(components?.responses, toAbs),
-            links: configToTarget(components?.links, toAbs),
-            callbacks: configToTarget(components?.callbacks, toAbs),
-            examples: configToTarget(components?.examples, toAbs),
+            parameters: withAbsOutput(components?.parameters),
+            headers: withAbsOutput(components?.headers),
+            requestBodies: withAbsOutput(components?.requestBodies),
+            responses: withAbsOutput(components?.responses),
+            links: withAbsOutput(components?.links),
+            callbacks: withAbsOutput(components?.callbacks),
+            examples: withAbsOutput(components?.examples),
           }
         : undefined
 

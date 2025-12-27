@@ -877,39 +877,3 @@ export function lowerFirst(text: string): string {
 export function ensureSuffix(text: string, suffix: string): string {
   return text.endsWith(suffix) ? text : `${text}${suffix}`
 }
-
-export function replaceSuffix(name: string, fromSuffix: string, toSuffix: string): string {
-  return name.endsWith(fromSuffix)
-    ? `${name.slice(0, -fromSuffix.length)}${toSuffix}`
-    : `${name}${toSuffix}`
-}
-
-/**
- * Creates an import target from a component config object.
- *
- * @param config - The component configuration object.
- * @param transform - Optional function to transform the output path (e.g., toAbs for absolute paths).
- * @returns An import target object or undefined if config is undefined.
- */
-export function configToTarget(
-  config?: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  },
-  transform?: (output: string) => string,
-):
-  | {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-  | undefined {
-  if (!config) return undefined
-  const output = transform ? transform(config.output) : config.output
-  return {
-    output,
-    ...(config.split !== undefined ? { split: config.split } : {}),
-    ...(config.import !== undefined ? { import: config.import } : {}),
-  }
-}
