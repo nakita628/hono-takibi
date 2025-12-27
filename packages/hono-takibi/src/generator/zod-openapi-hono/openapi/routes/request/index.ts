@@ -26,29 +26,6 @@ const buildRequestParams = (parameters: readonly Parameter[]): string => {
   return requestParamsArr.length ? `request:{${requestParamsArr.join(',')}},` : ''
 }
 
-const buildBodyCode = (
-  resolvedBody: RequestBody,
-  contentEntries: [string, Content[string]][],
-): string => {
-  // Deduplicate schemas
-  const uniqueSchemas = new Map<string, string>()
-  for (const [, media] of contentEntries) {
-    const z = zodToOpenAPI(media.schema)
-    uniqueSchemas.set(z, z)
-  }
-  const [firstSchema] = uniqueSchemas.values()
-  const required = resolvedBody.required ?? false
-
-  const contentWithExamples: Record<string, Content[string]> = {}
-  for (const [contentType, media] of contentEntries) {
-    contentWithExamples[contentType] = media
-  }
-
-  return requestBody(required, contentWithExamples, firstSchema, {
-    description: resolvedBody.description,
-  })
-}
-
 const mergeRequestCode = (requestParams: string, bodyCode: string): string => {
   if (requestParams) {
     return requestParams.replace('request:{', `request:{${bodyCode}`)
@@ -88,9 +65,7 @@ export function request(
       (entry): entry is [string, Content[string]] => isMedia(entry[1]),
     )
     if (contentEntries.length === 0) return requestParams
-
-    const bodyCode = buildBodyCode(body, contentEntries)
-    return mergeRequestCode(requestParams, bodyCode)
+    return `request:{${requestBody(body)}},`
   }
 
   return requestParams
