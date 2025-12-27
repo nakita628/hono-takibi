@@ -4,7 +4,7 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function headers(
   components: Components,
-  exportSchema: boolean,
+  exportHeaders: boolean,
   exportHeadersTypes: boolean,
 ) {
   const { headers } = components
@@ -33,7 +33,7 @@ export function headers(
       const zInfer = exportHeadersTypes
         ? `export type ${toIdentifier(ensureSuffix(k, 'Header'))} = z.infer<typeof ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))}>`
         : ''
-      return `${exportSchema ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))} = ${z}${zInfer ? `\n\n${zInfer}` : ''}`
+      return `${exportHeaders ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))} = ${z}${zInfer ? `\n\n${zInfer}` : ''}`
     })
     .join('\n\n')
 }

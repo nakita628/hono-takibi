@@ -1,4 +1,4 @@
-# Memo
+# requestBodies
 
 -  [x] requestBodies
 
@@ -15,6 +15,8 @@ export type RequestBody = {
   readonly required?: boolean
 }
 ```
+
+## Generator
 
 ```ts
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
@@ -55,3 +57,4 @@ export function requestBodies(components: Components, exportRequestBodies: boole
     .join('\n\n')
 }
 ```
+

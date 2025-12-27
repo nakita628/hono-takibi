@@ -1,6 +1,12 @@
-import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+# Examples
 
+## References
+
+- [Example Object](https://spec.openapis.org/oas/v3.2.0.html#example-object)
+
+## Generator
+
+```ts
 export function examples(components: Components, exportExamples: boolean): string {
   const { examples } = components
   if (!examples) return ''
@@ -11,3 +17,4 @@ export function examples(components: Components, exportExamples: boolean): strin
     })
     .join('\n\n')
 }
+```

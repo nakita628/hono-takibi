@@ -240,17 +240,6 @@ export type Ref =
   | `#/components/links/${string}`
   | `#/components/callbacks/${string}`
 
-type Examples = {
-  readonly [k: string]:
-    | {
-        readonly summary?: string
-        readonly description?: string
-        readonly value?: unknown
-        readonly externalValue?: string
-      }
-    | Reference
-}
-
 type Server = {
   readonly url: string
   readonly description?: string
@@ -269,7 +258,18 @@ export type Header = {
   readonly required?: boolean
   readonly deprecated?: boolean
   readonly example?: unknown
-  readonly examples?: Examples
+  readonly examples?: {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | Reference
+  }
 }
 
 type Link = {
@@ -405,7 +405,18 @@ export type Schema = {
   readonly externalDocs?: ExternalDocs
   readonly example?: unknown
   // search properties
-  readonly examples?: Examples
+  readonly examples?: {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | Reference
+  }
   readonly name?: string
   readonly description?: string
   readonly type?: Type | [Type, ...Type[]]
@@ -457,7 +468,18 @@ export type Parameter = {
   readonly schema: Schema
   readonly content?: Content
   readonly example?: unknown
-  readonly examples?: Examples
+  readonly examples?: {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | Reference
+  }
 }
 
 export type RequestBody = {
@@ -472,7 +494,18 @@ export type Media = {
   readonly schema: Schema
   readonly itemSchema?: Schema
   readonly example?: unknown
-  readonly examples?: Examples
+  readonly examples?: {
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly defaultValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | Reference
+  }
   readonly encoding?: {
     readonly [k: string]: Encoding
   }

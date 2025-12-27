@@ -3,19 +3,6 @@ import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
-/**
- * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
- *
- * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the Zod schema variables.
- * @param exportType - Whether to export the inferred Zod types.
- * @returns A string of TypeScript code with Zod schema and type definitions, or an empty string if no schemas exist.
- *
- * @remarks
- * - Resolves schema dependency order to avoid reference errors.
- * - Skips generation if no schemas are defined.
- * - Uses `zodToOpenAPI` and `zodToOpenAPISchema` for code generation.
- */
 export function schemas(
   components: Components,
   exportSchemas: boolean,

@@ -1,13 +1,7 @@
 import { makeContent } from '../../../../helper/components.js'
 import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
-/**
- * Generates TypeScript code for OpenAPI component responses.
- *
- * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the response variables.
- * @returns A string of TypeScript code with response definitions.
- */
+
 export function responses(components: Components, exportResponses: boolean): string {
   const { responses } = components
   if (!responses) return ''

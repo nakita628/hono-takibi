@@ -2,13 +2,6 @@ import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
-/**
- * Generates TypeScript code for OpenAPI component requestBodies.
- *
- * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the requestBody variables.
- * @returns A string of TypeScript code with requestBody definitions.
- */
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''
