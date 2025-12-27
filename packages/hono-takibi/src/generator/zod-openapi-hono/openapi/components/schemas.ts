@@ -18,8 +18,8 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  */
 export function schemas(
   components: Components,
-  exportSchema: boolean,
-  exportType: boolean,
+  exportSchemas: boolean,
+  exportSchemasTypes: boolean,
 ): string {
   // 1. schema extraction
   const { schemas } = components
@@ -36,7 +36,7 @@ export function schemas(
       // 4.2 generate zod schema
       const z = zodToOpenAPI(schema)
       // 4.3 generate zod schema definition
-      return zodToOpenAPISchema(schemaName, z, exportSchema, exportType)
+      return zodToOpenAPISchema(schemaName, z, exportSchemas, exportSchemasTypes)
     })
     .join('\n\n')
   // 5. return code
