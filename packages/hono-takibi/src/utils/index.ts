@@ -878,6 +878,12 @@ export function ensureSuffix(text: string, suffix: string): string {
   return text.endsWith(suffix) ? text : `${text}${suffix}`
 }
 
+export function replaceSuffix(name: string, fromSuffix: string, toSuffix: string): string {
+  return name.endsWith(fromSuffix)
+    ? `${name.slice(0, -fromSuffix.length)}${toSuffix}`
+    : `${name}${toSuffix}`
+}
+
 /**
  * Creates an import target from a component config object.
  *

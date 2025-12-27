@@ -13,8 +13,6 @@ const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   return true
 }
 
-const isSchema = (v: unknown): v is Schema => isRecord(v)
-
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
@@ -73,7 +71,7 @@ const createResolveRef =
     const m = ref.match(/^#\/components\/schemas\/(.+)$/)
     if (!m) return undefined
     const target = schemas[m[1]]
-    return isSchema(target) ? target : undefined
+    return isRecord(target) ? target : undefined
   }
 
 /** TS type printer (handles $ref / enums / combinators / additionalProperties / nullable) */
@@ -106,7 +104,7 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
 
     // array (parentheses when inner contains union/intersection)
     if (types.includes('array')) {
-      const item = isSchema(schema.items) ? schema.items : undefined
+      const item = isRecord(schema.items) ? (schema.items as Schema) : undefined
       const inner = tt(item, next)
       const needParens = /[|&]/.test(inner) && !/^\(.*\)$/.test(inner)
       const core = `${needParens ? `(${inner})` : inner}[]`
@@ -118,12 +116,16 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
       const props = schema.properties ?? {}
       const fields = Object.entries(props).map(([k, v]) => {
         const opt = req.has(k) ? '' : '?'
-        const child = isSchema(v) ? v : undefined
+        const child = isRecord(v) ? (v as Schema) : undefined
         return `${k}${opt}:${tt(child, next)}`
       })
       const ap = schema.additionalProperties
       const addl =
-        ap === true ? '[key:string]:unknown' : isSchema(ap) ? `[key:string]:${tt(ap, next)}` : ''
+        ap === true
+          ? '[key:string]:unknown'
+          : isRecord(ap)
+            ? `[key:string]:${tt(ap as Schema, next)}`
+            : ''
       const members = [...fields, addl].filter(Boolean).join(',')
       const core = `{${members}}`
       return schema.nullable ? `${core}|null` : core
@@ -226,7 +228,7 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (hasSchemaProp(media) && isSchema(media.schema)) return media.schema
+    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema as Schema
   }
   return undefined
 }

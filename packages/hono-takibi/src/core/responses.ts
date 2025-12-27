@@ -15,7 +15,6 @@ import {
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
 
 function withSuffix(name: string, suffix: string): string {
   return name.endsWith(suffix) ? name : `${name}${suffix}`
@@ -55,7 +54,7 @@ type Imports = {
 const headerSchemaExpr = (header: unknown): string => {
   if (!isRecord(header)) return 'z.any()'
   const rawSchema = header.schema
-  const schema = isSchema(rawSchema) ? rawSchema : {}
+  const schema = isRecord(rawSchema) ? (rawSchema as Schema) : {}
   const description = typeof header.description === 'string' ? header.description : undefined
   const example = 'example' in header ? header.example : undefined
   const merged: Schema = {

@@ -1,33 +1,24 @@
-import type { Content, Parameter, RequestBody, Schema } from '../../../../../openapi/index.js'
-import { requestParamsArray, sanitizeIdentifier } from '../../../../../utils/index.js'
+import type { Content, Parameter, RequestBody } from '../../../../../openapi/index.js'
+import {
+  isRecord,
+  replaceSuffix,
+  requestParamsArray,
+  toIdentifier,
+} from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 import { requestBody } from '../request/body/index.js'
 import { params } from '../params/index.js'
 
 // Type guards
-const isRecord = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null
-
 const isRef = (v: unknown): v is { $ref: string } =>
   isRecord(v) && typeof v.$ref === 'string'
 
-const isSchema = (v: unknown): v is Schema => isRecord(v)
-
 const isMedia = (v: unknown): v is Content[string] =>
-  isRecord(v) && 'schema' in v && isSchema(v.schema)
+  isRecord(v) && 'schema' in v && isRecord(v.schema)
 
 // Helper functions
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
-
-const requestBodyConstName = (key: string): string => {
-  const base = key.endsWith('Body')
-    ? `${key.slice(0, -'Body'.length)}RequestBody`
-    : `${key}RequestBody`
-  return toIdentifier(base)
-}
+const requestBodyConstName = (key: string): string =>
+  toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
 
 // Builder functions
 const buildRequestParams = (parameters: readonly Parameter[]): string => {

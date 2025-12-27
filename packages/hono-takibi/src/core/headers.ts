@@ -13,8 +13,6 @@ import {
   sanitizeIdentifier,
 } from '../utils/index.js'
 
-const isSchema = (v: unknown): v is Schema => typeof v === 'object' && v !== null
-
 const headerBaseName = (key: string): string => {
   const safe = sanitizeIdentifier(key)
   if (safe.endsWith('HeaderSchema')) return safe.slice(0, -'Schema'.length)
@@ -29,7 +27,7 @@ type HeaderComponent = NonNullable<Components['headers']>[string]
 const headerSchema = (header: unknown): Schema => {
   if (!isRecord(header)) return {}
   const raw = header.schema
-  return isSchema(raw) ? raw : {}
+  return isRecord(raw) ? (raw as Schema) : {}
 }
 
 const mergeHeaderSchema = (header: HeaderComponent): Schema => {
@@ -122,7 +120,7 @@ export async function headers(
       const header = hs[key]
       const schemaName = headerBaseName(key)
       const schema = header ? mergeHeaderSchema(header) : {}
-      const z = isSchema(schema) ? zodToOpenAPI(schema) : 'z.any()'
+      const z = isRecord(schema) ? zodToOpenAPI(schema) : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')

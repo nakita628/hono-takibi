@@ -150,23 +150,19 @@ const UploadEnvelopeSchema = z
   .openapi('UploadEnvelope')
 
 const RequestIdHeaderSchema = z
-  .any()
+  .string()
   .optional()
-  .openapi({
-    description: 'Trace id for debugging',
-    schema: { type: 'string', example: 'req_01JABCDEFGHJKL' },
-  })
+  .openapi({ type: 'string', example: 'req_01JABCDEFGHJKL', description: 'Trace id for debugging' })
 
 const ChecksumSha256HeaderSchema = z
-  .any()
+  .string()
+  .regex(/^[a-f0-9]{64}$/)
   .optional()
   .openapi({
+    type: 'string',
+    pattern: '^[a-f0-9]{64}$',
+    example: 'c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00',
     description: 'SHA-256 checksum (hex)',
-    schema: {
-      type: 'string',
-      pattern: '^[a-f0-9]{64}$',
-      example: 'c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00',
-    },
   })
 
 export const postUploadsRoute = createRoute({
