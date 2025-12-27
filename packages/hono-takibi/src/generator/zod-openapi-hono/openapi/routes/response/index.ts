@@ -1,4 +1,4 @@
-import type { Components, Responses } from '../../../../../openapi/index.js'
+import type { Responses } from '../../../../../openapi/index.js'
 import { escapeStringLiteral, isUniqueContentSchema, sanitizeIdentifier } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
@@ -14,13 +14,9 @@ const responseConstName = (key: string): string =>
  * Generates a Zod-compatible response schema definition from OpenAPI responses.
  *
  * @param responses - OpenAPI response object keyed by HTTP status code.
- * @param components - Optional OpenAPI components for resolving references.
  * @returns A string of TypeScript code representing the response schema.
  */
-export function response(
-  responses: { [k: string]: Responses },
-  components?: Components,
-): string {
+export function response(responses: { [k: string]: Responses }): string {
   const buildExamplesCode = (examples: NonNullable<Responses['content']>[string]['examples']): string => {
     if (!examples || Object.keys(examples).length === 0) return ''
     const entries = Object.entries(examples)
@@ -58,9 +54,7 @@ export function response(
     if (res.$ref) {
       if (res.$ref.startsWith('#/components/responses/')) {
         const key = res.$ref.split('/').pop()
-        const resolved = key ? components?.responses?.[key] : undefined
-        // Use component const name when the component exists
-        if (key && resolved) {
+        if (key) {
           return `${code}:${responseConstName(key)},`
         }
       }

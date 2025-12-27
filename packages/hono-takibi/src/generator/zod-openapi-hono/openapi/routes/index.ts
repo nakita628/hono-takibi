@@ -37,7 +37,6 @@ export function routeCode(openapi: OpenAPI): string {
 
   const parametersMap = openapi.components?.parameters
   const openAPIPaths = openapi.paths
-  const components = openapi.components
 
   const isOp = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
   const isParam = (p: unknown): p is Parameter => isRecord(p) && 'name' in p && 'in' in p
@@ -72,7 +71,7 @@ export function routeCode(openapi: OpenAPI): string {
         if (mergedParams) return { ...maybeOp, parameters: mergedParams }
         return maybeOp
       })()
-      routes.push(route(path, method, op, components))
+      routes.push(route(path, method, op))
     }
   }
   return routes.filter(Boolean).join('\n\n')

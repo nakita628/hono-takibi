@@ -28,7 +28,13 @@ export function parameters(
         },
       }
       const z = zodToOpenAPI(parameter.schema, meta)
-      return zodToOpenAPISchema(toIdentifier(ensureSuffix(k, 'ParamsSchema')), z, exportSchema, exportType, true)
+      return zodToOpenAPISchema(
+        toIdentifier(ensureSuffix(k, 'ParamsSchema')),
+        z,
+        exportSchema,
+        exportType,
+        true,
+      )
     })
     .join('\n\n')
 }
