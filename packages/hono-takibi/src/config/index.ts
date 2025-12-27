@@ -8,15 +8,15 @@ type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportSchemasTypes?: boolean
     readonly exportSchemas?: boolean
-    readonly exportParametersTypes?: boolean
+    readonly exportSchemasTypes?: boolean
     readonly exportParameters?: boolean
+    readonly exportParametersTypes?: boolean
     readonly exportSecuritySchemes?: boolean
     readonly exportRequestBodies?: boolean
     readonly exportResponses?: boolean
-    readonly exportHeadersTypes?: boolean
     readonly exportHeaders?: boolean
+    readonly exportHeadersTypes?: boolean
     readonly exportExamples?: boolean
     readonly exportLinks?: boolean
     readonly exportCallbacks?: boolean

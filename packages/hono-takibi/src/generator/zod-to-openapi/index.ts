@@ -215,14 +215,17 @@ export function zodToOpenAPI(
       ref.startsWith('#/components/parameters/') ||
       ref.startsWith('#/components/headers/')
 
-    const item = schema.items?.$ref
-      ? isSchemaOrParameterOrHeaderRef(schema.items.$ref)
-        ? refSchema(schema.items.$ref)
-        : schema.items
-          ? zodToOpenAPI(schema.items, meta)
+    // Handle both array and single object items (runtime check for OpenAPI compatibility)
+    const rawItems = schema.items
+    const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
+    const item = itemSchema?.$ref
+      ? isSchemaOrParameterOrHeaderRef(itemSchema.$ref)
+        ? refSchema(itemSchema.$ref)
+        : itemSchema
+          ? zodToOpenAPI(itemSchema, meta)
           : 'z.any()'
-      : schema.items
-        ? zodToOpenAPI(schema.items, meta)
+      : itemSchema
+        ? zodToOpenAPI(itemSchema, meta)
         : 'z.any()'
     const z = `z.array(${item})`
 

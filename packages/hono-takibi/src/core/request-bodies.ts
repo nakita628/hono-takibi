@@ -3,7 +3,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, RequestBody, Schema } from '../openapi/index.js'
+import type { Components, Content, RequestBody } from '../openapi/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -14,16 +14,13 @@ import {
   toIdentifier,
 } from '../utils/index.js'
 
-const isSchema = (v: unknown): v is Schema => isRecord(v)
-const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
-
-const replaceSuffix = (name: string, fromSuffix: string, toSuffix: string): string =>
-  name.endsWith(fromSuffix)
-    ? `${name.slice(0, -fromSuffix.length)}${toSuffix}`
-    : `${name}${toSuffix}`
+const isMedia = (v: unknown): v is Content[string] =>
+  isRecord(v) && 'schema' in v && isRecord(v.schema)
 
 const requestBodyConstName = (key: string): string =>
-  toIdentifier(replaceSuffix(key, 'Body', 'RequestBody'))
+  toIdentifier(
+    key.endsWith('Body') ? `${key.slice(0, -'Body'.length)}RequestBody` : `${key}RequestBody`,
+  )
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr

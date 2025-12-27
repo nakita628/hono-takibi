@@ -47,6 +47,7 @@ export function wrap(
   const z = isNullable ? `${s}.nullable()` : s
 
   // ignore schemas required and nullable and additionalProperties and discriminator and const
+  // Also extract schema property to flatten it (for Header objects)
   const {
     required,
     nullable,
@@ -54,10 +55,17 @@ export function wrap(
     discriminator,
     const: unknown,
     $ref,
+    schema: innerSchema,
     ...rest
-  } = schema
+  } = schema as typeof schema & { schema?: Record<string, unknown> }
 
-  const openapiSchema = schema ? JSON.stringify(rest) : undefined
+  // Flatten innerSchema if present (for Header objects with nested schema)
+  const flattenedRest =
+    innerSchema && typeof innerSchema === 'object' && !Array.isArray(innerSchema)
+      ? { ...rest, ...innerSchema }
+      : rest
+
+  const openapiSchema = schema ? JSON.stringify(flattenedRest) : undefined
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)

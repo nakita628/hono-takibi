@@ -27,8 +27,5 @@ export function zodOpenAPIHono(
   },
 ): string {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
-  return `import { createRoute, z } from '@hono/zod-openapi'\n\n${components}\n\n${routeCode(
-    openapi,
-    { useComponentRefs: true },
-  )}`
+  return `import { createRoute, z } from '@hono/zod-openapi'\n\n${components}\n\n${routeCode(openapi)}`
 }

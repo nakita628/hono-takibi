@@ -1,5 +1,6 @@
 import { makeCallbacks } from '../../../../helper/components.js'
 import type { Callbacks, Components } from '../../../../openapi/index.js'
+import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 
 export function callbacks(components: Components, exportCallbacks: boolean): string {
   const { callbacks } = components
@@ -8,16 +9,14 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
   const isCallbacks = (v: unknown): v is Callbacks =>
     typeof v === 'object' && v !== null && !('$ref' in v)
 
-  const exportKeyword = exportCallbacks ? 'export ' : ''
-
   return Object.entries(callbacks)
-    .map(([callbackName, callbackOrRef]) => {
+    .map(([k, callbackOrRef]) => {
       if (!isCallbacks(callbackOrRef)) return undefined
       const callbackCode = makeCallbacks(callbackOrRef)
       return callbackCode
-        ? `${exportKeyword}const ${callbackName}Callbacks = {${callbackCode}}`
+        ? `${exportCallbacks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Callbacks'))} = {${callbackCode}}`
         : undefined
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join('\n\n')
 }

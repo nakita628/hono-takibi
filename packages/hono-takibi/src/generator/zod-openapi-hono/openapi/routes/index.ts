@@ -32,15 +32,11 @@ const resolveParamRef = (
   return { ...param, $ref: p.$ref }
 }
 
-export function routeCode(
-  openapi: OpenAPI,
-  options?: { readonly useComponentRefs?: boolean },
-): string {
+export function routeCode(openapi: OpenAPI): string {
   const routes: string[] = []
 
   const parametersMap = openapi.components?.parameters
   const openAPIPaths = openapi.paths
-  const components = openapi.components
 
   const isOp = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
   const isParam = (p: unknown): p is Parameter => isRecord(p) && 'name' in p && 'in' in p
@@ -75,7 +71,7 @@ export function routeCode(
         if (mergedParams) return { ...maybeOp, parameters: mergedParams }
         return maybeOp
       })()
-      routes.push(route(path, method, op, components, options))
+      routes.push(route(path, method, op))
     }
   }
   return routes.filter(Boolean).join('\n\n')

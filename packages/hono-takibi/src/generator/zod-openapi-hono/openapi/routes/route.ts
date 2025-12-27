@@ -1,4 +1,4 @@
-import type { Components, Operation } from '../../../../openapi/index.js'
+import type { Operation } from '../../../../openapi/index.js'
 import {
   escapeStringLiteral,
   methodPath,
@@ -20,13 +20,7 @@ import { response } from './response/index.js'
  * - Escapes all string literals.
  * - Produces a complete `.openapi()` route definition with validation.
  */
-export function route(
-  path: string,
-  method: string,
-  operation: Operation,
-  components?: Components,
-  options?: { readonly useComponentRefs?: boolean },
-): string {
+export function route(path: string, method: string, operation: Operation): string {
   const {
     tags,
     summary,
@@ -60,25 +54,11 @@ export function route(
 
   const callbacksCode = (() => {
     if (!(callbacks && isRecord(callbacks))) return ''
-    if (!options?.useComponentRefs) {
-      const out: Record<string, unknown> = {}
-      for (const [callbackName, value] of Object.entries(callbacks)) {
-        if (isRef(value) && value.$ref.startsWith('#/components/callbacks/')) {
-          const key = value.$ref.split('/').pop()
-          const resolved = key ? components?.callbacks?.[key] : undefined
-          out[callbackName] = resolved ?? value
-          continue
-        }
-        out[callbackName] = value
-      }
-      return Object.keys(out).length > 0 ? `callbacks:${JSON.stringify(out)},` : ''
-    }
 
     const entries = Object.entries(callbacks).map(([callbackName, value]) => {
       if (isRef(value) && value.$ref.startsWith('#/components/callbacks/')) {
         const key = value.$ref.split('/').pop()
-        const resolved = key ? components?.callbacks?.[key] : undefined
-        if (key && resolved) return `${JSON.stringify(callbackName)}:${callbackConstName(key)}`
+        if (key) return `${JSON.stringify(callbackName)}:${callbackConstName(key)}`
         return `${JSON.stringify(callbackName)}:{$ref:${JSON.stringify(value.$ref)}}`
       }
       return `${JSON.stringify(callbackName)}:${JSON.stringify(value)}`
@@ -87,8 +67,8 @@ export function route(
   })()
 
   const tagList = tags ? JSON.stringify(tags) : '[]'
-  
-  const requestParams = request(parameters, requestBody, components, options)
+
+  const requestParams = request(parameters, requestBody)
 
   const routeName = `${methodPath(method, path)}Route`
   const methodName = `method:'${method}',`
@@ -100,7 +80,7 @@ export function route(
     externalDocs: externalDocs ? `externalDocs:${JSON.stringify(externalDocs)},` : '',
     operationId: operationId ? `operationId:'${operationId}',` : '',
     request: requestParams ? `${requestParams}` : '',
-    responses: responses ? `responses:{${response(responses, components, options)}},` : '',
+    responses: responses ? `responses:{${response(responses)}},` : '',
     callbacks: callbacksCode,
     deprecated: deprecated ? `deprecated:${deprecated},` : '',
     security: security ? `security:${JSON.stringify(security)},` : '',

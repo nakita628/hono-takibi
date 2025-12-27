@@ -112,7 +112,7 @@ export async function route(
   const componentConfig = components
   const schemas = componentConfig?.schemas
 
-  // Determine if we should use component refs (when non-schema components are defined)
+  // Determine if non-schema components are defined (for import classification)
   const hasNonSchemaComponents =
     componentConfig?.requestBodies !== undefined ||
     componentConfig?.responses !== undefined ||
@@ -121,10 +121,7 @@ export async function route(
     componentConfig?.headers !== undefined ||
     componentConfig?.examples !== undefined
 
-  const routesSrc = routeCode(
-    openAPI,
-    hasNonSchemaComponents ? { useComponentRefs: true } : undefined,
-  )
+  const routesSrc = routeCode(openAPI)
 
   const schemaKeys = new Set(Object.keys(openAPI.components?.schemas ?? {}))
   const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))

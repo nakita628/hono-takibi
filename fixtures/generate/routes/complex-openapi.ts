@@ -371,8 +371,8 @@ export const postUsersRoute = createRoute({
   request: {
     body: {
       description: 'User to add',
-      required: true,
       content: { 'application/json': { schema: NewUserSchema } },
+      required: true,
     },
   },
   responses: {
@@ -407,14 +407,9 @@ export const putUsersUserIdRoute = createRoute({
   request: {
     body: {
       description: 'Updated user information',
-      required: true,
       content: { 'application/json': { schema: UpdateUserSchema } },
+      required: true,
     },
-    params: z.object({
-      userId: z
-        .string()
-        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
-    }),
   },
   responses: {
     200: {
@@ -468,8 +463,8 @@ export const postOrdersRoute = createRoute({
   request: {
     body: {
       description: 'Order to create',
-      required: true,
       content: { 'application/json': { schema: NewOrderSchema } },
+      required: true,
     },
   },
   responses: {

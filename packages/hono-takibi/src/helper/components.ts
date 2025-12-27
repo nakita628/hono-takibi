@@ -1,6 +1,15 @@
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import type { Callbacks, Operation, Parameter, PathItem } from '../openapi/index.js'
-import { refSchema } from '../utils/index.js'
+import type {
+  Callbacks,
+  Content,
+  Encoding,
+  Media,
+  Operation,
+  Parameter,
+  PathItem,
+  Reference,
+} from '../openapi/index.js'
+import { buildExamples, refSchema } from '../utils/index.js'
 
 export function makeCallbacks(callbacks: Callbacks): string {
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
@@ -139,4 +148,108 @@ export function makeCallbacks(callbacks: Callbacks): string {
     })
     .filter(Boolean)
     .join(',')
+}
+
+export function makeContent(
+  content: Content | { readonly [k: string]: Media | Reference },
+): string[] {
+  const isMedia = (v: unknown): v is Media => typeof v === 'object' && v !== null && 'schema' in v
+
+  const isReference = (v: unknown): v is Reference =>
+    typeof v === 'object' && v !== null && '$ref' in v
+
+  const makeEncoding = (contentType: string, encodingName: string, encoding: Encoding): string => {
+    const headers = encoding.headers
+      ? Object.entries(encoding.headers)
+          .map(([headerKey, header]) => {
+            if ('$ref' in header && header.$ref) {
+              return `${JSON.stringify(headerKey)}:${refSchema(header.$ref)}`
+            }
+            const props = [
+              header.description ? `description:${JSON.stringify(header.description)}` : undefined,
+              'required' in header && header.required
+                ? `required:${JSON.stringify(header.required)}`
+                : undefined,
+              'deprecated' in header && header.deprecated
+                ? `deprecated:${JSON.stringify(header.deprecated)}`
+                : undefined,
+              'example' in header && header.example !== undefined
+                ? `example:${JSON.stringify(header.example)}`
+                : undefined,
+              'examples' in header && header.examples
+                ? `examples:${buildExamples(header.examples)}`
+                : undefined,
+            ]
+              .filter((v): v is string => v !== undefined)
+              .join(',')
+            return `${JSON.stringify(headerKey)}:{${props}}`
+          })
+          .join(',')
+      : undefined
+
+    const nestedEncoding = encoding.encoding
+      ? Object.entries(encoding.encoding)
+          .map(([name, enc]) => makeEncoding(contentType, name, enc))
+          .join(',')
+      : undefined
+
+    const props = [
+      encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
+      headers ? `headers:{${headers}}` : undefined,
+      nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
+      encoding.prefixEncoding
+        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', encoding.prefixEncoding)}}`
+        : undefined,
+      encoding.itemEncoding
+        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', encoding.itemEncoding)}}`
+        : undefined,
+    ]
+      .filter((v): v is string => v !== undefined)
+      .join(',')
+
+    return `${JSON.stringify(encodingName)}:{${props}}`
+  }
+
+  const makeMediaString = (contentType: string, media: Media): string => {
+    const zSchema = zodToOpenAPI(media.schema)
+    const zItemSchema = media.itemSchema ? zodToOpenAPI(media.itemSchema) : undefined
+
+    const encoding = media.encoding
+      ? Object.entries(media.encoding)
+          .map(([encodingName, enc]) => makeEncoding(contentType, encodingName, enc))
+          .join(',')
+      : undefined
+
+    const props = [
+      `schema:${zSchema}`,
+      zItemSchema ? `itemSchema:${zItemSchema}` : undefined,
+      media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
+      media.examples ? `examples:${buildExamples(media.examples)}` : undefined,
+      encoding ? `encoding:{${encoding}}` : undefined,
+      media.prefixEncoding
+        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', media.prefixEncoding)}}`
+        : undefined,
+      media.itemEncoding
+        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', media.itemEncoding)}}`
+        : undefined,
+    ]
+      .filter((v) => v !== undefined)
+      .join(',')
+
+    return `{${props}}`
+  }
+
+  return Object.entries(content)
+    .map(([contentType, mediaOrRef]) => {
+      // Reference
+      if (isReference(mediaOrRef) && mediaOrRef.$ref) {
+        return `${JSON.stringify(contentType)}:${refSchema(mediaOrRef.$ref)}`
+      }
+      // Media
+      if (isMedia(mediaOrRef)) {
+        return `${JSON.stringify(contentType)}:${makeMediaString(contentType, mediaOrRef)}`
+      }
+      return undefined
+    })
+    .filter((v) => v !== undefined)
 }

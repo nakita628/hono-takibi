@@ -134,7 +134,6 @@ export const postPostsRoute = createRoute({
   description: 'Submit a new post with a maximum length of 140 characters.',
   request: {
     body: {
-      required: true,
       content: {
         'application/json': {
           schema: z
@@ -165,6 +164,7 @@ export const postPostsRoute = createRoute({
             }),
         },
       },
+      required: true,
     },
   },
   responses: {
@@ -206,7 +206,6 @@ export const putPostsIdRoute = createRoute({
   description: 'Update the content of an existing post identified by its unique ID.',
   request: {
     body: {
-      required: true,
       content: {
         'application/json': {
           schema: z
@@ -237,17 +236,8 @@ export const putPostsIdRoute = createRoute({
             }),
         },
       },
+      required: true,
     },
-    params: z.object({
-      id: z
-        .uuid()
-        .openapi({
-          param: { name: 'id', in: 'path', required: true },
-          type: 'string',
-          format: 'uuid',
-          description: 'Unique identifier of the post.',
-        }),
-    }),
   },
   responses: {
     204: { description: 'Post successfully updated.' },

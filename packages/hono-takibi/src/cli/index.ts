@@ -14,7 +14,7 @@ import { schemas } from '../core/schemas.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
-import { configToTarget, parseCli } from '../utils/index.js'
+import { parseCli } from '../utils/index.js'
 
 /**
  * CLI usage help text shown when `-h`/`--help` is provided.
@@ -125,10 +125,10 @@ export async function honoTakibi(): Promise<
   const zo = c['zod-openapi']
   const components = zo?.components
 
-  const schemaTarget = configToTarget(components?.schemas)
-  const examplesTarget = configToTarget(components?.examples)
-  const headersTarget = configToTarget(components?.headers)
-  const linksTarget = configToTarget(components?.links)
+  const schemaTarget = components?.schemas
+  const examplesTarget = components?.examples
+  const headersTarget = components?.headers
+  const linksTarget = components?.links
 
   /** takibi */
   const takibiResult = zo?.output

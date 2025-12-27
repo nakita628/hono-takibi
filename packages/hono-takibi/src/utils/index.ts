@@ -7,15 +7,15 @@ export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportSchemasTypes?: boolean
     readonly exportSchemas?: boolean
-    readonly exportParametersTypes?: boolean
+    readonly exportSchemasTypes?: boolean
     readonly exportParameters?: boolean
+    readonly exportParametersTypes?: boolean
     readonly exportSecuritySchemes?: boolean
     readonly exportRequestBodies?: boolean
     readonly exportResponses?: boolean
-    readonly exportHeadersTypes?: boolean
     readonly exportHeaders?: boolean
+    readonly exportHeadersTypes?: boolean
     readonly exportExamples?: boolean
     readonly exportLinks?: boolean
     readonly exportCallbacks?: boolean
@@ -62,15 +62,15 @@ export function parseConfig(config: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly 'zod-openapi'?: {
           readonly output?: `${string}.ts`
-          readonly exportSchemasTypes?: boolean
           readonly exportSchemas?: boolean
-          readonly exportParametersTypes?: boolean
+          readonly exportSchemasTypes?: boolean
           readonly exportParameters?: boolean
+          readonly exportParametersTypes?: boolean
           readonly exportSecuritySchemes?: boolean
           readonly exportRequestBodies?: boolean
           readonly exportResponses?: boolean
-          readonly exportHeadersTypes?: boolean
           readonly exportHeaders?: boolean
+          readonly exportHeadersTypes?: boolean
           readonly exportExamples?: boolean
           readonly exportLinks?: boolean
           readonly exportCallbacks?: boolean
@@ -433,15 +433,15 @@ export function parseCli(args: readonly string[]):
         readonly test: boolean
         readonly basePath: string
         readonly componentsOptions: {
-          readonly exportSchemasTypes: boolean
           readonly exportSchemas: boolean
-          readonly exportParametersTypes: boolean
+          readonly exportSchemasTypes: boolean
           readonly exportParameters: boolean
+          readonly exportParametersTypes: boolean
           readonly exportSecuritySchemes: boolean
           readonly exportRequestBodies: boolean
           readonly exportResponses: boolean
-          readonly exportHeadersTypes: boolean
           readonly exportHeaders: boolean
+          readonly exportHeadersTypes: boolean
           readonly exportExamples: boolean
           readonly exportLinks: boolean
           readonly exportCallbacks: boolean
@@ -481,15 +481,15 @@ export function parseCli(args: readonly string[]):
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
       componentsOptions: {
-        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
         exportSchemas: args.includes('--export-schemas') ?? false,
-        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
+        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
         exportParameters: args.includes('--export-parameters') ?? false,
+        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
         exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
         exportRequestBodies: args.includes('--export-request-bodies') ?? false,
         exportResponses: args.includes('--export-responses') ?? false,
-        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
         exportHeaders: args.includes('--export-headers') ?? false,
+        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
         exportExamples: args.includes('--export-examples') ?? false,
         exportLinks: args.includes('--export-links') ?? false,
         exportCallbacks: args.includes('--export-callbacks') ?? false,
@@ -664,6 +664,10 @@ export function refSchema(
   // 2. "Address"
   const ref = $ref.split('/').pop()
   if (!ref) return 'Schema'
+  if ($ref.startsWith('#/components/schemas/')) {
+    if (ref.endsWith('Schema')) return ref
+    return `${ref}Schema`
+  }
   if ($ref.startsWith('#/components/parameters/')) {
     if (ref.endsWith('ParamsSchema')) return ref
     if (ref.endsWith('Params')) return `${ref}Schema`
@@ -878,32 +882,118 @@ export function ensureSuffix(text: string, suffix: string): string {
   return text.endsWith(suffix) ? text : `${text}${suffix}`
 }
 
-/**
- * Creates an import target from a component config object.
- *
- * @param config - The component configuration object.
- * @param transform - Optional function to transform the output path (e.g., toAbs for absolute paths).
- * @returns An import target object or undefined if config is undefined.
- */
-export function configToTarget(
-  config?: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  },
-  transform?: (output: string) => string,
-):
-  | {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
+export function buildExamples(
+  examples:
+    | {
+        readonly [k: string]:
+          | {
+              readonly summary?: string
+              readonly description?: string
+              readonly defaultValue?: unknown
+              readonly serializedValue?: string
+              readonly externalValue?: string
+              readonly value?: unknown
+            }
+          | {
+              readonly $ref?:
+                | `#/components/schemas/${string}`
+                | `#/components/parameters/${string}`
+                | `#/components/securitySchemes/${string}`
+                | `#/components/requestBodies/${string}`
+                | `#/components/responses/${string}`
+                | `#/components/headers/${string}`
+                | `#/components/examples/${string}`
+                | `#/components/links/${string}`
+                | `#/components/callbacks/${string}`
+              readonly summary?: string
+              readonly description?: string
+            }
+      }
+    | undefined,
+): string | undefined {
+  if (!examples) return undefined
+
+  const refSchema = ($ref: `#/components/${string}/${string}`): string => {
+    // split('/'): Split a string into an array using slashes
+    // 1. ["#", "components", "schemas", "Address"]
+    // pop() to get the last element
+    // 2. "Address"
+    const ref = $ref.split('/').pop()
+    if (!ref) return 'Schema'
+    if ($ref.startsWith('#/components/schemas/')) {
+      if (ref.endsWith('Schema')) return ref
+      return `${ref}Schema`
     }
-  | undefined {
-  if (!config) return undefined
-  const output = transform ? transform(config.output) : config.output
-  return {
-    output,
-    ...(config.split !== undefined ? { split: config.split } : {}),
-    ...(config.import !== undefined ? { import: config.import } : {}),
+    if ($ref.startsWith('#/components/parameters/')) {
+      if (ref.endsWith('ParamsSchema')) return ref
+      if (ref.endsWith('Params')) return `${ref}Schema`
+      return `${ref}ParamsSchema`
+    }
+    if ($ref.startsWith('#/components/headers/')) {
+      if (ref.endsWith('HeaderSchema')) return ref
+      if (ref.endsWith('Header')) return `${ref}Schema`
+      return `${ref}HeaderSchema`
+    }
+    if ($ref.startsWith('#/components/securitySchemes/')) {
+      if (ref.endsWith('SecurityScheme')) return ref
+      return `${ref}SecurityScheme`
+    }
+    if ($ref.startsWith('#/components/requestBodies/')) {
+      if (ref.endsWith('RequestBody')) return ref
+      return `${ref}RequestBody`
+    }
+    if ($ref.startsWith('#/components/responses/')) {
+      if (ref.endsWith('Response')) return ref
+      return `${ref}Response`
+    }
+    if ($ref.startsWith('#/components/headers/')) {
+      if (ref.endsWith('Header')) return ref
+      return `${ref}Header`
+    }
+    if ($ref.startsWith('#/components/examples/')) {
+      if (ref.endsWith('Example')) return ref
+      return `${ref}Example`
+    }
+    if ($ref.startsWith('#/components/links/')) {
+      if (ref.endsWith('Link')) return ref
+      return `${ref}Link`
+    }
+    if ($ref.startsWith('#/components/callbacks/')) {
+      if (ref.endsWith('Callback')) return ref
+      return `${ref}Callback`
+    }
+    return `${ref}Schema`
   }
+
+  const entries = Object.entries(examples)
+    .map(([key, example]) => {
+      // Reference
+      if ('$ref' in example && example.$ref) {
+        return `${JSON.stringify(key)}:${refSchema(example.$ref)}`
+      }
+      // Example object
+      const props = [
+        example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
+        example.description !== undefined
+          ? `description:${JSON.stringify(example.description)}`
+          : undefined,
+        'defaultValue' in example && example.defaultValue !== undefined
+          ? `defaultValue:${JSON.stringify(example.defaultValue)}`
+          : undefined,
+        'serializedValue' in example && example.serializedValue !== undefined
+          ? `serializedValue:${JSON.stringify(example.serializedValue)}`
+          : undefined,
+        'externalValue' in example && example.externalValue !== undefined
+          ? `externalValue:${JSON.stringify(example.externalValue)}`
+          : undefined,
+        'value' in example && example.value !== undefined
+          ? `value:${JSON.stringify(example.value)}`
+          : undefined,
+      ]
+        .filter((v) => v !== undefined)
+        .join(',')
+      return `${JSON.stringify(key)}:{${props}}`
+    })
+    .join(',')
+  return `{${entries}}`
 }

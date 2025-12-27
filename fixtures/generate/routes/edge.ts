@@ -82,7 +82,6 @@ export const postPolymorphicRoute = createRoute({
   summary: 'Polymorphic object with discriminator',
   request: {
     body: {
-      required: true,
       content: {
         'application/json': {
           schema: z
@@ -93,6 +92,7 @@ export const postPolymorphicRoute = createRoute({
             }),
         },
       },
+      required: true,
     },
   },
   responses: { 200: { description: 'OK' } },
@@ -146,7 +146,6 @@ export const putMultiStepRoute = createRoute({
   summary: 'Multi-step object definition using allOf',
   request: {
     body: {
-      required: false,
       content: {
         'application/json': {
           schema: z

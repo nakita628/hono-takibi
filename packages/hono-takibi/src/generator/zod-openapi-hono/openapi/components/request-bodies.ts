@@ -1,40 +1,7 @@
-import type { Components, Content, Schema } from '../../../../openapi/index.js'
-import { isRecord, refSchema, toIdentifier } from '../../../../utils/index.js'
+import type { Components } from '../../../../openapi/index.js'
+import { ensureSuffix, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-import { examplesPropExpr } from './examples.js'
 
-const coerceDateIfNeeded = (schemaExpr: string): string =>
-  schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
-
-const requestBodyConstName = (key: string): string => {
-  const base = key.endsWith('Body')
-    ? `${key.slice(0, -'Body'.length)}RequestBody`
-    : `${key}RequestBody`
-  return toIdentifier(base)
-}
-
-const isSchema = (v: unknown): v is Schema => isRecord(v)
-const isMedia = (v: unknown): v is Content[string] => isRecord(v) && isSchema(v.schema)
-
-/**
- * Generates a media type expression.
- */
-export const mediaTypeExpr = (media: unknown, options?: { coerceDate?: boolean }): string => {
-  if (!isMedia(media)) return '{schema:z.any()}'
-  const schema = options?.coerceDate
-    ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
-    : zodToOpenAPI(media.schema)
-  const examples = examplesPropExpr(media.examples)
-  return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
-}
-
-/**
- * Generates TypeScript code for OpenAPI component requestBodies.
- *
- * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the requestBody variables.
- * @returns A string of TypeScript code with requestBody definitions.
- */
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''
@@ -43,7 +10,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
     typeof ref === 'string' && ref.startsWith('#/components/')
 
   return Object.entries(requestBodies)
-    .map(([name, body]) => {
+    .map(([k, body]) => {
       if (body.content) {
         const content = Object.entries(body.content)
           .map(([k, mediaOrReference]) => {
@@ -55,7 +22,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
             }
             return undefined
           })
-          .filter((v): v is string => v !== undefined)
+          .filter((v) => v !== undefined)
           .join(',')
 
         const props = [
@@ -66,7 +33,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
           .filter((v) => v !== undefined)
           .join(',')
 
-        return `${exportRequestBodies ? 'export const' : 'const'} ${requestBodyConstName(name)}={${props}}`
+        return `${exportRequestBodies ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'RequestBody'))}={${props}}`
       }
       return undefined
     })
