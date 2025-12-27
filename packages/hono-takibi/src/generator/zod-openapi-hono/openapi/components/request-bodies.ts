@@ -1,7 +1,7 @@
+import { inlineExampleExpr } from '../../../../helper/examples.js'
 import type { Components, Content, Schema } from '../../../../openapi/index.js'
 import { isRecord, refSchema, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-import { examplesPropExpr } from './examples.js'
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -24,7 +24,15 @@ export const mediaTypeExpr = (media: unknown, options?: { coerceDate?: boolean }
   const schema = options?.coerceDate
     ? coerceDateIfNeeded(zodToOpenAPI(media.schema))
     : zodToOpenAPI(media.schema)
-  const examples = examplesPropExpr(media.examples)
+  const examples = (() => {
+    const exs = media.examples
+    if (!(exs && Object.keys(exs).length > 0)) return undefined
+    const entries = Object.entries(exs).map(([key, ex]) => {
+      const expr = isRecord(ex) ? inlineExampleExpr(ex) : JSON.stringify(ex)
+      return `${JSON.stringify(key)}:${expr}`
+    })
+    return entries.length > 0 ? `examples:{${entries.join(',')}}` : undefined
+  })()
   return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
 }
 
