@@ -19,6 +19,6 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
         ? `${exportKeyword}const ${toIdentifier(ensureSuffix(k, 'Callbacks'))} = {${callbackCode}}`
         : undefined
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join('\n\n')
 }

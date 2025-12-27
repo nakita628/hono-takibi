@@ -1,5 +1,5 @@
-import type { Components } from '../../../../openapi/index.js'
 import { inlineExampleExpr } from '../../../../helper/examples.js'
+import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'

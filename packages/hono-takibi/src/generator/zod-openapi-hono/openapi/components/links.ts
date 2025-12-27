@@ -28,7 +28,7 @@ export function links(components: Components, exportLinks: boolean) {
   if (!links) return ''
 
   return Object.entries(links)
-    .flatMap(([name, link]) => {
+    .map(([k, link]) => {
       const props = [
         'operationRef' in link ? `operationRef:${JSON.stringify(link.operationRef)}` : undefined,
         'operationId' in link ? `operationId:${JSON.stringify(link.operationId)}` : undefined,
@@ -41,7 +41,7 @@ export function links(components: Components, exportLinks: boolean) {
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${exportLinks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(name, 'Link'))}={${props}}`
+      return `${exportLinks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Link'))}={${props}}`
     })
     .join('\n\n')
 }

@@ -1,197 +1,58 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const ASchema = z
+const CreateUserRequestSchema = z
+  .object({ name: z.string().optional().openapi({ type: 'string' }) })
+  .optional()
+  .openapi({ type: 'object', properties: { name: { type: 'string' } } })
+  .openapi('CreateUserRequest')
+
+const UserSchema = z
   .object({
-    B: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    A: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().optional().openapi({ type: 'string' }),
   })
   .optional()
-  .openapi({
-    type: 'object',
-    properties: { B: { type: 'string', format: 'uri' }, A: { type: 'string' } },
-  })
-  .openapi('A')
+  .openapi({ type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } })
+  .openapi('User')
 
-const CSchema = z
-  .object({ B: z.url().optional().openapi({ type: 'string', format: 'uri' }), A: ASchema })
-  .optional()
-  .openapi({
-    type: 'object',
-    properties: { B: { type: 'string', format: 'uri' }, A: { $ref: '#/components/schemas/A' } },
-  })
-  .openapi('C')
-
-const BSchema = z
-  .object({ B: z.url().optional().openapi({ type: 'string', format: 'uri' }), C: CSchema })
-  .optional()
-  .openapi({
-    type: 'object',
-    properties: { B: { type: 'string', format: 'uri' }, C: { $ref: '#/components/schemas/C' } },
-  })
-  .openapi('B')
-
-const BParamsSchema = z
-  .string()
-  .optional()
-  .openapi({ param: { name: 'B', in: 'query', required: false }, type: 'string' })
-
-const CParamsSchema = z
-  .string()
-  .openapi({ param: { name: 'C', in: 'path', required: true }, type: 'string' })
-
-const AParamsSchema = z
-  .string()
-  .optional()
-  .openapi({ param: { name: 'A', in: 'header', required: false }, type: 'string' })
-
-const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-const BRequestBody = {
-  required: true,
-  content: {
-    'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  },
+const GetUserByIdLink = {
+  operationId: 'getUser',
+  parameters: { userId: '$response.body#/id' },
+  description: 'Follow-up call to fetch the created user.',
 }
 
-const CRequestBody = {
-  required: true,
-  content: {
-    'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  },
+const GetUserByIdByOperationRefLink = {
+  operationRef: '#/paths/~1users~1{userId}/get',
+  parameters: { userId: '$response.body#/id' },
+  description: 'Same as above, but using operationRef.',
 }
 
-const ARequestBody = {
-  required: true,
-  content: {
-    'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  },
-}
-
-const BResponse = {
-  description: 'B',
-  headers: z.object({
-    B: z.string().optional().openapi({ type: 'string' }),
-    C: z.string().optional().openapi({ type: 'string' }),
-    A: z.string().optional().openapi({ type: 'string' }),
-  }),
-  links: { B: { $ref: '#/components/links/B' } },
-  content: {
-    'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  },
-}
-
-const CResponse = {
-  description: 'C',
-  headers: z.object({
-    B: z.string().optional().openapi({ type: 'string' }),
-    C: z.string().optional().openapi({ type: 'string' }),
-    A: z.string().optional().openapi({ type: 'string' }),
-  }),
-  links: { C: { $ref: '#/components/links/C' } },
-  content: {
-    'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  },
-}
-
-const AResponse = {
-  description: 'A',
-  headers: z.object({
-    B: z.string().optional().openapi({ type: 'string' }),
-    C: z.string().optional().openapi({ type: 'string' }),
-    A: z.string().optional().openapi({ type: 'string' }),
-  }),
-  links: { A: { $ref: '#/components/links/A' } },
-  content: {
-    'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  },
-}
-
-const BHeaderSchema = z.string().optional().openapi({ type: 'string' })
-
-const CHeaderSchema = z.string().optional().openapi({ type: 'string' })
-
-const AHeaderSchema = z.string().optional().openapi({ type: 'string' })
-
-const TestSchema = z.object({test:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"test":{"type":"string"}}}).openapi('Test')
-
-export type Test = z.infer<typeof TestSchema>
-
-const BExample = {
-  value: {
-    B: 'https://example.com/B',
-    C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  },
-}
-
-const CExample = {
-  value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-}
-
-const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-const BLink = { operationId: 'B' }
-
-const CLink = { operationId: 'C' }
-
-const ALink = { operationId: 'A' }
-
-const BCallbacks = {
-  '{$request.body#/B}': { post: { requestBody: BRequestBody, responses: { '200': BResponse } } },
-}
-
-const CCallbacks = {
-  '{$request.body#/B}': { post: { requestBody: CRequestBody, responses: { '200': CResponse } } },
-}
-
-const ACallbacks = {
-  '{$request.body#/B}': { post: { requestBody: ARequestBody, responses: { '200': AResponse } } },
-}
-
-export const postACRoute = createRoute({
+export const postUsersRoute = createRoute({
   method: 'post',
-  path: '/A/{C}',
-  operationId: 'A',
+  path: '/users',
+  summary: 'Create a user',
+  operationId: 'createUser',
   request: {
-    body: ARequestBody,
-    params: z.object({ C: CParamsSchema }),
-    query: z.object({ B: BParamsSchema }),
-    headers: z.object({ A: AParamsSchema }),
+    body: { required: true, content: { 'application/json': { schema: CreateUserRequestSchema } } },
   },
-  responses: { 200: AResponse },
-  callbacks: { A: ACallbacks },
-  security: [{ A: [] }],
+  responses: {
+    201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
+  },
 })
 
-export const postBCRoute = createRoute({
-  method: 'post',
-  path: '/B/{C}',
-  operationId: 'B',
+export const getUsersUserIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{userId}',
+  summary: 'Get a user by ID',
+  operationId: 'getUser',
   request: {
-    body: BRequestBody,
-    params: z.object({ C: CParamsSchema }),
-    query: z.object({ B: BParamsSchema }),
-    headers: z.object({ A: AParamsSchema }),
+    params: z.object({
+      userId: z
+        .string()
+        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
+    }),
   },
-  responses: { 200: BResponse },
-  callbacks: { B: BCallbacks },
-  security: [{ B: [] }],
-})
-
-export const postCCRoute = createRoute({
-  method: 'post',
-  path: '/C/{C}',
-  operationId: 'C',
-  request: {
-    body: CRequestBody,
-    params: z.object({ C: CParamsSchema }),
-    query: z.object({ B: BParamsSchema }),
-    headers: z.object({ A: AParamsSchema }),
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: UserSchema } } },
   },
-  responses: { 200: CResponse },
-  callbacks: { C: CCallbacks },
-  security: [{ C: [] }],
 })
