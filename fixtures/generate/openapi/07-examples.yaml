@@ -1,0 +1,274 @@
+openapi: 3.1.0
+info:
+  title: Examples API
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                electronics:
+                  $ref: '#/components/examples/ElectronicProducts'
+                clothing:
+                  $ref: '#/components/examples/ClothingProducts'
+                empty:
+                  $ref: '#/components/examples/EmptyList'
+    post:
+      operationId: createProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductInput'
+            examples:
+              laptop:
+                $ref: '#/components/examples/CreateLaptop'
+              tshirt:
+                $ref: '#/components/examples/CreateTShirt'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                laptop:
+                  $ref: '#/components/examples/LaptopProduct'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                missingName:
+                  $ref: '#/components/examples/MissingNameError'
+                invalidPrice:
+                  $ref: '#/components/examples/InvalidPriceError'
+  /products/{productId}:
+    get:
+      operationId: getProduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            laptop:
+              $ref: '#/components/examples/LaptopProductId'
+            tshirt:
+              $ref: '#/components/examples/TShirtProductId'
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                laptop:
+                  $ref: '#/components/examples/LaptopProduct'
+                tshirt:
+                  $ref: '#/components/examples/TShirtProduct'
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - category
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        price:
+          type: number
+          format: float64
+          minimum: 0
+        category:
+          type: string
+          enum:
+            - electronics
+            - clothing
+            - books
+            - home
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    CreateProductInput:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        category:
+          type: string
+          enum:
+            - electronics
+            - clothing
+            - books
+            - home
+        tags:
+          type: array
+          items:
+            type: string
+    ValidationError:
+      type: object
+      required:
+        - code
+        - message
+        - errors
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              code:
+                type: string
+  examples:
+    LaptopProduct:
+      summary: Example laptop product
+      description: A high-end laptop computer
+      value:
+        id: 550e8400-e29b-41d4-a716-446655440001
+        name: MacBook Pro 16"
+        description: Apple MacBook Pro with M3 Max chip
+        price: 3499.99
+        category: electronics
+        tags:
+          - laptop
+          - apple
+          - professional
+        metadata:
+          brand: Apple
+          model: MacBook Pro
+          year: 2024
+        createdAt: '2024-01-15T10:30:00Z'
+    TShirtProduct:
+      summary: Example t-shirt product
+      description: A basic cotton t-shirt
+      value:
+        id: 550e8400-e29b-41d4-a716-446655440002
+        name: Classic Cotton T-Shirt
+        description: 100% organic cotton t-shirt
+        price: 29.99
+        category: clothing
+        tags:
+          - casual
+          - cotton
+          - basics
+        metadata:
+          material: cotton
+          sizes:
+            - S
+            - M
+            - L
+            - XL
+        createdAt: '2024-02-01T14:00:00Z'
+    ElectronicProducts:
+      summary: List of electronic products
+      value:
+        - id: 550e8400-e29b-41d4-a716-446655440001
+          name: MacBook Pro 16"
+          price: 3499.99
+          category: electronics
+          createdAt: '2024-01-15T10:30:00Z'
+        - id: 550e8400-e29b-41d4-a716-446655440003
+          name: iPhone 15 Pro
+          price: 1199.99
+          category: electronics
+          createdAt: '2024-01-20T09:00:00Z'
+    ClothingProducts:
+      summary: List of clothing products
+      value:
+        - id: 550e8400-e29b-41d4-a716-446655440002
+          name: Classic Cotton T-Shirt
+          price: 29.99
+          category: clothing
+          createdAt: '2024-02-01T14:00:00Z'
+    EmptyList:
+      summary: Empty product list
+      value: []
+    CreateLaptop:
+      summary: Create laptop request
+      value:
+        name: MacBook Pro 16"
+        description: Apple MacBook Pro with M3 Max chip
+        price: 3499.99
+        category: electronics
+        tags:
+          - laptop
+          - apple
+    CreateTShirt:
+      summary: Create t-shirt request
+      value:
+        name: Classic Cotton T-Shirt
+        price: 29.99
+        category: clothing
+    LaptopProductId:
+      summary: Laptop product ID
+      value: 550e8400-e29b-41d4-a716-446655440001
+    TShirtProductId:
+      summary: T-shirt product ID
+      value: 550e8400-e29b-41d4-a716-446655440002
+    MissingNameError:
+      summary: Missing name validation error
+      value:
+        code: VALIDATION_ERROR
+        message: Request validation failed
+        errors:
+          - field: name
+            message: Name is required
+            code: REQUIRED
+    InvalidPriceError:
+      summary: Invalid price validation error
+      value:
+        code: VALIDATION_ERROR
+        message: Request validation failed
+        errors:
+          - field: price
+            message: Price must be a positive number
+            code: INVALID_VALUE

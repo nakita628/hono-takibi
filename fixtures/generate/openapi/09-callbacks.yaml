@@ -1,0 +1,466 @@
+openapi: 3.1.0
+info:
+  title: Callbacks API (Webhooks)
+  version: 1.0.0
+paths:
+  /webhooks:
+    post:
+      operationId: registerWebhook
+      summary: Register a webhook endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistration'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      callbacks:
+        onEvent:
+          $ref: '#/components/callbacks/GenericWebhook'
+  /subscriptions:
+    post:
+      operationId: createSubscription
+      summary: Create a subscription with payment callbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionInput'
+      responses:
+        '201':
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+      callbacks:
+        paymentSuccess:
+          $ref: '#/components/callbacks/PaymentSuccessCallback'
+        paymentFailed:
+          $ref: '#/components/callbacks/PaymentFailedCallback'
+        subscriptionRenewed:
+          $ref: '#/components/callbacks/SubscriptionRenewedCallback'
+        subscriptionCancelled:
+          $ref: '#/components/callbacks/SubscriptionCancelledCallback'
+  /jobs:
+    post:
+      operationId: createJob
+      summary: Create an async job with progress callbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobInput'
+      responses:
+        '202':
+          description: Job accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+      callbacks:
+        onProgress:
+          $ref: '#/components/callbacks/JobProgressCallback'
+        onComplete:
+          $ref: '#/components/callbacks/JobCompleteCallback'
+        onError:
+          $ref: '#/components/callbacks/JobErrorCallback'
+  /integrations/{integrationId}/sync:
+    post:
+      operationId: triggerSync
+      summary: Trigger data sync with callbacks
+      parameters:
+        - name: integrationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '202':
+          description: Sync started
+      callbacks:
+        syncStarted:
+          '{$request.body#/callbackUrl}/sync/started':
+            post:
+              operationId: onSyncStarted
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        syncId:
+                          type: string
+                        startedAt:
+                          type: string
+                          format: date-time
+              responses:
+                '200':
+                  description: Callback acknowledged
+        syncCompleted:
+          '{$request.body#/callbackUrl}/sync/completed':
+            post:
+              operationId: onSyncCompleted
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        syncId:
+                          type: string
+                        recordsProcessed:
+                          type: integer
+                        completedAt:
+                          type: string
+                          format: date-time
+              responses:
+                '200':
+                  description: Callback acknowledged
+components:
+  schemas:
+    WebhookRegistration:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - order.created
+              - order.updated
+              - order.cancelled
+              - payment.success
+              - payment.failed
+              - user.created
+              - user.deleted
+        secret:
+          type: string
+          description: Shared secret for HMAC signature
+    Webhook:
+      type: object
+      required:
+        - id
+        - url
+        - events
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - failed
+        createdAt:
+          type: string
+          format: date-time
+    CreateSubscriptionInput:
+      type: object
+      required:
+        - planId
+        - paymentMethodId
+        - callbackUrl
+      properties:
+        planId:
+          type: string
+        paymentMethodId:
+          type: string
+        callbackUrl:
+          type: string
+          format: uri
+    Subscription:
+      type: object
+      required:
+        - id
+        - planId
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        planId:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - past_due
+            - cancelled
+            - expired
+        currentPeriodEnd:
+          type: string
+          format: date-time
+    CreateJobInput:
+      type: object
+      required:
+        - type
+        - callbackUrl
+      properties:
+        type:
+          type: string
+          enum:
+            - export
+            - import
+            - process
+        data:
+          type: object
+        callbackUrl:
+          type: string
+          format: uri
+    Job:
+      type: object
+      required:
+        - id
+        - type
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        status:
+          type: string
+          enum:
+            - queued
+            - running
+            - completed
+            - failed
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+    WebhookPayload:
+      type: object
+      required:
+        - id
+        - type
+        - timestamp
+        - data
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+        signature:
+          type: string
+          description: HMAC-SHA256 signature
+    PaymentEvent:
+      type: object
+      required:
+        - subscriptionId
+        - amount
+        - status
+      properties:
+        subscriptionId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: float64
+        currency:
+          type: string
+        status:
+          type: string
+          enum:
+            - success
+            - failed
+        failureReason:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    JobProgress:
+      type: object
+      required:
+        - jobId
+        - progress
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    JobResult:
+      type: object
+      required:
+        - jobId
+        - status
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - completed
+            - failed
+        result:
+          type: object
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        completedAt:
+          type: string
+          format: date-time
+  callbacks:
+    GenericWebhook:
+      '{$request.body#/url}':
+        post:
+          operationId: webhookCallback
+          summary: Webhook event notification
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WebhookPayload'
+          responses:
+            '200':
+              description: Webhook received
+            '400':
+              description: Invalid payload
+            '401':
+              description: Invalid signature
+    PaymentSuccessCallback:
+      '{$request.body#/callbackUrl}/payment/success':
+        post:
+          operationId: onPaymentSuccess
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PaymentEvent'
+          responses:
+            '200':
+              description: Acknowledged
+    PaymentFailedCallback:
+      '{$request.body#/callbackUrl}/payment/failed':
+        post:
+          operationId: onPaymentFailed
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PaymentEvent'
+          responses:
+            '200':
+              description: Acknowledged
+    SubscriptionRenewedCallback:
+      '{$request.body#/callbackUrl}/subscription/renewed':
+        post:
+          operationId: onSubscriptionRenewed
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    subscriptionId:
+                      type: string
+                      format: uuid
+                    newPeriodEnd:
+                      type: string
+                      format: date-time
+          responses:
+            '200':
+              description: Acknowledged
+    SubscriptionCancelledCallback:
+      '{$request.body#/callbackUrl}/subscription/cancelled':
+        post:
+          operationId: onSubscriptionCancelled
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    subscriptionId:
+                      type: string
+                      format: uuid
+                    cancelledAt:
+                      type: string
+                      format: date-time
+                    reason:
+                      type: string
+          responses:
+            '200':
+              description: Acknowledged
+    JobProgressCallback:
+      '{$request.body#/callbackUrl}/job/progress':
+        post:
+          operationId: onJobProgress
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/JobProgress'
+          responses:
+            '200':
+              description: Acknowledged
+    JobCompleteCallback:
+      '{$request.body#/callbackUrl}/job/complete':
+        post:
+          operationId: onJobComplete
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/JobResult'
+          responses:
+            '200':
+              description: Acknowledged
+    JobErrorCallback:
+      '{$request.body#/callbackUrl}/job/error':
+        post:
+          operationId: onJobError
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/JobResult'
+          responses:
+            '200':
+              description: Acknowledged

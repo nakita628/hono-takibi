@@ -1,0 +1,1197 @@
+openapi: 3.1.0
+info:
+  title: Comprehensive E-Commerce API
+  summary: Complete e-commerce platform API
+  description: |
+    A comprehensive API demonstrating all OpenAPI components including
+    schemas, parameters, responses, headers, examples, links, callbacks,
+    and security schemes.
+  termsOfService: https://api.example.com/terms
+  contact:
+    name: API Support
+    url: https://api.example.com/support
+    email: support@example.com
+  license:
+    name: MIT
+    identifier: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+
+externalDocs:
+  description: Full API Documentation
+  url: https://docs.example.com/api
+
+servers:
+  - url: https://api.example.com/v2
+    description: Production
+    variables:
+      region:
+        default: us-east-1
+        enum:
+          - us-east-1
+          - us-west-2
+          - eu-west-1
+          - ap-northeast-1
+        description: AWS region
+  - url: https://staging-api.example.com/v2
+    description: Staging
+  - url: http://localhost:3000/v2
+    description: Development
+
+tags:
+  - name: Products
+    description: Product management
+    externalDocs:
+      url: https://docs.example.com/products
+  - name: Orders
+    description: Order processing
+  - name: Users
+    description: User management
+  - name: Webhooks
+    description: Webhook management
+
+security:
+  - bearerAuth: []
+
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      operationId: listProducts
+      summary: List all products
+      description: Retrieve a paginated list of products with optional filtering
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProductCategory'
+        - $ref: '#/components/parameters/AcceptLanguageHeader'
+      responses:
+        '200':
+          description: Product list retrieved successfully
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-Total-Count:
+              $ref: '#/components/headers/X-Total-Count'
+            Link:
+              $ref: '#/components/headers/Link'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductList'
+              examples:
+                multipleProducts:
+                  $ref: '#/components/examples/ProductListExample'
+                emptyList:
+                  $ref: '#/components/examples/EmptyProductList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Products
+      operationId: createProduct
+      summary: Create a new product
+      security:
+        - bearerAuth: []
+        - oauth2:
+            - products:write
+      requestBody:
+        $ref: '#/components/requestBodies/CreateProduct'
+      responses:
+        '201':
+          description: Product created successfully
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                createdProduct:
+                  $ref: '#/components/examples/ProductExample'
+          links:
+            GetProduct:
+              $ref: '#/components/links/GetProductById'
+            UpdateProduct:
+              $ref: '#/components/links/UpdateProductById'
+            DeleteProduct:
+              $ref: '#/components/links/DeleteProductById'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /products/{productId}:
+    parameters:
+      - $ref: '#/components/parameters/ProductIdPath'
+    get:
+      tags:
+        - Products
+      operationId: getProduct
+      summary: Get product by ID
+      parameters:
+        - $ref: '#/components/parameters/IfNoneMatchHeader'
+      responses:
+        '200':
+          description: Product details
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            Cache-Control:
+              $ref: '#/components/headers/Cache-Control'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                product:
+                  $ref: '#/components/examples/ProductExample'
+          links:
+            UpdateProduct:
+              $ref: '#/components/links/UpdateProductById'
+            DeleteProduct:
+              $ref: '#/components/links/DeleteProductById'
+            GetProductReviews:
+              $ref: '#/components/links/GetProductReviews'
+        '304':
+          description: Not modified
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Products
+      operationId: updateProduct
+      summary: Update a product
+      parameters:
+        - $ref: '#/components/parameters/IfMatchHeader'
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateProduct'
+      responses:
+        '200':
+          description: Product updated
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+
+    delete:
+      tags:
+        - Products
+      operationId: deleteProduct
+      summary: Delete a product
+      parameters:
+        - $ref: '#/components/parameters/IfMatchHeader'
+      responses:
+        '204':
+          description: Product deleted
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+
+  /orders:
+    post:
+      tags:
+        - Orders
+      operationId: createOrder
+      summary: Create a new order
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrder'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          links:
+            GetOrder:
+              $ref: '#/components/links/GetOrderById'
+            CancelOrder:
+              $ref: '#/components/links/CancelOrderById'
+      callbacks:
+        orderStatusUpdate:
+          $ref: '#/components/callbacks/OrderStatusCallback'
+        paymentConfirmation:
+          $ref: '#/components/callbacks/PaymentCallback'
+
+  /webhooks:
+    post:
+      tags:
+        - Webhooks
+      operationId: registerWebhook
+      summary: Register a webhook endpoint
+      requestBody:
+        $ref: '#/components/requestBodies/CreateWebhook'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      callbacks:
+        webhookEvent:
+          $ref: '#/components/callbacks/GenericWebhookCallback'
+
+components:
+  schemas:
+    # Basic types
+    ProductCategory:
+      type: string
+      enum:
+        - electronics
+        - clothing
+        - books
+        - home
+        - sports
+        - toys
+      description: Product category
+
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: float64
+          minimum: 0
+          multipleOf: 0.01
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: USD
+
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+          minLength: 2
+          maxLength: 2
+
+    # Product schemas
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - category
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sku:
+          type: string
+          pattern: '^[A-Z]{2}-[0-9]{6}$'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 5000
+        price:
+          $ref: '#/components/schemas/Money'
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        tags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          maxItems: 10
+        inventory:
+          type: integer
+          format: int32
+          minimum: 0
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 10
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - archived
+          default: draft
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+      example:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        sku: EL-123456
+        name: Wireless Headphones
+        price:
+          amount: 99.99
+          currency: USD
+        category: electronics
+
+    ProductList:
+      type: object
+      required:
+        - items
+        - pagination
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CreateProductInput:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        sku:
+          type: string
+          pattern: '^[A-Z]{2}-[0-9]{6}$'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        price:
+          $ref: '#/components/schemas/Money'
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        tags:
+          type: array
+          items:
+            type: string
+        inventory:
+          type: integer
+          minimum: 0
+          default: 0
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    UpdateProductInput:
+      allOf:
+        - $ref: '#/components/schemas/CreateProductInput'
+        - type: object
+          properties:
+            status:
+              type: string
+              enum:
+                - draft
+                - active
+                - archived
+
+    # Order schemas
+    Order:
+      type: object
+      required:
+        - id
+        - customerId
+        - items
+        - status
+        - total
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - processing
+            - shipped
+            - delivered
+            - cancelled
+        total:
+          $ref: '#/components/schemas/Money'
+        shippingAddress:
+          $ref: '#/components/schemas/Address'
+        billingAddress:
+          $ref: '#/components/schemas/Address'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      required:
+        - productId
+        - quantity
+        - price
+      properties:
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+          minimum: 1
+        price:
+          $ref: '#/components/schemas/Money'
+
+    CreateOrderInput:
+      type: object
+      required:
+        - items
+        - shippingAddress
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+              - productId
+              - quantity
+            properties:
+              productId:
+                type: string
+                format: uuid
+              quantity:
+                type: integer
+                minimum: 1
+        shippingAddress:
+          $ref: '#/components/schemas/Address'
+        billingAddress:
+          $ref: '#/components/schemas/Address'
+        callbackUrl:
+          type: string
+          format: uri
+          description: URL for order status webhooks
+
+    # Webhook schemas
+    Webhook:
+      type: object
+      required:
+        - id
+        - url
+        - events
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - product.created
+              - product.updated
+              - product.deleted
+              - order.created
+              - order.updated
+              - order.shipped
+              - order.delivered
+        secret:
+          type: string
+          writeOnly: true
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+
+    WebhookPayload:
+      type: object
+      required:
+        - id
+        - event
+        - timestamp
+        - data
+      properties:
+        id:
+          type: string
+          format: uuid
+        event:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+        signature:
+          type: string
+
+    # Utility schemas
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+        limit:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        hasNext:
+          type: boolean
+        hasPrevious:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        target:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+        traceId:
+          type: string
+          format: uuid
+
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        target:
+          type: string
+
+  parameters:
+    ProductIdPath:
+      name: productId
+      in: path
+      required: true
+      description: Product unique identifier
+      schema:
+        type: string
+        format: uuid
+      examples:
+        valid:
+          value: 550e8400-e29b-41d4-a716-446655440000
+
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-indexed)
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Items per page
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    SearchParam:
+      name: q
+      in: query
+      description: Search query
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
+
+    AcceptLanguageHeader:
+      name: Accept-Language
+      in: header
+      description: Preferred language
+      schema:
+        type: string
+        default: en-US
+
+    IfMatchHeader:
+      name: If-Match
+      in: header
+      description: ETag for optimistic concurrency
+      required: false
+      schema:
+        type: string
+
+    IfNoneMatchHeader:
+      name: If-None-Match
+      in: header
+      description: ETag for cache validation
+      required: false
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            validationError:
+              $ref: '#/components/examples/ValidationErrorExample'
+
+    Unauthorized:
+      description: Authentication required
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+            example: 'Bearer realm="api"'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: UNAUTHORIZED
+            message: Authentication required
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FORBIDDEN
+            message: Insufficient permissions
+
+    NotFound:
+      description: Resource not found
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NOT_FOUND
+            message: Resource not found
+
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: CONFLICT
+            message: Resource already exists
+
+    PreconditionFailed:
+      description: Precondition failed (ETag mismatch)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: PRECONDITION_FAILED
+            message: ETag mismatch
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          $ref: '#/components/headers/X-RateLimit-Limit'
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+        Retry-After:
+          schema:
+            type: integer
+            description: Seconds until retry
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: RATE_LIMITED
+            message: Too many requests
+
+    InternalError:
+      description: Internal server error
+      headers:
+        X-Request-ID:
+          $ref: '#/components/headers/X-Request-ID'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: INTERNAL_ERROR
+            message: An unexpected error occurred
+
+  headers:
+    X-Request-ID:
+      description: Unique request identifier for tracing
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    X-RateLimit-Limit:
+      description: Maximum requests per window
+      schema:
+        type: integer
+        format: int32
+
+    X-RateLimit-Remaining:
+      description: Remaining requests in window
+      schema:
+        type: integer
+        format: int32
+
+    X-RateLimit-Reset:
+      description: Unix timestamp when limit resets
+      schema:
+        type: integer
+        format: int64
+
+    X-Total-Count:
+      description: Total number of items
+      schema:
+        type: integer
+        format: int64
+
+    ETag:
+      description: Entity tag for caching
+      schema:
+        type: string
+
+    Cache-Control:
+      description: Caching directives
+      schema:
+        type: string
+        example: 'max-age=3600, must-revalidate'
+
+    Location:
+      description: URL of created resource
+      schema:
+        type: string
+        format: uri
+
+    Link:
+      description: Pagination links (RFC 5988)
+      schema:
+        type: string
+        example: '<https://api.example.com/products?page=2>; rel="next"'
+
+  examples:
+    ProductExample:
+      summary: Example product
+      value:
+        id: 550e8400-e29b-41d4-a716-446655440000
+        sku: EL-123456
+        name: Wireless Bluetooth Headphones
+        description: Premium noise-cancelling wireless headphones
+        price:
+          amount: 199.99
+          currency: USD
+        category: electronics
+        tags:
+          - wireless
+          - bluetooth
+          - audio
+        inventory: 150
+        status: active
+        createdAt: '2024-01-15T10:30:00Z'
+        updatedAt: '2024-01-20T14:45:00Z'
+
+    ProductListExample:
+      summary: Product list with pagination
+      value:
+        items:
+          - id: 550e8400-e29b-41d4-a716-446655440000
+            name: Wireless Headphones
+            price:
+              amount: 199.99
+              currency: USD
+            category: electronics
+          - id: 550e8400-e29b-41d4-a716-446655440001
+            name: Running Shoes
+            price:
+              amount: 129.99
+              currency: USD
+            category: sports
+        pagination:
+          page: 1
+          limit: 20
+          total: 150
+          totalPages: 8
+          hasNext: true
+          hasPrevious: false
+
+    EmptyProductList:
+      summary: Empty product list
+      value:
+        items: []
+        pagination:
+          page: 1
+          limit: 20
+          total: 0
+          totalPages: 0
+          hasNext: false
+          hasPrevious: false
+
+    ValidationErrorExample:
+      summary: Validation error
+      value:
+        code: VALIDATION_ERROR
+        message: Request validation failed
+        details:
+          - code: REQUIRED
+            message: Name is required
+            target: name
+          - code: INVALID_FORMAT
+            message: Price must be positive
+            target: price.amount
+
+  requestBodies:
+    CreateProduct:
+      description: Product creation request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateProductInput'
+          examples:
+            electronics:
+              summary: Electronics product
+              value:
+                sku: EL-789012
+                name: Smart Watch
+                description: Fitness tracking smartwatch
+                price:
+                  amount: 299.99
+                  currency: USD
+                category: electronics
+                tags:
+                  - wearable
+                  - fitness
+                inventory: 50
+
+    UpdateProduct:
+      description: Product update request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UpdateProductInput'
+
+    CreateOrder:
+      description: Order creation request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateOrderInput'
+          examples:
+            simpleOrder:
+              summary: Simple order
+              value:
+                items:
+                  - productId: 550e8400-e29b-41d4-a716-446655440000
+                    quantity: 2
+                shippingAddress:
+                  street: 123 Main St
+                  city: New York
+                  state: NY
+                  postalCode: '10001'
+                  country: US
+
+    CreateWebhook:
+      description: Webhook registration request
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - url
+              - events
+            properties:
+              url:
+                type: string
+                format: uri
+              events:
+                type: array
+                items:
+                  type: string
+              secret:
+                type: string
+
+  links:
+    GetProductById:
+      operationId: getProduct
+      parameters:
+        productId: '$response.body#/id'
+      description: Get the created product
+
+    UpdateProductById:
+      operationId: updateProduct
+      parameters:
+        productId: '$response.body#/id'
+      description: Update this product
+
+    DeleteProductById:
+      operationId: deleteProduct
+      parameters:
+        productId: '$response.body#/id'
+      description: Delete this product
+
+    GetProductReviews:
+      operationRef: '#/paths/~1products~1{productId}~1reviews/get'
+      parameters:
+        productId: '$response.body#/id'
+      description: Get reviews for this product
+
+    GetOrderById:
+      operationId: getOrder
+      parameters:
+        orderId: '$response.body#/id'
+      description: Get the created order
+
+    CancelOrderById:
+      operationId: cancelOrder
+      parameters:
+        orderId: '$response.body#/id'
+      description: Cancel this order
+
+  callbacks:
+    OrderStatusCallback:
+      '{$request.body#/callbackUrl}/status':
+        post:
+          operationId: onOrderStatusChange
+          summary: Order status update notification
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required:
+                    - orderId
+                    - status
+                    - timestamp
+                  properties:
+                    orderId:
+                      type: string
+                      format: uuid
+                    status:
+                      type: string
+                      enum:
+                        - confirmed
+                        - processing
+                        - shipped
+                        - delivered
+                        - cancelled
+                    previousStatus:
+                      type: string
+                    timestamp:
+                      type: string
+                      format: date-time
+                    trackingNumber:
+                      type: string
+          responses:
+            '200':
+              description: Callback acknowledged
+            '410':
+              description: Callback URL no longer valid
+
+    PaymentCallback:
+      '{$request.body#/callbackUrl}/payment':
+        post:
+          operationId: onPaymentEvent
+          summary: Payment event notification
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required:
+                    - orderId
+                    - paymentStatus
+                  properties:
+                    orderId:
+                      type: string
+                      format: uuid
+                    paymentStatus:
+                      type: string
+                      enum:
+                        - pending
+                        - completed
+                        - failed
+                        - refunded
+                    amount:
+                      $ref: '#/components/schemas/Money'
+                    transactionId:
+                      type: string
+          responses:
+            '200':
+              description: Callback acknowledged
+
+    GenericWebhookCallback:
+      '{$request.body#/url}':
+        post:
+          operationId: onWebhookEvent
+          summary: Webhook event delivery
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/WebhookPayload'
+          responses:
+            '200':
+              description: Webhook received
+            '401':
+              description: Invalid signature
+            '410':
+              description: Webhook URL no longer valid
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for server-to-server communication
+
+    oauth2:
+      type: oauth2
+      description: OAuth 2.0 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/authorize
+          tokenUrl: https://auth.example.com/token
+          refreshUrl: https://auth.example.com/refresh
+          scopes:
+            products:read: Read product information
+            products:write: Create and update products
+            orders:read: Read order information
+            orders:write: Create and manage orders
+            admin: Full administrative access
+        clientCredentials:
+          tokenUrl: https://auth.example.com/token
+          scopes:
+            products:read: Read product information
+            orders:read: Read order information
