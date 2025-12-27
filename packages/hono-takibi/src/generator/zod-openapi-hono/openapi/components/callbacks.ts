@@ -9,14 +9,12 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
   const isCallbacks = (v: unknown): v is Callbacks =>
     typeof v === 'object' && v !== null && !('$ref' in v)
 
-  const exportKeyword = exportCallbacks ? 'export ' : ''
-
   return Object.entries(callbacks)
     .map(([k, callbackOrRef]) => {
       if (!isCallbacks(callbackOrRef)) return undefined
       const callbackCode = makeCallbacks(callbackOrRef)
       return callbackCode
-        ? `${exportKeyword}const ${toIdentifier(ensureSuffix(k, 'Callbacks'))} = {${callbackCode}}`
+        ? `${exportCallbacks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Callbacks'))} = {${callbackCode}}`
         : undefined
     })
     .filter((v) => v !== undefined)
