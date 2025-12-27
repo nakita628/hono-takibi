@@ -265,12 +265,12 @@ export const putPetRoute = createRoute({
   request: {
     body: {
       description: 'Update an existent pet in the store',
-      required: true,
       content: {
         'application/json': { schema: PetSchema },
         'application/xml': { schema: PetSchema },
         'application/x-www-form-urlencoded': { schema: PetSchema },
       },
+      required: true,
     },
   },
   responses: {
@@ -298,12 +298,12 @@ export const postPetRoute = createRoute({
   request: {
     body: {
       description: 'Create a new pet in the store',
-      required: true,
       content: {
         'application/json': { schema: PetSchema },
         'application/xml': { schema: PetSchema },
         'application/x-www-form-urlencoded': { schema: PetSchema },
       },
+      required: true,
     },
   },
   responses: {
@@ -511,31 +511,12 @@ export const postPetPetIdUploadImageRoute = createRoute({
   operationId: 'uploadFile',
   request: {
     body: {
-      required: false,
       content: {
         'application/octet-stream': {
           schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
         },
       },
     },
-    params: z.object({
-      petId: z
-        .int64()
-        .openapi({
-          param: { name: 'petId', in: 'path', required: true },
-          type: 'integer',
-          format: 'int64',
-        }),
-    }),
-    query: z.object({
-      additionalMetadata: z
-        .string()
-        .optional()
-        .openapi({
-          param: { name: 'additionalMetadata', in: 'query', required: false },
-          type: 'string',
-        }),
-    }),
   },
   responses: {
     200: {
@@ -578,7 +559,6 @@ export const postStoreOrderRoute = createRoute({
   operationId: 'placeOrder',
   request: {
     body: {
-      required: false,
       content: {
         'application/json': { schema: OrderSchema },
         'application/xml': { schema: OrderSchema },
@@ -663,7 +643,6 @@ export const postUserRoute = createRoute({
   request: {
     body: {
       description: 'Created user object',
-      required: false,
       content: {
         'application/json': { schema: UserSchema },
         'application/xml': { schema: UserSchema },
@@ -691,7 +670,6 @@ export const postUserCreateWithListRoute = createRoute({
   operationId: 'createUsersWithListInput',
   request: {
     body: {
-      required: false,
       content: {
         'application/json': {
           schema: z
@@ -789,18 +767,12 @@ export const putUserUsernameRoute = createRoute({
   request: {
     body: {
       description: 'Update an existent user in the store',
-      required: false,
       content: {
         'application/json': { schema: UserSchema },
         'application/xml': { schema: UserSchema },
         'application/x-www-form-urlencoded': { schema: UserSchema },
       },
     },
-    params: z.object({
-      username: z
-        .string()
-        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
-    }),
   },
   responses: { default: { description: 'successful operation' } },
 })

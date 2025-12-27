@@ -1,228 +1,84 @@
 openapi: 3.1.0
 info:
-  title: Complex Encoding Example (Nested multipart)
+  title: Components Links Example
   version: 1.0.0
+servers:
+  - url: https://api.example.com
 
 paths:
-  /uploads:
+  /users:
     post:
-      operationId: uploadComplex
-      summary: Upload files + nested multipart metadata
+      operationId: createUser
+      summary: Create a user
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              $ref: "#/components/schemas/UploadEnvelope"
-            encoding:
-              profile:
-                contentType: image/*
-                headers:
-                  Content-Disposition:
-                    description: Part metadata for the profile image
-                    schema:
-                      type: string
-                      example: 'form-data; name="profile"; filename="profile.png"'
-
-              attachments:
-                contentType: application/pdf
-                headers:
-                  Content-Disposition:
-                    description: Each item uses the same field name (RFC7578 style)
-                    schema:
-                      type: string
-                      example: 'form-data; name="attachments"; filename="doc.pdf"'
-                  X-Checksum-Sha256:
-                    $ref: "#/components/headers/ChecksumSha256"
-
-              # ★ ここが「ネストEncoding」のデモ
-              # metadata 自体を multipart/form-data として扱い、その内部に user/options を “子パート” としてぶら下げる
-              metadata:
-                contentType: multipart/form-data
-                headers:
-                  Content-Disposition:
-                    description: Outer metadata part
-                    schema:
-                      type: string
-                      example: 'form-data; name="metadata"'
-                encoding:
-                  user:
-                    contentType: application/json; charset=utf-8
-                    headers:
-                      Content-Disposition:
-                        description: user JSON part inside metadata multipart
-                        schema:
-                          type: string
-                          example: 'form-data; name="user"'
-
-                  options:
-                    contentType: multipart/form-data
-                    headers:
-                      Content-Disposition:
-                        description: options multipart part inside metadata multipart
-                        schema:
-                          type: string
-                          example: 'form-data; name="options"'
-                    encoding:
-                      notify:
-                        contentType: text/plain; charset=utf-8
-                        headers:
-                          Content-Disposition:
-                            schema:
-                              type: string
-                              example: 'form-data; name="notify"'
-
-                      callbacks:
-                        contentType: multipart/form-data
-                        headers:
-                          Content-Disposition:
-                            schema:
-                              type: string
-                              example: 'form-data; name="callbacks"'
-                        encoding:
-                          url:
-                            contentType: text/plain; charset=utf-8
-                            headers:
-                              Content-Disposition:
-                                schema:
-                                  type: string
-                                  example: 'form-data; name="url"'
-
-                          headers:
-                            contentType: multipart/form-data
-                            headers:
-                              Content-Disposition:
-                                schema:
-                                  type: string
-                                  example: 'form-data; name="headers"'
-                            encoding:
-                              X-Custom:
-                                contentType: text/plain; charset=utf-8
-                              X-Retry-Count:
-                                contentType: text/plain; charset=utf-8
-
-              tags:
-                contentType: text/plain; charset=utf-8
-
-              records:
-                contentType: application/json; charset=utf-8
-
+              $ref: "#/components/schemas/CreateUserRequest"
       responses:
-        "200":
-          description: OK
-          headers:
-            X-Request-Id:
-              $ref: "#/components/headers/RequestId"
+        "201":
+          description: Created
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ok:
-                    type: boolean
-                  message:
-                    type: string
+                $ref: "#/components/schemas/User"
+          links:
+            # ✅ ここで components.links を参照して使う
+            GetUserById:
+              $ref: "#/components/links/GetUserById"
+            GetUserByIdByOperationRef:
+              $ref: "#/components/links/GetUserByIdByOperationRef"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      summary: Get a user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 
 components:
-  headers:
-    RequestId:
-      description: Trace id for debugging
-      schema:
-        type: string
-        example: "req_01JABCDEFGHJKL"
-
-    ChecksumSha256:
-      description: SHA-256 checksum (hex)
-      schema:
-        type: string
-        pattern: "^[a-f0-9]{64}$"
-        example: "c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00"
-
   schemas:
-    UploadEnvelope:
+    CreateUserRequest:
       type: object
-      required: [profile, metadata]
+      required: [name]
       properties:
-        profile:
+        name:
           type: string
-          format: binary
-          description: Profile image file
-        attachments:
-          type: array
-          description: Multiple files with the same part name
-          items:
-            type: string
-            format: binary
-        metadata:
-          $ref: "#/components/schemas/MetadataEnvelope"
-        tags:
-          type: array
-          items:
-            type: string
-        records:
-          type: array
-          items:
-            $ref: "#/components/schemas/Record"
-
-    MetadataEnvelope:
-      type: object
-      description: Nested multipart container (metadata part)
-      properties:
-        user:
-          $ref: "#/components/schemas/User"
-        options:
-          $ref: "#/components/schemas/OptionsEnvelope"
 
     User:
       type: object
-      properties:
-        id:
-          type: string
-        email:
-          type: string
-          format: email
-        address:
-          type: object
-          properties:
-            zip:
-              type: string
-            lines:
-              type: array
-              items:
-                type: string
-
-    OptionsEnvelope:
-      type: object
-      properties:
-        notify:
-          type: boolean
-        callbacks:
-          type: array
-          items:
-            $ref: "#/components/schemas/CallbackEnvelope"
-
-    CallbackEnvelope:
-      type: object
-      properties:
-        url:
-          type: string
-          format: uri
-        headers:
-          $ref: "#/components/schemas/CallbackHeaders"
-
-    CallbackHeaders:
-      type: object
-      properties:
-        X-Custom:
-          type: string
-        X-Retry-Count:
-          type: integer
-
-    Record:
-      type: object
+      required: [id, name]
       properties:
         id:
           type: string
         name:
           type: string
 
+  # ✅ components.links の定義
+  links:
+    GetUserById:
+      # operationId を使ってリンク先オペレーションを指定
+      operationId: getUser
+      # レスポンスの body から userId を取り出してパスパラメータへ渡す
+      parameters:
+        userId: $response.body#/id
+      description: Follow-up call to fetch the created user.
+
+    GetUserByIdByOperationRef:
+      # operationRef を使ってリンク先オペレーションを JSON Pointer で指定する例
+      operationRef: "#/paths/~1users~1{userId}/get"
+      parameters:
+        userId: $response.body#/id
+      description: Same as above, but using operationRef.
