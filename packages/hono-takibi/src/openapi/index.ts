@@ -84,7 +84,9 @@ export type OpenAPI = BaseOpenAPI & {
   readonly jsonSchemaDialect?: string
   readonly servers?: readonly Server[]
   readonly paths: PathItem
-  readonly webhooks?: Record<string, PathItem>
+  readonly webhooks?: {
+    readonly [k: string]: PathItem
+  }
   readonly components?: Components
   readonly security?: {
     readonly name?: readonly string[]
@@ -103,12 +105,17 @@ export type OpenAPI = BaseOpenAPI & {
 }
 
 export type Components = {
-  readonly schemas?: Record<string, Schema>
-  readonly responses?: Record<string, Responses>
-  readonly parameters?: Record<string, Parameter>
-  readonly examples?: Record<
-    string,
-    {
+  readonly schemas?: {
+    readonly [k: string]: Schema
+  }
+  readonly responses?: {
+    readonly [k: string]: Responses
+  }
+  readonly parameters?: {
+    readonly [k: string]: Parameter
+  }
+  readonly examples?: {
+    readonly [k: string]: {
       readonly summary?: string
       readonly description?: string
       readonly dataValue: unknown
@@ -116,9 +123,13 @@ export type Components = {
       readonly externalValue?: string
       readonly value: unknown
     }
-  >
-  readonly requestBodies?: Record<string, RequestBody>
-  readonly headers?: Record<string, Header | Reference>
+  }
+  readonly requestBodies?: {
+    readonly [k: string]: RequestBody
+  }
+  readonly headers?: {
+    readonly [k: string]: Header | Reference
+  }
   readonly securitySchemes?: {
     readonly [k: string]:
       | {
@@ -139,10 +150,18 @@ export type Components = {
         }
       | Reference
   }
-  readonly links?: Record<string, Link | Reference>
-  readonly callbacks?: Record<string, Callbacks | Reference>
-  readonly pathItems?: Record<string, PathItem>
-  readonly mediaTypes?: Record<string, Media | Reference>
+  readonly links?: {
+    readonly [k: string]: Link | Reference
+  }
+  readonly callbacks?: {
+    readonly [k: string]: Callbacks | Reference
+  }
+  readonly pathItems?: {
+    readonly [k: string]: PathItem
+  }
+  readonly mediaTypes?: {
+    readonly [k: string]: Media | Reference
+  }
 }
 
 type OAuthFlow = {
@@ -151,7 +170,9 @@ type OAuthFlow = {
     readonly deviceAuthorizationUrl: string
     readonly tokenUrl: string
     readonly refreshUrl: string
-    readonly scopes: Record<string, string>
+    readonly scopes: {
+      readonly [k: string]: string
+    }
   }
 }
 /**
@@ -297,9 +318,11 @@ export type PathItem = {
   readonly patch?: Operation
   readonly trace?: Operation
   readonly query?: Operation
-  readonly additionalOperations?: Record<string, Operation>
+  readonly additionalOperations?: {
+    readonly [k: string]: Operation
+  }
   readonly servers?: readonly Server[]
-  readonly parameters?: readonly Parameter[] | Reference[]
+  readonly parameters?: readonly Parameter[] | readonly Reference[]
 }
 
 /**
@@ -316,15 +339,16 @@ export type Operation = {
   readonly operationId?: string
   readonly parameters?: readonly Parameter[]
   readonly requestBody?: RequestBody
-  readonly responses: Record<string, Responses>
-  readonly callbacks?: Record<
-    string,
-    {
-      $ref?: string
-      summary?: string
-      description?: string
+  readonly responses: {
+    readonly [k: string]: Responses
+  }
+  readonly callbacks?: {
+    readonly [k: string]: {
+      readonly $ref?: string
+      readonly summary?: string
+      readonly description?: string
     }
-  >
+  }
   readonly deprecated?: boolean
   readonly security?: {
     readonly name?: readonly string[]
@@ -332,14 +356,13 @@ export type Operation = {
   readonly servers?: readonly {
     readonly url: string
     readonly description?: string
-    readonly variables?: Record<
-      string,
-      {
-        enum?: readonly string[]
-        default?: string
-        description?: string
+    readonly variables?: {
+      readonly [k: string]: {
+        readonly enum?: readonly string[]
+        readonly default?: string
+        readonly description?: string
       }
-    >
+    }
   }[]
 }
 
@@ -358,7 +381,9 @@ export type Responses = {
 
 type Discriminator = {
   readonly propertyName?: string
-  readonly mapping?: Record<string, string>
+  readonly mapping?: {
+    readonly [k: string]: string
+  }
   readonly defaultMapping?: string
 }
 
@@ -396,10 +421,18 @@ export type Schema = {
   readonly minItems?: number
   readonly maxItems?: number
   readonly default?: unknown
-  readonly properties?: Record<string, Schema>
-  readonly required?: string[] | boolean
-  readonly items?: Schema
-  readonly enum?: (string | number | boolean | null | (string | number | boolean | null)[])[]
+  readonly properties?: {
+    readonly [k: string]: Schema
+  }
+  readonly required?: readonly string[] | boolean
+  readonly items?: readonly Schema[]
+  readonly enum?: readonly (
+    | string
+    | number
+    | boolean
+    | null
+    | readonly (string | number | boolean | null)[]
+  )[]
   readonly nullable?: boolean
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
@@ -410,7 +443,6 @@ export type Schema = {
   readonly allOf?: readonly Schema[]
   readonly anyOf?: readonly Schema[]
   readonly not?: Schema
-
   readonly const?: unknown
 }
 
@@ -430,7 +462,9 @@ export type Parameter = {
 
 export type RequestBody = {
   readonly description?: string
-  readonly content?: Record<string, Media | Reference>
+  readonly content?: {
+    readonly [k: string]: Media | Reference
+  }
   readonly required?: boolean
 }
 
