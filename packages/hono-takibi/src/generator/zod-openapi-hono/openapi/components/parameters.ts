@@ -1,12 +1,7 @@
 import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
+import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-
-const parameterBaseName = (key: string): string => {
-  if (key.endsWith('ParamsSchema')) return key.slice(0, -'Schema'.length)
-  if (key.endsWith('Params')) return key
-  return `${key}Params`
-}
 
 /**
  * Generates TypeScript code for OpenAPI component parameters.
@@ -33,7 +28,7 @@ export function parameters(
         },
       }
       const z = zodToOpenAPI(parameter.schema, meta)
-      return zodToOpenAPISchema(parameterBaseName(k), z, exportSchema, exportType, true)
+      return zodToOpenAPISchema(toIdentifier(ensureSuffix(k, 'ParamsSchema')), z, exportSchema, exportType, true)
     })
     .join('\n\n')
 }
