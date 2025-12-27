@@ -8,7 +8,7 @@ import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
  * @param exportSchema - Whether to export the response variables.
  * @returns A string of TypeScript code with response definitions.
  */
-export function responses(components: Components, exportSchema: boolean): string {
+export function responses(components: Components, exportResponses: boolean): string {
   const { responses } = components
   if (!responses) return ''
 
@@ -26,7 +26,7 @@ export function responses(components: Components, exportSchema: boolean): string
         .filter((v) => v !== undefined)
         .join(',')
 
-      return `${exportSchema ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Response'))}={${props}}`
+      return `${exportResponses ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Response'))}={${props}}`
     })
     .join('\n\n')
 }

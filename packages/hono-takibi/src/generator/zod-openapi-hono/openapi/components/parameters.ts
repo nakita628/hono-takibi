@@ -13,8 +13,8 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  */
 export function parameters(
   components: Components,
-  exportSchema: boolean,
-  exportType: boolean,
+  exportParameters: boolean,
+  exportParametersTypes: boolean,
 ): string {
   const { parameters } = components
   if (!parameters) return ''
@@ -31,8 +31,8 @@ export function parameters(
       return zodToOpenAPISchema(
         toIdentifier(ensureSuffix(k, 'ParamsSchema')),
         z,
-        exportSchema,
-        exportType,
+        exportParameters,
+        exportParametersTypes,
         true,
       )
     })
