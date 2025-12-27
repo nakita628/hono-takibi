@@ -7,15 +7,15 @@ export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
-    readonly exportSchemasTypes?: boolean
     readonly exportSchemas?: boolean
-    readonly exportParametersTypes?: boolean
+    readonly exportSchemasTypes?: boolean
     readonly exportParameters?: boolean
+    readonly exportParametersTypes?: boolean
     readonly exportSecuritySchemes?: boolean
     readonly exportRequestBodies?: boolean
     readonly exportResponses?: boolean
-    readonly exportHeadersTypes?: boolean
     readonly exportHeaders?: boolean
+    readonly exportHeadersTypes?: boolean
     readonly exportExamples?: boolean
     readonly exportLinks?: boolean
     readonly exportCallbacks?: boolean
@@ -62,15 +62,15 @@ export function parseConfig(config: {
         readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
         readonly 'zod-openapi'?: {
           readonly output?: `${string}.ts`
-          readonly exportSchemasTypes?: boolean
           readonly exportSchemas?: boolean
-          readonly exportParametersTypes?: boolean
+          readonly exportSchemasTypes?: boolean
           readonly exportParameters?: boolean
+          readonly exportParametersTypes?: boolean
           readonly exportSecuritySchemes?: boolean
           readonly exportRequestBodies?: boolean
           readonly exportResponses?: boolean
-          readonly exportHeadersTypes?: boolean
           readonly exportHeaders?: boolean
+          readonly exportHeadersTypes?: boolean
           readonly exportExamples?: boolean
           readonly exportLinks?: boolean
           readonly exportCallbacks?: boolean
@@ -433,15 +433,15 @@ export function parseCli(args: readonly string[]):
         readonly test: boolean
         readonly basePath: string
         readonly componentsOptions: {
-          readonly exportSchemasTypes: boolean
           readonly exportSchemas: boolean
-          readonly exportParametersTypes: boolean
+          readonly exportSchemasTypes: boolean
           readonly exportParameters: boolean
+          readonly exportParametersTypes: boolean
           readonly exportSecuritySchemes: boolean
           readonly exportRequestBodies: boolean
           readonly exportResponses: boolean
-          readonly exportHeadersTypes: boolean
           readonly exportHeaders: boolean
+          readonly exportHeadersTypes: boolean
           readonly exportExamples: boolean
           readonly exportLinks: boolean
           readonly exportCallbacks: boolean
@@ -481,15 +481,15 @@ export function parseCli(args: readonly string[]):
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
       componentsOptions: {
-        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
         exportSchemas: args.includes('--export-schemas') ?? false,
-        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
+        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
         exportParameters: args.includes('--export-parameters') ?? false,
+        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
         exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
         exportRequestBodies: args.includes('--export-request-bodies') ?? false,
         exportResponses: args.includes('--export-responses') ?? false,
-        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
         exportHeaders: args.includes('--export-headers') ?? false,
+        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
         exportExamples: args.includes('--export-examples') ?? false,
         exportLinks: args.includes('--export-links') ?? false,
         exportCallbacks: args.includes('--export-callbacks') ?? false,
