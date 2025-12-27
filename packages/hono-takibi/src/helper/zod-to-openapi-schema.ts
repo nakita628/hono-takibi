@@ -1,4 +1,4 @@
-import { sanitizeIdentifier } from '../utils/index.js'
+import { ensureSuffix, sanitizeIdentifier, toIdentifier } from '../utils/index.js'
 
 /**
  * Generates a Zod schema constant and optional inferred type alias.
@@ -20,7 +20,7 @@ export function zodToOpenAPISchema(
   exportType: boolean,
   notComponentSchema?: boolean,
 ): string {
-  const variableName = `${schemaName}Schema`
+  const variableName = toIdentifier(ensureSuffix(schemaName, 'Schema'))
   const safeVariableName = sanitizeIdentifier(variableName)
   const safeSchemaName = sanitizeIdentifier(schemaName)
 
