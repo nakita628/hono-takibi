@@ -1,7 +1,7 @@
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Ref, Schema } from '../../openapi/index.js'
 
-import { normalizeTypes, refSchema } from '../../utils/index.js'
+import { normalizeTypes, ref } from '../../utils/index.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
@@ -29,9 +29,9 @@ export function zodToOpenAPI(
       ref.startsWith('#/components/headers/')
     if (isSchemaOrParameterOrHeaderRef(schema.$ref)) {
       if (Object.keys(schema).length === 1) {
-        return refSchema(schema.$ref)
+        return ref(schema.$ref)
       }
-      return wrap(refSchema(schema.$ref), schema, meta)
+      return wrap(ref(schema.$ref), schema, meta)
     }
   }
   /* combinators */
@@ -70,7 +70,7 @@ export function zodToOpenAPI(
 
         if (s.$ref && Object.keys(s).length === 1 && isSchemaOrParameterOrHeaderRef(s.$ref)) {
           return {
-            allOfSchemas: [...acc.allOfSchemas, refSchema(s.$ref)],
+            allOfSchemas: [...acc.allOfSchemas, ref(s.$ref)],
             nullable: acc.nullable,
             onlyRefSchemas: acc.onlyRefSchemas,
           }
@@ -125,7 +125,7 @@ export function zodToOpenAPI(
           ref.startsWith('#/components/headers/')
 
         if (isSchemaOrParameterOrHeaderRef(subSchema.$ref)) {
-          return refSchema(subSchema.$ref)
+          return ref(subSchema.$ref)
         }
       }
       return zodToOpenAPI(subSchema, meta)
@@ -152,7 +152,7 @@ export function zodToOpenAPI(
           ref.startsWith('#/components/headers/')
 
         if (isSchemaOrParameterOrHeaderRef(s.$ref)) {
-          return refSchema(s.$ref)
+          return ref(s.$ref)
         }
       }
       return zodToOpenAPI(s, meta)
@@ -220,7 +220,7 @@ export function zodToOpenAPI(
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
     const item = itemSchema?.$ref
       ? isSchemaOrParameterOrHeaderRef(itemSchema.$ref)
-        ? refSchema(itemSchema.$ref)
+        ? ref(itemSchema.$ref)
         : itemSchema
           ? zodToOpenAPI(itemSchema, meta)
           : 'z.any()'

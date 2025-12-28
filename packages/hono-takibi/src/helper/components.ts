@@ -9,12 +9,12 @@ import type {
   PathItem,
   Reference,
 } from '../openapi/index.js'
-import { buildExamples, refSchema } from '../utils/index.js'
+import { buildExamples, ref } from '../utils/index.js'
 
 /**
  * generates callbacks
- * @param callbacks 
- * @returns 
+ * @param callbacks
+ * @returns
  */
 export function makeCallbacks(callbacks: Callbacks): string {
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
@@ -27,7 +27,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
     const entries = Object.entries(responses)
       .map(([statusCode, response]) => {
         if (response.$ref && isComponentsRef(response.$ref)) {
-          return `${JSON.stringify(statusCode)}:${refSchema(response.$ref)}`
+          return `${JSON.stringify(statusCode)}:${ref(response.$ref)}`
         }
         return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
       })
@@ -44,7 +44,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
     const entries = Object.entries(operationCallbacks)
       .map(([callbackName, callbackRef]) => {
         if (callbackRef.$ref && isComponentsRef(callbackRef.$ref)) {
-          return `${JSON.stringify(callbackName)}:${refSchema(callbackRef.$ref)}`
+          return `${JSON.stringify(callbackName)}:${ref(callbackRef.$ref)}`
         }
         const props = [
           callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
@@ -76,7 +76,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
                   .filter(isParameter)
                   .map((param) =>
                     param.$ref
-                      ? refSchema(param.$ref)
+                      ? ref(param.$ref)
                       : zodToOpenAPI(param.schema, { parameters: { ...param } }),
                   )
                   .filter(Boolean)
@@ -87,7 +87,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
             if (!operation.requestBody) return undefined
             // Handle $ref to requestBodies component
             if ('$ref' in operation.requestBody && isComponentsRef(operation.requestBody.$ref)) {
-              return refSchema(operation.requestBody.$ref)
+              return ref(operation.requestBody.$ref)
             }
             // Handle inline requestBody with content
             if (!('content' in operation.requestBody && operation.requestBody.content))
@@ -95,7 +95,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
             const contentEntries = Object.entries(operation.requestBody.content)
               .map(([mediaType, mediaOrReference]) => {
                 if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
-                  return `${JSON.stringify(mediaType)}:{schema:${refSchema(mediaOrReference.$ref)}}`
+                  return `${JSON.stringify(mediaType)}:{schema:${ref(mediaOrReference.$ref)}}`
                 }
                 if ('schema' in mediaOrReference) {
                   return `${JSON.stringify(mediaType)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
@@ -157,8 +157,8 @@ export function makeCallbacks(callbacks: Callbacks): string {
 
 /**
  * generates content
- * @param content 
- * @returns 
+ * @param content
+ * @returns
  */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
@@ -173,7 +173,7 @@ export function makeContent(
       ? Object.entries(encoding.headers)
           .map(([headerKey, header]) => {
             if ('$ref' in header && header.$ref) {
-              return `${JSON.stringify(headerKey)}:${refSchema(header.$ref)}`
+              return `${JSON.stringify(headerKey)}:${ref(header.$ref)}`
             }
             const props = [
               header.description ? `description:${JSON.stringify(header.description)}` : undefined,
@@ -253,7 +253,7 @@ export function makeContent(
     .map(([contentType, mediaOrRef]) => {
       // Reference
       if (isReference(mediaOrRef) && mediaOrRef.$ref) {
-        return `${JSON.stringify(contentType)}:${refSchema(mediaOrRef.$ref)}`
+        return `${JSON.stringify(contentType)}:${ref(mediaOrRef.$ref)}`
       }
       // Media
       if (isMedia(mediaOrRef)) {
