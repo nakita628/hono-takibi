@@ -1,0 +1,968 @@
+openapi: 3.1.0
+info:
+  title: Reserved Words and Name Collision API
+  version: 1.0.0
+  description: |
+    Tests naming edge cases:
+    - Reserved words in various languages
+    - Name collisions between components
+    - Special characters in names
+    - Case sensitivity issues
+paths:
+  /class:
+    get:
+      operationId: class
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/class'
+
+  /interface:
+    get:
+      operationId: interface
+      responses:
+        '200':
+          description: OK
+
+  /type:
+    get:
+      operationId: type
+      responses:
+        '200':
+          description: OK
+
+  /function:
+    post:
+      operationId: function
+      responses:
+        '200':
+          description: OK
+
+  /return:
+    get:
+      operationId: return
+      responses:
+        '200':
+          description: OK
+
+  /import:
+    get:
+      operationId: import
+      responses:
+        '200':
+          description: OK
+
+  /export:
+    get:
+      operationId: export
+      responses:
+        '200':
+          description: OK
+
+  /default:
+    get:
+      operationId: default
+      responses:
+        '200':
+          description: OK
+
+  /new:
+    post:
+      operationId: new
+      responses:
+        '200':
+          description: OK
+
+  /delete:
+    delete:
+      operationId: delete
+      responses:
+        '200':
+          description: OK
+
+  /void:
+    get:
+      operationId: void
+      responses:
+        '200':
+          description: OK
+
+  /null:
+    get:
+      operationId: null
+      responses:
+        '200':
+          description: OK
+
+  /true:
+    get:
+      operationId: true
+      responses:
+        '200':
+          description: OK
+
+  /false:
+    get:
+      operationId: false
+      responses:
+        '200':
+          description: OK
+
+  /if:
+    get:
+      operationId: if
+      responses:
+        '200':
+          description: OK
+
+  /else:
+    get:
+      operationId: else
+      responses:
+        '200':
+          description: OK
+
+  /for:
+    get:
+      operationId: for
+      responses:
+        '200':
+          description: OK
+
+  /while:
+    get:
+      operationId: while
+      responses:
+        '200':
+          description: OK
+
+  /switch:
+    get:
+      operationId: switch
+      responses:
+        '200':
+          description: OK
+
+  /case:
+    get:
+      operationId: case
+      responses:
+        '200':
+          description: OK
+
+  /break:
+    get:
+      operationId: break
+      responses:
+        '200':
+          description: OK
+
+  /continue:
+    get:
+      operationId: continue
+      responses:
+        '200':
+          description: OK
+
+  /try:
+    get:
+      operationId: try
+      responses:
+        '200':
+          description: OK
+
+  /catch:
+    get:
+      operationId: catch
+      responses:
+        '200':
+          description: OK
+
+  /finally:
+    get:
+      operationId: finally
+      responses:
+        '200':
+          description: OK
+
+  /throw:
+    get:
+      operationId: throw
+      responses:
+        '200':
+          description: OK
+
+  /async:
+    get:
+      operationId: async
+      responses:
+        '200':
+          description: OK
+
+  /await:
+    get:
+      operationId: await
+      responses:
+        '200':
+          description: OK
+
+  /yield:
+    get:
+      operationId: yield
+      responses:
+        '200':
+          description: OK
+
+  /static:
+    get:
+      operationId: static
+      responses:
+        '200':
+          description: OK
+
+  /public:
+    get:
+      operationId: public
+      responses:
+        '200':
+          description: OK
+
+  /private:
+    get:
+      operationId: private
+      responses:
+        '200':
+          description: OK
+
+  /protected:
+    get:
+      operationId: protected
+      responses:
+        '200':
+          description: OK
+
+  /abstract:
+    get:
+      operationId: abstract
+      responses:
+        '200':
+          description: OK
+
+  /final:
+    get:
+      operationId: final
+      responses:
+        '200':
+          description: OK
+
+  /extends:
+    get:
+      operationId: extends
+      responses:
+        '200':
+          description: OK
+
+  /implements:
+    get:
+      operationId: implements
+      responses:
+        '200':
+          description: OK
+
+  /package:
+    get:
+      operationId: package
+      responses:
+        '200':
+          description: OK
+
+  /enum:
+    get:
+      operationId: enum
+      responses:
+        '200':
+          description: OK
+
+  /const:
+    get:
+      operationId: const
+      responses:
+        '200':
+          description: OK
+
+  /let:
+    get:
+      operationId: let
+      responses:
+        '200':
+          description: OK
+
+  /var:
+    get:
+      operationId: var
+      responses:
+        '200':
+          description: OK
+
+  /this:
+    get:
+      operationId: this
+      responses:
+        '200':
+          description: OK
+
+  /super:
+    get:
+      operationId: super
+      responses:
+        '200':
+          description: OK
+
+  /self:
+    get:
+      operationId: self
+      responses:
+        '200':
+          description: OK
+
+  /constructor:
+    get:
+      operationId: constructor
+      responses:
+        '200':
+          description: OK
+
+  /prototype:
+    get:
+      operationId: prototype
+      responses:
+        '200':
+          description: OK
+
+  /toString:
+    get:
+      operationId: toString
+      responses:
+        '200':
+          description: OK
+
+  /valueOf:
+    get:
+      operationId: valueOf
+      responses:
+        '200':
+          description: OK
+
+  /hasOwnProperty:
+    get:
+      operationId: hasOwnProperty
+      responses:
+        '200':
+          description: OK
+
+  /name-collisions:
+    get:
+      operationId: getNameCollisions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # Same names as schemas
+                  User:
+                    type: string
+                  user:
+                    type: string
+                  USER:
+                    type: string
+                  # Same names as parameters
+                  id:
+                    type: string
+                  ID:
+                    type: string
+                  Id:
+                    type: string
+
+components:
+  schemas:
+    # Reserved words as schema names
+    class:
+      type: object
+      properties:
+        class:
+          type: string
+        extends:
+          type: string
+        implements:
+          type: array
+          items:
+            type: string
+
+    interface:
+      type: object
+      properties:
+        name:
+          type: string
+
+    type:
+      type: object
+      properties:
+        type:
+          type: string
+
+    function:
+      type: object
+      properties:
+        name:
+          type: string
+        return:
+          type: string
+
+    enum:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: string
+
+    const:
+      type: object
+      properties:
+        value:
+          type: string
+
+    null:
+      type: object
+      properties:
+        isNull:
+          type: boolean
+
+    Object:
+      type: object
+      properties:
+        data:
+          type: object
+
+    Array:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+
+    String:
+      type: object
+      properties:
+        value:
+          type: string
+
+    Number:
+      type: object
+      properties:
+        value:
+          type: number
+
+    Boolean:
+      type: object
+      properties:
+        value:
+          type: boolean
+
+    Date:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+
+    Promise:
+      type: object
+      properties:
+        status:
+          type: string
+
+    Map:
+      type: object
+      additionalProperties:
+        type: string
+
+    Set:
+      type: object
+      properties:
+        values:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+
+    # Case sensitivity tests
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+
+    USER:
+      type: object
+      properties:
+        id:
+          type: number
+
+    # Names that differ only by case
+    MyModel:
+      type: object
+      properties:
+        value:
+          type: string
+
+    myModel:
+      type: object
+      properties:
+        value:
+          type: integer
+
+    MYMODEL:
+      type: object
+      properties:
+        value:
+          type: boolean
+
+    mymodel:
+      type: object
+      properties:
+        value:
+          type: number
+
+    # Schema with reserved word properties
+    ReservedProperties:
+      type: object
+      required:
+        - class
+        - type
+        - default
+        - null
+        - true
+        - false
+      properties:
+        class:
+          type: string
+        type:
+          type: string
+        default:
+          type: string
+        null:
+          type: string
+        true:
+          type: string
+        false:
+          type: string
+        if:
+          type: string
+        else:
+          type: string
+        for:
+          type: string
+        while:
+          type: string
+        do:
+          type: string
+        switch:
+          type: string
+        case:
+          type: string
+        break:
+          type: string
+        continue:
+          type: string
+        return:
+          type: string
+        function:
+          type: string
+        var:
+          type: string
+        let:
+          type: string
+        const:
+          type: string
+        new:
+          type: string
+        delete:
+          type: string
+        typeof:
+          type: string
+        instanceof:
+          type: string
+        void:
+          type: string
+        this:
+          type: string
+        super:
+          type: string
+        import:
+          type: string
+        export:
+          type: string
+        from:
+          type: string
+        as:
+          type: string
+        async:
+          type: string
+        await:
+          type: string
+        yield:
+          type: string
+        try:
+          type: string
+        catch:
+          type: string
+        finally:
+          type: string
+        throw:
+          type: string
+        extends:
+          type: string
+        implements:
+          type: string
+        interface:
+          type: string
+        package:
+          type: string
+        private:
+          type: string
+        protected:
+          type: string
+        public:
+          type: string
+        static:
+          type: string
+        enum:
+          type: string
+        abstract:
+          type: string
+        final:
+          type: string
+        native:
+          type: string
+        synchronized:
+          type: string
+        transient:
+          type: string
+        volatile:
+          type: string
+        goto:
+          type: string
+        debugger:
+          type: string
+        with:
+          type: string
+        in:
+          type: string
+        of:
+          type: string
+        get:
+          type: string
+        set:
+          type: string
+        arguments:
+          type: string
+        eval:
+          type: string
+        constructor:
+          type: string
+        prototype:
+          type: string
+        __proto__:
+          type: string
+        __defineGetter__:
+          type: string
+        __defineSetter__:
+          type: string
+        __lookupGetter__:
+          type: string
+        __lookupSetter__:
+          type: string
+        hasOwnProperty:
+          type: string
+        isPrototypeOf:
+          type: string
+        propertyIsEnumerable:
+          type: string
+        toLocaleString:
+          type: string
+        toString:
+          type: string
+        valueOf:
+          type: string
+
+    # Python reserved words
+    PythonReserved:
+      type: object
+      properties:
+        and:
+          type: string
+        as:
+          type: string
+        assert:
+          type: string
+        break:
+          type: string
+        class:
+          type: string
+        continue:
+          type: string
+        def:
+          type: string
+        del:
+          type: string
+        elif:
+          type: string
+        else:
+          type: string
+        except:
+          type: string
+        exec:
+          type: string
+        finally:
+          type: string
+        for:
+          type: string
+        from:
+          type: string
+        global:
+          type: string
+        if:
+          type: string
+        import:
+          type: string
+        in:
+          type: string
+        is:
+          type: string
+        lambda:
+          type: string
+        not:
+          type: string
+        or:
+          type: string
+        pass:
+          type: string
+        print:
+          type: string
+        raise:
+          type: string
+        return:
+          type: string
+        try:
+          type: string
+        while:
+          type: string
+        with:
+          type: string
+        yield:
+          type: string
+        None:
+          type: string
+        True:
+          type: string
+        False:
+          type: string
+        nonlocal:
+          type: string
+        async:
+          type: string
+        await:
+          type: string
+
+    # Go reserved words
+    GoReserved:
+      type: object
+      properties:
+        break:
+          type: string
+        case:
+          type: string
+        chan:
+          type: string
+        const:
+          type: string
+        continue:
+          type: string
+        default:
+          type: string
+        defer:
+          type: string
+        else:
+          type: string
+        fallthrough:
+          type: string
+        for:
+          type: string
+        func:
+          type: string
+        go:
+          type: string
+        goto:
+          type: string
+        if:
+          type: string
+        import:
+          type: string
+        interface:
+          type: string
+        map:
+          type: string
+        package:
+          type: string
+        range:
+          type: string
+        return:
+          type: string
+        select:
+          type: string
+        struct:
+          type: string
+        switch:
+          type: string
+        type:
+          type: string
+        var:
+          type: string
+
+    # Rust reserved words
+    RustReserved:
+      type: object
+      properties:
+        as:
+          type: string
+        async:
+          type: string
+        await:
+          type: string
+        break:
+          type: string
+        const:
+          type: string
+        continue:
+          type: string
+        crate:
+          type: string
+        dyn:
+          type: string
+        else:
+          type: string
+        enum:
+          type: string
+        extern:
+          type: string
+        false:
+          type: string
+        fn:
+          type: string
+        for:
+          type: string
+        if:
+          type: string
+        impl:
+          type: string
+        in:
+          type: string
+        let:
+          type: string
+        loop:
+          type: string
+        match:
+          type: string
+        mod:
+          type: string
+        move:
+          type: string
+        mut:
+          type: string
+        pub:
+          type: string
+        ref:
+          type: string
+        return:
+          type: string
+        self:
+          type: string
+        Self:
+          type: string
+        static:
+          type: string
+        struct:
+          type: string
+        super:
+          type: string
+        trait:
+          type: string
+        true:
+          type: string
+        type:
+          type: string
+        unsafe:
+          type: string
+        use:
+          type: string
+        where:
+          type: string
+        while:
+          type: string
+
+  parameters:
+    class:
+      name: class
+      in: query
+      schema:
+        type: string
+
+    type:
+      name: type
+      in: query
+      schema:
+        type: string
+
+    default:
+      name: default
+      in: query
+      schema:
+        type: string
+
+    null:
+      name: 'null'
+      in: query
+      schema:
+        type: string
+
+    true:
+      name: 'true'
+      in: query
+      schema:
+        type: string
+
+    false:
+      name: 'false'
+      in: query
+      schema:
+        type: string

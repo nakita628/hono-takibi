@@ -1,0 +1,1134 @@
+openapi: 3.1.0
+info:
+  title: SAML 2.0 Identity Provider API
+  version: 1.0.0
+  description: |
+    SAML 2.0 Identity Provider (IdP) の管理API。
+    Service Provider (SP) 管理、SSO設定、属性マッピングなどを提供します。
+
+servers:
+  - url: https://idp.example.com/api/v1
+    description: Production
+  - url: http://localhost:4000/api/v1
+    description: Development
+
+tags:
+  - name: SSO
+    description: シングルサインオン
+  - name: Service Providers
+    description: Service Provider管理
+  - name: Attributes
+    description: 属性マッピング
+  - name: Metadata
+    description: メタデータ
+
+paths:
+  /saml/sso:
+    get:
+      tags:
+        - SSO
+      operationId: ssoRedirect
+      summary: SSO (HTTP-Redirect binding)
+      description: HTTP-Redirect バインディングでのSSO処理
+      parameters:
+        - name: SAMLRequest
+          in: query
+          required: true
+          description: Base64エンコードされたSAML AuthnRequest
+          schema:
+            type: string
+        - name: RelayState
+          in: query
+          description: 認証後にリダイレクトする状態情報
+          schema:
+            type: string
+        - name: SigAlg
+          in: query
+          description: 署名アルゴリズム
+          schema:
+            type: string
+        - name: Signature
+          in: query
+          description: リクエスト署名
+          schema:
+            type: string
+      responses:
+        '302':
+          description: 認証フォームまたはSPへリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: 不正なSAMLリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlError'
+    post:
+      tags:
+        - SSO
+      operationId: ssoPost
+      summary: SSO (HTTP-POST binding)
+      description: HTTP-POST バインディングでのSSO処理
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - SAMLRequest
+              properties:
+                SAMLRequest:
+                  type: string
+                  description: Base64エンコードされたSAML AuthnRequest
+                RelayState:
+                  type: string
+      responses:
+        '200':
+          description: 認証フォーム表示
+          content:
+            text/html:
+              schema:
+                type: string
+        '302':
+          description: SPへリダイレクト
+        '400':
+          description: 不正なSAMLリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamlError'
+
+  /saml/slo:
+    get:
+      tags:
+        - SSO
+      operationId: sloRedirect
+      summary: Single Logout (HTTP-Redirect)
+      description: HTTP-Redirect バインディングでのシングルログアウト
+      parameters:
+        - name: SAMLRequest
+          in: query
+          description: LogoutRequest
+          schema:
+            type: string
+        - name: SAMLResponse
+          in: query
+          description: LogoutResponse
+          schema:
+            type: string
+        - name: RelayState
+          in: query
+          schema:
+            type: string
+        - name: SigAlg
+          in: query
+          schema:
+            type: string
+        - name: Signature
+          in: query
+          schema:
+            type: string
+      responses:
+        '302':
+          description: ログアウト完了後リダイレクト
+    post:
+      tags:
+        - SSO
+      operationId: sloPost
+      summary: Single Logout (HTTP-POST)
+      description: HTTP-POST バインディングでのシングルログアウト
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                SAMLRequest:
+                  type: string
+                SAMLResponse:
+                  type: string
+                RelayState:
+                  type: string
+      responses:
+        '200':
+          description: ログアウトフォーム
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /saml/acs:
+    post:
+      tags:
+        - SSO
+      operationId: assertionConsumerService
+      summary: Assertion Consumer Service
+      description: SPからのSAMLレスポンスを処理（IdP-initiated の場合）
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - SAMLResponse
+              properties:
+                SAMLResponse:
+                  type: string
+                RelayState:
+                  type: string
+      responses:
+        '302':
+          description: アプリケーションへリダイレクト
+        '400':
+          description: 不正なSAMLレスポンス
+
+  /saml/metadata:
+    get:
+      tags:
+        - Metadata
+      operationId: getIdpMetadata
+      summary: IdPメタデータ取得
+      description: SAML 2.0 IdPメタデータをXML形式で取得
+      responses:
+        '200':
+          description: IdPメタデータ
+          content:
+            application/samlmetadata+xml:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+
+  /service-providers:
+    get:
+      tags:
+        - Service Providers
+      operationId: listServiceProviders
+      summary: SP一覧取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: enabled
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: SP一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceProvider'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Service Providers
+      operationId: createServiceProvider
+      summary: SP登録
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceProviderRequest'
+          application/xml:
+            schema:
+              type: string
+              description: SPメタデータXML
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /service-providers/{spId}:
+    parameters:
+      - name: spId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Service Providers
+      operationId: getServiceProvider
+      summary: SP詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SP詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Service Providers
+      operationId: updateServiceProvider
+      summary: SP更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateServiceProviderRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Service Providers
+      operationId: deleteServiceProvider
+      summary: SP削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /service-providers/{spId}/metadata:
+    parameters:
+      - name: spId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Service Providers
+      operationId: getSpMetadata
+      summary: SPメタデータ取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SPメタデータ
+          content:
+            application/xml:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Service Providers
+      operationId: updateSpMetadata
+      summary: SPメタデータ更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        '400':
+          description: 不正なメタデータ
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /service-providers/{spId}/attributes:
+    parameters:
+      - name: spId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Attributes
+      operationId: getSpAttributeMappings
+      summary: SP属性マッピング取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 属性マッピング一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeMapping'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Attributes
+      operationId: updateSpAttributeMappings
+      summary: SP属性マッピング更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AttributeMapping'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttributeMapping'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /attributes:
+    get:
+      tags:
+        - Attributes
+      operationId: listAvailableAttributes
+      summary: 利用可能な属性一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 属性一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableAttribute'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /certificates:
+    get:
+      tags:
+        - Metadata
+      operationId: listCertificates
+      summary: 証明書一覧取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 証明書一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Certificate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Metadata
+      operationId: uploadCertificate
+      summary: 証明書アップロード
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - certificate
+                - privateKey
+              properties:
+                certificate:
+                  type: string
+                  format: binary
+                privateKey:
+                  type: string
+                  format: binary
+                passphrase:
+                  type: string
+                purpose:
+                  type: string
+                  enum:
+                    - signing
+                    - encryption
+                    - both
+      responses:
+        '201':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+        '400':
+          description: 不正な証明書
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /certificates/{certId}:
+    parameters:
+      - name: certId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - Metadata
+      operationId: deleteCertificate
+      summary: 証明書削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 使用中の証明書は削除できません
+
+  /certificates/{certId}/activate:
+    parameters:
+      - name: certId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Metadata
+      operationId: activateCertificate
+      summary: 証明書有効化
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 有効化成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions:
+    get:
+      tags:
+        - SSO
+      operationId: listActiveSessions
+      summary: アクティブセッション一覧
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: セッション一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SamlSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/{sessionId}:
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+        - SSO
+      operationId: terminateSession
+      summary: セッション終了
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: セッション終了成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /audit-logs:
+    get:
+      tags:
+        - SSO
+      operationId: getSamlAuditLogs
+      summary: SAML監査ログ取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: spId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: eventType
+          in: query
+          schema:
+            type: string
+            enum:
+              - sso_success
+              - sso_failure
+              - slo_success
+              - slo_failure
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: 監査ログ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    ServiceProvider:
+      type: object
+      required:
+        - id
+        - entityId
+        - name
+        - enabled
+      properties:
+        id:
+          type: string
+          format: uuid
+        entityId:
+          type: string
+          format: uri
+          description: SP Entity ID
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        assertionConsumerServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssertionConsumerService'
+        singleLogoutServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleLogoutService'
+        nameIdFormat:
+          type: string
+          enum:
+            - urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+            - urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified
+            - urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
+            - urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+        signAssertions:
+          type: boolean
+          default: true
+        signResponses:
+          type: boolean
+          default: true
+        encryptAssertions:
+          type: boolean
+          default: false
+        signingCertificate:
+          type: string
+          description: SP署名検証用証明書（PEM）
+        encryptionCertificate:
+          type: string
+          description: SP暗号化用証明書（PEM）
+        wantAuthnRequestsSigned:
+          type: boolean
+          default: false
+        defaultRelayState:
+          type: string
+        sessionDuration:
+          type: integer
+          description: セッション有効期間（秒）
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AssertionConsumerService:
+      type: object
+      required:
+        - binding
+        - location
+      properties:
+        binding:
+          type: string
+          enum:
+            - urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
+            - urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact
+        location:
+          type: string
+          format: uri
+        index:
+          type: integer
+        isDefault:
+          type: boolean
+
+    SingleLogoutService:
+      type: object
+      required:
+        - binding
+        - location
+      properties:
+        binding:
+          type: string
+          enum:
+            - urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect
+            - urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
+        location:
+          type: string
+          format: uri
+        responseLocation:
+          type: string
+          format: uri
+
+    CreateServiceProviderRequest:
+      type: object
+      required:
+        - entityId
+        - name
+      properties:
+        entityId:
+          type: string
+          format: uri
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        metadataUrl:
+          type: string
+          format: uri
+          description: メタデータURL（自動取得）
+        assertionConsumerServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssertionConsumerService'
+        singleLogoutServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleLogoutService'
+        nameIdFormat:
+          type: string
+        signAssertions:
+          type: boolean
+          default: true
+        encryptAssertions:
+          type: boolean
+          default: false
+        signingCertificate:
+          type: string
+        encryptionCertificate:
+          type: string
+
+    UpdateServiceProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        assertionConsumerServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssertionConsumerService'
+        singleLogoutServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleLogoutService'
+        nameIdFormat:
+          type: string
+        signAssertions:
+          type: boolean
+        signResponses:
+          type: boolean
+        encryptAssertions:
+          type: boolean
+        wantAuthnRequestsSigned:
+          type: boolean
+        defaultRelayState:
+          type: string
+        sessionDuration:
+          type: integer
+
+    AttributeMapping:
+      type: object
+      required:
+        - sourceAttribute
+        - samlAttribute
+      properties:
+        id:
+          type: string
+          format: uuid
+        sourceAttribute:
+          type: string
+          description: IdP側の属性名
+        samlAttribute:
+          type: string
+          description: SAMLアサーションで送信する属性名
+        samlAttributeNameFormat:
+          type: string
+          enum:
+            - urn:oasis:names:tc:SAML:2.0:attrname-format:basic
+            - urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+            - urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified
+          default: urn:oasis:names:tc:SAML:2.0:attrname-format:basic
+        friendlyName:
+          type: string
+        required:
+          type: boolean
+          default: false
+        transform:
+          type: string
+          description: 値変換スクリプト
+
+    AvailableAttribute:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - string
+            - string[]
+            - boolean
+            - integer
+            - datetime
+        description:
+          type: string
+        source:
+          type: string
+          enum:
+            - user
+            - group
+            - custom
+            - computed
+
+    Certificate:
+      type: object
+      required:
+        - id
+        - purpose
+        - isActive
+        - notBefore
+        - notAfter
+      properties:
+        id:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+          enum:
+            - signing
+            - encryption
+            - both
+        isActive:
+          type: boolean
+        subject:
+          type: string
+        issuer:
+          type: string
+        serialNumber:
+          type: string
+        notBefore:
+          type: string
+          format: date-time
+        notAfter:
+          type: string
+          format: date-time
+        fingerprint:
+          type: string
+        fingerprintSha256:
+          type: string
+        publicKey:
+          type: string
+          description: PEM形式の公開鍵
+        createdAt:
+          type: string
+          format: date-time
+
+    SamlSession:
+      type: object
+      required:
+        - sessionId
+        - userId
+        - createdAt
+      properties:
+        sessionId:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        userName:
+          type: string
+        serviceProviders:
+          type: array
+          items:
+            type: object
+            properties:
+              spId:
+                type: string
+                format: uuid
+              spName:
+                type: string
+              sessionIndex:
+                type: string
+              authenticatedAt:
+                type: string
+                format: date-time
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        lastActivityAt:
+          type: string
+          format: date-time
+
+    AuditLog:
+      type: object
+      required:
+        - id
+        - eventType
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum:
+            - sso_success
+            - sso_failure
+            - slo_success
+            - slo_failure
+            - sp_created
+            - sp_updated
+            - sp_deleted
+            - certificate_uploaded
+            - certificate_activated
+        userId:
+          type: string
+          format: uuid
+        userName:
+          type: string
+        spId:
+          type: string
+          format: uuid
+        spName:
+          type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        errorMessage:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    AuditLogListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    SamlError:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_request
+            - invalid_sp
+            - invalid_signature
+            - invalid_assertion
+            - expired_assertion
+            - unknown_sp
+            - binding_not_supported
+        message:
+          type: string
+        samlStatus:
+          type: string
+          description: SAML Status Code
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: 不正なリクエスト
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

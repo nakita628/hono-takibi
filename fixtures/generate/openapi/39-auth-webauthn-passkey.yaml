@@ -1,0 +1,876 @@
+openapi: 3.1.0
+info:
+  title: WebAuthn / Passkey Authentication API
+  version: 1.0.0
+  description: |
+    WebAuthn / パスキー認証API。
+    FIDO2/WebAuthn標準に準拠したパスワードレス認証を提供します。
+    パスキーの登録、認証、管理機能を含みます。
+
+servers:
+  - url: https://auth.example.com/v1
+    description: Production
+  - url: http://localhost:4000/v1
+    description: Development
+
+tags:
+  - name: Registration
+    description: パスキー登録
+  - name: Authentication
+    description: パスキー認証
+  - name: Credentials
+    description: 認証情報管理
+  - name: Settings
+    description: WebAuthn設定
+
+paths:
+  /webauthn/register/options:
+    post:
+      tags:
+        - Registration
+      operationId: getRegistrationOptions
+      summary: 登録オプション取得
+      description: パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authenticatorAttachment:
+                  type: string
+                  enum:
+                    - platform
+                    - cross-platform
+                  description: |
+                    platform: デバイス組み込み認証器（Touch ID、Face ID、Windows Hello等）
+                    cross-platform: 外部認証器（セキュリティキー等）
+                residentKey:
+                  type: string
+                  enum:
+                    - discouraged
+                    - preferred
+                    - required
+                  default: preferred
+                  description: Discoverable Credential（パスキー）の要件
+                userVerification:
+                  type: string
+                  enum:
+                    - discouraged
+                    - preferred
+                    - required
+                  default: preferred
+                attestation:
+                  type: string
+                  enum:
+                    - none
+                    - indirect
+                    - direct
+                    - enterprise
+                  default: none
+      responses:
+        '200':
+          description: 登録オプション
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationOptions'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webauthn/register/verify:
+    post:
+      tags:
+        - Registration
+      operationId: verifyRegistration
+      summary: 登録検証
+      description: クライアントから送信された認証情報を検証し、パスキーを登録
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationResponse'
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+        '400':
+          description: 検証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webauthn/authenticate/options:
+    post:
+      tags:
+        - Authentication
+      operationId: getAuthenticationOptions
+      summary: 認証オプション取得
+      description: パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: ユーザー名（Discoverable Credentialの場合は省略可）
+                userVerification:
+                  type: string
+                  enum:
+                    - discouraged
+                    - preferred
+                    - required
+                  default: preferred
+      responses:
+        '200':
+          description: 認証オプション
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationOptions'
+
+  /webauthn/authenticate/verify:
+    post:
+      tags:
+        - Authentication
+      operationId: verifyAuthentication
+      summary: 認証検証
+      description: クライアントから送信された認証レスポンスを検証
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationResponse'
+      responses:
+        '200':
+          description: 認証成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationResult'
+        '400':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnError'
+        '401':
+          description: 認証情報が無効
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnError'
+
+  /webauthn/credentials:
+    get:
+      tags:
+        - Credentials
+      operationId: listCredentials
+      summary: 認証情報一覧取得
+      description: ユーザーに登録されているパスキー一覧を取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 認証情報一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Credential'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webauthn/credentials/{credentialId}:
+    parameters:
+      - name: credentialId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Credentials
+      operationId: getCredential
+      summary: 認証情報詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 認証情報詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Credentials
+      operationId: updateCredential
+      summary: 認証情報更新
+      description: パスキーの名前などを更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Credentials
+      operationId: deleteCredential
+      summary: 認証情報削除
+      description: パスキーを削除（少なくとも1つは残す必要がある場合あり）
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '400':
+          description: 削除できません（最後の認証情報など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webauthn/settings:
+    get:
+      tags:
+        - Settings
+      operationId: getWebAuthnSettings
+      summary: WebAuthn設定取得
+      description: リライングパーティの設定情報を取得
+      responses:
+        '200':
+          description: WebAuthn設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnSettings'
+
+  /webauthn/settings/rp:
+    get:
+      tags:
+        - Settings
+      operationId: getRelyingPartyInfo
+      summary: リライングパーティ情報取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: リライングパーティ情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelyingParty'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Settings
+      operationId: updateRelyingPartyInfo
+      summary: リライングパーティ情報更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRelyingPartyRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelyingParty'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /webauthn/authenticators:
+    get:
+      tags:
+        - Settings
+      operationId: listSupportedAuthenticators
+      summary: サポートされる認証器一覧
+      description: 許可されている認証器のAAGUID一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 認証器一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthenticatorInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegistrationOptions:
+      type: object
+      description: PublicKeyCredentialCreationOptions
+      required:
+        - challenge
+        - rp
+        - user
+        - pubKeyCredParams
+      properties:
+        challenge:
+          type: string
+          description: Base64URL encoded challenge
+        rp:
+          type: object
+          required:
+            - name
+            - id
+          properties:
+            name:
+              type: string
+              description: リライングパーティ名
+            id:
+              type: string
+              description: リライングパーティID（ドメイン）
+        user:
+          type: object
+          required:
+            - id
+            - name
+            - displayName
+          properties:
+            id:
+              type: string
+              description: Base64URL encoded user handle
+            name:
+              type: string
+              description: ユーザー名（メールアドレス等）
+            displayName:
+              type: string
+              description: 表示名
+        pubKeyCredParams:
+          type: array
+          items:
+            type: object
+            required:
+              - type
+              - alg
+            properties:
+              type:
+                type: string
+                enum:
+                  - public-key
+              alg:
+                type: integer
+                description: COSE Algorithm identifier
+                example: -7
+        timeout:
+          type: integer
+          description: タイムアウト（ミリ秒）
+          default: 60000
+        excludeCredentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicKeyCredentialDescriptor'
+          description: 除外する既存の認証情報
+        authenticatorSelection:
+          type: object
+          properties:
+            authenticatorAttachment:
+              type: string
+              enum:
+                - platform
+                - cross-platform
+            residentKey:
+              type: string
+              enum:
+                - discouraged
+                - preferred
+                - required
+            requireResidentKey:
+              type: boolean
+              deprecated: true
+            userVerification:
+              type: string
+              enum:
+                - discouraged
+                - preferred
+                - required
+        attestation:
+          type: string
+          enum:
+            - none
+            - indirect
+            - direct
+            - enterprise
+        extensions:
+          type: object
+          properties:
+            credProps:
+              type: boolean
+
+    RegistrationResponse:
+      type: object
+      description: クライアントからの登録レスポンス
+      required:
+        - id
+        - rawId
+        - response
+        - type
+      properties:
+        id:
+          type: string
+          description: Base64URL encoded credential ID
+        rawId:
+          type: string
+          description: Base64URL encoded raw credential ID
+        response:
+          type: object
+          required:
+            - clientDataJSON
+            - attestationObject
+          properties:
+            clientDataJSON:
+              type: string
+              description: Base64URL encoded
+            attestationObject:
+              type: string
+              description: Base64URL encoded
+            transports:
+              type: array
+              items:
+                type: string
+                enum:
+                  - usb
+                  - nfc
+                  - ble
+                  - smart-card
+                  - hybrid
+                  - internal
+            publicKeyAlgorithm:
+              type: integer
+            publicKey:
+              type: string
+            authenticatorData:
+              type: string
+        type:
+          type: string
+          enum:
+            - public-key
+        clientExtensionResults:
+          type: object
+          properties:
+            credProps:
+              type: object
+              properties:
+                rk:
+                  type: boolean
+        authenticatorAttachment:
+          type: string
+          enum:
+            - platform
+            - cross-platform
+        name:
+          type: string
+          description: ユーザーが設定するパスキー名
+
+    AuthenticationOptions:
+      type: object
+      description: PublicKeyCredentialRequestOptions
+      required:
+        - challenge
+        - rpId
+      properties:
+        challenge:
+          type: string
+          description: Base64URL encoded challenge
+        timeout:
+          type: integer
+          default: 60000
+        rpId:
+          type: string
+          description: リライングパーティID
+        allowCredentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicKeyCredentialDescriptor'
+        userVerification:
+          type: string
+          enum:
+            - discouraged
+            - preferred
+            - required
+        extensions:
+          type: object
+
+    AuthenticationResponse:
+      type: object
+      description: クライアントからの認証レスポンス
+      required:
+        - id
+        - rawId
+        - response
+        - type
+      properties:
+        id:
+          type: string
+          description: Base64URL encoded credential ID
+        rawId:
+          type: string
+          description: Base64URL encoded raw credential ID
+        response:
+          type: object
+          required:
+            - clientDataJSON
+            - authenticatorData
+            - signature
+          properties:
+            clientDataJSON:
+              type: string
+              description: Base64URL encoded
+            authenticatorData:
+              type: string
+              description: Base64URL encoded
+            signature:
+              type: string
+              description: Base64URL encoded
+            userHandle:
+              type: string
+              description: Base64URL encoded user handle
+        type:
+          type: string
+          enum:
+            - public-key
+        clientExtensionResults:
+          type: object
+        authenticatorAttachment:
+          type: string
+          enum:
+            - platform
+            - cross-platform
+
+    AuthenticationResult:
+      type: object
+      required:
+        - verified
+        - user
+      properties:
+        verified:
+          type: boolean
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            username:
+              type: string
+            email:
+              type: string
+              format: email
+        credential:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        accessToken:
+          type: string
+          description: JWT access token
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        newSignCount:
+          type: integer
+          description: 更新された署名カウンター
+
+    Credential:
+      type: object
+      required:
+        - id
+        - credentialId
+        - publicKey
+        - signCount
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        credentialId:
+          type: string
+          description: Base64URL encoded credential ID
+        name:
+          type: string
+          description: ユーザーが設定した名前
+        publicKey:
+          type: string
+          description: Base64URL encoded public key (COSE format)
+        publicKeyAlgorithm:
+          type: integer
+          description: COSE algorithm identifier
+        signCount:
+          type: integer
+          description: 署名カウンター
+        transports:
+          type: array
+          items:
+            type: string
+            enum:
+              - usb
+              - nfc
+              - ble
+              - smart-card
+              - hybrid
+              - internal
+        authenticatorAttachment:
+          type: string
+          enum:
+            - platform
+            - cross-platform
+        aaguid:
+          type: string
+          description: 認証器のAAGUID
+        authenticatorName:
+          type: string
+          description: 認証器名（AAGUIDから取得）
+        isBackupEligible:
+          type: boolean
+          description: バックアップ可能か（マルチデバイス対応）
+        isBackedUp:
+          type: boolean
+          description: バックアップされているか
+        deviceInfo:
+          type: object
+          properties:
+            os:
+              type: string
+            browser:
+              type: string
+            deviceType:
+              type: string
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    PublicKeyCredentialDescriptor:
+      type: object
+      required:
+        - type
+        - id
+      properties:
+        type:
+          type: string
+          enum:
+            - public-key
+        id:
+          type: string
+          description: Base64URL encoded credential ID
+        transports:
+          type: array
+          items:
+            type: string
+            enum:
+              - usb
+              - nfc
+              - ble
+              - smart-card
+              - hybrid
+              - internal
+
+    WebAuthnSettings:
+      type: object
+      properties:
+        rpId:
+          type: string
+          description: リライングパーティID
+        rpName:
+          type: string
+          description: リライングパーティ名
+        origin:
+          type: string
+          format: uri
+        supportedAlgorithms:
+          type: array
+          items:
+            type: object
+            properties:
+              alg:
+                type: integer
+              name:
+                type: string
+        timeout:
+          type: integer
+        userVerification:
+          type: string
+          enum:
+            - discouraged
+            - preferred
+            - required
+        attestation:
+          type: string
+          enum:
+            - none
+            - indirect
+            - direct
+            - enterprise
+        residentKeyRequirement:
+          type: string
+          enum:
+            - discouraged
+            - preferred
+            - required
+
+    RelyingParty:
+      type: object
+      required:
+        - id
+        - name
+        - origin
+      properties:
+        id:
+          type: string
+          description: RPのID（ドメイン）
+        name:
+          type: string
+          description: RP名
+        origin:
+          type: string
+          format: uri
+        icon:
+          type: string
+          format: uri
+          deprecated: true
+
+    UpdateRelyingPartyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+
+    AuthenticatorInfo:
+      type: object
+      required:
+        - aaguid
+        - name
+      properties:
+        aaguid:
+          type: string
+          description: Authenticator Attestation GUID
+        name:
+          type: string
+          description: 認証器名
+        icon:
+          type: string
+          format: uri
+        supportedTransports:
+          type: array
+          items:
+            type: string
+        isAllowed:
+          type: boolean
+          description: 使用が許可されているか
+
+    WebAuthnError:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_request
+            - invalid_origin
+            - invalid_rp_id
+            - challenge_mismatch
+            - invalid_signature
+            - invalid_attestation
+            - credential_not_found
+            - user_not_found
+            - sign_count_invalid
+            - user_verification_failed
+            - timeout
+            - not_allowed
+            - unknown_error
+        message:
+          type: string
+        details:
+          type: object
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

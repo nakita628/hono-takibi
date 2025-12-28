@@ -1,0 +1,686 @@
+openapi: 3.1.0
+info:
+  title: User Management API
+  version: 1.0.0
+  description: |
+    ユーザー管理のための RESTful API。
+    認証、ユーザーCRUD、プロフィール管理、パスワードリセットなどの機能を提供します。
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: https://staging-api.example.com/v1
+    description: Staging
+  - url: http://localhost:3000/v1
+    description: Development
+
+tags:
+  - name: Authentication
+    description: 認証関連のエンドポイント
+  - name: Users
+    description: ユーザー管理
+  - name: Profile
+    description: プロフィール管理
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      operationId: registerUser
+      summary: 新規ユーザー登録
+      description: メールアドレスとパスワードで新規ユーザーを登録します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: user@example.com
+              password: SecurePass123!
+              name: 山田太郎
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: メールアドレスが既に使用されています
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      operationId: loginUser
+      summary: ログイン
+      description: メールアドレスとパスワードで認証し、JWTトークンを取得します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      operationId: refreshToken
+      summary: トークンリフレッシュ
+      description: リフレッシュトークンを使用して新しいアクセストークンを取得します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: トークン更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      operationId: logoutUser
+      summary: ログアウト
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: ログアウト成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/password/forgot:
+    post:
+      tags:
+        - Authentication
+      operationId: forgotPassword
+      summary: パスワードリセット要求
+      description: パスワードリセット用のメールを送信します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: リセットメール送信成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: パスワードリセット用のメールを送信しました
+
+  /auth/password/reset:
+    post:
+      tags:
+        - Authentication
+      operationId: resetPassword
+      summary: パスワードリセット実行
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  description: リセットトークン
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        '200':
+          description: パスワードリセット成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users:
+    get:
+      tags:
+        - Users
+      operationId: listUsers
+      summary: ユーザー一覧取得
+      description: ページネーション付きでユーザー一覧を取得します（管理者のみ）
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SortParam'
+        - name: search
+          in: query
+          description: 名前またはメールで検索
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: ステータスでフィルタ
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - suspended
+      responses:
+        '200':
+          description: ユーザー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - Users
+      operationId: getUser
+      summary: ユーザー詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ユーザー詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Users
+      operationId: updateUser
+      summary: ユーザー情報更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Users
+      operationId: deleteUser
+      summary: ユーザー削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/me:
+    get:
+      tags:
+        - Profile
+      operationId: getCurrentUser
+      summary: 現在のユーザー情報取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 現在のユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+        - Profile
+      operationId: updateCurrentUser
+      summary: 現在のユーザー情報更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/password:
+    put:
+      tags:
+        - Profile
+      operationId: changePassword
+      summary: パスワード変更
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        '200':
+          description: パスワード変更成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/me/avatar:
+    put:
+      tags:
+        - Profile
+      operationId: uploadAvatar
+      summary: アバター画像アップロード
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 画像ファイル（JPEG, PNG, GIF、最大5MB）
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Profile
+      operationId: deleteAvatar
+      summary: アバター画像削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer トークン
+
+  parameters:
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      description: ユーザーID
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      description: ページ番号
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: 1ページあたりの件数
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    SortParam:
+      name: sort
+      in: query
+      description: ソート順（例：createdAt:desc, name:asc）
+      schema:
+        type: string
+
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ユーザーID
+        email:
+          type: string
+          format: email
+          description: メールアドレス
+        name:
+          type: string
+          description: 表示名
+        avatarUrl:
+          type: string
+          format: uri
+          description: アバター画像URL
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+          description: ステータス
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          default: user
+          description: ロール
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: 最終ログイン日時
+        createdAt:
+          type: string
+          format: date-time
+          description: 作成日時
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新日時
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: 8文字以上、大文字・小文字・数字を含む
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - user
+      properties:
+        accessToken:
+          type: string
+          description: JWTアクセストークン
+        refreshToken:
+          type: string
+          description: リフレッシュトークン
+        expiresIn:
+          type: integer
+          description: アクセストークンの有効期限（秒）
+          example: 3600
+        user:
+          $ref: '#/components/schemas/User'
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - suspended
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    UserListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          description: 現在のページ
+        limit:
+          type: integer
+          description: 1ページあたりの件数
+        total:
+          type: integer
+          description: 総件数
+        totalPages:
+          type: integer
+          description: 総ページ数
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: BAD_REQUEST
+            message: リクエストパラメータが不正です
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: UNAUTHORIZED
+            message: 認証が必要です
+
+    Forbidden:
+      description: アクセス権限がありません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FORBIDDEN
+            message: このリソースへのアクセス権限がありません
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NOT_FOUND
+            message: 指定されたリソースが見つかりません

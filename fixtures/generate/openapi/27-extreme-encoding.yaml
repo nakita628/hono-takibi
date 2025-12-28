@@ -1,0 +1,654 @@
+openapi: 3.1.0
+info:
+  title: Extreme Encoding and Serialization API
+  version: 1.0.0
+  description: |
+    Tests extreme encoding and serialization scenarios:
+    - All encoding styles
+    - Complex multipart encoding
+    - Header encoding variations
+    - Content negotiation edge cases
+paths:
+  /encoding-test:
+    post:
+      operationId: testEncoding
+      requestBody:
+        content:
+          # Complex multipart with all encoding options
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                # Simple string
+                simpleString:
+                  type: string
+                
+                # Array with different explode settings
+                arrayExplode:
+                  type: array
+                  items:
+                    type: string
+                
+                arrayNoExplode:
+                  type: array
+                  items:
+                    type: string
+                
+                # Object with different styles
+                objectForm:
+                  type: object
+                  properties:
+                    key1:
+                      type: string
+                    key2:
+                      type: integer
+                
+                objectDeepObject:
+                  type: object
+                  properties:
+                    nested:
+                      type: object
+                      properties:
+                        deep:
+                          type: string
+                
+                # File with specific content type
+                imageFile:
+                  type: string
+                  format: binary
+                
+                # File with multiple allowed types
+                documentFile:
+                  type: string
+                  format: binary
+                
+                # JSON as string
+                jsonString:
+                  type: object
+                  properties:
+                    data:
+                      type: string
+                
+                # Base64 encoded
+                base64Data:
+                  type: string
+                  format: byte
+                
+                # Multiple files
+                multipleFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                
+                # Complex nested object
+                complexNested:
+                  type: object
+                  properties:
+                    level1:
+                      type: object
+                      properties:
+                        level2:
+                          type: object
+                          properties:
+                            value:
+                              type: string
+                            array:
+                              type: array
+                              items:
+                                type: integer
+                
+                # Array of objects
+                arrayOfObjects:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                
+                # Headers for part
+                partWithHeaders:
+                  type: string
+            
+            encoding:
+              simpleString:
+                contentType: text/plain
+              
+              arrayExplode:
+                style: form
+                explode: true
+              
+              arrayNoExplode:
+                style: form
+                explode: false
+              
+              objectForm:
+                style: form
+                explode: true
+              
+              objectDeepObject:
+                style: deepObject
+                explode: true
+              
+              imageFile:
+                contentType: image/png, image/jpeg, image/gif, image/webp
+              
+              documentFile:
+                contentType: application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain
+              
+              jsonString:
+                contentType: application/json
+              
+              base64Data:
+                contentType: application/octet-stream
+              
+              multipleFiles:
+                contentType: application/octet-stream
+              
+              complexNested:
+                contentType: application/json
+                style: deepObject
+              
+              arrayOfObjects:
+                contentType: application/json
+              
+              partWithHeaders:
+                contentType: text/plain
+                headers:
+                  X-Custom-Header:
+                    schema:
+                      type: string
+                  Content-Disposition:
+                    schema:
+                      type: string
+                  X-Part-Index:
+                    schema:
+                      type: integer
+      responses:
+        '200':
+          description: OK
+
+  /content-negotiation:
+    get:
+      operationId: getWithContentNegotiation
+      parameters:
+        - name: Accept
+          in: header
+          required: false
+          schema:
+            type: string
+            default: application/json
+        - name: Accept-Language
+          in: header
+          schema:
+            type: string
+        - name: Accept-Encoding
+          in: header
+          schema:
+            type: string
+        - name: Accept-Charset
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Content based on Accept header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Response'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/Response'
+            text/plain:
+              schema:
+                type: string
+            text/html:
+              schema:
+                type: string
+            text/csv:
+              schema:
+                type: string
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/JsonApiResponse'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/HalResponse'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
+
+  /binary-variations:
+    post:
+      operationId: postBinaryVariations
+      requestBody:
+        content:
+          # Raw binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+          
+          # Base64 in JSON
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  format: byte
+                  description: Base64 encoded binary data
+                filename:
+                  type: string
+                mimeType:
+                  type: string
+          
+          # Multiple binary parts
+          multipart/mixed:
+            schema:
+              type: object
+              properties:
+                part1:
+                  type: string
+                  format: binary
+                part2:
+                  type: string
+                  format: binary
+                part3:
+                  type: string
+                  format: binary
+          
+          # Image specific
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/gif:
+            schema:
+              type: string
+              format: binary
+          image/webp:
+            schema:
+              type: string
+              format: binary
+          image/svg+xml:
+            schema:
+              type: string
+          
+          # Audio
+          audio/mpeg:
+            schema:
+              type: string
+              format: binary
+          audio/ogg:
+            schema:
+              type: string
+              format: binary
+          audio/wav:
+            schema:
+              type: string
+              format: binary
+          
+          # Video
+          video/mp4:
+            schema:
+              type: string
+              format: binary
+          video/webm:
+            schema:
+              type: string
+              format: binary
+          
+          # Archives
+          application/zip:
+            schema:
+              type: string
+              format: binary
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+          application/x-tar:
+            schema:
+              type: string
+              format: binary
+          application/x-7z-compressed:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK
+
+  /streaming:
+    get:
+      operationId: getStreaming
+      responses:
+        '200':
+          description: Streaming response
+          content:
+            # Server-Sent Events
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  SSE format:
+                  event: message
+                  data: {"key": "value"}
+            
+            # NDJSON streaming
+            application/x-ndjson:
+              schema:
+                type: string
+                description: Newline-delimited JSON objects
+            
+            # Chunked JSON array
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StreamItem'
+    
+    post:
+      operationId: postStreaming
+      requestBody:
+        content:
+          # Streaming request
+          application/x-ndjson:
+            schema:
+              type: string
+          
+          # Chunked upload
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: OK
+
+  /url-encoded-complex:
+    post:
+      operationId: postUrlEncodedComplex
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                # Simple values
+                string:
+                  type: string
+                number:
+                  type: number
+                boolean:
+                  type: boolean
+                
+                # Arrays with different styles
+                arrayDefault:
+                  type: array
+                  items:
+                    type: string
+                
+                arrayExplode:
+                  type: array
+                  items:
+                    type: integer
+                
+                # Nested objects (using bracket notation)
+                nested:
+                  type: object
+                  properties:
+                    key1:
+                      type: string
+                    key2:
+                      type: object
+                      properties:
+                        subkey:
+                          type: string
+                
+                # Special characters
+                specialChars:
+                  type: string
+                  description: Should handle & = ? % + space etc.
+                
+                # Unicode
+                unicode:
+                  type: string
+                
+                # Empty string
+                emptyString:
+                  type: string
+                
+                # Multiple values same key
+                multiValue:
+                  type: array
+                  items:
+                    type: string
+            
+            encoding:
+              arrayDefault:
+                style: form
+                explode: false
+              arrayExplode:
+                style: form
+                explode: true
+              nested:
+                style: deepObject
+                explode: true
+      responses:
+        '200':
+          description: OK
+
+  /response-encoding:
+    get:
+      operationId: getResponseEncoding
+      responses:
+        '200':
+          description: Response with various encodings
+          headers:
+            Content-Encoding:
+              schema:
+                type: string
+                enum:
+                  - gzip
+                  - deflate
+                  - br
+                  - identity
+            Content-Type:
+              schema:
+                type: string
+            Content-Language:
+              schema:
+                type: string
+            Content-Disposition:
+              schema:
+                type: string
+            Transfer-Encoding:
+              schema:
+                type: string
+            Vary:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /schema-encoding:
+    post:
+      operationId: postSchemaEncoding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                # Content encoding in schema
+                base64Field:
+                  type: string
+                  contentEncoding: base64
+                
+                base64urlField:
+                  type: string
+                  contentEncoding: base64url
+                
+                # Content media type
+                jsonString:
+                  type: string
+                  contentMediaType: application/json
+                
+                xmlString:
+                  type: string
+                  contentMediaType: application/xml
+                
+                # With schema
+                embeddedJson:
+                  type: string
+                  contentMediaType: application/json
+                  contentSchema:
+                    type: object
+                    properties:
+                      nested:
+                        type: string
+                      value:
+                        type: integer
+                
+                # Binary in JSON
+                binaryData:
+                  type: string
+                  contentEncoding: base64
+                  contentMediaType: application/octet-stream
+                
+                # Image in JSON
+                imageData:
+                  type: string
+                  contentEncoding: base64
+                  contentMediaType: image/png
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    Response:
+      type: object
+      properties:
+        data:
+          type: object
+        meta:
+          type: object
+
+    JsonApiResponse:
+      type: object
+      properties:
+        data:
+          oneOf:
+            - type: object
+            - type: array
+              items:
+                type: object
+        included:
+          type: array
+          items:
+            type: object
+        meta:
+          type: object
+        links:
+          type: object
+        jsonapi:
+          type: object
+          properties:
+            version:
+              type: string
+
+    HalResponse:
+      type: object
+      properties:
+        _links:
+          type: object
+          properties:
+            self:
+              type: object
+              properties:
+                href:
+                  type: string
+        _embedded:
+          type: object
+
+    ProblemResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+
+    StreamItem:
+      type: object
+      properties:
+        id:
+          type: string
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    EncodedContent:
+      type: object
+      properties:
+        # Various encoded fields
+        plainText:
+          type: string
+        
+        base64:
+          type: string
+          contentEncoding: base64
+        
+        quotedPrintable:
+          type: string
+          description: Quoted-printable encoded
+        
+        hexEncoded:
+          type: string
+          pattern: '^[0-9a-fA-F]+$'
+        
+        urlEncoded:
+          type: string
+          description: URL encoded string
+        
+        htmlEncoded:
+          type: string
+          description: HTML entity encoded
+        
+        jsonEscaped:
+          type: string
+          description: JSON escaped string
+        
+        unicodeEscaped:
+          type: string
+          description: Unicode escaped (\uXXXX)

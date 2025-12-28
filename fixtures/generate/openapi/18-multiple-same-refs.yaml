@@ -1,0 +1,823 @@
+openapi: 3.1.0
+info:
+  title: Multiple References to Same Schema API
+  version: 1.0.0
+  description: |
+    Tests patterns where the same schema is referenced from multiple locations:
+    - Same schema used in different contexts
+    - Schema referenced in request and response
+    - Schema referenced at different nesting levels
+    - Schema referenced with different optionality
+paths:
+  /documents:
+    get:
+      operationId: listDocuments
+      parameters:
+        - name: author
+          in: query
+          schema:
+            # Reference 1: Author as filter
+            $ref: '#/components/schemas/UserId'
+        - name: reviewer
+          in: query
+          schema:
+            # Reference 2: Same UserId for different purpose
+            $ref: '#/components/schemas/UserId'
+        - name: approver
+          in: query
+          schema:
+            # Reference 3: Same UserId again
+            $ref: '#/components/schemas/UserId'
+      responses:
+        '200':
+          description: Document list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+    post:
+      operationId: createDocument
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                # Same Document schema as in GET
+                $ref: '#/components/schemas/Document'
+
+  /documents/{documentId}:
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/DocumentId'
+    get:
+      operationId: getDocument
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentWithHistory'
+    put:
+      operationId: updateDocument
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+
+  /documents/{documentId}/versions:
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/DocumentId'
+    get:
+      operationId: getDocumentVersions
+      responses:
+        '200':
+          description: Version history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentVersion'
+
+  /documents/{documentId}/share:
+    parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/DocumentId'
+    post:
+      operationId: shareDocument
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareRequest'
+      responses:
+        '200':
+          description: Shared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareResult'
+
+  /users/{userId}/documents:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          # UserId used in path
+          $ref: '#/components/schemas/UserId'
+    get:
+      operationId: getUserDocuments
+      responses:
+        '200':
+          description: User's documents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # Documents where user is author
+                  authored:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  # Documents where user is reviewer
+                  reviewing:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  # Documents shared with user
+                  shared:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+
+  /compare:
+    post:
+      operationId: compareDocuments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - source
+                - target
+              properties:
+                # Same Document referenced twice
+                source:
+                  $ref: '#/components/schemas/Document'
+                target:
+                  $ref: '#/components/schemas/Document'
+                options:
+                  $ref: '#/components/schemas/CompareOptions'
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareResult'
+
+  /templates:
+    get:
+      operationId: listTemplates
+      responses:
+        '200':
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentTemplate'
+    post:
+      operationId: createTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              # Template uses same Metadata as Document
+              $ref: '#/components/schemas/CreateTemplateInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentTemplate'
+
+  /workflows:
+    post:
+      operationId: createWorkflow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowDefinition'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+
+components:
+  schemas:
+    # Primitive ID types - referenced many times
+    UserId:
+      type: string
+      format: uuid
+      description: User identifier
+
+    DocumentId:
+      type: string
+      format: uuid
+      description: Document identifier
+
+    VersionId:
+      type: string
+      format: uuid
+      description: Version identifier
+
+    # Timestamp - referenced in multiple schemas
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 timestamp
+
+    # User reference - used in many contexts
+    UserReference:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatar:
+          type: string
+          format: uri
+
+    # Metadata - shared across multiple entity types
+    Metadata:
+      type: object
+      properties:
+        createdAt:
+          $ref: '#/components/schemas/Timestamp'
+        updatedAt:
+          $ref: '#/components/schemas/Timestamp'
+        createdBy:
+          $ref: '#/components/schemas/UserReference'
+        updatedBy:
+          $ref: '#/components/schemas/UserReference'
+
+    # Tags - used in documents, templates, and more
+    Tag:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+
+    # Permission - referenced in multiple sharing contexts
+    Permission:
+      type: string
+      enum:
+        - view
+        - comment
+        - edit
+        - admin
+
+    # Main Document schema - referenced many times
+    Document:
+      type: object
+      required:
+        - id
+        - title
+        - content
+        - author
+      properties:
+        id:
+          $ref: '#/components/schemas/DocumentId'
+        title:
+          type: string
+        content:
+          $ref: '#/components/schemas/DocumentContent'
+        author:
+          # UserReference used for author
+          $ref: '#/components/schemas/UserReference'
+        reviewers:
+          # Same UserReference used for reviewers
+          type: array
+          items:
+            $ref: '#/components/schemas/UserReference'
+        approver:
+          # Same UserReference used for approver
+          $ref: '#/components/schemas/UserReference'
+        collaborators:
+          # Same UserReference used for collaborators
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/UserReference'
+              permission:
+                $ref: '#/components/schemas/Permission'
+              addedAt:
+                $ref: '#/components/schemas/Timestamp'
+              addedBy:
+                $ref: '#/components/schemas/UserReference'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        currentVersion:
+          $ref: '#/components/schemas/VersionId'
+        # Self-reference for linked documents
+        linkedDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentReference'
+        parentDocument:
+          $ref: '#/components/schemas/DocumentReference'
+
+    DocumentReference:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          $ref: '#/components/schemas/DocumentId'
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+
+    DocumentContent:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: [markdown, html, plain, rich]
+        body:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+
+    Attachment:
+      type: object
+      required:
+        - id
+        - name
+        - url
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        mimeType:
+          type: string
+        size:
+          type: integer
+        uploadedBy:
+          # Same UserReference
+          $ref: '#/components/schemas/UserReference'
+        uploadedAt:
+          $ref: '#/components/schemas/Timestamp'
+
+    DocumentStatus:
+      type: string
+      enum:
+        - draft
+        - in_review
+        - approved
+        - published
+        - archived
+
+    DocumentWithHistory:
+      allOf:
+        - $ref: '#/components/schemas/Document'
+        - type: object
+          properties:
+            versions:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentVersion'
+            activityLog:
+              type: array
+              items:
+                $ref: '#/components/schemas/ActivityEntry'
+
+    DocumentVersion:
+      type: object
+      required:
+        - id
+        - documentId
+        - versionNumber
+        - content
+      properties:
+        id:
+          $ref: '#/components/schemas/VersionId'
+        documentId:
+          $ref: '#/components/schemas/DocumentId'
+        versionNumber:
+          type: integer
+        content:
+          # Same DocumentContent as main document
+          $ref: '#/components/schemas/DocumentContent'
+        author:
+          # Same UserReference
+          $ref: '#/components/schemas/UserReference'
+        createdAt:
+          $ref: '#/components/schemas/Timestamp'
+        changeDescription:
+          type: string
+        previousVersion:
+          $ref: '#/components/schemas/VersionId'
+
+    ActivityEntry:
+      type: object
+      required:
+        - id
+        - action
+        - actor
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        action:
+          type: string
+          enum:
+            - created
+            - updated
+            - reviewed
+            - approved
+            - published
+            - shared
+            - commented
+        actor:
+          # Same UserReference
+          $ref: '#/components/schemas/UserReference'
+        timestamp:
+          $ref: '#/components/schemas/Timestamp'
+        details:
+          type: object
+          properties:
+            previousStatus:
+              $ref: '#/components/schemas/DocumentStatus'
+            newStatus:
+              $ref: '#/components/schemas/DocumentStatus'
+            versionId:
+              $ref: '#/components/schemas/VersionId'
+            comment:
+              type: string
+
+    # Input schemas - reuse same types
+    CreateDocumentInput:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        content:
+          $ref: '#/components/schemas/DocumentContent'
+        reviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        parentDocument:
+          $ref: '#/components/schemas/DocumentId'
+        templateId:
+          type: string
+          format: uuid
+
+    UpdateDocumentInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          $ref: '#/components/schemas/DocumentContent'
+        reviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        approver:
+          $ref: '#/components/schemas/UserId'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+
+    # Sharing - heavy reuse of Permission and UserReference
+    ShareRequest:
+      type: object
+      required:
+        - recipients
+      properties:
+        recipients:
+          type: array
+          items:
+            type: object
+            required:
+              - userId
+              - permission
+            properties:
+              userId:
+                $ref: '#/components/schemas/UserId'
+              permission:
+                $ref: '#/components/schemas/Permission'
+              expiresAt:
+                $ref: '#/components/schemas/Timestamp'
+              notifyUser:
+                type: boolean
+                default: true
+        message:
+          type: string
+
+    ShareResult:
+      type: object
+      required:
+        - documentId
+        - shares
+      properties:
+        documentId:
+          $ref: '#/components/schemas/DocumentId'
+        shares:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/UserReference'
+              permission:
+                $ref: '#/components/schemas/Permission'
+              sharedAt:
+                $ref: '#/components/schemas/Timestamp'
+              sharedBy:
+                $ref: '#/components/schemas/UserReference'
+              expiresAt:
+                $ref: '#/components/schemas/Timestamp'
+
+    # Compare - uses Document twice
+    CompareOptions:
+      type: object
+      properties:
+        ignoreWhitespace:
+          type: boolean
+        ignoreCase:
+          type: boolean
+        showLineNumbers:
+          type: boolean
+
+    CompareResult:
+      type: object
+      required:
+        - source
+        - target
+        - differences
+      properties:
+        source:
+          # Document reference
+          $ref: '#/components/schemas/DocumentReference'
+        target:
+          # Same Document reference
+          $ref: '#/components/schemas/DocumentReference'
+        differences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Difference'
+        summary:
+          type: object
+          properties:
+            additions:
+              type: integer
+            deletions:
+              type: integer
+            modifications:
+              type: integer
+
+    Difference:
+      type: object
+      required:
+        - type
+        - path
+      properties:
+        type:
+          type: string
+          enum: [added, removed, modified]
+        path:
+          type: string
+        sourceValue:
+          type: string
+        targetValue:
+          type: string
+
+    # Templates - reuse many document-related schemas
+    DocumentTemplate:
+      type: object
+      required:
+        - id
+        - name
+        - content
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        content:
+          # Same content structure as Document
+          $ref: '#/components/schemas/DocumentContent'
+        defaultReviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserReference'
+        defaultApprover:
+          $ref: '#/components/schemas/UserReference'
+        defaultTags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        category:
+          type: string
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+
+    CreateTemplateInput:
+      type: object
+      required:
+        - name
+        - content
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        content:
+          $ref: '#/components/schemas/DocumentContent'
+        defaultReviewers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserId'
+        defaultApprover:
+          $ref: '#/components/schemas/UserId'
+        defaultTags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        category:
+          type: string
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateVariable'
+
+    TemplateVariable:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [text, number, date, user, document]
+        required:
+          type: boolean
+        defaultValue:
+          type: string
+        description:
+          type: string
+
+    # Workflow - reuses many schemas
+    WorkflowDefinition:
+      type: object
+      required:
+        - name
+        - steps
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+        defaultAssignees:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UserId'
+
+    WorkflowStep:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [review, approval, notification, custom]
+        assignee:
+          $ref: '#/components/schemas/UserReference'
+        requiredPermission:
+          $ref: '#/components/schemas/Permission'
+        nextSteps:
+          type: array
+          items:
+            type: object
+            properties:
+              condition:
+                type: string
+              stepName:
+                type: string
+        timeout:
+          type: integer
+        escalateTo:
+          $ref: '#/components/schemas/UserReference'
+
+    Workflow:
+      type: object
+      required:
+        - id
+        - definition
+        - document
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        definition:
+          $ref: '#/components/schemas/WorkflowDefinition'
+        document:
+          $ref: '#/components/schemas/DocumentReference'
+        status:
+          type: string
+          enum: [active, completed, cancelled, failed]
+        currentStep:
+          $ref: '#/components/schemas/WorkflowStep'
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                $ref: '#/components/schemas/WorkflowStep'
+              completedBy:
+                $ref: '#/components/schemas/UserReference'
+              completedAt:
+                $ref: '#/components/schemas/Timestamp'
+              action:
+                type: string
+              comment:
+                type: string
+        metadata:
+          $ref: '#/components/schemas/Metadata'

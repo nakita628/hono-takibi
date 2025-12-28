@@ -1,0 +1,856 @@
+openapi: 3.1.0
+info:
+  title: Extreme Parameters API
+  version: 1.0.0
+  description: |
+    Tests extreme parameter scenarios:
+    - Many parameters
+    - All parameter styles
+    - Complex serialization
+    - Parameter encoding edge cases
+paths:
+  # Path with many path parameters
+  /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}:
+    get:
+      operationId: getManyPathParams
+      parameters:
+        - name: p1
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: p2
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: p3
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: p4
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: p5
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: p6
+          in: path
+          required: true
+          schema:
+            type: boolean
+        - name: p7
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [a, b, c]
+        - name: p8
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: p9
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-z]+$'
+        - name: p10
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /query-styles:
+    get:
+      operationId: getQueryStyles
+      parameters:
+        # Form style (default for query)
+        - name: formExplode
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        
+        - name: formNoExplode
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Space delimited
+        - name: spaceDelimited
+          in: query
+          style: spaceDelimited
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+        
+        # Pipe delimited
+        - name: pipeDelimited
+          in: query
+          style: pipeDelimited
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Deep object for nested objects
+        - name: deepObject
+          in: query
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            properties:
+              level1:
+                type: object
+                properties:
+                  level2:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+              array:
+                type: array
+                items:
+                  type: string
+        
+        # Object with form style
+        - name: formObject
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: object
+            properties:
+              key1:
+                type: string
+              key2:
+                type: integer
+        
+        - name: formObjectNoExplode
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: object
+            properties:
+              a:
+                type: string
+              b:
+                type: string
+        
+        # Allow empty value
+        - name: allowEmpty
+          in: query
+          allowEmptyValue: true
+          schema:
+            type: string
+        
+        # Allow reserved characters
+        - name: allowReserved
+          in: query
+          allowReserved: true
+          schema:
+            type: string
+        
+        # Complex nested with deep object
+        - name: complexDeep
+          in: query
+          style: deepObject
+          schema:
+            type: object
+            properties:
+              filters:
+                type: object
+                properties:
+                  status:
+                    type: array
+                    items:
+                      type: string
+                  dateRange:
+                    type: object
+                    properties:
+                      from:
+                        type: string
+                        format: date
+                      to:
+                        type: string
+                        format: date
+              pagination:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+              sort:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    order:
+                      type: string
+                      enum: [asc, desc]
+      responses:
+        '200':
+          description: OK
+
+  /path-styles/{simple}/{label}/{matrix}:
+    get:
+      operationId: getPathStyles
+      parameters:
+        # Simple style (default for path)
+        - name: simple
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Label style (dot-prefixed)
+        - name: label
+          in: path
+          required: true
+          style: label
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Matrix style (semicolon-prefixed)
+        - name: matrix
+          in: path
+          required: true
+          style: matrix
+          explode: false
+          schema:
+            type: object
+            properties:
+              x:
+                type: integer
+              y:
+                type: integer
+      responses:
+        '200':
+          description: OK
+
+  /header-styles:
+    get:
+      operationId: getHeaderStyles
+      parameters:
+        # Simple array in header
+        - name: X-Simple-Array
+          in: header
+          style: simple
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Simple array exploded
+        - name: X-Simple-Array-Exploded
+          in: header
+          style: simple
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        
+        # Object in header
+        - name: X-Object-Header
+          in: header
+          style: simple
+          explode: false
+          schema:
+            type: object
+            properties:
+              key1:
+                type: string
+              key2:
+                type: string
+        
+        # Many header parameters
+        - name: X-Custom-1
+          in: header
+          schema:
+            type: string
+        - name: X-Custom-2
+          in: header
+          schema:
+            type: integer
+        - name: X-Custom-3
+          in: header
+          schema:
+            type: boolean
+        - name: X-Custom-4
+          in: header
+          schema:
+            type: number
+        - name: X-Custom-5
+          in: header
+          schema:
+            type: string
+            format: date-time
+        - name: Accept
+          in: header
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          schema:
+            type: string
+        - name: Accept-Encoding
+          in: header
+          schema:
+            type: string
+        - name: Cache-Control
+          in: header
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: string
+        - name: If-Modified-Since
+          in: header
+          schema:
+            type: string
+            format: date-time
+        - name: If-Unmodified-Since
+          in: header
+          schema:
+            type: string
+            format: date-time
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+        - name: X-Request-ID
+          in: header
+          schema:
+            type: string
+            format: uuid
+        - name: X-Correlation-ID
+          in: header
+          schema:
+            type: string
+        - name: X-Forwarded-For
+          in: header
+          schema:
+            type: string
+        - name: X-Real-IP
+          in: header
+          schema:
+            type: string
+        - name: User-Agent
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /cookie-styles:
+    get:
+      operationId: getCookieStyles
+      parameters:
+        # Simple cookie
+        - name: session_id
+          in: cookie
+          schema:
+            type: string
+        
+        # Cookie with form style (default)
+        - name: preferences
+          in: cookie
+          style: form
+          explode: true
+          schema:
+            type: object
+            properties:
+              theme:
+                type: string
+              language:
+                type: string
+        
+        # Multiple cookies
+        - name: user_id
+          in: cookie
+          schema:
+            type: string
+            format: uuid
+        - name: access_token
+          in: cookie
+          schema:
+            type: string
+        - name: refresh_token
+          in: cookie
+          schema:
+            type: string
+        - name: consent
+          in: cookie
+          schema:
+            type: boolean
+        - name: tracking_id
+          in: cookie
+          schema:
+            type: string
+        - name: cart_id
+          in: cookie
+          schema:
+            type: string
+        - name: visited
+          in: cookie
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+
+  /many-query-params:
+    get:
+      operationId: getManyQueryParams
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: fields
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: exclude
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: filter
+          in: query
+          style: deepObject
+          schema:
+            type: object
+        - name: status
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: maxDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: active
+          in: query
+          schema:
+            type: boolean
+        - name: verified
+          in: query
+          schema:
+            type: boolean
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+        - name: promoted
+          in: query
+          schema:
+            type: boolean
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+        - name: deleted
+          in: query
+          schema:
+            type: boolean
+        - name: createdBy
+          in: query
+          schema:
+            type: string
+        - name: updatedBy
+          in: query
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          schema:
+            type: string
+        - name: groupId
+          in: query
+          schema:
+            type: string
+        - name: teamId
+          in: query
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          schema:
+            type: string
+        - name: workspaceId
+          in: query
+          schema:
+            type: string
+        - name: organizationId
+          in: query
+          schema:
+            type: string
+        - name: locale
+          in: query
+          schema:
+            type: string
+        - name: timezone
+          in: query
+          schema:
+            type: string
+        - name: currency
+          in: query
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+        - name: version
+          in: query
+          schema:
+            type: string
+        - name: beta
+          in: query
+          schema:
+            type: boolean
+        - name: debug
+          in: query
+          schema:
+            type: boolean
+        - name: trace
+          in: query
+          schema:
+            type: boolean
+        - name: verbose
+          in: query
+          schema:
+            type: boolean
+        - name: callback
+          in: query
+          schema:
+            type: string
+        - name: jsonp
+          in: query
+          schema:
+            type: string
+        - name: envelope
+          in: query
+          schema:
+            type: boolean
+        - name: pretty
+          in: query
+          schema:
+            type: boolean
+        - name: compress
+          in: query
+          schema:
+            type: boolean
+        - name: cache
+          in: query
+          schema:
+            type: boolean
+        - name: timeout
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+
+  /parameter-content:
+    get:
+      operationId: getParameterContent
+      parameters:
+        # Parameter with content instead of schema
+        - name: jsonFilter
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  operator:
+                    type: string
+                  value:
+                    type: string
+        
+        # Complex object as JSON in query
+        - name: complexQuery
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filters:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          type: string
+                        op:
+                          type: string
+                        val: {}
+                  logic:
+                    type: string
+                    enum: [and, or]
+        
+        # Header with content
+        - name: X-Metadata
+          in: header
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  source:
+                    type: string
+      responses:
+        '200':
+          description: OK
+
+  /deprecated-params:
+    get:
+      operationId: getDeprecatedParams
+      parameters:
+        - name: oldParam
+          in: query
+          deprecated: true
+          schema:
+            type: string
+          description: This parameter is deprecated
+        
+        - name: legacyFilter
+          in: query
+          deprecated: true
+          schema:
+            type: string
+        
+        - name: newParam
+          in: query
+          schema:
+            type: string
+          description: Use this instead of oldParam
+        
+        - name: X-Legacy-Header
+          in: header
+          deprecated: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /examples-params:
+    get:
+      operationId: getExamplesParams
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+          examples:
+            active:
+              summary: Active status
+              value: active
+            inactive:
+              summary: Inactive status
+              value: inactive
+            pending:
+              summary: Pending status
+              value: pending
+        
+        - name: ids
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          examples:
+            single:
+              summary: Single ID
+              value:
+                - 550e8400-e29b-41d4-a716-446655440000
+            multiple:
+              summary: Multiple IDs
+              value:
+                - 550e8400-e29b-41d4-a716-446655440000
+                - 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+                - 6ba7b811-9dad-11d1-80b4-00c04fd430c8
+        
+        - name: filter
+          in: query
+          style: deepObject
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              date:
+                type: string
+                format: date
+          examples:
+            simpleFilter:
+              summary: Simple filter
+              value:
+                status: active
+            dateFilter:
+              summary: Date filter
+              value:
+                status: active
+                date: '2024-01-15'
+      responses:
+        '200':
+          description: OK
+
+components:
+  parameters:
+    # Reusable parameters with all features
+    ReusableId:
+      name: id
+      in: path
+      required: true
+      description: Resource identifier
+      schema:
+        type: string
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+    
+    ReusablePagination:
+      name: pagination
+      in: query
+      style: deepObject
+      schema:
+        type: object
+        properties:
+          page:
+            type: integer
+            minimum: 1
+            default: 1
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          cursor:
+            type: string
+      examples:
+        firstPage:
+          value:
+            page: 1
+            limit: 20
+        cursorBased:
+          value:
+            cursor: eyJpZCI6MTAwfQ==
+            limit: 50

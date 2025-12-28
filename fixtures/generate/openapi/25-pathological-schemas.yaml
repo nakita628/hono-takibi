@@ -1,0 +1,676 @@
+openapi: 3.1.0
+info:
+  title: Pathological Schema Combinations API
+  version: 1.0.0
+  description: |
+    Tests pathological schema combinations:
+    - Contradictory constraints
+    - Impossible schemas
+    - Highly ambiguous schemas
+    - Edge cases in composition
+paths:
+  /pathological:
+    post:
+      operationId: testPathological
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PathologicalRoot'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    PathologicalRoot:
+      type: object
+      properties:
+        contradictions:
+          $ref: '#/components/schemas/Contradictions'
+        impossible:
+          $ref: '#/components/schemas/ImpossibleSchemas'
+        ambiguous:
+          $ref: '#/components/schemas/AmbiguousSchemas'
+        edgeCases:
+          $ref: '#/components/schemas/EdgeCases'
+        recursive:
+          $ref: '#/components/schemas/RecursiveNightmares'
+        composition:
+          $ref: '#/components/schemas/CompositionHell'
+
+    # ========================================
+    # Contradictory Constraints
+    # ========================================
+    Contradictions:
+      type: object
+      properties:
+        # String that must be both shorter and longer than possible
+        impossibleLength:
+          type: string
+          minLength: 100
+          maxLength: 10
+        
+        # Number with min > max
+        impossibleRange:
+          type: number
+          minimum: 100
+          maximum: 10
+        
+        # Integer with exclusive bounds that leave no valid values
+        noValidInteger:
+          type: integer
+          exclusiveMinimum: 5
+          exclusiveMaximum: 6
+        
+        # Array with min > max items
+        impossibleArray:
+          type: array
+          items:
+            type: string
+          minItems: 10
+          maxItems: 5
+        
+        # Object with min > max properties
+        impossibleObject:
+          type: object
+          minProperties: 10
+          maxProperties: 5
+        
+        # Required property that doesn't exist
+        missingRequired:
+          type: object
+          required:
+            - nonExistentProperty
+          properties:
+            existingProperty:
+              type: string
+        
+        # Const and enum conflict
+        constEnumConflict:
+          type: string
+          const: "fixed"
+          enum:
+            - "other1"
+            - "other2"
+        
+        # Type conflicts in allOf
+        typeConflictAllOf:
+          allOf:
+            - type: string
+            - type: number
+        
+        # Format and type mismatch
+        formatTypeMismatch:
+          type: integer
+          format: email
+        
+        # Multiple conflicting const
+        multipleConst:
+          allOf:
+            - const: "value1"
+            - const: "value2"
+
+    # ========================================
+    # Impossible Schemas
+    # ========================================
+    ImpossibleSchemas:
+      type: object
+      properties:
+        # Always false (not: {})
+        alwaysFalse:
+          not: {}
+        
+        # oneOf with no options
+        emptyOneOf:
+          oneOf: []
+        
+        # anyOf with no options
+        emptyAnyOf:
+          anyOf: []
+        
+        # allOf with contradicting types
+        impossibleAllOf:
+          allOf:
+            - type: string
+            - type: array
+            - type: object
+            - type: number
+        
+        # Enum with no values
+        emptyEnum:
+          type: string
+          enum: []
+        
+        # Required empty string in pattern
+        impossiblePattern:
+          type: string
+          minLength: 1
+          pattern: '^$'
+        
+        # Number that is both integer and has decimal
+        integerDecimal:
+          type: integer
+          multipleOf: 0.1
+          exclusiveMinimum: 0
+          exclusiveMaximum: 0.5
+        
+        # Object with additionalProperties: false but no properties
+        closedEmpty:
+          type: object
+          additionalProperties: false
+          minProperties: 1
+
+    # ========================================
+    # Highly Ambiguous Schemas
+    # ========================================
+    AmbiguousSchemas:
+      type: object
+      properties:
+        # No type specified
+        noType:
+          description: Schema with no type constraint
+        
+        # Empty schema
+        empty:
+          {}
+        
+        # Only false
+        justFalse:
+          not:
+            not: false
+        
+        # Only true
+        justTrue:
+          not:
+            not: true
+        
+        # Deeply nested any
+        deepAny:
+          anyOf:
+            - anyOf:
+                - anyOf:
+                    - anyOf:
+                        - {}
+        
+        # oneOf where all options overlap
+        overlappingOneOf:
+          oneOf:
+            - type: object
+              properties:
+                a:
+                  type: string
+            - type: object
+              properties:
+                a:
+                  type: string
+                b:
+                  type: string
+            - type: object
+              additionalProperties: true
+        
+        # anyOf with overlapping types
+        ambiguousAnyOf:
+          anyOf:
+            - type: number
+            - type: integer
+            - enum: [1, 2, 3]
+            - const: 2
+        
+        # Multiple valid discriminator values
+        ambiguousDiscriminator:
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  enum: [a, b]
+            - type: object
+              properties:
+                type:
+                  enum: [b, c]
+          discriminator:
+            propertyName: type
+
+    # ========================================
+    # Edge Cases
+    # ========================================
+    EdgeCases:
+      type: object
+      properties:
+        # Very deep nesting
+        deepNesting:
+          type: object
+          properties:
+            l1:
+              type: object
+              properties:
+                l2:
+                  type: object
+                  properties:
+                    l3:
+                      type: object
+                      properties:
+                        l4:
+                          type: object
+                          properties:
+                            l5:
+                              type: object
+                              properties:
+                                l6:
+                                  type: object
+                                  properties:
+                                    l7:
+                                      type: object
+                                      properties:
+                                        l8:
+                                          type: object
+                                          properties:
+                                            l9:
+                                              type: object
+                                              properties:
+                                                l10:
+                                                  type: string
+        
+        # Very wide object
+        wideObject:
+          type: object
+          properties:
+            p001: { type: string }
+            p002: { type: string }
+            p003: { type: string }
+            p004: { type: string }
+            p005: { type: string }
+            p006: { type: string }
+            p007: { type: string }
+            p008: { type: string }
+            p009: { type: string }
+            p010: { type: string }
+            p011: { type: string }
+            p012: { type: string }
+            p013: { type: string }
+            p014: { type: string }
+            p015: { type: string }
+            p016: { type: string }
+            p017: { type: string }
+            p018: { type: string }
+            p019: { type: string }
+            p020: { type: string }
+            p021: { type: string }
+            p022: { type: string }
+            p023: { type: string }
+            p024: { type: string }
+            p025: { type: string }
+            p026: { type: string }
+            p027: { type: string }
+            p028: { type: string }
+            p029: { type: string }
+            p030: { type: string }
+            p031: { type: string }
+            p032: { type: string }
+            p033: { type: string }
+            p034: { type: string }
+            p035: { type: string }
+            p036: { type: string }
+            p037: { type: string }
+            p038: { type: string }
+            p039: { type: string }
+            p040: { type: string }
+            p041: { type: string }
+            p042: { type: string }
+            p043: { type: string }
+            p044: { type: string }
+            p045: { type: string }
+            p046: { type: string }
+            p047: { type: string }
+            p048: { type: string }
+            p049: { type: string }
+            p050: { type: string }
+        
+        # Many required properties
+        manyRequired:
+          type: object
+          required:
+            - r01
+            - r02
+            - r03
+            - r04
+            - r05
+            - r06
+            - r07
+            - r08
+            - r09
+            - r10
+            - r11
+            - r12
+            - r13
+            - r14
+            - r15
+            - r16
+            - r17
+            - r18
+            - r19
+            - r20
+          properties:
+            r01: { type: string }
+            r02: { type: string }
+            r03: { type: string }
+            r04: { type: string }
+            r05: { type: string }
+            r06: { type: string }
+            r07: { type: string }
+            r08: { type: string }
+            r09: { type: string }
+            r10: { type: string }
+            r11: { type: string }
+            r12: { type: string }
+            r13: { type: string }
+            r14: { type: string }
+            r15: { type: string }
+            r16: { type: string }
+            r17: { type: string }
+            r18: { type: string }
+            r19: { type: string }
+            r20: { type: string }
+        
+        # Boolean only false
+        onlyFalse:
+          type: boolean
+          const: false
+        
+        # Boolean only true
+        onlyTrue:
+          type: boolean
+          const: true
+        
+        # Null is only valid value
+        onlyNull:
+          type: 'null'
+        
+        # Object that must have exactly one property
+        exactlyOne:
+          type: object
+          minProperties: 1
+          maxProperties: 1
+          additionalProperties:
+            type: string
+        
+        # Array with exactly one item of specific type
+        exactlyOneItem:
+          type: array
+          items:
+            type: object
+            required: [id]
+            properties:
+              id:
+                type: string
+          minItems: 1
+          maxItems: 1
+
+    # ========================================
+    # Recursive Nightmares
+    # ========================================
+    RecursiveNightmares:
+      type: object
+      properties:
+        # Mutually recursive A-B-C-A
+        mutuallyRecursive:
+          $ref: '#/components/schemas/RecursiveA'
+        
+        # Self-referential with constraints
+        constrainedRecursive:
+          $ref: '#/components/schemas/ConstrainedTree'
+        
+        # Recursive in allOf
+        recursiveInAllOf:
+          allOf:
+            - type: object
+              properties:
+                value:
+                  type: string
+            - type: object
+              properties:
+                child:
+                  $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf'
+        
+        # Recursive in oneOf
+        recursiveInOneOf:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                nested:
+                  $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf'
+        
+        # Recursive in additionalProperties
+        recursiveMap:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap'
+        
+        # Recursive array
+        recursiveArray:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray'
+
+    RecursiveA:
+      type: object
+      properties:
+        value:
+          type: string
+        refB:
+          $ref: '#/components/schemas/RecursiveB'
+
+    RecursiveB:
+      type: object
+      properties:
+        value:
+          type: number
+        refC:
+          $ref: '#/components/schemas/RecursiveC'
+
+    RecursiveC:
+      type: object
+      properties:
+        value:
+          type: boolean
+        refA:
+          $ref: '#/components/schemas/RecursiveA'
+
+    ConstrainedTree:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          minLength: 1
+          maxLength: 100
+        children:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ConstrainedTree'
+        parent:
+          $ref: '#/components/schemas/ConstrainedTree'
+        siblings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstrainedTree'
+          uniqueItems: true
+
+    # ========================================
+    # Composition Hell
+    # ========================================
+    CompositionHell:
+      type: object
+      properties:
+        # allOf of allOf of allOf
+        nestedAllOf:
+          allOf:
+            - allOf:
+                - allOf:
+                    - type: object
+                      properties:
+                        a:
+                          type: string
+                    - type: object
+                      properties:
+                        b:
+                          type: string
+                - type: object
+                  properties:
+                    c:
+                      type: string
+            - type: object
+              properties:
+                d:
+                  type: string
+        
+        # oneOf of oneOf
+        nestedOneOf:
+          oneOf:
+            - oneOf:
+                - type: string
+                  const: "deep1"
+                - type: string
+                  const: "deep2"
+            - oneOf:
+                - type: number
+                  const: 1
+                - type: number
+                  const: 2
+        
+        # anyOf of anyOf
+        nestedAnyOf:
+          anyOf:
+            - anyOf:
+                - type: string
+                - type: number
+            - anyOf:
+                - type: boolean
+                - type: 'null'
+        
+        # Mix of all compositions
+        allMixed:
+          allOf:
+            - oneOf:
+                - anyOf:
+                    - type: string
+                    - type: number
+                - anyOf:
+                    - type: boolean
+                    - type: 'null'
+            - not:
+                const: null
+        
+        # if-then-else in allOf
+        conditionalInAllOf:
+          allOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+            - if:
+                properties:
+                  type:
+                    const: "A"
+              then:
+                properties:
+                  valueA:
+                    type: string
+              else:
+                properties:
+                  valueOther:
+                    type: number
+        
+        # Multiple discriminators pointing to same property
+        multiDiscriminator:
+          oneOf:
+            - $ref: '#/components/schemas/DiscrimA'
+            - $ref: '#/components/schemas/DiscrimB'
+            - $ref: '#/components/schemas/DiscrimC'
+          discriminator:
+            propertyName: kind
+            mapping:
+              typeA: '#/components/schemas/DiscrimA'
+              typeB: '#/components/schemas/DiscrimB'
+              typeC: '#/components/schemas/DiscrimC'
+        
+        # allOf that creates conflicting required
+        conflictingRequired:
+          allOf:
+            - type: object
+              required:
+                - fieldA
+              properties:
+                fieldA:
+                  type: string
+            - type: object
+              required:
+                - fieldB
+              properties:
+                fieldB:
+                  type: string
+            - type: object
+              required:
+                - fieldC
+              properties:
+                fieldC:
+                  type: string
+            - type: object
+              additionalProperties: false
+        
+        # oneOf with overlapping but not identical schemas
+        overlappingSchemas:
+          oneOf:
+            - type: object
+              required: [a, b]
+              properties:
+                a:
+                  type: string
+                b:
+                  type: string
+            - type: object
+              required: [a, c]
+              properties:
+                a:
+                  type: string
+                c:
+                  type: string
+            - type: object
+              required: [b, c]
+              properties:
+                b:
+                  type: string
+                c:
+                  type: string
+
+    DiscrimA:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          const: typeA
+        valueA:
+          type: string
+
+    DiscrimB:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          const: typeB
+        valueB:
+          type: number
+
+    DiscrimC:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          const: typeC
+        valueC:
+          type: boolean

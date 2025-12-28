@@ -1,0 +1,729 @@
+openapi: 3.1.0
+info:
+  title: Reference Edge Cases API
+  version: 1.0.0
+  description: |
+    Extreme edge cases for reference handling:
+    - Very long reference chains
+    - References in unusual locations
+    - Empty and minimal referenced schemas
+    - References with same names at different paths
+    - Unicode and special characters in reference names
+paths:
+  /test:
+    get:
+      operationId: testEndpoint
+      parameters:
+        # Reference in parameter
+        - $ref: '#/components/parameters/RefParam'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Level1'
+        '201':
+          # Reference to response
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /empty-refs:
+    get:
+      operationId: getEmptyRefs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyObject'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/MinimalObject'
+
+  /unicode-refs:
+    get:
+      operationId: getUnicodeRefs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/日本語スキーマ'
+
+  /special-chars:
+    get:
+      operationId: getSpecialChars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schema_With_Underscores'
+
+  /numeric-start:
+    get:
+      operationId: getNumericStart
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                # Schema name starting with number (unusual but valid)
+                $ref: '#/components/schemas/2FAConfig'
+
+  /ref-in-allof:
+    get:
+      operationId: getRefInAllOf
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Base'
+                  - $ref: '#/components/schemas/Extension1'
+                  - $ref: '#/components/schemas/Extension2'
+                  - $ref: '#/components/schemas/Extension3'
+                  - type: object
+                    properties:
+                      inline:
+                        type: string
+
+  /deeply-nested:
+    get:
+      operationId: getDeeplyNested
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wrapper1'
+
+  /same-name-diff-context:
+    get:
+      operationId: getSameNameDiffContext
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # Different schemas with similar names
+                  item:
+                    $ref: '#/components/schemas/Item'
+                  itemRef:
+                    $ref: '#/components/schemas/ItemRef'
+                  itemList:
+                    $ref: '#/components/schemas/ItemList'
+                  itemMap:
+                    $ref: '#/components/schemas/ItemMap'
+                  itemTree:
+                    $ref: '#/components/schemas/ItemTree'
+
+components:
+  schemas:
+    # ========================================
+    # Very long reference chain (10+ levels)
+    # ========================================
+    
+    Level1:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level2'
+        meta:
+          type: string
+
+    Level2:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level3'
+        meta:
+          type: string
+
+    Level3:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level4'
+        meta:
+          type: string
+
+    Level4:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level5'
+        meta:
+          type: string
+
+    Level5:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level6'
+        meta:
+          type: string
+
+    Level6:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level7'
+        meta:
+          type: string
+
+    Level7:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level8'
+        meta:
+          type: string
+
+    Level8:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level9'
+        meta:
+          type: string
+
+    Level9:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level10'
+        meta:
+          type: string
+
+    Level10:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level11'
+        meta:
+          type: string
+
+    Level11:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Level12'
+        meta:
+          type: string
+
+    Level12:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/FinalLevel'
+        meta:
+          type: string
+
+    FinalLevel:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+        # Reference back up the chain (not circular, different path)
+        parent:
+          $ref: '#/components/schemas/Level1'
+
+    # ========================================
+    # Empty and minimal schemas
+    # ========================================
+
+    EmptyObject:
+      type: object
+
+    MinimalObject:
+      type: object
+      properties:
+        x:
+          type: string
+
+    EmptyArray:
+      type: array
+      items: {}
+
+    AnyValue:
+      {}
+
+    NullOnly:
+      type: 'null'
+
+    # ========================================
+    # Unicode schema names
+    # ========================================
+
+    日本語スキーマ:
+      type: object
+      properties:
+        名前:
+          type: string
+        値:
+          type: number
+        子要素:
+          type: array
+          items:
+            $ref: '#/components/schemas/日本語スキーマ'
+
+    Schéma_Français:
+      type: object
+      properties:
+        prénom:
+          type: string
+        nom:
+          type: string
+
+    Схема_Русский:
+      type: object
+      properties:
+        имя:
+          type: string
+        значение:
+          type: number
+
+    # ========================================
+    # Special character names
+    # ========================================
+
+    Schema_With_Underscores:
+      type: object
+      properties:
+        field_one:
+          type: string
+        field_two:
+          type: string
+
+    2FAConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        method:
+          type: string
+          enum: [sms, email, authenticator]
+
+    # ========================================
+    # Multiple extensions in allOf
+    # ========================================
+
+    Base:
+      type: object
+      properties:
+        id:
+          type: string
+
+    Extension1:
+      type: object
+      properties:
+        ext1:
+          type: string
+
+    Extension2:
+      type: object
+      properties:
+        ext2:
+          type: string
+
+    Extension3:
+      type: object
+      properties:
+        ext3:
+          type: string
+
+    # ========================================
+    # Wrapper chain
+    # ========================================
+
+    Wrapper1:
+      type: object
+      properties:
+        wrapped:
+          $ref: '#/components/schemas/Wrapper2'
+
+    Wrapper2:
+      type: object
+      properties:
+        wrapped:
+          $ref: '#/components/schemas/Wrapper3'
+
+    Wrapper3:
+      type: object
+      properties:
+        wrapped:
+          $ref: '#/components/schemas/Wrapper4'
+
+    Wrapper4:
+      type: object
+      properties:
+        wrapped:
+          $ref: '#/components/schemas/Wrapper5'
+
+    Wrapper5:
+      type: object
+      properties:
+        content:
+          type: object
+          properties:
+            value:
+              type: string
+
+    # ========================================
+    # Similar names - disambiguation test
+    # ========================================
+
+    Item:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        value:
+          type: number
+
+    ItemRef:
+      type: object
+      required:
+        - itemId
+      properties:
+        itemId:
+          type: string
+        item:
+          $ref: '#/components/schemas/Item'
+
+    ItemList:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        total:
+          type: integer
+
+    ItemMap:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Item'
+
+    ItemTree:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/Item'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTree'
+
+    # ========================================
+    # Reference inside oneOf/anyOf with same base
+    # ========================================
+
+    Polymorphic:
+      oneOf:
+        - $ref: '#/components/schemas/PolyTypeA'
+        - $ref: '#/components/schemas/PolyTypeB'
+        - $ref: '#/components/schemas/PolyTypeC'
+      discriminator:
+        propertyName: polyType
+
+    PolyBase:
+      type: object
+      required:
+        - polyType
+        - baseField
+      properties:
+        polyType:
+          type: string
+        baseField:
+          type: string
+        sharedRef:
+          $ref: '#/components/schemas/SharedComponent'
+
+    PolyTypeA:
+      allOf:
+        - $ref: '#/components/schemas/PolyBase'
+        - type: object
+          properties:
+            polyType:
+              const: typeA
+            fieldA:
+              type: string
+            nestedRef:
+              $ref: '#/components/schemas/SharedComponent'
+
+    PolyTypeB:
+      allOf:
+        - $ref: '#/components/schemas/PolyBase'
+        - type: object
+          properties:
+            polyType:
+              const: typeB
+            fieldB:
+              type: number
+            nestedRef:
+              $ref: '#/components/schemas/SharedComponent'
+
+    PolyTypeC:
+      allOf:
+        - $ref: '#/components/schemas/PolyBase'
+        - type: object
+          properties:
+            polyType:
+              const: typeC
+            fieldC:
+              type: boolean
+            nestedRef:
+              $ref: '#/components/schemas/SharedComponent'
+
+    SharedComponent:
+      type: object
+      properties:
+        shared:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    # ========================================
+    # References in unusual places
+    # ========================================
+
+    ObjectWithRefDefault:
+      type: object
+      properties:
+        config:
+          allOf:
+            - $ref: '#/components/schemas/ConfigBase'
+          default:
+            key: defaultValue
+
+    ConfigBase:
+      type: object
+      properties:
+        key:
+          type: string
+
+    ArrayWithRefItems:
+      type: array
+      items:
+        allOf:
+          - $ref: '#/components/schemas/Item'
+          - type: object
+            properties:
+              arrayIndex:
+                type: integer
+
+    MapWithRefValues:
+      type: object
+      additionalProperties:
+        allOf:
+          - $ref: '#/components/schemas/Item'
+          - type: object
+            properties:
+              mapKey:
+                type: string
+
+    # ========================================
+    # Conditional references
+    # ========================================
+
+    ConditionalSchema:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [simple, complex]
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/SimpleData'
+            - $ref: '#/components/schemas/ComplexData'
+
+    SimpleData:
+      type: object
+      properties:
+        value:
+          type: string
+
+    ComplexData:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleData'
+        metadata:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SimpleData'
+
+    # ========================================
+    # Recursive with multiple entry points
+    # ========================================
+
+    RecursiveA:
+      type: object
+      properties:
+        name:
+          type: string
+        refToB:
+          $ref: '#/components/schemas/RecursiveB'
+        selfRef:
+          $ref: '#/components/schemas/RecursiveA'
+
+    RecursiveB:
+      type: object
+      properties:
+        name:
+          type: string
+        refToC:
+          $ref: '#/components/schemas/RecursiveC'
+        refToA:
+          $ref: '#/components/schemas/RecursiveA'
+
+    RecursiveC:
+      type: object
+      properties:
+        name:
+          type: string
+        refToA:
+          $ref: '#/components/schemas/RecursiveA'
+        refToB:
+          $ref: '#/components/schemas/RecursiveB'
+
+    # ========================================
+    # Reference in not schema
+    # ========================================
+
+    NotExample:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - not:
+            $ref: '#/components/schemas/Forbidden'
+
+    Forbidden:
+      type: object
+      properties:
+        forbiddenField:
+          type: string
+
+    # ========================================
+    # Multiple refs to same schema in one object
+    # ========================================
+
+    MultiRef:
+      type: object
+      properties:
+        first:
+          $ref: '#/components/schemas/SharedComponent'
+        second:
+          $ref: '#/components/schemas/SharedComponent'
+        third:
+          $ref: '#/components/schemas/SharedComponent'
+        nested:
+          type: object
+          properties:
+            inner:
+              $ref: '#/components/schemas/SharedComponent'
+        array:
+          type: array
+          items:
+            $ref: '#/components/schemas/SharedComponent'
+        map:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SharedComponent'
+
+    # ========================================
+    # Very long schema name
+    # ========================================
+
+    ThisIsAVeryLongSchemaNameThatExceedsNormalNamingConventionsAndMightCauseIssuesInSomeCodeGenerators:
+      type: object
+      properties:
+        field:
+          type: string
+
+    ShortRef:
+      type: object
+      properties:
+        longNameRef:
+          $ref: '#/components/schemas/ThisIsAVeryLongSchemaNameThatExceedsNormalNamingConventionsAndMightCauseIssuesInSomeCodeGenerators'
+
+  parameters:
+    RefParam:
+      name: refParam
+      in: query
+      schema:
+        $ref: '#/components/schemas/Item'
+
+  responses:
+    Created:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Item'
+
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                $ref: '#/components/schemas/SharedComponent'
+
+  examples:
+    ItemExample:
+      summary: Item example
+      value:
+        id: "123"
+        name: "Example"
+        value: 42
+
+  headers:
+    RefHeader:
+      schema:
+        $ref: '#/components/schemas/Item'
+
+  requestBodies:
+    RefBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Item'
