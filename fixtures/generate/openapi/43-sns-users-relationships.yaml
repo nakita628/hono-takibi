@@ -1,0 +1,1060 @@
+openapi: 3.1.0
+info:
+  title: Social Network API - Users & Relationships
+  version: 1.0.0
+  description: |
+    Twitter/X風SNSクローンのためのユーザー・関係性API。
+    プロフィール管理、フォロー/フォロワー、ブロック、ミュートなどの機能を提供します。
+
+servers:
+  - url: https://api.social.example.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Development
+
+tags:
+  - name: Users
+    description: ユーザー情報
+  - name: Profile
+    description: プロフィール管理
+  - name: Relationships
+    description: フォロー関係
+  - name: Blocks & Mutes
+    description: ブロック・ミュート
+  - name: Lists
+    description: リスト管理
+
+paths:
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - Users
+      operationId: getUser
+      summary: ユーザー情報取得
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/by/username/{username}:
+    parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      operationId: getUserByUsername
+      summary: ユーザー名でユーザー取得
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/search:
+    get:
+      tags:
+        - Users
+      operationId: searchUsers
+      summary: ユーザー検索
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 検索クエリ
+          schema:
+            type: string
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: 検索結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+
+  /users/lookup:
+    get:
+      tags:
+        - Users
+      operationId: lookupUsers
+      summary: 複数ユーザー一括取得
+      parameters:
+        - name: ids
+          in: query
+          description: ユーザーIDのカンマ区切り
+          schema:
+            type: string
+        - name: usernames
+          in: query
+          description: ユーザー名のカンマ区切り
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ユーザー一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /me:
+    get:
+      tags:
+        - Profile
+      operationId: getCurrentUser
+      summary: 現在のユーザー情報取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags:
+        - Profile
+      operationId: updateProfile
+      summary: プロフィール更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /me/avatar:
+    post:
+      tags:
+        - Profile
+      operationId: uploadAvatar
+      summary: アバターアップロード
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatarUrl:
+                    type: string
+                    format: uri
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Profile
+      operationId: deleteAvatar
+      summary: アバター削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /me/banner:
+    post:
+      tags:
+        - Profile
+      operationId: uploadBanner
+      summary: バナー画像アップロード
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bannerUrl:
+                    type: string
+                    format: uri
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Profile
+      operationId: deleteBanner
+      summary: バナー画像削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}/follow:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Relationships
+      operationId: followUser
+      summary: フォロー
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: フォロー成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Relationships
+      operationId: unfollowUser
+      summary: フォロー解除
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}/followers:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - Relationships
+      operationId: getUserFollowers
+      summary: フォロワー一覧取得
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: フォロワー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/following:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - Relationships
+      operationId: getUserFollowing
+      summary: フォロー中一覧取得
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: フォロー中一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/followers/remove:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Relationships
+      operationId: removeFollower
+      summary: フォロワー削除
+      description: 自分のフォロワーから削除
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /relationships:
+    get:
+      tags:
+        - Relationships
+      operationId: getRelationships
+      summary: 関係性一括取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userIds
+          in: query
+          required: true
+          description: ユーザーIDのカンマ区切り
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 関係性一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /follow-requests:
+    get:
+      tags:
+        - Relationships
+      operationId: listFollowRequests
+      summary: フォローリクエスト一覧
+      description: 非公開アカウントへのフォローリクエスト
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: リクエスト一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /follow-requests/{userId}/accept:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Relationships
+      operationId: acceptFollowRequest
+      summary: フォローリクエスト承認
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 承認成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /follow-requests/{userId}/reject:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Relationships
+      operationId: rejectFollowRequest
+      summary: フォローリクエスト拒否
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 拒否成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}/block:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Blocks & Mutes
+      operationId: blockUser
+      summary: ブロック
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ブロック成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Blocks & Mutes
+      operationId: unblockUser
+      summary: ブロック解除
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}/mute:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      tags:
+        - Blocks & Mutes
+      operationId: muteUser
+      summary: ミュート
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: integer
+                  description: ミュート期間（秒）。省略で無期限
+                notifications:
+                  type: boolean
+                  default: true
+                  description: 通知もミュートするか
+      responses:
+        '200':
+          description: ミュート成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Blocks & Mutes
+      operationId: unmuteUser
+      summary: ミュート解除
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /blocks:
+    get:
+      tags:
+        - Blocks & Mutes
+      operationId: listBlockedUsers
+      summary: ブロックユーザー一覧
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: ブロック一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mutes:
+    get:
+      tags:
+        - Blocks & Mutes
+      operationId: listMutedUsers
+      summary: ミュートユーザー一覧
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: ミュート一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /lists:
+    get:
+      tags:
+        - Lists
+      operationId: listLists
+      summary: リスト一覧取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: リスト一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/List'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Lists
+      operationId: createList
+      summary: リスト作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateListRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /lists/{listId}:
+    parameters:
+      - $ref: '#/components/parameters/ListIdParam'
+    get:
+      tags:
+        - Lists
+      operationId: getList
+      summary: リスト詳細取得
+      responses:
+        '200':
+          description: リスト詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Lists
+      operationId: updateList
+      summary: リスト更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateListRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Lists
+      operationId: deleteList
+      summary: リスト削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /lists/{listId}/members:
+    parameters:
+      - $ref: '#/components/parameters/ListIdParam'
+    get:
+      tags:
+        - Lists
+      operationId: getListMembers
+      summary: リストメンバー一覧
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: メンバー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+    post:
+      tags:
+        - Lists
+      operationId: addListMember
+      summary: リストにメンバー追加
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: 追加成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /lists/{listId}/members/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/ListIdParam'
+      - $ref: '#/components/parameters/UserIdParam'
+    delete:
+      tags:
+        - Lists
+      operationId: removeListMember
+      summary: リストからメンバー削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /lists/{listId}/timeline:
+    parameters:
+      - $ref: '#/components/parameters/ListIdParam'
+    get:
+      tags:
+        - Lists
+      operationId: getListTimeline
+      summary: リストタイムライン取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: タイムライン
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}/lists:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - Lists
+      operationId: getUserLists
+      summary: ユーザーが所属するリスト一覧
+      parameters:
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: リスト一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/List'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ListIdParam:
+      name: listId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    CursorParam:
+      name: cursor
+      in: query
+      schema:
+        type: string
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - username
+        - displayName
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          pattern: '^[a-zA-Z0-9_]{1,15}$'
+        displayName:
+          type: string
+          maxLength: 50
+        bio:
+          type: string
+          maxLength: 160
+        location:
+          type: string
+          maxLength: 30
+        website:
+          type: string
+          format: uri
+        avatarUrl:
+          type: string
+          format: uri
+        bannerUrl:
+          type: string
+          format: uri
+        isVerified:
+          type: boolean
+        isProtected:
+          type: boolean
+          description: 非公開アカウントか
+        birthDate:
+          type: string
+          format: date
+        pinnedPostId:
+          type: string
+          format: uuid
+        metrics:
+          type: object
+          properties:
+            followersCount:
+              type: integer
+            followingCount:
+              type: integer
+            postsCount:
+              type: integer
+            likesCount:
+              type: integer
+            listedCount:
+              type: integer
+        relationship:
+          $ref: '#/components/schemas/Relationship'
+          description: 認証ユーザーとの関係
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+          maxLength: 50
+        bio:
+          type: string
+          maxLength: 160
+        location:
+          type: string
+          maxLength: 30
+        website:
+          type: string
+          format: uri
+        birthDate:
+          type: string
+          format: date
+        isProtected:
+          type: boolean
+        pinnedPostId:
+          type: string
+          format: uuid
+
+    Relationship:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          format: uuid
+        following:
+          type: boolean
+        followedBy:
+          type: boolean
+        blocking:
+          type: boolean
+        blockedBy:
+          type: boolean
+        muting:
+          type: boolean
+        mutingNotifications:
+          type: boolean
+        followRequestSent:
+          type: boolean
+        followRequestReceived:
+          type: boolean
+
+    List:
+      type: object
+      required:
+        - id
+        - name
+        - owner
+        - memberCount
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 25
+        description:
+          type: string
+          maxLength: 100
+        isPrivate:
+          type: boolean
+        owner:
+          $ref: '#/components/schemas/UserSummary'
+        memberCount:
+          type: integer
+        followerCount:
+          type: integer
+        isFollowing:
+          type: boolean
+        isMember:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateListRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 25
+        description:
+          type: string
+          maxLength: 100
+        isPrivate:
+          type: boolean
+          default: false
+
+    UpdateListRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 25
+        description:
+          type: string
+          maxLength: 100
+        isPrivate:
+          type: boolean
+
+    UserSummary:
+      type: object
+      required:
+        - id
+        - username
+        - displayName
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        isVerified:
+          type: boolean
+        isProtected:
+          type: boolean
+
+    Post:
+      type: object
+      description: 投稿（別APIファイルで定義）
+      properties:
+        id:
+          type: string
+          format: uuid
+
+    UserListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        nextCursor:
+          type: string
+
+    PostListResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        nextCursor:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: アクセス権限がありません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

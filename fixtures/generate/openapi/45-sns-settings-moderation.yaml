@@ -1,0 +1,1432 @@
+openapi: 3.1.0
+info:
+  title: Social Network API - Settings, Moderation & Analytics
+  version: 1.0.0
+  description: |
+    Twitter/X風SNSクローンのための設定・モデレーション・分析API。
+    アカウント設定、コンテンツモデレーション、投稿分析などの機能を提供します。
+
+servers:
+  - url: https://api.social.example.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Development
+
+tags:
+  - name: Account Settings
+    description: アカウント設定
+  - name: Privacy & Safety
+    description: プライバシー・安全設定
+  - name: Reports
+    description: 通報
+  - name: Moderation
+    description: モデレーション
+  - name: Analytics
+    description: 分析
+
+paths:
+  /settings/account:
+    get:
+      tags:
+        - Account Settings
+      operationId: getAccountSettings
+      summary: アカウント設定取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: アカウント設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Account Settings
+      operationId: updateAccountSettings
+      summary: アカウント設定更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountSettingsRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/username/check:
+    get:
+      tags:
+        - Account Settings
+      operationId: checkUsernameAvailability
+      summary: ユーザー名利用可能確認
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 確認結果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                  reason:
+                    type: string
+
+  /settings/privacy:
+    get:
+      tags:
+        - Privacy & Safety
+      operationId: getPrivacySettings
+      summary: プライバシー設定取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: プライバシー設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacySettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Privacy & Safety
+      operationId: updatePrivacySettings
+      summary: プライバシー設定更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacySettings'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacySettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/content-preferences:
+    get:
+      tags:
+        - Privacy & Safety
+      operationId: getContentPreferences
+      summary: コンテンツ設定取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: コンテンツ設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentPreferences'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Privacy & Safety
+      operationId: updateContentPreferences
+      summary: コンテンツ設定更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentPreferences'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentPreferences'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/muted-words:
+    get:
+      tags:
+        - Privacy & Safety
+      operationId: getMutedWords
+      summary: ミュートワード一覧取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ミュートワード一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MutedWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Privacy & Safety
+      operationId: addMutedWord
+      summary: ミュートワード追加
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMutedWordRequest'
+      responses:
+        '201':
+          description: 追加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MutedWord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/muted-words/{wordId}:
+    parameters:
+      - name: wordId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - Privacy & Safety
+      operationId: removeMutedWord
+      summary: ミュートワード削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/sessions:
+    get:
+      tags:
+        - Account Settings
+      operationId: listSessions
+      summary: ログインセッション一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: セッション一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/sessions/{sessionId}:
+    parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - Account Settings
+      operationId: revokeSession
+      summary: セッション無効化
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 無効化成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/connected-apps:
+    get:
+      tags:
+        - Account Settings
+      operationId: listConnectedApps
+      summary: 連携アプリ一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 連携アプリ一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectedApp'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/connected-apps/{appId}:
+    parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - Account Settings
+      operationId: revokeConnectedApp
+      summary: 連携アプリ解除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 解除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/data-export:
+    post:
+      tags:
+        - Account Settings
+      operationId: requestDataExport
+      summary: データエクスポートリクエスト
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: リクエスト受付
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  estimatedCompletionAt:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/data-export/{requestId}:
+    parameters:
+      - name: requestId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Account Settings
+      operationId: getDataExportStatus
+      summary: データエクスポート状況確認
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: エクスポート状況
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - pending
+                      - processing
+                      - completed
+                      - failed
+                  downloadUrl:
+                    type: string
+                    format: uri
+                  expiresAt:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /settings/deactivate:
+    post:
+      tags:
+        - Account Settings
+      operationId: deactivateAccount
+      summary: アカウント一時停止
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 停止成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /reports:
+    post:
+      tags:
+        - Reports
+      operationId: createReport
+      summary: 通報作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReportRequest'
+      responses:
+        '201':
+          description: 通報成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /reports/{reportId}:
+    parameters:
+      - name: reportId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Reports
+      operationId: getReport
+      summary: 通報詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 通報詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /moderation/queue:
+    get:
+      tags:
+        - Moderation
+      operationId: getModerationQueue
+      summary: モデレーションキュー取得
+      description: モデレーター用
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - pending
+              - in_review
+              - resolved
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - post
+              - user
+              - message
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: キュー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationQueueResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moderation/items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Moderation
+      operationId: getModerationItem
+      summary: モデレーションアイテム詳細
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: アイテム詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moderation/items/{itemId}/action:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Moderation
+      operationId: takeModerationAction
+      summary: モデレーションアクション実行
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationActionRequest'
+      responses:
+        '200':
+          description: アクション成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moderation/users/{userId}/history:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Moderation
+      operationId: getUserModerationHistory
+      summary: ユーザーのモデレーション履歴
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: モデレーション履歴
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModerationAction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moderation/users/{userId}/suspend:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Moderation
+      operationId: suspendUser
+      summary: ユーザー凍結
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                duration:
+                  type: integer
+                  description: 凍結期間（時間）。省略で永久
+                note:
+                  type: string
+      responses:
+        '200':
+          description: 凍結成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moderation/users/{userId}/unsuspend:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Moderation
+      operationId: unsuspendUser
+      summary: ユーザー凍結解除
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+      responses:
+        '200':
+          description: 解除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /analytics/posts/{postId}:
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Analytics
+      operationId: getPostAnalytics
+      summary: 投稿分析取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 投稿分析
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostAnalytics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /analytics/account:
+    get:
+      tags:
+        - Analytics
+      operationId: getAccountAnalytics
+      summary: アカウント分析取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 28d
+              - 90d
+            default: 28d
+      responses:
+        '200':
+          description: アカウント分析
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountAnalytics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /analytics/followers:
+    get:
+      tags:
+        - Analytics
+      operationId: getFollowerAnalytics
+      summary: フォロワー分析取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 28d
+              - 90d
+            default: 28d
+      responses:
+        '200':
+          description: フォロワー分析
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowerAnalytics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /analytics/top-posts:
+    get:
+      tags:
+        - Analytics
+      operationId: getTopPosts
+      summary: トップ投稿取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 28d
+              - 90d
+            default: 28d
+        - name: metric
+          in: query
+          schema:
+            type: string
+            enum:
+              - impressions
+              - engagements
+              - likes
+              - reposts
+            default: impressions
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: トップ投稿一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostWithAnalytics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    CursorParam:
+      name: cursor
+      in: query
+      schema:
+        type: string
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    AccountSettings:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        language:
+          type: string
+        timezone:
+          type: string
+        country:
+          type: string
+        twoFactorEnabled:
+          type: boolean
+        emailVerified:
+          type: boolean
+        phoneVerified:
+          type: boolean
+
+    UpdateAccountSettingsRequest:
+      type: object
+      properties:
+        language:
+          type: string
+        timezone:
+          type: string
+        country:
+          type: string
+
+    PrivacySettings:
+      type: object
+      properties:
+        protectedPosts:
+          type: boolean
+          description: 非公開アカウント
+        allowTagging:
+          type: string
+          enum:
+            - everyone
+            - followers
+            - none
+        allowMentions:
+          type: string
+          enum:
+            - everyone
+            - followers
+            - none
+        discoverableByEmail:
+          type: boolean
+        discoverableByPhone:
+          type: boolean
+        showLocation:
+          type: boolean
+        personalizeAds:
+          type: boolean
+        allowDataSharing:
+          type: boolean
+
+    ContentPreferences:
+      type: object
+      properties:
+        sensitiveContentFilter:
+          type: string
+          enum:
+            - hide
+            - warn
+            - show
+        autoplayVideos:
+          type: string
+          enum:
+            - always
+            - wifi
+            - never
+        dataUsage:
+          type: string
+          enum:
+            - default
+            - reduced
+        qualityFilter:
+          type: boolean
+          description: 低品質コンテンツのフィルタ
+        hideViewCounts:
+          type: boolean
+        hideLikeCounts:
+          type: boolean
+
+    MutedWord:
+      type: object
+      required:
+        - id
+        - word
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        word:
+          type: string
+        matchWholeWord:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        scope:
+          type: string
+          enum:
+            - all
+            - home_timeline
+            - notifications
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateMutedWordRequest:
+      type: object
+      required:
+        - word
+      properties:
+        word:
+          type: string
+          maxLength: 100
+        matchWholeWord:
+          type: boolean
+          default: true
+        duration:
+          type: integer
+          description: ミュート期間（秒）。省略で無期限
+        scope:
+          type: string
+          enum:
+            - all
+            - home_timeline
+            - notifications
+          default: all
+
+    Session:
+      type: object
+      required:
+        - id
+        - device
+        - createdAt
+        - lastActiveAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        isCurrent:
+          type: boolean
+        device:
+          type: object
+          properties:
+            type:
+              type: string
+            os:
+              type: string
+            browser:
+              type: string
+            name:
+              type: string
+        location:
+          type: object
+          properties:
+            country:
+              type: string
+            city:
+              type: string
+            ip:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+        lastActiveAt:
+          type: string
+          format: date-time
+
+    ConnectedApp:
+      type: object
+      required:
+        - id
+        - name
+        - permissions
+        - authorizedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+          format: uri
+        permissions:
+          type: array
+          items:
+            type: string
+        authorizedAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+
+    Report:
+      type: object
+      required:
+        - id
+        - type
+        - reason
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - post
+            - user
+            - message
+        targetId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          enum:
+            - spam
+            - harassment
+            - hate_speech
+            - violence
+            - self_harm
+            - misinformation
+            - illegal_content
+            - copyright
+            - impersonation
+            - other
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - in_review
+            - resolved
+            - dismissed
+        resolution:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+
+    CreateReportRequest:
+      type: object
+      required:
+        - type
+        - targetId
+        - reason
+      properties:
+        type:
+          type: string
+          enum:
+            - post
+            - user
+            - message
+        targetId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          enum:
+            - spam
+            - harassment
+            - hate_speech
+            - violence
+            - self_harm
+            - misinformation
+            - illegal_content
+            - copyright
+            - impersonation
+            - other
+        description:
+          type: string
+          maxLength: 1000
+        relatedPostIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    ModerationItem:
+      type: object
+      required:
+        - id
+        - type
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - post
+            - user
+            - message
+        targetId:
+          type: string
+          format: uuid
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/Report'
+        status:
+          type: string
+          enum:
+            - pending
+            - in_review
+            - resolved
+        assignedTo:
+          type: string
+          format: uuid
+        priority:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+            - urgent
+        content:
+          type: object
+          description: 対象コンテンツの詳細
+        userHistory:
+          type: object
+          properties:
+            previousViolations:
+              type: integer
+            accountAge:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ModerationActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum:
+            - approve
+            - remove_content
+            - warn_user
+            - suspend_user
+            - dismiss
+        note:
+          type: string
+        suspensionDuration:
+          type: integer
+          description: 凍結期間（時間）
+        notifyUser:
+          type: boolean
+          default: true
+
+    ModerationAction:
+      type: object
+      required:
+        - id
+        - action
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        action:
+          type: string
+        targetType:
+          type: string
+        targetId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+        note:
+          type: string
+        moderatorId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    PostAnalytics:
+      type: object
+      required:
+        - postId
+        - impressions
+        - engagements
+      properties:
+        postId:
+          type: string
+          format: uuid
+        impressions:
+          type: integer
+        reach:
+          type: integer
+        engagements:
+          type: integer
+        engagementRate:
+          type: number
+        likes:
+          type: integer
+        reposts:
+          type: integer
+        replies:
+          type: integer
+        quotes:
+          type: integer
+        bookmarks:
+          type: integer
+        linkClicks:
+          type: integer
+        profileVisits:
+          type: integer
+        detailExpands:
+          type: integer
+        mediaViews:
+          type: integer
+        videoViews:
+          type: integer
+        videoWatchTime:
+          type: integer
+          description: 総視聴時間（秒）
+
+    AccountAnalytics:
+      type: object
+      properties:
+        period:
+          type: string
+        impressions:
+          type: object
+          properties:
+            total:
+              type: integer
+            change:
+              type: number
+            daily:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  count:
+                    type: integer
+        engagements:
+          type: object
+          properties:
+            total:
+              type: integer
+            change:
+              type: number
+        profileVisits:
+          type: object
+          properties:
+            total:
+              type: integer
+            change:
+              type: number
+        mentions:
+          type: object
+          properties:
+            total:
+              type: integer
+            change:
+              type: number
+        newFollowers:
+          type: object
+          properties:
+            total:
+              type: integer
+            change:
+              type: number
+
+    FollowerAnalytics:
+      type: object
+      properties:
+        totalFollowers:
+          type: integer
+        followerGrowth:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              gained:
+                type: integer
+              lost:
+                type: integer
+              net:
+                type: integer
+        demographics:
+          type: object
+          properties:
+            topCountries:
+              type: array
+              items:
+                type: object
+                properties:
+                  country:
+                    type: string
+                  percentage:
+                    type: number
+            genderDistribution:
+              type: object
+              properties:
+                male:
+                  type: number
+                female:
+                  type: number
+                other:
+                  type: number
+            ageDistribution:
+              type: array
+              items:
+                type: object
+                properties:
+                  ageRange:
+                    type: string
+                  percentage:
+                    type: number
+        topInterests:
+          type: array
+          items:
+            type: object
+            properties:
+              interest:
+                type: string
+              percentage:
+                type: number
+        activeHours:
+          type: array
+          items:
+            type: object
+            properties:
+              hour:
+                type: integer
+              activityScore:
+                type: number
+
+    PostWithAnalytics:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        analytics:
+          $ref: '#/components/schemas/PostAnalytics'
+
+    ModerationQueueResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModerationItem'
+        nextCursor:
+          type: string
+        stats:
+          type: object
+          properties:
+            pending:
+              type: integer
+            inReview:
+              type: integer
+            resolvedToday:
+              type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: アクセス権限がありません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
