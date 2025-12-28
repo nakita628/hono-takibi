@@ -641,11 +641,11 @@ export function isUniqueContentSchema(
  *
  * @example
  * ```ts
- * refSchema('#/components/schemas/Address')
+ * ref('#/components/schemas/Address')
  * // → 'AddressSchema'
  * ```
  */
-export function refSchema(
+export function ref(
   $ref: `#/components/${string}/${string}`,
   // $ref:
   // | `#/components/schemas/${string}`
@@ -913,7 +913,7 @@ export function buildExamples(
 ): string | undefined {
   if (!examples) return undefined
 
-  const refSchema = ($ref: `#/components/${string}/${string}`): string => {
+  const ref = ($ref: `#/components/${string}/${string}`): string => {
     // split('/'): Split a string into an array using slashes
     // 1. ["#", "components", "schemas", "Address"]
     // pop() to get the last element
@@ -969,7 +969,7 @@ export function buildExamples(
     .map(([key, example]) => {
       // Reference
       if ('$ref' in example && example.$ref) {
-        return `${JSON.stringify(key)}:${refSchema(example.$ref)}`
+        return `${JSON.stringify(key)}:${ref(example.$ref)}`
       }
       // Example object
       const props = [
