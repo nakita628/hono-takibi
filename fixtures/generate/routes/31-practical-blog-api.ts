@@ -11,7 +11,6 @@ const SEOSchema = z
     noIndex: z.boolean().default(false).openapi({ type: 'boolean', default: false }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -28,14 +27,14 @@ const SEOSchema = z
 
 const TagSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    slug: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    slug: z.string().openapi({ type: 'string' }),
     postCount: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'slug'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -47,17 +46,17 @@ const TagSchema = z
 
 const CategorySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    slug: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    slug: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     postCount: z.int().optional().openapi({ type: 'integer' }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'slug'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -72,8 +71,8 @@ const CategorySchema = z
 
 const AuthorSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     slug: z.string().optional().openapi({ type: 'string' }),
     bio: z.string().optional().openapi({ type: 'string' }),
     avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
@@ -87,7 +86,6 @@ const AuthorSchema = z
         linkedin: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -99,9 +97,9 @@ const AuthorSchema = z
       }),
     postCount: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -126,13 +124,12 @@ const AuthorSchema = z
 
 const MediaSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     type: z
       .enum(['image', 'video', 'audio', 'document'])
-      .optional()
       .openapi({ type: 'string', enum: ['image', 'video', 'audio', 'document'] }),
-    mimeType: z.string().optional().openapi({ type: 'string' }),
+    mimeType: z.string().openapi({ type: 'string' }),
     filename: z.string().optional().openapi({ type: 'string' }),
     filesize: z
       .int()
@@ -149,7 +146,6 @@ const MediaSchema = z
         large: z.url().openapi({ type: 'string', format: 'uri' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -160,9 +156,9 @@ const MediaSchema = z
       }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'url', 'type', 'mimeType'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       url: { type: 'string', format: 'uri' },
@@ -189,9 +185,9 @@ const MediaSchema = z
 
 const PostSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().optional().openapi({ type: 'string' }),
-    slug: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().openapi({ type: 'string' }),
+    slug: z.string().openapi({ type: 'string' }),
     excerpt: z.string().optional().openapi({ type: 'string', description: '抜粋' }),
     content: z.string().optional().openapi({ type: 'string', description: '本文（HTML）' }),
     contentMarkdown: z
@@ -201,7 +197,6 @@ const PostSchema = z
     featuredImage: MediaSchema,
     status: z
       .enum(['draft', 'published', 'scheduled', 'archived'])
-      .optional()
       .openapi({ type: 'string', enum: ['draft', 'published', 'scheduled', 'archived'] }),
     author: AuthorSchema,
     category: CategorySchema,
@@ -214,12 +209,12 @@ const PostSchema = z
     commentCount: z.int().optional().openapi({ type: 'integer' }),
     publishedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     scheduledAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'title', 'slug', 'status', 'author', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       title: { type: 'string' },
@@ -247,14 +242,13 @@ const CommentSchema = z
   .lazy(() =>
     z
       .object({
-        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-        content: z.string().optional().openapi({ type: 'string' }),
-        authorName: z.string().optional().openapi({ type: 'string' }),
+        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+        content: z.string().openapi({ type: 'string' }),
+        authorName: z.string().openapi({ type: 'string' }),
         authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
         authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
         status: z
           .enum(['pending', 'approved', 'spam'])
-          .optional()
           .openapi({ type: 'string', enum: ['pending', 'approved', 'spam'] }),
         parentId: z
           .uuid()
@@ -264,11 +258,11 @@ const CommentSchema = z
           .array(CommentSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-        createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['id', 'content', 'authorName', 'status', 'createdAt'],
         properties: {
           id: { type: 'string', format: 'uuid' },
           content: { type: 'string' },
@@ -286,12 +280,7 @@ const CommentSchema = z
 
 const CreatePostRequestSchema = z
   .object({
-    title: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    title: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     slug: z
       .string()
       .regex(/^[a-z0-9-]+$/)
@@ -313,9 +302,9 @@ const CreatePostRequestSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['draft', 'published'], default: 'draft' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['title'],
     properties: {
       title: { type: 'string', minLength: 1, maxLength: 200 },
       slug: { type: 'string', pattern: '^[a-z0-9-]+$' },
@@ -355,7 +344,6 @@ const UpdatePostRequestSchema = z
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
     seo: SEOSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -374,25 +362,19 @@ const UpdatePostRequestSchema = z
 
 const CreateCommentRequestSchema = z
   .object({
-    content: z
-      .string()
-      .min(1)
-      .max(2000)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 2000 }),
+    content: z.string().min(1).max(2000).openapi({ type: 'string', minLength: 1, maxLength: 2000 }),
     authorName: z
       .string()
       .min(1)
       .max(100)
-      .optional()
       .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-    authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    authorEmail: z.email().openapi({ type: 'string', format: 'email' }),
     authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['content', 'authorName', 'authorEmail'],
     properties: {
       content: { type: 'string', minLength: 1, maxLength: 2000 },
       authorName: { type: 'string', minLength: 1, maxLength: 100 },
@@ -405,12 +387,7 @@ const CreateCommentRequestSchema = z
 
 const CreateCategoryRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     slug: z
       .string()
       .regex(/^[a-z0-9-]+$/)
@@ -419,9 +396,9 @@ const CreateCategoryRequestSchema = z
     description: z.string().optional().openapi({ type: 'string' }),
     parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 100 },
       slug: { type: 'string', pattern: '^[a-z0-9-]+$' },
@@ -442,7 +419,6 @@ const UpdateCategoryRequestSchema = z
     parentId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -456,21 +432,16 @@ const UpdateCategoryRequestSchema = z
 
 const CreateTagRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(50)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 50 }),
+    name: z.string().min(1).max(50).openapi({ type: 'string', minLength: 1, maxLength: 50 }),
     slug: z
       .string()
       .regex(/^[a-z0-9-]+$/)
       .optional()
       .openapi({ type: 'string', pattern: '^[a-z0-9-]+$' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 50 },
       slug: { type: 'string', pattern: '^[a-z0-9-]+$' },
@@ -480,14 +451,14 @@ const CreateTagRequestSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int().optional().openapi({ type: 'integer' }),
-    limit: z.int().optional().openapi({ type: 'integer' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    totalPages: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    limit: z.int().openapi({ type: 'integer' }),
+    total: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer' },
       limit: { type: 'integer' },
@@ -501,13 +472,12 @@ const PostListResponseSchema = z
   .object({
     data: z
       .array(PostSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -519,13 +489,12 @@ const CommentListResponseSchema = z
   .object({
     data: z
       .array(CommentSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -537,13 +506,12 @@ const MediaListResponseSchema = z
   .object({
     data: z
       .array(MediaSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Media' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -553,12 +521,12 @@ const MediaListResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -637,32 +605,84 @@ export const getPostsRoute = createRoute({
         .enum(['draft', 'published', 'scheduled', 'archived'])
         .optional()
         .openapi({
-          param: { name: 'status', in: 'query' },
+          param: {
+            name: 'status',
+            in: 'query',
+            description: 'ステータスでフィルタ',
+            schema: { type: 'string', enum: ['draft', 'published', 'scheduled', 'archived'] },
+          },
           type: 'string',
           enum: ['draft', 'published', 'scheduled', 'archived'],
         }),
       category: z
         .string()
         .optional()
-        .openapi({ param: { name: 'category', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'category',
+            in: 'query',
+            description: 'カテゴリスラッグでフィルタ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       tag: z
         .string()
         .optional()
-        .openapi({ param: { name: 'tag', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'tag',
+            in: 'query',
+            description: 'タグスラッグでフィルタ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       author: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'author', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: {
+            name: 'author',
+            in: 'query',
+            description: '著者IDでフィルタ',
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
       search: z
         .string()
         .optional()
-        .openapi({ param: { name: 'search', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'search',
+            in: 'query',
+            description: 'タイトル・本文を検索',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       sort: z
         .enum(['publishedAt:desc', 'publishedAt:asc', 'title:asc', 'title:desc', 'viewCount:desc'])
         .default('publishedAt:desc')
         .optional()
         .openapi({
-          param: { name: 'sort', in: 'query' },
+          param: {
+            name: 'sort',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: [
+                'publishedAt:desc',
+                'publishedAt:asc',
+                'title:asc',
+                'title:desc',
+                'viewCount:desc',
+              ],
+              default: 'publishedAt:desc',
+            },
+          },
           type: 'string',
           enum: [
             'publishedAt:desc',
@@ -751,7 +771,16 @@ export const getPostsSlugSlugRoute = createRoute({
     params: z.object({
       slug: z
         .string()
-        .openapi({ param: { name: 'slug', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'slug',
+            in: 'path',
+            required: true,
+            description: '記事スラッグ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -781,7 +810,6 @@ export const postPostsPostIdPublishRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -864,7 +892,12 @@ export const deleteCommentsCommentIdRoute = createRoute({
       commentId: z
         .uuid()
         .openapi({
-          param: { name: 'commentId', in: 'path', required: true },
+          param: {
+            name: 'commentId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -885,7 +918,12 @@ export const postCommentsCommentIdApproveRoute = createRoute({
       commentId: z
         .uuid()
         .openapi({
-          param: { name: 'commentId', in: 'path', required: true },
+          param: {
+            name: 'commentId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -949,7 +987,12 @@ export const getCategoriesCategoryIdRoute = createRoute({
       categoryId: z
         .uuid()
         .openapi({
-          param: { name: 'categoryId', in: 'path', required: true },
+          param: {
+            name: 'categoryId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -994,7 +1037,12 @@ export const deleteCategoriesCategoryIdRoute = createRoute({
       categoryId: z
         .uuid()
         .openapi({
-          param: { name: 'categoryId', in: 'path', required: true },
+          param: {
+            name: 'categoryId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1015,7 +1063,10 @@ export const getTagsRoute = createRoute({
       search: z
         .string()
         .optional()
-        .openapi({ param: { name: 'search', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'search', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1063,7 +1114,12 @@ export const getMediaRoute = createRoute({
         .enum(['image', 'video', 'audio', 'document'])
         .optional()
         .openapi({
-          param: { name: 'type', in: 'query' },
+          param: {
+            name: 'type',
+            in: 'query',
+            description: 'メディアタイプでフィルタ',
+            schema: { type: 'string', enum: ['image', 'video', 'audio', 'document'] },
+          },
           type: 'string',
           enum: ['image', 'video', 'audio', 'document'],
         }),
@@ -1091,13 +1147,13 @@ export const postMediaRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              file: z.file().openapi({ type: 'string', format: 'binary' }),
               altText: z.string().optional().openapi({ type: 'string' }),
               caption: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['file'],
               properties: {
                 file: { type: 'string', format: 'binary' },
                 altText: { type: 'string' },
@@ -1131,7 +1187,12 @@ export const getMediaMediaIdRoute = createRoute({
       mediaId: z
         .uuid()
         .openapi({
-          param: { name: 'mediaId', in: 'path', required: true },
+          param: {
+            name: 'mediaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1161,7 +1222,6 @@ export const putMediaMediaIdRoute = createRoute({
               caption: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { altText: { type: 'string' }, caption: { type: 'string' } },
@@ -1189,7 +1249,12 @@ export const deleteMediaMediaIdRoute = createRoute({
       mediaId: z
         .uuid()
         .openapi({
-          param: { name: 'mediaId', in: 'path', required: true },
+          param: {
+            name: 'mediaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1231,7 +1296,12 @@ export const getAuthorsAuthorIdRoute = createRoute({
       authorId: z
         .uuid()
         .openapi({
-          param: { name: 'authorId', in: 'path', required: true },
+          param: {
+            name: 'authorId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

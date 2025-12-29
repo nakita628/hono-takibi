@@ -202,7 +202,6 @@ const CustomFormatModelSchema = z
     nullableInt32Value: NullableInt32Schema,
     nullableShortCode: NullableShortCodeSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -220,6 +219,14 @@ const CustomFormatModelSchema = z
       nullableInt32Value: { $ref: '#/components/schemas/NullableInt32' },
       nullableShortCode: { $ref: '#/components/schemas/NullableShortCode' },
     },
+    required: [
+      'int32Value',
+      'int64Value',
+      'bigIntValue',
+      'float32Value',
+      'float64Value',
+      'jwtValue',
+    ],
   })
   .openapi('CustomFormatModel')
 

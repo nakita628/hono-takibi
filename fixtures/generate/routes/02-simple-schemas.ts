@@ -2,14 +2,14 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     name: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'email', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       email: { type: 'string', format: 'email' },
@@ -21,12 +21,12 @@ const UserSchema = z
 
 const CreateUserRequestSchema = z
   .object({
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     name: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['email'],
     properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
   })
   .openapi('CreateUserRequest')
@@ -71,7 +71,12 @@ export const getUsersUserIdRoute = createRoute({
       userId: z
         .uuid()
         .openapi({
-          param: { name: 'userId', in: 'path', required: true },
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

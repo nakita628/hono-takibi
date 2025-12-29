@@ -2,12 +2,10 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ResourceSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
+    id: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().optional().openapi({ type: 'string' }),
     data: z.object({}).openapi({ type: 'object' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { id: { type: 'string' }, name: { type: 'string' }, data: { type: 'object' } },
@@ -108,7 +106,12 @@ export const getResourcesRoute = createRoute({
         .uuid()
         .optional()
         .openapi({
-          param: { name: 'X-Request-ID', in: 'header', required: false },
+          param: {
+            name: 'X-Request-ID',
+            in: 'header',
+            required: false,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -135,14 +138,24 @@ export const getResourcesIdRoute = createRoute({
   operationId: 'getResource',
   request: {
     params: z.object({
-      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true }, type: 'string' }),
+      id: z
+        .string()
+        .openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
     headers: z.object({
       'If-None-Match': z
         .string()
         .optional()
         .openapi({
-          param: { name: 'If-None-Match', in: 'header', required: false },
+          param: {
+            name: 'If-None-Match',
+            in: 'header',
+            required: false,
+            schema: { type: 'string' },
+          },
           type: 'string',
         }),
     }),
@@ -176,7 +189,12 @@ export const getDownloadIdRoute = createRoute({
   operationId: 'downloadFile',
   request: {
     params: z.object({
-      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true }, type: 'string' }),
+      id: z
+        .string()
+        .openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {

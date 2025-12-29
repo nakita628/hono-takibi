@@ -1,22 +1,19 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const ErrorSchema = z
-  .object({ message: z.string().optional().openapi({ type: 'string' }) })
-  .optional()
-  .openapi({ type: 'object', properties: { message: { type: 'string' } } })
+  .object({ message: z.string().openapi({ type: 'string' }) })
+  .openapi({ type: 'object', properties: { message: { type: 'string' } }, required: ['message'] })
   .openapi('Error')
 
 const PostSchema = z
   .object({
     id: z
       .uuid()
-      .optional()
       .openapi({ type: 'string', format: 'uuid', description: 'Unique identifier of the post' }),
     post: z
       .string()
       .min(1)
       .max(140)
-      .optional()
       .openapi({
         type: 'string',
         description: 'Content of the post',
@@ -25,7 +22,6 @@ const PostSchema = z
       }),
     createdAt: z.iso
       .datetime()
-      .optional()
       .openapi({
         type: 'string',
         format: 'date-time',
@@ -33,14 +29,12 @@ const PostSchema = z
       }),
     updatedAt: z.iso
       .datetime()
-      .optional()
       .openapi({
         type: 'string',
         format: 'date-time',
         description: 'Timestamp when the post was last updated',
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -57,6 +51,7 @@ const PostSchema = z
         description: 'Timestamp when the post was last updated',
       },
     },
+    required: ['id', 'post', 'createdAt', 'updatedAt'],
   })
   .openapi('Post')
 
@@ -72,13 +67,11 @@ export const getRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              message: z.string().optional().openapi({ type: 'string', example: 'Hono🔥' }),
-            })
-            .optional()
+            .object({ message: z.string().openapi({ type: 'string', example: 'Hono🔥' }) })
             .openapi({
               type: 'object',
               properties: { message: { type: 'string', example: 'Hono🔥' } },
+              required: ['message'],
             }),
         },
       },
@@ -100,7 +93,13 @@ export const getPostsRoute = createRoute({
         .min(0)
         .default(1)
         .openapi({
-          param: { name: 'page', in: 'query', required: true },
+          param: {
+            in: 'query',
+            name: 'page',
+            required: true,
+            schema: { type: 'integer', minimum: 0, default: 1, example: 1 },
+            description: 'The page number to retrieve. Must be a positive integer. Defaults to 1.',
+          },
           type: 'integer',
           minimum: 0,
           default: 1,
@@ -111,7 +110,14 @@ export const getPostsRoute = createRoute({
         .min(0)
         .default(10)
         .openapi({
-          param: { name: 'rows', in: 'query', required: true },
+          param: {
+            in: 'query',
+            name: 'rows',
+            required: true,
+            schema: { type: 'integer', minimum: 0, default: 10, example: 10 },
+            description:
+              'The number of posts per page. Must be a positive integer. Defaults to 10.',
+          },
           type: 'integer',
           minimum: 0,
           default: 10,
@@ -158,7 +164,6 @@ export const postPostsRoute = createRoute({
                 .string()
                 .min(1)
                 .max(140)
-                .optional()
                 .openapi({
                   type: 'string',
                   description: 'Content of the post',
@@ -166,7 +171,6 @@ export const postPostsRoute = createRoute({
                   maxLength: 140,
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -177,6 +181,7 @@ export const postPostsRoute = createRoute({
                   maxLength: 140,
                 },
               },
+              required: ['post'],
             }),
           example: { post: 'This is my first post!' },
         },
@@ -216,7 +221,6 @@ export const putPostsIdRoute = createRoute({
                 .string()
                 .min(1)
                 .max(140)
-                .optional()
                 .openapi({
                   type: 'string',
                   description: 'Updated content for the post',
@@ -224,7 +228,6 @@ export const putPostsIdRoute = createRoute({
                   maxLength: 140,
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -235,6 +238,7 @@ export const putPostsIdRoute = createRoute({
                   maxLength: 140,
                 },
               },
+              required: ['post'],
             }),
           example: { post: 'Updated post content.' },
         },
@@ -266,7 +270,17 @@ export const deletePostsIdRoute = createRoute({
       id: z
         .uuid()
         .openapi({
-          param: { name: 'id', in: 'path', required: true },
+          param: {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+              example: '123e4567-e89b-12d3-a456-426614174000',
+            },
+            description: 'Unique identifier of the post.',
+          },
           type: 'string',
           format: 'uuid',
           example: '123e4567-e89b-12d3-a456-426614174000',

@@ -3,7 +3,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 const JsonSchema2020FeaturesSchema = z
   .object({
     prefixItems: z
-      .array(z.null().nullable().openapi({ type: 'null' }))
+      .array(z.null().nullable().optional().openapi({ type: 'null' }))
       .optional()
       .openapi({
         type: 'array',
@@ -12,6 +12,7 @@ const JsonSchema2020FeaturesSchema = z
       }),
     unevaluatedItems: z
       .array(z.any())
+      .optional()
       .openapi({ type: 'array', prefixItems: [{ type: 'string' }], unevaluatedItems: false }),
     unevaluatedProperties: z
       .object({ known: z.string().openapi({ type: 'string' }) })
@@ -48,22 +49,26 @@ const JsonSchema2020FeaturesSchema = z
     propertyNames: z.object({}).openapi({ type: 'object', propertyNames: { pattern: '^[a-z]+$' } }),
     minContains: z
       .array(z.any())
+      .optional()
       .openapi({ type: 'array', contains: { type: 'string' }, minContains: 2 }),
     maxContains: z
       .array(z.any())
+      .optional()
       .openapi({ type: 'array', contains: { type: 'number' }, maxContains: 5 }),
-    contentEncoding: z.string().openapi({ type: 'string', contentEncoding: 'base64' }),
-    contentMediaType: z.string().openapi({ type: 'string', contentMediaType: 'application/json' }),
+    contentEncoding: z.string().optional().openapi({ type: 'string', contentEncoding: 'base64' }),
+    contentMediaType: z
+      .string()
+      .optional()
+      .openapi({ type: 'string', contentMediaType: 'application/json' }),
     contentSchema: z
       .string()
+      .optional()
       .openapi({
         type: 'string',
         contentMediaType: 'application/json',
         contentSchema: { type: 'object', properties: { nested: { type: 'string' } } },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: 'https://example.com/schemas/features',
@@ -115,14 +120,14 @@ const JsonSchema2020FeaturesSchema = z
 
 const ItemSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    metadata: z.looseObject({}).optional().openapi({ type: 'object' }),
+    metadata: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -139,14 +144,14 @@ const ItemSchema = z
 
 const ItemCreatedEventSchema = z
   .object({
-    event: z.literal('item.created').optional(),
+    event: z.literal('item.created').openapi({ const: 'item.created' }),
     data: ItemSchema,
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    metadata: z.object({}).optional().openapi({ type: 'object' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    metadata: z.object({}).openapi({ type: 'object' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['event', 'data', 'timestamp'],
     properties: {
       event: { const: 'item.created' },
       data: { $ref: '#/components/schemas/Item' },
@@ -158,18 +163,18 @@ const ItemCreatedEventSchema = z
 
 const ItemUpdatedEventSchema = z
   .object({
-    event: z.literal('item.updated').optional(),
+    event: z.literal('item.updated').openapi({ const: 'item.updated' }),
     data: ItemSchema,
     previousData: ItemSchema,
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     changedFields: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['event', 'data', 'timestamp'],
     properties: {
       event: { const: 'item.updated' },
       data: { $ref: '#/components/schemas/Item' },
@@ -182,13 +187,13 @@ const ItemUpdatedEventSchema = z
 
 const ItemDeletedEventSchema = z
   .object({
-    event: z.literal('item.deleted').optional(),
-    itemId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    event: z.literal('item.deleted').openapi({ const: 'item.deleted' }),
+    itemId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['event', 'itemId', 'timestamp'],
     properties: {
       event: { const: 'item.deleted' },
       itemId: { type: 'string', format: 'uuid' },
@@ -199,9 +204,17 @@ const ItemDeletedEventSchema = z
 
 const XmlFeaturesSchema = z
   .object({
-    attribute: z.string().openapi({ type: 'string', xml: { attribute: true, name: 'attr' } }),
+    attribute: z
+      .string()
+      .optional()
+      .openapi({ type: 'string', xml: { attribute: true, name: 'attr' } }),
     wrapped: z
-      .array(z.string().openapi({ type: 'string', xml: { name: 'item' } }))
+      .array(
+        z
+          .string()
+          .optional()
+          .openapi({ type: 'string', xml: { name: 'item' } }),
+      )
       .optional()
       .openapi({
         type: 'array',
@@ -217,8 +230,6 @@ const XmlFeaturesSchema = z
         properties: { value: { type: 'string' } },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     xml: { name: 'root', namespace: 'http://example.com/schema', prefix: 'ex' },
@@ -240,12 +251,12 @@ const XmlFeaturesSchema = z
 
 const PetSchema = z
   .object({
-    petType: z.string().optional().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    petType: z.string().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['petType', 'name'],
     properties: { petType: { type: 'string' }, name: { type: 'string' } },
   })
   .openapi('Pet')
@@ -255,12 +266,11 @@ const BirdSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('bird'),
+        petType: z.literal('bird').openapi({ const: 'bird' }),
         species: z.string().openapi({ type: 'string' }),
         canFly: z.boolean().openapi({ type: 'boolean' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -291,12 +301,11 @@ const CatSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('cat'),
+        petType: z.literal('cat').openapi({ const: 'cat' }),
         breed: z.string().openapi({ type: 'string' }),
         meowPitch: z.int().openapi({ type: 'integer' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -327,12 +336,11 @@ const DogSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('dog'),
+        petType: z.literal('dog').openapi({ const: 'dog' }),
         breed: z.string().openapi({ type: 'string' }),
         barkVolume: z.int().openapi({ type: 'integer' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -367,17 +375,28 @@ const DiscriminatedUnionSchema = z
       { $ref: '#/components/schemas/Cat' },
       { $ref: '#/components/schemas/Bird' },
     ],
+    discriminator: {
+      propertyName: 'petType',
+      mapping: {
+        dog: '#/components/schemas/Dog',
+        cat: '#/components/schemas/Cat',
+        bird: '#/components/schemas/Bird',
+        canine: '#/components/schemas/Dog',
+        feline: '#/components/schemas/Cat',
+        avian: '#/components/schemas/Bird',
+      },
+    },
   })
   .openapi('DiscriminatedUnion')
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -453,12 +472,10 @@ export const postGraphqlRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              query: z.string().openapi({ type: 'string' }),
+              query: z.string().optional().openapi({ type: 'string' }),
               variables: z.object({}).openapi({ type: 'object' }),
-              operationName: z.string().openapi({ type: 'string' }),
+              operationName: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -484,8 +501,6 @@ export const postGraphqlRoute = createRoute({
                 .optional()
                 .openapi({ type: 'array', items: { type: 'object' } }),
             })
-            .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {

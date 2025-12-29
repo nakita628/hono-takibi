@@ -16,17 +16,15 @@ const MoneySchema = z
       .float64()
       .min(0)
       .multipleOf(0.01)
-      .optional()
       .openapi({ type: 'number', format: 'float64', minimum: 0, multipleOf: 0.01 }),
     currency: z
       .string()
       .regex(/^[A-Z]{3}$/)
-      .optional()
       .openapi({ type: 'string', pattern: '^[A-Z]{3}$', example: 'USD' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['amount', 'currency'],
     properties: {
       amount: { type: 'number', format: 'float64', minimum: 0, multipleOf: 0.01 },
       currency: { type: 'string', pattern: '^[A-Z]{3}$', example: 'USD' },
@@ -36,19 +34,15 @@ const MoneySchema = z
 
 const AddressSchema = z
   .object({
-    street: z.string().optional().openapi({ type: 'string' }),
-    city: z.string().optional().openapi({ type: 'string' }),
+    street: z.string().openapi({ type: 'string' }),
+    city: z.string().openapi({ type: 'string' }),
     state: z.string().optional().openapi({ type: 'string' }),
     postalCode: z.string().optional().openapi({ type: 'string' }),
-    country: z
-      .string()
-      .length(2)
-      .optional()
-      .openapi({ type: 'string', minLength: 2, maxLength: 2 }),
+    country: z.string().length(2).openapi({ type: 'string', minLength: 2, maxLength: 2 }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['street', 'city', 'country'],
     properties: {
       street: { type: 'string' },
       city: { type: 'string' },
@@ -61,18 +55,13 @@ const AddressSchema = z
 
 const ProductSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid', readOnly: true }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid', readOnly: true }),
     sku: z
       .string()
       .regex(/^[A-Z]{2}-[0-9]{6}$/)
       .optional()
       .openapi({ type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' }),
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().max(5000).optional().openapi({ type: 'string', maxLength: 5000 }),
     price: MoneySchema,
     category: ProductCategorySchema,
@@ -93,8 +82,7 @@ const ProductSchema = z
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' }, maxItems: 10 }),
     metadata: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     status: z
       .enum(['draft', 'active', 'archived'])
       .default('draft')
@@ -109,9 +97,9 @@ const ProductSchema = z
       .optional()
       .openapi({ type: 'string', format: 'date-time', readOnly: true }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'price', 'category'],
     properties: {
       id: { type: 'string', format: 'uuid', readOnly: true },
       sku: { type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' },
@@ -139,21 +127,20 @@ const ProductSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int32().min(1).optional().openapi({ type: 'integer', format: 'int32', minimum: 1 }),
+    page: z.int32().min(1).openapi({ type: 'integer', format: 'int32', minimum: 1 }),
     limit: z
       .int32()
       .min(1)
       .max(100)
-      .optional()
       .openapi({ type: 'integer', format: 'int32', minimum: 1, maximum: 100 }),
-    total: z.int64().optional().openapi({ type: 'integer', format: 'int64' }),
-    totalPages: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
+    total: z.int64().openapi({ type: 'integer', format: 'int64' }),
+    totalPages: z.int32().openapi({ type: 'integer', format: 'int32' }),
     hasNext: z.boolean().optional().openapi({ type: 'boolean' }),
     hasPrevious: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer', format: 'int32', minimum: 1 },
       limit: { type: 'integer', format: 'int32', minimum: 1, maximum: 100 },
@@ -169,13 +156,12 @@ const ProductListSchema = z
   .object({
     items: z
       .array(ProductSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['items', 'pagination'],
     properties: {
       items: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -190,12 +176,7 @@ const CreateProductInputSchema = z
       .regex(/^[A-Z]{2}-[0-9]{6}$/)
       .optional()
       .openapi({ type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' }),
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
     price: MoneySchema,
     category: ProductCategorySchema,
@@ -214,9 +195,9 @@ const CreateProductInputSchema = z
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'price', 'category'],
     properties: {
       sku: { type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' },
       name: { type: 'string', minLength: 1, maxLength: 200 },
@@ -240,7 +221,6 @@ const UpdateProductInputSchema = z
           .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { status: { type: 'string', enum: ['draft', 'active', 'archived'] } },
@@ -260,14 +240,14 @@ const UpdateProductInputSchema = z
 
 const OrderItemSchema = z
   .object({
-    productId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     productName: z.string().optional().openapi({ type: 'string' }),
-    quantity: z.int32().min(1).optional().openapi({ type: 'integer', format: 'int32', minimum: 1 }),
+    quantity: z.int32().min(1).openapi({ type: 'integer', format: 'int32', minimum: 1 }),
     price: MoneySchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['productId', 'quantity', 'price'],
     properties: {
       productId: { type: 'string', format: 'uuid' },
       productName: { type: 'string' },
@@ -279,16 +259,14 @@ const OrderItemSchema = z
 
 const OrderSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    customerId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    customerId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     items: z
       .array(OrderItemSchema)
       .min(1)
-      .optional()
       .openapi({ type: 'array', minItems: 1, items: { $ref: '#/components/schemas/OrderItem' } }),
     status: z
       .enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
@@ -299,9 +277,9 @@ const OrderSchema = z
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'customerId', 'items', 'status', 'total'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       customerId: { type: 'string', format: 'uuid' },
@@ -325,12 +303,12 @@ const CreateOrderInputSchema = z
       .array(
         z
           .object({
-            productId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-            quantity: z.int().min(1).optional().openapi({ type: 'integer', minimum: 1 }),
+            productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+            quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['productId', 'quantity'],
             properties: {
               productId: { type: 'string', format: 'uuid' },
               quantity: { type: 'integer', minimum: 1 },
@@ -338,7 +316,6 @@ const CreateOrderInputSchema = z
           }),
       )
       .min(1)
-      .optional()
       .openapi({
         type: 'array',
         minItems: 1,
@@ -358,9 +335,9 @@ const CreateOrderInputSchema = z
       .optional()
       .openapi({ type: 'string', format: 'uri', description: 'URL for order status webhooks' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['items', 'shippingAddress'],
     properties: {
       items: {
         type: 'array',
@@ -383,8 +360,8 @@ const CreateOrderInputSchema = z
 
 const WebhookSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     events: z
       .array(
         z
@@ -397,7 +374,6 @@ const WebhookSchema = z
             'order.shipped',
             'order.delivered',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -433,9 +409,9 @@ const WebhookSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['active', 'inactive'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'url', 'events'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       url: { type: 'string', format: 'uri' },
@@ -462,15 +438,15 @@ const WebhookSchema = z
 
 const WebhookPayloadSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    event: z.string().optional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    event: z.string().openapi({ type: 'string' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    data: z.object({}).openapi({ type: 'object' }),
     signature: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'event', 'timestamp', 'data'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       event: { type: 'string' },
@@ -488,7 +464,6 @@ const ErrorDetailSchema = z
     target: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -501,8 +476,8 @@ const ErrorDetailSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
     target: z.string().optional().openapi({ type: 'string' }),
     details: z
       .array(ErrorDetailSchema)
@@ -510,9 +485,9 @@ const ErrorSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ErrorDetail' } }),
     traceId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: {
       code: { type: 'string' },
       message: { type: 'string' },
@@ -700,16 +675,16 @@ const CreateWebhookRequestBody = {
     'application/json': {
       schema: z
         .object({
-          url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+          url: z.url().openapi({ type: 'string', format: 'uri' }),
           events: z
-            .array(z.string().optional().openapi({ type: 'string' }))
+            .array(z.string().openapi({ type: 'string' }))
             .optional()
             .openapi({ type: 'array', items: { type: 'string' } }),
           secret: z.string().optional().openapi({ type: 'string' }),
         })
-        .optional()
         .openapi({
           type: 'object',
+          required: ['url', 'events'],
           properties: {
             url: { type: 'string', format: 'uri' },
             events: { type: 'array', items: { type: 'string' } },
@@ -964,24 +939,20 @@ const OrderStatusCallbackCallbacks = {
           'application/json': {
             schema: z
               .object({
-                orderId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+                orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
                 status: z
                   .enum(['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
-                  .optional()
                   .openapi({
                     type: 'string',
                     enum: ['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
                   }),
                 previousStatus: z.string().optional().openapi({ type: 'string' }),
-                timestamp: z.iso
-                  .datetime()
-                  .optional()
-                  .openapi({ type: 'string', format: 'date-time' }),
+                timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
                 trackingNumber: z.string().optional().openapi({ type: 'string' }),
               })
-              .optional()
               .openapi({
                 type: 'object',
+                required: ['orderId', 'status', 'timestamp'],
                 properties: {
                   orderId: { type: 'string', format: 'uuid' },
                   status: {
@@ -1014,10 +985,9 @@ const PaymentCallbackCallbacks = {
           'application/json': {
             schema: z
               .object({
-                orderId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+                orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
                 paymentStatus: z
                   .enum(['pending', 'completed', 'failed', 'refunded'])
-                  .optional()
                   .openapi({
                     type: 'string',
                     enum: ['pending', 'completed', 'failed', 'refunded'],
@@ -1025,9 +995,9 @@ const PaymentCallbackCallbacks = {
                 amount: MoneySchema,
                 transactionId: z.string().optional().openapi({ type: 'string' }),
               })
-              .optional()
               .openapi({
                 type: 'object',
+                required: ['orderId', 'paymentStatus'],
                 properties: {
                   orderId: { type: 'string', format: 'uuid' },
                   paymentStatus: {

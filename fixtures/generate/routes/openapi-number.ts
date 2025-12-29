@@ -15,47 +15,33 @@ export const getNumberRoute = createRoute({
               gt5_number: z
                 .number()
                 .gt(5)
-                .optional()
                 .openapi({ type: 'number', minimum: 5, exclusiveMinimum: true }),
-              gte5_number: z.number().min(5).optional().openapi({ type: 'number', minimum: 5 }),
+              gte5_number: z.number().min(5).openapi({ type: 'number', minimum: 5 }),
               lt5_number: z
                 .number()
                 .lt(5)
-                .optional()
                 .openapi({ type: 'number', maximum: 5, exclusiveMaximum: true }),
-              lte5_number: z.number().max(5).optional().openapi({ type: 'number', maximum: 5 }),
-              int_number: z.int().optional().openapi({ type: 'integer' }),
+              lte5_number: z.number().max(5).openapi({ type: 'number', maximum: 5 }),
+              int_number: z.int().openapi({ type: 'integer' }),
               positive_number: z
                 .number()
                 .positive()
-                .optional()
                 .openapi({ type: 'number', minimum: 0, exclusiveMinimum: true }),
-              nonnegative_number: z
-                .number()
-                .min(0)
-                .optional()
-                .openapi({ type: 'number', minimum: 0 }),
+              nonnegative_number: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
               negative_number: z
                 .number()
                 .negative()
-                .optional()
                 .openapi({ type: 'number', maximum: 0, exclusiveMaximum: true }),
-              nonpositive_number: z
-                .number()
-                .max(0)
-                .optional()
-                .openapi({ type: 'number', maximum: 0 }),
-              multipleOf5_number: z.int().optional().openapi({ type: 'integer' }),
-              finite_number: z.number().optional().openapi({ type: 'number' }),
+              nonpositive_number: z.number().max(0).openapi({ type: 'number', maximum: 0 }),
+              multipleOf5_number: z.int().openapi({ type: 'integer' }),
+              finite_number: z.number().openapi({ type: 'number' }),
               safe_number: z
                 .number()
                 .min(-9007199254740991)
                 .max(9007199254740991)
-                .optional()
                 .openapi({ type: 'number', minimum: -9007199254740991, maximum: 9007199254740991 }),
-              message_number: z.number().max(5).optional().openapi({ type: 'number', maximum: 5 }),
+              message_number: z.number().max(5).openapi({ type: 'number', maximum: 5 }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -77,6 +63,21 @@ export const getNumberRoute = createRoute({
                 },
                 message_number: { type: 'number', maximum: 5 },
               },
+              required: [
+                'gt5_number',
+                'gte5_number',
+                'lt5_number',
+                'lte5_number',
+                'int_number',
+                'positive_number',
+                'nonnegative_number',
+                'negative_number',
+                'nonpositive_number',
+                'multipleOf5_number',
+                'finite_number',
+                'safe_number',
+                'message_number',
+              ],
             }),
         },
       },

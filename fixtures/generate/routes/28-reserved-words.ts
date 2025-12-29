@@ -10,7 +10,6 @@ const classSchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -24,14 +23,12 @@ const classSchema = z
 const interfaceSchema = z
   .object({ name: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
   .openapi('interface')
 
 const typeSchema = z
   .object({ type: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { type: { type: 'string' } } })
   .openapi('type')
 
@@ -41,7 +38,6 @@ const functionSchema = z
     return: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { name: { type: 'string' }, return: { type: 'string' } } })
   .openapi('function')
 
@@ -53,28 +49,23 @@ const enumSchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { values: { type: 'array', items: { type: 'string' } } } })
   .openapi('enum')
 
 const constSchema = z
   .object({ value: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('const')
 
 const nullSchema = z
   .object({ isNull: z.boolean().openapi({ type: 'boolean' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { isNull: { type: 'boolean' } } })
   .openapi('null')
 
 const ObjectSchema = z
   .object({ data: z.object({}).openapi({ type: 'object' }) })
-  .partial()
-  .optional()
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
   .openapi('Object')
 
@@ -86,56 +77,48 @@ const ArraySchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { items: { type: 'array', items: { type: 'string' } } } })
   .openapi('Array')
 
 const StringSchema = z
   .object({ value: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('String')
 
 const NumberSchema = z
   .object({ value: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('Number')
 
 const BooleanSchema = z
   .object({ value: z.boolean().openapi({ type: 'boolean' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'boolean' } } })
   .openapi('Boolean')
 
 const DateSchema = z
   .object({ timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { timestamp: { type: 'string', format: 'date-time' } } })
   .openapi('Date')
 
 const ErrorSchema = z
   .object({ message: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { message: { type: 'string' } } })
   .openapi('Error')
 
 const PromiseSchema = z
   .object({ status: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { status: { type: 'string' } } })
   .openapi('Promise')
 
 const MapSchema = z
   .record(z.string(), z.string().optional().openapi({ type: 'string' }))
-  .optional()
-  .openapi({ type: 'object' })
+  .openapi({ type: 'object', additionalProperties: { type: 'string' } })
   .openapi('Map')
 
 const SetSchema = z
@@ -146,7 +129,6 @@ const SetSchema = z
       .openapi({ type: 'array', uniqueItems: true, items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { values: { type: 'array', uniqueItems: true, items: { type: 'string' } } },
@@ -156,57 +138,50 @@ const SetSchema = z
 const UserSchema = z
   .object({ id: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { id: { type: 'string' } } })
   .openapi('User')
 
 const userSchema = z
   .object({ id: z.int().openapi({ type: 'integer' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
   .openapi('user')
 
 const USERSchema = z
   .object({ id: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { id: { type: 'number' } } })
   .openapi('USER')
 
 const MyModelSchema = z
   .object({ value: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('MyModel')
 
 const myModelSchema = z
   .object({ value: z.int().openapi({ type: 'integer' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'integer' } } })
   .openapi('myModel')
 
 const MYMODELSchema = z
   .object({ value: z.boolean().openapi({ type: 'boolean' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'boolean' } } })
   .openapi('MYMODEL')
 
 const mymodelSchema = z
   .object({ value: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('mymodel')
 
 const ReservedPropertiesSchema = z
   .object({
-    class: z.string().optional().openapi({ type: 'string' }),
-    type: z.string().optional().openapi({ type: 'string' }),
-    default: z.string().optional().openapi({ type: 'string' }),
+    class: z.string().openapi({ type: 'string' }),
+    type: z.string().openapi({ type: 'string' }),
+    default: z.string().openapi({ type: 'string' }),
     null: z.string().optional().openapi({ type: 'string' }),
     true: z.string().optional().openapi({ type: 'string' }),
     false: z.string().optional().openapi({ type: 'string' }),
@@ -280,9 +255,9 @@ const ReservedPropertiesSchema = z
     toString: z.string().optional().openapi({ type: 'string' }),
     valueOf: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['class', 'type', 'default', null, true, false],
     properties: {
       class: { type: 'string' },
       type: { type: 'string' },
@@ -404,7 +379,6 @@ const PythonReservedSchema = z
     await: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -478,7 +452,6 @@ const GoReservedSchema = z
     var: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -553,7 +526,6 @@ const RustReservedSchema = z
     while: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -998,7 +970,6 @@ export const getNameCollisionsRoute = createRoute({
               Id: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {

@@ -24,6 +24,11 @@ export function schemas(
       const zSchema = zodToOpenAPI(schema)
       // 4.3 wrap self-referencing schemas with z.lazy() to handle circular dependencies
       const selfToken = `${schemaName}Schema`
+
+      console.log('--------------------------------')
+      console.log(selfToken)
+      console.log('--------------------------------')
+
       const zExpr = zSchema.includes(selfToken) ? `z.lazy(() => ${zSchema})` : zSchema
       // 4.4 generate zod schema definition
       return zodToOpenAPISchema(schemaName, zExpr, exportSchemas, exportSchemasTypes)

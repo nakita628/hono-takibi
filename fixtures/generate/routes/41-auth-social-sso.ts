@@ -2,13 +2,12 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ProviderInfoSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string', description: '表示名' }),
+    id: z.string().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string', description: '表示名' }),
     type: z
       .enum(['oauth2', 'oidc', 'saml'])
-      .optional()
       .openapi({ type: 'string', enum: ['oauth2', 'oidc', 'saml'] }),
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    enabled: z.boolean().openapi({ type: 'boolean' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     buttonColor: z
       .string()
@@ -21,9 +20,9 @@ const ProviderInfoSchema = z
       .optional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'type', 'enabled'],
     properties: {
       id: { type: 'string' },
       name: { type: 'string', description: '表示名' },
@@ -38,13 +37,12 @@ const ProviderInfoSchema = z
 
 const ProviderConfigSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     type: z
       .enum(['oauth2', 'oidc', 'saml'])
-      .optional()
       .openapi({ type: 'string', enum: ['oauth2', 'oidc', 'saml'] }),
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    enabled: z.boolean().openapi({ type: 'boolean' }),
     clientId: z.string().optional().openapi({ type: 'string' }),
     authorizationUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
@@ -61,7 +59,6 @@ const ProviderConfigSchema = z
         picture: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -91,12 +88,12 @@ const ProviderConfigSchema = z
       }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     buttonColor: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'type', 'enabled', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -137,18 +134,10 @@ const ProviderConfigSchema = z
 
 const CreateProviderRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-    type: z
-      .enum(['oauth2', 'oidc'])
-      .optional()
-      .openapi({ type: 'string', enum: ['oauth2', 'oidc'] }),
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    clientSecret: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    type: z.enum(['oauth2', 'oidc']).openapi({ type: 'string', enum: ['oauth2', 'oidc'] }),
+    clientId: z.string().openapi({ type: 'string' }),
+    clientSecret: z.string().openapi({ type: 'string' }),
     authorizationUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     userInfoUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
@@ -156,7 +145,7 @@ const CreateProviderRequestSchema = z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).optional().openapi({ type: 'object' }),
+    attributeMapping: z.object({}).openapi({ type: 'object' }),
     allowedDomains: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
@@ -174,9 +163,9 @@ const CreateProviderRequestSchema = z
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     buttonColor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type', 'clientId', 'clientSecret'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 100 },
       type: { type: 'string', enum: ['oauth2', 'oidc'] },
@@ -198,27 +187,25 @@ const CreateProviderRequestSchema = z
 
 const UpdateProviderRequestSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
-    clientId: z.string().openapi({ type: 'string' }),
-    clientSecret: z.string().openapi({ type: 'string' }),
-    authorizationUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-    tokenUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-    userInfoUrl: z.url().openapi({ type: 'string', format: 'uri' }),
+    name: z.string().optional().openapi({ type: 'string' }),
+    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    clientId: z.string().optional().openapi({ type: 'string' }),
+    clientSecret: z.string().optional().openapi({ type: 'string' }),
+    authorizationUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    userInfoUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     attributeMapping: z.object({}).openapi({ type: 'object' }),
     allowedDomains: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    autoCreateUser: z.boolean().openapi({ type: 'boolean' }),
-    autoLinkUser: z.boolean().openapi({ type: 'boolean' }),
+    autoCreateUser: z.boolean().optional().openapi({ type: 'boolean' }),
+    autoLinkUser: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -248,7 +235,6 @@ const SocialAuthResultSchema = z
         picture: z.url().openapi({ type: 'string', format: 'uri' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -258,16 +244,16 @@ const SocialAuthResultSchema = z
           picture: { type: 'string', format: 'uri' },
         },
       }),
-    isNewUser: z.boolean().optional().openapi({ type: 'boolean' }),
+    isNewUser: z.boolean().openapi({ type: 'boolean' }),
     accessToken: z.string().optional().openapi({ type: 'string' }),
     refreshToken: z.string().optional().openapi({ type: 'string' }),
     expiresIn: z.int().optional().openapi({ type: 'integer' }),
     provider: z.string().optional().openapi({ type: 'string' }),
     providerUserId: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['user', 'isNewUser'],
     properties: {
       user: {
         type: 'object',
@@ -304,7 +290,6 @@ const SocialAuthErrorSchema = z
         'user_exists',
         'linking_failed',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -321,12 +306,12 @@ const SocialAuthErrorSchema = z
           'linking_failed',
         ],
       }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
     provider: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['error', 'message'],
     properties: {
       error: {
         type: 'string',
@@ -352,18 +337,18 @@ const SocialAuthErrorSchema = z
 
 const LinkedAccountSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    provider: z.string().optional().openapi({ type: 'string' }),
-    providerUserId: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    provider: z.string().openapi({ type: 'string' }),
+    providerUserId: z.string().openapi({ type: 'string' }),
     providerEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
     providerName: z.string().optional().openapi({ type: 'string' }),
     providerPicture: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'provider', 'providerUserId', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       provider: { type: 'string' },
@@ -379,20 +364,18 @@ const LinkedAccountSchema = z
 
 const OIDCConfigSchema = z
   .object({
-    issuer: z.url().openapi({ type: 'string', format: 'uri' }),
-    clientId: z.string().openapi({ type: 'string' }),
-    authorizationEndpoint: z.url().openapi({ type: 'string', format: 'uri' }),
-    tokenEndpoint: z.url().openapi({ type: 'string', format: 'uri' }),
-    userInfoEndpoint: z.url().openapi({ type: 'string', format: 'uri' }),
-    jwksUri: z.url().openapi({ type: 'string', format: 'uri' }),
+    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    clientId: z.string().optional().openapi({ type: 'string' }),
+    authorizationEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    tokenEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     attributeMapping: z.object({}).openapi({ type: 'object' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -410,18 +393,29 @@ const OIDCConfigSchema = z
 
 const SAMLConfigSchema = z
   .object({
-    entityId: z.string().openapi({ type: 'string', description: 'IdP Entity ID' }),
-    ssoUrl: z.url().openapi({ type: 'string', format: 'uri', description: 'IdP SSO URL' }),
-    sloUrl: z.url().openapi({ type: 'string', format: 'uri', description: 'IdP SLO URL' }),
-    certificate: z.string().openapi({ type: 'string', description: 'IdP 証明書（PEM形式）' }),
-    signRequest: z.boolean().openapi({ type: 'boolean' }),
+    entityId: z.string().optional().openapi({ type: 'string', description: 'IdP Entity ID' }),
+    ssoUrl: z
+      .url()
+      .optional()
+      .openapi({ type: 'string', format: 'uri', description: 'IdP SSO URL' }),
+    sloUrl: z
+      .url()
+      .optional()
+      .openapi({ type: 'string', format: 'uri', description: 'IdP SLO URL' }),
+    certificate: z
+      .string()
+      .optional()
+      .openapi({ type: 'string', description: 'IdP 証明書（PEM形式）' }),
+    signRequest: z.boolean().optional().openapi({ type: 'boolean' }),
     signatureAlgorithm: z
       .enum(['RSA-SHA256', 'RSA-SHA512'])
+      .optional()
       .openapi({ type: 'string', enum: ['RSA-SHA256', 'RSA-SHA512'] }),
     digestAlgorithm: z
       .enum(['SHA256', 'SHA512'])
+      .optional()
       .openapi({ type: 'string', enum: ['SHA256', 'SHA512'] }),
-    nameIdFormat: z.string().openapi({ type: 'string' }),
+    nameIdFormat: z.string().optional().openapi({ type: 'string' }),
     attributeMapping: z
       .object({
         email: z.string().openapi({ type: 'string' }),
@@ -442,8 +436,6 @@ const SAMLConfigSchema = z
         },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -471,21 +463,18 @@ const SAMLConfigSchema = z
 
 const EnterpriseSSOConfigSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string', description: '組織名' }),
-    type: z
-      .enum(['saml', 'oidc'])
-      .optional()
-      .openapi({ type: 'string', enum: ['saml', 'oidc'] }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string', description: '組織名' }),
+    type: z.enum(['saml', 'oidc']).openapi({ type: 'string', enum: ['saml', 'oidc'] }),
     domains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({
         type: 'array',
         items: { type: 'string' },
         description: '関連付けられたメールドメイン',
       }),
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    enabled: z.boolean().openapi({ type: 'boolean' }),
     samlConfig: SAMLConfigSchema,
     oidcConfig: OIDCConfigSchema,
     userProvisioning: z
@@ -495,7 +484,6 @@ const EnterpriseSSOConfigSchema = z
         defaultRole: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -504,12 +492,12 @@ const EnterpriseSSOConfigSchema = z
           defaultRole: { type: 'string' },
         },
       }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'type', 'domains', 'enabled', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string', description: '組織名' },
@@ -538,28 +526,20 @@ const EnterpriseSSOConfigSchema = z
 
 const CreateEnterpriseSSORequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    type: z
-      .enum(['saml', 'oidc'])
-      .optional()
-      .openapi({ type: 'string', enum: ['saml', 'oidc'] }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    type: z.enum(['saml', 'oidc']).openapi({ type: 'string', enum: ['saml', 'oidc'] }),
     domains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .min(1)
       .optional()
       .openapi({ type: 'array', minItems: 1, items: { type: 'string' } }),
     samlConfig: SAMLConfigSchema,
     oidcConfig: OIDCConfigSchema,
-    userProvisioning: z.object({}).optional().openapi({ type: 'object' }),
+    userProvisioning: z.object({}).openapi({ type: 'object' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type', 'domains'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 200 },
       type: { type: 'string', enum: ['saml', 'oidc'] },
@@ -581,9 +561,8 @@ const UpdateEnterpriseSSORequestSchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
     samlConfig: SAMLConfigSchema,
     oidcConfig: OIDCConfigSchema,
-    userProvisioning: z.object({}).optional().openapi({ type: 'object' }),
+    userProvisioning: z.object({}).openapi({ type: 'object' }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -599,12 +578,12 @@ const UpdateEnterpriseSSORequestSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -689,27 +668,55 @@ export const getSocialAuthorizeProviderRoute = createRoute({
       redirect_uri: z
         .url()
         .openapi({
-          param: { name: 'redirect_uri', in: 'query', required: true },
+          param: {
+            name: 'redirect_uri',
+            in: 'query',
+            required: true,
+            schema: { type: 'string', format: 'uri' },
+          },
           type: 'string',
           format: 'uri',
         }),
       state: z
         .string()
         .optional()
-        .openapi({ param: { name: 'state', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'state', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
       scope: z
         .string()
         .optional()
-        .openapi({ param: { name: 'scope', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'scope',
+            in: 'query',
+            description: '追加のスコープ（カンマ区切り）',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       login_hint: z
         .string()
         .optional()
-        .openapi({ param: { name: 'login_hint', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'login_hint',
+            in: 'query',
+            description: 'ログインヒント',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       prompt: z
         .enum(['none', 'consent', 'select_account'])
         .optional()
         .openapi({
-          param: { name: 'prompt', in: 'query' },
+          param: {
+            name: 'prompt',
+            in: 'query',
+            schema: { type: 'string', enum: ['none', 'consent', 'select_account'] },
+          },
           type: 'string',
           enum: ['none', 'consent', 'select_account'],
         }),
@@ -737,19 +744,41 @@ export const getSocialCallbackProviderRoute = createRoute({
       code: z
         .string()
         .optional()
-        .openapi({ param: { name: 'code', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'query',
+            description: '認可コード',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       state: z
         .string()
         .optional()
-        .openapi({ param: { name: 'state', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'state', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
       error: z
         .string()
         .optional()
-        .openapi({ param: { name: 'error', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'error',
+            in: 'query',
+            description: 'エラーコード',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       error_description: z
         .string()
         .optional()
-        .openapi({ param: { name: 'error_description', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'error_description', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -774,17 +803,17 @@ export const postSocialTokenRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              provider: z.string().optional().openapi({ type: 'string' }),
-              code: z.string().optional().openapi({ type: 'string' }),
-              redirectUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+              provider: z.string().openapi({ type: 'string' }),
+              code: z.string().openapi({ type: 'string' }),
+              redirectUri: z.url().openapi({ type: 'string', format: 'uri' }),
               codeVerifier: z
                 .string()
                 .optional()
                 .openapi({ type: 'string', description: 'PKCE用' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['provider', 'code', 'redirectUri'],
               properties: {
                 provider: { type: 'string' },
                 code: { type: 'string' },
@@ -822,10 +851,9 @@ export const postSocialTokenNativeRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              provider: z.string().optional().openapi({ type: 'string' }),
+              provider: z.string().openapi({ type: 'string' }),
               token: z
                 .string()
-                .optional()
                 .openapi({ type: 'string', description: 'ID Token または Access Token' }),
               tokenType: z
                 .enum(['id_token', 'access_token'])
@@ -837,9 +865,9 @@ export const postSocialTokenNativeRoute = createRoute({
                   default: 'id_token',
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['provider', 'token'],
               properties: {
                 provider: { type: 'string' },
                 token: { type: 'string', description: 'ID Token または Access Token' },
@@ -945,7 +973,12 @@ export const getProvidersProviderIdRoute = createRoute({
       providerId: z
         .uuid()
         .openapi({
-          param: { name: 'providerId', in: 'path', required: true },
+          param: {
+            name: 'providerId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -995,7 +1028,12 @@ export const deleteProvidersProviderIdRoute = createRoute({
       providerId: z
         .uuid()
         .openapi({
-          param: { name: 'providerId', in: 'path', required: true },
+          param: {
+            name: 'providerId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1016,7 +1054,12 @@ export const postProvidersProviderIdTestRoute = createRoute({
       providerId: z
         .uuid()
         .openapi({
-          param: { name: 'providerId', in: 'path', required: true },
+          param: {
+            name: 'providerId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1029,12 +1072,10 @@ export const postProvidersProviderIdTestRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              success: z.boolean().openapi({ type: 'boolean' }),
-              message: z.string().openapi({ type: 'string' }),
+              success: z.boolean().optional().openapi({ type: 'boolean' }),
+              message: z.string().optional().openapi({ type: 'string' }),
               details: z.object({}).openapi({ type: 'object' }),
             })
-            .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1087,12 +1128,12 @@ export const postAccountLinkProviderRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              code: z.string().optional().openapi({ type: 'string' }),
-              redirectUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+              code: z.string().openapi({ type: 'string' }),
+              redirectUri: z.url().openapi({ type: 'string', format: 'uri' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['code', 'redirectUri'],
               properties: {
                 code: { type: 'string' },
                 redirectUri: { type: 'string', format: 'uri' },
@@ -1196,7 +1237,12 @@ export const getEnterpriseSsoConfigIdRoute = createRoute({
       configId: z
         .uuid()
         .openapi({
-          param: { name: 'configId', in: 'path', required: true },
+          param: {
+            name: 'configId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1246,7 +1292,12 @@ export const deleteEnterpriseSsoConfigIdRoute = createRoute({
       configId: z
         .uuid()
         .openapi({
-          param: { name: 'configId', in: 'path', required: true },
+          param: {
+            name: 'configId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1266,7 +1317,16 @@ export const getEnterpriseSsoDomainLookupRoute = createRoute({
     query: z.object({
       domain: z
         .string()
-        .openapi({ param: { name: 'domain', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'domain',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+            example: 'company.com',
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1290,7 +1350,12 @@ export const getEnterpriseSsoConfigIdMetadataRoute = createRoute({
       configId: z
         .uuid()
         .openapi({
-          param: { name: 'configId', in: 'path', required: true },
+          param: {
+            name: 'configId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

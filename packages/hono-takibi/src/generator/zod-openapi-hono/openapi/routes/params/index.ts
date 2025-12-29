@@ -33,15 +33,9 @@ export function params(parameters: readonly Parameter[]): {
         return acc
       }
 
-      const meta = {
-        parameters: {
-          name: param.name,
-          in: param.in,
-          required: param.required,
-        },
-      }
-
-      const baseSchema = zodToOpenAPI(param.schema, meta)
+      const baseSchema = zodToOpenAPI(param.schema, {
+        parameters: param
+      })
       // Initialize section if it doesn't exist
       if (!acc[param.in]) {
         acc[param.in] = {}

@@ -4,13 +4,13 @@ const CategorySchema = z
   .lazy(() =>
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
+        id: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
         parent: CategorySchema,
       })
+      .optional()
       .openapi({
         type: 'object',
-        required: ['id', 'name'],
         properties: {
           id: { type: 'string' },
           name: { type: 'string' },

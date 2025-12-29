@@ -17,7 +17,6 @@ const OrderSchema = z
     complete: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -45,7 +44,6 @@ const AddressSchema = z
     zip: z.string().openapi({ type: 'string', example: '94301' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -71,7 +69,6 @@ const CustomerSchema = z
       }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -93,7 +90,6 @@ const CategorySchema = z
     name: z.string().openapi({ type: 'string', example: 'Dogs' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -118,7 +114,6 @@ const UserSchema = z
       .openapi({ type: 'integer', description: 'User Status', format: 'int32', example: 1 }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -141,7 +136,6 @@ const TagSchema = z
     name: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' } },
@@ -152,15 +146,10 @@ const TagSchema = z
 const PetSchema = z
   .object({
     id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    name: z.string().optional().openapi({ type: 'string', example: 'doggie' }),
+    name: z.string().openapi({ type: 'string', example: 'doggie' }),
     category: CategorySchema,
     photoUrls: z
-      .array(
-        z
-          .string()
-          .optional()
-          .openapi({ type: 'string', xml: { name: 'photoUrl' } }),
-      )
+      .array(z.string().openapi({ type: 'string', xml: { name: 'photoUrl' } }))
       .optional()
       .openapi({
         type: 'array',
@@ -184,8 +173,8 @@ const PetSchema = z
         enum: ['available', 'pending', 'sold'],
       }),
   })
-  .optional()
   .openapi({
+    required: ['name', 'photoUrls'],
     type: 'object',
     properties: {
       id: { type: 'integer', format: 'int64', example: 10 },
@@ -214,7 +203,6 @@ const ApiResponseSchema = z
     message: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -334,7 +322,18 @@ export const getPetFindByStatusRoute = createRoute({
         .default('available')
         .optional()
         .openapi({
-          param: { name: 'status', in: 'query', required: false },
+          param: {
+            name: 'status',
+            in: 'query',
+            description: 'Status values that need to be considered for filter',
+            required: false,
+            explode: true,
+            schema: {
+              type: 'string',
+              default: 'available',
+              enum: ['available', 'pending', 'sold'],
+            },
+          },
           type: 'string',
           default: 'available',
           enum: ['available', 'pending', 'sold'],
@@ -379,11 +378,28 @@ export const getPetFindByTagsRoute = createRoute({
           z
             .string()
             .optional()
-            .openapi({ param: { name: 'tags', in: 'query', required: false }, type: 'string' }),
+            .openapi({
+              param: {
+                name: 'tags',
+                in: 'query',
+                description: 'Tags to filter by',
+                required: false,
+                explode: true,
+                schema: { type: 'array', items: { type: 'string' } },
+              },
+              type: 'string',
+            }),
         )
         .optional()
         .openapi({
-          param: { name: 'tags', in: 'query', required: false },
+          param: {
+            name: 'tags',
+            in: 'query',
+            description: 'Tags to filter by',
+            required: false,
+            explode: true,
+            schema: { type: 'array', items: { type: 'string' } },
+          },
           type: 'array',
           items: { type: 'string' },
         }),
@@ -424,7 +440,13 @@ export const getPetPetIdRoute = createRoute({
       petId: z
         .int64()
         .openapi({
-          param: { name: 'petId', in: 'path', required: true },
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'ID of pet to return',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
           type: 'integer',
           format: 'int64',
         }),
@@ -455,7 +477,13 @@ export const postPetPetIdRoute = createRoute({
       petId: z
         .int64()
         .openapi({
-          param: { name: 'petId', in: 'path', required: true },
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'ID of pet that needs to be updated',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
           type: 'integer',
           format: 'int64',
         }),
@@ -464,11 +492,27 @@ export const postPetPetIdRoute = createRoute({
       name: z
         .string()
         .optional()
-        .openapi({ param: { name: 'name', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'name',
+            in: 'query',
+            description: 'Name of pet that needs to be updated',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       status: z
         .string()
         .optional()
-        .openapi({ param: { name: 'status', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'status',
+            in: 'query',
+            description: 'Status of pet that needs to be updated',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: { 400: { description: 'Invalid input' } },
@@ -487,13 +531,28 @@ export const deletePetPetIdRoute = createRoute({
       api_key: z
         .string()
         .optional()
-        .openapi({ param: { name: 'api_key', in: 'header', required: false }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'api_key',
+            in: 'header',
+            description: '',
+            required: false,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
     params: z.object({
       petId: z
         .int64()
         .openapi({
-          param: { name: 'petId', in: 'path', required: true },
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'Pet id to delete',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
           type: 'integer',
           format: 'int64',
         }),
@@ -541,8 +600,10 @@ export const getStoreInventoryRoute = createRoute({
         'application/json': {
           schema: z
             .record(z.string(), z.int32().optional().openapi({ type: 'integer', format: 'int32' }))
-            .optional()
-            .openapi({ type: 'object' }),
+            .openapi({
+              type: 'object',
+              additionalProperties: { type: 'integer', format: 'int32' },
+            }),
         },
       },
     },
@@ -589,7 +650,13 @@ export const getStoreOrderOrderIdRoute = createRoute({
       orderId: z
         .int64()
         .openapi({
-          param: { name: 'orderId', in: 'path', required: true },
+          param: {
+            name: 'orderId',
+            in: 'path',
+            description: 'ID of order that needs to be fetched',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
           type: 'integer',
           format: 'int64',
         }),
@@ -621,7 +688,13 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
       orderId: z
         .int64()
         .openapi({
-          param: { name: 'orderId', in: 'path', required: true },
+          param: {
+            name: 'orderId',
+            in: 'path',
+            description: 'ID of the order that needs to be deleted',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
           type: 'integer',
           format: 'int64',
         }),
@@ -703,11 +776,29 @@ export const getUserLoginRoute = createRoute({
       username: z
         .string()
         .optional()
-        .openapi({ param: { name: 'username', in: 'query', required: false }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'username',
+            in: 'query',
+            description: 'The user name for login',
+            required: false,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       password: z
         .string()
         .optional()
-        .openapi({ param: { name: 'password', in: 'query', required: false }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'password',
+            in: 'query',
+            description: 'The password for login in clear text',
+            required: false,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -741,7 +832,16 @@ export const getUserUsernameRoute = createRoute({
     params: z.object({
       username: z
         .string()
-        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'username',
+            in: 'path',
+            description: 'The name that needs to be fetched. Use user1 for testing. ',
+            required: true,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -788,7 +888,16 @@ export const deleteUserUsernameRoute = createRoute({
     params: z.object({
       username: z
         .string()
-        .openapi({ param: { name: 'username', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'username',
+            in: 'path',
+            description: 'The name that needs to be deleted',
+            required: true,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {

@@ -652,7 +652,7 @@ export function ref(
   // | `#/components/parameters/${string}`
   // | `#/components/securitySchemes/${string}`
   // | `#/components/requestBodies/${string}`
-  // | `#/components/responses/${string}`
+  // | `#/components/responses/${string}`u
   // | `#/components/headers/${string}`
   // | `#/components/examples/${string}`
   // | `#/components/links/${string}`

@@ -7,7 +7,6 @@ const SingleLogoutServiceSchema = z
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -15,12 +14,12 @@ const SingleLogoutServiceSchema = z
           'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         ],
       }),
-    location: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    location: z.url().openapi({ type: 'string', format: 'uri' }),
     responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['binding', 'location'],
     properties: {
       binding: {
         type: 'string',
@@ -42,7 +41,6 @@ const AssertionConsumerServiceSchema = z
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -50,13 +48,13 @@ const AssertionConsumerServiceSchema = z
           'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
         ],
       }),
-    location: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    location: z.url().openapi({ type: 'string', format: 'uri' }),
     index: z.int().optional().openapi({ type: 'integer' }),
     isDefault: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['binding', 'location'],
     properties: {
       binding: {
         type: 'string',
@@ -74,14 +72,11 @@ const AssertionConsumerServiceSchema = z
 
 const ServiceProviderSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    entityId: z
-      .url()
-      .optional()
-      .openapi({ type: 'string', format: 'uri', description: 'SP Entity ID' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    entityId: z.url().openapi({ type: 'string', format: 'uri', description: 'SP Entity ID' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    enabled: z.boolean().openapi({ type: 'boolean' }),
     assertionConsumerServices: z
       .array(AssertionConsumerServiceSchema)
       .optional()
@@ -139,9 +134,9 @@ const ServiceProviderSchema = z
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'entityId', 'name', 'enabled'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       entityId: { type: 'string', format: 'uri', description: 'SP Entity ID' },
@@ -181,13 +176,8 @@ const ServiceProviderSchema = z
 
 const CreateServiceProviderRequestSchema = z
   .object({
-    entityId: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    entityId: z.url().openapi({ type: 'string', format: 'uri' }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
     metadataUrl: z
       .url()
@@ -215,9 +205,9 @@ const CreateServiceProviderRequestSchema = z
     signingCertificate: z.string().optional().openapi({ type: 'string' }),
     encryptionCertificate: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['entityId', 'name'],
     properties: {
       entityId: { type: 'string', format: 'uri' },
       name: { type: 'string', minLength: 1, maxLength: 200 },
@@ -260,7 +250,6 @@ const UpdateServiceProviderRequestSchema = z
     sessionDuration: z.int().openapi({ type: 'integer' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -289,13 +278,9 @@ const UpdateServiceProviderRequestSchema = z
 const AttributeMappingSchema = z
   .object({
     id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    sourceAttribute: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'IdP側の属性名' }),
+    sourceAttribute: z.string().openapi({ type: 'string', description: 'IdP側の属性名' }),
     samlAttribute: z
       .string()
-      .optional()
       .openapi({ type: 'string', description: 'SAMLアサーションで送信する属性名' }),
     samlAttributeNameFormat: z
       .enum([
@@ -318,9 +303,9 @@ const AttributeMappingSchema = z
     required: z.boolean().default(false).optional().openapi({ type: 'boolean', default: false }),
     transform: z.string().optional().openapi({ type: 'string', description: '値変換スクリプト' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['sourceAttribute', 'samlAttribute'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       sourceAttribute: { type: 'string', description: 'IdP側の属性名' },
@@ -343,10 +328,9 @@ const AttributeMappingSchema = z
 
 const AvailableAttributeSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     type: z
       .enum(['string', 'string[]', 'boolean', 'integer', 'datetime'])
-      .optional()
       .openapi({ type: 'string', enum: ['string', 'string[]', 'boolean', 'integer', 'datetime'] }),
     description: z.string().optional().openapi({ type: 'string' }),
     source: z
@@ -354,9 +338,9 @@ const AvailableAttributeSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['user', 'group', 'custom', 'computed'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type'],
     properties: {
       name: { type: 'string' },
       type: { type: 'string', enum: ['string', 'string[]', 'boolean', 'integer', 'datetime'] },
@@ -368,25 +352,24 @@ const AvailableAttributeSchema = z
 
 const CertificateSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     purpose: z
       .enum(['signing', 'encryption', 'both'])
-      .optional()
       .openapi({ type: 'string', enum: ['signing', 'encryption', 'both'] }),
-    isActive: z.boolean().optional().openapi({ type: 'boolean' }),
+    isActive: z.boolean().openapi({ type: 'boolean' }),
     subject: z.string().optional().openapi({ type: 'string' }),
     issuer: z.string().optional().openapi({ type: 'string' }),
     serialNumber: z.string().optional().openapi({ type: 'string' }),
-    notBefore: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    notAfter: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    notBefore: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    notAfter: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     fingerprint: z.string().optional().openapi({ type: 'string' }),
     fingerprintSha256: z.string().optional().openapi({ type: 'string' }),
     publicKey: z.string().optional().openapi({ type: 'string', description: 'PEM形式の公開鍵' }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'purpose', 'isActive', 'notBefore', 'notAfter'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       purpose: { type: 'string', enum: ['signing', 'encryption', 'both'] },
@@ -406,8 +389,8 @@ const CertificateSchema = z
 
 const SamlSessionSchema = z
   .object({
-    sessionId: z.string().optional().openapi({ type: 'string' }),
-    userId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    sessionId: z.string().openapi({ type: 'string' }),
+    userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     userName: z.string().optional().openapi({ type: 'string' }),
     serviceProviders: z
       .array(
@@ -419,7 +402,6 @@ const SamlSessionSchema = z
             authenticatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -445,13 +427,13 @@ const SamlSessionSchema = z
       }),
     ipAddress: z.string().optional().openapi({ type: 'string' }),
     userAgent: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     lastActivityAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['sessionId', 'userId', 'createdAt'],
     properties: {
       sessionId: { type: 'string' },
       userId: { type: 'string', format: 'uuid' },
@@ -479,7 +461,7 @@ const SamlSessionSchema = z
 
 const AuditLogSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     eventType: z
       .enum([
         'sso_success',
@@ -492,7 +474,6 @@ const AuditLogSchema = z
         'certificate_uploaded',
         'certificate_activated',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -513,13 +494,13 @@ const AuditLogSchema = z
     spName: z.string().optional().openapi({ type: 'string' }),
     ipAddress: z.string().optional().openapi({ type: 'string' }),
     userAgent: z.string().optional().openapi({ type: 'string' }),
-    details: z.looseObject({}).optional().openapi({ type: 'object' }),
+    details: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
     errorMessage: z.string().optional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'eventType', 'timestamp'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       eventType: {
@@ -551,14 +532,14 @@ const AuditLogSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int().optional().openapi({ type: 'integer' }),
-    limit: z.int().optional().openapi({ type: 'integer' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    totalPages: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    limit: z.int().openapi({ type: 'integer' }),
+    total: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer' },
       limit: { type: 'integer' },
@@ -572,13 +553,12 @@ const AuditLogListResponseSchema = z
   .object({
     data: z
       .array(AuditLogSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/AuditLog' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -598,7 +578,6 @@ const SamlErrorSchema = z
         'unknown_sp',
         'binding_not_supported',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -611,12 +590,12 @@ const SamlErrorSchema = z
           'binding_not_supported',
         ],
       }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
     samlStatus: z.string().optional().openapi({ type: 'string', description: 'SAML Status Code' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['error', 'message'],
     properties: {
       error: {
         type: 'string',
@@ -638,12 +617,12 @@ const SamlErrorSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -706,19 +685,52 @@ export const getSamlSsoRoute = createRoute({
     query: z.object({
       SAMLRequest: z
         .string()
-        .openapi({ param: { name: 'SAMLRequest', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'SAMLRequest',
+            in: 'query',
+            required: true,
+            description: 'Base64エンコードされたSAML AuthnRequest',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       RelayState: z
         .string()
         .optional()
-        .openapi({ param: { name: 'RelayState', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'RelayState',
+            in: 'query',
+            description: '認証後にリダイレクトする状態情報',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       SigAlg: z
         .string()
         .optional()
-        .openapi({ param: { name: 'SigAlg', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'SigAlg',
+            in: 'query',
+            description: '署名アルゴリズム',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       Signature: z
         .string()
         .optional()
-        .openapi({ param: { name: 'Signature', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'Signature',
+            in: 'query',
+            description: 'リクエスト署名',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -745,16 +757,15 @@ export const postSamlSsoRoute = createRoute({
             .object({
               SAMLRequest: z
                 .string()
-                .optional()
                 .openapi({
                   type: 'string',
                   description: 'Base64エンコードされたSAML AuthnRequest',
                 }),
               RelayState: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['SAMLRequest'],
               properties: {
                 SAMLRequest: {
                   type: 'string',
@@ -793,23 +804,48 @@ export const getSamlSloRoute = createRoute({
       SAMLRequest: z
         .string()
         .optional()
-        .openapi({ param: { name: 'SAMLRequest', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'SAMLRequest',
+            in: 'query',
+            description: 'LogoutRequest',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       SAMLResponse: z
         .string()
         .optional()
-        .openapi({ param: { name: 'SAMLResponse', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'SAMLResponse',
+            in: 'query',
+            description: 'LogoutResponse',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       RelayState: z
         .string()
         .optional()
-        .openapi({ param: { name: 'RelayState', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'RelayState', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
       SigAlg: z
         .string()
         .optional()
-        .openapi({ param: { name: 'SigAlg', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'SigAlg', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
       Signature: z
         .string()
         .optional()
-        .openapi({ param: { name: 'Signature', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'Signature', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 302: { description: 'ログアウト完了後リダイレクト' } },
@@ -833,7 +869,6 @@ export const postSamlSloRoute = createRoute({
               RelayState: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -868,12 +903,12 @@ export const postSamlAcsRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              SAMLResponse: z.string().optional().openapi({ type: 'string' }),
+              SAMLResponse: z.string().openapi({ type: 'string' }),
               RelayState: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['SAMLResponse'],
               properties: { SAMLResponse: { type: 'string' }, RelayState: { type: 'string' } },
             }),
         },
@@ -918,11 +953,17 @@ export const getServiceProvidersRoute = createRoute({
       search: z
         .string()
         .optional()
-        .openapi({ param: { name: 'search', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'search', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
       enabled: z
         .stringbool()
         .optional()
-        .openapi({ param: { name: 'enabled', in: 'query' }, type: 'boolean' }),
+        .openapi({
+          param: { name: 'enabled', in: 'query', schema: { type: 'boolean' } },
+          type: 'boolean',
+        }),
     }),
   },
   responses: {
@@ -981,7 +1022,12 @@ export const getServiceProvidersSpIdRoute = createRoute({
       spId: z
         .uuid()
         .openapi({
-          param: { name: 'spId', in: 'path', required: true },
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1031,7 +1077,12 @@ export const deleteServiceProvidersSpIdRoute = createRoute({
       spId: z
         .uuid()
         .openapi({
-          param: { name: 'spId', in: 'path', required: true },
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1052,7 +1103,12 @@ export const getServiceProvidersSpIdMetadataRoute = createRoute({
       spId: z
         .uuid()
         .openapi({
-          param: { name: 'spId', in: 'path', required: true },
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1082,7 +1138,6 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
           schema: z
             .object({ file: z.file().openapi({ type: 'string', format: 'binary' }) })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { file: { type: 'string', format: 'binary' } },
@@ -1114,7 +1169,12 @@ export const getServiceProvidersSpIdAttributesRoute = createRoute({
       spId: z
         .uuid()
         .openapi({
-          param: { name: 'spId', in: 'path', required: true },
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1231,17 +1291,17 @@ export const postCertificatesRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              certificate: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              privateKey: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              certificate: z.file().openapi({ type: 'string', format: 'binary' }),
+              privateKey: z.file().openapi({ type: 'string', format: 'binary' }),
               passphrase: z.string().optional().openapi({ type: 'string' }),
               purpose: z
                 .enum(['signing', 'encryption', 'both'])
                 .optional()
                 .openapi({ type: 'string', enum: ['signing', 'encryption', 'both'] }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['certificate', 'privateKey'],
               properties: {
                 certificate: { type: 'string', format: 'binary' },
                 privateKey: { type: 'string', format: 'binary' },
@@ -1276,7 +1336,12 @@ export const deleteCertificatesCertIdRoute = createRoute({
       certId: z
         .uuid()
         .openapi({
-          param: { name: 'certId', in: 'path', required: true },
+          param: {
+            name: 'certId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1301,7 +1366,12 @@ export const postCertificatesCertIdActivateRoute = createRoute({
       certId: z
         .uuid()
         .openapi({
-          param: { name: 'certId', in: 'path', required: true },
+          param: {
+            name: 'certId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1328,7 +1398,11 @@ export const getSessionsRoute = createRoute({
       userId: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'userId', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
+          type: 'string',
+          format: 'uuid',
+        }),
     }),
   },
   responses: {
@@ -1358,7 +1432,10 @@ export const deleteSessionsSessionIdRoute = createRoute({
     params: z.object({
       sessionId: z
         .string()
-        .openapi({ param: { name: 'sessionId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'sessionId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 204: { description: 'セッション終了成功' }, 401: UnauthorizedResponse },
@@ -1376,24 +1453,47 @@ export const getAuditLogsRoute = createRoute({
       from: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'from', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          type: 'string',
+          format: 'date-time',
+        }),
       to: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'to', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          type: 'string',
+          format: 'date-time',
+        }),
       spId: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'spId', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: { name: 'spId', in: 'query', schema: { type: 'string', format: 'uuid' } },
+          type: 'string',
+          format: 'uuid',
+        }),
       userId: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'userId', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
+          type: 'string',
+          format: 'uuid',
+        }),
       eventType: z
         .enum(['sso_success', 'sso_failure', 'slo_success', 'slo_failure'])
         .optional()
         .openapi({
-          param: { name: 'eventType', in: 'query' },
+          param: {
+            name: 'eventType',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['sso_success', 'sso_failure', 'slo_success', 'slo_failure'],
+            },
+          },
           type: 'string',
           enum: ['sso_success', 'sso_failure', 'slo_success', 'slo_failure'],
         }),

@@ -2,14 +2,14 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'email'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -21,8 +21,8 @@ const UserSchema = z
 
 const TeamSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     members: z
       .array(UserSchema)
@@ -30,9 +30,9 @@ const TeamSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -45,12 +45,11 @@ const TeamSchema = z
 
 const ProjectSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['active', 'on_hold', 'completed', 'archived'])
-      .optional()
       .openapi({ type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] }),
     color: z
       .string()
@@ -69,12 +68,12 @@ const ProjectSchema = z
       .max(100)
       .optional()
       .openapi({ type: 'number', minimum: 0, maximum: 100 }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'status', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -96,13 +95,13 @@ const ProjectSchema = z
 
 const SubtaskSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().optional().openapi({ type: 'string' }),
-    completed: z.boolean().optional().openapi({ type: 'boolean' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().openapi({ type: 'string' }),
+    completed: z.boolean().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'title', 'completed'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       title: { type: 'string' },
@@ -113,17 +112,17 @@ const SubtaskSchema = z
 
 const AttachmentSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    filename: z.string().optional().openapi({ type: 'string' }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    filename: z.string().openapi({ type: 'string' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     mimeType: z.string().optional().openapi({ type: 'string' }),
     filesize: z.int().optional().openapi({ type: 'integer' }),
     uploadedBy: UserSchema,
     uploadedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'filename', 'url'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       filename: { type: 'string' },
@@ -138,25 +137,25 @@ const AttachmentSchema = z
 
 const MilestoneSummarySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
   })
   .openapi('MilestoneSummary')
 
 const ProjectSummarySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     color: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -167,16 +166,14 @@ const ProjectSummarySchema = z
 
 const TaskSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
-      .optional()
       .openapi({ type: 'string', enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'] }),
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
-      .optional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
     project: ProjectSummarySchema,
     assignee: UserSchema,
@@ -197,12 +194,12 @@ const TaskSchema = z
       .array(SubtaskSchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Subtask' } }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'title', 'status', 'priority', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       title: { type: 'string' },
@@ -227,13 +224,10 @@ const TaskSchema = z
 
 const MilestoneSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    status: z
-      .enum(['open', 'closed'])
-      .optional()
-      .openapi({ type: 'string', enum: ['open', 'closed'] }),
+    status: z.enum(['open', 'closed']).openapi({ type: 'string', enum: ['open', 'closed'] }),
     dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     taskCount: z.int().optional().openapi({ type: 'integer' }),
     completedTaskCount: z.int().optional().openapi({ type: 'integer' }),
@@ -244,9 +238,9 @@ const MilestoneSchema = z
       .optional()
       .openapi({ type: 'number', minimum: 0, maximum: 100 }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'status'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -265,13 +259,12 @@ const ProjectMemberSchema = z
     user: UserSchema,
     role: z
       .enum(['owner', 'admin', 'member', 'viewer'])
-      .optional()
       .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
-    joinedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    joinedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['user', 'role', 'joinedAt'],
     properties: {
       user: { $ref: '#/components/schemas/User' },
       role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
@@ -282,15 +275,15 @@ const ProjectMemberSchema = z
 
 const TaskCommentSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    content: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    content: z.string().openapi({ type: 'string' }),
     author: UserSchema,
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'content', 'author', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       content: { type: 'string' },
@@ -303,16 +296,16 @@ const TaskCommentSchema = z
 
 const TimeEntrySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    duration: z.int().optional().openapi({ type: 'integer', description: '時間（分）' }),
-    date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    duration: z.int().openapi({ type: 'integer', description: '時間（分）' }),
+    date: z.iso.date().openapi({ type: 'string', format: 'date' }),
     user: UserSchema,
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'duration', 'date', 'user'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       description: { type: 'string' },
@@ -326,12 +319,7 @@ const TimeEntrySchema = z
 
 const CreateProjectRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
     color: z
       .string()
@@ -342,9 +330,9 @@ const CreateProjectRequestSchema = z
     startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 200 },
       description: { type: 'string' },
@@ -371,7 +359,6 @@ const UpdateProjectRequestSchema = z
     endDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -387,12 +374,7 @@ const UpdateProjectRequestSchema = z
 
 const CreateTaskRequestSchema = z
   .object({
-    title: z
-      .string()
-      .min(1)
-      .max(500)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 500 }),
+    title: z.string().min(1).max(500).openapi({ type: 'string', minLength: 1, maxLength: 500 }),
     description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done'])
@@ -419,9 +401,12 @@ const CreateTaskRequestSchema = z
     subtasks: z
       .array(
         z
-          .object({ title: z.string().optional().openapi({ type: 'string' }) })
-          .optional()
-          .openapi({ type: 'object', properties: { title: { type: 'string' } } }),
+          .object({ title: z.string().openapi({ type: 'string' }) })
+          .openapi({
+            type: 'object',
+            required: ['title'],
+            properties: { title: { type: 'string' } },
+          }),
       )
       .optional()
       .openapi({
@@ -429,9 +414,9 @@ const CreateTaskRequestSchema = z
         items: { type: 'object', required: ['title'], properties: { title: { type: 'string' } } },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['title'],
     properties: {
       title: { type: 'string', minLength: 1, maxLength: 500 },
       description: { type: 'string' },
@@ -474,7 +459,6 @@ const UpdateTaskRequestSchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -493,15 +477,14 @@ const UpdateTaskRequestSchema = z
 
 const AddMemberRequestSchema = z
   .object({
-    userId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     role: z
       .enum(['admin', 'member', 'viewer'])
-      .optional()
       .openapi({ type: 'string', enum: ['admin', 'member', 'viewer'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['userId', 'role'],
     properties: {
       userId: { type: 'string', format: 'uuid' },
       role: { type: 'string', enum: ['admin', 'member', 'viewer'] },
@@ -511,18 +494,13 @@ const AddMemberRequestSchema = z
 
 const CreateMilestoneRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
     dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 200 },
       description: { type: 'string' },
@@ -534,16 +512,12 @@ const CreateMilestoneRequestSchema = z
 const CreateTimeEntryRequestSchema = z
   .object({
     description: z.string().optional().openapi({ type: 'string' }),
-    duration: z
-      .int()
-      .min(1)
-      .optional()
-      .openapi({ type: 'integer', minimum: 1, description: '時間（分）' }),
-    date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    duration: z.int().min(1).openapi({ type: 'integer', minimum: 1, description: '時間（分）' }),
+    date: z.iso.date().openapi({ type: 'string', format: 'date' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['duration', 'date'],
     properties: {
       description: { type: 'string' },
       duration: { type: 'integer', minimum: 1, description: '時間（分）' },
@@ -554,21 +528,16 @@ const CreateTimeEntryRequestSchema = z
 
 const CreateTeamRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     description: z.string().optional().openapi({ type: 'string' }),
     memberIds: z
       .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 100 },
       description: { type: 'string' },
@@ -579,14 +548,14 @@ const CreateTeamRequestSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int().optional().openapi({ type: 'integer' }),
-    limit: z.int().optional().openapi({ type: 'integer' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    totalPages: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    limit: z.int().openapi({ type: 'integer' }),
+    total: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer' },
       limit: { type: 'integer' },
@@ -600,13 +569,12 @@ const ProjectListResponseSchema = z
   .object({
     data: z
       .array(ProjectSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Project' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Project' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -618,13 +586,12 @@ const TaskListResponseSchema = z
   .object({
     data: z
       .array(TaskSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Task' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Task' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -634,12 +601,12 @@ const TaskListResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -731,14 +698,21 @@ export const getProjectsRoute = createRoute({
         .enum(['active', 'on_hold', 'completed', 'archived'])
         .optional()
         .openapi({
-          param: { name: 'status', in: 'query' },
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: { type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] },
+          },
           type: 'string',
           enum: ['active', 'on_hold', 'completed', 'archived'],
         }),
       search: z
         .string()
         .optional()
-        .openapi({ param: { name: 'search', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'search', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -878,19 +852,34 @@ export const getProjectsProjectIdTasksRoute = createRoute({
         .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
         .optional()
         .openapi({
-          param: { name: 'status', in: 'query' },
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'],
+            },
+          },
           type: 'string',
           enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'],
         }),
       assignee: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'assignee', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: { name: 'assignee', in: 'query', schema: { type: 'string', format: 'uuid' } },
+          type: 'string',
+          format: 'uuid',
+        }),
       priority: z
         .enum(['low', 'medium', 'high', 'urgent'])
         .optional()
         .openapi({
-          param: { name: 'priority', in: 'query' },
+          param: {
+            name: 'priority',
+            in: 'query',
+            schema: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
+          },
           type: 'string',
           enum: ['low', 'medium', 'high', 'urgent'],
         }),
@@ -978,15 +967,14 @@ export const patchTasksTaskIdStatusRoute = createRoute({
             .object({
               status: z
                 .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
-                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'],
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['status'],
               properties: {
                 status: {
                   type: 'string',
@@ -1041,11 +1029,12 @@ export const postTasksTaskIdCommentsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              content: z.string().min(1).optional().openapi({ type: 'string', minLength: 1 }),
-            })
-            .optional()
-            .openapi({ type: 'object', properties: { content: { type: 'string', minLength: 1 } } }),
+            .object({ content: z.string().min(1).openapi({ type: 'string', minLength: 1 }) })
+            .openapi({
+              type: 'object',
+              required: ['content'],
+              properties: { content: { type: 'string', minLength: 1 } },
+            }),
         },
       },
       required: true,

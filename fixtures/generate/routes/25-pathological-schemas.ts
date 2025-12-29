@@ -2,32 +2,38 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const DiscrimCSchema = z
   .object({
-    kind: z.literal('typeC').optional(),
+    kind: z.literal('typeC').openapi({ const: 'typeC' }),
     valueC: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['kind'],
     properties: { kind: { const: 'typeC' }, valueC: { type: 'boolean' } },
   })
   .openapi('DiscrimC')
 
 const DiscrimBSchema = z
   .object({
-    kind: z.literal('typeB').optional(),
+    kind: z.literal('typeB').openapi({ const: 'typeB' }),
     valueB: z.number().optional().openapi({ type: 'number' }),
   })
-  .optional()
-  .openapi({ type: 'object', properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } } })
+  .openapi({
+    type: 'object',
+    required: ['kind'],
+    properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } },
+  })
   .openapi('DiscrimB')
 
 const DiscrimASchema = z
   .object({
-    kind: z.literal('typeA').optional(),
+    kind: z.literal('typeA').openapi({ const: 'typeA' }),
     valueA: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
-  .openapi({ type: 'object', properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } } })
+  .openapi({
+    type: 'object',
+    required: ['kind'],
+    properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } },
+  })
   .openapi('DiscrimA')
 
 const CompositionHellSchema = z
@@ -45,10 +51,8 @@ const CompositionHellSchema = z
                 z
                   .object({ b: z.string().openapi({ type: 'string' }) })
                   .partial()
-                  .optional()
                   .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
               )
-              .optional()
               .openapi({
                 allOf: [
                   { type: 'object', properties: { a: { type: 'string' } } },
@@ -58,7 +62,6 @@ const CompositionHellSchema = z
             z
               .object({ c: z.string().openapi({ type: 'string' }) })
               .partial()
-              .optional()
               .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
           )
           .optional()
@@ -76,7 +79,6 @@ const CompositionHellSchema = z
         z
           .object({ d: z.string().openapi({ type: 'string' }) })
           .partial()
-          .optional()
           .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
       )
       .optional()
@@ -100,8 +102,8 @@ const CompositionHellSchema = z
       .union([
         z
           .union([
-            z.literal('deep1').openapi({ type: 'string' }),
-            z.literal('deep2').optional().openapi({ type: 'string' }),
+            z.literal('deep1').openapi({ type: 'string', const: 'deep1' }),
+            z.literal('deep2').optional().openapi({ type: 'string', const: 'deep2' }),
           ])
           .optional()
           .openapi({
@@ -112,8 +114,8 @@ const CompositionHellSchema = z
           }),
         z
           .union([
-            z.literal(1).optional().openapi({ type: 'number' }),
-            z.literal(2).optional().openapi({ type: 'number' }),
+            z.literal(1).optional().openapi({ type: 'number', const: 1 }),
+            z.literal(2).optional().openapi({ type: 'number', const: 2 }),
           ])
           .optional()
           .openapi({
@@ -215,7 +217,6 @@ const CompositionHellSchema = z
           .openapi({ type: 'object', properties: { type: { type: 'string' } } }),
         z
           .any()
-          .optional()
           .openapi({
             if: { properties: { type: { const: 'A' } } },
             then: { properties: { valueA: { type: 'string' } } },
@@ -241,24 +242,40 @@ const CompositionHellSchema = z
           { $ref: '#/components/schemas/DiscrimB' },
           { $ref: '#/components/schemas/DiscrimC' },
         ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: {
+            typeA: '#/components/schemas/DiscrimA',
+            typeB: '#/components/schemas/DiscrimB',
+            typeC: '#/components/schemas/DiscrimC',
+          },
+        },
       }),
     conflictingRequired: z
       .intersection(
         z
           .object({ fieldA: z.string().openapi({ type: 'string' }) })
-          .optional()
-          .openapi({ type: 'object', properties: { fieldA: { type: 'string' } } }),
+          .openapi({
+            type: 'object',
+            required: ['fieldA'],
+            properties: { fieldA: { type: 'string' } },
+          }),
         z
-          .object({ fieldB: z.string().optional().openapi({ type: 'string' }) })
-          .optional()
-          .openapi({ type: 'object', properties: { fieldB: { type: 'string' } } }),
+          .object({ fieldB: z.string().openapi({ type: 'string' }) })
+          .openapi({
+            type: 'object',
+            required: ['fieldB'],
+            properties: { fieldB: { type: 'string' } },
+          }),
         z
-          .object({ fieldC: z.string().optional().openapi({ type: 'string' }) })
-          .optional()
-          .openapi({ type: 'object', properties: { fieldC: { type: 'string' } } }),
-        z.strictObject({}).optional().openapi({ type: 'object' }),
+          .object({ fieldC: z.string().openapi({ type: 'string' }) })
+          .openapi({
+            type: 'object',
+            required: ['fieldC'],
+            properties: { fieldC: { type: 'string' } },
+          }),
+        z.strictObject({}).openapi({ type: 'object', additionalProperties: false }),
       )
-      .optional()
       .openapi({
         allOf: [
           { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
@@ -272,35 +289,34 @@ const CompositionHellSchema = z
         z
           .object({
             a: z.string().openapi({ type: 'string' }),
-            b: z.string().optional().openapi({ type: 'string' }),
+            b: z.string().openapi({ type: 'string' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['a', 'b'],
             properties: { a: { type: 'string' }, b: { type: 'string' } },
           }),
         z
           .object({
-            a: z.string().optional().openapi({ type: 'string' }),
-            c: z.string().optional().openapi({ type: 'string' }),
+            a: z.string().openapi({ type: 'string' }),
+            c: z.string().openapi({ type: 'string' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['a', 'c'],
             properties: { a: { type: 'string' }, c: { type: 'string' } },
           }),
         z
           .object({
-            b: z.string().optional().openapi({ type: 'string' }),
-            c: z.string().optional().openapi({ type: 'string' }),
+            b: z.string().openapi({ type: 'string' }),
+            c: z.string().openapi({ type: 'string' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['b', 'c'],
             properties: { b: { type: 'string' }, c: { type: 'string' } },
           }),
       ])
-      .optional()
       .openapi({
         oneOf: [
           {
@@ -322,7 +338,6 @@ const CompositionHellSchema = z
       }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -435,12 +450,7 @@ const ConstrainedTreeSchema = z
   .lazy(() =>
     z
       .object({
-        value: z
-          .string()
-          .min(1)
-          .max(100)
-          .optional()
-          .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
         children: z
           .array(ConstrainedTreeSchema)
           .max(10)
@@ -460,9 +470,9 @@ const ConstrainedTreeSchema = z
             uniqueItems: true,
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['value'],
         properties: {
           value: { type: 'string', minLength: 1, maxLength: 100 },
           children: {
@@ -483,7 +493,6 @@ const ConstrainedTreeSchema = z
 
 const RecursiveCSchema = z
   .object({ value: z.boolean().optional().openapi({ type: 'boolean' }), refA: RecursiveASchema })
-  .optional()
   .openapi({
     type: 'object',
     properties: { value: { type: 'boolean' }, refA: { $ref: '#/components/schemas/RecursiveA' } },
@@ -492,7 +501,6 @@ const RecursiveCSchema = z
 
 const RecursiveBSchema = z
   .object({ value: z.number().optional().openapi({ type: 'number' }), refC: RecursiveCSchema })
-  .optional()
   .openapi({
     type: 'object',
     properties: { value: { type: 'number' }, refC: { $ref: '#/components/schemas/RecursiveC' } },
@@ -501,7 +509,6 @@ const RecursiveBSchema = z
 
 const RecursiveASchema = z
   .object({ value: z.string().optional().openapi({ type: 'string' }), refB: RecursiveBSchema })
-  .optional()
   .openapi({
     type: 'object',
     properties: { value: { type: 'string' }, refB: { $ref: '#/components/schemas/RecursiveB' } },
@@ -517,11 +524,9 @@ const RecursiveNightmaresSchema = z
         z
           .object({ value: z.string().openapi({ type: 'string' }) })
           .partial()
-          .optional()
           .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
         z
           .object({ child: recursiveInAllOfSchema })
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -550,7 +555,6 @@ const RecursiveNightmaresSchema = z
         z.string().optional().openapi({ type: 'string' }),
         z
           .object({ nested: recursiveInOneOfSchema })
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -574,7 +578,14 @@ const RecursiveNightmaresSchema = z
           },
         ],
       }),
-    recursiveMap: z.record(z.string(), recursiveMapSchema).optional().openapi({ type: 'object' }),
+    recursiveMap: z
+      .record(z.string(), recursiveMapSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: {
+          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+        },
+      }),
     recursiveArray: z
       .array(
         z
@@ -594,7 +605,6 @@ const RecursiveNightmaresSchema = z
         },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -671,7 +681,6 @@ const EdgeCasesSchema = z
                                             properties: { l10: { type: 'string' } },
                                           }),
                                       })
-                                      .partial()
                                       .openapi({
                                         type: 'object',
                                         properties: {
@@ -682,7 +691,6 @@ const EdgeCasesSchema = z
                                         },
                                       }),
                                   })
-                                  .partial()
                                   .openapi({
                                     type: 'object',
                                     properties: {
@@ -698,7 +706,6 @@ const EdgeCasesSchema = z
                                     },
                                   }),
                               })
-                              .partial()
                               .openapi({
                                 type: 'object',
                                 properties: {
@@ -719,7 +726,6 @@ const EdgeCasesSchema = z
                                 },
                               }),
                           })
-                          .partial()
                           .openapi({
                             type: 'object',
                             properties: {
@@ -745,7 +751,6 @@ const EdgeCasesSchema = z
                             },
                           }),
                       })
-                      .partial()
                       .openapi({
                         type: 'object',
                         properties: {
@@ -776,7 +781,6 @@ const EdgeCasesSchema = z
                         },
                       }),
                   })
-                  .partial()
                   .openapi({
                     type: 'object',
                     properties: {
@@ -812,7 +816,6 @@ const EdgeCasesSchema = z
                     },
                   }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: {
@@ -853,7 +856,6 @@ const EdgeCasesSchema = z
                 },
               }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -899,7 +901,6 @@ const EdgeCasesSchema = z
             },
           }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -1061,29 +1062,50 @@ const EdgeCasesSchema = z
     manyRequired: z
       .object({
         r01: z.string().openapi({ type: 'string' }),
-        r02: z.string().optional().openapi({ type: 'string' }),
-        r03: z.string().optional().openapi({ type: 'string' }),
-        r04: z.string().optional().openapi({ type: 'string' }),
-        r05: z.string().optional().openapi({ type: 'string' }),
-        r06: z.string().optional().openapi({ type: 'string' }),
-        r07: z.string().optional().openapi({ type: 'string' }),
-        r08: z.string().optional().openapi({ type: 'string' }),
-        r09: z.string().optional().openapi({ type: 'string' }),
-        r10: z.string().optional().openapi({ type: 'string' }),
-        r11: z.string().optional().openapi({ type: 'string' }),
-        r12: z.string().optional().openapi({ type: 'string' }),
-        r13: z.string().optional().openapi({ type: 'string' }),
-        r14: z.string().optional().openapi({ type: 'string' }),
-        r15: z.string().optional().openapi({ type: 'string' }),
-        r16: z.string().optional().openapi({ type: 'string' }),
-        r17: z.string().optional().openapi({ type: 'string' }),
-        r18: z.string().optional().openapi({ type: 'string' }),
-        r19: z.string().optional().openapi({ type: 'string' }),
-        r20: z.string().optional().openapi({ type: 'string' }),
+        r02: z.string().openapi({ type: 'string' }),
+        r03: z.string().openapi({ type: 'string' }),
+        r04: z.string().openapi({ type: 'string' }),
+        r05: z.string().openapi({ type: 'string' }),
+        r06: z.string().openapi({ type: 'string' }),
+        r07: z.string().openapi({ type: 'string' }),
+        r08: z.string().openapi({ type: 'string' }),
+        r09: z.string().openapi({ type: 'string' }),
+        r10: z.string().openapi({ type: 'string' }),
+        r11: z.string().openapi({ type: 'string' }),
+        r12: z.string().openapi({ type: 'string' }),
+        r13: z.string().openapi({ type: 'string' }),
+        r14: z.string().openapi({ type: 'string' }),
+        r15: z.string().openapi({ type: 'string' }),
+        r16: z.string().openapi({ type: 'string' }),
+        r17: z.string().openapi({ type: 'string' }),
+        r18: z.string().openapi({ type: 'string' }),
+        r19: z.string().openapi({ type: 'string' }),
+        r20: z.string().openapi({ type: 'string' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: [
+          'r01',
+          'r02',
+          'r03',
+          'r04',
+          'r05',
+          'r06',
+          'r07',
+          'r08',
+          'r09',
+          'r10',
+          'r11',
+          'r12',
+          'r13',
+          'r14',
+          'r15',
+          'r16',
+          'r17',
+          'r18',
+          'r19',
+          'r20',
+        ],
         properties: {
           r01: { type: 'string' },
           r02: { type: 'string' },
@@ -1107,19 +1129,22 @@ const EdgeCasesSchema = z
           r20: { type: 'string' },
         },
       }),
-    onlyFalse: z.literal(false).openapi({ type: 'boolean' }),
-    onlyTrue: z.literal(true).openapi({ type: 'boolean' }),
-    onlyNull: z.null().nullable().openapi({ type: 'null' }),
+    onlyFalse: z.literal(false).optional().openapi({ type: 'boolean', const: false }),
+    onlyTrue: z.literal(true).optional().openapi({ type: 'boolean', const: true }),
+    onlyNull: z.null().nullable().optional().openapi({ type: 'null' }),
     exactlyOne: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object', minProperties: 1, maxProperties: 1 }),
+      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .openapi({
+        type: 'object',
+        minProperties: 1,
+        maxProperties: 1,
+        additionalProperties: { type: 'string' },
+      }),
     exactlyOneItem: z
       .array(
         z
           .object({ id: z.string().openapi({ type: 'string' }) })
-          .optional()
-          .openapi({ type: 'object', properties: { id: { type: 'string' } } }),
+          .openapi({ type: 'object', required: ['id'], properties: { id: { type: 'string' } } }),
       )
       .length(1)
       .optional()
@@ -1130,8 +1155,6 @@ const EdgeCasesSchema = z
         maxItems: 1,
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1342,14 +1365,12 @@ const AmbiguousSchemasSchema = z
             b: z.string().openapi({ type: 'string' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: { a: { type: 'string' }, b: { type: 'string' } },
           }),
-        z.looseObject({}).optional().openapi({ type: 'object' }),
+        z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
       ])
-      .optional()
       .openapi({
         oneOf: [
           { type: 'object', properties: { a: { type: 'string' } } },
@@ -1365,7 +1386,7 @@ const AmbiguousSchemasSchema = z
           .union([z.literal(1), z.literal(2), z.literal(3)])
           .optional()
           .openapi({ enum: [1, 2, 3] }),
-        z.literal(2).optional(),
+        z.literal(2).optional().openapi({ const: 2 }),
       ])
       .optional()
       .openapi({
@@ -1380,19 +1401,17 @@ const AmbiguousSchemasSchema = z
         z
           .object({ type: z.enum(['b', 'c']).openapi({ enum: ['b', 'c'] }) })
           .partial()
-          .optional()
           .openapi({ type: 'object', properties: { type: { enum: ['b', 'c'] } } }),
       ])
-      .optional()
       .openapi({
         oneOf: [
           { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
           { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
         ],
+        discriminator: { propertyName: 'type' },
       }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1424,36 +1443,38 @@ const AmbiguousSchemasSchema = z
 
 const ImpossibleSchemasSchema = z
   .object({
-    alwaysFalse: z.any().openapi({ not: {} }),
-    emptyOneOf: z.any().openapi({ oneOf: [] }),
-    emptyAnyOf: z.any().openapi({ anyOf: [] }),
+    alwaysFalse: z.any().optional().openapi({ not: {} }),
+    emptyOneOf: z.any().optional().openapi({ oneOf: [] }),
+    emptyAnyOf: z.any().optional().openapi({ anyOf: [] }),
     impossibleAllOf: z
       .intersection(
-        z.string().openapi({ type: 'string' }),
+        z.string().optional().openapi({ type: 'string' }),
         z.array(z.any()).optional().openapi({ type: 'array' }),
-        z.object({}).optional().openapi({ type: 'object' }),
+        z.object({}).openapi({ type: 'object' }),
         z.number().optional().openapi({ type: 'number' }),
       )
       .optional()
       .openapi({
         allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
       }),
-    emptyEnum: z.any().openapi({ type: 'string', enum: [] }),
+    emptyEnum: z.any().optional().openapi({ type: 'string', enum: [] }),
     impossiblePattern: z
       .string()
       .regex(/^$/)
       .min(1)
+      .optional()
       .openapi({ type: 'string', minLength: 1, pattern: '^$' }),
     integerDecimal: z
       .int()
       .gt(0)
       .lt(0.5)
       .multipleOf(0.1)
+      .optional()
       .openapi({ type: 'integer', multipleOf: 0.1, exclusiveMinimum: 0, exclusiveMaximum: 0.5 }),
-    closedEmpty: z.strictObject({}).openapi({ type: 'object', minProperties: 1 }),
+    closedEmpty: z
+      .strictObject({})
+      .openapi({ type: 'object', additionalProperties: false, minProperties: 1 }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1482,44 +1503,54 @@ const ContradictionsSchema = z
       .string()
       .min(100)
       .max(10)
+      .optional()
       .openapi({ type: 'string', minLength: 100, maxLength: 10 }),
     impossibleRange: z
       .number()
       .min(100)
       .max(10)
+      .optional()
       .openapi({ type: 'number', minimum: 100, maximum: 10 }),
     noValidInteger: z
       .int()
       .gt(5)
       .lt(6)
+      .optional()
       .openapi({ type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 }),
     impossibleArray: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string().optional().openapi({ type: 'string' }))
       .min(10)
       .max(5)
       .optional()
       .openapi({ type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 }),
     impossibleObject: z.object({}).openapi({ type: 'object', minProperties: 10, maxProperties: 5 }),
     missingRequired: z
-      .object({ existingProperty: z.string().openapi({ type: 'string' }) })
+      .object({ existingProperty: z.string().optional().openapi({ type: 'string' }) })
+      .openapi({
+        type: 'object',
+        required: ['nonExistentProperty'],
+        properties: { existingProperty: { type: 'string' } },
+      }),
+    constEnumConflict: z
+      .literal('fixed')
       .optional()
-      .openapi({ type: 'object', properties: { existingProperty: { type: 'string' } } }),
-    constEnumConflict: z.literal('fixed').openapi({ type: 'string', enum: ['other1', 'other2'] }),
+      .openapi({ type: 'string', const: 'fixed', enum: ['other1', 'other2'] }),
     typeConflictAllOf: z
       .intersection(
-        z.string().openapi({ type: 'string' }),
+        z.string().optional().openapi({ type: 'string' }),
         z.number().optional().openapi({ type: 'number' }),
       )
       .optional()
       .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
-    formatTypeMismatch: z.int().openapi({ type: 'integer', format: 'email' }),
+    formatTypeMismatch: z.int().optional().openapi({ type: 'integer', format: 'email' }),
     multipleConst: z
-      .intersection(z.literal('value1'), z.literal('value2').optional())
+      .intersection(
+        z.literal('value1').optional().openapi({ const: 'value1' }),
+        z.literal('value2').optional().openapi({ const: 'value2' }),
+      )
       .optional()
       .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1550,7 +1581,6 @@ const PathologicalRootSchema = z
     recursive: RecursiveNightmaresSchema,
     composition: CompositionHellSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {

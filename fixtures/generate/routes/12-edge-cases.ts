@@ -1,24 +1,29 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EmptyObjectSchema = z.object({}).optional().openapi({ type: 'object' }).openapi('EmptyObject')
+const EmptyObjectSchema = z.object({}).openapi({ type: 'object' }).openapi('EmptyObject')
 
 const FreeFormObjectSchema = z
   .looseObject({})
-  .optional()
-  .openapi({ type: 'object' })
+  .openapi({ type: 'object', additionalProperties: true })
   .openapi('FreeFormObject')
 
 const StrictObjectSchema = z
   .strictObject({ known: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
-  .openapi({ type: 'object', properties: { known: { type: 'string' } } })
+  .openapi({
+    type: 'object',
+    properties: { known: { type: 'string' } },
+    additionalProperties: false,
+  })
   .openapi('StrictObject')
 
 const TypedAdditionalPropsSchema = z
   .record(z.string(), z.int().optional().openapi({ type: 'integer' }))
-  .optional()
-  .openapi({ type: 'object', properties: { id: { type: 'string' } } })
+  .openapi({
+    type: 'object',
+    properties: { id: { type: 'string' } },
+    additionalProperties: { type: 'integer' },
+  })
   .openapi('TypedAdditionalProps')
 
 const ComplexAdditionalPropsSchema = z
@@ -30,14 +35,18 @@ const ComplexAdditionalPropsSchema = z
         count: z.int().openapi({ type: 'integer' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { value: { type: 'string' }, count: { type: 'integer' } },
       }),
   )
-  .optional()
-  .openapi({ type: 'object' })
+  .openapi({
+    type: 'object',
+    additionalProperties: {
+      type: 'object',
+      properties: { value: { type: 'string' }, count: { type: 'integer' } },
+    },
+  })
   .openapi('ComplexAdditionalProps')
 
 const AllPrimitivesSchema = z
@@ -49,7 +58,6 @@ const AllPrimitivesSchema = z
     nullProp: z.null().nullable().openapi({ type: 'null' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -78,7 +86,6 @@ const AllStringFormatsSchema = z
     jwt: z.jwt().openapi({ type: 'string', format: 'jwt' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -108,7 +115,6 @@ const AllNumberFormatsSchema = z
     float64: z.float64().openapi({ type: 'number', format: 'float64' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -152,7 +158,6 @@ const AllValidationsSchema = z
       .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -187,11 +192,10 @@ const MixedEnumSchema = z
 
 const ConstValueSchema = z
   .object({
-    type: z.literal('fixed_type').openapi({ type: 'string' }),
-    version: z.literal(1).openapi({ type: 'integer' }),
+    type: z.literal('fixed_type').openapi({ type: 'string', const: 'fixed_type' }),
+    version: z.literal(1).openapi({ type: 'integer', const: 1 }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -228,7 +232,6 @@ const WithDefaultsSchema = z
       .openapi({ type: 'array', items: { type: 'string' }, default: [] }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -247,7 +250,6 @@ const ReadWriteOnlySchema = z
     name: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -269,7 +271,6 @@ const TreeNodeSchema = z
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
         parent: TreeNodeSchema,
       })
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -289,7 +290,6 @@ const CompanySchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -301,7 +301,6 @@ const CompanySchema = z
 
 const PersonSchema = z
   .object({ name: z.string().optional().openapi({ type: 'string' }), company: CompanySchema })
-  .optional()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
@@ -323,7 +322,6 @@ const DeepNestedSchema = z
                       .partial()
                       .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
                   })
-                  .partial()
                   .openapi({
                     type: 'object',
                     properties: {
@@ -331,7 +329,6 @@ const DeepNestedSchema = z
                     },
                   }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: {
@@ -344,7 +341,6 @@ const DeepNestedSchema = z
                 },
               }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -362,7 +358,6 @@ const DeepNestedSchema = z
             },
           }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -385,8 +380,6 @@ const DeepNestedSchema = z
         },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -457,7 +450,6 @@ const ComplexUnionSchema = z
     z
       .object({ key: z.string().openapi({ type: 'string' }) })
       .partial()
-      .optional()
       .openapi({ type: 'object', properties: { key: { type: 'string' } } }),
   ])
   .optional()
@@ -479,7 +471,6 @@ const MergedSchema = z
         name: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
@@ -490,7 +481,6 @@ const MergedSchema = z
         createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -522,15 +512,12 @@ const SingleValueEnumSchema = z
 
 const DataJsonSchema = z
   .object({ data: z.object({}).openapi({ type: 'object' }) })
-  .partial()
-  .optional()
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
   .openapi('DataJson')
 
 const DataXmlSchema = z
   .object({ data: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { data: { type: 'string' } },
@@ -547,7 +534,6 @@ const SpecialPropertyNamesSchema = z
     $dollar: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -567,7 +553,6 @@ const UnicodePropertiesSchema = z
     имя: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { 名前: { type: 'string' }, prénom: { type: 'string' }, имя: { type: 'string' } },
@@ -758,14 +743,25 @@ export const getUsersUserIdPostsPostIdCommentsCommentIdRoute = createRoute({
     params: z.object({
       userId: z
         .string()
-        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
       postId: z
         .int()
-        .openapi({ param: { name: 'postId', in: 'path', required: true }, type: 'integer' }),
+        .openapi({
+          param: { name: 'postId', in: 'path', required: true, schema: { type: 'integer' } },
+          type: 'integer',
+        }),
       commentId: z
         .uuid()
         .openapi({
-          param: { name: 'commentId', in: 'path', required: true },
+          param: {
+            name: 'commentId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -782,20 +778,31 @@ export const getParamsTestPathParamRoute = createRoute({
     params: z.object({
       pathParam: z
         .string()
-        .openapi({ param: { name: 'pathParam', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'pathParam', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
     query: z.object({
       queryParam: z
         .string()
         .optional()
-        .openapi({ param: { name: 'queryParam', in: 'query', required: false }, type: 'string' }),
+        .openapi({
+          param: { name: 'queryParam', in: 'query', required: false, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
     headers: z.object({
       'X-Header-Param': z
         .string()
         .optional()
         .openapi({
-          param: { name: 'X-Header-Param', in: 'header', required: false },
+          param: {
+            name: 'X-Header-Param',
+            in: 'header',
+            required: false,
+            schema: { type: 'string' },
+          },
           type: 'string',
         }),
     }),
@@ -803,7 +810,10 @@ export const getParamsTestPathParamRoute = createRoute({
       session_id: z
         .string()
         .optional()
-        .openapi({ param: { name: 'session_id', in: 'cookie', required: false }, type: 'string' }),
+        .openapi({
+          param: { name: 'session_id', in: 'cookie', required: false, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: 'Success' } },
@@ -838,7 +848,6 @@ export const postMultiContentRoute = createRoute({
               metadata: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -854,7 +863,6 @@ export const postMultiContentRoute = createRoute({
               field2: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { field1: { type: 'string' }, field2: { type: 'string' } },
@@ -918,11 +926,7 @@ export const postEmptyBodyRoute = createRoute({
   path: '/empty-body',
   operationId: 'postEmptyBody',
   request: {
-    body: {
-      content: {
-        'application/json': { schema: z.object({}).optional().openapi({ type: 'object' }) },
-      },
-    },
+    body: { content: { 'application/json': { schema: z.object({}).openapi({ type: 'object' }) } } },
   },
   responses: { 200: { description: 'Success' } },
 })
@@ -962,11 +966,28 @@ export const getArrayParamsRoute = createRoute({
           z
             .string()
             .optional()
-            .openapi({ param: { name: 'ids', in: 'query', required: false }, type: 'string' }),
+            .openapi({
+              param: {
+                name: 'ids',
+                in: 'query',
+                required: false,
+                schema: { type: 'array', items: { type: 'string' } },
+                style: 'form',
+                explode: true,
+              },
+              type: 'string',
+            }),
         )
         .optional()
         .openapi({
-          param: { name: 'ids', in: 'query', required: false },
+          param: {
+            name: 'ids',
+            in: 'query',
+            required: false,
+            schema: { type: 'array', items: { type: 'string' } },
+            style: 'form',
+            explode: true,
+          },
           type: 'array',
           items: { type: 'string' },
         }),
@@ -975,11 +996,28 @@ export const getArrayParamsRoute = createRoute({
           z
             .string()
             .optional()
-            .openapi({ param: { name: 'tags', in: 'query', required: false }, type: 'string' }),
+            .openapi({
+              param: {
+                name: 'tags',
+                in: 'query',
+                required: false,
+                schema: { type: 'array', items: { type: 'string' } },
+                style: 'form',
+                explode: false,
+              },
+              type: 'string',
+            }),
         )
         .optional()
         .openapi({
-          param: { name: 'tags', in: 'query', required: false },
+          param: {
+            name: 'tags',
+            in: 'query',
+            required: false,
+            schema: { type: 'array', items: { type: 'string' } },
+            style: 'form',
+            explode: false,
+          },
           type: 'array',
           items: { type: 'string' },
         }),
@@ -988,11 +1026,24 @@ export const getArrayParamsRoute = createRoute({
           z
             .int()
             .optional()
-            .openapi({ param: { name: 'values', in: 'query' }, type: 'integer' }),
+            .openapi({
+              param: {
+                name: 'values',
+                in: 'query',
+                schema: { type: 'array', items: { type: 'integer' } },
+                style: 'pipeDelimited',
+              },
+              type: 'integer',
+            }),
         )
         .optional()
         .openapi({
-          param: { name: 'values', in: 'query' },
+          param: {
+            name: 'values',
+            in: 'query',
+            schema: { type: 'array', items: { type: 'integer' } },
+            style: 'pipeDelimited',
+          },
           type: 'array',
           items: { type: 'integer' },
         }),
@@ -1001,11 +1052,24 @@ export const getArrayParamsRoute = createRoute({
           z
             .number()
             .optional()
-            .openapi({ param: { name: 'coords', in: 'query' }, type: 'number' }),
+            .openapi({
+              param: {
+                name: 'coords',
+                in: 'query',
+                schema: { type: 'array', items: { type: 'number' } },
+                style: 'spaceDelimited',
+              },
+              type: 'number',
+            }),
         )
         .optional()
         .openapi({
-          param: { name: 'coords', in: 'query' },
+          param: {
+            name: 'coords',
+            in: 'query',
+            schema: { type: 'array', items: { type: 'number' } },
+            style: 'spaceDelimited',
+          },
           type: 'array',
           items: { type: 'number' },
         }),
@@ -1027,9 +1091,21 @@ export const getObjectParamRoute = createRoute({
           maxPrice: z.number().openapi({ type: 'number' }),
         })
         .partial()
-        .optional()
         .openapi({
-          param: { name: 'filter', in: 'query' },
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                minPrice: { type: 'number' },
+                maxPrice: { type: 'number' },
+              },
+            },
+            style: 'deepObject',
+            explode: true,
+          },
           type: 'object',
           properties: {
             name: { type: 'string' },

@@ -11,9 +11,12 @@ export const getBooleanRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ isActive: z.boolean().optional().openapi({ type: 'boolean' }) })
-            .optional()
-            .openapi({ type: 'object', properties: { isActive: { type: 'boolean' } } }),
+            .object({ isActive: z.boolean().openapi({ type: 'boolean' }) })
+            .openapi({
+              type: 'object',
+              properties: { isActive: { type: 'boolean' } },
+              required: ['isActive'],
+            }),
         },
       },
     },

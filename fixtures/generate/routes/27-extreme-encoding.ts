@@ -5,8 +5,6 @@ const ResponseSchema = z
     data: z.object({}).openapi({ type: 'object' }),
     meta: z.object({}).openapi({ type: 'object' }),
   })
-  .partial()
-  .optional()
   .openapi({ type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } })
   .openapi('Response')
 
@@ -16,7 +14,7 @@ const JsonApiResponseSchema = z
       .union([
         z.object({}).openapi({ type: 'object' }),
         z
-          .array(z.object({}).optional().openapi({ type: 'object' }))
+          .array(z.object({}).openapi({ type: 'object' }))
           .optional()
           .openapi({ type: 'array', items: { type: 'object' } }),
       ])
@@ -33,8 +31,6 @@ const JsonApiResponseSchema = z
       .partial()
       .openapi({ type: 'object', properties: { version: { type: 'string' } } }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -56,15 +52,12 @@ const HalResponseSchema = z
           .partial()
           .openapi({ type: 'object', properties: { href: { type: 'string' } } }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { self: { type: 'object', properties: { href: { type: 'string' } } } },
       }),
     _embedded: z.object({}).openapi({ type: 'object' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -86,7 +79,6 @@ const ProblemResponseSchema = z
     instance: z.url().openapi({ type: 'string', format: 'uri' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -101,12 +93,10 @@ const ProblemResponseSchema = z
 
 const StreamItemSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
+    id: z.string().optional().openapi({ type: 'string' }),
     data: z.object({}).openapi({ type: 'object' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -136,7 +126,6 @@ const EncodedContentSchema = z
       .openapi({ type: 'string', description: 'Unicode escaped (\\uXXXX)' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -162,13 +151,13 @@ export const postEncodingTestRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              simpleString: z.string().openapi({ type: 'string' }),
+              simpleString: z.string().optional().openapi({ type: 'string' }),
               arrayExplode: z
-                .array(z.string().openapi({ type: 'string' }))
+                .array(z.string().optional().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               arrayNoExplode: z
-                .array(z.string().openapi({ type: 'string' }))
+                .array(z.string().optional().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               objectForm: z
@@ -188,22 +177,21 @@ export const postEncodingTestRoute = createRoute({
                     .partial()
                     .openapi({ type: 'object', properties: { deep: { type: 'string' } } }),
                 })
-                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
                     nested: { type: 'object', properties: { deep: { type: 'string' } } },
                   },
                 }),
-              imageFile: z.file().openapi({ type: 'string', format: 'binary' }),
-              documentFile: z.file().openapi({ type: 'string', format: 'binary' }),
+              imageFile: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              documentFile: z.file().optional().openapi({ type: 'string', format: 'binary' }),
               jsonString: z
                 .object({ data: z.string().openapi({ type: 'string' }) })
                 .partial()
                 .openapi({ type: 'object', properties: { data: { type: 'string' } } }),
-              base64Data: z.string().openapi({ type: 'string', format: 'byte' }),
+              base64Data: z.string().optional().openapi({ type: 'string', format: 'byte' }),
               multipleFiles: z
-                .array(z.file().openapi({ type: 'string', format: 'binary' }))
+                .array(z.file().optional().openapi({ type: 'string', format: 'binary' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
               complexNested: z
@@ -240,8 +228,6 @@ export const postEncodingTestRoute = createRoute({
                       },
                     }),
                 })
-                .partial()
-                .optional()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -280,10 +266,8 @@ export const postEncodingTestRoute = createRoute({
                     properties: { id: { type: 'integer' }, name: { type: 'string' } },
                   },
                 }),
-              partWithHeaders: z.string().openapi({ type: 'string' }),
+              partWithHeaders: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -371,22 +355,36 @@ export const getContentNegotiationRoute = createRoute({
         .default('application/json')
         .optional()
         .openapi({
-          param: { name: 'Accept', in: 'header', required: false },
+          param: {
+            name: 'Accept',
+            in: 'header',
+            required: false,
+            schema: { type: 'string', default: 'application/json' },
+          },
           type: 'string',
           default: 'application/json',
         }),
       'Accept-Language': z
         .string()
         .optional()
-        .openapi({ param: { name: 'Accept-Language', in: 'header' }, type: 'string' }),
+        .openapi({
+          param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } },
+          type: 'string',
+        }),
       'Accept-Encoding': z
         .string()
         .optional()
-        .openapi({ param: { name: 'Accept-Encoding', in: 'header' }, type: 'string' }),
+        .openapi({
+          param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } },
+          type: 'string',
+        }),
       'Accept-Charset': z
         .string()
         .optional()
-        .openapi({ param: { name: 'Accept-Charset', in: 'header' }, type: 'string' }),
+        .openapi({
+          param: { name: 'Accept-Charset', in: 'header', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: 'Content based on Accept header' } },
@@ -416,7 +414,6 @@ export const postBinaryVariationsRoute = createRoute({
               mimeType: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -434,7 +431,6 @@ export const postBinaryVariationsRoute = createRoute({
               part3: z.file().openapi({ type: 'string', format: 'binary' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -525,7 +521,6 @@ export const postUrlEncodedComplexRoute = createRoute({
                     .partial()
                     .openapi({ type: 'object', properties: { subkey: { type: 'string' } } }),
                 })
-                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -544,7 +539,6 @@ export const postUrlEncodedComplexRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -630,7 +624,6 @@ export const postSchemaEncodingRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {

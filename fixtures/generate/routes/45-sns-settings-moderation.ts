@@ -13,7 +13,6 @@ const AccountSettingsSchema = z
     phoneVerified: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -37,7 +36,6 @@ const UpdateAccountSettingsRequestSchema = z
     country: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -64,7 +62,6 @@ const PrivacySettingsSchema = z
     allowDataSharing: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -98,7 +95,6 @@ const ContentPreferencesSchema = z
     hideLikeCounts: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -114,19 +110,19 @@ const ContentPreferencesSchema = z
 
 const MutedWordSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    word: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    word: z.string().openapi({ type: 'string' }),
     matchWholeWord: z.boolean().optional().openapi({ type: 'boolean' }),
     expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     scope: z
       .enum(['all', 'home_timeline', 'notifications'])
       .optional()
       .openapi({ type: 'string', enum: ['all', 'home_timeline', 'notifications'] }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'word', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       word: { type: 'string' },
@@ -140,7 +136,7 @@ const MutedWordSchema = z
 
 const CreateMutedWordRequestSchema = z
   .object({
-    word: z.string().max(100).optional().openapi({ type: 'string', maxLength: 100 }),
+    word: z.string().max(100).openapi({ type: 'string', maxLength: 100 }),
     matchWholeWord: z
       .boolean()
       .default(true)
@@ -156,9 +152,9 @@ const CreateMutedWordRequestSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['all', 'home_timeline', 'notifications'], default: 'all' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['word'],
     properties: {
       word: { type: 'string', maxLength: 100 },
       matchWholeWord: { type: 'boolean', default: true },
@@ -170,7 +166,7 @@ const CreateMutedWordRequestSchema = z
 
 const SessionSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     isCurrent: z.boolean().optional().openapi({ type: 'boolean' }),
     device: z
       .object({
@@ -180,7 +176,6 @@ const SessionSchema = z
         name: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -197,7 +192,6 @@ const SessionSchema = z
         ip: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -206,12 +200,12 @@ const SessionSchema = z
           ip: { type: 'string' },
         },
       }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    lastActiveAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    lastActiveAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'device', 'createdAt', 'lastActiveAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       isCurrent: { type: 'boolean' },
@@ -240,20 +234,20 @@ const SessionSchema = z
 
 const ConnectedAppSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     permissions: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    authorizedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    authorizedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'permissions', 'authorizedAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -268,10 +262,9 @@ const ConnectedAppSchema = z
 
 const ReportSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum(['post', 'user', 'message'])
-      .optional()
       .openapi({ type: 'string', enum: ['post', 'user', 'message'] }),
     targetId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     reason: z
@@ -287,7 +280,6 @@ const ReportSchema = z
         'impersonation',
         'other',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -306,15 +298,14 @@ const ReportSchema = z
     description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['pending', 'in_review', 'resolved', 'dismissed'])
-      .optional()
       .openapi({ type: 'string', enum: ['pending', 'in_review', 'resolved', 'dismissed'] }),
     resolution: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     resolvedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'reason', 'status', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string', enum: ['post', 'user', 'message'] },
@@ -347,9 +338,8 @@ const CreateReportRequestSchema = z
   .object({
     type: z
       .enum(['post', 'user', 'message'])
-      .optional()
       .openapi({ type: 'string', enum: ['post', 'user', 'message'] }),
-    targetId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    targetId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     reason: z
       .enum([
         'spam',
@@ -363,7 +353,6 @@ const CreateReportRequestSchema = z
         'impersonation',
         'other',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -385,9 +374,9 @@ const CreateReportRequestSchema = z
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['type', 'targetId', 'reason'],
     properties: {
       type: { type: 'string', enum: ['post', 'user', 'message'] },
       targetId: { type: 'string', format: 'uuid' },
@@ -414,10 +403,9 @@ const CreateReportRequestSchema = z
 
 const ModerationItemSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum(['post', 'user', 'message'])
-      .optional()
       .openapi({ type: 'string', enum: ['post', 'user', 'message'] }),
     targetId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     reports: z
@@ -426,33 +414,28 @@ const ModerationItemSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Report' } }),
     status: z
       .enum(['pending', 'in_review', 'resolved'])
-      .optional()
       .openapi({ type: 'string', enum: ['pending', 'in_review', 'resolved'] }),
     assignedTo: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
       .optional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    content: z
-      .object({})
-      .optional()
-      .openapi({ type: 'object', description: '対象コンテンツの詳細' }),
+    content: z.object({}).openapi({ type: 'object', description: '対象コンテンツの詳細' }),
     userHistory: z
       .object({
         previousViolations: z.int().openapi({ type: 'integer' }),
         accountAge: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { previousViolations: { type: 'integer' }, accountAge: { type: 'string' } },
       }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'status', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string', enum: ['post', 'user', 'message'] },
@@ -475,7 +458,6 @@ const ModerationActionRequestSchema = z
   .object({
     action: z
       .enum(['approve', 'remove_content', 'warn_user', 'suspend_user', 'dismiss'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['approve', 'remove_content', 'warn_user', 'suspend_user', 'dismiss'],
@@ -487,9 +469,9 @@ const ModerationActionRequestSchema = z
       .openapi({ type: 'integer', description: '凍結期間（時間）' }),
     notifyUser: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['action'],
     properties: {
       action: {
         type: 'string',
@@ -504,19 +486,19 @@ const ModerationActionRequestSchema = z
 
 const ModerationActionSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    action: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    action: z.string().openapi({ type: 'string' }),
     targetType: z.string().optional().openapi({ type: 'string' }),
     targetId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     reason: z.string().optional().openapi({ type: 'string' }),
     note: z.string().optional().openapi({ type: 'string' }),
     moderatorId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'action', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       action: { type: 'string' },
@@ -533,10 +515,10 @@ const ModerationActionSchema = z
 
 const PostAnalyticsSchema = z
   .object({
-    postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    impressions: z.int().optional().openapi({ type: 'integer' }),
+    postId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    impressions: z.int().openapi({ type: 'integer' }),
     reach: z.int().optional().openapi({ type: 'integer' }),
-    engagements: z.int().optional().openapi({ type: 'integer' }),
+    engagements: z.int().openapi({ type: 'integer' }),
     engagementRate: z.number().optional().openapi({ type: 'number' }),
     likes: z.int().optional().openapi({ type: 'integer' }),
     reposts: z.int().optional().openapi({ type: 'integer' }),
@@ -553,9 +535,9 @@ const PostAnalyticsSchema = z
       .optional()
       .openapi({ type: 'integer', description: '総視聴時間（秒）' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['postId', 'impressions', 'engagements'],
     properties: {
       postId: { type: 'string', format: 'uuid' },
       impressions: { type: 'integer' },
@@ -579,7 +561,7 @@ const PostAnalyticsSchema = z
 
 const AccountAnalyticsSchema = z
   .object({
-    period: z.string().openapi({ type: 'string' }),
+    period: z.string().optional().openapi({ type: 'string' }),
     impressions: z
       .object({
         total: z.int().openapi({ type: 'integer' }),
@@ -609,7 +591,6 @@ const AccountAnalyticsSchema = z
           }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -665,8 +646,6 @@ const AccountAnalyticsSchema = z
         properties: { total: { type: 'integer' }, change: { type: 'number' } },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -728,7 +707,6 @@ const FollowerAnalyticsSchema = z
             },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -800,8 +778,6 @@ const FollowerAnalyticsSchema = z
             },
           }),
       })
-      .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -842,7 +818,6 @@ const FollowerAnalyticsSchema = z
             properties: { interest: { type: 'string' }, percentage: { type: 'number' } },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -863,7 +838,6 @@ const FollowerAnalyticsSchema = z
             properties: { hour: { type: 'integer' }, activityScore: { type: 'number' } },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -873,7 +847,6 @@ const FollowerAnalyticsSchema = z
       }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -942,7 +915,6 @@ const PostWithAnalyticsSchema = z
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     analytics: PostAnalyticsSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -958,7 +930,6 @@ const ModerationQueueResponseSchema = z
   .object({
     data: z
       .array(ModerationItemSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ModerationItem' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
     stats: z
@@ -968,7 +939,6 @@ const ModerationQueueResponseSchema = z
         resolvedToday: z.int().openapi({ type: 'integer' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -978,9 +948,9 @@ const ModerationQueueResponseSchema = z
         },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/ModerationItem' } },
       nextCursor: { type: 'string' },
@@ -998,12 +968,12 @@ const ModerationQueueResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -1091,7 +1061,10 @@ export const getSettingsUsernameCheckRoute = createRoute({
     query: z.object({
       username: z
         .string()
-        .openapi({ param: { name: 'username', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'username', in: 'query', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1105,7 +1078,6 @@ export const getSettingsUsernameCheckRoute = createRoute({
               reason: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { available: { type: 'boolean' }, reason: { type: 'string' } },
@@ -1239,7 +1211,12 @@ export const deleteSettingsMutedWordsWordIdRoute = createRoute({
       wordId: z
         .uuid()
         .openapi({
-          param: { name: 'wordId', in: 'path', required: true },
+          param: {
+            name: 'wordId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1283,7 +1260,12 @@ export const deleteSettingsSessionsSessionIdRoute = createRoute({
       sessionId: z
         .uuid()
         .openapi({
-          param: { name: 'sessionId', in: 'path', required: true },
+          param: {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1327,7 +1309,12 @@ export const deleteSettingsConnectedAppsAppIdRoute = createRoute({
       appId: z
         .uuid()
         .openapi({
-          param: { name: 'appId', in: 'path', required: true },
+          param: {
+            name: 'appId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1356,7 +1343,6 @@ export const postSettingsDataExportRoute = createRoute({
                 .openapi({ type: 'string', format: 'date-time' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1383,7 +1369,12 @@ export const getSettingsDataExportRequestIdRoute = createRoute({
       requestId: z
         .uuid()
         .openapi({
-          param: { name: 'requestId', in: 'path', required: true },
+          param: {
+            name: 'requestId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1406,7 +1397,6 @@ export const getSettingsDataExportRequestIdRoute = createRoute({
               expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1434,9 +1424,12 @@ export const postSettingsDeactivateRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ password: z.string().optional().openapi({ type: 'string' }) })
-            .optional()
-            .openapi({ type: 'object', properties: { password: { type: 'string' } } }),
+            .object({ password: z.string().openapi({ type: 'string' }) })
+            .openapi({
+              type: 'object',
+              required: ['password'],
+              properties: { password: { type: 'string' } },
+            }),
         },
       },
       required: true,
@@ -1476,7 +1469,12 @@ export const getReportsReportIdRoute = createRoute({
       reportId: z
         .uuid()
         .openapi({
-          param: { name: 'reportId', in: 'path', required: true },
+          param: {
+            name: 'reportId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1502,7 +1500,11 @@ export const getModerationQueueRoute = createRoute({
         .enum(['pending', 'in_review', 'resolved'])
         .optional()
         .openapi({
-          param: { name: 'status', in: 'query' },
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: { type: 'string', enum: ['pending', 'in_review', 'resolved'] },
+          },
           type: 'string',
           enum: ['pending', 'in_review', 'resolved'],
         }),
@@ -1510,7 +1512,11 @@ export const getModerationQueueRoute = createRoute({
         .enum(['post', 'user', 'message'])
         .optional()
         .openapi({
-          param: { name: 'type', in: 'query' },
+          param: {
+            name: 'type',
+            in: 'query',
+            schema: { type: 'string', enum: ['post', 'user', 'message'] },
+          },
           type: 'string',
           enum: ['post', 'user', 'message'],
         }),
@@ -1540,7 +1546,12 @@ export const getModerationItemsItemIdRoute = createRoute({
       itemId: z
         .uuid()
         .openapi({
-          param: { name: 'itemId', in: 'path', required: true },
+          param: {
+            name: 'itemId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1591,7 +1602,12 @@ export const getModerationUsersUserIdHistoryRoute = createRoute({
       userId: z
         .uuid()
         .openapi({
-          param: { name: 'userId', in: 'path', required: true },
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1627,16 +1643,16 @@ export const postModerationUsersUserIdSuspendRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              reason: z.string().optional().openapi({ type: 'string' }),
+              reason: z.string().openapi({ type: 'string' }),
               duration: z
                 .int()
                 .optional()
                 .openapi({ type: 'integer', description: '凍結期間（時間）。省略で永久' }),
               note: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['reason'],
               properties: {
                 reason: { type: 'string' },
                 duration: { type: 'integer', description: '凍結期間（時間）。省略で永久' },
@@ -1669,7 +1685,6 @@ export const postModerationUsersUserIdUnsuspendRoute = createRoute({
           schema: z
             .object({ note: z.string().openapi({ type: 'string' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { note: { type: 'string' } } }),
         },
       },
@@ -1694,7 +1709,12 @@ export const getAnalyticsPostsPostIdRoute = createRoute({
       postId: z
         .uuid()
         .openapi({
-          param: { name: 'postId', in: 'path', required: true },
+          param: {
+            name: 'postId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1724,7 +1744,11 @@ export const getAnalyticsAccountRoute = createRoute({
         .default('28d')
         .optional()
         .openapi({
-          param: { name: 'period', in: 'query' },
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
           type: 'string',
           enum: ['7d', '28d', '90d'],
           default: '28d',
@@ -1754,7 +1778,11 @@ export const getAnalyticsFollowersRoute = createRoute({
         .default('28d')
         .optional()
         .openapi({
-          param: { name: 'period', in: 'query' },
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
           type: 'string',
           enum: ['7d', '28d', '90d'],
           default: '28d',
@@ -1784,7 +1812,11 @@ export const getAnalyticsTopPostsRoute = createRoute({
         .default('28d')
         .optional()
         .openapi({
-          param: { name: 'period', in: 'query' },
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
           type: 'string',
           enum: ['7d', '28d', '90d'],
           default: '28d',
@@ -1794,7 +1826,15 @@ export const getAnalyticsTopPostsRoute = createRoute({
         .default('impressions')
         .optional()
         .openapi({
-          param: { name: 'metric', in: 'query' },
+          param: {
+            name: 'metric',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['impressions', 'engagements', 'likes', 'reposts'],
+              default: 'impressions',
+            },
+          },
           type: 'string',
           enum: ['impressions', 'engagements', 'likes', 'reposts'],
           default: 'impressions',
@@ -1803,7 +1843,11 @@ export const getAnalyticsTopPostsRoute = createRoute({
         .int()
         .default(10)
         .optional()
-        .openapi({ param: { name: 'limit', in: 'query' }, type: 'integer', default: 10 }),
+        .openapi({
+          param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 10 } },
+          type: 'integer',
+          default: 10,
+        }),
     }),
   },
   responses: {

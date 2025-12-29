@@ -1,9 +1,13 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const AnimalSchema = z
-  .object({ type: z.string().optional().openapi({ type: 'string' }) })
-  .optional()
-  .openapi({ type: 'object', properties: { type: { type: 'string' } } })
+  .object({ type: z.string().openapi({ type: 'string' }) })
+  .openapi({
+    type: 'object',
+    required: ['type'],
+    properties: { type: { type: 'string' } },
+    discriminator: { propertyName: 'type' },
+  })
   .openapi('Animal')
 
 const CatSchema = z
@@ -14,7 +18,6 @@ const CatSchema = z
         livesLeft: z.int().min(0).max(9).openapi({ type: 'integer', minimum: 0, maximum: 9 }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } },
@@ -39,7 +42,6 @@ const DogSchema = z
           .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
@@ -59,16 +61,15 @@ const DogSchema = z
 
 const BaseSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     metadata: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
       .nullable()
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       metadata: { type: 'object', nullable: true, additionalProperties: { type: 'string' } },
@@ -89,6 +90,10 @@ export const postPolymorphicRoute = createRoute({
             .optional()
             .openapi({
               oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+              discriminator: {
+                propertyName: 'type',
+                mapping: { cat: '#/components/schemas/Cat', dog: '#/components/schemas/Dog' },
+              },
             }),
         },
       },
@@ -104,37 +109,73 @@ export const getSearchRoute = createRoute({
   summary: 'Search with complex query',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true }, type: 'string' }),
+      q: z
+        .string()
+        .openapi({
+          param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
       filter: z
         .union([
           z
             .string()
             .optional()
-            .openapi({ param: { name: 'filter', in: 'query' }, type: 'string' }),
+            .openapi({
+              param: {
+                name: 'filter',
+                in: 'query',
+                schema: {
+                  anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+                },
+              },
+              type: 'string',
+            }),
           z
             .array(
               z
                 .string()
                 .optional()
-                .openapi({ param: { name: 'filter', in: 'query' }, type: 'string' }),
+                .openapi({
+                  param: {
+                    name: 'filter',
+                    in: 'query',
+                    schema: {
+                      anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+                    },
+                  },
+                  type: 'string',
+                }),
             )
             .optional()
             .openapi({
-              param: { name: 'filter', in: 'query' },
+              param: {
+                name: 'filter',
+                in: 'query',
+                schema: {
+                  anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+                },
+              },
               type: 'array',
               items: { type: 'string' },
             }),
         ])
         .optional()
         .openapi({
-          param: { name: 'filter', in: 'query' },
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: { anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }] },
+          },
           anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
         }),
       exclude: z
         .any()
         .refine((v) => typeof v !== 'number')
         .optional()
-        .openapi({ param: { name: 'exclude', in: 'query' }, not: { type: 'number' } }),
+        .openapi({
+          param: { name: 'exclude', in: 'query', schema: { not: { type: 'number' } } },
+          not: { type: 'number' },
+        }),
     }),
   },
   responses: { 200: { description: 'OK' } },
@@ -156,7 +197,6 @@ export const putMultiStepRoute = createRoute({
                   step: z.int().min(1).max(3).openapi({ type: 'integer', minimum: 1, maximum: 3 }),
                 })
                 .partial()
-                .optional()
                 .openapi({
                   type: 'object',
                   properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },

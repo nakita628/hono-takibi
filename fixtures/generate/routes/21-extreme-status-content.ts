@@ -111,7 +111,6 @@ export const getExtremeResponsesRoute = createRoute({
               message: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { code: { type: 'integer' }, message: { type: 'string' } },
@@ -136,7 +135,6 @@ export const postMultipartVariationsRoute = createRoute({
               metadata: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -158,7 +156,6 @@ export const postMultipartVariationsRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { parts: { type: 'array', items: { type: 'string', format: 'binary' } } },
@@ -174,7 +171,6 @@ export const postMultipartVariationsRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -190,15 +186,14 @@ export const postMultipartVariationsRoute = createRoute({
               html: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { text: { type: 'string' }, html: { type: 'string' } },
             }),
         },
-        'multipart/digest': { schema: z.object({}).optional().openapi({ type: 'object' }) },
-        'multipart/parallel': { schema: z.object({}).optional().openapi({ type: 'object' }) },
-        'multipart/byteranges': { schema: z.object({}).optional().openapi({ type: 'object' }) },
+        'multipart/digest': { schema: z.object({}).openapi({ type: 'object' }) },
+        'multipart/parallel': { schema: z.object({}).openapi({ type: 'object' }) },
+        'multipart/byteranges': { schema: z.object({}).openapi({ type: 'object' }) },
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
@@ -209,7 +204,6 @@ export const postMultipartVariationsRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -232,20 +226,16 @@ export const postCharsetVariationsRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json; charset=utf-8': {
-          schema: z.object({}).optional().openapi({ type: 'object' }),
-        },
-        'application/json; charset=utf-16': {
-          schema: z.object({}).optional().openapi({ type: 'object' }),
-        },
+        'application/json; charset=utf-8': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/json; charset=utf-16': { schema: z.object({}).openapi({ type: 'object' }) },
         'application/json; charset=iso-8859-1': {
-          schema: z.object({}).optional().openapi({ type: 'object' }),
+          schema: z.object({}).openapi({ type: 'object' }),
         },
         'text/plain; charset=utf-8': { schema: z.string().optional().openapi({ type: 'string' }) },
         'text/plain; charset=ascii': { schema: z.string().optional().openapi({ type: 'string' }) },
         'text/html; charset=utf-8': { schema: z.string().optional().openapi({ type: 'string' }) },
         'multipart/form-data; boundary=----WebKitFormBoundary': {
-          schema: z.object({}).optional().openapi({ type: 'object' }),
+          schema: z.object({}).openapi({ type: 'object' }),
         },
       },
     },

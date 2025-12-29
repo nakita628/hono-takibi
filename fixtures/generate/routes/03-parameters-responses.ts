@@ -2,8 +2,8 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     price: z.float64().min(0).optional().openapi({ type: 'number', format: 'float64', minimum: 0 }),
     tags: z
@@ -11,9 +11,9 @@ const ItemSchema = z
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -28,15 +28,14 @@ const ItemListSchema = z
   .object({
     items: z
       .array(ItemSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Item' } }),
-    total: z.int64().optional().openapi({ type: 'integer', format: 'int64' }),
-    page: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
-    limit: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
+    total: z.int64().openapi({ type: 'integer', format: 'int64' }),
+    page: z.int32().openapi({ type: 'integer', format: 'int32' }),
+    limit: z.int32().openapi({ type: 'integer', format: 'int32' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['items', 'total', 'page', 'limit'],
     properties: {
       items: { type: 'array', items: { $ref: '#/components/schemas/Item' } },
       total: { type: 'integer', format: 'int64' },
@@ -48,13 +47,13 @@ const ItemListSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
-    details: z.looseObject({}).optional().openapi({ type: 'object' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
+    details: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: {
       code: { type: 'string' },
       message: { type: 'string' },

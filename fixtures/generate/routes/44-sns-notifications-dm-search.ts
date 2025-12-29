@@ -2,15 +2,15 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSummarySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    username: z.string().optional().openapi({ type: 'string' }),
-    displayName: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    username: z.string().openapi({ type: 'string' }),
+    displayName: z.string().openapi({ type: 'string' }),
     avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     isVerified: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'username', 'displayName'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       username: { type: 'string' },
@@ -23,13 +23,13 @@ const UserSummarySchema = z
 
 const PostSummarySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    text: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    text: z.string().openapi({ type: 'string' }),
     author: UserSummarySchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'text'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       text: { type: 'string' },
@@ -40,7 +40,7 @@ const PostSummarySchema = z
 
 const NotificationSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum([
         'like',
@@ -54,7 +54,6 @@ const NotificationSchema = z
         'post_you_liked',
         'new_posts_from',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -70,7 +69,10 @@ const NotificationSchema = z
           'new_posts_from',
         ],
       }),
-    actor: UserSummarySchema.optional().openapi({ description: 'アクションを起こしたユーザー' }),
+    actor: UserSummarySchema.optional().openapi({
+      $ref: '#/components/schemas/UserSummary',
+      description: 'アクションを起こしたユーザー',
+    }),
     actors: z
       .array(UserSummarySchema)
       .optional()
@@ -80,13 +82,16 @@ const NotificationSchema = z
         description: '複数ユーザーの場合（いいねなど）',
       }),
     post: PostSummarySchema,
-    targetPost: PostSummarySchema.optional().openapi({ description: '引用・返信の場合の対象投稿' }),
+    targetPost: PostSummarySchema.optional().openapi({
+      $ref: '#/components/schemas/PostSummary',
+      description: '引用・返信の場合の対象投稿',
+    }),
     isRead: z.boolean().optional().openapi({ type: 'boolean' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: {
@@ -126,13 +131,13 @@ const NotificationSchema = z
 
 const NotificationSettingsSchema = z
   .object({
-    likes: z.boolean().openapi({ type: 'boolean' }),
-    reposts: z.boolean().openapi({ type: 'boolean' }),
-    quotes: z.boolean().openapi({ type: 'boolean' }),
-    replies: z.boolean().openapi({ type: 'boolean' }),
-    mentions: z.boolean().openapi({ type: 'boolean' }),
-    follows: z.boolean().openapi({ type: 'boolean' }),
-    directMessages: z.boolean().openapi({ type: 'boolean' }),
+    likes: z.boolean().optional().openapi({ type: 'boolean' }),
+    reposts: z.boolean().optional().openapi({ type: 'boolean' }),
+    quotes: z.boolean().optional().openapi({ type: 'boolean' }),
+    replies: z.boolean().optional().openapi({ type: 'boolean' }),
+    mentions: z.boolean().optional().openapi({ type: 'boolean' }),
+    follows: z.boolean().optional().openapi({ type: 'boolean' }),
+    directMessages: z.boolean().optional().openapi({ type: 'boolean' }),
     emailNotifications: z
       .object({
         enabled: z.boolean().openapi({ type: 'boolean' }),
@@ -148,17 +153,16 @@ const NotificationSettingsSchema = z
           digest: { type: 'string', enum: ['daily', 'weekly', 'never'] },
         },
       }),
-    pushNotifications: z.boolean().openapi({ type: 'boolean' }),
+    pushNotifications: z.boolean().optional().openapi({ type: 'boolean' }),
     filterQuality: z
       .enum(['all', 'filtered'])
+      .optional()
       .openapi({
         type: 'string',
         enum: ['all', 'filtered'],
         description: '低品質通知のフィルタリング',
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -188,17 +192,16 @@ const NotificationSettingsSchema = z
 
 const MediaAttachmentSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum(['image', 'gif', 'video'])
-      .optional()
       .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'url'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string', enum: ['image', 'gif', 'video'] },
@@ -210,8 +213,8 @@ const MediaAttachmentSchema = z
 
 const MessageSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    conversationId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    conversationId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     sender: UserSummarySchema,
     text: z.string().max(10000).optional().openapi({ type: 'string', maxLength: 10000 }),
     media: z
@@ -229,7 +232,6 @@ const MessageSchema = z
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -253,11 +255,11 @@ const MessageSchema = z
       .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'conversationId', 'sender', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       conversationId: { type: 'string', format: 'uuid' },
@@ -283,25 +285,23 @@ const MessageSchema = z
 
 const ConversationSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum(['one_to_one', 'group'])
-      .optional()
       .openapi({ type: 'string', enum: ['one_to_one', 'group'] }),
     name: z.string().optional().openapi({ type: 'string', description: 'グループ会話の名前' }),
     participants: z
       .array(UserSummarySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
     lastMessage: MessageSchema,
     unreadCount: z.int().optional().openapi({ type: 'integer' }),
     isMuted: z.boolean().optional().openapi({ type: 'boolean' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'participants', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string', enum: ['one_to_one', 'group'] },
@@ -326,7 +326,6 @@ const SendMessageRequestSchema = z
     sharedPostId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -339,23 +338,22 @@ const SendMessageRequestSchema = z
 
 const HashtagSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    postCount: z.int().optional().openapi({ type: 'integer' }),
+    name: z.string().openapi({ type: 'string' }),
+    postCount: z.int().openapi({ type: 'integer' }),
     trend: z
       .object({
         rank: z.int().openapi({ type: 'integer' }),
         trendingIn: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { rank: { type: 'integer' }, trendingIn: { type: 'string' } },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'postCount'],
     properties: {
       name: { type: 'string' },
       postCount: { type: 'integer' },
@@ -369,19 +367,19 @@ const HashtagSchema = z
 
 const TrendSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     category: z
       .enum(['hashtag', 'topic', 'event'])
       .optional()
       .openapi({ type: 'string', enum: ['hashtag', 'topic', 'event'] }),
-    postCount: z.int().optional().openapi({ type: 'integer' }),
+    postCount: z.int().openapi({ type: 'integer' }),
     description: z.string().optional().openapi({ type: 'string' }),
     url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     promoted: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'postCount'],
     properties: {
       name: { type: 'string' },
       category: { type: 'string', enum: ['hashtag', 'topic', 'event'] },
@@ -395,15 +393,15 @@ const TrendSchema = z
 
 const TrendLocationSchema = z
   .object({
-    woeid: z.int().optional().openapi({ type: 'integer' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    country: z.string().optional().openapi({ type: 'string' }),
+    woeid: z.int().openapi({ type: 'integer' }),
+    name: z.string().openapi({ type: 'string' }),
+    country: z.string().openapi({ type: 'string' }),
     countryCode: z.string().optional().openapi({ type: 'string' }),
     parentId: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['woeid', 'name', 'country'],
     properties: {
       woeid: { type: 'integer' },
       name: { type: 'string' },
@@ -419,7 +417,6 @@ const UserSuggestionSchema = z
     user: UserSummarySchema,
     reason: z
       .enum(['followed_by_friends', 'similar_interests', 'popular', 'new_to_platform'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['followed_by_friends', 'similar_interests', 'popular', 'new_to_platform'],
@@ -430,9 +427,9 @@ const UserSuggestionSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
     mutualFollowersCount: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['user', 'reason'],
     properties: {
       user: { $ref: '#/components/schemas/UserSummary' },
       reason: {
@@ -447,17 +444,17 @@ const UserSuggestionSchema = z
 
 const TopicSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     followerCount: z.int().optional().openapi({ type: 'integer' }),
     isFollowing: z.boolean().optional().openapi({ type: 'boolean' }),
     category: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -474,13 +471,12 @@ const NotificationListResponseSchema = z
   .object({
     data: z
       .array(NotificationSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Notification' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Notification' } },
       nextCursor: { type: 'string' },
@@ -492,13 +488,12 @@ const ConversationListResponseSchema = z
   .object({
     data: z
       .array(ConversationSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Conversation' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Conversation' } },
       nextCursor: { type: 'string' },
@@ -510,13 +505,12 @@ const MessageListResponseSchema = z
   .object({
     data: z
       .array(MessageSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Message' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Message' } },
       nextCursor: { type: 'string' },
@@ -528,14 +522,13 @@ const PostSearchResponseSchema = z
   .object({
     data: z
       .array(PostSummarySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostSummary' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
     totalCount: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/PostSummary' } },
       nextCursor: { type: 'string' },
@@ -548,13 +541,12 @@ const UserSearchResponseSchema = z
   .object({
     data: z
       .array(UserSummarySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/UserSummary' } },
       nextCursor: { type: 'string' },
@@ -564,12 +556,12 @@ const UserSearchResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -635,13 +627,26 @@ export const getNotificationsRoute = createRoute({
       types: z
         .string()
         .optional()
-        .openapi({ param: { name: 'types', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'types',
+            in: 'query',
+            description: '通知タイプでフィルタ（カンマ区切り）',
+            schema: { type: 'string' },
+            example: 'like,repost,follow,mention',
+          },
+          type: 'string',
+        }),
       filter: z
         .enum(['all', 'mentions', 'verified'])
         .default('all')
         .optional()
         .openapi({
-          param: { name: 'filter', in: 'query' },
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: { type: 'string', enum: ['all', 'mentions', 'verified'], default: 'all' },
+          },
           type: 'string',
           enum: ['all', 'mentions', 'verified'],
           default: 'all',
@@ -675,7 +680,6 @@ export const getNotificationsUnreadCountRoute = createRoute({
               mentionsCount: z.int().openapi({ type: 'integer' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { count: { type: 'integer' }, mentionsCount: { type: 'integer' } },
@@ -711,7 +715,6 @@ export const postNotificationsMarkReadRoute = createRoute({
               maxId: z.string().openapi({ type: 'string', description: 'このID以前を既読' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -799,7 +802,7 @@ export const postDmConversationsRoute = createRoute({
           schema: z
             .object({
               participantIds: z
-                .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+                .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
                 .min(1)
                 .max(50)
                 .optional()
@@ -816,9 +819,9 @@ export const postDmConversationsRoute = createRoute({
                 .optional()
                 .openapi({ type: 'string', maxLength: 50, description: 'グループ会話の名前' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['participantIds'],
               properties: {
                 participantIds: {
                   type: 'array',
@@ -923,7 +926,6 @@ export const postDmConversationsConversationIdReadRoute = createRoute({
           schema: z
             .object({ lastReadMessageId: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { lastReadMessageId: { type: 'string', format: 'uuid' } },
@@ -958,7 +960,12 @@ export const deleteDmMessagesMessageIdRoute = createRoute({
       messageId: z
         .uuid()
         .openapi({
-          param: { name: 'messageId', in: 'path', required: true },
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -979,12 +986,10 @@ export const postDmMessagesMessageIdReactionsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              emoji: z.string().optional().openapi({ type: 'string', description: '絵文字' }),
-            })
-            .optional()
+            .object({ emoji: z.string().openapi({ type: 'string', description: '絵文字' }) })
             .openapi({
               type: 'object',
+              required: ['emoji'],
               properties: { emoji: { type: 'string', description: '絵文字' } },
             }),
         },
@@ -1007,7 +1012,12 @@ export const deleteDmMessagesMessageIdReactionsRoute = createRoute({
       messageId: z
         .uuid()
         .openapi({
-          param: { name: 'messageId', in: 'path', required: true },
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1015,7 +1025,10 @@ export const deleteDmMessagesMessageIdReactionsRoute = createRoute({
     query: z.object({
       emoji: z
         .string()
-        .openapi({ param: { name: 'emoji', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'emoji', in: 'query', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -1038,11 +1051,9 @@ export const getDmUnreadCountRoute = createRoute({
               count: z.int().openapi({ type: 'integer' }),
               conversationCounts: z
                 .record(z.string(), z.int().openapi({ type: 'integer' }))
-                .optional()
-                .openapi({ type: 'object' }),
+                .openapi({ type: 'object', additionalProperties: { type: 'integer' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1066,7 +1077,18 @@ export const getSearchPostsRoute = createRoute({
   operationId: 'searchPosts',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true }, type: 'string' }),
+      q: z
+        .string()
+        .openapi({
+          param: {
+            name: 'q',
+            in: 'query',
+            required: true,
+            description: '検索クエリ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
       filter: z
@@ -1074,7 +1096,11 @@ export const getSearchPostsRoute = createRoute({
         .default('top')
         .optional()
         .openapi({
-          param: { name: 'filter', in: 'query' },
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: { type: 'string', enum: ['latest', 'top', 'photos', 'videos'], default: 'top' },
+          },
           type: 'string',
           enum: ['latest', 'top', 'photos', 'videos'],
           default: 'top',
@@ -1082,23 +1108,65 @@ export const getSearchPostsRoute = createRoute({
       from: z
         .string()
         .optional()
-        .openapi({ param: { name: 'from', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'from',
+            in: 'query',
+            description: '特定ユーザーからの投稿',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       to: z
         .string()
         .optional()
-        .openapi({ param: { name: 'to', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'to',
+            in: 'query',
+            description: '特定ユーザーへの返信',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       since: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'since', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: {
+            name: 'since',
+            in: 'query',
+            description: 'この日時以降',
+            schema: { type: 'string', format: 'date-time' },
+          },
+          type: 'string',
+          format: 'date-time',
+        }),
       until: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'until', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: {
+            name: 'until',
+            in: 'query',
+            description: 'この日時以前',
+            schema: { type: 'string', format: 'date-time' },
+          },
+          type: 'string',
+          format: 'date-time',
+        }),
       lang: z
         .string()
         .optional()
-        .openapi({ param: { name: 'lang', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'lang',
+            in: 'query',
+            description: '言語フィルタ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1117,7 +1185,12 @@ export const getSearchUsersRoute = createRoute({
   operationId: 'searchUsers',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true }, type: 'string' }),
+      q: z
+        .string()
+        .openapi({
+          param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),
@@ -1138,7 +1211,12 @@ export const getSearchHashtagsRoute = createRoute({
   operationId: 'searchHashtags',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true }, type: 'string' }),
+      q: z
+        .string()
+        .openapi({
+          param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
       limit: LimitParamParamsSchema,
     }),
   },
@@ -1176,7 +1254,6 @@ export const getSearchRecentRoute = createRoute({
                   searchedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
                 })
                 .partial()
-                .optional()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1225,14 +1302,26 @@ export const getTrendsRoute = createRoute({
       woeid: z
         .int()
         .optional()
-        .openapi({ param: { name: 'woeid', in: 'query' }, type: 'integer' }),
+        .openapi({
+          param: {
+            name: 'woeid',
+            in: 'query',
+            description: '地域ID（Where On Earth ID）',
+            schema: { type: 'integer' },
+          },
+          type: 'integer',
+        }),
       limit: z
         .int()
         .max(50)
         .default(20)
         .optional()
         .openapi({
-          param: { name: 'limit', in: 'query' },
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', default: 20, maximum: 50 },
+          },
           type: 'integer',
           default: 20,
           maximum: 50,
@@ -1287,7 +1376,11 @@ export const getSuggestionsUsersRoute = createRoute({
         .int()
         .default(20)
         .optional()
-        .openapi({ param: { name: 'limit', in: 'query' }, type: 'integer', default: 20 }),
+        .openapi({
+          param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+          type: 'integer',
+          default: 20,
+        }),
     }),
   },
   responses: {
@@ -1318,7 +1411,12 @@ export const postSuggestionsUsersUserIdHideRoute = createRoute({
       userId: z
         .uuid()
         .openapi({
-          param: { name: 'userId', in: 'path', required: true },
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1362,7 +1460,12 @@ export const postTopicsTopicIdFollowRoute = createRoute({
       topicId: z
         .uuid()
         .openapi({
-          param: { name: 'topicId', in: 'path', required: true },
+          param: {
+            name: 'topicId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1383,7 +1486,12 @@ export const deleteTopicsTopicIdFollowRoute = createRoute({
       topicId: z
         .uuid()
         .openapi({
-          param: { name: 'topicId', in: 'path', required: true },
+          param: {
+            name: 'topicId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

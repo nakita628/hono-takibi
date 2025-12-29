@@ -52,19 +52,16 @@ export function propertiesSchema(
 ): string {
   const objectProperties = Object.entries(properties).map(([k, schema]) => {
     const isRequired = required.includes(k)
-    const safeKey = getToSafeIdentifier(k)
     const z = zodToOpenAPI(schema)
-    return isRequired
-      ? `${safeKey}:${z.replace('.optional()', '')}`
-      : `${safeKey}:${z}`
+    const safeKey = getToSafeIdentifier(k)
+    return isRequired ? `${safeKey}:${z.replace('.optional()', '')}` : `${safeKey}:${z}`
   })
-
+  // Check if all properties are optional
   const allOptional = objectProperties.every((v) => v.includes('.optional()'))
-
+  // If all properties are optional and no required properties, return partial schema
   if (required.length === 0 && allOptional) {
     const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
     return `z.object({${cleanProperties}}).partial()`
   }
-
   return `z.object({${objectProperties}})`
 }

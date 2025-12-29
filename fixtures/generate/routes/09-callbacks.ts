@@ -2,7 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const WebhookRegistrationSchema = z
   .object({
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     events: z
       .array(
         z
@@ -15,7 +15,6 @@ const WebhookRegistrationSchema = z
             'user.created',
             'user.deleted',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -50,9 +49,9 @@ const WebhookRegistrationSchema = z
       .optional()
       .openapi({ type: 'string', description: 'Shared secret for HMAC signature' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['url', 'events'],
     properties: {
       url: { type: 'string', format: 'uri' },
       events: {
@@ -77,21 +76,20 @@ const WebhookRegistrationSchema = z
 
 const WebhookSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     events: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     status: z
       .enum(['active', 'inactive', 'failed'])
-      .optional()
       .openapi({ type: 'string', enum: ['active', 'inactive', 'failed'] }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'url', 'events', 'status'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       url: { type: 'string', format: 'uri' },
@@ -104,13 +102,13 @@ const WebhookSchema = z
 
 const CreateSubscriptionInputSchema = z
   .object({
-    planId: z.string().optional().openapi({ type: 'string' }),
-    paymentMethodId: z.string().optional().openapi({ type: 'string' }),
-    callbackUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    planId: z.string().openapi({ type: 'string' }),
+    paymentMethodId: z.string().openapi({ type: 'string' }),
+    callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['planId', 'paymentMethodId', 'callbackUrl'],
     properties: {
       planId: { type: 'string' },
       paymentMethodId: { type: 'string' },
@@ -121,17 +119,16 @@ const CreateSubscriptionInputSchema = z
 
 const SubscriptionSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    planId: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    planId: z.string().openapi({ type: 'string' }),
     status: z
       .enum(['active', 'past_due', 'cancelled', 'expired'])
-      .optional()
       .openapi({ type: 'string', enum: ['active', 'past_due', 'cancelled', 'expired'] }),
     currentPeriodEnd: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'planId', 'status'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       planId: { type: 'string' },
@@ -145,14 +142,13 @@ const CreateJobInputSchema = z
   .object({
     type: z
       .enum(['export', 'import', 'process'])
-      .optional()
       .openapi({ type: 'string', enum: ['export', 'import', 'process'] }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
-    callbackUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    data: z.object({}).openapi({ type: 'object' }),
+    callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['type', 'callbackUrl'],
     properties: {
       type: { type: 'string', enum: ['export', 'import', 'process'] },
       data: { type: 'object' },
@@ -163,11 +159,10 @@ const CreateJobInputSchema = z
 
 const JobSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    type: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    type: z.string().openapi({ type: 'string' }),
     status: z
       .enum(['queued', 'running', 'completed', 'failed'])
-      .optional()
       .openapi({ type: 'string', enum: ['queued', 'running', 'completed', 'failed'] }),
     progress: z
       .int()
@@ -176,9 +171,9 @@ const JobSchema = z
       .optional()
       .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'status'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string' },
@@ -190,18 +185,18 @@ const JobSchema = z
 
 const WebhookPayloadSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    type: z.string().optional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    type: z.string().openapi({ type: 'string' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    data: z.object({}).openapi({ type: 'object' }),
     signature: z
       .string()
       .optional()
       .openapi({ type: 'string', description: 'HMAC-SHA256 signature' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'timestamp', 'data'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string' },
@@ -214,19 +209,16 @@ const WebhookPayloadSchema = z
 
 const PaymentEventSchema = z
   .object({
-    subscriptionId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    amount: z.float64().optional().openapi({ type: 'number', format: 'float64' }),
+    subscriptionId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    amount: z.float64().openapi({ type: 'number', format: 'float64' }),
     currency: z.string().optional().openapi({ type: 'string' }),
-    status: z
-      .enum(['success', 'failed'])
-      .optional()
-      .openapi({ type: 'string', enum: ['success', 'failed'] }),
+    status: z.enum(['success', 'failed']).openapi({ type: 'string', enum: ['success', 'failed'] }),
     failureReason: z.string().optional().openapi({ type: 'string' }),
     timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['subscriptionId', 'amount', 'status'],
     properties: {
       subscriptionId: { type: 'string', format: 'uuid' },
       amount: { type: 'number', format: 'float64' },
@@ -240,19 +232,14 @@ const PaymentEventSchema = z
 
 const JobProgressSchema = z
   .object({
-    jobId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    progress: z
-      .int()
-      .min(0)
-      .max(100)
-      .optional()
-      .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
+    jobId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    progress: z.int().min(0).max(100).openapi({ type: 'integer', minimum: 0, maximum: 100 }),
     message: z.string().optional().openapi({ type: 'string' }),
     timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['jobId', 'progress'],
     properties: {
       jobId: { type: 'string', format: 'uuid' },
       progress: { type: 'integer', minimum: 0, maximum: 100 },
@@ -264,28 +251,26 @@ const JobProgressSchema = z
 
 const JobResultSchema = z
   .object({
-    jobId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    jobId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['completed', 'failed'])
-      .optional()
       .openapi({ type: 'string', enum: ['completed', 'failed'] }),
-    result: z.object({}).optional().openapi({ type: 'object' }),
+    result: z.object({}).openapi({ type: 'object' }),
     error: z
       .object({
         code: z.string().openapi({ type: 'string' }),
         message: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { code: { type: 'string' }, message: { type: 'string' } },
       }),
     completedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['jobId', 'status'],
     properties: {
       jobId: { type: 'string', format: 'uuid' },
       status: { type: 'string', enum: ['completed', 'failed'] },
@@ -350,7 +335,6 @@ const SubscriptionRenewedCallbackCallbacks = {
                 newPeriodEnd: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
               })
               .partial()
-              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -380,7 +364,6 @@ const SubscriptionCancelledCallbackCallbacks = {
                 reason: z.string().openapi({ type: 'string' }),
               })
               .partial()
-              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -500,7 +483,12 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
       integrationId: z
         .uuid()
         .openapi({
-          param: { name: 'integrationId', in: 'path', required: true },
+          param: {
+            name: 'integrationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

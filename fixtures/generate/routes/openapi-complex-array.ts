@@ -13,21 +13,21 @@ export const getArrayRoute = createRoute({
           schema: z
             .object({
               string_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               number_array: z
-                .array(z.number().optional().openapi({ type: 'number' }))
+                .array(z.number().openapi({ type: 'number' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'number' } }),
               boolean_array: z
-                .array(z.boolean().optional().openapi({ type: 'boolean' }))
+                .array(z.boolean().openapi({ type: 'boolean' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'boolean' } }),
               nested_array: z
                 .array(
                   z
-                    .array(z.string().optional().openapi({ type: 'string' }))
+                    .array(z.string().openapi({ type: 'string' }))
                     .optional()
                     .openapi({ type: 'array', items: { type: 'string' } }),
                 )
@@ -38,7 +38,7 @@ export const getArrayRoute = createRoute({
                   z
                     .array(
                       z
-                        .array(z.number().optional().openapi({ type: 'number' }))
+                        .array(z.number().openapi({ type: 'number' }))
                         .optional()
                         .openapi({ type: 'array', items: { type: 'number' } }),
                     )
@@ -54,7 +54,7 @@ export const getArrayRoute = createRoute({
                   items: { type: 'array', items: { type: 'array', items: { type: 'number' } } },
                 }),
               first_element_fixed: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .min(1)
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 1 }),
@@ -63,37 +63,37 @@ export const getArrayRoute = createRoute({
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               optional_elements_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               min5_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .min(5)
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 5 }),
               max5_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .max(5)
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, maxItems: 5 }),
               length5_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minLength: 5, maxLength: 5 }),
               nonempty_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .min(1)
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 1 }),
               unique_array: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               mixed_array: z
                 .array(
                   z
                     .union([
-                      z.string().optional().openapi({ type: 'string' }),
+                      z.string().openapi({ type: 'string' }),
                       z.number().optional().openapi({ type: 'number' }),
                       z.boolean().optional().openapi({ type: 'boolean' }),
                     ])
@@ -114,12 +114,10 @@ export const getArrayRoute = createRoute({
                       id: z
                         .int()
                         .positive()
-                        .optional()
                         .openapi({ type: 'integer', minimum: 0, exclusiveMinimum: true }),
-                      name: z.string().optional().openapi({ type: 'string' }),
-                      active: z.boolean().optional().openapi({ type: 'boolean' }),
+                      name: z.string().openapi({ type: 'string' }),
+                      active: z.boolean().openapi({ type: 'boolean' }),
                     })
-                    .optional()
                     .openapi({
                       type: 'object',
                       properties: {
@@ -127,6 +125,7 @@ export const getArrayRoute = createRoute({
                         name: { type: 'string' },
                         active: { type: 'boolean' },
                       },
+                      required: ['id', 'name'],
                     }),
                 )
                 .optional()
@@ -146,7 +145,6 @@ export const getArrayRoute = createRoute({
                 .array(
                   z
                     .enum(['small', 'medium', 'large'])
-                    .optional()
                     .openapi({ type: 'string', enum: ['small', 'medium', 'large'] }),
                 )
                 .optional()
@@ -155,19 +153,18 @@ export const getArrayRoute = createRoute({
                   items: { type: 'string', enum: ['small', 'medium', 'large'] },
                 }),
               email_array: z
-                .array(z.email().optional().openapi({ type: 'string', format: 'email' }))
+                .array(z.email().openapi({ type: 'string', format: 'email' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
               sorted_number_array: z
-                .array(z.number().optional().openapi({ type: 'number' }))
+                .array(z.number().openapi({ type: 'number' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'number' } }),
               at_least_one_even_number: z
-                .array(z.number().optional().openapi({ type: 'number' }))
+                .array(z.number().openapi({ type: 'number' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'number' } }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -219,6 +216,26 @@ export const getArrayRoute = createRoute({
                 sorted_number_array: { type: 'array', items: { type: 'number' } },
                 at_least_one_even_number: { type: 'array', items: { type: 'number' } },
               },
+              required: [
+                'string_array',
+                'number_array',
+                'boolean_array',
+                'nested_array',
+                'deep_nested_array',
+                'first_element_fixed',
+                'optional_elements_array',
+                'min5_array',
+                'max5_array',
+                'length5_array',
+                'nonempty_array',
+                'unique_array',
+                'mixed_array',
+                'object_array',
+                'fixed_values_array',
+                'email_array',
+                'sorted_number_array',
+                'at_least_one_even_number',
+              ],
             }),
         },
       },

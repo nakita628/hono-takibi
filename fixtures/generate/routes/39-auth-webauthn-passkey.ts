@@ -2,14 +2,8 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const PublicKeyCredentialDescriptorSchema = z
   .object({
-    type: z
-      .literal('public-key')
-      .optional()
-      .openapi({ type: 'string', enum: ['public-key'] }),
-    id: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
+    type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
+    id: z.string().openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
     transports: z
       .array(
         z
@@ -26,9 +20,9 @@ const PublicKeyCredentialDescriptorSchema = z
         items: { type: 'string', enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'] },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['type', 'id'],
     properties: {
       type: { type: 'string', enum: ['public-key'] },
       id: { type: 'string', description: 'Base64URL encoded credential ID' },
@@ -42,24 +36,15 @@ const PublicKeyCredentialDescriptorSchema = z
 
 const RegistrationOptionsSchema = z
   .object({
-    challenge: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Base64URL encoded challenge' }),
+    challenge: z.string().openapi({ type: 'string', description: 'Base64URL encoded challenge' }),
     rp: z
       .object({
-        name: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'リライングパーティ名' }),
-        id: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'リライングパーティID（ドメイン）' }),
+        name: z.string().openapi({ type: 'string', description: 'リライングパーティ名' }),
+        id: z.string().openapi({ type: 'string', description: 'リライングパーティID（ドメイン）' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['name', 'id'],
         properties: {
           name: { type: 'string', description: 'リライングパーティ名' },
           id: { type: 'string', description: 'リライングパーティID（ドメイン）' },
@@ -67,19 +52,13 @@ const RegistrationOptionsSchema = z
       }),
     user: z
       .object({
-        id: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded user handle' }),
-        name: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'ユーザー名（メールアドレス等）' }),
-        displayName: z.string().optional().openapi({ type: 'string', description: '表示名' }),
+        id: z.string().openapi({ type: 'string', description: 'Base64URL encoded user handle' }),
+        name: z.string().openapi({ type: 'string', description: 'ユーザー名（メールアドレス等）' }),
+        displayName: z.string().openapi({ type: 'string', description: '表示名' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['id', 'name', 'displayName'],
         properties: {
           id: { type: 'string', description: 'Base64URL encoded user handle' },
           name: { type: 'string', description: 'ユーザー名（メールアドレス等）' },
@@ -90,25 +69,20 @@ const RegistrationOptionsSchema = z
       .array(
         z
           .object({
-            type: z
-              .literal('public-key')
-              .optional()
-              .openapi({ type: 'string', enum: ['public-key'] }),
+            type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
             alg: z
               .int()
-              .optional()
               .openapi({ type: 'integer', description: 'COSE Algorithm identifier', example: -7 }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['type', 'alg'],
             properties: {
               type: { type: 'string', enum: ['public-key'] },
               alg: { type: 'integer', description: 'COSE Algorithm identifier', example: -7 },
             },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -147,7 +121,6 @@ const RegistrationOptionsSchema = z
           .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -164,13 +137,12 @@ const RegistrationOptionsSchema = z
     extensions: z
       .object({ credProps: z.boolean().openapi({ type: 'boolean' }) })
       .partial()
-      .optional()
       .openapi({ type: 'object', properties: { credProps: { type: 'boolean' } } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     description: 'PublicKeyCredentialCreationOptions',
+    required: ['challenge', 'rp', 'user', 'pubKeyCredParams'],
     properties: {
       challenge: { type: 'string', description: 'Base64URL encoded challenge' },
       rp: {
@@ -224,29 +196,18 @@ const RegistrationOptionsSchema = z
 
 const RegistrationResponseSchema = z
   .object({
-    id: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
+    id: z.string().openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
     rawId: z
       .string()
-      .optional()
       .openapi({ type: 'string', description: 'Base64URL encoded raw credential ID' }),
     response: z
       .object({
-        clientDataJSON: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded' }),
-        attestationObject: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded' }),
+        clientDataJSON: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
+        attestationObject: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
         transports: z
           .array(
             z
               .enum(['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'])
-              .optional()
               .openapi({
                 type: 'string',
                 enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
@@ -264,9 +225,9 @@ const RegistrationResponseSchema = z
         publicKey: z.string().optional().openapi({ type: 'string' }),
         authenticatorData: z.string().optional().openapi({ type: 'string' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['clientDataJSON', 'attestationObject'],
         properties: {
           clientDataJSON: { type: 'string', description: 'Base64URL encoded' },
           attestationObject: { type: 'string', description: 'Base64URL encoded' },
@@ -282,10 +243,7 @@ const RegistrationResponseSchema = z
           authenticatorData: { type: 'string' },
         },
       }),
-    type: z
-      .literal('public-key')
-      .optional()
-      .openapi({ type: 'string', enum: ['public-key'] }),
+    type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
     clientExtensionResults: z
       .object({
         credProps: z
@@ -293,8 +251,6 @@ const RegistrationResponseSchema = z
           .partial()
           .openapi({ type: 'object', properties: { rk: { type: 'boolean' } } }),
       })
-      .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { credProps: { type: 'object', properties: { rk: { type: 'boolean' } } } },
@@ -308,10 +264,10 @@ const RegistrationResponseSchema = z
       .optional()
       .openapi({ type: 'string', description: 'ユーザーが設定するパスキー名' }),
   })
-  .optional()
   .openapi({
     type: 'object',
     description: 'クライアントからの登録レスポンス',
+    required: ['id', 'rawId', 'response', 'type'],
     properties: {
       id: { type: 'string', description: 'Base64URL encoded credential ID' },
       rawId: { type: 'string', description: 'Base64URL encoded raw credential ID' },
@@ -346,12 +302,9 @@ const RegistrationResponseSchema = z
 
 const AuthenticationOptionsSchema = z
   .object({
-    challenge: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Base64URL encoded challenge' }),
+    challenge: z.string().openapi({ type: 'string', description: 'Base64URL encoded challenge' }),
     timeout: z.int().default(60000).optional().openapi({ type: 'integer', default: 60000 }),
-    rpId: z.string().optional().openapi({ type: 'string', description: 'リライングパーティID' }),
+    rpId: z.string().openapi({ type: 'string', description: 'リライングパーティID' }),
     allowCredentials: z
       .array(PublicKeyCredentialDescriptorSchema)
       .optional()
@@ -363,12 +316,12 @@ const AuthenticationOptionsSchema = z
       .enum(['discouraged', 'preferred', 'required'])
       .optional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
-    extensions: z.object({}).optional().openapi({ type: 'object' }),
+    extensions: z.object({}).openapi({ type: 'object' }),
   })
-  .optional()
   .openapi({
     type: 'object',
     description: 'PublicKeyCredentialRequestOptions',
+    required: ['challenge', 'rpId'],
     properties: {
       challenge: { type: 'string', description: 'Base64URL encoded challenge' },
       timeout: { type: 'integer', default: 60000 },
@@ -385,36 +338,22 @@ const AuthenticationOptionsSchema = z
 
 const AuthenticationResponseSchema = z
   .object({
-    id: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
+    id: z.string().openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
     rawId: z
       .string()
-      .optional()
       .openapi({ type: 'string', description: 'Base64URL encoded raw credential ID' }),
     response: z
       .object({
-        clientDataJSON: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded' }),
-        authenticatorData: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded' }),
-        signature: z
-          .string()
-          .optional()
-          .openapi({ type: 'string', description: 'Base64URL encoded' }),
+        clientDataJSON: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
+        authenticatorData: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
+        signature: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
         userHandle: z
           .string()
-          .optional()
           .openapi({ type: 'string', description: 'Base64URL encoded user handle' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['clientDataJSON', 'authenticatorData', 'signature'],
         properties: {
           clientDataJSON: { type: 'string', description: 'Base64URL encoded' },
           authenticatorData: { type: 'string', description: 'Base64URL encoded' },
@@ -422,20 +361,17 @@ const AuthenticationResponseSchema = z
           userHandle: { type: 'string', description: 'Base64URL encoded user handle' },
         },
       }),
-    type: z
-      .literal('public-key')
-      .optional()
-      .openapi({ type: 'string', enum: ['public-key'] }),
-    clientExtensionResults: z.object({}).optional().openapi({ type: 'object' }),
+    type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
+    clientExtensionResults: z.object({}).openapi({ type: 'object' }),
     authenticatorAttachment: z
       .enum(['platform', 'cross-platform'])
       .optional()
       .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
     description: 'クライアントからの認証レスポンス',
+    required: ['id', 'rawId', 'response', 'type'],
     properties: {
       id: { type: 'string', description: 'Base64URL encoded credential ID' },
       rawId: { type: 'string', description: 'Base64URL encoded raw credential ID' },
@@ -458,7 +394,7 @@ const AuthenticationResponseSchema = z
 
 const AuthenticationResultSchema = z
   .object({
-    verified: z.boolean().optional().openapi({ type: 'boolean' }),
+    verified: z.boolean().openapi({ type: 'boolean' }),
     user: z
       .object({
         id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -466,7 +402,6 @@ const AuthenticationResultSchema = z
         email: z.email().openapi({ type: 'string', format: 'email' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -481,7 +416,6 @@ const AuthenticationResultSchema = z
         name: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
@@ -494,9 +428,9 @@ const AuthenticationResultSchema = z
       .optional()
       .openapi({ type: 'integer', description: '更新された署名カウンター' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['verified', 'user'],
     properties: {
       verified: { type: 'boolean' },
       user: {
@@ -521,21 +455,19 @@ const AuthenticationResultSchema = z
 
 const CredentialSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     credentialId: z
       .string()
-      .optional()
       .openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
     name: z.string().optional().openapi({ type: 'string', description: 'ユーザーが設定した名前' }),
     publicKey: z
       .string()
-      .optional()
       .openapi({ type: 'string', description: 'Base64URL encoded public key (COSE format)' }),
     publicKeyAlgorithm: z
       .int()
       .optional()
       .openapi({ type: 'integer', description: 'COSE algorithm identifier' }),
-    signCount: z.int().optional().openapi({ type: 'integer', description: '署名カウンター' }),
+    signCount: z.int().openapi({ type: 'integer', description: '署名カウンター' }),
     transports: z
       .array(
         z
@@ -575,7 +507,6 @@ const CredentialSchema = z
         deviceType: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -585,11 +516,11 @@ const CredentialSchema = z
         },
       }),
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'credentialId', 'publicKey', 'signCount', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       credentialId: { type: 'string', description: 'Base64URL encoded credential ID' },
@@ -641,7 +572,6 @@ const WebAuthnSettingsSchema = z
             properties: { alg: { type: 'integer' }, name: { type: 'string' } },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -661,7 +591,6 @@ const WebAuthnSettingsSchema = z
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -685,14 +614,14 @@ const WebAuthnSettingsSchema = z
 
 const RelyingPartySchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string', description: 'RPのID（ドメイン）' }),
-    name: z.string().optional().openapi({ type: 'string', description: 'RP名' }),
-    origin: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    id: z.string().openapi({ type: 'string', description: 'RPのID（ドメイン）' }),
+    name: z.string().openapi({ type: 'string', description: 'RP名' }),
+    origin: z.url().openapi({ type: 'string', format: 'uri' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri', deprecated: true }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'origin'],
     properties: {
       id: { type: 'string', description: 'RPのID（ドメイン）' },
       name: { type: 'string', description: 'RP名' },
@@ -707,7 +636,6 @@ const UpdateRelyingPartyRequestSchema = z
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string', minLength: 1, maxLength: 200 } },
@@ -716,11 +644,8 @@ const UpdateRelyingPartyRequestSchema = z
 
 const AuthenticatorInfoSchema = z
   .object({
-    aaguid: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'Authenticator Attestation GUID' }),
-    name: z.string().optional().openapi({ type: 'string', description: '認証器名' }),
+    aaguid: z.string().openapi({ type: 'string', description: 'Authenticator Attestation GUID' }),
+    name: z.string().openapi({ type: 'string', description: '認証器名' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     supportedTransports: z
       .array(z.string().optional().openapi({ type: 'string' }))
@@ -731,9 +656,9 @@ const AuthenticatorInfoSchema = z
       .optional()
       .openapi({ type: 'boolean', description: '使用が許可されているか' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['aaguid', 'name'],
     properties: {
       aaguid: { type: 'string', description: 'Authenticator Attestation GUID' },
       name: { type: 'string', description: '認証器名' },
@@ -762,7 +687,6 @@ const WebAuthnErrorSchema = z
         'not_allowed',
         'unknown_error',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -781,12 +705,12 @@ const WebAuthnErrorSchema = z
           'unknown_error',
         ],
       }),
-    message: z.string().optional().openapi({ type: 'string' }),
-    details: z.object({}).optional().openapi({ type: 'object' }),
+    message: z.string().openapi({ type: 'string' }),
+    details: z.object({}).openapi({ type: 'object' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['error', 'message'],
     properties: {
       error: {
         type: 'string',
@@ -814,12 +738,12 @@ const WebAuthnErrorSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -884,7 +808,6 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -979,7 +902,6 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1069,7 +991,10 @@ export const getWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({ param: { name: 'credentialId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1094,7 +1019,10 @@ export const deleteWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({ param: { name: 'credentialId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1128,7 +1056,6 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
                 .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { name: { type: 'string', minLength: 1, maxLength: 100 } },

@@ -11,10 +11,14 @@ import { string } from './z/string.js'
 export function zodToOpenAPI(
   schema: Schema,
   meta?: {
-    parameters?: Pick<Parameter, 'name' | 'in' | 'required'>
+    parameters?: Parameter
     headers?: Header
   },
 ): string {
+  // console.log('--------------------------------')
+  // console.log(JSON.stringify(schema, null, 2))
+  // console.log('--------------------------------')
+
   if (schema === undefined) throw new Error('Schema is undefined')
   /** ref */
   if (schema.$ref !== undefined) {

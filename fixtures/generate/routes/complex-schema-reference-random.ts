@@ -3,182 +3,156 @@ import { createRoute, z } from '@hono/zod-openapi'
 const NSchema = z
   .object({ number: z.int().openapi({ type: 'integer' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { number: { type: 'integer' } } })
   .openapi('N')
 
 const MSchema = z
   .object({ meta: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { meta: { type: 'string' } } })
   .openapi('M')
 
 const ZSchema = z
   .object({ zone: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { zone: { type: 'string' } } })
   .openapi('Z')
 
 const YSchema = z
   .object({ yield: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { yield: { type: 'string' } } })
   .openapi('Y')
 
 const XSchema = z
   .object({ xFactor: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { xFactor: { type: 'string' } } })
   .openapi('X')
 
 const WSchema = z
   .object({ weight: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { weight: { type: 'number' } } })
   .openapi('W')
 
 const VSchema = z
   .object({ volume: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { volume: { type: 'number' } } })
   .openapi('V')
 
 const USchema = z
   .object({ unit: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { unit: { type: 'string' } } })
   .openapi('U')
 
 const BSchema = z
   .object({ id: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { id: { type: 'string' } } })
   .openapi('B')
 
 const ASchema = z
   .object({ name: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
   .openapi('A')
 
 const ESchema = z
   .object({ flag: z.boolean().openapi({ type: 'boolean' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { flag: { type: 'boolean' } } })
   .openapi('E')
 
 const DSchema = z
   .object({ description: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { description: { type: 'string' } } })
   .openapi('D')
 
 const CSchema = z
   .object({ value: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('C')
 
 const TSchema = z
   .object({ time: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { time: { type: 'string' } } })
   .openapi('T')
 
 const SSchema = z
   .object({ status: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { status: { type: 'string' } } })
   .openapi('S')
 
 const RSchema = z
   .object({ rating: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { rating: { type: 'number' } } })
   .openapi('R')
 
 const QSchema = z
   .object({ quantity: z.int().openapi({ type: 'integer' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { quantity: { type: 'integer' } } })
   .openapi('Q')
 
 const PSchema = z
   .object({ price: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { price: { type: 'number' } } })
   .openapi('P')
 
 const OSchema = z
   .object({ option: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { option: { type: 'string' } } })
   .openapi('O')
 
 const LSchema = z
   .object({ label: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { label: { type: 'string' } } })
   .openapi('L')
 
 const KSchema = z
   .object({ key: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { key: { type: 'string' } } })
   .openapi('K')
 
 const JSchema = z
   .object({ code: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { code: { type: 'string' } } })
   .openapi('J')
 
 const ISchema = z
   .object({ data: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { data: { type: 'string' } } })
   .openapi('I')
 
 const HSchema = z
   .object({ info: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { info: { type: 'string' } } })
   .openapi('H')
 
 const GSchema = z
   .object({ summary: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { summary: { type: 'string' } } })
   .openapi('G')
 
 const FSchema = z
   .object({ title: z.string().openapi({ type: 'string' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { title: { type: 'string' } } })
   .openapi('F')
 
@@ -267,7 +241,6 @@ const RootSchema = z
             },
           }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -468,7 +441,6 @@ const RootSchema = z
                                                                                                                                                                                                                                       ),
                                                                                                                                                                                                                                   },
                                                                                                                                                                                                                                 )
-                                                                                                                                                                                                                                .partial()
                                                                                                                                                                                                                                 .openapi(
                                                                                                                                                                                                                                   {
                                                                                                                                                                                                                                     type: 'object',
@@ -533,7 +505,6 @@ const RootSchema = z
                                                                                                                                                                                                                             ),
                                                                                                                                                                                                                         },
                                                                                                                                                                                                                       )
-                                                                                                                                                                                                                      .partial()
                                                                                                                                                                                                                       .openapi(
                                                                                                                                                                                                                         {
                                                                                                                                                                                                                           type: 'object',
@@ -628,7 +599,6 @@ const RootSchema = z
                                                                                                                                                                                                                   ),
                                                                                                                                                                                                               },
                                                                                                                                                                                                             )
-                                                                                                                                                                                                            .partial()
                                                                                                                                                                                                             .openapi(
                                                                                                                                                                                                               {
                                                                                                                                                                                                                 type: 'object',
@@ -753,7 +723,6 @@ const RootSchema = z
                                                                                                                                                                                                         ),
                                                                                                                                                                                                     },
                                                                                                                                                                                                   )
-                                                                                                                                                                                                  .partial()
                                                                                                                                                                                                   .openapi(
                                                                                                                                                                                                     {
                                                                                                                                                                                                       type: 'object',
@@ -908,7 +877,6 @@ const RootSchema = z
                                                                                                                                                                                               ),
                                                                                                                                                                                           },
                                                                                                                                                                                         )
-                                                                                                                                                                                        .partial()
                                                                                                                                                                                         .openapi(
                                                                                                                                                                                           {
                                                                                                                                                                                             type: 'object',
@@ -1093,7 +1061,6 @@ const RootSchema = z
                                                                                                                                                                                     ),
                                                                                                                                                                                 },
                                                                                                                                                                               )
-                                                                                                                                                                              .partial()
                                                                                                                                                                               .openapi(
                                                                                                                                                                                 {
                                                                                                                                                                                   type: 'object',
@@ -1308,7 +1275,6 @@ const RootSchema = z
                                                                                                                                                                           ),
                                                                                                                                                                       },
                                                                                                                                                                     )
-                                                                                                                                                                    .partial()
                                                                                                                                                                     .openapi(
                                                                                                                                                                       {
                                                                                                                                                                         type: 'object',
@@ -1553,7 +1519,6 @@ const RootSchema = z
                                                                                                                                                                 ),
                                                                                                                                                             },
                                                                                                                                                           )
-                                                                                                                                                          .partial()
                                                                                                                                                           .openapi(
                                                                                                                                                             {
                                                                                                                                                               type: 'object',
@@ -1828,7 +1793,6 @@ const RootSchema = z
                                                                                                                                                       ),
                                                                                                                                                   },
                                                                                                                                                 )
-                                                                                                                                                .partial()
                                                                                                                                                 .openapi(
                                                                                                                                                   {
                                                                                                                                                     type: 'object',
@@ -2133,7 +2097,6 @@ const RootSchema = z
                                                                                                                                             ),
                                                                                                                                         },
                                                                                                                                       )
-                                                                                                                                      .partial()
                                                                                                                                       .openapi(
                                                                                                                                         {
                                                                                                                                           type: 'object',
@@ -2468,7 +2431,6 @@ const RootSchema = z
                                                                                                                                   ),
                                                                                                                               },
                                                                                                                             )
-                                                                                                                            .partial()
                                                                                                                             .openapi(
                                                                                                                               {
                                                                                                                                 type: 'object',
@@ -2833,7 +2795,6 @@ const RootSchema = z
                                                                                                                         ),
                                                                                                                     },
                                                                                                                   )
-                                                                                                                  .partial()
                                                                                                                   .openapi(
                                                                                                                     {
                                                                                                                       type: 'object',
@@ -3228,8 +3189,6 @@ const RootSchema = z
                                                                                                               ),
                                                                                                           },
                                                                                                         )
-                                                                                                        .partial()
-                                                                                                        .optional()
                                                                                                         .openapi(
                                                                                                           {
                                                                                                             type: 'object',
@@ -3437,7 +3396,6 @@ const RootSchema = z
                                                                                                           },
                                                                                                         ),
                                                                                                     )
-                                                                                                    .optional()
                                                                                                     .openapi(
                                                                                                       {
                                                                                                         type: 'object',
@@ -3655,8 +3613,6 @@ const RootSchema = z
                                                                                                     ),
                                                                                                 },
                                                                                               )
-                                                                                              .partial()
-                                                                                              .optional()
                                                                                               .openapi(
                                                                                                 {
                                                                                                   type: 'object',
@@ -3879,7 +3835,6 @@ const RootSchema = z
                                                                                                 },
                                                                                               ),
                                                                                           )
-                                                                                          .optional()
                                                                                           .openapi({
                                                                                             type: 'object',
                                                                                             allOf: [
@@ -4108,8 +4063,6 @@ const RootSchema = z
                                                                                             ],
                                                                                           }),
                                                                                       })
-                                                                                      .partial()
-                                                                                      .optional()
                                                                                       .openapi({
                                                                                         type: 'object',
                                                                                         properties:
@@ -4345,7 +4298,6 @@ const RootSchema = z
                                                                                           },
                                                                                       }),
                                                                                   )
-                                                                                  .optional()
                                                                                   .openapi({
                                                                                     type: 'object',
                                                                                     allOf: [
@@ -4589,8 +4541,6 @@ const RootSchema = z
                                                                                     ],
                                                                                   }),
                                                                               })
-                                                                              .partial()
-                                                                              .optional()
                                                                               .openapi({
                                                                                 type: 'object',
                                                                                 properties: {
@@ -4839,7 +4789,6 @@ const RootSchema = z
                                                                                 },
                                                                               }),
                                                                           )
-                                                                          .optional()
                                                                           .openapi({
                                                                             type: 'object',
                                                                             allOf: [
@@ -5096,8 +5045,6 @@ const RootSchema = z
                                                                             ],
                                                                           }),
                                                                       })
-                                                                      .partial()
-                                                                      .optional()
                                                                       .openapi({
                                                                         type: 'object',
                                                                         properties: {
@@ -5359,7 +5306,6 @@ const RootSchema = z
                                                                         },
                                                                       }),
                                                                   )
-                                                                  .optional()
                                                                   .openapi({
                                                                     type: 'object',
                                                                     allOf: [
@@ -5629,8 +5575,6 @@ const RootSchema = z
                                                                     ],
                                                                   }),
                                                               })
-                                                              .partial()
-                                                              .optional()
                                                               .openapi({
                                                                 type: 'object',
                                                                 properties: {
@@ -5905,7 +5849,6 @@ const RootSchema = z
                                                                 },
                                                               }),
                                                           )
-                                                          .optional()
                                                           .openapi({
                                                             type: 'object',
                                                             allOf: [
@@ -6186,8 +6129,6 @@ const RootSchema = z
                                                             ],
                                                           }),
                                                       })
-                                                      .partial()
-                                                      .optional()
                                                       .openapi({
                                                         type: 'object',
                                                         properties: {
@@ -6473,7 +6414,6 @@ const RootSchema = z
                                                         },
                                                       }),
                                                   )
-                                                  .optional()
                                                   .openapi({
                                                     type: 'object',
                                                     allOf: [
@@ -6765,8 +6705,6 @@ const RootSchema = z
                                                     ],
                                                   }),
                                               })
-                                              .partial()
-                                              .optional()
                                               .openapi({
                                                 type: 'object',
                                                 properties: {
@@ -7063,7 +7001,6 @@ const RootSchema = z
                                                 },
                                               }),
                                           )
-                                          .optional()
                                           .openapi({
                                             type: 'object',
                                             allOf: [
@@ -7366,8 +7303,6 @@ const RootSchema = z
                                             ],
                                           }),
                                       })
-                                      .partial()
-                                      .optional()
                                       .openapi({
                                         type: 'object',
                                         properties: {
@@ -7675,7 +7610,6 @@ const RootSchema = z
                                         },
                                       }),
                                   )
-                                  .optional()
                                   .openapi({
                                     type: 'object',
                                     allOf: [
@@ -7989,8 +7923,6 @@ const RootSchema = z
                                     ],
                                   }),
                               })
-                              .partial()
-                              .optional()
                               .openapi({
                                 type: 'object',
                                 properties: {
@@ -8309,7 +8241,6 @@ const RootSchema = z
                                 },
                               }),
                           )
-                          .optional()
                           .openapi({
                             type: 'object',
                             allOf: [
@@ -8634,8 +8565,6 @@ const RootSchema = z
                             ],
                           }),
                       })
-                      .partial()
-                      .optional()
                       .openapi({
                         type: 'object',
                         properties: {
@@ -8965,7 +8894,6 @@ const RootSchema = z
                         },
                       }),
                   )
-                  .optional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -9301,8 +9229,6 @@ const RootSchema = z
                     ],
                   }),
               })
-              .partial()
-              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -9643,7 +9569,6 @@ const RootSchema = z
                 },
               }),
           )
-          .optional()
           .openapi({
             type: 'object',
             allOf: [
@@ -9990,8 +9915,6 @@ const RootSchema = z
             ],
           }),
       })
-      .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -10386,6 +10309,7 @@ const RootSchema = z
       }),
     arrayRefs: z
       .array(USchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/U' } }),
     chainRefsExtended: z
       .object({
@@ -10425,7 +10349,6 @@ const RootSchema = z
                                     ],
                                   }),
                               })
-                              .partial()
                               .openapi({
                                 type: 'object',
                                 properties: {
@@ -10464,7 +10387,6 @@ const RootSchema = z
                             ],
                           }),
                       })
-                      .partial()
                       .openapi({
                         type: 'object',
                         properties: {
@@ -10492,7 +10414,6 @@ const RootSchema = z
                         },
                       }),
                   )
-                  .optional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -10526,8 +10447,6 @@ const RootSchema = z
                     ],
                   }),
               })
-              .partial()
-              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -10566,7 +10485,6 @@ const RootSchema = z
                 },
               }),
           )
-          .optional()
           .openapi({
             type: 'object',
             allOf: [
@@ -10611,8 +10529,6 @@ const RootSchema = z
             ],
           }),
       })
-      .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -10694,7 +10610,6 @@ const RootSchema = z
           }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -10710,8 +10625,6 @@ const RootSchema = z
         },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {

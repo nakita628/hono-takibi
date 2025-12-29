@@ -2,15 +2,15 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const DimensionSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     values: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: { name: { type: 'string' }, values: { type: 'array', items: { type: 'string' } } },
   })
   .openapi('Dimension')
@@ -30,7 +30,6 @@ const ThresholdSchema = z
       .openapi({ type: 'string', enum: ['lt', 'lte', 'gt', 'gte', 'eq', 'ne'] }),
     value: z.number().optional().openapi({ type: 'number' }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -43,13 +42,13 @@ const ThresholdSchema = z
 
 const LabelSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     required: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name'],
     properties: {
       name: { type: 'string' },
       description: { type: 'string' },
@@ -60,10 +59,9 @@ const LabelSchema = z
 
 const MetricDefinitionSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     type: z
       .enum(['counter', 'gauge', 'histogram', 'summary'])
-      .optional()
       .openapi({ type: 'string', enum: ['counter', 'gauge', 'histogram', 'summary'] }),
     unit: z.string().optional().openapi({ type: 'string' }),
     labels: z
@@ -75,9 +73,9 @@ const MetricDefinitionSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Threshold' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type'],
     properties: {
       name: { type: 'string' },
       type: { type: 'string', enum: ['counter', 'gauge', 'histogram', 'summary'] },
@@ -103,7 +101,6 @@ const MetricAggregationSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Dimension' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -124,7 +121,6 @@ const MetricValueSchema = z
     definition: MetricDefinitionSchema,
     timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -138,13 +134,17 @@ const MetricValueSchema = z
 
 const EntityMetricsSchema = z
   .object({
-    metrics: z.record(z.string(), MetricValueSchema).openapi({ type: 'object' }),
+    metrics: z
+      .record(z.string(), MetricValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/MetricValue' },
+      }),
     aggregations: z
       .array(MetricAggregationSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/MetricAggregation' } }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -170,7 +170,6 @@ const AnnotationSchema = z
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -183,12 +182,15 @@ const AnnotationSchema = z
 
 const LinkMetadataSchema = z
   .object({
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    createdBy: z.string().openapi({ type: 'string' }),
-    annotations: z.record(z.string(), AnnotationSchema).openapi({ type: 'object' }),
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdBy: z.string().optional().openapi({ type: 'string' }),
+    annotations: z
+      .record(z.string(), AnnotationSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/Annotation' },
+      }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -210,13 +212,13 @@ const EntityTypeSchema = z
 
 const EntityLinkSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: EntityTypeSchema,
     metadata: LinkMetadataSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { $ref: '#/components/schemas/EntityType' },
@@ -230,7 +232,6 @@ const DependencyLinkSchema = z
     EntityLinkSchema,
     z
       .object({ dependencyType: DependencyTypeSchema, criticality: CriticalitySchema })
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -266,7 +267,6 @@ const EntityRelationsSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/DependencyLink' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -279,13 +279,13 @@ const EntityRelationsSchema = z
 
 const SecretReferenceSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    source: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
+    source: z.string().openapi({ type: 'string' }),
     version: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'source'],
     properties: {
       name: { type: 'string' },
       source: { type: 'string' },
@@ -299,14 +299,12 @@ const EnvironmentSchema = z
     name: z.string().openapi({ type: 'string' }),
     variables: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     secrets: z
       .array(SecretReferenceSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SecretReference' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -328,7 +326,12 @@ const ConfigValueSchema = z
           .array(ConfigValueSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ConfigValue' } }),
-        z.record(z.string(), ConfigValueSchema).optional().openapi({ type: 'object' }),
+        z
+          .record(z.string(), ConfigValueSchema)
+          .openapi({
+            type: 'object',
+            additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
+          }),
       ])
       .optional()
       .openapi({
@@ -345,14 +348,18 @@ const ConfigValueSchema = z
 
 const EntityConfigSchema = z
   .object({
-    settings: z.record(z.string(), ConfigValueSchema).optional().openapi({ type: 'object' }),
+    settings: z
+      .record(z.string(), ConfigValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
+      }),
     secrets: z
       .array(SecretReferenceSchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SecretReference' } }),
     environment: EnvironmentSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -368,26 +375,33 @@ const EntityConfigSchema = z
 
 const TagSchema = z
   .object({
-    key: z.string().optional().openapi({ type: 'string' }),
-    value: z.string().optional().openapi({ type: 'string' }),
+    key: z.string().openapi({ type: 'string' }),
+    value: z.string().openapi({ type: 'string' }),
   })
-  .optional()
-  .openapi({ type: 'object', properties: { key: { type: 'string' }, value: { type: 'string' } } })
+  .openapi({
+    type: 'object',
+    required: ['key', 'value'],
+    properties: { key: { type: 'string' }, value: { type: 'string' } },
+  })
   .openapi('Tag')
 
 const HealthCheckSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     status: z
       .enum(['pass', 'fail', 'warn'])
-      .optional()
       .openapi({ type: 'string', enum: ['pass', 'fail', 'warn'] }),
     message: z.string().optional().openapi({ type: 'string' }),
-    metrics: z.record(z.string(), MetricValueSchema).optional().openapi({ type: 'object' }),
+    metrics: z
+      .record(z.string(), MetricValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/MetricValue' },
+      }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'status'],
     properties: {
       name: { type: 'string' },
       status: { type: 'string', enum: ['pass', 'fail', 'warn'] },
@@ -404,7 +418,6 @@ const HealthStatusSchema = z
   .object({
     status: z
       .enum(['healthy', 'degraded', 'unhealthy', 'unknown'])
-      .optional()
       .openapi({ type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] }),
     checks: z
       .array(HealthCheckSchema)
@@ -412,9 +425,9 @@ const HealthStatusSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/HealthCheck' } }),
     lastChecked: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['status'],
     properties: {
       status: { type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] },
       checks: { type: 'array', items: { $ref: '#/components/schemas/HealthCheck' } },
@@ -441,7 +454,6 @@ const EntityDetailsSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -457,14 +469,14 @@ const EntityDetailsSchema = z
 
 const EntityCoreSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: EntityTypeSchema,
     details: EntityDetailsSchema,
     config: EntityConfigSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'details'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { $ref: '#/components/schemas/EntityType' },
@@ -496,7 +508,6 @@ const RetryPolicySchema = z
     maxDelay: z.int().openapi({ type: 'integer' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -515,7 +526,6 @@ const ProcessOptionsSchema = z
     timeout: z.int().optional().openapi({ type: 'integer' }),
     retryPolicy: RetryPolicySchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -537,7 +547,6 @@ const CredentialsSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SecretReference' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -554,7 +563,6 @@ const ConnectionConfigSchema = z
     database: z.string().optional().openapi({ type: 'string' }),
     options: ConfigValueSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -572,7 +580,6 @@ const DataSourceSchema = z
     connection: ConnectionConfigSchema,
     credentials: CredentialsSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -595,7 +602,6 @@ const FieldValidationSchema = z
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -610,15 +616,15 @@ const FieldValidationSchema = z
 
 const FieldDefinitionSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    type: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
+    type: z.string().openapi({ type: 'string' }),
     nullable: z.boolean().optional().openapi({ type: 'boolean' }),
     default: ConfigValueSchema,
     validation: FieldValidationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type'],
     properties: {
       name: { type: 'string' },
       type: { type: 'string' },
@@ -631,14 +637,18 @@ const FieldDefinitionSchema = z
 
 const DataSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
+    name: z.string().optional().openapi({ type: 'string' }),
     fields: z
       .array(FieldDefinitionSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/FieldDefinition' } }),
-    nested: z.record(z.string(), DataSchema).openapi({ type: 'object' }),
+    nested: z
+      .record(z.string(), DataSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/DataSchema' },
+      }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -655,7 +665,6 @@ const StageOutputSchema = z
     schema: DataSchema,
     destination: DataSourceSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -672,11 +681,9 @@ const TransformSchema = z
     expression: z.string().openapi({ type: 'string' }),
     mapping: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -689,21 +696,20 @@ const TransformSchema = z
 
 const StageConfigSchema = z
   .record(z.string(), ConfigValueSchema)
-  .optional()
-  .openapi({ type: 'object' })
+  .openapi({ type: 'object', additionalProperties: { $ref: '#/components/schemas/ConfigValue' } })
   .openapi('StageConfig')
 
 const PipelineStageSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    type: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
+    type: z.string().openapi({ type: 'string' }),
     config: StageConfigSchema,
     transform: TransformSchema,
     output: StageOutputSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'type'],
     properties: {
       name: { type: 'string' },
       type: { type: 'string' },
@@ -719,12 +725,11 @@ const PipelineSchema = z
     name: z.string().optional().openapi({ type: 'string' }),
     stages: z
       .array(PipelineStageSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/PipelineStage' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['stages'],
     properties: {
       name: { type: 'string' },
       stages: { type: 'array', items: { $ref: '#/components/schemas/PipelineStage' } },
@@ -741,7 +746,6 @@ const ValidationActionSchema = z
     message: z.string().optional().openapi({ type: 'string' }),
     transform: TransformSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -764,7 +768,6 @@ const CompoundConditionSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Condition' } }),
     not: ConditionSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -777,13 +780,13 @@ const CompoundConditionSchema = z
 
 const SimpleConditionSchema = z
   .object({
-    field: z.string().optional().openapi({ type: 'string' }),
-    operator: z.string().optional().openapi({ type: 'string' }),
-    value: z.any().optional(),
+    field: z.string().openapi({ type: 'string' }),
+    operator: z.string().openapi({ type: 'string' }),
+    value: z.any(),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['field', 'operator', 'value'],
     properties: { field: { type: 'string' }, operator: { type: 'string' }, value: {} },
   })
   .openapi('SimpleCondition')
@@ -808,7 +811,6 @@ const ValidationRuleSchema = z
     condition: ConditionSchema,
     action: ValidationActionSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -827,7 +829,6 @@ const ValidationRulesSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ValidationRule' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -844,7 +845,6 @@ const StreamDataSchema = z
     offset: z.int().openapi({ type: 'integer' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -862,7 +862,6 @@ const RawDataSchema = z
     encoding: z.string().openapi({ type: 'string' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -877,11 +876,10 @@ const StructuredDataSchema = z
   .object({
     schema: DataSchema,
     records: z
-      .array(z.object({}).optional().openapi({ type: 'object' }))
+      .array(z.object({}).openapi({ type: 'object' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'object' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -905,7 +903,6 @@ const InputDataSchema = z
 
 const ProcessInputSchema = z
   .object({ data: InputDataSchema, source: DataSourceSchema, validation: ValidationRulesSchema })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -918,9 +915,9 @@ const ProcessInputSchema = z
 
 const ProcessRequestSchema = z
   .object({ input: ProcessInputSchema, pipeline: PipelineSchema, options: ProcessOptionsSchema })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['input', 'pipeline'],
     properties: {
       input: { $ref: '#/components/schemas/ProcessInput' },
       pipeline: { $ref: '#/components/schemas/Pipeline' },
@@ -931,12 +928,10 @@ const ProcessRequestSchema = z
 
 const ProcessErrorSchema = z
   .object({
-    stage: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
+    stage: z.string().optional().openapi({ type: 'string' }),
+    message: z.string().optional().openapi({ type: 'string' }),
     details: z.object({}).openapi({ type: 'object' }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -951,13 +946,17 @@ const ProcessResultSchema = z
   .object({
     status: z.string().optional().openapi({ type: 'string' }),
     output: StageOutputSchema,
-    metrics: z.record(z.string(), MetricValueSchema).optional().openapi({ type: 'object' }),
+    metrics: z
+      .record(z.string(), MetricValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/MetricValue' },
+      }),
     errors: z
       .array(ProcessErrorSchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProcessError' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -980,7 +979,6 @@ const ViewportSchema = z
     height: z.number().openapi({ type: 'number' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -998,7 +996,6 @@ const GraphMetadataSchema = z
     zoom: z.number().optional().openapi({ type: 'number' }),
     viewport: ViewportSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1019,7 +1016,6 @@ const EdgeStyleSchema = z
     animated: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -1034,14 +1030,14 @@ const EdgeStyleSchema = z
 const GraphEdgeSchema = z
   .object({
     id: z.string().optional().openapi({ type: 'string' }),
-    source: z.string().optional().openapi({ type: 'string' }),
-    target: z.string().optional().openapi({ type: 'string' }),
+    source: z.string().openapi({ type: 'string' }),
+    target: z.string().openapi({ type: 'string' }),
     dependency: DependencyLinkSchema,
     style: EdgeStyleSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['source', 'target'],
     properties: {
       id: { type: 'string' },
       source: { type: 'string' },
@@ -1059,7 +1055,6 @@ const NodeStyleSchema = z
     size: z.number().openapi({ type: 'number' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: { color: { type: 'string' }, shape: { type: 'string' }, size: { type: 'number' } },
@@ -1069,20 +1064,19 @@ const NodeStyleSchema = z
 const PositionSchema = z
   .object({ x: z.number().openapi({ type: 'number' }), y: z.number().openapi({ type: 'number' }) })
   .partial()
-  .optional()
   .openapi({ type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } } })
   .openapi('Position')
 
 const GraphNodeSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().openapi({ type: 'string' }),
     entity: EntityFullSchema,
     position: PositionSchema,
     style: NodeStyleSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id'],
     properties: {
       id: { type: 'string' },
       entity: { $ref: '#/components/schemas/EntityFull' },
@@ -1096,17 +1090,15 @@ const DependencyGraphSchema = z
   .object({
     nodes: z
       .array(GraphNodeSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
     edges: z
       .array(GraphEdgeSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
     metadata: GraphMetadataSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['nodes', 'edges'],
     properties: {
       nodes: { type: 'array', items: { $ref: '#/components/schemas/GraphNode' } },
       edges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
@@ -1120,7 +1112,6 @@ const TransformConfigSchema = z
     StageConfigSchema,
     z
       .object({ errorHandling: ValidationActionSchema })
-      .optional()
       .openapi({
         type: 'object',
         properties: { errorHandling: { $ref: '#/components/schemas/ValidationAction' } },
@@ -1140,13 +1131,13 @@ const TransformConfigSchema = z
 
 const TransformStepSchema = z
   .object({
-    type: z.string().optional().openapi({ type: 'string' }),
+    type: z.string().openapi({ type: 'string' }),
     config: TransformConfigSchema,
     transform: TransformSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['type'],
     properties: {
       type: { type: 'string' },
       config: { $ref: '#/components/schemas/TransformConfig' },
@@ -1159,13 +1150,12 @@ const TransformPipelineSchema = z
   .object({
     transforms: z
       .array(TransformStepSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TransformStep' } }),
     input: ProcessInputSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['transforms'],
     properties: {
       transforms: { type: 'array', items: { $ref: '#/components/schemas/TransformStep' } },
       input: { $ref: '#/components/schemas/ProcessInput' },
@@ -1198,7 +1188,6 @@ const TransformResultSchema = z
                 },
               }),
           )
-          .optional()
           .openapi({
             type: 'array',
             items: {
@@ -1213,7 +1202,6 @@ const TransformResultSchema = z
           }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {

@@ -12,24 +12,11 @@ export const getPrimitiveRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              tuna_literal: z
-                .literal('tuna')
-                .optional()
-                .openapi({ type: 'string', enum: ['tuna'] }),
-              twelve_literal: z
-                .literal(12)
-                .optional()
-                .openapi({ type: 'number', enum: [12] }),
-              twobig_literal: z
-                .literal(2)
-                .optional()
-                .openapi({ type: 'bigint', enum: [2] }),
-              true_literal: z
-                .literal(true)
-                .optional()
-                .openapi({ type: 'boolean', enum: [true] }),
+              tuna_literal: z.literal('tuna').openapi({ type: 'string', enum: ['tuna'] }),
+              twelve_literal: z.literal(12).openapi({ type: 'number', enum: [12] }),
+              twobig_literal: z.literal(2).openapi({ type: 'bigint', enum: [2] }),
+              true_literal: z.literal(true).openapi({ type: 'boolean', enum: [true] }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -38,6 +25,7 @@ export const getPrimitiveRoute = createRoute({
                 twobig_literal: { type: 'bigint', enum: [2] },
                 true_literal: { type: 'boolean', enum: [true] },
               },
+              required: ['tuna_literal', 'twelve_literal', 'twobig_literal', 'true_literal'],
             }),
         },
       },

@@ -2,17 +2,17 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    id: z.string().openapi({ type: 'string' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     name: z.string().optional().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
       .optional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'email'],
     properties: {
       id: { type: 'string' },
       email: { type: 'string', format: 'email' },
@@ -24,7 +24,7 @@ const UserSchema = z
 
 const CreateUserInputSchema = z
   .object({
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     name: z.string().optional().openapi({ type: 'string' }),
     password: z
       .file()
@@ -32,9 +32,9 @@ const CreateUserInputSchema = z
       .optional()
       .openapi({ type: 'string', format: 'binary', minLength: 8 }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['email'],
     properties: {
       email: { type: 'string', format: 'email' },
       name: { type: 'string' },
@@ -45,16 +45,16 @@ const CreateUserInputSchema = z
 
 const UpdateUserInputSchema = z
   .object({
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
+    name: z.string().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
       .optional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['email', 'name'],
     properties: {
       email: { type: 'string', format: 'email' },
       name: { type: 'string' },
@@ -72,7 +72,6 @@ const PatchUserInputSchema = z
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -109,12 +108,12 @@ const FileUploadRequestBody = {
     'multipart/form-data': {
       schema: z
         .object({
-          file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+          file: z.file().openapi({ type: 'string', format: 'binary' }),
           description: z.string().optional().openapi({ type: 'string' }),
         })
-        .optional()
         .openapi({
           type: 'object',
+          required: ['file'],
           properties: {
             file: { type: 'string', format: 'binary' },
             description: { type: 'string' },
@@ -165,7 +164,10 @@ export const putUsersUserIdRoute = createRoute({
     params: z.object({
       userId: z
         .string()
-        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: 'User updated' } },
@@ -180,7 +182,10 @@ export const patchUsersUserIdRoute = createRoute({
     params: z.object({
       userId: z
         .string()
-        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: 'User patched' } },
@@ -195,7 +200,10 @@ export const postUsersUserIdAvatarRoute = createRoute({
     params: z.object({
       userId: z
         .string()
-        .openapi({ param: { name: 'userId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 200: { description: 'Avatar uploaded' } },

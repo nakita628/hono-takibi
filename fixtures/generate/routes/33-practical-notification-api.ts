@@ -2,23 +2,22 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const NotificationSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().openapi({ type: 'string' }),
     body: z.string().optional().openapi({ type: 'string' }),
     type: z
       .enum(['info', 'success', 'warning', 'error', 'system'])
-      .optional()
       .openapi({ type: 'string', enum: ['info', 'success', 'warning', 'error', 'system'] }),
-    read: z.boolean().optional().openapi({ type: 'boolean' }),
-    data: z.looseObject({}).optional().openapi({ type: 'object' }),
+    read: z.boolean().openapi({ type: 'boolean' }),
+    data: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
     actionUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     imageUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     readAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'title', 'type', 'read', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       title: { type: 'string' },
@@ -38,13 +37,11 @@ const SendMessageRequestSchema = z
   .object({
     channel: z
       .enum(['email', 'sms', 'push', 'in_app'])
-      .optional()
       .openapi({ type: 'string', enum: ['email', 'sms', 'push', 'in_app'] }),
     to: z
       .union([
         z
           .string()
-          .optional()
           .openapi({ type: 'string', description: 'メールアドレス、電話番号、またはユーザーID' }),
         z
           .array(z.string().optional().openapi({ type: 'string' }))
@@ -68,12 +65,18 @@ const SendMessageRequestSchema = z
     html: z.string().optional().openapi({ type: 'string', description: 'メールのHTML本文' }),
     variables: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object', description: 'テンプレート変数' }),
+      .openapi({
+        type: 'object',
+        additionalProperties: { type: 'string' },
+        description: 'テンプレート変数',
+      }),
     data: z
       .looseObject({})
-      .optional()
-      .openapi({ type: 'object', description: 'プッシュ通知の追加データ' }),
+      .openapi({
+        type: 'object',
+        additionalProperties: true,
+        description: 'プッシュ通知の追加データ',
+      }),
     priority: z
       .enum(['low', 'normal', 'high'])
       .default('normal')
@@ -84,9 +87,9 @@ const SendMessageRequestSchema = z
       .optional()
       .openapi({ type: 'string', format: 'date-time', description: '予約送信日時' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['channel', 'to'],
     properties: {
       channel: { type: 'string', enum: ['email', 'sms', 'push', 'in_app'] },
       to: {
@@ -113,16 +116,15 @@ const SendMessageRequestSchema = z
 
 const MessageResultSchema = z
   .object({
-    messageId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    messageId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['queued', 'sending', 'sent', 'delivered', 'failed'])
-      .optional()
       .openapi({ type: 'string', enum: ['queued', 'sending', 'sent', 'delivered', 'failed'] }),
     scheduledAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['messageId', 'status'],
     properties: {
       messageId: { type: 'string', format: 'uuid' },
       status: { type: 'string', enum: ['queued', 'sending', 'sent', 'delivered', 'failed'] },
@@ -133,10 +135,10 @@ const MessageResultSchema = z
 
 const BatchMessageResultSchema = z
   .object({
-    batchId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    queued: z.int().optional().openapi({ type: 'integer' }),
-    failed: z.int().optional().openapi({ type: 'integer' }),
+    batchId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    total: z.int().openapi({ type: 'integer' }),
+    queued: z.int().openapi({ type: 'integer' }),
+    failed: z.int().openapi({ type: 'integer' }),
     errors: z
       .array(
         z
@@ -145,7 +147,6 @@ const BatchMessageResultSchema = z
             error: z.string().openapi({ type: 'string' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: { index: { type: 'integer' }, error: { type: 'string' } },
@@ -160,9 +161,9 @@ const BatchMessageResultSchema = z
         },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['batchId', 'total', 'queued', 'failed'],
     properties: {
       batchId: { type: 'string', format: 'uuid' },
       total: { type: 'integer' },
@@ -181,28 +182,26 @@ const BatchMessageResultSchema = z
 
 const MessageStatusSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     channel: z
       .enum(['email', 'sms', 'push', 'in_app'])
-      .optional()
       .openapi({ type: 'string', enum: ['email', 'sms', 'push', 'in_app'] }),
     to: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['queued', 'sending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'failed'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['queued', 'sending', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'failed'],
       }),
     error: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     sentAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     deliveredAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     openedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'channel', 'status', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       channel: { type: 'string', enum: ['email', 'sms', 'push', 'in_app'] },
@@ -222,12 +221,11 @@ const MessageStatusSchema = z
 
 const TemplateSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     channel: z
       .enum(['email', 'sms', 'push', 'in_app'])
-      .optional()
       .openapi({ type: 'string', enum: ['email', 'sms', 'push', 'in_app'] }),
     subject: z.string().optional().openapi({ type: 'string' }),
     body: z.string().optional().openapi({ type: 'string' }),
@@ -241,7 +239,6 @@ const TemplateSchema = z
             default: z.string().openapi({ type: 'string' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -264,12 +261,12 @@ const TemplateSchema = z
         },
       }),
     active: z.boolean().optional().openapi({ type: 'boolean' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'channel', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -298,25 +295,19 @@ const TemplateSchema = z
 
 const CreateTemplateRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
     channel: z
       .enum(['email', 'sms', 'push', 'in_app'])
-      .optional()
       .openapi({ type: 'string', enum: ['email', 'sms', 'push', 'in_app'] }),
     subject: z.string().optional().openapi({ type: 'string' }),
-    body: z.string().optional().openapi({ type: 'string' }),
+    body: z.string().openapi({ type: 'string' }),
     html: z.string().optional().openapi({ type: 'string' }),
     variables: z
       .array(
         z
           .object({
-            name: z.string().optional().openapi({ type: 'string' }),
+            name: z.string().openapi({ type: 'string' }),
             required: z
               .boolean()
               .default(false)
@@ -324,9 +315,9 @@ const CreateTemplateRequestSchema = z
               .openapi({ type: 'boolean', default: false }),
             default: z.string().optional().openapi({ type: 'string' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['name'],
             properties: {
               name: { type: 'string' },
               required: { type: 'boolean', default: false },
@@ -348,9 +339,9 @@ const CreateTemplateRequestSchema = z
         },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'channel', 'body'],
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 200 },
       description: { type: 'string' },
@@ -386,12 +377,12 @@ const UpdateTemplateRequestSchema = z
         z
           .object({
             name: z.string().openapi({ type: 'string' }),
-            required: z.boolean().optional().openapi({ type: 'boolean' }),
+            required: z.boolean().openapi({ type: 'boolean' }),
             default: z.string().optional().openapi({ type: 'string' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['name'],
             properties: {
               name: { type: 'string' },
               required: { type: 'boolean' },
@@ -415,7 +406,6 @@ const UpdateTemplateRequestSchema = z
     active: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -443,11 +433,14 @@ const UpdateTemplateRequestSchema = z
 
 const ChannelSettingSchema = z
   .object({
-    enabled: z.boolean().openapi({ type: 'boolean' }),
+    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
     categories: z
-      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
-      .optional()
-      .openapi({ type: 'object', description: 'カテゴリ別の通知設定' }),
+      .record(z.string(), z.boolean().optional().openapi({ type: 'boolean' }))
+      .openapi({
+        type: 'object',
+        additionalProperties: { type: 'boolean' },
+        description: 'カテゴリ別の通知設定',
+      }),
     quietHours: z
       .object({
         enabled: z.boolean().openapi({ type: 'boolean' }),
@@ -488,8 +481,6 @@ const ChannelSettingSchema = z
         },
       }),
   })
-  .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -527,7 +518,6 @@ const ChannelPreferencesSchema = z
     push: ChannelSettingSchema,
     inApp: ChannelSettingSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -546,7 +536,6 @@ const UpdateChannelPreferencesRequestSchema = z
     push: ChannelSettingSchema,
     inApp: ChannelSettingSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -560,22 +549,21 @@ const UpdateChannelPreferencesRequestSchema = z
 
 const DeviceSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().openapi({ type: 'string' }),
     platform: z
       .enum(['ios', 'android', 'web'])
-      .optional()
       .openapi({ type: 'string', enum: ['ios', 'android', 'web'] }),
-    token: z.string().optional().openapi({ type: 'string' }),
+    token: z.string().openapi({ type: 'string' }),
     name: z.string().optional().openapi({ type: 'string' }),
     model: z.string().optional().openapi({ type: 'string' }),
     osVersion: z.string().optional().openapi({ type: 'string' }),
     appVersion: z.string().optional().openapi({ type: 'string' }),
     lastActiveAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'platform', 'token', 'createdAt'],
     properties: {
       id: { type: 'string' },
       platform: { type: 'string', enum: ['ios', 'android', 'web'] },
@@ -594,17 +582,16 @@ const RegisterDeviceRequestSchema = z
   .object({
     platform: z
       .enum(['ios', 'android', 'web'])
-      .optional()
       .openapi({ type: 'string', enum: ['ios', 'android', 'web'] }),
-    token: z.string().optional().openapi({ type: 'string' }),
+    token: z.string().openapi({ type: 'string' }),
     name: z.string().optional().openapi({ type: 'string' }),
     model: z.string().optional().openapi({ type: 'string' }),
     osVersion: z.string().optional().openapi({ type: 'string' }),
     appVersion: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['platform', 'token'],
     properties: {
       platform: { type: 'string', enum: ['ios', 'android', 'web'] },
       token: { type: 'string' },
@@ -618,9 +605,9 @@ const RegisterDeviceRequestSchema = z
 
 const WebhookSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().optional().openapi({ type: 'string' }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     events: z
       .array(
         z
@@ -632,7 +619,6 @@ const WebhookSchema = z
             'message.clicked',
             'message.bounced',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -664,17 +650,16 @@ const WebhookSchema = z
       .string()
       .optional()
       .openapi({ type: 'string', description: '署名検証用シークレット' }),
-    active: z.boolean().optional().openapi({ type: 'boolean' }),
+    active: z.boolean().openapi({ type: 'boolean' }),
     headers: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'url', 'events', 'active', 'createdAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -705,7 +690,7 @@ const WebhookSchema = z
 const CreateWebhookRequestSchema = z
   .object({
     name: z.string().max(200).optional().openapi({ type: 'string', maxLength: 200 }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     events: z
       .array(
         z
@@ -717,7 +702,6 @@ const CreateWebhookRequestSchema = z
             'message.clicked',
             'message.bounced',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -749,12 +733,11 @@ const CreateWebhookRequestSchema = z
       }),
     headers: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['url', 'events'],
     properties: {
       name: { type: 'string', maxLength: 200 },
       url: { type: 'string', format: 'uri' },
@@ -825,11 +808,9 @@ const UpdateWebhookRequestSchema = z
     active: z.boolean().openapi({ type: 'boolean' }),
     headers: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'object' }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -858,14 +839,14 @@ const UpdateWebhookRequestSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int().optional().openapi({ type: 'integer' }),
-    limit: z.int().optional().openapi({ type: 'integer' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    totalPages: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    limit: z.int().openapi({ type: 'integer' }),
+    total: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer' },
       limit: { type: 'integer' },
@@ -879,13 +860,12 @@ const NotificationListResponseSchema = z
   .object({
     data: z
       .array(NotificationSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Notification' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Notification' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -895,12 +875,12 @@ const NotificationListResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -967,12 +947,25 @@ export const getNotificationsRoute = createRoute({
       read: z
         .stringbool()
         .optional()
-        .openapi({ param: { name: 'read', in: 'query' }, type: 'boolean' }),
+        .openapi({
+          param: {
+            name: 'read',
+            in: 'query',
+            description: '既読/未読でフィルタ',
+            schema: { type: 'boolean' },
+          },
+          type: 'boolean',
+        }),
       type: z
         .enum(['info', 'success', 'warning', 'error', 'system'])
         .optional()
         .openapi({
-          param: { name: 'type', in: 'query' },
+          param: {
+            name: 'type',
+            in: 'query',
+            description: '通知タイプでフィルタ',
+            schema: { type: 'string', enum: ['info', 'success', 'warning', 'error', 'system'] },
+          },
           type: 'string',
           enum: ['info', 'success', 'warning', 'error', 'system'],
         }),
@@ -999,7 +992,12 @@ export const getNotificationsNotificationIdRoute = createRoute({
       notificationId: z
         .uuid()
         .openapi({
-          param: { name: 'notificationId', in: 'path', required: true },
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1027,7 +1025,12 @@ export const deleteNotificationsNotificationIdRoute = createRoute({
       notificationId: z
         .uuid()
         .openapi({
-          param: { name: 'notificationId', in: 'path', required: true },
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1048,7 +1051,12 @@ export const postNotificationsNotificationIdReadRoute = createRoute({
       notificationId: z
         .uuid()
         .openapi({
-          param: { name: 'notificationId', in: 'path', required: true },
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1075,7 +1083,6 @@ export const postNotificationsReadAllRoute = createRoute({
           schema: z
             .object({ updatedCount: z.int().openapi({ type: 'integer' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { updatedCount: { type: 'integer' } } }),
         },
       },
@@ -1099,7 +1106,6 @@ export const getNotificationsUnreadCountRoute = createRoute({
           schema: z
             .object({ count: z.int().openapi({ type: 'integer' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { count: { type: 'integer' } } }),
         },
       },
@@ -1145,16 +1151,15 @@ export const postMessagesSendBatchRoute = createRoute({
               messages: z
                 .array(SendMessageRequestSchema)
                 .max(1000)
-                .optional()
                 .openapi({
                   type: 'array',
                   maxItems: 1000,
                   items: { $ref: '#/components/schemas/SendMessageRequest' },
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['messages'],
               properties: {
                 messages: {
                   type: 'array',
@@ -1190,7 +1195,12 @@ export const getMessagesMessageIdRoute = createRoute({
       messageId: z
         .uuid()
         .openapi({
-          param: { name: 'messageId', in: 'path', required: true },
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1219,14 +1229,21 @@ export const getTemplatesRoute = createRoute({
         .enum(['email', 'sms', 'push', 'in_app'])
         .optional()
         .openapi({
-          param: { name: 'channel', in: 'query' },
+          param: {
+            name: 'channel',
+            in: 'query',
+            schema: { type: 'string', enum: ['email', 'sms', 'push', 'in_app'] },
+          },
           type: 'string',
           enum: ['email', 'sms', 'push', 'in_app'],
         }),
       search: z
         .string()
         .optional()
-        .openapi({ param: { name: 'search', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: { name: 'search', in: 'query', schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1277,7 +1294,12 @@ export const getTemplatesTemplateIdRoute = createRoute({
       templateId: z
         .uuid()
         .openapi({
-          param: { name: 'templateId', in: 'path', required: true },
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1324,7 +1346,12 @@ export const deleteTemplatesTemplateIdRoute = createRoute({
       templateId: z
         .uuid()
         .openapi({
-          param: { name: 'templateId', in: 'path', required: true },
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1348,11 +1375,9 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
             .object({
               variables: z
                 .record(z.string(), z.string().openapi({ type: 'string' }))
-                .optional()
-                .openapi({ type: 'object' }),
+                .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1376,7 +1401,6 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
               html: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1483,7 +1507,10 @@ export const deleteChannelsDevicesDeviceIdRoute = createRoute({
     params: z.object({
       deviceId: z
         .string()
-        .openapi({ param: { name: 'deviceId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'deviceId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 204: { description: '解除成功' }, 401: UnauthorizedResponse },
@@ -1543,7 +1570,12 @@ export const getWebhooksWebhookIdRoute = createRoute({
       webhookId: z
         .uuid()
         .openapi({
-          param: { name: 'webhookId', in: 'path', required: true },
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1587,7 +1619,12 @@ export const deleteWebhooksWebhookIdRoute = createRoute({
       webhookId: z
         .uuid()
         .openapi({
-          param: { name: 'webhookId', in: 'path', required: true },
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1608,7 +1645,12 @@ export const postWebhooksWebhookIdTestRoute = createRoute({
       webhookId: z
         .uuid()
         .openapi({
-          param: { name: 'webhookId', in: 'path', required: true },
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1629,7 +1671,6 @@ export const postWebhooksWebhookIdTestRoute = createRoute({
               error: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {

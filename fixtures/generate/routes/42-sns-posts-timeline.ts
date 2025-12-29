@@ -2,8 +2,8 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const LinkCardSchema = z
   .object({
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    title: z.string().optional().openapi({ type: 'string' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    title: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
     image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     siteName: z.string().optional().openapi({ type: 'string' }),
@@ -12,9 +12,9 @@ const LinkCardSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['url', 'title'],
     properties: {
       url: { type: 'string', format: 'uri' },
       title: { type: 'string' },
@@ -28,18 +28,15 @@ const LinkCardSchema = z
 
 const UrlEntitySchema = z
   .object({
-    url: z.url().optional().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
-    expandedUrl: z
-      .url()
-      .optional()
-      .openapi({ type: 'string', format: 'uri', description: '展開URL' }),
-    displayUrl: z.string().optional().openapi({ type: 'string', description: '表示用URL' }),
+    url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
+    expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
+    displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
     start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
     end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['url', 'expandedUrl', 'displayUrl'],
     properties: {
       url: { type: 'string', format: 'uri', description: '短縮URL' },
       expandedUrl: { type: 'string', format: 'uri', description: '展開URL' },
@@ -52,17 +49,17 @@ const UrlEntitySchema = z
 
 const UserSummarySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    username: z.string().optional().openapi({ type: 'string' }),
-    displayName: z.string().optional().openapi({ type: 'string' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    username: z.string().openapi({ type: 'string' }),
+    displayName: z.string().openapi({ type: 'string' }),
     avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     isVerified: z.boolean().optional().openapi({ type: 'boolean' }),
     isFollowing: z.boolean().optional().openapi({ type: 'boolean' }),
     isFollowedBy: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'username', 'displayName'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       username: { type: 'string' },
@@ -77,19 +74,19 @@ const UserSummarySchema = z
 
 const PollSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     options: z
       .array(
         z
           .object({
-            id: z.string().optional().openapi({ type: 'string' }),
-            text: z.string().optional().openapi({ type: 'string' }),
-            voteCount: z.int().optional().openapi({ type: 'integer' }),
-            percentage: z.number().optional().openapi({ type: 'number' }),
+            id: z.string().openapi({ type: 'string' }),
+            text: z.string().openapi({ type: 'string' }),
+            voteCount: z.int().openapi({ type: 'integer' }),
+            percentage: z.number().openapi({ type: 'number' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['id', 'text', 'voteCount'],
             properties: {
               id: { type: 'string' },
               text: { type: 'string' },
@@ -112,17 +109,17 @@ const PollSchema = z
           },
         },
       }),
-    totalVotes: z.int().optional().openapi({ type: 'integer' }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    totalVotes: z.int().openapi({ type: 'integer' }),
+    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     isExpired: z.boolean().optional().openapi({ type: 'boolean' }),
     viewerVote: z
       .string()
       .optional()
       .openapi({ type: 'string', description: '閲覧者が投票したオプションID' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'options', 'expiresAt', 'totalVotes'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       options: {
@@ -148,12 +145,11 @@ const PollSchema = z
 
 const MediaSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     type: z
       .enum(['image', 'gif', 'video'])
-      .optional()
       .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
-    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
     previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     alt: z.string().optional().openapi({ type: 'string' }),
     width: z.int().optional().openapi({ type: 'integer' }),
@@ -164,9 +160,9 @@ const MediaSchema = z
       .optional()
       .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'type', 'url'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       type: { type: 'string', enum: ['image', 'gif', 'video'] },
@@ -185,22 +181,24 @@ const PostSchema = z
   .lazy(() =>
     z
       .object({
-        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
         author: UserSummarySchema,
-        text: z.string().max(280).optional().openapi({ type: 'string', maxLength: 280 }),
+        text: z.string().max(280).openapi({ type: 'string', maxLength: 280 }),
         media: z
           .array(MediaSchema)
           .max(4)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 }),
         poll: PollSchema,
-        quotedPost: PostSchema.optional().openapi({ description: '引用元投稿' }),
+        quotedPost: PostSchema.optional().openapi({
+          $ref: '#/components/schemas/Post',
+          description: '引用元投稿',
+        }),
         replyTo: z
           .object({
             postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
             author: UserSummarySchema,
           })
-          .optional()
           .openapi({
             type: 'object',
             description: '返信先情報',
@@ -209,7 +207,10 @@ const PostSchema = z
               author: { $ref: '#/components/schemas/UserSummary' },
             },
           }),
-        repostOf: PostSchema.optional().openapi({ description: 'リポスト元（リポストの場合）' }),
+        repostOf: PostSchema.optional().openapi({
+          $ref: '#/components/schemas/Post',
+          description: 'リポスト元（リポストの場合）',
+        }),
         hashtags: z
           .array(z.string().optional().openapi({ type: 'string' }))
           .optional()
@@ -222,7 +223,10 @@ const PostSchema = z
           .array(UrlEntitySchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } }),
-        card: LinkCardSchema.optional().openapi({ description: 'リンクカード' }),
+        card: LinkCardSchema.optional().openapi({
+          $ref: '#/components/schemas/LinkCard',
+          description: 'リンクカード',
+        }),
         visibility: z
           .enum(['public', 'followers', 'mentioned'])
           .default('public')
@@ -243,16 +247,16 @@ const PostSchema = z
           }),
         metrics: z
           .object({
-            likeCount: z.int().optional().openapi({ type: 'integer' }),
-            repostCount: z.int().optional().openapi({ type: 'integer' }),
-            replyCount: z.int().optional().openapi({ type: 'integer' }),
-            quoteCount: z.int().optional().openapi({ type: 'integer' }),
-            viewCount: z.int().optional().openapi({ type: 'integer' }),
-            bookmarkCount: z.int().optional().openapi({ type: 'integer' }),
+            likeCount: z.int().openapi({ type: 'integer' }),
+            repostCount: z.int().openapi({ type: 'integer' }),
+            replyCount: z.int().openapi({ type: 'integer' }),
+            quoteCount: z.int().openapi({ type: 'integer' }),
+            viewCount: z.int().openapi({ type: 'integer' }),
+            bookmarkCount: z.int().openapi({ type: 'integer' }),
           })
-          .optional()
           .openapi({
             type: 'object',
+            required: ['likeCount', 'repostCount', 'replyCount', 'quoteCount', 'viewCount'],
             properties: {
               likeCount: { type: 'integer' },
               repostCount: { type: 'integer' },
@@ -269,7 +273,6 @@ const PostSchema = z
             bookmarked: z.boolean().openapi({ type: 'boolean' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             description: '閲覧者のアクション状態',
@@ -284,7 +287,7 @@ const PostSchema = z
           .string()
           .optional()
           .openapi({ type: 'string', description: '投稿元クライアント' }),
-        createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
         editedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
         editHistory: z
           .array(
@@ -294,7 +297,6 @@ const PostSchema = z
                 editedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
               })
               .partial()
-              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -315,9 +317,9 @@ const PostSchema = z
             },
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['id', 'author', 'text', 'createdAt', 'metrics'],
         properties: {
           id: { type: 'string', format: 'uuid' },
           author: { $ref: '#/components/schemas/UserSummary' },
@@ -393,12 +395,7 @@ const PostSchema = z
 
 const CreatePostRequestSchema = z
   .object({
-    text: z
-      .string()
-      .min(1)
-      .max(280)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 280 }),
+    text: z.string().min(1).max(280).openapi({ type: 'string', minLength: 1, maxLength: 280 }),
     mediaIds: z
       .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
       .max(4)
@@ -407,7 +404,7 @@ const CreatePostRequestSchema = z
     poll: z
       .object({
         options: z
-          .array(z.string().max(25).optional().openapi({ type: 'string', maxLength: 25 }))
+          .array(z.string().max(25).openapi({ type: 'string', maxLength: 25 }))
           .min(2)
           .max(4)
           .optional()
@@ -421,12 +418,11 @@ const CreatePostRequestSchema = z
           .int()
           .min(5)
           .max(10080)
-          .optional()
           .openapi({ type: 'integer', description: '投票期間（分）', minimum: 5, maximum: 10080 }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['options', 'duration'],
         properties: {
           options: {
             type: 'array',
@@ -453,9 +449,9 @@ const CreatePostRequestSchema = z
       }),
     quotedPostId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['text'],
     properties: {
       text: { type: 'string', minLength: 1, maxLength: 280 },
       mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 },
@@ -497,9 +493,9 @@ const PostThreadSchema = z
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostThread' } }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['post'],
         properties: {
           post: { $ref: '#/components/schemas/Post' },
           ancestors: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
@@ -513,14 +509,13 @@ const PostListResponseSchema = z
   .object({
     data: z
       .array(PostSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
     previousCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
       nextCursor: { type: 'string' },
@@ -533,17 +528,17 @@ const TimelineItemSchema = z
   .object({
     type: z
       .enum(['post', 'repost', 'reply', 'quote', 'promoted'])
-      .optional()
       .openapi({ type: 'string', enum: ['post', 'repost', 'reply', 'quote', 'promoted'] }),
     post: PostSchema,
     repostedBy: UserSummarySchema.optional().openapi({
+      $ref: '#/components/schemas/UserSummary',
       description: 'リポストの場合、リポストしたユーザー',
     }),
     reason: z.string().optional().openapi({ type: 'string', description: 'おすすめの理由など' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['type', 'post'],
     properties: {
       type: { type: 'string', enum: ['post', 'repost', 'reply', 'quote', 'promoted'] },
       post: { $ref: '#/components/schemas/Post' },
@@ -560,14 +555,13 @@ const TimelineResponseSchema = z
   .object({
     data: z
       .array(TimelineItemSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TimelineItem' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
     previousCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/TimelineItem' } },
       nextCursor: { type: 'string' },
@@ -580,13 +574,12 @@ const UserListResponseSchema = z
   .object({
     data: z
       .array(UserSummarySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
     nextCursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/UserSummary' } },
       nextCursor: { type: 'string' },
@@ -596,12 +589,12 @@ const UserListResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -686,15 +679,40 @@ export const getPostsRoute = createRoute({
       userId: z
         .uuid()
         .optional()
-        .openapi({ param: { name: 'userId', in: 'query' }, type: 'string', format: 'uuid' }),
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'query',
+            description: '特定ユーザーの投稿のみ',
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
       hashtag: z
         .string()
         .optional()
-        .openapi({ param: { name: 'hashtag', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'hashtag',
+            in: 'query',
+            description: 'ハッシュタグでフィルタ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       mediaOnly: z
         .stringbool()
         .optional()
-        .openapi({ param: { name: 'mediaOnly', in: 'query' }, type: 'boolean' }),
+        .openapi({
+          param: {
+            name: 'mediaOnly',
+            in: 'query',
+            description: 'メディア付き投稿のみ',
+            schema: { type: 'boolean' },
+          },
+          type: 'boolean',
+        }),
     }),
   },
   responses: {
@@ -797,7 +815,6 @@ export const getPostsPostIdContextRoute = createRoute({
                   description: '返信',
                 }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -836,7 +853,12 @@ export const getTimelineHomeRoute = createRoute({
         .default(false)
         .optional()
         .openapi({
-          param: { name: 'includeReplies', in: 'query' },
+          param: {
+            name: 'includeReplies',
+            in: 'query',
+            description: '返信を含める',
+            schema: { type: 'boolean', default: false },
+          },
           type: 'boolean',
           default: false,
         }),
@@ -845,7 +867,12 @@ export const getTimelineHomeRoute = createRoute({
         .default(true)
         .optional()
         .openapi({
-          param: { name: 'includeReposts', in: 'query' },
+          param: {
+            name: 'includeReposts',
+            in: 'query',
+            description: 'リポストを含める',
+            schema: { type: 'boolean', default: true },
+          },
           type: 'boolean',
           default: true,
         }),
@@ -890,7 +917,12 @@ export const getTimelineUserUserIdRoute = createRoute({
       userId: z
         .uuid()
         .openapi({
-          param: { name: 'userId', in: 'path', required: true },
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -903,7 +935,11 @@ export const getTimelineUserUserIdRoute = createRoute({
         .default(false)
         .optional()
         .openapi({
-          param: { name: 'includeReplies', in: 'query' },
+          param: {
+            name: 'includeReplies',
+            in: 'query',
+            schema: { type: 'boolean', default: false },
+          },
           type: 'boolean',
           default: false,
         }),
@@ -912,7 +948,11 @@ export const getTimelineUserUserIdRoute = createRoute({
         .default(true)
         .optional()
         .openapi({
-          param: { name: 'includeReposts', in: 'query' },
+          param: {
+            name: 'includeReposts',
+            in: 'query',
+            schema: { type: 'boolean', default: true },
+          },
           type: 'boolean',
           default: true,
         }),
@@ -920,7 +960,11 @@ export const getTimelineUserUserIdRoute = createRoute({
         .stringbool()
         .default(false)
         .optional()
-        .openapi({ param: { name: 'mediaOnly', in: 'query' }, type: 'boolean', default: false }),
+        .openapi({
+          param: { name: 'mediaOnly', in: 'query', schema: { type: 'boolean', default: false } },
+          type: 'boolean',
+          default: false,
+        }),
     }),
   },
   responses: {
@@ -942,7 +986,10 @@ export const getTimelineHashtagHashtagRoute = createRoute({
     params: z.object({
       hashtag: z
         .string()
-        .openapi({ param: { name: 'hashtag', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'hashtag', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
     query: z.object({ cursor: CursorParamParamsSchema, limit: LimitParamParamsSchema }),
   },
@@ -1026,7 +1073,6 @@ export const postPostsPostIdQuoteRoute = createRoute({
                 .string()
                 .min(1)
                 .max(280)
-                .optional()
                 .openapi({ type: 'string', minLength: 1, maxLength: 280 }),
               mediaIds: z
                 .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
@@ -1034,9 +1080,9 @@ export const postPostsPostIdQuoteRoute = createRoute({
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['text'],
               properties: {
                 text: { type: 'string', minLength: 1, maxLength: 280 },
                 mediaIds: { type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 },
@@ -1163,7 +1209,15 @@ export const getPostsPostIdRepliesRoute = createRoute({
         .default('relevant')
         .optional()
         .openapi({
-          param: { name: 'sort', in: 'query' },
+          param: {
+            name: 'sort',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['recent', 'popular', 'relevant'],
+              default: 'relevant',
+            },
+          },
           type: 'string',
           enum: ['recent', 'popular', 'relevant'],
           default: 'relevant',
@@ -1206,16 +1260,16 @@ export const postMediaUploadRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              file: z.file().openapi({ type: 'string', format: 'binary' }),
               alt: z
                 .string()
                 .max(1000)
                 .optional()
                 .openapi({ type: 'string', maxLength: 1000, description: '代替テキスト' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['file'],
               properties: {
                 file: { type: 'string', format: 'binary' },
                 alt: { type: 'string', maxLength: 1000, description: '代替テキスト' },
@@ -1252,7 +1306,12 @@ export const getMediaMediaIdRoute = createRoute({
       mediaId: z
         .uuid()
         .openapi({
-          param: { name: 'mediaId', in: 'path', required: true },
+          param: {
+            name: 'mediaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),
@@ -1277,7 +1336,6 @@ export const patchMediaMediaIdRoute = createRoute({
           schema: z
             .object({ alt: z.string().max(1000).openapi({ type: 'string', maxLength: 1000 }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { alt: { type: 'string', maxLength: 1000 } } }),
         },
       },

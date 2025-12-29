@@ -11,14 +11,22 @@ export const getFizzbuzzRoute = createRoute({
         .number()
         .min(1)
         .openapi({
-          param: { name: 'number', in: 'query', required: true },
+          param: {
+            schema: { type: 'number', minimum: 1 },
+            required: true,
+            name: 'number',
+            in: 'query',
+          },
           type: 'number',
           minimum: 1,
         }),
       details: z
         .stringbool()
         .optional()
-        .openapi({ param: { name: 'details', in: 'query', required: false }, type: 'boolean' }),
+        .openapi({
+          param: { schema: { type: 'boolean' }, required: false, name: 'details', in: 'query' },
+          type: 'boolean',
+        }),
     }),
   },
   responses: {
@@ -27,9 +35,12 @@ export const getFizzbuzzRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ result: z.string().optional().openapi({ type: 'string' }) })
-            .optional()
-            .openapi({ type: 'object', properties: { result: { type: 'string' } } }),
+            .object({ result: z.string().openapi({ type: 'string' }) })
+            .openapi({
+              type: 'object',
+              properties: { result: { type: 'string' } },
+              required: ['result'],
+            }),
         },
       },
     },
@@ -40,7 +51,6 @@ export const getFizzbuzzRoute = createRoute({
           schema: z
             .object({ error: z.string().openapi({ type: 'string' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { error: { type: 'string' } } }),
         },
       },

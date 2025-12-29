@@ -4,20 +4,19 @@ const AuthorizationCodeTokenRequestSchema = z
   .object({
     grant_type: z
       .literal('authorization_code')
-      .optional()
       .openapi({ type: 'string', enum: ['authorization_code'] }),
-    code: z.string().optional().openapi({ type: 'string', description: '認可コード' }),
-    redirect_uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    client_id: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string', description: '認可コード' }),
+    redirect_uri: z.url().openapi({ type: 'string', format: 'uri' }),
+    client_id: z.string().openapi({ type: 'string' }),
     client_secret: z.string().optional().openapi({ type: 'string' }),
     code_verifier: z
       .string()
       .optional()
       .openapi({ type: 'string', description: 'PKCE用コードベリファイア' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grant_type', 'code', 'redirect_uri', 'client_id'],
     properties: {
       grant_type: { type: 'string', enum: ['authorization_code'] },
       code: { type: 'string', description: '認可コード' },
@@ -33,15 +32,14 @@ const ClientCredentialsTokenRequestSchema = z
   .object({
     grant_type: z
       .literal('client_credentials')
-      .optional()
       .openapi({ type: 'string', enum: ['client_credentials'] }),
-    client_id: z.string().optional().openapi({ type: 'string' }),
-    client_secret: z.string().optional().openapi({ type: 'string' }),
+    client_id: z.string().openapi({ type: 'string' }),
+    client_secret: z.string().openapi({ type: 'string' }),
     scope: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grant_type', 'client_id', 'client_secret'],
     properties: {
       grant_type: { type: 'string', enum: ['client_credentials'] },
       client_id: { type: 'string' },
@@ -53,18 +51,15 @@ const ClientCredentialsTokenRequestSchema = z
 
 const RefreshTokenRequestSchema = z
   .object({
-    grant_type: z
-      .literal('refresh_token')
-      .optional()
-      .openapi({ type: 'string', enum: ['refresh_token'] }),
-    refresh_token: z.string().optional().openapi({ type: 'string' }),
+    grant_type: z.literal('refresh_token').openapi({ type: 'string', enum: ['refresh_token'] }),
+    refresh_token: z.string().openapi({ type: 'string' }),
     client_id: z.string().optional().openapi({ type: 'string' }),
     client_secret: z.string().optional().openapi({ type: 'string' }),
     scope: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grant_type', 'refresh_token'],
     properties: {
       grant_type: { type: 'string', enum: ['refresh_token'] },
       refresh_token: { type: 'string' },
@@ -79,14 +74,13 @@ const DeviceCodeTokenRequestSchema = z
   .object({
     grant_type: z
       .literal('urn:ietf:params:oauth:grant-type:device_code')
-      .optional()
       .openapi({ type: 'string', enum: ['urn:ietf:params:oauth:grant-type:device_code'] }),
-    device_code: z.string().optional().openapi({ type: 'string' }),
-    client_id: z.string().optional().openapi({ type: 'string' }),
+    device_code: z.string().openapi({ type: 'string' }),
+    client_id: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grant_type', 'device_code', 'client_id'],
     properties: {
       grant_type: { type: 'string', enum: ['urn:ietf:params:oauth:grant-type:device_code'] },
       device_code: { type: 'string' },
@@ -97,19 +91,16 @@ const DeviceCodeTokenRequestSchema = z
 
 const PasswordTokenRequestSchema = z
   .object({
-    grant_type: z
-      .literal('password')
-      .optional()
-      .openapi({ type: 'string', enum: ['password'] }),
-    username: z.string().optional().openapi({ type: 'string' }),
-    password: z.string().optional().openapi({ type: 'string' }),
+    grant_type: z.literal('password').openapi({ type: 'string', enum: ['password'] }),
+    username: z.string().openapi({ type: 'string' }),
+    password: z.string().openapi({ type: 'string' }),
     client_id: z.string().optional().openapi({ type: 'string' }),
     client_secret: z.string().optional().openapi({ type: 'string' }),
     scope: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grant_type', 'username', 'password'],
     properties: {
       grant_type: { type: 'string', enum: ['password'] },
       username: { type: 'string' },
@@ -123,11 +114,8 @@ const PasswordTokenRequestSchema = z
 
 const TokenResponseSchema = z
   .object({
-    access_token: z.string().optional().openapi({ type: 'string' }),
-    token_type: z
-      .literal('Bearer')
-      .optional()
-      .openapi({ type: 'string', enum: ['Bearer'] }),
+    access_token: z.string().openapi({ type: 'string' }),
+    token_type: z.literal('Bearer').openapi({ type: 'string', enum: ['Bearer'] }),
     expires_in: z.int().optional().openapi({ type: 'integer', description: '有効期限（秒）' }),
     refresh_token: z.string().optional().openapi({ type: 'string' }),
     scope: z.string().optional().openapi({ type: 'string' }),
@@ -136,9 +124,9 @@ const TokenResponseSchema = z
       .optional()
       .openapi({ type: 'string', description: 'OpenID Connect ID Token' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['access_token', 'token_type'],
     properties: {
       access_token: { type: 'string' },
       token_type: { type: 'string', enum: ['Bearer'] },
@@ -165,7 +153,6 @@ const OAuthErrorSchema = z
         'authorization_pending',
         'slow_down',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -184,9 +171,9 @@ const OAuthErrorSchema = z
     error_description: z.string().optional().openapi({ type: 'string' }),
     error_uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['error'],
     properties: {
       error: {
         type: 'string',
@@ -211,7 +198,7 @@ const OAuthErrorSchema = z
 
 const IntrospectionResponseSchema = z
   .object({
-    active: z.boolean().optional().openapi({ type: 'boolean' }),
+    active: z.boolean().openapi({ type: 'boolean' }),
     scope: z.string().optional().openapi({ type: 'string' }),
     client_id: z.string().optional().openapi({ type: 'string' }),
     username: z.string().optional().openapi({ type: 'string' }),
@@ -224,9 +211,9 @@ const IntrospectionResponseSchema = z
     iss: z.string().optional().openapi({ type: 'string', description: 'Issuer' }),
     jti: z.string().optional().openapi({ type: 'string', description: 'JWT ID' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['active'],
     properties: {
       active: { type: 'boolean' },
       scope: { type: 'string' },
@@ -246,29 +233,25 @@ const IntrospectionResponseSchema = z
 
 const DeviceAuthorizationResponseSchema = z
   .object({
-    device_code: z.string().optional().openapi({ type: 'string' }),
-    user_code: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'ユーザーが入力するコード' }),
+    device_code: z.string().openapi({ type: 'string' }),
+    user_code: z.string().openapi({ type: 'string', description: 'ユーザーが入力するコード' }),
     verification_uri: z
       .url()
-      .optional()
       .openapi({ type: 'string', format: 'uri', description: 'ユーザーがアクセスするURL' }),
     verification_uri_complete: z
       .url()
       .optional()
       .openapi({ type: 'string', format: 'uri', description: 'user_codeを含む完全なURL' }),
-    expires_in: z.int().optional().openapi({ type: 'integer', description: '有効期限（秒）' }),
+    expires_in: z.int().openapi({ type: 'integer', description: '有効期限（秒）' }),
     interval: z
       .int()
       .default(5)
       .optional()
       .openapi({ type: 'integer', default: 5, description: 'ポーリング間隔（秒）' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['device_code', 'user_code', 'verification_uri', 'expires_in'],
     properties: {
       device_code: { type: 'string' },
       user_code: { type: 'string', description: 'ユーザーが入力するコード' },
@@ -286,7 +269,7 @@ const DeviceAuthorizationResponseSchema = z
 
 const UserInfoSchema = z
   .object({
-    sub: z.string().optional().openapi({ type: 'string', description: 'Subject（ユーザーID）' }),
+    sub: z.string().openapi({ type: 'string', description: 'Subject（ユーザーID）' }),
     name: z.string().optional().openapi({ type: 'string' }),
     given_name: z.string().optional().openapi({ type: 'string' }),
     family_name: z.string().optional().openapi({ type: 'string' }),
@@ -314,7 +297,6 @@ const UserInfoSchema = z
         country: z.string().openapi({ type: 'string' }),
       })
       .partial()
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -328,9 +310,9 @@ const UserInfoSchema = z
       }),
     updated_at: z.int().optional().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['sub'],
     properties: {
       sub: { type: 'string', description: 'Subject（ユーザーID）' },
       name: { type: 'string' },
@@ -368,18 +350,18 @@ const UserInfoSchema = z
 
 const OpenIDConfigurationSchema = z
   .object({
-    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    authorization_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    token_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    issuer: z.url().openapi({ type: 'string', format: 'uri' }),
+    authorization_endpoint: z.url().openapi({ type: 'string', format: 'uri' }),
+    token_endpoint: z.url().openapi({ type: 'string', format: 'uri' }),
     userinfo_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    jwks_uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    jwks_uri: z.url().openapi({ type: 'string', format: 'uri' }),
     registration_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes_supported: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     response_types_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     response_modes_supported: z
@@ -391,11 +373,11 @@ const OpenIDConfigurationSchema = z
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     subject_types_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     id_token_signing_alg_values_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     token_endpoint_auth_methods_supported: z
@@ -414,9 +396,17 @@ const OpenIDConfigurationSchema = z
     revocation_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     device_authorization_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: [
+      'issuer',
+      'authorization_endpoint',
+      'token_endpoint',
+      'jwks_uri',
+      'response_types_supported',
+      'subject_types_supported',
+      'id_token_signing_alg_values_supported',
+    ],
     properties: {
       issuer: { type: 'string', format: 'uri' },
       authorization_endpoint: { type: 'string', format: 'uri' },
@@ -444,12 +434,10 @@ const JWKSchema = z
   .object({
     kty: z
       .enum(['RSA', 'EC'])
-      .optional()
       .openapi({ type: 'string', description: 'Key Type', enum: ['RSA', 'EC'] }),
-    kid: z.string().optional().openapi({ type: 'string', description: 'Key ID' }),
+    kid: z.string().openapi({ type: 'string', description: 'Key ID' }),
     use: z
       .enum(['sig', 'enc'])
-      .optional()
       .openapi({ type: 'string', description: 'Public Key Use', enum: ['sig', 'enc'] }),
     alg: z.string().optional().openapi({ type: 'string', description: 'Algorithm' }),
     n: z.string().optional().openapi({ type: 'string', description: 'RSA Modulus' }),
@@ -458,9 +446,9 @@ const JWKSchema = z
     y: z.string().optional().openapi({ type: 'string', description: 'EC Y Coordinate' }),
     crv: z.string().optional().openapi({ type: 'string', description: 'EC Curve' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['kty', 'kid', 'use'],
     properties: {
       kty: { type: 'string', description: 'Key Type', enum: ['RSA', 'EC'] },
       kid: { type: 'string', description: 'Key ID' },
@@ -479,23 +467,21 @@ const JWKSSchema = z
   .object({
     keys: z
       .array(JWKSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/JWK' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['keys'],
     properties: { keys: { type: 'array', items: { $ref: '#/components/schemas/JWK' } } },
   })
   .openapi('JWKS')
 
 const OAuthClientSchema = z
   .object({
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    clientName: z.string().optional().openapi({ type: 'string' }),
+    clientId: z.string().openapi({ type: 'string' }),
+    clientName: z.string().openapi({ type: 'string' }),
     clientType: z
       .enum(['public', 'confidential'])
-      .optional()
       .openapi({ type: 'string', enum: ['public', 'confidential'] }),
     redirectUris: z
       .array(z.url().optional().openapi({ type: 'string', format: 'uri' }))
@@ -559,12 +545,12 @@ const OAuthClientSchema = z
       .enum(['client_secret_basic', 'client_secret_post', 'none'])
       .optional()
       .openapi({ type: 'string', enum: ['client_secret_basic', 'client_secret_post', 'none'] }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['clientId', 'clientName', 'clientType', 'createdAt'],
     properties: {
       clientId: { type: 'string' },
       clientName: { type: 'string' },
@@ -607,12 +593,11 @@ const OAuthClientWithSecretSchema = z
       .object({
         clientSecret: z
           .string()
-          .optional()
           .openapi({ type: 'string', description: 'クライアントシークレット（作成時のみ返却）' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['clientSecret'],
         properties: {
           clientSecret: {
             type: 'string',
@@ -645,7 +630,6 @@ const CreateClientRequestSchema = z
       .string()
       .min(1)
       .max(200)
-      .optional()
       .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     clientType: z
       .enum(['public', 'confidential'])
@@ -653,7 +637,7 @@ const CreateClientRequestSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['public', 'confidential'], default: 'confidential' }),
     redirectUris: z
-      .array(z.url().optional().openapi({ type: 'string', format: 'uri' }))
+      .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .min(1)
       .optional()
       .openapi({ type: 'array', minItems: 1, items: { type: 'string', format: 'uri' } }),
@@ -716,9 +700,9 @@ const CreateClientRequestSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['client_secret_basic', 'client_secret_post', 'none'] }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['clientName', 'redirectUris'],
     properties: {
       clientName: { type: 'string', minLength: 1, maxLength: 200 },
       clientType: { type: 'string', enum: ['public', 'confidential'], default: 'confidential' },
@@ -782,7 +766,6 @@ const UpdateClientRequestSchema = z
       .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -802,16 +785,16 @@ const UpdateClientRequestSchema = z
 
 const ConsentSchema = z
   .object({
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    clientName: z.string().optional().openapi({ type: 'string' }),
+    clientId: z.string().openapi({ type: 'string' }),
+    clientName: z.string().openapi({ type: 'string' }),
     clientLogoUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    scope: z.string().optional().openapi({ type: 'string' }),
-    grantedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    scope: z.string().openapi({ type: 'string' }),
+    grantedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['clientId', 'clientName', 'scope', 'grantedAt'],
     properties: {
       clientId: { type: 'string' },
       clientName: { type: 'string' },
@@ -825,12 +808,12 @@ const ConsentSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -867,37 +850,89 @@ export const getOauthAuthorizeRoute = createRoute({
       response_type: z
         .enum(['code', 'token'])
         .openapi({
-          param: { name: 'response_type', in: 'query', required: true },
+          param: {
+            name: 'response_type',
+            in: 'query',
+            required: true,
+            description: 'レスポンスタイプ',
+            schema: { type: 'string', enum: ['code', 'token'] },
+          },
           type: 'string',
           enum: ['code', 'token'],
         }),
       client_id: z
         .string()
-        .openapi({ param: { name: 'client_id', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'client_id',
+            in: 'query',
+            required: true,
+            description: 'クライアントID',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       redirect_uri: z
         .url()
         .openapi({
-          param: { name: 'redirect_uri', in: 'query', required: true },
+          param: {
+            name: 'redirect_uri',
+            in: 'query',
+            required: true,
+            description: 'コールバックURL',
+            schema: { type: 'string', format: 'uri' },
+          },
           type: 'string',
           format: 'uri',
         }),
       scope: z
         .string()
         .optional()
-        .openapi({ param: { name: 'scope', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'scope',
+            in: 'query',
+            description: '要求するスコープ（スペース区切り）',
+            schema: { type: 'string' },
+            example: 'openid profile email',
+          },
+          type: 'string',
+        }),
       state: z
         .string()
-        .openapi({ param: { name: 'state', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'state',
+            in: 'query',
+            required: true,
+            description: 'CSRF対策用のランダム文字列',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       code_challenge: z
         .string()
         .optional()
-        .openapi({ param: { name: 'code_challenge', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'code_challenge',
+            in: 'query',
+            description: 'PKCE用コードチャレンジ',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       code_challenge_method: z
         .enum(['plain', 'S256'])
         .default('S256')
         .optional()
         .openapi({
-          param: { name: 'code_challenge_method', in: 'query' },
+          param: {
+            name: 'code_challenge_method',
+            in: 'query',
+            description: 'コードチャレンジの生成方法',
+            schema: { type: 'string', enum: ['plain', 'S256'], default: 'S256' },
+          },
           type: 'string',
           enum: ['plain', 'S256'],
           default: 'S256',
@@ -905,23 +940,53 @@ export const getOauthAuthorizeRoute = createRoute({
       nonce: z
         .string()
         .optional()
-        .openapi({ param: { name: 'nonce', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'nonce',
+            in: 'query',
+            description: 'OpenID Connect用のnonce',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       prompt: z
         .enum(['none', 'login', 'consent', 'select_account'])
         .optional()
         .openapi({
-          param: { name: 'prompt', in: 'query' },
+          param: {
+            name: 'prompt',
+            in: 'query',
+            description: '認証プロンプトの制御',
+            schema: { type: 'string', enum: ['none', 'login', 'consent', 'select_account'] },
+          },
           type: 'string',
           enum: ['none', 'login', 'consent', 'select_account'],
         }),
       login_hint: z
         .string()
         .optional()
-        .openapi({ param: { name: 'login_hint', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'login_hint',
+            in: 'query',
+            description: 'ログインヒント（メールアドレス等）',
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
       ui_locales: z
         .string()
         .optional()
-        .openapi({ param: { name: 'ui_locales', in: 'query' }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'ui_locales',
+            in: 'query',
+            description: 'UI言語設定',
+            schema: { type: 'string' },
+            example: 'ja',
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1026,10 +1091,7 @@ export const postOauthRevokeRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              token: z
-                .string()
-                .optional()
-                .openapi({ type: 'string', description: '無効化するトークン' }),
+              token: z.string().openapi({ type: 'string', description: '無効化するトークン' }),
               token_type_hint: z
                 .enum(['access_token', 'refresh_token'])
                 .optional()
@@ -1041,9 +1103,9 @@ export const postOauthRevokeRoute = createRoute({
               client_id: z.string().optional().openapi({ type: 'string' }),
               client_secret: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['token'],
               properties: {
                 token: { type: 'string', description: '無効化するトークン' },
                 token_type_hint: {
@@ -1082,15 +1144,15 @@ export const postOauthIntrospectRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              token: z.string().optional().openapi({ type: 'string' }),
+              token: z.string().openapi({ type: 'string' }),
               token_type_hint: z
                 .enum(['access_token', 'refresh_token'])
                 .optional()
                 .openapi({ type: 'string', enum: ['access_token', 'refresh_token'] }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['token'],
               properties: {
                 token: { type: 'string' },
                 token_type_hint: { type: 'string', enum: ['access_token', 'refresh_token'] },
@@ -1124,12 +1186,12 @@ export const postOauthDeviceCodeRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              client_id: z.string().optional().openapi({ type: 'string' }),
+              client_id: z.string().openapi({ type: 'string' }),
               scope: z.string().optional().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
+              required: ['client_id'],
               properties: { client_id: { type: 'string' }, scope: { type: 'string' } },
             }),
         },
@@ -1249,7 +1311,10 @@ export const getOauthClientsClientIdRoute = createRoute({
     params: z.object({
       clientId: z
         .string()
-        .openapi({ param: { name: 'clientId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1295,7 +1360,10 @@ export const deleteOauthClientsClientIdRoute = createRoute({
     params: z.object({
       clientId: z
         .string()
-        .openapi({ param: { name: 'clientId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -1312,7 +1380,10 @@ export const postOauthClientsClientIdSecretRoute = createRoute({
     params: z.object({
       clientId: z
         .string()
-        .openapi({ param: { name: 'clientId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: {
@@ -1323,7 +1394,6 @@ export const postOauthClientsClientIdSecretRoute = createRoute({
           schema: z
             .object({ clientSecret: z.string().openapi({ type: 'string' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { clientSecret: { type: 'string' } } }),
         },
       },
@@ -1368,7 +1438,10 @@ export const deleteOauthConsentsClientIdRoute = createRoute({
     params: z.object({
       clientId: z
         .string()
-        .openapi({ param: { name: 'clientId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
     }),
   },
   responses: { 204: { description: '取り消し成功' }, 401: UnauthorizedResponse },

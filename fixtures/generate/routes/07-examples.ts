@@ -2,29 +2,23 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ProductSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     description: z.string().optional().openapi({ type: 'string' }),
-    price: z.float64().min(0).optional().openapi({ type: 'number', format: 'float64', minimum: 0 }),
+    price: z.float64().min(0).openapi({ type: 'number', format: 'float64', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
-      .optional()
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    metadata: z.looseObject({}).optional().openapi({ type: 'object' }),
+    metadata: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'name', 'price', 'category'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string', minLength: 1, maxLength: 200 },
@@ -40,21 +34,20 @@ const ProductSchema = z
 
 const CreateProductInputSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    price: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
+    price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
-      .optional()
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['name', 'price', 'category'],
     properties: {
       name: { type: 'string' },
       description: { type: 'string' },
@@ -67,8 +60,8 @@ const CreateProductInputSchema = z
 
 const ValidationErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
     errors: z
       .array(
         z
@@ -78,7 +71,6 @@ const ValidationErrorSchema = z
             code: z.string().openapi({ type: 'string' }),
           })
           .partial()
-          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -88,7 +80,6 @@ const ValidationErrorSchema = z
             },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -101,9 +92,9 @@ const ValidationErrorSchema = z
         },
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message', 'errors'],
     properties: {
       code: { type: 'string' },
       message: { type: 'string' },
@@ -302,7 +293,19 @@ export const getProductsProductIdRoute = createRoute({
     params: z.object({
       productId: z
         .string()
-        .openapi({ param: { name: 'productId', in: 'path', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            examples: {
+              laptop: { $ref: '#/components/examples/LaptopProductId' },
+              tshirt: { $ref: '#/components/examples/TShirtProductId' },
+            },
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {

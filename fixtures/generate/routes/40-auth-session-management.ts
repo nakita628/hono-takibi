@@ -16,7 +16,6 @@ const LocationInfoSchema = z
     isProxy: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -51,7 +50,6 @@ const DeviceInfoSchema = z
     isTrusted: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -70,11 +68,10 @@ const DeviceInfoSchema = z
 
 const SessionSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    userId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['active', 'expired', 'revoked'])
-      .optional()
       .openapi({ type: 'string', enum: ['active', 'expired', 'revoked'] }),
     isCurrent: z
       .boolean()
@@ -103,14 +100,14 @@ const SessionSchema = z
       .openapi({ type: 'number', minimum: 0, maximum: 100, description: 'リスクスコア' }),
     lastActivityAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     idleTimeoutAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     revokedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     revokedReason: z.string().optional().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'userId', 'status', 'createdAt', 'expiresAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       userId: { type: 'string', format: 'uuid' },
@@ -141,8 +138,8 @@ const SessionWithTokensSchema = z
     SessionSchema,
     z
       .object({
-        accessToken: z.string().optional().openapi({ type: 'string' }),
-        refreshToken: z.string().optional().openapi({ type: 'string' }),
+        accessToken: z.string().openapi({ type: 'string' }),
+        refreshToken: z.string().openapi({ type: 'string' }),
         tokenType: z
           .string()
           .default('Bearer')
@@ -157,9 +154,9 @@ const SessionWithTokensSchema = z
           .optional()
           .openapi({ type: 'integer', description: 'リフレッシュトークン有効期限（秒）' }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['accessToken', 'refreshToken'],
         properties: {
           accessToken: { type: 'string' },
           refreshToken: { type: 'string' },
@@ -198,7 +195,6 @@ const CreateSessionRequestSchema = z
   .object({
     grantType: z
       .enum(['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social'],
@@ -208,10 +204,7 @@ const CreateSessionRequestSchema = z
     mfaToken: z.string().optional().openapi({ type: 'string', description: 'mfa_token grant用' }),
     mfaCode: z.string().optional().openapi({ type: 'string', description: 'mfa_token grant用' }),
     ssoToken: z.string().optional().openapi({ type: 'string', description: 'sso_token grant用' }),
-    passkeyResponse: z
-      .object({})
-      .optional()
-      .openapi({ type: 'object', description: 'passkey grant用' }),
+    passkeyResponse: z.object({}).openapi({ type: 'object', description: 'passkey grant用' }),
     magicLinkToken: z
       .string()
       .optional()
@@ -227,9 +220,9 @@ const CreateSessionRequestSchema = z
       .openapi({ type: 'string', description: 'デバイスフィンガープリント' }),
     rememberMe: z.boolean().default(false).optional().openapi({ type: 'boolean', default: false }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['grantType'],
     properties: {
       grantType: {
         type: 'string',
@@ -252,13 +245,13 @@ const CreateSessionRequestSchema = z
 
 const SessionValidationResultSchema = z
   .object({
-    valid: z.boolean().optional().openapi({ type: 'boolean' }),
+    valid: z.boolean().openapi({ type: 'boolean' }),
     session: SessionSchema,
     reason: z.string().optional().openapi({ type: 'string', description: '無効な場合の理由' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['valid'],
     properties: {
       valid: { type: 'boolean' },
       session: { $ref: '#/components/schemas/Session' },
@@ -269,22 +262,21 @@ const SessionValidationResultSchema = z
 
 const SessionHistorySchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     sessionId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     eventType: z
       .enum(['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'])
-      .optional()
       .openapi({
         type: 'string',
         enum: ['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'],
       }),
     device: DeviceInfoSchema,
     location: LocationInfoSchema,
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'eventType', 'timestamp'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       sessionId: { type: 'string', format: 'uuid' },
@@ -301,7 +293,7 @@ const SessionHistorySchema = z
 
 const SecurityEventSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     eventType: z
       .enum([
         'login_failed',
@@ -314,7 +306,6 @@ const SecurityEventSchema = z
         'password_spray',
         'concurrent_sessions_exceeded',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -331,7 +322,6 @@ const SecurityEventSchema = z
       }),
     severity: z
       .enum(['low', 'medium', 'high', 'critical'])
-      .optional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'critical'] }),
     description: z.string().optional().openapi({ type: 'string' }),
     device: DeviceInfoSchema,
@@ -358,11 +348,11 @@ const SecurityEventSchema = z
         ],
       }),
     resolved: z.boolean().optional().openapi({ type: 'boolean' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'eventType', 'severity', 'timestamp'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       eventType: {
@@ -429,7 +419,6 @@ const SessionPolicySchema = z
       .openapi({ type: 'boolean', description: 'IPアドレスバインディング' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -482,7 +471,6 @@ const UpdateSessionPolicyRequestSchema = z
     refreshTokenRotation: z.boolean().openapi({ type: 'boolean' }),
   })
   .partial()
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -501,16 +489,16 @@ const UpdateSessionPolicyRequestSchema = z
 
 const TrustedDeviceSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().optional().openapi({ type: 'string' }),
     device: DeviceInfoSchema,
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['id', 'device', 'createdAt', 'expiresAt'],
     properties: {
       id: { type: 'string', format: 'uuid' },
       name: { type: 'string' },
@@ -524,14 +512,14 @@ const TrustedDeviceSchema = z
 
 const PaginationSchema = z
   .object({
-    page: z.int().optional().openapi({ type: 'integer' }),
-    limit: z.int().optional().openapi({ type: 'integer' }),
-    total: z.int().optional().openapi({ type: 'integer' }),
-    totalPages: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    limit: z.int().openapi({ type: 'integer' }),
+    total: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['page', 'limit', 'total', 'totalPages'],
     properties: {
       page: { type: 'integer' },
       limit: { type: 'integer' },
@@ -545,13 +533,12 @@ const SessionHistoryResponseSchema = z
   .object({
     data: z
       .array(SessionHistorySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SessionHistory' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/SessionHistory' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -563,13 +550,12 @@ const SecurityEventListResponseSchema = z
   .object({
     data: z
       .array(SecurityEventSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SecurityEvent' } }),
     pagination: PaginationSchema,
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['data', 'pagination'],
     properties: {
       data: { type: 'array', items: { $ref: '#/components/schemas/SecurityEvent' } },
       pagination: { $ref: '#/components/schemas/Pagination' },
@@ -579,12 +565,12 @@ const SecurityEventListResponseSchema = z
 
 const ErrorSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().openapi({ type: 'string' }),
+    message: z.string().openapi({ type: 'string' }),
   })
-  .optional()
   .openapi({
     type: 'object',
+    required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
   .openapi('Error')
@@ -665,7 +651,12 @@ export const getSessionsRoute = createRoute({
         .default(false)
         .optional()
         .openapi({
-          param: { name: 'includeExpired', in: 'query' },
+          param: {
+            name: 'includeExpired',
+            in: 'query',
+            description: '期限切れセッションも含める',
+            schema: { type: 'boolean', default: false },
+          },
           type: 'boolean',
           default: false,
         }),
@@ -749,9 +740,12 @@ export const postSessionsCurrentRefreshRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ refreshToken: z.string().optional().openapi({ type: 'string' }) })
-            .optional()
-            .openapi({ type: 'object', properties: { refreshToken: { type: 'string' } } }),
+            .object({ refreshToken: z.string().openapi({ type: 'string' }) })
+            .openapi({
+              type: 'object',
+              required: ['refreshToken'],
+              properties: { refreshToken: { type: 'string' } },
+            }),
         },
       },
       required: true,
@@ -794,7 +788,6 @@ export const postSessionsCurrentExtendRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -835,7 +828,6 @@ export const postSessionsCurrentActivityRoute = createRoute({
               idleTimeoutAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -908,7 +900,6 @@ export const postSessionsRevokeAllRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -931,7 +922,6 @@ export const postSessionsRevokeAllRoute = createRoute({
           schema: z
             .object({ revokedCount: z.int().openapi({ type: 'integer' }) })
             .partial()
-            .optional()
             .openapi({ type: 'object', properties: { revokedCount: { type: 'integer' } } }),
         },
       },
@@ -958,7 +948,6 @@ export const postSessionsValidateRoute = createRoute({
               sessionId: z.string().openapi({ type: 'string' }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: { accessToken: { type: 'string' }, sessionId: { type: 'string' } },
@@ -990,11 +979,19 @@ export const getSessionsHistoryRoute = createRoute({
       from: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'from', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          type: 'string',
+          format: 'date-time',
+        }),
       to: z.iso
         .datetime()
         .optional()
-        .openapi({ param: { name: 'to', in: 'query' }, type: 'string', format: 'date-time' }),
+        .openapi({
+          param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          type: 'string',
+          format: 'date-time',
+        }),
     }),
   },
   responses: {
@@ -1022,7 +1019,11 @@ export const getSessionsSecurityEventsRoute = createRoute({
         .enum(['low', 'medium', 'high', 'critical'])
         .optional()
         .openapi({
-          param: { name: 'severity', in: 'query' },
+          param: {
+            name: 'severity',
+            in: 'query',
+            schema: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
+          },
           type: 'string',
           enum: ['low', 'medium', 'high', 'critical'],
         }),
@@ -1124,7 +1125,6 @@ export const postSessionsTrustedDevicesRoute = createRoute({
                 }),
             })
             .partial()
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -1162,7 +1162,12 @@ export const deleteSessionsTrustedDevicesDeviceIdRoute = createRoute({
       deviceId: z
         .uuid()
         .openapi({
-          param: { name: 'deviceId', in: 'path', required: true },
+          param: {
+            name: 'deviceId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
           type: 'string',
           format: 'uuid',
         }),

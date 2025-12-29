@@ -12,42 +12,33 @@ export const getStringRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              max_string: z.string().max(5).optional().openapi({ type: 'string', maxLength: 5 }),
-              min_string: z.string().min(5).optional().openapi({ type: 'string', minLength: 5 }),
+              max_string: z.string().max(5).openapi({ type: 'string', maxLength: 5 }),
+              min_string: z.string().min(5).openapi({ type: 'string', minLength: 5 }),
               length_string: z
                 .string()
                 .length(5)
-                .optional()
                 .openapi({ type: 'string', minLength: 5, maxLength: 5 }),
-              email_string: z.email().optional().openapi({ type: 'string', format: 'email' }),
-              url_string: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-              uuid_string: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-              nanoid_string: z.string().optional().openapi({ type: 'string' }),
-              cuid_string: z.cuid().optional().openapi({ type: 'string', format: 'cuid' }),
-              ulid_string: z.ulid().optional().openapi({ type: 'string', format: 'ulid' }),
-              regex_string: z
-                .string()
-                .regex(/^d+$/)
-                .optional()
-                .openapi({ type: 'string', pattern: '^d+$' }),
-              includes_string: z.string().optional().openapi({ type: 'string' }),
-              startsWith_string: z.string().optional().openapi({ type: 'string' }),
-              endsWith_string: z.string().optional().openapi({ type: 'string' }),
-              datetime_string: z.iso
-                .datetime()
-                .optional()
-                .openapi({ type: 'string', format: 'date-time' }),
-              ip_string: z.string().optional().openapi({ type: 'string', format: 'ip' }),
-              cidr_string: z.string().optional().openapi({ type: 'string' }),
-              trim_string: z.string().optional().openapi({ type: 'string' }),
-              toLowerCase_string: z.string().optional().openapi({ type: 'string' }),
-              toUpperCase_string: z.string().optional().openapi({ type: 'string' }),
-              date_string: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-              time_string: z.string().optional().openapi({ type: 'string' }),
-              duration_string: z.string().optional().openapi({ type: 'string' }),
-              base64_string: z.string().optional().openapi({ type: 'string' }),
+              email_string: z.email().openapi({ type: 'string', format: 'email' }),
+              url_string: z.url().openapi({ type: 'string', format: 'uri' }),
+              uuid_string: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+              nanoid_string: z.string().openapi({ type: 'string' }),
+              cuid_string: z.cuid().openapi({ type: 'string', format: 'cuid' }),
+              ulid_string: z.ulid().openapi({ type: 'string', format: 'ulid' }),
+              regex_string: z.string().regex(/^d+$/).openapi({ type: 'string', pattern: '^d+$' }),
+              includes_string: z.string().openapi({ type: 'string' }),
+              startsWith_string: z.string().openapi({ type: 'string' }),
+              endsWith_string: z.string().openapi({ type: 'string' }),
+              datetime_string: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+              ip_string: z.string().openapi({ type: 'string', format: 'ip' }),
+              cidr_string: z.string().openapi({ type: 'string' }),
+              trim_string: z.string().openapi({ type: 'string' }),
+              toLowerCase_string: z.string().openapi({ type: 'string' }),
+              toUpperCase_string: z.string().openapi({ type: 'string' }),
+              date_string: z.iso.date().openapi({ type: 'string', format: 'date' }),
+              time_string: z.string().openapi({ type: 'string' }),
+              duration_string: z.string().openapi({ type: 'string' }),
+              base64_string: z.string().openapi({ type: 'string' }),
             })
-            .optional()
             .openapi({
               type: 'object',
               properties: {
@@ -75,6 +66,31 @@ export const getStringRoute = createRoute({
                 duration_string: { type: 'string' },
                 base64_string: { type: 'string' },
               },
+              required: [
+                'max_string',
+                'min_string',
+                'length_string',
+                'email_string',
+                'url_string',
+                'uuid_string',
+                'nanoid_string',
+                'cuid_string',
+                'ulid_string',
+                'regex_string',
+                'includes_string',
+                'startsWith_string',
+                'endsWith_string',
+                'datetime_string',
+                'ip_string',
+                'cidr_string',
+                'trim_string',
+                'toLowerCase_string',
+                'toUpperCase_string',
+                'date_string',
+                'time_string',
+                'duration_string',
+                'base64_string',
+              ],
             }),
         },
       },
