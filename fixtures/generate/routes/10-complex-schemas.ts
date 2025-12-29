@@ -178,15 +178,18 @@ const UserEventSchema = z
   .openapi('UserEvent')
 
 const EventSchema = z
-  .union([UserEventSchema, OrderEventSchema, SystemEventSchema])
-  .optional()
-  .openapi({
-    oneOf: [
-      { $ref: '#/components/schemas/UserEvent' },
-      { $ref: '#/components/schemas/OrderEvent' },
-      { $ref: '#/components/schemas/SystemEvent' },
-    ],
-  })
+  .lazy(() =>
+    z
+      .union([UserEventSchema, OrderEventSchema, SystemEventSchema])
+      .optional()
+      .openapi({
+        oneOf: [
+          { $ref: '#/components/schemas/UserEvent' },
+          { $ref: '#/components/schemas/OrderEvent' },
+          { $ref: '#/components/schemas/SystemEvent' },
+        ],
+      }),
+  )
   .openapi('Event')
 
 const NotificationContentSchema = z
@@ -542,105 +545,117 @@ const BaseDocumentSchema = z
   .openapi('BaseDocument')
 
 const DocumentSchema = z
-  .intersection(
-    BaseDocumentSchema,
-    AuditableSchema,
-    TaggableSchema,
+  .lazy(() =>
     z
-      .object({
-        content: z.string().openapi({ type: 'string' }),
-        format: z
-          .enum(['markdown', 'html', 'plain'])
-          .openapi({ type: 'string', enum: ['markdown', 'html', 'plain'] }),
-      })
-      .partial()
-      .optional()
-      .openapi({
-        type: 'object',
-        properties: {
-          content: { type: 'string' },
-          format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
-        },
-      }),
-  )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseDocument' },
-      { $ref: '#/components/schemas/Auditable' },
-      { $ref: '#/components/schemas/Taggable' },
-      {
-        type: 'object',
-        properties: {
-          content: { type: 'string' },
-          format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
-        },
-      },
-    ],
-  })
-  .openapi('Document')
-
-const MixedContentSchema = z
-  .object({
-    value: z
-      .union([
-        z.string().optional().openapi({ type: 'string' }),
-        z.number().optional().openapi({ type: 'number' }),
-        z.boolean().optional().openapi({ type: 'boolean' }),
-        z
-          .array(MixedContentSchema)
-          .optional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
-        z.record(z.string(), MixedContentSchema).optional().openapi({ type: 'object' }),
-      ])
-      .optional()
-      .openapi({
-        oneOf: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-          { type: 'object', additionalProperties: { $ref: '#/components/schemas/MixedContent' } },
-        ],
-      }),
-    notNull: z
-      .any()
-      .refine((v) => typeof v !== 'null')
-      .optional()
-      .openapi({ not: { type: 'null' } }),
-    restrictedValue: z
       .intersection(
-        z.string().optional().openapi({ type: 'string' }),
+        BaseDocumentSchema,
+        AuditableSchema,
+        TaggableSchema,
         z
-          .any()
-          .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
+          .object({
+            content: z.string().openapi({ type: 'string' }),
+            format: z
+              .enum(['markdown', 'html', 'plain'])
+              .openapi({ type: 'string', enum: ['markdown', 'html', 'plain'] }),
+          })
+          .partial()
           .optional()
-          .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
+          .openapi({
+            type: 'object',
+            properties: {
+              content: { type: 'string' },
+              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
+            },
+          }),
       )
       .optional()
       .openapi({
-        allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-      }),
-  })
-  .optional()
-  .openapi({
-    type: 'object',
-    properties: {
-      value: {
-        oneOf: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-          { type: 'object', additionalProperties: { $ref: '#/components/schemas/MixedContent' } },
+        allOf: [
+          { $ref: '#/components/schemas/BaseDocument' },
+          { $ref: '#/components/schemas/Auditable' },
+          { $ref: '#/components/schemas/Taggable' },
+          {
+            type: 'object',
+            properties: {
+              content: { type: 'string' },
+              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
+            },
+          },
         ],
-      },
-      notNull: { not: { type: 'null' } },
-      restrictedValue: {
-        allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-      },
-    },
-  })
+      }),
+  )
+  .openapi('Document')
+
+const MixedContentSchema = z
+  .lazy(() =>
+    z
+      .object({
+        value: z
+          .union([
+            z.string().optional().openapi({ type: 'string' }),
+            z.number().optional().openapi({ type: 'number' }),
+            z.boolean().optional().openapi({ type: 'boolean' }),
+            z
+              .array(MixedContentSchema)
+              .optional()
+              .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
+            z.record(z.string(), MixedContentSchema).optional().openapi({ type: 'object' }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
+              {
+                type: 'object',
+                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
+              },
+            ],
+          }),
+        notNull: z
+          .any()
+          .refine((v) => typeof v !== 'null')
+          .optional()
+          .openapi({ not: { type: 'null' } }),
+        restrictedValue: z
+          .intersection(
+            z.string().optional().openapi({ type: 'string' }),
+            z
+              .any()
+              .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
+              .optional()
+              .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
+          )
+          .optional()
+          .openapi({
+            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
+          }),
+      })
+      .optional()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: {
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
+              {
+                type: 'object',
+                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
+              },
+            ],
+          },
+          notNull: { not: { type: 'null' } },
+          restrictedValue: {
+            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
+          },
+        },
+      }),
+  )
   .openapi('MixedContent')
 
 const NullableTypesSchema = z

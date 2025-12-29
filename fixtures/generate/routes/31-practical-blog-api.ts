@@ -244,41 +244,44 @@ const PostSchema = z
   .openapi('Post')
 
 const CommentSchema = z
-  .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    content: z.string().optional().openapi({ type: 'string' }),
-    authorName: z.string().optional().openapi({ type: 'string' }),
-    authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    status: z
-      .enum(['pending', 'approved', 'spam'])
+  .lazy(() =>
+    z
+      .object({
+        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        content: z.string().optional().openapi({ type: 'string' }),
+        authorName: z.string().optional().openapi({ type: 'string' }),
+        authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
+        authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+        status: z
+          .enum(['pending', 'approved', 'spam'])
+          .optional()
+          .openapi({ type: 'string', enum: ['pending', 'approved', 'spam'] }),
+        parentId: z
+          .uuid()
+          .optional()
+          .openapi({ type: 'string', format: 'uuid', description: '返信先コメントID' }),
+        replies: z
+          .array(CommentSchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
+        createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+      })
       .optional()
-      .openapi({ type: 'string', enum: ['pending', 'approved', 'spam'] }),
-    parentId: z
-      .uuid()
-      .optional()
-      .openapi({ type: 'string', format: 'uuid', description: '返信先コメントID' }),
-    replies: z
-      .array(CommentSchema)
-      .optional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .optional()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      content: { type: 'string' },
-      authorName: { type: 'string' },
-      authorEmail: { type: 'string', format: 'email' },
-      authorUrl: { type: 'string', format: 'uri' },
-      status: { type: 'string', enum: ['pending', 'approved', 'spam'] },
-      parentId: { type: 'string', format: 'uuid', description: '返信先コメントID' },
-      replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          content: { type: 'string' },
+          authorName: { type: 'string' },
+          authorEmail: { type: 'string', format: 'email' },
+          authorUrl: { type: 'string', format: 'uri' },
+          status: { type: 'string', enum: ['pending', 'approved', 'spam'] },
+          parentId: { type: 'string', format: 'uuid', description: '返信先コメントID' },
+          replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      }),
+  )
   .openapi('Comment')
 
 const CreatePostRequestSchema = z
