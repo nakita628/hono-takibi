@@ -286,7 +286,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(openapi, out, { template: true, test: true, basePath: 'api' })
+      const result = await runTakibi(openapi, out, { template: true, test: true, basePath: '/api' })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -297,7 +297,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('api')")
+      expect(appCode).toContain("new OpenAPIHono().basePath('/api')")
 
       expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
     } finally {
@@ -317,7 +317,11 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(openapi, out, { template: true, test: false, basePath: 'api' })
+      const result = await runTakibi(openapi, out, {
+        template: true,
+        test: false,
+        basePath: '/api',
+      })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -325,7 +329,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      expect(appCode).toContain("new OpenAPIHono().basePath('api')")
+      expect(appCode).toContain("new OpenAPIHono().basePath('/api')")
 
       expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
     } finally {
