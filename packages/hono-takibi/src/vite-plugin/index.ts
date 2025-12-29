@@ -1,16 +1,12 @@
 // import fsp from 'node:fs/promises'
 // import path from 'node:path'
-// import { callbacks } from '../core/callbacks.js'
-// // import { examples } from '../core/examples.js'
 // import { headers } from '../core/headers.js'
-// import { links } from '../core/links.js'
 // import { parameters } from '../core/parameters.js'
 // import { requestBodies } from '../core/request-bodies.js'
 // import { responses } from '../core/responses.js'
 // import { route } from '../core/route.js'
 // import { rpc } from '../core/rpc.js'
 // import { schemas } from '../core/schemas.js'
-// import { securitySchemes } from '../core/security-schemes.js'
 // import { takibi } from '../core/takibi.js'
 // import { type } from '../core/type.js'
 // import { isRecord, parseConfig } from '../utils/index.js'
@@ -215,7 +211,7 @@
 //       if (!isTsFile(out))
 //         return `✗ zod-openapi: Invalid output format for zod-openapi: ${String(output)}`
 //       const result = await takibi(
-//         c.input,
+//         openAPI,
 //         out,
 //         false, // template
 //         false, // test
@@ -247,14 +243,14 @@
 //       if (s.split === true) {
 //         const outDir = toAbs(s.output)
 //         const removed = await deleteAllTsShallow(outDir)
-//         const r = await schemas(c.input, outDir, s.exportTypes === true, true)
+//         const r = await schemas(openAPI, outDir, s.exportTypes === true, true)
 //         if (!r.ok) return `✗ schemas(split): ${r.error}`
 //         return removed.length > 0
 //           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
 //           : `✓ schemas(split) -> ${outDir}/*.ts`
 //       }
 //       const out = toAbs(s.output)
-//       const r = await schemas(c.input, out, s.exportTypes === true, false)
+//       const r = await schemas(openAPI, out, s.exportTypes === true, false)
 //       return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
 //     }
 //     jobs.push(runSchema())
@@ -281,7 +277,7 @@
 //       }
 //       const out = toAbs(p.output)
 //       const r = await parameters(
-//         c.input,
+//         openAPI,
 //         out,
 //         p.exportTypes === true,
 //         false,

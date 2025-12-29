@@ -4,7 +4,6 @@ import { core } from '../helper/core.js'
 import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, OpenAPI, RequestBody } from '../openapi/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
   findSchema,

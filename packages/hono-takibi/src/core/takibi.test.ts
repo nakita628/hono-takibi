@@ -80,11 +80,11 @@ const openapi: OpenAPI = {
 }
 
 const runTakibi = async (
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openapi: OpenAPI,
   output: `${string}.ts`,
   options: { readonly template: boolean; readonly test: boolean; readonly basePath?: string },
 ) =>
-  takibi(input, output, options.template, options.test, options.basePath ?? '/', {
+  takibi(openapi, output, options.template, options.test, options.basePath ?? '/', {
     exportSchemasTypes: true,
     exportSchemas: true,
     exportParametersTypes: false,
@@ -110,7 +110,7 @@ describe('takibi generate (sandbox)', () => {
       const out = path.join(dir, 'zod-openapi-hono.ts') as `${string}.ts`
       fs.writeFileSync(input, JSON.stringify(openapi))
 
-      const result = await runTakibi(input, out, { template: false, test: false })
+      const result = await runTakibi(openapi, out, { template: false, test: false })
 
       expect(result.ok).toBe(true)
       if (result.ok) {
@@ -286,7 +286,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(input, out, { template: true, test: true, basePath: 'api' })
+      const result = await runTakibi(openapi, out, { template: true, test: true, basePath: 'api' })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -317,7 +317,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(input, out, { template: true, test: false, basePath: 'api' })
+      const result = await runTakibi(openapi, out, { template: true, test: false, basePath: 'api' })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)

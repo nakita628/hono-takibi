@@ -98,7 +98,7 @@ describe('route', () => {
       const out = path.join(dir, 'test.ts')
 
       const result = await route(
-        input,
+        openapi,
         { output: out },
         {
           schemas: {
@@ -166,7 +166,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const outDir = path.join(dir, 'test')
 
       const result = await route(
-        input,
+        openapi,
         { output: outDir, split: true },
         {
           schemas: {

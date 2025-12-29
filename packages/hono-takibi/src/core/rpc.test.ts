@@ -434,7 +434,7 @@ describe('rpc', () => {
       const out = path.join(dir, 'index.ts')
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
 
-      const result = await rpc(input, out, '../index.ts', false)
+      const result = await rpc(openapi, out, '../index.ts', false)
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -629,7 +629,7 @@ describe('rpc (split mode)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi, null, 2), 'utf-8')
 
       const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await rpc(input, out, '../index.ts', true)
+      const result = await rpc(openapi, out, '../index.ts', true)
 
       const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
       const indexExpected = `export * from './getHono'
