@@ -10,6 +10,7 @@ const ResourceSchema = z
     type: 'object',
     properties: { id: { type: 'string' }, name: { type: 'string' }, data: { type: 'object' } },
   })
+  .openapi('Resource')
 
 const X_Request_IDHeaderSchema = z
   .uuid()

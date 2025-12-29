@@ -1,14 +1,23 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EmptySchema = z.any().optional().openapi({ description: 'Completely empty schema' })
+const EmptySchema = z
+  .any()
+  .optional()
+  .openapi({ description: 'Completely empty schema' })
+  .openapi('EmptySchema')
 
-const AnySchema = z.any().optional().openapi({ description: 'Schema that accepts anything' })
+const AnySchema = z
+  .any()
+  .optional()
+  .openapi({ description: 'Schema that accepts anything' })
+  .openapi('AnySchema')
 
 const NullSchema = z
   .null()
   .nullable()
   .optional()
   .openapi({ type: 'null', description: 'Only accepts null' })
+  .openapi('NullSchema')
 
 const MultiTypeSchema = z
   .string()
@@ -18,6 +27,7 @@ const MultiTypeSchema = z
     type: ['string', 'number', 'integer', 'boolean', 'null'],
     description: 'Accepts multiple primitive types',
   })
+  .openapi('MultiTypeSchema')
 
 export const getExtremeResponsesRoute = createRoute({
   method: 'get',

@@ -21,6 +21,7 @@ const InventorySchema = z
       trackInventory: { type: 'boolean' },
     },
   })
+  .openapi('Inventory')
 
 const ProductImageSchema = z
   .object({
@@ -41,6 +42,7 @@ const ProductImageSchema = z
       sortOrder: { type: 'integer' },
     },
   })
+  .openapi('ProductImage')
 
 const CategorySchema = z
   .object({
@@ -65,6 +67,7 @@ const CategorySchema = z
       productCount: { type: 'integer' },
     },
   })
+  .openapi('Category')
 
 const ProductSchema = z
   .object({
@@ -119,6 +122,7 @@ const ProductSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Product')
 
 const CartItemSchema = z
   .object({
@@ -139,6 +143,7 @@ const CartItemSchema = z
       total: { type: 'number' },
     },
   })
+  .openapi('CartItem')
 
 const CartSchema = z
   .object({
@@ -167,6 +172,7 @@ const CartSchema = z
       itemCount: { type: 'integer' },
     },
   })
+  .openapi('Cart')
 
 const AddressSchema = z
   .object({
@@ -191,6 +197,7 @@ const AddressSchema = z
       phone: { type: 'string' },
     },
   })
+  .openapi('Address')
 
 const OrderItemSchema = z
   .object({
@@ -217,6 +224,7 @@ const OrderItemSchema = z
       imageUrl: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
@@ -274,6 +282,7 @@ const OrderSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Order')
 
 const CreateProductRequestSchema = z
   .object({
@@ -313,6 +322,7 @@ const CreateProductRequestSchema = z
       tags: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('CreateProductRequest')
 
 const UpdateProductRequestSchema = z
   .object({
@@ -350,6 +360,7 @@ const UpdateProductRequestSchema = z
       tags: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('UpdateProductRequest')
 
 const CreateCategoryRequestSchema = z
   .object({
@@ -368,6 +379,7 @@ const CreateCategoryRequestSchema = z
       parentId: { type: 'string', format: 'uuid' },
     },
   })
+  .openapi('CreateCategoryRequest')
 
 const AddToCartRequestSchema = z
   .object({
@@ -382,6 +394,7 @@ const AddToCartRequestSchema = z
       quantity: { type: 'integer', minimum: 1, default: 1 },
     },
   })
+  .openapi('AddToCartRequest')
 
 const CreateOrderRequestSchema = z
   .object({
@@ -410,6 +423,7 @@ const CreateOrderRequestSchema = z
       couponCode: { type: 'string' },
     },
   })
+  .openapi('CreateOrderRequest')
 
 const UpdateInventoryRequestSchema = z
   .object({
@@ -426,6 +440,7 @@ const UpdateInventoryRequestSchema = z
       trackInventory: { type: 'boolean' },
     },
   })
+  .openapi('UpdateInventoryRequest')
 
 const PaginationSchema = z
   .object({
@@ -444,6 +459,7 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
+  .openapi('Pagination')
 
 const ProductListResponseSchema = z
   .object({
@@ -460,6 +476,7 @@ const ProductListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
+  .openapi('ProductListResponse')
 
 const OrderListResponseSchema = z
   .object({
@@ -476,6 +493,7 @@ const OrderListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
+  .openapi('OrderListResponse')
 
 const ErrorSchema = z
   .object({
@@ -518,6 +536,7 @@ const ErrorSchema = z
       },
     },
   })
+  .openapi('Error')
 
 const ProductIdParamParamsSchema = z
   .uuid()

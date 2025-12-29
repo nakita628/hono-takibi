@@ -8,6 +8,7 @@ const AnimalSchema = z
     properties: { type: { type: 'string' } },
     discriminator: { propertyName: 'type' },
   })
+  .openapi('Animal')
 
 const CatSchema = z
   .intersection(
@@ -29,6 +30,7 @@ const CatSchema = z
       { type: 'object', properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } } },
     ],
   })
+  .openapi('Cat')
 
 const DogSchema = z
   .intersection(
@@ -55,6 +57,7 @@ const DogSchema = z
       },
     ],
   })
+  .openapi('Dog')
 
 const BaseSchema = z
   .object({
@@ -72,6 +75,7 @@ const BaseSchema = z
       metadata: { type: 'object', nullable: true, additionalProperties: { type: 'string' } },
     },
   })
+  .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({
   method: 'post',

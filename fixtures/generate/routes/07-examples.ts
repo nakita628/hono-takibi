@@ -30,6 +30,7 @@ const ProductSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Product')
 
 const CreateProductInputSchema = z
   .object({
@@ -55,6 +56,7 @@ const CreateProductInputSchema = z
       tags: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('CreateProductInput')
 
 const ValidationErrorSchema = z
   .object({
@@ -109,6 +111,7 @@ const ValidationErrorSchema = z
       },
     },
   })
+  .openapi('ValidationError')
 
 const LaptopProductExample = {
   summary: 'Example laptop product',

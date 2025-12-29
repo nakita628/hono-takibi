@@ -21,6 +21,7 @@ export async function componentsCore(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
+  if (!components) return { ok: false, error: 'No components found' }
   if (split) {
     const exportsResult = await exports(components, suffix, output)
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }

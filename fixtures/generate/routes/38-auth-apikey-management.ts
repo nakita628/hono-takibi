@@ -38,6 +38,7 @@ const ApiKeySchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ApiKey')
 
 const ApiKeyWithSecretSchema = z
   .intersection(
@@ -63,6 +64,7 @@ const ApiKeyWithSecretSchema = z
       },
     ],
   })
+  .openapi('ApiKeyWithSecret')
 
 const CreateApiKeyRequestSchema = z
   .object({
@@ -88,6 +90,7 @@ const CreateApiKeyRequestSchema = z
       expiresAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('CreateApiKeyRequest')
 
 const UpdateApiKeyRequestSchema = z
   .object({
@@ -107,6 +110,7 @@ const UpdateApiKeyRequestSchema = z
       scopes: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('UpdateApiKeyRequest')
 
 const ApiKeyRotationResultSchema = z
   .object({
@@ -121,6 +125,7 @@ const ApiKeyRotationResultSchema = z
       oldKeyExpiresAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ApiKeyRotationResult')
 
 const UsageDataSchema = z
   .object({
@@ -193,6 +198,7 @@ const UsageDataSchema = z
       },
     },
   })
+  .openapi('UsageData')
 
 const RateLimitStatusSchema = z
   .object({
@@ -211,6 +217,7 @@ const RateLimitStatusSchema = z
       currentUsage: { type: 'integer' },
     },
   })
+  .openapi('RateLimitStatus')
 
 const ApiKeyVerificationResultSchema = z
   .object({
@@ -239,6 +246,7 @@ const ApiKeyVerificationResultSchema = z
       reason: { type: 'string' },
     },
   })
+  .openapi('ApiKeyVerificationResult')
 
 const ScopeDefinitionSchema = z
   .object({
@@ -255,6 +263,7 @@ const ScopeDefinitionSchema = z
       category: { type: 'string' },
     },
   })
+  .openapi('ScopeDefinition')
 
 const PaginationSchema = z
   .object({
@@ -273,6 +282,7 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
+  .openapi('Pagination')
 
 const ApiKeyListResponseSchema = z
   .object({
@@ -289,6 +299,7 @@ const ApiKeyListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
+  .openapi('ApiKeyListResponse')
 
 const ErrorSchema = z
   .object({
@@ -300,6 +311,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const ApiKeyIdParamParamsSchema = z
   .uuid()

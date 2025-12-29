@@ -14,6 +14,7 @@ const Int32Schema = z
     default: 2147483647,
     example: 42,
   })
+  .openapi('Int32')
 
 const Int64Schema = z
   .int64()
@@ -29,6 +30,7 @@ const Int64Schema = z
     default: 9223372036854776000,
     example: '-9223372036854776000',
   })
+  .openapi('Int64')
 
 const BigIntSchema = z
   .bigint()
@@ -44,6 +46,7 @@ const BigIntSchema = z
     default: 1.2345678901234568e29,
     example: '123456789012345678901234567890',
   })
+  .openapi('BigInt')
 
 const Float32Schema = z
   .float32()
@@ -59,6 +62,7 @@ const Float32Schema = z
     default: 3.1415927,
     example: 6.2831855,
   })
+  .openapi('Float32')
 
 const Float64Schema = z
   .float64()
@@ -74,6 +78,7 @@ const Float64Schema = z
     default: 3.141592653589793,
     example: 2.718281828459045,
   })
+  .openapi('Float64')
 
 const DecimalSchema = z
   .number()
@@ -89,6 +94,7 @@ const DecimalSchema = z
     default: 9999999999.9999,
     example: 12345.6789,
   })
+  .openapi('Decimal')
 
 const NullableInt32Schema = z
   .int32()
@@ -105,6 +111,7 @@ const NullableInt32Schema = z
     default: 2147483647,
     example: null,
   })
+  .openapi('NullableInt32')
 
 const JwtTokenSchema = z
   .jwt()
@@ -119,6 +126,7 @@ const JwtTokenSchema = z
     example:
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9. eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikpv aG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ. TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ\n',
   })
+  .openapi('JwtToken')
 
 const UuidV7Schema = z
   .uuidv7()
@@ -131,6 +139,7 @@ const UuidV7Schema = z
     maxLength: 36,
     example: '018f38a8-fa52-7d23-b2d4-c2bb9e9a8c2e',
   })
+  .openapi('UuidV7')
 
 const Base64UrlSchema = z
   .base64url()
@@ -144,6 +153,7 @@ const Base64UrlSchema = z
     maxLength: 8192,
     example: 'U2l6dWt1LUVuY29kZWQ',
   })
+  .openapi('Base64Url')
 
 const IsoDurationSchema = z.iso
   .duration()
@@ -157,6 +167,7 @@ const IsoDurationSchema = z.iso
     maxLength: 64,
     example: 'P3Y6M4DT12H30M5S',
   })
+  .openapi('IsoDuration')
 
 const ShortCodeSchema = z
   .string()
@@ -164,6 +175,7 @@ const ShortCodeSchema = z
   .max(8)
   .optional()
   .openapi({ type: 'string', minLength: 3, maxLength: 8, example: 'aB3x5' })
+  .openapi('ShortCode')
 
 const NullableShortCodeSchema = z
   .string()
@@ -172,6 +184,7 @@ const NullableShortCodeSchema = z
   .nullable()
   .optional()
   .openapi({ type: ['string', 'null'], minLength: 3, maxLength: 8, example: null })
+  .openapi('NullableShortCode')
 
 const CustomFormatModelSchema = z
   .object({
@@ -215,6 +228,7 @@ const CustomFormatModelSchema = z
       'jwtValue',
     ],
   })
+  .openapi('CustomFormatModel')
 
 export const getSampleRoute = createRoute({
   method: 'get',

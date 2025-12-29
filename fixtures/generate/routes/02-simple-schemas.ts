@@ -17,6 +17,7 @@ const UserSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('User')
 
 const CreateUserRequestSchema = z
   .object({
@@ -28,6 +29,7 @@ const CreateUserRequestSchema = z
     required: ['email'],
     properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
   })
+  .openapi('CreateUserRequest')
 
 export const getUsersRoute = createRoute({
   method: 'get',

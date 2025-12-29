@@ -336,6 +336,7 @@ const ExtremeCompositionsSchema = z
       },
     },
   })
+  .openapi('ExtremeCompositions')
 
 const ExtremeObjectsSchema = z
   .object({
@@ -597,6 +598,7 @@ const ExtremeObjectsSchema = z
       },
     },
   })
+  .openapi('ExtremeObjects')
 
 const ExtremeArraysSchema = z
   .object({
@@ -857,6 +859,7 @@ const ExtremeArraysSchema = z
       },
     },
   })
+  .openapi('ExtremeArrays')
 
 const ExtremeNumbersSchema = z
   .object({
@@ -970,6 +973,7 @@ const ExtremeNumbersSchema = z
       },
     },
   })
+  .openapi('ExtremeNumbers')
 
 const ExtremeStringsSchema = z
   .object({
@@ -1134,6 +1138,7 @@ const ExtremeStringsSchema = z
       },
     },
   })
+  .openapi('ExtremeStrings')
 
 const ExtremeValidationSchema = z
   .object({
@@ -1153,6 +1158,7 @@ const ExtremeValidationSchema = z
       extremeCompositions: { $ref: '#/components/schemas/ExtremeCompositions' },
     },
   })
+  .openapi('ExtremeValidation')
 
 const EnumEdgeCasesSchema = z
   .object({
@@ -1397,6 +1403,7 @@ const EnumEdgeCasesSchema = z
       constComplex: { const: { nested: { deeply: { value: 42 } }, array: [1, 2, 3] } },
     },
   })
+  .openapi('EnumEdgeCases')
 
 export const postValidateRoute = createRoute({
   method: 'post',

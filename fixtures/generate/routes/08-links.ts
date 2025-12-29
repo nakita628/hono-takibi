@@ -29,6 +29,7 @@ const OrderSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Order')
 
 const OrderItemSchema = z
   .object({
@@ -49,6 +50,7 @@ const OrderItemSchema = z
       price: { type: 'number', format: 'float64' },
     },
   })
+  .openapi('OrderItem')
 
 const CustomerSchema = z
   .object({
@@ -65,6 +67,7 @@ const CustomerSchema = z
       name: { type: 'string' },
     },
   })
+  .openapi('Customer')
 
 const PaymentSchema = z
   .object({
@@ -90,6 +93,7 @@ const PaymentSchema = z
       method: { type: 'string', enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'] },
     },
   })
+  .openapi('Payment')
 
 const CreateOrderInputSchema = z
   .object({
@@ -143,6 +147,7 @@ const CreateOrderInputSchema = z
       },
     },
   })
+  .openapi('CreateOrderInput')
 
 const GetOrderByIdLink = {
   operationId: 'getOrder',

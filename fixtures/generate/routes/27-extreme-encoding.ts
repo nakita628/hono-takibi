@@ -6,6 +6,7 @@ const ResponseSchema = z
     meta: z.object({}).openapi({ type: 'object' }),
   })
   .openapi({ type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } })
+  .openapi('Response')
 
 const JsonApiResponseSchema = z
   .object({
@@ -40,6 +41,7 @@ const JsonApiResponseSchema = z
       jsonapi: { type: 'object', properties: { version: { type: 'string' } } },
     },
   })
+  .openapi('JsonApiResponse')
 
 const HalResponseSchema = z
   .object({
@@ -66,6 +68,7 @@ const HalResponseSchema = z
       _embedded: { type: 'object' },
     },
   })
+  .openapi('HalResponse')
 
 const ProblemResponseSchema = z
   .object({
@@ -86,6 +89,7 @@ const ProblemResponseSchema = z
       instance: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('ProblemResponse')
 
 const StreamItemSchema = z
   .object({
@@ -101,6 +105,7 @@ const StreamItemSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('StreamItem')
 
 const EncodedContentSchema = z
   .object({
@@ -134,6 +139,7 @@ const EncodedContentSchema = z
       unicodeEscaped: { type: 'string', description: 'Unicode escaped (\\uXXXX)' },
     },
   })
+  .openapi('EncodedContent')
 
 export const postEncodingTestRoute = createRoute({
   method: 'post',

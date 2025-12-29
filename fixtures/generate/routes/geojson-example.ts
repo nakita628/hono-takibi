@@ -3,6 +3,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 const ErrorSchema = z
   .object({ message: z.string().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { message: { type: 'string' } }, required: ['message'] })
+  .openapi('Error')
 
 const PositionSchema = z
   .array(z.number().optional().openapi({ type: 'number' }))
@@ -18,6 +19,7 @@ const PositionSchema = z
     maxItems: 3,
     items: { type: 'number' },
   })
+  .openapi('Position')
 
 const GeoJsonObjectSchema = z
   .object({
@@ -87,6 +89,7 @@ const GeoJsonObjectSchema = z
     required: ['type'],
     discriminator: { propertyName: 'type' },
   })
+  .openapi('GeoJsonObject')
 
 const GeometrySchema = z
   .intersection(
@@ -163,6 +166,7 @@ const GeometrySchema = z
       },
     ],
   })
+  .openapi('Geometry')
 
 const GeometryElementSchema = z
   .intersection(
@@ -229,6 +233,7 @@ const GeometryElementSchema = z
       },
     ],
   })
+  .openapi('GeometryElement')
 
 const PointSchema = z
   .intersection(
@@ -263,6 +268,7 @@ const PointSchema = z
       },
     ],
   })
+  .openapi('Point')
 
 const LinearRingSchema = z
   .array(PositionSchema)
@@ -276,6 +282,7 @@ const LinearRingSchema = z
     items: { $ref: '#/components/schemas/Position' },
     minItems: 4,
   })
+  .openapi('LinearRing')
 
 const PolygonSchema = z
   .intersection(
@@ -309,6 +316,7 @@ const PolygonSchema = z
       },
     ],
   })
+  .openapi('Polygon')
 
 const MultiPolygonSchema = z
   .intersection(
@@ -356,6 +364,7 @@ const MultiPolygonSchema = z
       },
     ],
   })
+  .openapi('MultiPolygon')
 
 const ProjectSchema = z
   .object({
@@ -398,6 +407,7 @@ const ProjectSchema = z
     },
     required: ['id', 'geojson', 'createdAt', 'updatedAt'],
   })
+  .openapi('Project')
 
 const FeatureSchema = z
   .intersection(
@@ -441,6 +451,7 @@ const FeatureSchema = z
       },
     ],
   })
+  .openapi('Feature')
 
 const FeatureCollectionSchema = z
   .intersection(
@@ -474,6 +485,7 @@ const FeatureCollectionSchema = z
       },
     ],
   })
+  .openapi('FeatureCollection')
 
 const LineStringCoordinatesSchema = z
   .array(PositionSchema)
@@ -486,6 +498,7 @@ const LineStringCoordinatesSchema = z
     items: { $ref: '#/components/schemas/Position' },
     minItems: 2,
   })
+  .openapi('LineStringCoordinates')
 
 const MultiPointSchema = z
   .intersection(
@@ -519,6 +532,7 @@ const MultiPointSchema = z
       },
     ],
   })
+  .openapi('MultiPoint')
 
 const LineStringSchema = z
   .intersection(
@@ -544,6 +558,7 @@ const LineStringSchema = z
       },
     ],
   })
+  .openapi('LineString')
 
 const MultiLineStringSchema = z
   .intersection(
@@ -586,6 +601,7 @@ const MultiLineStringSchema = z
       },
     ],
   })
+  .openapi('MultiLineString')
 
 const GeometryCollectionSchema = z
   .intersection(
@@ -633,6 +649,7 @@ const GeometryCollectionSchema = z
       },
     ],
   })
+  .openapi('GeometryCollection')
 
 export const getRoute = createRoute({
   method: 'get',

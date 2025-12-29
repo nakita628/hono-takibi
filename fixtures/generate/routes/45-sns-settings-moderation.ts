@@ -27,6 +27,7 @@ const AccountSettingsSchema = z
       phoneVerified: { type: 'boolean' },
     },
   })
+  .openapi('AccountSettings')
 
 const UpdateAccountSettingsRequestSchema = z
   .object({
@@ -43,6 +44,7 @@ const UpdateAccountSettingsRequestSchema = z
       country: { type: 'string' },
     },
   })
+  .openapi('UpdateAccountSettingsRequest')
 
 const PrivacySettingsSchema = z
   .object({
@@ -73,6 +75,7 @@ const PrivacySettingsSchema = z
       allowDataSharing: { type: 'boolean' },
     },
   })
+  .openapi('PrivacySettings')
 
 const ContentPreferencesSchema = z
   .object({
@@ -103,6 +106,7 @@ const ContentPreferencesSchema = z
       hideLikeCounts: { type: 'boolean' },
     },
   })
+  .openapi('ContentPreferences')
 
 const MutedWordSchema = z
   .object({
@@ -128,6 +132,7 @@ const MutedWordSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('MutedWord')
 
 const CreateMutedWordRequestSchema = z
   .object({
@@ -157,6 +162,7 @@ const CreateMutedWordRequestSchema = z
       scope: { type: 'string', enum: ['all', 'home_timeline', 'notifications'], default: 'all' },
     },
   })
+  .openapi('CreateMutedWordRequest')
 
 const SessionSchema = z
   .object({
@@ -224,6 +230,7 @@ const SessionSchema = z
       lastActiveAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Session')
 
 const ConnectedAppSchema = z
   .object({
@@ -251,6 +258,7 @@ const ConnectedAppSchema = z
       lastUsedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ConnectedApp')
 
 const ReportSchema = z
   .object({
@@ -324,6 +332,7 @@ const ReportSchema = z
       resolvedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Report')
 
 const CreateReportRequestSchema = z
   .object({
@@ -390,6 +399,7 @@ const CreateReportRequestSchema = z
       relatedPostIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
     },
   })
+  .openapi('CreateReportRequest')
 
 const ModerationItemSchema = z
   .object({
@@ -442,6 +452,7 @@ const ModerationItemSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ModerationItem')
 
 const ModerationActionRequestSchema = z
   .object({
@@ -471,6 +482,7 @@ const ModerationActionRequestSchema = z
       notifyUser: { type: 'boolean', default: true },
     },
   })
+  .openapi('ModerationActionRequest')
 
 const ModerationActionSchema = z
   .object({
@@ -499,6 +511,7 @@ const ModerationActionSchema = z
       expiresAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ModerationAction')
 
 const PostAnalyticsSchema = z
   .object({
@@ -544,6 +557,7 @@ const PostAnalyticsSchema = z
       videoWatchTime: { type: 'integer', description: '総視聴時間（秒）' },
     },
   })
+  .openapi('PostAnalytics')
 
 const AccountAnalyticsSchema = z
   .object({
@@ -668,6 +682,7 @@ const AccountAnalyticsSchema = z
       },
     },
   })
+  .openapi('AccountAnalytics')
 
 const FollowerAnalyticsSchema = z
   .object({
@@ -891,6 +906,7 @@ const FollowerAnalyticsSchema = z
       },
     },
   })
+  .openapi('FollowerAnalytics')
 
 const PostWithAnalyticsSchema = z
   .object({
@@ -908,6 +924,7 @@ const PostWithAnalyticsSchema = z
       analytics: { $ref: '#/components/schemas/PostAnalytics' },
     },
   })
+  .openapi('PostWithAnalytics')
 
 const ModerationQueueResponseSchema = z
   .object({
@@ -947,6 +964,7 @@ const ModerationQueueResponseSchema = z
       },
     },
   })
+  .openapi('ModerationQueueResponse')
 
 const ErrorSchema = z
   .object({
@@ -958,6 +976,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const CursorParamParamsSchema = z
   .string()

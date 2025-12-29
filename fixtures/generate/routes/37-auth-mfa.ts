@@ -28,6 +28,7 @@ const MfaMethodSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('MfaMethod')
 
 const MfaStatusSchema = z
   .object({
@@ -56,6 +57,7 @@ const MfaStatusSchema = z
       backupCodesRemaining: { type: 'integer' },
     },
   })
+  .openapi('MfaStatus')
 
 const MfaMethodEnabledSchema = z
   .object({
@@ -81,6 +83,7 @@ const MfaMethodEnabledSchema = z
       },
     },
   })
+  .openapi('MfaMethodEnabled')
 
 const TotpSetupResponseSchema = z
   .object({
@@ -101,6 +104,7 @@ const TotpSetupResponseSchema = z
       otpauthUri: { type: 'string', format: 'uri', description: 'otpauth:// URI' },
     },
   })
+  .openapi('TotpSetupResponse')
 
 const WebAuthnRegistrationOptionsSchema = z
   .object({
@@ -247,6 +251,7 @@ const WebAuthnRegistrationOptionsSchema = z
       attestation: { type: 'string' },
     },
   })
+  .openapi('WebAuthnRegistrationOptions')
 
 const WebAuthnRegistrationResponseSchema = z
   .object({
@@ -290,6 +295,7 @@ const WebAuthnRegistrationResponseSchema = z
       name: { type: 'string', description: '認証器の名前' },
     },
   })
+  .openapi('WebAuthnRegistrationResponse')
 
 const WebAuthnCredentialSchema = z
   .object({
@@ -324,6 +330,7 @@ const WebAuthnCredentialSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('WebAuthnCredential')
 
 const WebAuthnAuthenticationOptionsSchema = z
   .object({
@@ -385,6 +392,7 @@ const WebAuthnAuthenticationOptionsSchema = z
       userVerification: { type: 'string' },
     },
   })
+  .openapi('WebAuthnAuthenticationOptions')
 
 const BackupCodesResponseSchema = z
   .object({
@@ -407,6 +415,7 @@ const BackupCodesResponseSchema = z
       warning: { type: 'string', description: '安全に保管するよう警告' },
     },
   })
+  .openapi('BackupCodesResponse')
 
 const BackupCodesStatusSchema = z
   .object({
@@ -460,6 +469,7 @@ const BackupCodesStatusSchema = z
       generatedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('BackupCodesStatus')
 
 const MfaChallengeSchema = z
   .object({
@@ -495,6 +505,7 @@ const MfaChallengeSchema = z
       },
     },
   })
+  .openapi('MfaChallenge')
 
 const TotpVerificationSchema = z
   .object({
@@ -514,6 +525,7 @@ const TotpVerificationSchema = z
       code: { type: 'string', pattern: '^\\d{6}$' },
     },
   })
+  .openapi('TotpVerification')
 
 const SmsEmailVerificationSchema = z
   .object({
@@ -533,6 +545,7 @@ const SmsEmailVerificationSchema = z
       code: { type: 'string', pattern: '^\\d{6}$' },
     },
   })
+  .openapi('SmsEmailVerification')
 
 const WebAuthnVerificationSchema = z
   .object({
@@ -606,6 +619,7 @@ const WebAuthnVerificationSchema = z
       },
     },
   })
+  .openapi('WebAuthnVerification')
 
 const BackupCodeVerificationSchema = z
   .object({
@@ -625,6 +639,7 @@ const BackupCodeVerificationSchema = z
       code: { type: 'string', pattern: '^[A-Z0-9]{8}$' },
     },
   })
+  .openapi('BackupCodeVerification')
 
 const MfaVerificationResultSchema = z
   .object({
@@ -651,6 +666,7 @@ const MfaVerificationResultSchema = z
       backupCodesRemaining: { type: 'integer', description: 'バックアップコード使用時の残数' },
     },
   })
+  .openapi('MfaVerificationResult')
 
 const MfaErrorSchema = z
   .object({
@@ -698,6 +714,7 @@ const MfaErrorSchema = z
       retryAfter: { type: 'integer', description: '秒数' },
     },
   })
+  .openapi('MfaError')
 
 const ErrorSchema = z
   .object({
@@ -709,6 +726,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 

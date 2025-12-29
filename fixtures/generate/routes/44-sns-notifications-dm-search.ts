@@ -19,6 +19,7 @@ const UserSummarySchema = z
       isVerified: { type: 'boolean' },
     },
   })
+  .openapi('UserSummary')
 
 const PostSummarySchema = z
   .object({
@@ -35,6 +36,7 @@ const PostSummarySchema = z
       author: { $ref: '#/components/schemas/UserSummary' },
     },
   })
+  .openapi('PostSummary')
 
 const NotificationSchema = z
   .object({
@@ -125,6 +127,7 @@ const NotificationSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Notification')
 
 const NotificationSettingsSchema = z
   .object({
@@ -185,6 +188,7 @@ const NotificationSettingsSchema = z
       },
     },
   })
+  .openapi('NotificationSettings')
 
 const MediaAttachmentSchema = z
   .object({
@@ -205,6 +209,7 @@ const MediaAttachmentSchema = z
       previewUrl: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('MediaAttachment')
 
 const MessageSchema = z
   .object({
@@ -276,6 +281,7 @@ const MessageSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Message')
 
 const ConversationSchema = z
   .object({
@@ -308,6 +314,7 @@ const ConversationSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Conversation')
 
 const SendMessageRequestSchema = z
   .object({
@@ -327,6 +334,7 @@ const SendMessageRequestSchema = z
       sharedPostId: { type: 'string', format: 'uuid' },
     },
   })
+  .openapi('SendMessageRequest')
 
 const HashtagSchema = z
   .object({
@@ -355,6 +363,7 @@ const HashtagSchema = z
       },
     },
   })
+  .openapi('Hashtag')
 
 const TrendSchema = z
   .object({
@@ -380,6 +389,7 @@ const TrendSchema = z
       promoted: { type: 'boolean' },
     },
   })
+  .openapi('Trend')
 
 const TrendLocationSchema = z
   .object({
@@ -400,6 +410,7 @@ const TrendLocationSchema = z
       parentId: { type: 'integer' },
     },
   })
+  .openapi('TrendLocation')
 
 const UserSuggestionSchema = z
   .object({
@@ -429,6 +440,7 @@ const UserSuggestionSchema = z
       mutualFollowersCount: { type: 'integer' },
     },
   })
+  .openapi('UserSuggestion')
 
 const TopicSchema = z
   .object({
@@ -453,6 +465,7 @@ const TopicSchema = z
       category: { type: 'string' },
     },
   })
+  .openapi('Topic')
 
 const NotificationListResponseSchema = z
   .object({
@@ -469,6 +482,7 @@ const NotificationListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
+  .openapi('NotificationListResponse')
 
 const ConversationListResponseSchema = z
   .object({
@@ -485,6 +499,7 @@ const ConversationListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
+  .openapi('ConversationListResponse')
 
 const MessageListResponseSchema = z
   .object({
@@ -501,6 +516,7 @@ const MessageListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
+  .openapi('MessageListResponse')
 
 const PostSearchResponseSchema = z
   .object({
@@ -519,6 +535,7 @@ const PostSearchResponseSchema = z
       totalCount: { type: 'integer' },
     },
   })
+  .openapi('PostSearchResponse')
 
 const UserSearchResponseSchema = z
   .object({
@@ -535,6 +552,7 @@ const UserSearchResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
+  .openapi('UserSearchResponse')
 
 const ErrorSchema = z
   .object({
@@ -546,6 +564,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const ConversationIdParamParamsSchema = z
   .uuid()

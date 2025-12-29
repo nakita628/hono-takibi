@@ -72,6 +72,7 @@ const WebhookRegistrationSchema = z
       secret: { type: 'string', description: 'Shared secret for HMAC signature' },
     },
   })
+  .openapi('WebhookRegistration')
 
 const WebhookSchema = z
   .object({
@@ -97,6 +98,7 @@ const WebhookSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Webhook')
 
 const CreateSubscriptionInputSchema = z
   .object({
@@ -113,6 +115,7 @@ const CreateSubscriptionInputSchema = z
       callbackUrl: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('CreateSubscriptionInput')
 
 const SubscriptionSchema = z
   .object({
@@ -133,6 +136,7 @@ const SubscriptionSchema = z
       currentPeriodEnd: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('Subscription')
 
 const CreateJobInputSchema = z
   .object({
@@ -151,6 +155,7 @@ const CreateJobInputSchema = z
       callbackUrl: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('CreateJobInput')
 
 const JobSchema = z
   .object({
@@ -176,6 +181,7 @@ const JobSchema = z
       progress: { type: 'integer', minimum: 0, maximum: 100 },
     },
   })
+  .openapi('Job')
 
 const WebhookPayloadSchema = z
   .object({
@@ -199,6 +205,7 @@ const WebhookPayloadSchema = z
       signature: { type: 'string', description: 'HMAC-SHA256 signature' },
     },
   })
+  .openapi('WebhookPayload')
 
 const PaymentEventSchema = z
   .object({
@@ -221,6 +228,7 @@ const PaymentEventSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('PaymentEvent')
 
 const JobProgressSchema = z
   .object({
@@ -239,6 +247,7 @@ const JobProgressSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('JobProgress')
 
 const JobResultSchema = z
   .object({
@@ -273,8 +282,9 @@ const JobResultSchema = z
       completedAt: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('JobResult')
 
-const GenericWebhookCallbacks = {
+const GenericWebhookCallback = {
   '{$request.body#/url}': {
     post: {
       summary: 'Webhook event notification',
@@ -292,7 +302,7 @@ const GenericWebhookCallbacks = {
   },
 }
 
-const PaymentSuccessCallbackCallbacks = {
+const PaymentSuccessCallback = {
   '{$request.body#/callbackUrl}/payment/success': {
     post: {
       operationId: 'onPaymentSuccess',
@@ -302,7 +312,7 @@ const PaymentSuccessCallbackCallbacks = {
   },
 }
 
-const PaymentFailedCallbackCallbacks = {
+const PaymentFailedCallback = {
   '{$request.body#/callbackUrl}/payment/failed': {
     post: {
       operationId: 'onPaymentFailed',
@@ -312,7 +322,7 @@ const PaymentFailedCallbackCallbacks = {
   },
 }
 
-const SubscriptionRenewedCallbackCallbacks = {
+const SubscriptionRenewedCallback = {
   '{$request.body#/callbackUrl}/subscription/renewed': {
     post: {
       operationId: 'onSubscriptionRenewed',
@@ -340,7 +350,7 @@ const SubscriptionRenewedCallbackCallbacks = {
   },
 }
 
-const SubscriptionCancelledCallbackCallbacks = {
+const SubscriptionCancelledCallback = {
   '{$request.body#/callbackUrl}/subscription/cancelled': {
     post: {
       operationId: 'onSubscriptionCancelled',
@@ -370,7 +380,7 @@ const SubscriptionCancelledCallbackCallbacks = {
   },
 }
 
-const JobProgressCallbackCallbacks = {
+const JobProgressCallback = {
   '{$request.body#/callbackUrl}/job/progress': {
     post: {
       operationId: 'onJobProgress',
@@ -380,7 +390,7 @@ const JobProgressCallbackCallbacks = {
   },
 }
 
-const JobCompleteCallbackCallbacks = {
+const JobCompleteCallback = {
   '{$request.body#/callbackUrl}/job/complete': {
     post: {
       operationId: 'onJobComplete',
@@ -390,7 +400,7 @@ const JobCompleteCallbackCallbacks = {
   },
 }
 
-const JobErrorCallbackCallbacks = {
+const JobErrorCallback = {
   '{$request.body#/callbackUrl}/job/error': {
     post: {
       operationId: 'onJobError',

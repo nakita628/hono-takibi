@@ -116,6 +116,7 @@ const JsonSchema2020FeaturesSchema = z
       },
     },
   })
+  .openapi('JsonSchema2020Features')
 
 const ItemSchema = z
   .object({
@@ -139,6 +140,7 @@ const ItemSchema = z
       description: 'An example item',
     },
   })
+  .openapi('Item')
 
 const ItemCreatedEventSchema = z
   .object({
@@ -157,6 +159,7 @@ const ItemCreatedEventSchema = z
       metadata: { type: 'object' },
     },
   })
+  .openapi('ItemCreatedEvent')
 
 const ItemUpdatedEventSchema = z
   .object({
@@ -180,6 +183,7 @@ const ItemUpdatedEventSchema = z
       changedFields: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('ItemUpdatedEvent')
 
 const ItemDeletedEventSchema = z
   .object({
@@ -196,6 +200,7 @@ const ItemDeletedEventSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ItemDeletedEvent')
 
 const XmlFeaturesSchema = z
   .object({
@@ -242,6 +247,7 @@ const XmlFeaturesSchema = z
       },
     },
   })
+  .openapi('XmlFeatures')
 
 const PetSchema = z
   .object({
@@ -253,6 +259,7 @@ const PetSchema = z
     required: ['petType', 'name'],
     properties: { petType: { type: 'string' }, name: { type: 'string' } },
   })
+  .openapi('Pet')
 
 const BirdSchema = z
   .intersection(
@@ -287,6 +294,7 @@ const BirdSchema = z
       },
     ],
   })
+  .openapi('Bird')
 
 const CatSchema = z
   .intersection(
@@ -321,6 +329,7 @@ const CatSchema = z
       },
     ],
   })
+  .openapi('Cat')
 
 const DogSchema = z
   .intersection(
@@ -355,6 +364,7 @@ const DogSchema = z
       },
     ],
   })
+  .openapi('Dog')
 
 const DiscriminatedUnionSchema = z
   .union([DogSchema, CatSchema, BirdSchema])
@@ -377,6 +387,7 @@ const DiscriminatedUnionSchema = z
       },
     },
   })
+  .openapi('DiscriminatedUnion')
 
 const ErrorSchema = z
   .object({
@@ -388,6 +399,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const PageParamParamsSchema = z
   .int()
