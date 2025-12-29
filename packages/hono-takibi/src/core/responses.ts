@@ -4,7 +4,6 @@ import { core } from '../helper/core.js'
 import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, Responses, Schema } from '../openapi/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
   findSchema,
@@ -210,21 +209,15 @@ const buildImportLinks = (
  * Generates `components.responses` constants (objects containing Zod schemas).
  */
 export async function responses(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  components: Components,
   output: string | `${string}.ts`,
   split?: boolean,
   imports?: Imports,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
-
-  const rs = openAPI.components?.responses
-  if (!rs || Object.keys(rs).length === 0) return { ok: false, error: 'No responses found' }
-
-  const components = openAPI.components ?? {}
+  const { responses } = components
+  if (!responses) return { ok: false, error: 'No responses found' }
 
   const makeOne = (
     key: string,
@@ -238,7 +231,7 @@ export async function responses(
     const usedHeaderKeys = new Set<string>()
     const usedExampleKeys = new Set<string>()
     const usedLinkKeys = new Set<string>()
-    const res = rs[key]
+    const res = responses[key]
     const expr = res
       ? responseDefinitionExpr(
           res,
@@ -262,7 +255,7 @@ export async function responses(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(rs)) {
+    for (const key of Object.keys(responses)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
@@ -287,7 +280,7 @@ export async function responses(
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
-    const indexBody = `${Object.keys(rs)
+    const indexBody = `${Object.keys(responses)
       .map((n) => `export * from './${lowerFirst(responseConstName(n))}'`)
       .join('\n')}\n`
 
@@ -307,9 +300,9 @@ export async function responses(
   const usedHeaderKeys = new Set<string>()
   const usedExampleKeys = new Set<string>()
   const usedLinkKeys = new Set<string>()
-  const defs = Object.keys(rs)
+  const defs = Object.keys(responses)
     .map((key) => {
-      const res = rs[key]
+      const res = responses[key]
       const expr = res
         ? responseDefinitionExpr(
             res,

@@ -3,14 +3,12 @@ import { resolve } from 'node:path'
 import { config } from '../config/index.js'
 import { headers } from '../core/headers.js'
 import { componentsCore } from '../core/index.js'
-import { links } from '../core/links.js'
 import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
 import { responses } from '../core/responses.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
 import { schemas } from '../core/schemas.js'
-import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -135,7 +133,7 @@ export async function honoTakibi(): Promise<
   /** takibi */
   const takibiResult = zo?.output
     ? await takibi(
-        c.input,
+        openAPI,
         zo.output,
         false, // template
         false, // test
@@ -162,7 +160,7 @@ export async function honoTakibi(): Promise<
   /** schema */
   const schemaResult = components?.schemas
     ? await schemas(
-        c.input,
+        openAPI,
         components.schemas.output,
         components.schemas.exportTypes ?? false,
         components.schemas.split ?? false,
@@ -206,13 +204,16 @@ export async function honoTakibi(): Promise<
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
 
   /** links */
-  const linksResult = components?.links
-    ? await links(c.input, components.links.output, components.links.split ?? false)
+  const linkResult = components?.links
+    ? await componentsCore(
+        openAPI.components?.links ?? {},
+        'Link',
+        components.links.output,
+        components.links.split ?? false,
+      )
     : undefined
-  if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
 
   /** callbacks */
-
   const callbacksResult = components?.callbacks
     ? await componentsCore(
         openAPI.components?.callbacks ?? {},
@@ -225,10 +226,10 @@ export async function honoTakibi(): Promise<
 
   /** securitySchemes */
   const securitySchemesResult = components?.securitySchemes
-    ? await securitySchemes(
-        c.input,
+    ? await componentsCore(
+        openAPI.components?.securitySchemes ?? {},
+        'SecurityScheme',
         components.securitySchemes.output,
-        false, // securitySchemes does not support exportTypes in config
         components.securitySchemes.split ?? false,
       )
     : undefined
@@ -238,7 +239,7 @@ export async function honoTakibi(): Promise<
   /** requestBodies */
   const requestBodiesResult = components?.requestBodies
     ? await requestBodies(
-        c.input,
+        openAPI,
         components.requestBodies.output,
         components.requestBodies.split ?? false,
         schemaTarget || examplesTarget
@@ -252,7 +253,7 @@ export async function honoTakibi(): Promise<
   /** responses */
   const responsesResult = components?.responses
     ? await responses(
-        c.input,
+        openAPI.components?.responses ?? {},
         components.responses.output,
         components.responses.split ?? false,
         schemaTarget || headersTarget || examplesTarget || linksTarget
@@ -268,16 +269,16 @@ export async function honoTakibi(): Promise<
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
 
   /** route */
-  const routeResult = zo?.routes ? await route(c.input, zo.routes, components) : undefined
+  const routeResult = zo?.routes ? await route(openAPI, zo.routes, components) : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
 
   /** type */
-  const typeResult = c.type ? await type(c.input, c.type.output) : undefined
+  const typeResult = c.type ? await type(openAPI, c.type.output) : undefined
   if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
 
   /** rpc */
   const rpcResult = c.rpc
-    ? await rpc(c.input, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
+    ? await rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
     : undefined
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 

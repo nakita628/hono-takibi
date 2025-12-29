@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
-import { type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
+import { type OpenAPI, type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
 import { isRecord, methodPath } from '../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
@@ -374,17 +374,13 @@ const resolveSplitOutDir = (output: string) => {
  * - Otherwise, emits a single `.ts` file at `output`.
  */
 export async function rpc(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: string | `${string}.ts`,
   importPath: string,
   split?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
-
   const client = 'client'
   const s = `import { client } from '${importPath}'`
   const header = s.length ? `${s}\n\n` : ''

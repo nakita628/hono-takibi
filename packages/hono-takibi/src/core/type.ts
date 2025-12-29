@@ -2,17 +2,16 @@ import path from 'node:path'
 import ts from 'typescript'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
 import { core } from '../helper/core.js'
-import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
 export async function type(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: `${string}.ts`,
-): Promise<{ ok: true; value: string } | { ok: false; error: string }> {
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
   try {
-    const openAPIResult = await parseOpenAPI(input)
-    if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-    const openAPI = openAPIResult.value
     const hono = zodOpenAPIHono(openAPI, {
       exportSchemasTypes: false,
       exportSchemas: false,

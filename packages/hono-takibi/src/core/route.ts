@@ -2,7 +2,7 @@ import path from 'node:path'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
 import { core } from '../helper/core.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport } from '../utils/index.js'
 
 const stripStringLiterals = (code: string): string => {
@@ -34,7 +34,7 @@ const extractRouteBlocks = (
 }
 
 export async function route(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   routes?: {
     readonly output: string | `${string}.ts`
     readonly split?: boolean
@@ -104,10 +104,6 @@ export async function route(
   if (!routes?.output) return { ok: false, error: 'routes.output is required' }
   const output = routes.output
   const split = routes.split ?? false
-
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
 
   const componentConfig = components
   const schemas = componentConfig?.schemas

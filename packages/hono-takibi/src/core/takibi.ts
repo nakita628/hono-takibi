@@ -3,7 +3,7 @@ import { fmt } from '../format/index.js'
 import { mkdir, readdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
-import { type OpenAPI, type OpenAPIPaths, parseOpenAPI } from '../openapi/index.js'
+import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
 /**
@@ -45,7 +45,7 @@ import { isHttpMethod, methodPath } from '../utils/index.js'
  * ```
  */
 export async function takibi(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: `${string}.ts`,
   template: boolean,
   test: boolean,
@@ -75,9 +75,6 @@ export async function takibi(
     }
 > {
   try {
-    const openAPIResult = await parseOpenAPI(input)
-    if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-    const openAPI = openAPIResult.value
     const honoResult = await fmt(zodOpenAPIHono(openAPI, componentsOptions))
     if (!honoResult.ok) return { ok: false, error: honoResult.error }
     const mkdirResult = await mkdir(path.dirname(output))
