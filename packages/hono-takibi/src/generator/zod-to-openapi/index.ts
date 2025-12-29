@@ -1,5 +1,5 @@
 import { wrap } from '../../helper/wrap.js'
-import type { Header, Parameter, Ref, Schema } from '../../openapi/index.js'
+import type { Header, Parameter, Schema } from '../../openapi/index.js'
 
 import { normalizeTypes, ref } from '../../utils/index.js'
 import { _enum } from './z/enum.js'
@@ -18,16 +18,7 @@ export function zodToOpenAPI(
   if (schema === undefined) throw new Error('Schema is undefined')
   /** ref */
   if (schema.$ref !== undefined) {
-    const isSchemaOrParameterOrHeaderRef = (
-      ref: Ref,
-    ): ref is
-      | `#/components/schemas/${string}`
-      | `#/components/parameters/${string}`
-      | `#/components/headers/${string}` =>
-      ref.startsWith('#/components/schemas/') ||
-      ref.startsWith('#/components/parameters/') ||
-      ref.startsWith('#/components/headers/')
-    if (isSchemaOrParameterOrHeaderRef(schema.$ref)) {
+    if (schema.$ref) {
       if (Object.keys(schema).length === 1) {
         return ref(schema.$ref)
       }
@@ -40,15 +31,6 @@ export function zodToOpenAPI(
     if (!schema.allOf || schema.allOf.length === 0) {
       return wrap('z.any()', schema, meta)
     }
-    const isSchemaOrParameterOrHeaderRef = (
-      ref: Ref,
-    ): ref is
-      | `#/components/schemas/${string}`
-      | `#/components/parameters/${string}`
-      | `#/components/headers/${string}` =>
-      ref.startsWith('#/components/schemas/') ||
-      ref.startsWith('#/components/parameters/') ||
-      ref.startsWith('#/components/headers/')
 
     const { allOfSchemas, nullable, onlyRefSchemas } = schema.allOf.reduce<{
       allOfSchemas: string[]
@@ -68,7 +50,7 @@ export function zodToOpenAPI(
           }
         }
 
-        if (s.$ref && Object.keys(s).length === 1 && isSchemaOrParameterOrHeaderRef(s.$ref)) {
+        if (s.$ref && Object.keys(s).length === 1 && s.$ref) {
           return {
             allOfSchemas: [...acc.allOfSchemas, ref(s.$ref)],
             nullable: acc.nullable,
@@ -114,17 +96,7 @@ export function zodToOpenAPI(
     }
     const anyOfSchemas = schema.anyOf.map((subSchema) => {
       if (subSchema.$ref && Object.keys(subSchema).length === 1) {
-        const isSchemaOrParameterOrHeaderRef = (
-          ref: Ref,
-        ): ref is
-          | `#/components/schemas/${string}`
-          | `#/components/parameters/${string}`
-          | `#/components/headers/${string}` =>
-          ref.startsWith('#/components/schemas/') ||
-          ref.startsWith('#/components/parameters/') ||
-          ref.startsWith('#/components/headers/')
-
-        if (isSchemaOrParameterOrHeaderRef(subSchema.$ref)) {
+        if (subSchema.$ref) {
           return ref(subSchema.$ref)
         }
       }
@@ -141,17 +113,7 @@ export function zodToOpenAPI(
     }
     const oneOfSchemas = schema.oneOf.map((s) => {
       if (s.$ref && Object.keys(s).length === 1) {
-        const isSchemaOrParameterOrHeaderRef = (
-          ref: Ref,
-        ): ref is
-          | `#/components/schemas/${string}`
-          | `#/components/parameters/${string}`
-          | `#/components/headers/${string}` =>
-          ref.startsWith('#/components/schemas/') ||
-          ref.startsWith('#/components/parameters/') ||
-          ref.startsWith('#/components/headers/')
-
-        if (isSchemaOrParameterOrHeaderRef(s.$ref)) {
+        if (s.$ref) {
           return ref(s.$ref)
         }
       }
@@ -205,21 +167,11 @@ export function zodToOpenAPI(
   if (t.includes('boolean')) return wrap('z.boolean()', schema, meta)
   /* array */
   if (t.includes('array')) {
-    const isSchemaOrParameterOrHeaderRef = (
-      ref: Ref,
-    ): ref is
-      | `#/components/schemas/${string}`
-      | `#/components/parameters/${string}`
-      | `#/components/headers/${string}` =>
-      ref.startsWith('#/components/schemas/') ||
-      ref.startsWith('#/components/parameters/') ||
-      ref.startsWith('#/components/headers/')
-
     // Handle both array and single object items (runtime check for OpenAPI compatibility)
     const rawItems = schema.items
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
     const item = itemSchema?.$ref
-      ? isSchemaOrParameterOrHeaderRef(itemSchema.$ref)
+      ? itemSchema.$ref
         ? ref(itemSchema.$ref)
         : itemSchema
           ? zodToOpenAPI(itemSchema, meta)

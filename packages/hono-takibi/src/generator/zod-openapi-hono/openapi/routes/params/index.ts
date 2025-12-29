@@ -25,20 +25,9 @@ export function params(parameters: readonly Parameter[]): {
       },
       param,
     ) => {
-
-      const isSchemaOrParameterOrHeaderRef = (
-        ref: Ref,
-      ): ref is
-        | `#/components/schemas/${string}`
-        | `#/components/parameters/${string}`
-        | `#/components/headers/${string}` =>
-        ref.startsWith('#/components/schemas/') ||
-        ref.startsWith('#/components/parameters/') ||
-        ref.startsWith('#/components/headers/')
-
       if (param.$ref !== undefined) {
         if (!acc[param.in]) acc[param.in] = {}
-        if (isSchemaOrParameterOrHeaderRef(param.$ref)) {
+        if (param.$ref) {
           acc[param.in][getToSafeIdentifier(param.name)] = ref(param.$ref)
         }
         return acc
@@ -58,7 +47,6 @@ export function params(parameters: readonly Parameter[]): {
         acc[param.in] = {}
       }
       // queryParameter check
-
       const z =
         param.in === 'query' && param.schema.type === 'number'
           ? `z.coerce.${baseSchema.replace('z.', '')}`
