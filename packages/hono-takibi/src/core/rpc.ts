@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
-import { type OpenAPI, type OpenAPIPaths, parseOpenAPI, type Schema } from '../openapi/index.js'
+import type { OpenAPI, OpenAPIPaths, Schema } from '../openapi/index.js'
 import { isRecord, methodPath } from '../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */

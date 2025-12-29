@@ -103,7 +103,10 @@ export async function honoTakibi(): Promise<
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
     const cli = cliResult.value
     const { input, output, template, test, basePath, componentsOptions } = cli
-    const takibiResult = await takibi(input, output, template, test, basePath, componentsOptions)
+    const openAPIResult = await parseOpenAPI(input)
+    if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
+    const openAPI = openAPIResult.value
+    const takibiResult = await takibi(openAPI, output, template, test, basePath, componentsOptions)
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return {
       ok: true,
@@ -171,7 +174,7 @@ export async function honoTakibi(): Promise<
   /** parameter */
   const parameterResult = components?.parameters
     ? await parameters(
-        c.input,
+        openAPI,
         components.parameters.output,
         components.parameters.exportTypes ?? false,
         components.parameters.split ?? false,
@@ -204,7 +207,7 @@ export async function honoTakibi(): Promise<
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
 
   /** links */
-  const linkResult = components?.links
+  const linksResult = components?.links
     ? await componentsCore(
         openAPI.components?.links ?? {},
         'Link',
@@ -212,6 +215,7 @@ export async function honoTakibi(): Promise<
         components.links.split ?? false,
       )
     : undefined
+  if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
 
   /** callbacks */
   const callbacksResult = components?.callbacks
