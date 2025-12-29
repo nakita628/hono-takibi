@@ -52,7 +52,6 @@ const UserSchema = z
       updatedAt: { type: 'string', format: 'date-time', description: '更新日時' },
     },
   })
-  .openapi('User')
 
 const RegisterRequestSchema = z
   .object({
@@ -82,7 +81,6 @@ const RegisterRequestSchema = z
       name: { type: 'string', minLength: 1, maxLength: 100 },
     },
   })
-  .openapi('RegisterRequest')
 
 const LoginRequestSchema = z
   .object({
@@ -97,7 +95,6 @@ const LoginRequestSchema = z
       password: { type: 'string', format: 'password' },
     },
   })
-  .openapi('LoginRequest')
 
 const AuthResponseSchema = z
   .object({
@@ -123,7 +120,6 @@ const AuthResponseSchema = z
       user: { $ref: '#/components/schemas/User' },
     },
   })
-  .openapi('AuthResponse')
 
 const UpdateUserRequestSchema = z
   .object({
@@ -142,7 +138,6 @@ const UpdateUserRequestSchema = z
       role: { type: 'string', enum: ['user', 'admin'] },
     },
   })
-  .openapi('UpdateUserRequest')
 
 const UpdateProfileRequestSchema = z
   .object({
@@ -153,7 +148,6 @@ const UpdateProfileRequestSchema = z
     type: 'object',
     properties: { name: { type: 'string', minLength: 1, maxLength: 100 } },
   })
-  .openapi('UpdateProfileRequest')
 
 const PaginationSchema = z
   .object({
@@ -172,7 +166,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer', description: '総ページ数' },
     },
   })
-  .openapi('Pagination')
 
 const UserListResponseSchema = z
   .object({
@@ -189,7 +182,6 @@ const UserListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('UserListResponse')
 
 const ErrorSchema = z
   .object({
@@ -232,7 +224,6 @@ const ErrorSchema = z
       },
     },
   })
-  .openapi('Error')
 
 const UserIdParamParamsSchema = z
   .uuid()

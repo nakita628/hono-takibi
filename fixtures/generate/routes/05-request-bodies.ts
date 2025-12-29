@@ -20,7 +20,6 @@ const UserSchema = z
       role: { type: 'string', enum: ['admin', 'user', 'guest'] },
     },
   })
-  .openapi('User')
 
 const CreateUserInputSchema = z
   .object({
@@ -41,7 +40,6 @@ const CreateUserInputSchema = z
       password: { type: 'string', format: 'binary', minLength: 8 },
     },
   })
-  .openapi('CreateUserInput')
 
 const UpdateUserInputSchema = z
   .object({
@@ -61,7 +59,6 @@ const UpdateUserInputSchema = z
       role: { type: 'string', enum: ['admin', 'user', 'guest'] },
     },
   })
-  .openapi('UpdateUserInput')
 
 const PatchUserInputSchema = z
   .object({
@@ -80,7 +77,6 @@ const PatchUserInputSchema = z
       role: { type: 'string', enum: ['admin', 'user', 'guest'] },
     },
   })
-  .openapi('PatchUserInput')
 
 const CreateUserRequestBody = {
   description: 'User creation request',

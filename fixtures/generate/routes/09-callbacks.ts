@@ -72,7 +72,6 @@ const WebhookRegistrationSchema = z
       secret: { type: 'string', description: 'Shared secret for HMAC signature' },
     },
   })
-  .openapi('WebhookRegistration')
 
 const WebhookSchema = z
   .object({
@@ -98,7 +97,6 @@ const WebhookSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Webhook')
 
 const CreateSubscriptionInputSchema = z
   .object({
@@ -115,7 +113,6 @@ const CreateSubscriptionInputSchema = z
       callbackUrl: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('CreateSubscriptionInput')
 
 const SubscriptionSchema = z
   .object({
@@ -136,7 +133,6 @@ const SubscriptionSchema = z
       currentPeriodEnd: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Subscription')
 
 const CreateJobInputSchema = z
   .object({
@@ -155,7 +151,6 @@ const CreateJobInputSchema = z
       callbackUrl: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('CreateJobInput')
 
 const JobSchema = z
   .object({
@@ -181,7 +176,6 @@ const JobSchema = z
       progress: { type: 'integer', minimum: 0, maximum: 100 },
     },
   })
-  .openapi('Job')
 
 const WebhookPayloadSchema = z
   .object({
@@ -205,7 +199,6 @@ const WebhookPayloadSchema = z
       signature: { type: 'string', description: 'HMAC-SHA256 signature' },
     },
   })
-  .openapi('WebhookPayload')
 
 const PaymentEventSchema = z
   .object({
@@ -228,7 +221,6 @@ const PaymentEventSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('PaymentEvent')
 
 const JobProgressSchema = z
   .object({
@@ -247,7 +239,6 @@ const JobProgressSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('JobProgress')
 
 const JobResultSchema = z
   .object({
@@ -282,7 +273,6 @@ const JobResultSchema = z
       completedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('JobResult')
 
 const GenericWebhookCallbacks = {
   '{$request.body#/url}': {

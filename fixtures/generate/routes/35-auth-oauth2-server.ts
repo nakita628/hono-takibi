@@ -26,7 +26,6 @@ const AuthorizationCodeTokenRequestSchema = z
       code_verifier: { type: 'string', description: 'PKCE用コードベリファイア' },
     },
   })
-  .openapi('AuthorizationCodeTokenRequest')
 
 const ClientCredentialsTokenRequestSchema = z
   .object({
@@ -47,7 +46,6 @@ const ClientCredentialsTokenRequestSchema = z
       scope: { type: 'string' },
     },
   })
-  .openapi('ClientCredentialsTokenRequest')
 
 const RefreshTokenRequestSchema = z
   .object({
@@ -68,7 +66,6 @@ const RefreshTokenRequestSchema = z
       scope: { type: 'string' },
     },
   })
-  .openapi('RefreshTokenRequest')
 
 const DeviceCodeTokenRequestSchema = z
   .object({
@@ -87,7 +84,6 @@ const DeviceCodeTokenRequestSchema = z
       client_id: { type: 'string' },
     },
   })
-  .openapi('DeviceCodeTokenRequest')
 
 const PasswordTokenRequestSchema = z
   .object({
@@ -110,7 +106,6 @@ const PasswordTokenRequestSchema = z
       scope: { type: 'string' },
     },
   })
-  .openapi('PasswordTokenRequest')
 
 const TokenResponseSchema = z
   .object({
@@ -136,7 +131,6 @@ const TokenResponseSchema = z
       id_token: { type: 'string', description: 'OpenID Connect ID Token' },
     },
   })
-  .openapi('TokenResponse')
 
 const OAuthErrorSchema = z
   .object({
@@ -194,7 +188,6 @@ const OAuthErrorSchema = z
       error_uri: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('OAuthError')
 
 const IntrospectionResponseSchema = z
   .object({
@@ -229,7 +222,6 @@ const IntrospectionResponseSchema = z
       jti: { type: 'string', description: 'JWT ID' },
     },
   })
-  .openapi('IntrospectionResponse')
 
 const DeviceAuthorizationResponseSchema = z
   .object({
@@ -265,7 +257,6 @@ const DeviceAuthorizationResponseSchema = z
       interval: { type: 'integer', default: 5, description: 'ポーリング間隔（秒）' },
     },
   })
-  .openapi('DeviceAuthorizationResponse')
 
 const UserInfoSchema = z
   .object({
@@ -346,7 +337,6 @@ const UserInfoSchema = z
       updated_at: { type: 'integer' },
     },
   })
-  .openapi('UserInfo')
 
 const OpenIDConfigurationSchema = z
   .object({
@@ -428,7 +418,6 @@ const OpenIDConfigurationSchema = z
       device_authorization_endpoint: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('OpenIDConfiguration')
 
 const JWKSchema = z
   .object({
@@ -461,7 +450,6 @@ const JWKSchema = z
       crv: { type: 'string', description: 'EC Curve' },
     },
   })
-  .openapi('JWK')
 
 const JWKSSchema = z
   .object({
@@ -474,7 +462,6 @@ const JWKSSchema = z
     required: ['keys'],
     properties: { keys: { type: 'array', items: { $ref: '#/components/schemas/JWK' } } },
   })
-  .openapi('JWKS')
 
 const OAuthClientSchema = z
   .object({
@@ -584,7 +571,6 @@ const OAuthClientSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('OAuthClient')
 
 const OAuthClientWithSecretSchema = z
   .intersection(
@@ -622,7 +608,6 @@ const OAuthClientWithSecretSchema = z
       },
     ],
   })
-  .openapi('OAuthClientWithSecret')
 
 const CreateClientRequestSchema = z
   .object({
@@ -733,7 +718,6 @@ const CreateClientRequestSchema = z
       },
     },
   })
-  .openapi('CreateClientRequest')
 
 const UpdateClientRequestSchema = z
   .object({
@@ -781,7 +765,6 @@ const UpdateClientRequestSchema = z
       contacts: { type: 'array', items: { type: 'string', format: 'email' } },
     },
   })
-  .openapi('UpdateClientRequest')
 
 const ConsentSchema = z
   .object({
@@ -804,7 +787,6 @@ const ConsentSchema = z
       lastUsedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Consent')
 
 const ErrorSchema = z
   .object({
@@ -816,7 +798,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 

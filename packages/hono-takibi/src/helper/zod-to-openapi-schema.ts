@@ -21,7 +21,7 @@ export function zodToOpenAPISchema(
   notComponentSchema?: boolean,
 ): string {
   const variableName = toIdentifier(ensureSuffix(schemaName, 'Schema'))
-  const safeVariableName = sanitizeIdentifier(variableName)
+  const safeVariableName = variableName
   const safeSchemaName = sanitizeIdentifier(schemaName)
 
   const schemaCode = exportSchema

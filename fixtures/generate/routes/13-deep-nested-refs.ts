@@ -15,7 +15,6 @@ const SocialMediaLinkSchema = z
       url: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('SocialMediaLink')
 
 const PhoneNumberSchema = z
   .object({
@@ -35,7 +34,6 @@ const PhoneNumberSchema = z
       extension: { type: 'string' },
     },
   })
-  .openapi('PhoneNumber')
 
 const ContactInfoSchema = z
   .object({
@@ -56,7 +54,6 @@ const ContactInfoSchema = z
       socialMedia: { type: 'array', items: { $ref: '#/components/schemas/SocialMediaLink' } },
     },
   })
-  .openapi('ContactInfo')
 
 const GeoCoordinatesSchema = z
   .object({
@@ -79,7 +76,6 @@ const GeoCoordinatesSchema = z
       longitude: { type: 'number', format: 'double', minimum: -180, maximum: 180 },
     },
   })
-  .openapi('GeoCoordinates')
 
 const CountrySchema = z
   .object({
@@ -94,7 +90,6 @@ const CountrySchema = z
     required: ['code', 'name'],
     properties: { code: { type: 'string', pattern: '^[A-Z]{2}$' }, name: { type: 'string' } },
   })
-  .openapi('Country')
 
 const AddressSchema = z
   .object({
@@ -116,7 +111,6 @@ const AddressSchema = z
       coordinates: { $ref: '#/components/schemas/GeoCoordinates' },
     },
   })
-  .openapi('Address')
 
 const CurrencySchema = z
   .object({
@@ -131,7 +125,6 @@ const CurrencySchema = z
     required: ['code'],
     properties: { code: { type: 'string', pattern: '^[A-Z]{3}$' }, symbol: { type: 'string' } },
   })
-  .openapi('Currency')
 
 const MoneySchema = z
   .object({
@@ -146,7 +139,6 @@ const MoneySchema = z
       currency: { $ref: '#/components/schemas/Currency' },
     },
   })
-  .openapi('Money')
 
 const BudgetSchema = z
   .object({ allocated: MoneySchema, spent: MoneySchema, remaining: MoneySchema })
@@ -158,7 +150,6 @@ const BudgetSchema = z
       remaining: { $ref: '#/components/schemas/Money' },
     },
   })
-  .openapi('Budget')
 
 const CertificationIssuerSchema = z
   .object({
@@ -170,7 +161,6 @@ const CertificationIssuerSchema = z
     required: ['name'],
     properties: { name: { type: 'string' }, website: { type: 'string', format: 'uri' } },
   })
-  .openapi('CertificationIssuer')
 
 const CertificationSchema = z
   .object({
@@ -191,13 +181,11 @@ const CertificationSchema = z
       credentialId: { type: 'string' },
     },
   })
-  .openapi('Certification')
 
 const ProficiencyLevelSchema = z
   .enum(['beginner', 'intermediate', 'advanced', 'expert'])
   .optional()
   .openapi({ type: 'string', enum: ['beginner', 'intermediate', 'advanced', 'expert'] })
-  .openapi('ProficiencyLevel')
 
 const SkillSchema = z
   .object({
@@ -214,7 +202,6 @@ const SkillSchema = z
       yearsOfExperience: { type: 'number' },
     },
   })
-  .openapi('Skill')
 
 const CoverageSchema = z
   .object({
@@ -233,7 +220,6 @@ const CoverageSchema = z
       maxBenefit: { $ref: '#/components/schemas/Money' },
     },
   })
-  .openapi('Coverage')
 
 const BenefitProviderSchema = z
   .object({ name: z.string().openapi({ type: 'string' }), contact: ContactInfoSchema })
@@ -242,7 +228,6 @@ const BenefitProviderSchema = z
     required: ['name'],
     properties: { name: { type: 'string' }, contact: { $ref: '#/components/schemas/ContactInfo' } },
   })
-  .openapi('BenefitProvider')
 
 const BenefitSchema = z
   .object({
@@ -261,7 +246,6 @@ const BenefitSchema = z
       coverage: { $ref: '#/components/schemas/Coverage' },
     },
   })
-  .openapi('Benefit')
 
 const DurationSchema = z
   .object({
@@ -278,7 +262,6 @@ const DurationSchema = z
       unit: { type: 'string', enum: ['days', 'weeks', 'months', 'years'] },
     },
   })
-  .openapi('Duration')
 
 const VestingScheduleSchema = z
   .object({
@@ -297,7 +280,6 @@ const VestingScheduleSchema = z
       frequency: { type: 'string', enum: ['monthly', 'quarterly', 'annually'] },
     },
   })
-  .openapi('VestingSchedule')
 
 const EquityGrantSchema = z
   .object({
@@ -313,7 +295,6 @@ const EquityGrantSchema = z
       grantDate: { type: 'string', format: 'date' },
     },
   })
-  .openapi('EquityGrant')
 
 const CompensationSchema = z
   .object({
@@ -334,7 +315,6 @@ const CompensationSchema = z
       benefits: { type: 'array', items: { $ref: '#/components/schemas/Benefit' } },
     },
   })
-  .openapi('Compensation')
 
 const JobLevelSchema = z
   .object({
@@ -351,7 +331,6 @@ const JobLevelSchema = z
       rank: { type: 'integer', minimum: 1, maximum: 10 },
     },
   })
-  .openapi('JobLevel')
 
 const PositionSchema = z
   .object({
@@ -368,13 +347,11 @@ const PositionSchema = z
       department: { type: 'string' },
     },
   })
-  .openapi('Position')
 
 const EmploymentStatusSchema = z
   .enum(['active', 'on_leave', 'terminated', 'retired'])
   .optional()
   .openapi({ type: 'string', enum: ['active', 'on_leave', 'terminated', 'retired'] })
-  .openapi('EmploymentStatus')
 
 const EmploymentInfoSchema = z
   .object({
@@ -395,7 +372,6 @@ const EmploymentInfoSchema = z
       compensation: { $ref: '#/components/schemas/Compensation' },
     },
   })
-  .openapi('EmploymentInfo')
 
 const EmergencyContactSchema = z
   .object({
@@ -414,7 +390,6 @@ const EmergencyContactSchema = z
       address: { $ref: '#/components/schemas/Address' },
     },
   })
-  .openapi('EmergencyContact')
 
 const PersonalInfoSchema = z
   .object({
@@ -437,7 +412,6 @@ const PersonalInfoSchema = z
       emergencyContact: { $ref: '#/components/schemas/EmergencyContact' },
     },
   })
-  .openapi('PersonalInfo')
 
 const EmployeeSchema = z
   .object({
@@ -464,7 +438,6 @@ const EmployeeSchema = z
       certifications: { type: 'array', items: { $ref: '#/components/schemas/Certification' } },
     },
   })
-  .openapi('Employee')
 
 const StakeholderSchema = z
   .object({
@@ -481,7 +454,6 @@ const StakeholderSchema = z
       role: { type: 'string', enum: ['sponsor', 'owner', 'contributor', 'reviewer'] },
     },
   })
-  .openapi('Stakeholder')
 
 const MilestoneSchema = z
   .object({
@@ -501,7 +473,6 @@ const MilestoneSchema = z
       status: { type: 'string', enum: ['pending', 'completed', 'overdue'] },
     },
   })
-  .openapi('Milestone')
 
 const TimelineSchema = z
   .object({
@@ -520,7 +491,6 @@ const TimelineSchema = z
       milestones: { type: 'array', items: { $ref: '#/components/schemas/Milestone' } },
     },
   })
-  .openapi('Timeline')
 
 const ProjectStatusSchema = z
   .enum(['planning', 'in_progress', 'on_hold', 'completed', 'cancelled'])
@@ -529,7 +499,6 @@ const ProjectStatusSchema = z
     type: 'string',
     enum: ['planning', 'in_progress', 'on_hold', 'completed', 'cancelled'],
   })
-  .openapi('ProjectStatus')
 
 const ProjectSchema = z
   .object({
@@ -555,7 +524,6 @@ const ProjectSchema = z
       stakeholders: { type: 'array', items: { $ref: '#/components/schemas/Stakeholder' } },
     },
   })
-  .openapi('Project')
 
 const AllocationSchema = z
   .object({
@@ -572,7 +540,6 @@ const AllocationSchema = z
       effectiveTo: { type: 'string', format: 'date' },
     },
   })
-  .openapi('Allocation')
 
 const PermissionSchema = z
   .object({
@@ -600,7 +567,6 @@ const PermissionSchema = z
       },
     },
   })
-  .openapi('Permission')
 
 const TeamRoleSchema = z
   .object({
@@ -617,7 +583,6 @@ const TeamRoleSchema = z
       permissions: { type: 'array', items: { $ref: '#/components/schemas/Permission' } },
     },
   })
-  .openapi('TeamRole')
 
 const TeamMemberSchema = z
   .object({
@@ -636,7 +601,6 @@ const TeamMemberSchema = z
       allocation: { $ref: '#/components/schemas/Allocation' },
     },
   })
-  .openapi('TeamMember')
 
 const TagSchema = z
   .object({
@@ -648,7 +612,6 @@ const TagSchema = z
     required: ['key', 'value'],
     properties: { key: { type: 'string' }, value: { type: 'string' } },
   })
-  .openapi('Tag')
 
 const AuditUserSchema = z
   .object({
@@ -665,7 +628,6 @@ const AuditUserSchema = z
       email: { type: 'string', format: 'email' },
     },
   })
-  .openapi('AuditUser')
 
 const EntityMetadataSchema = z
   .object({
@@ -690,7 +652,6 @@ const EntityMetadataSchema = z
       tags: { type: 'array', items: { $ref: '#/components/schemas/Tag' } },
     },
   })
-  .openapi('EntityMetadata')
 
 const TeamSchema = z
   .object({
@@ -718,7 +679,6 @@ const TeamSchema = z
       projects: { type: 'array', items: { $ref: '#/components/schemas/Project' } },
     },
   })
-  .openapi('Team')
 
 const DepartmentSchema = z
   .object({
@@ -743,7 +703,6 @@ const DepartmentSchema = z
       budget: { $ref: '#/components/schemas/Budget' },
     },
   })
-  .openapi('Department')
 
 const OrganizationSchema = z
   .object({
@@ -768,7 +727,6 @@ const OrganizationSchema = z
       contact: { $ref: '#/components/schemas/ContactInfo' },
     },
   })
-  .openapi('Organization')
 
 const OrganizationStatisticsSchema = z
   .object({
@@ -788,7 +746,6 @@ const OrganizationStatisticsSchema = z
       budgetSummary: { $ref: '#/components/schemas/Budget' },
     },
   })
-  .openapi('OrganizationStatistics')
 
 const OrganizationSummarySchema = z
   .object({ organization: OrganizationSchema, statistics: OrganizationStatisticsSchema })
@@ -800,7 +757,6 @@ const OrganizationSummarySchema = z
       statistics: { $ref: '#/components/schemas/OrganizationStatistics' },
     },
   })
-  .openapi('OrganizationSummary')
 
 const OrgIdPathParamsSchema = z
   .uuid()

@@ -3,7 +3,6 @@ import { createRoute, z } from '@hono/zod-openapi'
 const ErrorSchema = z
   .object({ message: z.string().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { message: { type: 'string' } }, required: ['message'] })
-  .openapi('Error')
 
 const PostSchema = z
   .object({
@@ -53,7 +52,6 @@ const PostSchema = z
     },
     required: ['id', 'post', 'createdAt', 'updatedAt'],
   })
-  .openapi('Post')
 
 export const getRoute = createRoute({
   method: 'get',

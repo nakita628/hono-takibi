@@ -1,11 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EmptyObjectSchema = z.object({}).openapi({ type: 'object' }).openapi('EmptyObject')
+const EmptyObjectSchema = z.object({}).openapi({ type: 'object' })
 
 const FreeFormObjectSchema = z
   .looseObject({})
   .openapi({ type: 'object', additionalProperties: true })
-  .openapi('FreeFormObject')
 
 const StrictObjectSchema = z
   .strictObject({ known: z.string().openapi({ type: 'string' }) })
@@ -15,7 +14,6 @@ const StrictObjectSchema = z
     properties: { known: { type: 'string' } },
     additionalProperties: false,
   })
-  .openapi('StrictObject')
 
 const TypedAdditionalPropsSchema = z
   .record(z.string(), z.int().optional().openapi({ type: 'integer' }))
@@ -24,7 +22,6 @@ const TypedAdditionalPropsSchema = z
     properties: { id: { type: 'string' } },
     additionalProperties: { type: 'integer' },
   })
-  .openapi('TypedAdditionalProps')
 
 const ComplexAdditionalPropsSchema = z
   .record(
@@ -47,7 +44,6 @@ const ComplexAdditionalPropsSchema = z
       properties: { value: { type: 'string' }, count: { type: 'integer' } },
     },
   })
-  .openapi('ComplexAdditionalProps')
 
 const AllPrimitivesSchema = z
   .object({
@@ -68,7 +64,6 @@ const AllPrimitivesSchema = z
       nullProp: { type: 'null' },
     },
   })
-  .openapi('AllPrimitives')
 
 const AllStringFormatsSchema = z
   .object({
@@ -103,7 +98,6 @@ const AllStringFormatsSchema = z
       jwt: { type: 'string', format: 'jwt' },
     },
   })
-  .openapi('AllStringFormats')
 
 const AllNumberFormatsSchema = z
   .object({
@@ -126,7 +120,6 @@ const AllNumberFormatsSchema = z
       float64: { type: 'number', format: 'float64' },
     },
   })
-  .openapi('AllNumberFormats')
 
 const AllValidationsSchema = z
   .object({
@@ -170,30 +163,26 @@ const AllValidationsSchema = z
       uniqueItems: { type: 'array', items: { type: 'string' }, uniqueItems: true },
     },
   })
-  .openapi('AllValidations')
 
 const StringEnumSchema = z
   .enum(['value1', 'value2', 'value3'])
   .optional()
   .openapi({ type: 'string', enum: ['value1', 'value2', 'value3'] })
-  .openapi('StringEnum')
 
 const IntegerEnumSchema = z
   .union([z.literal(1), z.literal(2), z.literal(3)])
   .optional()
   .openapi({ type: 'integer', enum: [1, 2, 3] })
-  .openapi('IntegerEnum')
 
 const MixedEnumSchema = z
   .union([z.literal('string_value'), z.literal(123), z.literal(true), z.literal(null)])
   .optional()
   .openapi({ enum: ['string_value', 123, true, null] })
-  .openapi('MixedEnum')
 
 const ConstValueSchema = z
   .object({
-    type: z.literal('fixed_type').openapi({ type: 'string', const: 'fixed_type' }),
-    version: z.literal(1).openapi({ type: 'integer', const: 1 }),
+    type: z.literal('fixed_type').openapi({ type: 'string' }),
+    version: z.literal(1).openapi({ type: 'integer' }),
   })
   .partial()
   .openapi({
@@ -203,14 +192,12 @@ const ConstValueSchema = z
       version: { type: 'integer', const: 1 },
     },
   })
-  .openapi('ConstValue')
 
 const NullableStringSchema = z
   .string()
   .nullable()
   .optional()
   .openapi({ type: ['string', 'null'] })
-  .openapi('NullableString')
 
 const NullableObjectSchema = z
   .object({ name: z.string().openapi({ type: 'string' }) })
@@ -218,7 +205,6 @@ const NullableObjectSchema = z
   .nullable()
   .optional()
   .openapi({ type: ['object', 'null'], properties: { name: { type: 'string' } } })
-  .openapi('NullableObject')
 
 const WithDefaultsSchema = z
   .object({
@@ -241,7 +227,6 @@ const WithDefaultsSchema = z
       tags: { type: 'array', items: { type: 'string' }, default: [] },
     },
   })
-  .openapi('WithDefaults')
 
 const ReadWriteOnlySchema = z
   .object({
@@ -258,29 +243,28 @@ const ReadWriteOnlySchema = z
       name: { type: 'string' },
     },
   })
-  .openapi('ReadWriteOnly')
 
-const TreeNodeSchema = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().optional().openapi({ type: 'string' }),
-        children: z
-          .array(TreeNodeSchema)
-          .optional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
-        parent: TreeNodeSchema,
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          value: { type: 'string' },
-          children: { type: 'array', items: { $ref: '#/components/schemas/TreeNode' } },
-          parent: { $ref: '#/components/schemas/TreeNode' },
-        },
-      }),
-  )
-  .openapi('TreeNode')
+type TreeNodeType = { value?: string; children?: unknown[]; parent?: unknown }
+
+const TreeNodeSchema: z.ZodType<TreeNodeType> = z.lazy(() =>
+  z
+    .object({
+      value: z.string().optional().openapi({ type: 'string' }),
+      children: z
+        .array(TreeNodeSchema)
+        .optional()
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
+      parent: TreeNodeSchema,
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        value: { type: 'string' },
+        children: { type: 'array', items: { $ref: '#/components/schemas/TreeNode' } },
+        parent: { $ref: '#/components/schemas/TreeNode' },
+      },
+    }),
+)
 
 const CompanySchema = z
   .object({
@@ -297,7 +281,6 @@ const CompanySchema = z
       employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
     },
   })
-  .openapi('Company')
 
 const PersonSchema = z
   .object({ name: z.string().optional().openapi({ type: 'string' }), company: CompanySchema })
@@ -305,7 +288,6 @@ const PersonSchema = z
     type: 'object',
     properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
   })
-  .openapi('Person')
 
 const DeepNestedSchema = z
   .object({
@@ -406,7 +388,6 @@ const DeepNestedSchema = z
       },
     },
   })
-  .openapi('DeepNested')
 
 const MatrixDataSchema = z
   .array(
@@ -425,7 +406,6 @@ const MatrixDataSchema = z
     type: 'array',
     items: { type: 'array', items: { type: 'array', items: { type: 'number' } } },
   })
-  .openapi('MatrixData')
 
 const CoordinateSchema = z
   .array(z.number().optional().openapi({ type: 'number' }))
@@ -437,7 +417,6 @@ const CoordinateSchema = z
     minItems: 3,
     maxItems: 3,
   })
-  .openapi('Coordinate')
 
 const ComplexUnionSchema = z
   .union([
@@ -461,7 +440,6 @@ const ComplexUnionSchema = z
       { type: 'object', properties: { key: { type: 'string' } } },
     ],
   })
-  .openapi('ComplexUnion')
 
 const MergedSchema = z
   .intersection(
@@ -502,18 +480,15 @@ const MergedSchema = z
       },
     ],
   })
-  .openapi('MergedSchema')
 
 const SingleValueEnumSchema = z
   .literal('only_value')
   .optional()
   .openapi({ type: 'string', enum: ['only_value'] })
-  .openapi('SingleValueEnum')
 
 const DataJsonSchema = z
   .object({ data: z.object({}).openapi({ type: 'object' }) })
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
-  .openapi('DataJson')
 
 const DataXmlSchema = z
   .object({ data: z.string().openapi({ type: 'string' }) })
@@ -523,7 +498,6 @@ const DataXmlSchema = z
     properties: { data: { type: 'string' } },
     xml: { name: 'data', namespace: 'http://example.com/schema' },
   })
-  .openapi('DataXml')
 
 const SpecialPropertyNamesSchema = z
   .object({
@@ -544,7 +518,6 @@ const SpecialPropertyNamesSchema = z
       $dollar: { type: 'string' },
     },
   })
-  .openapi('SpecialPropertyNames')
 
 const UnicodePropertiesSchema = z
   .object({
@@ -557,7 +530,6 @@ const UnicodePropertiesSchema = z
     type: 'object',
     properties: { 名前: { type: 'string' }, prénom: { type: 'string' }, имя: { type: 'string' } },
   })
-  .openapi('UnicodeProperties')
 
 const RequiredParamParamsSchema = z
   .string()

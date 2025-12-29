@@ -34,7 +34,6 @@ const OrderSchema = z
     },
     xml: { name: 'order' },
   })
-  .openapi('Order')
 
 const AddressSchema = z
   .object({
@@ -54,7 +53,6 @@ const AddressSchema = z
     },
     xml: { name: 'address' },
   })
-  .openapi('Address')
 
 const CustomerSchema = z
   .object({
@@ -82,7 +80,6 @@ const CustomerSchema = z
     },
     xml: { name: 'customer' },
   })
-  .openapi('Customer')
 
 const CategorySchema = z
   .object({
@@ -98,7 +95,6 @@ const CategorySchema = z
     },
     xml: { name: 'category' },
   })
-  .openapi('Category')
 
 const UserSchema = z
   .object({
@@ -128,7 +124,6 @@ const UserSchema = z
     },
     xml: { name: 'user' },
   })
-  .openapi('User')
 
 const TagSchema = z
   .object({
@@ -141,7 +136,6 @@ const TagSchema = z
     properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' } },
     xml: { name: 'tag' },
   })
-  .openapi('Tag')
 
 const PetSchema = z
   .object({
@@ -194,7 +188,6 @@ const PetSchema = z
     },
     xml: { name: 'pet' },
   })
-  .openapi('Pet')
 
 const ApiResponseSchema = z
   .object({
@@ -212,7 +205,6 @@ const ApiResponseSchema = z
     },
     xml: { name: '##default' },
   })
-  .openapi('ApiResponse')
 
 const petstore_authSecurityScheme = {
   type: 'oauth2',

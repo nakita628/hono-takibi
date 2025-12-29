@@ -36,7 +36,6 @@ const UserProfileSchema = z
     },
     additionalProperties: false,
   })
-  .openapi('UserProfile')
 
 const AddressSchema = z
   .object({
@@ -57,7 +56,6 @@ const AddressSchema = z
     },
     required: ['street', 'city', 'state', 'postalCode', 'country'],
   })
-  .openapi('Address')
 
 const UserSchema = z
   .object({
@@ -78,7 +76,6 @@ const UserSchema = z
     },
     required: ['id', 'name', 'email'],
   })
-  .openapi('User')
 
 const NewUserSchema = z
   .object({
@@ -97,7 +94,6 @@ const NewUserSchema = z
     },
     required: ['name', 'email'],
   })
-  .openapi('NewUser')
 
 const UpdateUserSchema = z
   .object({
@@ -115,7 +111,6 @@ const UpdateUserSchema = z
       profile: { $ref: '#/components/schemas/UserProfile' },
     },
   })
-  .openapi('UpdateUser')
 
 const PaypalPaymentSchema = z
   .object({
@@ -133,7 +128,6 @@ const PaypalPaymentSchema = z
     },
     required: ['method', 'email'],
   })
-  .openapi('PaypalPayment')
 
 const CreditCardPaymentSchema = z
   .object({
@@ -158,7 +152,6 @@ const CreditCardPaymentSchema = z
     },
     required: ['method', 'cardNumber', 'cardHolder', 'expirationDate'],
   })
-  .openapi('CreditCardPayment')
 
 const PaymentMethodSchema = z
   .union([CreditCardPaymentSchema, PaypalPaymentSchema])
@@ -171,7 +164,6 @@ const PaymentMethodSchema = z
     ],
     discriminator: { propertyName: 'method' },
   })
-  .openapi('PaymentMethod')
 
 const OrderItemSchema = z
   .object({
@@ -188,7 +180,6 @@ const OrderItemSchema = z
     },
     required: ['productId', 'quantity', 'price'],
   })
-  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
@@ -223,7 +214,6 @@ const OrderSchema = z
     },
     required: ['orderId', 'user', 'items', 'total', 'status'],
   })
-  .openapi('Order')
 
 const NewOrderSchema = z
   .object({
@@ -242,7 +232,6 @@ const NewOrderSchema = z
     },
     required: ['userId', 'items'],
   })
-  .openapi('NewOrder')
 
 const ComplexTypeSchema = z
   .object({
@@ -322,7 +311,6 @@ const ComplexTypeSchema = z
     },
     required: ['id', 'attributes'],
   })
-  .openapi('ComplexType')
 
 export const getUsersRoute = createRoute({
   method: 'get',

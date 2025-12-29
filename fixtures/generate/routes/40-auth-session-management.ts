@@ -33,7 +33,6 @@ const LocationInfoSchema = z
       isProxy: { type: 'boolean' },
     },
   })
-  .openapi('LocationInfo')
 
 const DeviceInfoSchema = z
   .object({
@@ -64,7 +63,6 @@ const DeviceInfoSchema = z
       isTrusted: { type: 'boolean' },
     },
   })
-  .openapi('DeviceInfo')
 
 const SessionSchema = z
   .object({
@@ -131,7 +129,6 @@ const SessionSchema = z
       revokedReason: { type: 'string' },
     },
   })
-  .openapi('Session')
 
 const SessionWithTokensSchema = z
   .intersection(
@@ -189,7 +186,6 @@ const SessionWithTokensSchema = z
       },
     ],
   })
-  .openapi('SessionWithTokens')
 
 const CreateSessionRequestSchema = z
   .object({
@@ -241,7 +237,6 @@ const CreateSessionRequestSchema = z
       rememberMe: { type: 'boolean', default: false },
     },
   })
-  .openapi('CreateSessionRequest')
 
 const SessionValidationResultSchema = z
   .object({
@@ -258,7 +253,6 @@ const SessionValidationResultSchema = z
       reason: { type: 'string', description: '無効な場合の理由' },
     },
   })
-  .openapi('SessionValidationResult')
 
 const SessionHistorySchema = z
   .object({
@@ -289,7 +283,6 @@ const SessionHistorySchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('SessionHistory')
 
 const SecurityEventSchema = z
   .object({
@@ -388,7 +381,6 @@ const SecurityEventSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('SecurityEvent')
 
 const SessionPolicySchema = z
   .object({
@@ -442,7 +434,6 @@ const SessionPolicySchema = z
       ipBindingEnabled: { type: 'boolean', description: 'IPアドレスバインディング' },
     },
   })
-  .openapi('SessionPolicy')
 
 const UpdateSessionPolicyRequestSchema = z
   .object({
@@ -485,7 +476,6 @@ const UpdateSessionPolicyRequestSchema = z
       refreshTokenRotation: { type: 'boolean' },
     },
   })
-  .openapi('UpdateSessionPolicyRequest')
 
 const TrustedDeviceSchema = z
   .object({
@@ -508,7 +498,6 @@ const TrustedDeviceSchema = z
       expiresAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('TrustedDevice')
 
 const PaginationSchema = z
   .object({
@@ -527,7 +516,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const SessionHistoryResponseSchema = z
   .object({
@@ -544,7 +532,6 @@ const SessionHistoryResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('SessionHistoryResponse')
 
 const SecurityEventListResponseSchema = z
   .object({
@@ -561,7 +548,6 @@ const SecurityEventListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('SecurityEventListResponse')
 
 const ErrorSchema = z
   .object({
@@ -573,7 +559,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const SessionIdParamParamsSchema = z
   .uuid()

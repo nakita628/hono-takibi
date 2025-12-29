@@ -32,7 +32,6 @@ const PublicKeyCredentialDescriptorSchema = z
       },
     },
   })
-  .openapi('PublicKeyCredentialDescriptor')
 
 const RegistrationOptionsSchema = z
   .object({
@@ -192,7 +191,6 @@ const RegistrationOptionsSchema = z
       extensions: { type: 'object', properties: { credProps: { type: 'boolean' } } },
     },
   })
-  .openapi('RegistrationOptions')
 
 const RegistrationResponseSchema = z
   .object({
@@ -298,7 +296,6 @@ const RegistrationResponseSchema = z
       name: { type: 'string', description: 'ユーザーが設定するパスキー名' },
     },
   })
-  .openapi('RegistrationResponse')
 
 const AuthenticationOptionsSchema = z
   .object({
@@ -334,7 +331,6 @@ const AuthenticationOptionsSchema = z
       extensions: { type: 'object' },
     },
   })
-  .openapi('AuthenticationOptions')
 
 const AuthenticationResponseSchema = z
   .object({
@@ -390,7 +386,6 @@ const AuthenticationResponseSchema = z
       authenticatorAttachment: { type: 'string', enum: ['platform', 'cross-platform'] },
     },
   })
-  .openapi('AuthenticationResponse')
 
 const AuthenticationResultSchema = z
   .object({
@@ -451,7 +446,6 @@ const AuthenticationResultSchema = z
       newSignCount: { type: 'integer', description: '更新された署名カウンター' },
     },
   })
-  .openapi('AuthenticationResult')
 
 const CredentialSchema = z
   .object({
@@ -552,7 +546,6 @@ const CredentialSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Credential')
 
 const WebAuthnSettingsSchema = z
   .object({
@@ -610,7 +603,6 @@ const WebAuthnSettingsSchema = z
       residentKeyRequirement: { type: 'string', enum: ['discouraged', 'preferred', 'required'] },
     },
   })
-  .openapi('WebAuthnSettings')
 
 const RelyingPartySchema = z
   .object({
@@ -629,7 +621,6 @@ const RelyingPartySchema = z
       icon: { type: 'string', format: 'uri', deprecated: true },
     },
   })
-  .openapi('RelyingParty')
 
 const UpdateRelyingPartyRequestSchema = z
   .object({
@@ -640,7 +631,6 @@ const UpdateRelyingPartyRequestSchema = z
     type: 'object',
     properties: { name: { type: 'string', minLength: 1, maxLength: 200 } },
   })
-  .openapi('UpdateRelyingPartyRequest')
 
 const AuthenticatorInfoSchema = z
   .object({
@@ -667,7 +657,6 @@ const AuthenticatorInfoSchema = z
       isAllowed: { type: 'boolean', description: '使用が許可されているか' },
     },
   })
-  .openapi('AuthenticatorInfo')
 
 const WebAuthnErrorSchema = z
   .object({
@@ -734,7 +723,6 @@ const WebAuthnErrorSchema = z
       details: { type: 'object' },
     },
   })
-  .openapi('WebAuthnError')
 
 const ErrorSchema = z
   .object({
@@ -746,7 +734,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 

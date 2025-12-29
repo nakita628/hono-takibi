@@ -33,7 +33,6 @@ const ProviderInfoSchema = z
       buttonTextColor: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
     },
   })
-  .openapi('ProviderInfo')
 
 const ProviderConfigSchema = z
   .object({
@@ -130,7 +129,6 @@ const ProviderConfigSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('ProviderConfig')
 
 const CreateProviderRequestSchema = z
   .object({
@@ -183,7 +181,6 @@ const CreateProviderRequestSchema = z
       buttonColor: { type: 'string' },
     },
   })
-  .openapi('CreateProviderRequest')
 
 const UpdateProviderRequestSchema = z
   .object({
@@ -223,7 +220,6 @@ const UpdateProviderRequestSchema = z
       autoLinkUser: { type: 'boolean' },
     },
   })
-  .openapi('UpdateProviderRequest')
 
 const SocialAuthResultSchema = z
   .object({
@@ -272,7 +268,6 @@ const SocialAuthResultSchema = z
       providerUserId: { type: 'string' },
     },
   })
-  .openapi('SocialAuthResult')
 
 const SocialAuthErrorSchema = z
   .object({
@@ -333,7 +328,6 @@ const SocialAuthErrorSchema = z
       provider: { type: 'string' },
     },
   })
-  .openapi('SocialAuthError')
 
 const LinkedAccountSchema = z
   .object({
@@ -360,7 +354,6 @@ const LinkedAccountSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('LinkedAccount')
 
 const OIDCConfigSchema = z
   .object({
@@ -389,7 +382,6 @@ const OIDCConfigSchema = z
       attributeMapping: { type: 'object' },
     },
   })
-  .openapi('OIDCConfig')
 
 const SAMLConfigSchema = z
   .object({
@@ -459,7 +451,6 @@ const SAMLConfigSchema = z
       },
     },
   })
-  .openapi('SAMLConfig')
 
 const EnterpriseSSOConfigSchema = z
   .object({
@@ -522,7 +513,6 @@ const EnterpriseSSOConfigSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('EnterpriseSSOConfig')
 
 const CreateEnterpriseSSORequestSchema = z
   .object({
@@ -549,7 +539,6 @@ const CreateEnterpriseSSORequestSchema = z
       userProvisioning: { type: 'object' },
     },
   })
-  .openapi('CreateEnterpriseSSORequest')
 
 const UpdateEnterpriseSSORequestSchema = z
   .object({
@@ -574,7 +563,6 @@ const UpdateEnterpriseSSORequestSchema = z
       userProvisioning: { type: 'object' },
     },
   })
-  .openapi('UpdateEnterpriseSSORequest')
 
 const ErrorSchema = z
   .object({
@@ -586,7 +574,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const ProviderParamParamsSchema = z
   .enum([

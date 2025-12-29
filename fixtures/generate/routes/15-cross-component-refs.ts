@@ -17,7 +17,6 @@ const EntityLinksSchema = z
       related: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
     },
   })
-  .openapi('EntityLinks')
 
 const PermissionsSchema = z
   .object({
@@ -36,7 +35,6 @@ const PermissionsSchema = z
       canShare: { type: 'boolean' },
     },
   })
-  .openapi('Permissions')
 
 const EntityMetaSchema = z
   .object({
@@ -56,7 +54,6 @@ const EntityMetaSchema = z
       permissions: { $ref: '#/components/schemas/Permissions' },
     },
   })
-  .openapi('EntityMeta')
 
 const RelationshipMetaSchema = z
   .object({
@@ -68,7 +65,6 @@ const RelationshipMetaSchema = z
     type: 'object',
     properties: { count: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } },
   })
-  .openapi('RelationshipMeta')
 
 const RelationshipLinkUrlsSchema = z
   .object({
@@ -83,13 +79,11 @@ const RelationshipLinkUrlsSchema = z
       related: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('RelationshipLinkUrls')
 
 const EntityIdSchema = z
   .uuid()
   .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Unique entity identifier' })
-  .openapi('EntityId')
 
 const EntityTypeSchema = z
   .enum(['user', 'organization', 'project', 'resource'])
@@ -99,7 +93,6 @@ const EntityTypeSchema = z
     enum: ['user', 'organization', 'project', 'resource'],
     description: 'Entity type discriminator',
   })
-  .openapi('EntityType')
 
 const ResourceIdentifierSchema = z
   .object({ type: EntityTypeSchema, id: EntityIdSchema })
@@ -111,7 +104,6 @@ const ResourceIdentifierSchema = z
       id: { $ref: '#/components/schemas/EntityId' },
     },
   })
-  .openapi('ResourceIdentifier')
 
 const RelationshipLinksSchema = z
   .object({
@@ -130,7 +122,6 @@ const RelationshipLinksSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
-  .openapi('RelationshipLinks')
 
 const RelationshipLinkSchema = z
   .object({
@@ -146,7 +137,6 @@ const RelationshipLinkSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
-  .openapi('RelationshipLink')
 
 const EntityRelationshipsSchema = z
   .object({
@@ -164,7 +154,6 @@ const EntityRelationshipsSchema = z
       members: { $ref: '#/components/schemas/RelationshipLinks' },
     },
   })
-  .openapi('EntityRelationships')
 
 const NestedCustomFieldSchema = z
   .record(z.string(), CustomFieldValueSchema)
@@ -172,7 +161,6 @@ const NestedCustomFieldSchema = z
     type: 'object',
     additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
   })
-  .openapi('NestedCustomField')
 
 const CustomFieldValueSchema = z
   .union([
@@ -195,7 +183,6 @@ const CustomFieldValueSchema = z
       { $ref: '#/components/schemas/NestedCustomField' },
     ],
   })
-  .openapi('CustomFieldValue')
 
 const TagSchema = z
   .object({
@@ -210,13 +197,11 @@ const TagSchema = z
       value: { type: 'string', maxLength: 200 },
     },
   })
-  .openapi('Tag')
 
 const EntityStatusSchema = z
   .enum(['active', 'inactive', 'pending', 'archived'])
   .optional()
   .openapi({ type: 'string', enum: ['active', 'inactive', 'pending', 'archived'] })
-  .openapi('EntityStatus')
 
 const EntityAttributesSchema = z
   .looseObject({
@@ -248,7 +233,6 @@ const EntityAttributesSchema = z
     },
     additionalProperties: true,
   })
-  .openapi('EntityAttributes')
 
 const EntitySchema = z
   .object({
@@ -271,7 +255,6 @@ const EntitySchema = z
       links: { $ref: '#/components/schemas/EntityLinks' },
     },
   })
-  .openapi('Entity')
 
 const PaginationLinksSchema = z
   .object({
@@ -292,7 +275,6 @@ const PaginationLinksSchema = z
       next: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('PaginationLinks')
 
 const ListMetaSchema = z
   .object({
@@ -311,7 +293,6 @@ const ListMetaSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('ListMeta')
 
 const EntityListWrapperSchema = z
   .object({
@@ -335,7 +316,6 @@ const EntityListWrapperSchema = z
       links: { $ref: '#/components/schemas/PaginationLinks' },
     },
   })
-  .openapi('EntityListWrapper')
 
 const ResponseMetaSchema = z
   .object({
@@ -350,7 +330,6 @@ const ResponseMetaSchema = z
       processingTime: { type: 'number' },
     },
   })
-  .openapi('ResponseMeta')
 
 const EntityWrapperSchema = z
   .object({
@@ -370,7 +349,6 @@ const EntityWrapperSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
-  .openapi('EntityWrapper')
 
 const CreateEntityInputSchema = z
   .object({
@@ -387,7 +365,6 @@ const CreateEntityInputSchema = z
       relationships: { $ref: '#/components/schemas/EntityRelationships' },
     },
   })
-  .openapi('CreateEntityInput')
 
 const UpdateEntityInputSchema = z
   .object({ attributes: EntityAttributesSchema, relationships: EntityRelationshipsSchema })
@@ -398,7 +375,6 @@ const UpdateEntityInputSchema = z
       relationships: { $ref: '#/components/schemas/EntityRelationships' },
     },
   })
-  .openapi('UpdateEntityInput')
 
 const CreateRelationshipInputSchema = z
   .object({
@@ -415,12 +391,8 @@ const CreateRelationshipInputSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
-  .openapi('CreateRelationshipInput')
 
-const ErrorMetaSchema = z
-  .looseObject({})
-  .openapi({ type: 'object', additionalProperties: true })
-  .openapi('ErrorMeta')
+const ErrorMetaSchema = z.looseObject({}).openapi({ type: 'object', additionalProperties: true })
 
 const ErrorSourceSchema = z
   .object({
@@ -437,7 +409,6 @@ const ErrorSourceSchema = z
       header: { type: 'string' },
     },
   })
-  .openapi('ErrorSource')
 
 const ErrorSchema = z
   .object({
@@ -462,7 +433,6 @@ const ErrorSchema = z
       meta: { $ref: '#/components/schemas/ErrorMeta' },
     },
   })
-  .openapi('Error')
 
 const ErrorListSchema = z
   .object({
@@ -479,7 +449,6 @@ const ErrorListSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
-  .openapi('ErrorList')
 
 const BatchOperationSchema = z
   .object({
@@ -517,7 +486,6 @@ const BatchOperationSchema = z
       },
     },
   })
-  .openapi('BatchOperation')
 
 const BatchResponseItemSchema = z
   .object({
@@ -551,7 +519,6 @@ const BatchResponseItemSchema = z
       },
     },
   })
-  .openapi('BatchResponseItem')
 
 const BatchResultSchema = z
   .object({
@@ -568,7 +535,6 @@ const BatchResultSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
-  .openapi('BatchResult')
 
 const WebhookMetaSchema = z
   .object({
@@ -582,13 +548,11 @@ const WebhookMetaSchema = z
       correlationId: { type: 'string' },
     },
   })
-  .openapi('WebhookMeta')
 
 const WebhookEventSchema = z
   .enum(['entity.created', 'entity.updated', 'entity.deleted'])
   .optional()
   .openapi({ type: 'string', enum: ['entity.created', 'entity.updated', 'entity.deleted'] })
-  .openapi('WebhookEvent')
 
 const WebhookPayloadSchema = z
   .object({
@@ -611,15 +575,47 @@ const WebhookPayloadSchema = z
       meta: { $ref: '#/components/schemas/WebhookMeta' },
     },
   })
-  .openapi('WebhookPayload')
 
-const FilterExpressionSchema = z
-  .lazy(() =>
-    z
-      .object({
-        field: z.string().openapi({ type: 'string' }),
-        operator: z
-          .enum([
+type FilterExpressionType = {
+  field?: string
+  operator?:
+    | 'eq'
+    | 'ne'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'nin'
+    | 'contains'
+    | 'startsWith'
+    | 'endsWith'
+  value?: string | number | boolean | string[]
+  and?: unknown[]
+  or?: unknown[]
+}
+
+const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z.lazy(() =>
+  z
+    .object({
+      field: z.string().openapi({ type: 'string' }),
+      operator: z
+        .enum([
+          'eq',
+          'ne',
+          'gt',
+          'gte',
+          'lt',
+          'lte',
+          'in',
+          'nin',
+          'contains',
+          'startsWith',
+          'endsWith',
+        ])
+        .openapi({
+          type: 'string',
+          enum: [
             'eq',
             'ne',
             'gt',
@@ -631,84 +627,68 @@ const FilterExpressionSchema = z
             'contains',
             'startsWith',
             'endsWith',
-          ])
-          .openapi({
-            type: 'string',
-            enum: [
-              'eq',
-              'ne',
-              'gt',
-              'gte',
-              'lt',
-              'lte',
-              'in',
-              'nin',
-              'contains',
-              'startsWith',
-              'endsWith',
-            ],
-          }),
-        value: z
-          .union([
-            z.string().openapi({ type: 'string' }),
-            z.number().optional().openapi({ type: 'number' }),
-            z.boolean().optional().openapi({ type: 'boolean' }),
-            z
-              .array(z.string().optional().openapi({ type: 'string' }))
-              .optional()
-              .openapi({ type: 'array', items: { type: 'string' } }),
-          ])
-          .optional()
-          .openapi({
-            oneOf: [
-              { type: 'string' },
-              { type: 'number' },
-              { type: 'boolean' },
-              { type: 'array', items: { type: 'string' } },
-            ],
-          }),
-        and: z
-          .array(FilterExpressionSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
-        or: z
-          .array(FilterExpressionSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
-      })
-      .partial()
-      .openapi({
-        type: 'object',
-        properties: {
-          field: { type: 'string' },
-          operator: {
-            type: 'string',
-            enum: [
-              'eq',
-              'ne',
-              'gt',
-              'gte',
-              'lt',
-              'lte',
-              'in',
-              'nin',
-              'contains',
-              'startsWith',
-              'endsWith',
-            ],
-          },
-          value: {
-            oneOf: [
-              { type: 'string' },
-              { type: 'number' },
-              { type: 'boolean' },
-              { type: 'array', items: { type: 'string' } },
-            ],
-          },
-          and: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
-          or: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
+          ],
+        }),
+      value: z
+        .union([
+          z.string().openapi({ type: 'string' }),
+          z.number().optional().openapi({ type: 'number' }),
+          z.boolean().optional().openapi({ type: 'boolean' }),
+          z
+            .array(z.string().optional().openapi({ type: 'string' }))
+            .optional()
+            .openapi({ type: 'array', items: { type: 'string' } }),
+        ])
+        .optional()
+        .openapi({
+          oneOf: [
+            { type: 'string' },
+            { type: 'number' },
+            { type: 'boolean' },
+            { type: 'array', items: { type: 'string' } },
+          ],
+        }),
+      and: z
+        .array(FilterExpressionSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
+      or: z
+        .array(FilterExpressionSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
+    })
+    .partial()
+    .openapi({
+      type: 'object',
+      properties: {
+        field: { type: 'string' },
+        operator: {
+          type: 'string',
+          enum: [
+            'eq',
+            'ne',
+            'gt',
+            'gte',
+            'lt',
+            'lte',
+            'in',
+            'nin',
+            'contains',
+            'startsWith',
+            'endsWith',
+          ],
         },
-      }),
-  )
-  .openapi('FilterExpression')
+        value: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'number' },
+            { type: 'boolean' },
+            { type: 'array', items: { type: 'string' } },
+          ],
+        },
+        and: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
+        or: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
+      },
+    }),
+)
 
 const PaginationInputSchema = z
   .object({
@@ -730,7 +710,6 @@ const PaginationInputSchema = z
       cursor: { type: 'string' },
     },
   })
-  .openapi('PaginationInput')
 
 const SortExpressionSchema = z
   .object({
@@ -748,7 +727,6 @@ const SortExpressionSchema = z
       direction: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
     },
   })
-  .openapi('SortExpression')
 
 const EntityIdPathParamsSchema = EntityIdSchema
 

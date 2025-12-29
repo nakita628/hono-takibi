@@ -8,7 +8,6 @@ const ProductCategorySchema = z
     enum: ['electronics', 'clothing', 'books', 'home', 'sports', 'toys'],
     description: 'Product category',
   })
-  .openapi('ProductCategory')
 
 const MoneySchema = z
   .object({
@@ -30,7 +29,6 @@ const MoneySchema = z
       currency: { type: 'string', pattern: '^[A-Z]{3}$', example: 'USD' },
     },
   })
-  .openapi('Money')
 
 const AddressSchema = z
   .object({
@@ -51,7 +49,6 @@ const AddressSchema = z
       country: { type: 'string', minLength: 2, maxLength: 2 },
     },
   })
-  .openapi('Address')
 
 const ProductSchema = z
   .object({
@@ -123,7 +120,6 @@ const ProductSchema = z
       category: 'electronics',
     },
   })
-  .openapi('Product')
 
 const PaginationSchema = z
   .object({
@@ -150,7 +146,6 @@ const PaginationSchema = z
       hasPrevious: { type: 'boolean' },
     },
   })
-  .openapi('Pagination')
 
 const ProductListSchema = z
   .object({
@@ -167,7 +162,6 @@ const ProductListSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('ProductList')
 
 const CreateProductInputSchema = z
   .object({
@@ -209,7 +203,6 @@ const CreateProductInputSchema = z
       images: { type: 'array', items: { type: 'string', format: 'uri' } },
     },
   })
-  .openapi('CreateProductInput')
 
 const UpdateProductInputSchema = z
   .intersection(
@@ -236,7 +229,6 @@ const UpdateProductInputSchema = z
       },
     ],
   })
-  .openapi('UpdateProductInput')
 
 const OrderItemSchema = z
   .object({
@@ -255,7 +247,6 @@ const OrderItemSchema = z
       price: { $ref: '#/components/schemas/Money' },
     },
   })
-  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
@@ -295,7 +286,6 @@ const OrderSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Order')
 
 const CreateOrderInputSchema = z
   .object({
@@ -356,7 +346,6 @@ const CreateOrderInputSchema = z
       callbackUrl: { type: 'string', format: 'uri', description: 'URL for order status webhooks' },
     },
   })
-  .openapi('CreateOrderInput')
 
 const WebhookSchema = z
   .object({
@@ -434,7 +423,6 @@ const WebhookSchema = z
       status: { type: 'string', enum: ['active', 'inactive'] },
     },
   })
-  .openapi('Webhook')
 
 const WebhookPayloadSchema = z
   .object({
@@ -455,7 +443,6 @@ const WebhookPayloadSchema = z
       signature: { type: 'string' },
     },
   })
-  .openapi('WebhookPayload')
 
 const ErrorDetailSchema = z
   .object({
@@ -472,7 +459,6 @@ const ErrorDetailSchema = z
       target: { type: 'string' },
     },
   })
-  .openapi('ErrorDetail')
 
 const ErrorSchema = z
   .object({
@@ -496,7 +482,6 @@ const ErrorSchema = z
       traceId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('Error')
 
 const ProductIdPathParamsSchema = z
   .uuid()

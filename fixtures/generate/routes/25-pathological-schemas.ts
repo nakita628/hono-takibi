@@ -1,40 +1,28 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const DiscrimCSchema = z
-  .object({
-    kind: z.literal('typeC').openapi({ const: 'typeC' }),
-    valueC: z.boolean().optional().openapi({ type: 'boolean' }),
-  })
+  .object({ kind: z.literal('typeC'), valueC: z.boolean().optional().openapi({ type: 'boolean' }) })
   .openapi({
     type: 'object',
     required: ['kind'],
     properties: { kind: { const: 'typeC' }, valueC: { type: 'boolean' } },
   })
-  .openapi('DiscrimC')
 
 const DiscrimBSchema = z
-  .object({
-    kind: z.literal('typeB').openapi({ const: 'typeB' }),
-    valueB: z.number().optional().openapi({ type: 'number' }),
-  })
+  .object({ kind: z.literal('typeB'), valueB: z.number().optional().openapi({ type: 'number' }) })
   .openapi({
     type: 'object',
     required: ['kind'],
     properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } },
   })
-  .openapi('DiscrimB')
 
 const DiscrimASchema = z
-  .object({
-    kind: z.literal('typeA').openapi({ const: 'typeA' }),
-    valueA: z.string().optional().openapi({ type: 'string' }),
-  })
+  .object({ kind: z.literal('typeA'), valueA: z.string().optional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
     required: ['kind'],
     properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } },
   })
-  .openapi('DiscrimA')
 
 const CompositionHellSchema = z
   .object({
@@ -102,8 +90,8 @@ const CompositionHellSchema = z
       .union([
         z
           .union([
-            z.literal('deep1').openapi({ type: 'string', const: 'deep1' }),
-            z.literal('deep2').optional().openapi({ type: 'string', const: 'deep2' }),
+            z.literal('deep1').openapi({ type: 'string' }),
+            z.literal('deep2').optional().openapi({ type: 'string' }),
           ])
           .optional()
           .openapi({
@@ -114,8 +102,8 @@ const CompositionHellSchema = z
           }),
         z
           .union([
-            z.literal(1).optional().openapi({ type: 'number', const: 1 }),
-            z.literal(2).optional().openapi({ type: 'number', const: 2 }),
+            z.literal(1).optional().openapi({ type: 'number' }),
+            z.literal(2).optional().openapi({ type: 'number' }),
           ])
           .optional()
           .openapi({
@@ -444,52 +432,56 @@ const CompositionHellSchema = z
       },
     },
   })
-  .openapi('CompositionHell')
 
-const ConstrainedTreeSchema = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-        children: z
-          .array(ConstrainedTreeSchema)
-          .max(10)
-          .optional()
-          .openapi({
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          }),
-        parent: ConstrainedTreeSchema,
-        siblings: z
-          .array(ConstrainedTreeSchema)
-          .optional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string', minLength: 1, maxLength: 100 },
-          children: {
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          },
-          parent: { $ref: '#/components/schemas/ConstrainedTree' },
-          siblings: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          },
+type ConstrainedTreeType = {
+  value: string
+  children?: unknown[]
+  parent?: unknown
+  siblings?: unknown[]
+}
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z.lazy(() =>
+  z
+    .object({
+      value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+      children: z
+        .array(ConstrainedTreeSchema)
+        .max(10)
+        .optional()
+        .openapi({
+          type: 'array',
+          maxItems: 10,
+          items: { $ref: '#/components/schemas/ConstrainedTree' },
+        }),
+      parent: ConstrainedTreeSchema,
+      siblings: z
+        .array(ConstrainedTreeSchema)
+        .optional()
+        .openapi({
+          type: 'array',
+          items: { $ref: '#/components/schemas/ConstrainedTree' },
+          uniqueItems: true,
+        }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['value'],
+      properties: {
+        value: { type: 'string', minLength: 1, maxLength: 100 },
+        children: {
+          type: 'array',
+          maxItems: 10,
+          items: { $ref: '#/components/schemas/ConstrainedTree' },
         },
-      }),
-  )
-  .openapi('ConstrainedTree')
+        parent: { $ref: '#/components/schemas/ConstrainedTree' },
+        siblings: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/ConstrainedTree' },
+          uniqueItems: true,
+        },
+      },
+    }),
+)
 
 const RecursiveCSchema = z
   .object({ value: z.boolean().optional().openapi({ type: 'boolean' }), refA: RecursiveASchema })
@@ -497,7 +489,6 @@ const RecursiveCSchema = z
     type: 'object',
     properties: { value: { type: 'boolean' }, refA: { $ref: '#/components/schemas/RecursiveA' } },
   })
-  .openapi('RecursiveC')
 
 const RecursiveBSchema = z
   .object({ value: z.number().optional().openapi({ type: 'number' }), refC: RecursiveCSchema })
@@ -505,7 +496,6 @@ const RecursiveBSchema = z
     type: 'object',
     properties: { value: { type: 'number' }, refC: { $ref: '#/components/schemas/RecursiveC' } },
   })
-  .openapi('RecursiveB')
 
 const RecursiveASchema = z
   .object({ value: z.string().optional().openapi({ type: 'string' }), refB: RecursiveBSchema })
@@ -513,7 +503,6 @@ const RecursiveASchema = z
     type: 'object',
     properties: { value: { type: 'string' }, refB: { $ref: '#/components/schemas/RecursiveB' } },
   })
-  .openapi('RecursiveA')
 
 const RecursiveNightmaresSchema = z
   .object({
@@ -651,7 +640,6 @@ const RecursiveNightmaresSchema = z
       },
     },
   })
-  .openapi('RecursiveNightmares')
 
 const EdgeCasesSchema = z
   .object({
@@ -1129,8 +1117,8 @@ const EdgeCasesSchema = z
           r20: { type: 'string' },
         },
       }),
-    onlyFalse: z.literal(false).optional().openapi({ type: 'boolean', const: false }),
-    onlyTrue: z.literal(true).optional().openapi({ type: 'boolean', const: true }),
+    onlyFalse: z.literal(false).optional().openapi({ type: 'boolean' }),
+    onlyTrue: z.literal(true).optional().openapi({ type: 'boolean' }),
     onlyNull: z.null().nullable().optional().openapi({ type: 'null' }),
     exactlyOne: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
@@ -1326,7 +1314,6 @@ const EdgeCasesSchema = z
       },
     },
   })
-  .openapi('EdgeCases')
 
 const AmbiguousSchemasSchema = z
   .object({
@@ -1386,7 +1373,7 @@ const AmbiguousSchemasSchema = z
           .union([z.literal(1), z.literal(2), z.literal(3)])
           .optional()
           .openapi({ enum: [1, 2, 3] }),
-        z.literal(2).optional().openapi({ const: 2 }),
+        z.literal(2).optional(),
       ])
       .optional()
       .openapi({
@@ -1439,7 +1426,6 @@ const AmbiguousSchemasSchema = z
       },
     },
   })
-  .openapi('AmbiguousSchemas')
 
 const ImpossibleSchemasSchema = z
   .object({
@@ -1495,7 +1481,6 @@ const ImpossibleSchemasSchema = z
       closedEmpty: { type: 'object', additionalProperties: false, minProperties: 1 },
     },
   })
-  .openapi('ImpossibleSchemas')
 
 const ContradictionsSchema = z
   .object({
@@ -1534,7 +1519,7 @@ const ContradictionsSchema = z
     constEnumConflict: z
       .literal('fixed')
       .optional()
-      .openapi({ type: 'string', const: 'fixed', enum: ['other1', 'other2'] }),
+      .openapi({ type: 'string', enum: ['other1', 'other2'] }),
     typeConflictAllOf: z
       .intersection(
         z.string().optional().openapi({ type: 'string' }),
@@ -1544,10 +1529,7 @@ const ContradictionsSchema = z
       .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
     formatTypeMismatch: z.int().optional().openapi({ type: 'integer', format: 'email' }),
     multipleConst: z
-      .intersection(
-        z.literal('value1').optional().openapi({ const: 'value1' }),
-        z.literal('value2').optional().openapi({ const: 'value2' }),
-      )
+      .intersection(z.literal('value1').optional(), z.literal('value2').optional())
       .optional()
       .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
   })
@@ -1570,7 +1552,6 @@ const ContradictionsSchema = z
       multipleConst: { allOf: [{ const: 'value1' }, { const: 'value2' }] },
     },
   })
-  .openapi('Contradictions')
 
 const PathologicalRootSchema = z
   .object({
@@ -1592,7 +1573,6 @@ const PathologicalRootSchema = z
       composition: { $ref: '#/components/schemas/CompositionHell' },
     },
   })
-  .openapi('PathologicalRoot')
 
 export const postPathologicalRoute = createRoute({
   method: 'post',

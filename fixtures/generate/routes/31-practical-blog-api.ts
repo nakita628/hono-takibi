@@ -23,7 +23,6 @@ const SEOSchema = z
       noIndex: { type: 'boolean', default: false },
     },
   })
-  .openapi('SEO')
 
 const TagSchema = z
   .object({
@@ -42,7 +41,6 @@ const TagSchema = z
       postCount: { type: 'integer' },
     },
   })
-  .openapi('Tag')
 
 const CategorySchema = z
   .object({
@@ -67,7 +65,6 @@ const CategorySchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Category')
 
 const AuthorSchema = z
   .object({
@@ -120,7 +117,6 @@ const AuthorSchema = z
       postCount: { type: 'integer' },
     },
   })
-  .openapi('Author')
 
 const MediaSchema = z
   .object({
@@ -181,7 +177,6 @@ const MediaSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Media')
 
 const PostSchema = z
   .object({
@@ -236,47 +231,56 @@ const PostSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Post')
 
-const CommentSchema = z
-  .lazy(() =>
-    z
-      .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        content: z.string().openapi({ type: 'string' }),
-        authorName: z.string().openapi({ type: 'string' }),
-        authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
-        authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-        status: z
-          .enum(['pending', 'approved', 'spam'])
-          .openapi({ type: 'string', enum: ['pending', 'approved', 'spam'] }),
-        parentId: z
-          .uuid()
-          .optional()
-          .openapi({ type: 'string', format: 'uuid', description: '返信先コメントID' }),
-        replies: z
-          .array(CommentSchema)
-          .optional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['id', 'content', 'authorName', 'status', 'createdAt'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          content: { type: 'string' },
-          authorName: { type: 'string' },
-          authorEmail: { type: 'string', format: 'email' },
-          authorUrl: { type: 'string', format: 'uri' },
-          status: { type: 'string', enum: ['pending', 'approved', 'spam'] },
-          parentId: { type: 'string', format: 'uuid', description: '返信先コメントID' },
-          replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-          createdAt: { type: 'string', format: 'date-time' },
-        },
-      }),
-  )
-  .openapi('Comment')
+type CommentType = {
+  id: string
+  content: string
+  authorName: string
+  authorEmail?: string
+  authorUrl?: string
+  status: 'pending' | 'approved' | 'spam'
+  parentId?: string
+  replies?: unknown[]
+  createdAt: string
+}
+
+const CommentSchema: z.ZodType<CommentType> = z.lazy(() =>
+  z
+    .object({
+      id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+      content: z.string().openapi({ type: 'string' }),
+      authorName: z.string().openapi({ type: 'string' }),
+      authorEmail: z.email().optional().openapi({ type: 'string', format: 'email' }),
+      authorUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+      status: z
+        .enum(['pending', 'approved', 'spam'])
+        .openapi({ type: 'string', enum: ['pending', 'approved', 'spam'] }),
+      parentId: z
+        .uuid()
+        .optional()
+        .openapi({ type: 'string', format: 'uuid', description: '返信先コメントID' }),
+      replies: z
+        .array(CommentSchema)
+        .optional()
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
+      createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['id', 'content', 'authorName', 'status', 'createdAt'],
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        content: { type: 'string' },
+        authorName: { type: 'string' },
+        authorEmail: { type: 'string', format: 'email' },
+        authorUrl: { type: 'string', format: 'uri' },
+        status: { type: 'string', enum: ['pending', 'approved', 'spam'] },
+        parentId: { type: 'string', format: 'uuid', description: '返信先コメントID' },
+        replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+        createdAt: { type: 'string', format: 'date-time' },
+      },
+    }),
+)
 
 const CreatePostRequestSchema = z
   .object({
@@ -318,7 +322,6 @@ const CreatePostRequestSchema = z
       status: { type: 'string', enum: ['draft', 'published'], default: 'draft' },
     },
   })
-  .openapi('CreatePostRequest')
 
 const UpdatePostRequestSchema = z
   .object({
@@ -358,7 +361,6 @@ const UpdatePostRequestSchema = z
       seo: { $ref: '#/components/schemas/SEO' },
     },
   })
-  .openapi('UpdatePostRequest')
 
 const CreateCommentRequestSchema = z
   .object({
@@ -383,7 +385,6 @@ const CreateCommentRequestSchema = z
       parentId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('CreateCommentRequest')
 
 const CreateCategoryRequestSchema = z
   .object({
@@ -406,7 +407,6 @@ const CreateCategoryRequestSchema = z
       parentId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('CreateCategoryRequest')
 
 const UpdateCategoryRequestSchema = z
   .object({
@@ -428,7 +428,6 @@ const UpdateCategoryRequestSchema = z
       parentId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('UpdateCategoryRequest')
 
 const CreateTagRequestSchema = z
   .object({
@@ -447,7 +446,6 @@ const CreateTagRequestSchema = z
       slug: { type: 'string', pattern: '^[a-z0-9-]+$' },
     },
   })
-  .openapi('CreateTagRequest')
 
 const PaginationSchema = z
   .object({
@@ -466,7 +464,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const PostListResponseSchema = z
   .object({
@@ -483,7 +480,6 @@ const PostListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('PostListResponse')
 
 const CommentListResponseSchema = z
   .object({
@@ -500,7 +496,6 @@ const CommentListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('CommentListResponse')
 
 const MediaListResponseSchema = z
   .object({
@@ -517,7 +512,6 @@ const MediaListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('MediaListResponse')
 
 const ErrorSchema = z
   .object({
@@ -529,7 +523,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const PostIdParamParamsSchema = z
   .uuid()

@@ -15,7 +15,6 @@ const EntityMetadataSchema = z
       version: { type: 'integer' },
     },
   })
-  .openapi('EntityMetadata')
 
 const UserPreferencesSchema = z
   .object({
@@ -36,7 +35,6 @@ const UserPreferencesSchema = z
       dateFormat: { type: 'string' },
     },
   })
-  .openapi('UserPreferences')
 
 const PrivacySettingsSchema = z
   .object({
@@ -55,7 +53,6 @@ const PrivacySettingsSchema = z
       showActivity: { type: 'boolean' },
     },
   })
-  .openapi('PrivacySettings')
 
 const NotificationSettingsSchema = z
   .object({
@@ -76,7 +73,6 @@ const NotificationSettingsSchema = z
       channels: { type: 'object', additionalProperties: { type: 'boolean' } },
     },
   })
-  .openapi('NotificationSettings')
 
 const UserSettingsSchema = z
   .object({
@@ -92,7 +88,6 @@ const UserSettingsSchema = z
       preferences: { $ref: '#/components/schemas/UserPreferences' },
     },
   })
-  .openapi('UserSettings')
 
 const UserProfileSchema = z
   .object({
@@ -115,7 +110,6 @@ const UserProfileSchema = z
       social: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
     },
   })
-  .openapi('UserProfile')
 
 const UserSchema = z
   .object({
@@ -136,7 +130,6 @@ const UserSchema = z
       metadata: { $ref: '#/components/schemas/EntityMetadata' },
     },
   })
-  .openapi('User')
 
 const CreateUserInputSchema = z
   .object({
@@ -153,7 +146,6 @@ const CreateUserInputSchema = z
       password: { type: 'string', format: 'password' },
     },
   })
-  .openapi('CreateUserInput')
 
 const UserFilterSchema = z
   .object({
@@ -175,7 +167,6 @@ const UserFilterSchema = z
       search: { type: 'string' },
     },
   })
-  .openapi('UserFilter')
 
 const OrganizationMemberSchema = z
   .object({
@@ -194,7 +185,6 @@ const OrganizationMemberSchema = z
       joinedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('OrganizationMember')
 
 const AddressSchema = z
   .object({
@@ -215,7 +205,6 @@ const AddressSchema = z
       country: { type: 'string' },
     },
   })
-  .openapi('Address')
 
 const OrganizationSchema = z
   .object({
@@ -239,7 +228,6 @@ const OrganizationSchema = z
       members: { type: 'array', items: { $ref: '#/components/schemas/OrganizationMember' } },
     },
   })
-  .openapi('Organization')
 
 const TeamSchema = z
   .object({
@@ -259,7 +247,6 @@ const TeamSchema = z
       members: { type: 'array', items: { $ref: '#/components/schemas/User' } },
     },
   })
-  .openapi('Team')
 
 const PriceSchema = z
   .object({
@@ -279,7 +266,6 @@ const PriceSchema = z
       formatted: { type: 'string' },
     },
   })
-  .openapi('Price')
 
 const ProductVariantSchema = z
   .object({
@@ -302,7 +288,6 @@ const ProductVariantSchema = z
       price: { $ref: '#/components/schemas/Price' },
     },
   })
-  .openapi('ProductVariant')
 
 const OrderItemSchema = z
   .object({
@@ -319,7 +304,6 @@ const OrderItemSchema = z
       price: { $ref: '#/components/schemas/Price' },
     },
   })
-  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
@@ -355,11 +339,10 @@ const OrderSchema = z
       billingAddress: { $ref: '#/components/schemas/Address' },
     },
   })
-  .openapi('Order')
 
 const BankTransferPaymentSchema = z
   .object({
-    method: z.literal('bank_transfer').openapi({ type: 'string', const: 'bank_transfer' }),
+    method: z.literal('bank_transfer').openapi({ type: 'string' }),
     bankAccount: z.string().openapi({ type: 'string' }),
     routingNumber: z.string().optional().openapi({ type: 'string' }),
   })
@@ -372,11 +355,10 @@ const BankTransferPaymentSchema = z
       routingNumber: { type: 'string' },
     },
   })
-  .openapi('BankTransferPayment')
 
 const CreditCardPaymentSchema = z
   .object({
-    method: z.literal('credit_card').openapi({ type: 'string', const: 'credit_card' }),
+    method: z.literal('credit_card').openapi({ type: 'string' }),
     cardToken: z.string().openapi({ type: 'string' }),
     saveCard: z.boolean().optional().openapi({ type: 'boolean' }),
   })
@@ -389,7 +371,6 @@ const CreditCardPaymentSchema = z
       saveCard: { type: 'boolean' },
     },
   })
-  .openapi('CreditCardPayment')
 
 const CreateOrderInputSchema = z
   .object({
@@ -461,7 +442,6 @@ const CreateOrderInputSchema = z
       },
     },
   })
-  .openapi('CreateOrderInput')
 
 const DiscountSchema = z
   .object({
@@ -482,7 +462,6 @@ const DiscountSchema = z
       validUntil: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Discount')
 
 const DateRangeSchema = z
   .object({
@@ -497,7 +476,6 @@ const DateRangeSchema = z
       to: { type: 'string', format: 'date' },
     },
   })
-  .openapi('DateRange')
 
 const ShippingInfoSchema = z
   .object({
@@ -517,7 +495,6 @@ const ShippingInfoSchema = z
       cost: { $ref: '#/components/schemas/Price' },
     },
   })
-  .openapi('ShippingInfo')
 
 const WarehouseSchema = z
   .object({
@@ -536,7 +513,6 @@ const WarehouseSchema = z
       capacity: { type: 'integer' },
     },
   })
-  .openapi('Warehouse')
 
 const SalesReportParamsSchema = z
   .object({
@@ -570,7 +546,6 @@ const SalesReportParamsSchema = z
       },
     },
   })
-  .openapi('SalesReportParams')
 
 const InventoryReportParamsSchema = z
   .object({
@@ -593,7 +568,6 @@ const InventoryReportParamsSchema = z
       lowStockThreshold: { type: 'integer' },
     },
   })
-  .openapi('InventoryReportParams')
 
 const UserReportParamsSchema = z
   .object({
@@ -612,7 +586,6 @@ const UserReportParamsSchema = z
       includeInactive: { type: 'boolean' },
     },
   })
-  .openapi('UserReportParams')
 
 const FilterExpressionSchema = z
   .object({
@@ -651,7 +624,6 @@ const FilterExpressionSchema = z
       },
     },
   })
-  .openapi('FilterExpression')
 
 const ReportFormatSchema = z
   .object({
@@ -668,7 +640,6 @@ const ReportFormatSchema = z
       options: { type: 'object', additionalProperties: true },
     },
   })
-  .openapi('ReportFormat')
 
 const EmailDeliverySchema = z
   .object({
@@ -688,7 +659,6 @@ const EmailDeliverySchema = z
       message: { type: 'string' },
     },
   })
-  .openapi('EmailDelivery')
 
 const RetryPolicySchema = z
   .object({
@@ -707,7 +677,6 @@ const RetryPolicySchema = z
       maxDelay: { type: 'integer', default: 60000 },
     },
   })
-  .openapi('RetryPolicy')
 
 const WebhookDeliverySchema = z
   .object({
@@ -726,7 +695,6 @@ const WebhookDeliverySchema = z
       retryPolicy: { $ref: '#/components/schemas/RetryPolicy' },
     },
   })
-  .openapi('WebhookDelivery')
 
 const ReportJobSchema = z
   .object({
@@ -784,7 +752,6 @@ const ReportJobSchema = z
       },
     },
   })
-  .openapi('ReportJob')
 
 const WebhookEventSchema = z
   .object({
@@ -801,7 +768,6 @@ const WebhookEventSchema = z
       version: { type: 'string' },
     },
   })
-  .openapi('WebhookEvent')
 
 const GenericEntitySchema = z
   .object({
@@ -817,7 +783,6 @@ const GenericEntitySchema = z
       attributes: { type: 'object', additionalProperties: true },
     },
   })
-  .openapi('GenericEntity')
 
 const RequestContextSchema = z
   .object({
@@ -836,7 +801,6 @@ const RequestContextSchema = z
       userAgent: { type: 'string' },
     },
   })
-  .openapi('RequestContext')
 
 const WebhookTestResultSchema = z
   .object({
@@ -857,7 +821,6 @@ const WebhookTestResultSchema = z
       error: { type: 'string' },
     },
   })
-  .openapi('WebhookTestResult')
 
 const PaginationSchema = z
   .object({
@@ -876,7 +839,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const UserIdPathParamsSchema = z
   .uuid()
@@ -1123,7 +1085,7 @@ export const postOrdersRoute = createRoute({
                   BankTransferPaymentSchema,
                   z
                     .object({
-                      method: z.literal('invoice').openapi({ type: 'string', const: 'invoice' }),
+                      method: z.literal('invoice').openapi({ type: 'string' }),
                       invoiceAddress: AddressSchema,
                       paymentTerms: z.int().default(30).openapi({ type: 'integer', default: 30 }),
                     })

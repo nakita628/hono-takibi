@@ -1,17 +1,22 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-z.strictObject({test:z.string().openapi({"type":"string"})}).openapi({"type":"object","properties":{"test":{"type":"string"}},"additionalProperties":false,"required":["test"]})
-
-const BSchema = z.object({
-  b: z.string().openapi({ type: 'string' }),
-})
-
-z.string().openapi({param:{"schema":{"type":"string"},"required":true,"name":"page","in":"query"},"type":"string"})
-  z.string().openapi({param:{"schema":{"type":"string"},"required":true,"name":"rows","in":"query"},"type":"string"})
-
-
-
-const UserSchema = z.union([z.object({kind:z.literal("A")}).optional().openapi({"properties":{"kind":{"const":"A"}},"required":["kind"]}),z.object({kind:z.literal("B")}).optional().openapi({"properties":{"kind":{"const":"B"}},"required":["kind"]})]).nullable().openapi({"type":"object","oneOf":[{"properties":{"kind":{"const":"A"}},"required":["kind"]},{"properties":{"kind":{"const":"B"}},"required":["kind"]}]})
+const UserSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
+    name: z.string().optional().openapi({ type: 'string' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'email', 'createdAt'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      email: { type: 'string', format: 'email' },
+      name: { type: 'string' },
+      createdAt: { type: 'string', format: 'date-time' },
+    },
+  })
 
 const CreateUserRequestSchema = z
   .object({
@@ -23,7 +28,6 @@ const CreateUserRequestSchema = z
     required: ['email'],
     properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
   })
-  .openapi('CreateUserRequest')
 
 export const getUsersRoute = createRoute({
   method: 'get',

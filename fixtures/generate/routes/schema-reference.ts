@@ -13,7 +13,6 @@ const CSchema = z
       flag: { type: 'boolean', description: 'A boolean flag' },
     },
   })
-  .openapi('C')
 
 const BSchema = z
   .object({
@@ -31,7 +30,6 @@ const BSchema = z
     },
     required: ['id'],
   })
-  .openapi('B')
 
 const ASchema = z
   .object({ b: BSchema, c: CSchema })
@@ -40,7 +38,6 @@ const ASchema = z
     properties: { b: { $ref: '#/components/schemas/B' }, c: { $ref: '#/components/schemas/C' } },
     required: ['b', 'c'],
   })
-  .openapi('A')
 
 export const getExampleRoute = createRoute({
   method: 'get',

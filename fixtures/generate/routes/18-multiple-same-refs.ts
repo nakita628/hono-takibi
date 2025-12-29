@@ -4,25 +4,21 @@ const UserIdSchema = z
   .uuid()
   .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'User identifier' })
-  .openapi('UserId')
 
 const DocumentIdSchema = z
   .uuid()
   .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Document identifier' })
-  .openapi('DocumentId')
 
 const VersionIdSchema = z
   .uuid()
   .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Version identifier' })
-  .openapi('VersionId')
 
 const TimestampSchema = z.iso
   .datetime()
   .optional()
   .openapi({ type: 'string', format: 'date-time', description: 'ISO 8601 timestamp' })
-  .openapi('Timestamp')
 
 const UserReferenceSchema = z
   .object({
@@ -41,7 +37,6 @@ const UserReferenceSchema = z
       avatar: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('UserReference')
 
 const MetadataSchema = z
   .object({
@@ -59,7 +54,6 @@ const MetadataSchema = z
       updatedBy: { $ref: '#/components/schemas/UserReference' },
     },
   })
-  .openapi('Metadata')
 
 const TagSchema = z
   .object({
@@ -78,19 +72,16 @@ const TagSchema = z
       color: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
     },
   })
-  .openapi('Tag')
 
 const PermissionSchema = z
   .enum(['view', 'comment', 'edit', 'admin'])
   .optional()
   .openapi({ type: 'string', enum: ['view', 'comment', 'edit', 'admin'] })
-  .openapi('Permission')
 
 const DocumentStatusSchema = z
   .enum(['draft', 'in_review', 'approved', 'published', 'archived'])
   .optional()
   .openapi({ type: 'string', enum: ['draft', 'in_review', 'approved', 'published', 'archived'] })
-  .openapi('DocumentStatus')
 
 const DocumentReferenceSchema = z
   .object({
@@ -107,7 +98,6 @@ const DocumentReferenceSchema = z
       status: { $ref: '#/components/schemas/DocumentStatus' },
     },
   })
-  .openapi('DocumentReference')
 
 const AttachmentSchema = z
   .object({
@@ -132,7 +122,6 @@ const AttachmentSchema = z
       uploadedAt: { $ref: '#/components/schemas/Timestamp' },
     },
   })
-  .openapi('Attachment')
 
 const DocumentContentSchema = z
   .object({
@@ -153,7 +142,6 @@ const DocumentContentSchema = z
       attachments: { type: 'array', items: { $ref: '#/components/schemas/Attachment' } },
     },
   })
-  .openapi('DocumentContent')
 
 const DocumentSchema = z
   .object({
@@ -241,7 +229,6 @@ const DocumentSchema = z
       parentDocument: { $ref: '#/components/schemas/DocumentReference' },
     },
   })
-  .openapi('Document')
 
 const ActivityEntrySchema = z
   .object({
@@ -293,7 +280,6 @@ const ActivityEntrySchema = z
       },
     },
   })
-  .openapi('ActivityEntry')
 
 const DocumentVersionSchema = z
   .object({
@@ -320,7 +306,6 @@ const DocumentVersionSchema = z
       previousVersion: { $ref: '#/components/schemas/VersionId' },
     },
   })
-  .openapi('DocumentVersion')
 
 const DocumentWithHistorySchema = z
   .intersection(
@@ -356,7 +341,6 @@ const DocumentWithHistorySchema = z
       },
     ],
   })
-  .openapi('DocumentWithHistory')
 
 const CreateDocumentInputSchema = z
   .object({
@@ -385,7 +369,6 @@ const CreateDocumentInputSchema = z
       templateId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('CreateDocumentInput')
 
 const UpdateDocumentInputSchema = z
   .object({
@@ -413,7 +396,6 @@ const UpdateDocumentInputSchema = z
       status: { $ref: '#/components/schemas/DocumentStatus' },
     },
   })
-  .openapi('UpdateDocumentInput')
 
 const ShareRequestSchema = z
   .object({
@@ -473,7 +455,6 @@ const ShareRequestSchema = z
       message: { type: 'string' },
     },
   })
-  .openapi('ShareRequest')
 
 const ShareResultSchema = z
   .object({
@@ -533,7 +514,6 @@ const ShareResultSchema = z
       },
     },
   })
-  .openapi('ShareResult')
 
 const CompareOptionsSchema = z
   .object({
@@ -550,7 +530,6 @@ const CompareOptionsSchema = z
       showLineNumbers: { type: 'boolean' },
     },
   })
-  .openapi('CompareOptions')
 
 const DifferenceSchema = z
   .object({
@@ -571,7 +550,6 @@ const DifferenceSchema = z
       targetValue: { type: 'string' },
     },
   })
-  .openapi('Difference')
 
 const CompareResultSchema = z
   .object({
@@ -613,7 +591,6 @@ const CompareResultSchema = z
       },
     },
   })
-  .openapi('CompareResult')
 
 const TemplateVariableSchema = z
   .object({
@@ -636,7 +613,6 @@ const TemplateVariableSchema = z
       description: { type: 'string' },
     },
   })
-  .openapi('TemplateVariable')
 
 const DocumentTemplateSchema = z
   .object({
@@ -676,7 +652,6 @@ const DocumentTemplateSchema = z
       variables: { type: 'array', items: { $ref: '#/components/schemas/TemplateVariable' } },
     },
   })
-  .openapi('DocumentTemplate')
 
 const CreateTemplateInputSchema = z
   .object({
@@ -712,7 +687,6 @@ const CreateTemplateInputSchema = z
       variables: { type: 'array', items: { $ref: '#/components/schemas/TemplateVariable' } },
     },
   })
-  .openapi('CreateTemplateInput')
 
 const WorkflowStepSchema = z
   .object({
@@ -765,7 +739,6 @@ const WorkflowStepSchema = z
       escalateTo: { $ref: '#/components/schemas/UserReference' },
     },
   })
-  .openapi('WorkflowStep')
 
 const WorkflowDefinitionSchema = z
   .object({
@@ -791,7 +764,6 @@ const WorkflowDefinitionSchema = z
       },
     },
   })
-  .openapi('WorkflowDefinition')
 
 const WorkflowSchema = z
   .object({
@@ -864,7 +836,6 @@ const WorkflowSchema = z
       metadata: { $ref: '#/components/schemas/Metadata' },
     },
   })
-  .openapi('Workflow')
 
 export const getDocumentsRoute = createRoute({
   method: 'get',

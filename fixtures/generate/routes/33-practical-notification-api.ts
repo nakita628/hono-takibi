@@ -31,7 +31,6 @@ const NotificationSchema = z
       readAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Notification')
 
 const SendMessageRequestSchema = z
   .object({
@@ -112,7 +111,6 @@ const SendMessageRequestSchema = z
       scheduledAt: { type: 'string', format: 'date-time', description: '予約送信日時' },
     },
   })
-  .openapi('SendMessageRequest')
 
 const MessageResultSchema = z
   .object({
@@ -131,7 +129,6 @@ const MessageResultSchema = z
       scheduledAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('MessageResult')
 
 const BatchMessageResultSchema = z
   .object({
@@ -178,7 +175,6 @@ const BatchMessageResultSchema = z
       },
     },
   })
-  .openapi('BatchMessageResult')
 
 const MessageStatusSchema = z
   .object({
@@ -217,7 +213,6 @@ const MessageStatusSchema = z
       openedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('MessageStatus')
 
 const TemplateSchema = z
   .object({
@@ -291,7 +286,6 @@ const TemplateSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Template')
 
 const CreateTemplateRequestSchema = z
   .object({
@@ -363,7 +357,6 @@ const CreateTemplateRequestSchema = z
       },
     },
   })
-  .openapi('CreateTemplateRequest')
 
 const UpdateTemplateRequestSchema = z
   .object({
@@ -429,7 +422,6 @@ const UpdateTemplateRequestSchema = z
       active: { type: 'boolean' },
     },
   })
-  .openapi('UpdateTemplateRequest')
 
 const ChannelSettingSchema = z
   .object({
@@ -509,7 +501,6 @@ const ChannelSettingSchema = z
       },
     },
   })
-  .openapi('ChannelSetting')
 
 const ChannelPreferencesSchema = z
   .object({
@@ -527,7 +518,6 @@ const ChannelPreferencesSchema = z
       inApp: { $ref: '#/components/schemas/ChannelSetting' },
     },
   })
-  .openapi('ChannelPreferences')
 
 const UpdateChannelPreferencesRequestSchema = z
   .object({
@@ -545,7 +535,6 @@ const UpdateChannelPreferencesRequestSchema = z
       inApp: { $ref: '#/components/schemas/ChannelSetting' },
     },
   })
-  .openapi('UpdateChannelPreferencesRequest')
 
 const DeviceSchema = z
   .object({
@@ -576,7 +565,6 @@ const DeviceSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Device')
 
 const RegisterDeviceRequestSchema = z
   .object({
@@ -601,7 +589,6 @@ const RegisterDeviceRequestSchema = z
       appVersion: { type: 'string' },
     },
   })
-  .openapi('RegisterDeviceRequest')
 
 const WebhookSchema = z
   .object({
@@ -685,7 +672,6 @@ const WebhookSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Webhook')
 
 const CreateWebhookRequestSchema = z
   .object({
@@ -759,7 +745,6 @@ const CreateWebhookRequestSchema = z
       headers: { type: 'object', additionalProperties: { type: 'string' } },
     },
   })
-  .openapi('CreateWebhookRequest')
 
 const UpdateWebhookRequestSchema = z
   .object({
@@ -835,7 +820,6 @@ const UpdateWebhookRequestSchema = z
       headers: { type: 'object', additionalProperties: { type: 'string' } },
     },
   })
-  .openapi('UpdateWebhookRequest')
 
 const PaginationSchema = z
   .object({
@@ -854,7 +838,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const NotificationListResponseSchema = z
   .object({
@@ -871,7 +854,6 @@ const NotificationListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('NotificationListResponse')
 
 const ErrorSchema = z
   .object({
@@ -883,7 +865,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const PageParamParamsSchema = z
   .int()

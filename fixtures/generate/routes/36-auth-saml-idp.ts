@@ -32,7 +32,6 @@ const SingleLogoutServiceSchema = z
       responseLocation: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('SingleLogoutService')
 
 const AssertionConsumerServiceSchema = z
   .object({
@@ -68,7 +67,6 @@ const AssertionConsumerServiceSchema = z
       isDefault: { type: 'boolean' },
     },
   })
-  .openapi('AssertionConsumerService')
 
 const ServiceProviderSchema = z
   .object({
@@ -172,7 +170,6 @@ const ServiceProviderSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('ServiceProvider')
 
 const CreateServiceProviderRequestSchema = z
   .object({
@@ -228,7 +225,6 @@ const CreateServiceProviderRequestSchema = z
       encryptionCertificate: { type: 'string' },
     },
   })
-  .openapi('CreateServiceProviderRequest')
 
 const UpdateServiceProviderRequestSchema = z
   .object({
@@ -273,7 +269,6 @@ const UpdateServiceProviderRequestSchema = z
       sessionDuration: { type: 'integer' },
     },
   })
-  .openapi('UpdateServiceProviderRequest')
 
 const AttributeMappingSchema = z
   .object({
@@ -324,7 +319,6 @@ const AttributeMappingSchema = z
       transform: { type: 'string', description: '値変換スクリプト' },
     },
   })
-  .openapi('AttributeMapping')
 
 const AvailableAttributeSchema = z
   .object({
@@ -348,7 +342,6 @@ const AvailableAttributeSchema = z
       source: { type: 'string', enum: ['user', 'group', 'custom', 'computed'] },
     },
   })
-  .openapi('AvailableAttribute')
 
 const CertificateSchema = z
   .object({
@@ -385,7 +378,6 @@ const CertificateSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Certificate')
 
 const SamlSessionSchema = z
   .object({
@@ -457,7 +449,6 @@ const SamlSessionSchema = z
       lastActivityAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('SamlSession')
 
 const AuditLogSchema = z
   .object({
@@ -528,7 +519,6 @@ const AuditLogSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('AuditLog')
 
 const PaginationSchema = z
   .object({
@@ -547,7 +537,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const AuditLogListResponseSchema = z
   .object({
@@ -564,7 +553,6 @@ const AuditLogListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('AuditLogListResponse')
 
 const SamlErrorSchema = z
   .object({
@@ -613,7 +601,6 @@ const SamlErrorSchema = z
       samlStatus: { type: 'string', description: 'SAML Status Code' },
     },
   })
-  .openapi('SamlError')
 
 const ErrorSchema = z
   .object({
@@ -625,7 +612,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const PageParamParamsSchema = z
   .int()

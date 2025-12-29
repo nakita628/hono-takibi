@@ -17,7 +17,6 @@ const UserSchema = z
       avatarUrl: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('User')
 
 const FileSchema = z
   .object({
@@ -69,7 +68,6 @@ const FileSchema = z
       deletedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('File')
 
 const FolderSchema = z
   .object({
@@ -104,7 +102,6 @@ const FolderSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Folder')
 
 const CollaboratorSchema = z
   .object({
@@ -123,7 +120,6 @@ const CollaboratorSchema = z
       addedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Collaborator')
 
 const ShareLinkSchema = z
   .object({
@@ -149,7 +145,6 @@ const ShareLinkSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('ShareLink')
 
 const ShareSettingsSchema = z
   .object({
@@ -168,7 +163,6 @@ const ShareSettingsSchema = z
       collaborators: { type: 'array', items: { $ref: '#/components/schemas/Collaborator' } },
     },
   })
-  .openapi('ShareSettings')
 
 const ShareRequestSchema = z
   .object({
@@ -223,7 +217,6 @@ const ShareRequestSchema = z
       notifyByEmail: { type: 'boolean', default: true },
     },
   })
-  .openapi('ShareRequest')
 
 const FileVersionSchema = z
   .object({
@@ -244,7 +237,6 @@ const FileVersionSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('FileVersion')
 
 const CreateFolderRequestSchema = z
   .object({
@@ -265,7 +257,6 @@ const CreateFolderRequestSchema = z
       color: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
     },
   })
-  .openapi('CreateFolderRequest')
 
 const StorageUsageSchema = z
   .object({
@@ -317,7 +308,6 @@ const StorageUsageSchema = z
       },
     },
   })
-  .openapi('StorageUsage')
 
 const PaginationSchema = z
   .object({
@@ -336,7 +326,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const FileListResponseSchema = z
   .object({
@@ -370,7 +359,6 @@ const FileListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('FileListResponse')
 
 const ErrorSchema = z
   .object({
@@ -382,7 +370,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const FileIdParamParamsSchema = z
   .uuid()

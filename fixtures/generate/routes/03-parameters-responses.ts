@@ -22,7 +22,6 @@ const ItemSchema = z
       tags: { type: 'array', items: { type: 'string' } },
     },
   })
-  .openapi('Item')
 
 const ItemListSchema = z
   .object({
@@ -43,7 +42,6 @@ const ItemListSchema = z
       limit: { type: 'integer', format: 'int32' },
     },
   })
-  .openapi('ItemList')
 
 const ErrorSchema = z
   .object({
@@ -60,7 +58,6 @@ const ErrorSchema = z
       details: { type: 'object', additionalProperties: true },
     },
   })
-  .openapi('Error')
 
 const PageParamParamsSchema = z
   .int32()

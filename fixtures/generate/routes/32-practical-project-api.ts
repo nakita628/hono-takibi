@@ -17,7 +17,6 @@ const UserSchema = z
       avatarUrl: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('User')
 
 const TeamSchema = z
   .object({
@@ -41,7 +40,6 @@ const TeamSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Team')
 
 const ProjectSchema = z
   .object({
@@ -91,7 +89,6 @@ const ProjectSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Project')
 
 const SubtaskSchema = z
   .object({
@@ -108,7 +105,6 @@ const SubtaskSchema = z
       completed: { type: 'boolean' },
     },
   })
-  .openapi('Subtask')
 
 const AttachmentSchema = z
   .object({
@@ -133,7 +129,6 @@ const AttachmentSchema = z
       uploadedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Attachment')
 
 const MilestoneSummarySchema = z
   .object({
@@ -145,7 +140,6 @@ const MilestoneSummarySchema = z
     required: ['id', 'name'],
     properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
   })
-  .openapi('MilestoneSummary')
 
 const ProjectSummarySchema = z
   .object({
@@ -162,7 +156,6 @@ const ProjectSummarySchema = z
       color: { type: 'string' },
     },
   })
-  .openapi('ProjectSummary')
 
 const TaskSchema = z
   .object({
@@ -220,7 +213,6 @@ const TaskSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('Task')
 
 const MilestoneSchema = z
   .object({
@@ -252,7 +244,6 @@ const MilestoneSchema = z
       progress: { type: 'number', minimum: 0, maximum: 100 },
     },
   })
-  .openapi('Milestone')
 
 const ProjectMemberSchema = z
   .object({
@@ -271,7 +262,6 @@ const ProjectMemberSchema = z
       joinedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('ProjectMember')
 
 const TaskCommentSchema = z
   .object({
@@ -292,7 +282,6 @@ const TaskCommentSchema = z
       updatedAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('TaskComment')
 
 const TimeEntrySchema = z
   .object({
@@ -315,7 +304,6 @@ const TimeEntrySchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('TimeEntry')
 
 const CreateProjectRequestSchema = z
   .object({
@@ -342,7 +330,6 @@ const CreateProjectRequestSchema = z
       endDate: { type: 'string', format: 'date' },
     },
   })
-  .openapi('CreateProjectRequest')
 
 const UpdateProjectRequestSchema = z
   .object({
@@ -370,7 +357,6 @@ const UpdateProjectRequestSchema = z
       endDate: { type: 'string', format: 'date' },
     },
   })
-  .openapi('UpdateProjectRequest')
 
 const CreateTaskRequestSchema = z
   .object({
@@ -437,7 +423,6 @@ const CreateTaskRequestSchema = z
       },
     },
   })
-  .openapi('CreateTaskRequest')
 
 const UpdateTaskRequestSchema = z
   .object({
@@ -473,7 +458,6 @@ const UpdateTaskRequestSchema = z
       tags: { type: 'array', items: { type: 'string' } },
     },
   })
-  .openapi('UpdateTaskRequest')
 
 const AddMemberRequestSchema = z
   .object({
@@ -490,7 +474,6 @@ const AddMemberRequestSchema = z
       role: { type: 'string', enum: ['admin', 'member', 'viewer'] },
     },
   })
-  .openapi('AddMemberRequest')
 
 const CreateMilestoneRequestSchema = z
   .object({
@@ -507,7 +490,6 @@ const CreateMilestoneRequestSchema = z
       dueDate: { type: 'string', format: 'date' },
     },
   })
-  .openapi('CreateMilestoneRequest')
 
 const CreateTimeEntryRequestSchema = z
   .object({
@@ -524,7 +506,6 @@ const CreateTimeEntryRequestSchema = z
       date: { type: 'string', format: 'date' },
     },
   })
-  .openapi('CreateTimeEntryRequest')
 
 const CreateTeamRequestSchema = z
   .object({
@@ -544,7 +525,6 @@ const CreateTeamRequestSchema = z
       memberIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
     },
   })
-  .openapi('CreateTeamRequest')
 
 const PaginationSchema = z
   .object({
@@ -563,7 +543,6 @@ const PaginationSchema = z
       totalPages: { type: 'integer' },
     },
   })
-  .openapi('Pagination')
 
 const ProjectListResponseSchema = z
   .object({
@@ -580,7 +559,6 @@ const ProjectListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('ProjectListResponse')
 
 const TaskListResponseSchema = z
   .object({
@@ -597,7 +575,6 @@ const TaskListResponseSchema = z
       pagination: { $ref: '#/components/schemas/Pagination' },
     },
   })
-  .openapi('TaskListResponse')
 
 const ErrorSchema = z
   .object({
@@ -609,7 +586,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const ProjectIdParamParamsSchema = z
   .uuid()

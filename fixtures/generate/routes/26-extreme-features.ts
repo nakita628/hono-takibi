@@ -116,7 +116,6 @@ const JsonSchema2020FeaturesSchema = z
       },
     },
   })
-  .openapi('JsonSchema2020Features')
 
 const ItemSchema = z
   .object({
@@ -140,11 +139,10 @@ const ItemSchema = z
       description: 'An example item',
     },
   })
-  .openapi('Item')
 
 const ItemCreatedEventSchema = z
   .object({
-    event: z.literal('item.created').openapi({ const: 'item.created' }),
+    event: z.literal('item.created'),
     data: ItemSchema,
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     metadata: z.object({}).openapi({ type: 'object' }),
@@ -159,11 +157,10 @@ const ItemCreatedEventSchema = z
       metadata: { type: 'object' },
     },
   })
-  .openapi('ItemCreatedEvent')
 
 const ItemUpdatedEventSchema = z
   .object({
-    event: z.literal('item.updated').openapi({ const: 'item.updated' }),
+    event: z.literal('item.updated'),
     data: ItemSchema,
     previousData: ItemSchema,
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
@@ -183,11 +180,10 @@ const ItemUpdatedEventSchema = z
       changedFields: { type: 'array', items: { type: 'string' } },
     },
   })
-  .openapi('ItemUpdatedEvent')
 
 const ItemDeletedEventSchema = z
   .object({
-    event: z.literal('item.deleted').openapi({ const: 'item.deleted' }),
+    event: z.literal('item.deleted'),
     itemId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
@@ -200,7 +196,6 @@ const ItemDeletedEventSchema = z
       timestamp: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('ItemDeletedEvent')
 
 const XmlFeaturesSchema = z
   .object({
@@ -247,7 +242,6 @@ const XmlFeaturesSchema = z
       },
     },
   })
-  .openapi('XmlFeatures')
 
 const PetSchema = z
   .object({
@@ -259,14 +253,13 @@ const PetSchema = z
     required: ['petType', 'name'],
     properties: { petType: { type: 'string' }, name: { type: 'string' } },
   })
-  .openapi('Pet')
 
 const BirdSchema = z
   .intersection(
     PetSchema,
     z
       .object({
-        petType: z.literal('bird').openapi({ const: 'bird' }),
+        petType: z.literal('bird'),
         species: z.string().openapi({ type: 'string' }),
         canFly: z.boolean().openapi({ type: 'boolean' }),
       })
@@ -294,14 +287,13 @@ const BirdSchema = z
       },
     ],
   })
-  .openapi('Bird')
 
 const CatSchema = z
   .intersection(
     PetSchema,
     z
       .object({
-        petType: z.literal('cat').openapi({ const: 'cat' }),
+        petType: z.literal('cat'),
         breed: z.string().openapi({ type: 'string' }),
         meowPitch: z.int().openapi({ type: 'integer' }),
       })
@@ -329,14 +321,13 @@ const CatSchema = z
       },
     ],
   })
-  .openapi('Cat')
 
 const DogSchema = z
   .intersection(
     PetSchema,
     z
       .object({
-        petType: z.literal('dog').openapi({ const: 'dog' }),
+        petType: z.literal('dog'),
         breed: z.string().openapi({ type: 'string' }),
         barkVolume: z.int().openapi({ type: 'integer' }),
       })
@@ -364,7 +355,6 @@ const DogSchema = z
       },
     ],
   })
-  .openapi('Dog')
 
 const DiscriminatedUnionSchema = z
   .union([DogSchema, CatSchema, BirdSchema])
@@ -387,7 +377,6 @@ const DiscriminatedUnionSchema = z
       },
     },
   })
-  .openapi('DiscriminatedUnion')
 
 const ErrorSchema = z
   .object({
@@ -399,7 +388,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const PageParamParamsSchema = z
   .int()

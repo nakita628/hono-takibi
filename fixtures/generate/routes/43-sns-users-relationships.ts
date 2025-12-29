@@ -27,7 +27,6 @@ const RelationshipSchema = z
       followRequestReceived: { type: 'boolean' },
     },
   })
-  .openapi('Relationship')
 
 const UserSchema = z
   .object({
@@ -107,7 +106,6 @@ const UserSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('User')
 
 const UpdateProfileRequestSchema = z
   .object({
@@ -132,7 +130,6 @@ const UpdateProfileRequestSchema = z
       pinnedPostId: { type: 'string', format: 'uuid' },
     },
   })
-  .openapi('UpdateProfileRequest')
 
 const UserSummarySchema = z
   .object({
@@ -155,7 +152,6 @@ const UserSummarySchema = z
       isProtected: { type: 'boolean' },
     },
   })
-  .openapi('UserSummary')
 
 const ListSchema = z
   .object({
@@ -186,7 +182,6 @@ const ListSchema = z
       createdAt: { type: 'string', format: 'date-time' },
     },
   })
-  .openapi('List')
 
 const CreateListRequestSchema = z
   .object({
@@ -203,7 +198,6 @@ const CreateListRequestSchema = z
       isPrivate: { type: 'boolean', default: false },
     },
   })
-  .openapi('CreateListRequest')
 
 const UpdateListRequestSchema = z
   .object({
@@ -220,7 +214,6 @@ const UpdateListRequestSchema = z
       isPrivate: { type: 'boolean' },
     },
   })
-  .openapi('UpdateListRequest')
 
 const PostSchema = z
   .object({ id: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
@@ -230,7 +223,6 @@ const PostSchema = z
     description: '投稿（別APIファイルで定義）',
     properties: { id: { type: 'string', format: 'uuid' } },
   })
-  .openapi('Post')
 
 const UserListResponseSchema = z
   .object({
@@ -247,7 +239,6 @@ const UserListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
-  .openapi('UserListResponse')
 
 const PostListResponseSchema = z
   .object({
@@ -264,7 +255,6 @@ const PostListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
-  .openapi('PostListResponse')
 
 const ErrorSchema = z
   .object({
@@ -276,7 +266,6 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
-  .openapi('Error')
 
 const UserIdParamParamsSchema = z
   .uuid()

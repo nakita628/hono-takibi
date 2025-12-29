@@ -4,16 +4,16 @@ const ExtremeCompositionsSchema = z
   .object({
     manyOneOf: z
       .union([
-        z.literal('type1').optional().openapi({ type: 'string', const: 'type1' }),
-        z.literal('type2').optional().openapi({ type: 'string', const: 'type2' }),
-        z.literal('type3').optional().openapi({ type: 'string', const: 'type3' }),
-        z.literal('type4').optional().openapi({ type: 'string', const: 'type4' }),
-        z.literal('type5').optional().openapi({ type: 'string', const: 'type5' }),
-        z.literal('type6').optional().openapi({ type: 'string', const: 'type6' }),
-        z.literal('type7').optional().openapi({ type: 'string', const: 'type7' }),
-        z.literal('type8').optional().openapi({ type: 'string', const: 'type8' }),
-        z.literal('type9').optional().openapi({ type: 'string', const: 'type9' }),
-        z.literal('type10').optional().openapi({ type: 'string', const: 'type10' }),
+        z.literal('type1').optional().openapi({ type: 'string' }),
+        z.literal('type2').optional().openapi({ type: 'string' }),
+        z.literal('type3').optional().openapi({ type: 'string' }),
+        z.literal('type4').optional().openapi({ type: 'string' }),
+        z.literal('type5').optional().openapi({ type: 'string' }),
+        z.literal('type6').optional().openapi({ type: 'string' }),
+        z.literal('type7').optional().openapi({ type: 'string' }),
+        z.literal('type8').optional().openapi({ type: 'string' }),
+        z.literal('type9').optional().openapi({ type: 'string' }),
+        z.literal('type10').optional().openapi({ type: 'string' }),
         z.number().optional().openapi({ type: 'number' }),
         z.boolean().optional().openapi({ type: 'boolean' }),
         z
@@ -336,7 +336,6 @@ const ExtremeCompositionsSchema = z
       },
     },
   })
-  .openapi('ExtremeCompositions')
 
 const ExtremeObjectsSchema = z
   .object({
@@ -598,7 +597,6 @@ const ExtremeObjectsSchema = z
       },
     },
   })
-  .openapi('ExtremeObjects')
 
 const ExtremeArraysSchema = z
   .object({
@@ -859,7 +857,6 @@ const ExtremeArraysSchema = z
       },
     },
   })
-  .openapi('ExtremeArrays')
 
 const ExtremeNumbersSchema = z
   .object({
@@ -973,7 +970,6 @@ const ExtremeNumbersSchema = z
       },
     },
   })
-  .openapi('ExtremeNumbers')
 
 const ExtremeStringsSchema = z
   .object({
@@ -1138,7 +1134,6 @@ const ExtremeStringsSchema = z
       },
     },
   })
-  .openapi('ExtremeStrings')
 
 const ExtremeValidationSchema = z
   .object({
@@ -1158,7 +1153,6 @@ const ExtremeValidationSchema = z
       extremeCompositions: { $ref: '#/components/schemas/ExtremeCompositions' },
     },
   })
-  .openapi('ExtremeValidation')
 
 const EnumEdgeCasesSchema = z
   .object({
@@ -1314,10 +1308,8 @@ const EnumEdgeCasesSchema = z
           { key: 'value' },
         ],
       }),
-    constNull: z.literal(null).openapi({ const: null }),
-    constComplex: z
-      .literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] })
-      .openapi({ const: { nested: { deeply: { value: 42 } }, array: [1, 2, 3] } }),
+    constNull: z.literal(null),
+    constComplex: z.literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] }),
   })
   .partial()
   .openapi({
@@ -1405,7 +1397,6 @@ const EnumEdgeCasesSchema = z
       constComplex: { const: { nested: { deeply: { value: 42 } }, array: [1, 2, 3] } },
     },
   })
-  .openapi('EnumEdgeCases')
 
 export const postValidateRoute = createRoute({
   method: 'post',
