@@ -14,7 +14,7 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
       if (!isCallbacks(callbackOrRef)) return undefined
       const callbackCode = makeCallbacks(callbackOrRef)
       return callbackCode
-        ? `${exportCallbacks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Callbacks'))} = {${callbackCode}}`
+        ? `${exportCallbacks ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Callback'))} = {${callbackCode}}`
         : undefined
     })
     .filter((v) => v !== undefined)

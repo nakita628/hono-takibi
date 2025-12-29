@@ -1,84 +1,279 @@
-openapi: 3.1.0
+openapi: '3.0.3'
 info:
-  title: Components Links Example
-  version: 1.0.0
-servers:
-  - url: https://api.example.com
+  title: 'ABC only / components x3 (B -> C -> A)'
+  version: '1.0.0'
 
 paths:
-  /users:
+  '/A/{C}':
     post:
-      operationId: createUser
-      summary: Create a user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateUserRequest"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-          links:
-            # ✅ ここで components.links を参照して使う
-            GetUserById:
-              $ref: "#/components/links/GetUserById"
-            GetUserByIdByOperationRef:
-              $ref: "#/components/links/GetUserByIdByOperationRef"
-
-  /users/{userId}:
-    get:
-      operationId: getUser
-      summary: Get a user by ID
+      operationId: A
+      security:
+        - A: []
       parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/C'
+        - $ref: '#/components/parameters/B'
+        - $ref: '#/components/parameters/A'
+      requestBody:
+        $ref: '#/components/requestBodies/A'
       responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+        '200':
+          $ref: '#/components/responses/A'
+      callbacks:
+        A:
+          $ref: '#/components/callbacks/A'
+
+  '/B/{C}':
+    post:
+      operationId: B
+      security:
+        - B: []
+      parameters:
+        - $ref: '#/components/parameters/C'
+        - $ref: '#/components/parameters/B'
+        - $ref: '#/components/parameters/A'
+      requestBody:
+        $ref: '#/components/requestBodies/B'
+      responses:
+        '200':
+          $ref: '#/components/responses/B'
+      callbacks:
+        B:
+          $ref: '#/components/callbacks/B'
+
+  '/C/{C}':
+    post:
+      operationId: C
+      security:
+        - C: []
+      parameters:
+        - $ref: '#/components/parameters/C'
+        - $ref: '#/components/parameters/B'
+        - $ref: '#/components/parameters/A'
+      requestBody:
+        $ref: '#/components/requestBodies/C'
+      responses:
+        '200':
+          $ref: '#/components/responses/C'
+      callbacks:
+        C:
+          $ref: '#/components/callbacks/C'
 
 components:
   schemas:
-    CreateUserRequest:
+    B:
       type: object
-      required: [name]
+      required:
+        - B
+        - C
       properties:
-        name:
+        B:
+          type: string
+          format: uri
+        C:
+          $ref: '#/components/schemas/C'
+    C:
+      type: object
+      required:
+        - B
+        - A
+      properties:
+        B:
+          type: string
+          format: uri
+        A:
+          $ref: '#/components/schemas/A'
+    A:
+      type: object
+      required:
+        - B
+        - A
+      properties:
+        B:
+          type: string
+          format: uri
+        A:
           type: string
 
-    User:
-      type: object
-      required: [id, name]
-      properties:
-        id:
-          type: string
-        name:
-          type: string
+  parameters:
+    B:
+      name: B
+      in: query
+      required: false
+      schema:
+        type: string
+    C:
+      name: C
+      in: path
+      required: true
+      schema:
+        type: string
+    A:
+      name: A
+      in: header
+      required: false
+      schema:
+        type: string
 
-  # ✅ components.links の定義
+  securitySchemes:
+    B:
+      type: http
+      scheme: bearer
+    C:
+      type: http
+      scheme: bearer
+    A:
+      type: http
+      scheme: bearer
+
+  requestBodies:
+    B:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/B'
+          examples:
+            B:
+              $ref: '#/components/examples/B'
+    C:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/C'
+          examples:
+            C:
+              $ref: '#/components/examples/C'
+    A:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/A'
+          examples:
+            A:
+              $ref: '#/components/examples/A'
+
+  responses:
+    B:
+      description: B
+      headers:
+        B:
+          $ref: '#/components/headers/B'
+        C:
+          $ref: '#/components/headers/C'
+        A:
+          $ref: '#/components/headers/A'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/B'
+          examples:
+            B:
+              $ref: '#/components/examples/B'
+      links:
+        B:
+          $ref: '#/components/links/B'
+    C:
+      description: C
+      headers:
+        B:
+          $ref: '#/components/headers/B'
+        C:
+          $ref: '#/components/headers/C'
+        A:
+          $ref: '#/components/headers/A'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/C'
+          examples:
+            C:
+              $ref: '#/components/examples/C'
+      links:
+        C:
+          $ref: '#/components/links/C'
+    A:
+      description: A
+      headers:
+        B:
+          $ref: '#/components/headers/B'
+        C:
+          $ref: '#/components/headers/C'
+        A:
+          $ref: '#/components/headers/A'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/A'
+          examples:
+            A:
+              $ref: '#/components/examples/A'
+      links:
+        A:
+          $ref: '#/components/links/A'
+
+  headers:
+    B:
+      schema:
+        type: string
+    C:
+      schema:
+        type: string
+    A:
+      schema:
+        type: string
+
+  examples:
+    B:
+      value:
+        B: 'https://example.com/B'
+        C:
+          B: 'https://example.com/C'
+          A:
+            B: 'https://example.com/A'
+            A: A
+    C:
+      value:
+        B: 'https://example.com/C'
+        A:
+          B: 'https://example.com/A'
+          A: A
+    A:
+      value:
+        B: 'https://example.com/A'
+        A: A
+
   links:
-    GetUserById:
-      # operationId を使ってリンク先オペレーションを指定
-      operationId: getUser
-      # レスポンスの body から userId を取り出してパスパラメータへ渡す
-      parameters:
-        userId: $response.body#/id
-      description: Follow-up call to fetch the created user.
+    B:
+      operationId: B
+    C:
+      operationId: C
+    A:
+      operationId: A
 
-    GetUserByIdByOperationRef:
-      # operationRef を使ってリンク先オペレーションを JSON Pointer で指定する例
-      operationRef: "#/paths/~1users~1{userId}/get"
-      parameters:
-        userId: $response.body#/id
-      description: Same as above, but using operationRef.
+  callbacks:
+    B:
+      '{$request.body#/B}':
+        post:
+          requestBody:
+            $ref: '#/components/requestBodies/B'
+          responses:
+            '200':
+              $ref: '#/components/responses/B'
+    C:
+      '{$request.body#/B}':
+        post:
+          requestBody:
+            $ref: '#/components/requestBodies/C'
+          responses:
+            '200':
+              $ref: '#/components/responses/C'
+    A:
+      '{$request.body#/B}':
+        post:
+          requestBody:
+            $ref: '#/components/requestBodies/A'
+          responses:
+            '200':
+              $ref: '#/components/responses/A'

@@ -16,9 +16,7 @@ export type Test = z.infer<typeof TestSchema>`
   // #2: exportSchema=true, exportType=false
   it.concurrent('zodToOpenAPISchema --export-schema true --export-type false', () => {
     const result = zodToOpenAPISchema('Test', 'z.object({test:z.string()})', true, false)
-    const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')
-
-`
+    const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')`
     expect(result).toBe(expected)
   })
   // #3: exportSchema=false, exportType=true
@@ -32,9 +30,7 @@ export type Test = z.infer<typeof TestSchema>`
   // #4: exportSchema=false, exportType=false
   it.concurrent('zodToOpenAPISchema --export-schema false --export-type false', () => {
     const result = zodToOpenAPISchema('Test', 'z.object({test:z.string()})', false, false)
-    const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')
-
-`
+    const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')`
     expect(result).toBe(expected)
   })
 })

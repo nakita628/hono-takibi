@@ -1,0 +1,1279 @@
+openapi: 3.1.0
+info:
+  title: Multi-Factor Authentication API
+  version: 1.0.0
+  description: |
+    多要素認証 (MFA) API。
+    TOTP、SMS、メール、WebAuthn/FIDO2、バックアップコードなど複数の認証方式に対応。
+
+servers:
+  - url: https://api.auth.example.com/v1
+    description: Production
+  - url: http://localhost:4000/v1
+    description: Development
+
+tags:
+  - name: MFA Setup
+    description: MFA設定
+  - name: TOTP
+    description: Time-based One-Time Password
+  - name: SMS
+    description: SMS認証
+  - name: Email
+    description: メール認証
+  - name: WebAuthn
+    description: WebAuthn/FIDO2認証
+  - name: Backup Codes
+    description: バックアップコード
+  - name: Verification
+    description: 認証検証
+
+paths:
+  /mfa/status:
+    get:
+      tags:
+        - MFA Setup
+      operationId: getMfaStatus
+      summary: MFA設定状況取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA設定状況
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/methods:
+    get:
+      tags:
+        - MFA Setup
+      operationId: listMfaMethods
+      summary: 登録済みMFA方式一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA方式一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MfaMethod'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/preferred:
+    put:
+      tags:
+        - MFA Setup
+      operationId: setPreferredMethod
+      summary: 優先MFA方式設定
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - method
+              properties:
+                method:
+                  type: string
+                  enum:
+                    - totp
+                    - sms
+                    - email
+                    - webauthn
+                methodId:
+                  type: string
+                  format: uuid
+                  description: 特定のデバイス/番号を指定
+      responses:
+        '200':
+          description: 設定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: 指定された方式が登録されていません
+
+  /mfa/totp/setup:
+    post:
+      tags:
+        - TOTP
+      operationId: initTotpSetup
+      summary: TOTP設定開始
+      description: TOTP認証の設定を開始し、QRコードとシークレットを取得します
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                issuer:
+                  type: string
+                  description: 発行者名（アプリに表示される）
+                  default: MyApp
+      responses:
+        '200':
+          description: TOTP設定情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpSetupResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: TOTPは既に設定されています
+
+  /mfa/totp/verify:
+    post:
+      tags:
+        - TOTP
+      operationId: verifyTotpSetup
+      summary: TOTP設定確認
+      description: TOTPコードを検証して設定を完了します
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - secret
+              properties:
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+                  description: 6桁のTOTPコード
+                secret:
+                  type: string
+                  description: 設定時に受け取ったシークレット
+      responses:
+        '200':
+          description: 設定完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaMethodEnabled'
+        '400':
+          description: コードが不正です
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/totp:
+    delete:
+      tags:
+        - TOTP
+      operationId: disableTotp
+      summary: TOTP無効化
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  description: 現在のTOTPコードまたはバックアップコード
+      responses:
+        '204':
+          description: 無効化成功
+        '400':
+          description: コードが不正です
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/sms/setup:
+    post:
+      tags:
+        - SMS
+      operationId: initSmsSetup
+      summary: SMS認証設定開始
+      description: 電話番号を登録し、確認コードを送信します
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phoneNumber
+              properties:
+                phoneNumber:
+                  type: string
+                  pattern: '^\+[1-9]\d{1,14}$'
+                  description: E.164形式の電話番号
+      responses:
+        '200':
+          description: 確認コード送信
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challengeId:
+                    type: string
+                    format: uuid
+                  expiresIn:
+                    type: integer
+                    description: 有効期限（秒）
+                  maskedPhone:
+                    type: string
+                    description: マスクされた電話番号
+        '400':
+          description: 不正な電話番号
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          description: 送信制限を超えました
+
+  /mfa/sms/verify:
+    post:
+      tags:
+        - SMS
+      operationId: verifySmsSetup
+      summary: SMS認証設定確認
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - challengeId
+                - code
+              properties:
+                challengeId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: 設定完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaMethodEnabled'
+        '400':
+          description: コードが不正または期限切れ
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/sms/{methodId}:
+    parameters:
+      - name: methodId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - SMS
+      operationId: removeSmsMethod
+      summary: SMS認証削除
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - verificationCode
+              properties:
+                verificationCode:
+                  type: string
+                  description: 任意のMFA認証コード
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/email/setup:
+    post:
+      tags:
+        - Email
+      operationId: initEmailSetup
+      summary: メール認証設定開始
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: 省略時はアカウントのメールアドレスを使用
+      responses:
+        '200':
+          description: 確認コード送信
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challengeId:
+                    type: string
+                    format: uuid
+                  expiresIn:
+                    type: integer
+                  maskedEmail:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          description: 送信制限を超えました
+
+  /mfa/email/verify:
+    post:
+      tags:
+        - Email
+      operationId: verifyEmailSetup
+      summary: メール認証設定確認
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - challengeId
+                - code
+              properties:
+                challengeId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: 設定完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaMethodEnabled'
+        '400':
+          description: コードが不正または期限切れ
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/webauthn/register/options:
+    post:
+      tags:
+        - WebAuthn
+      operationId: getWebAuthnRegistrationOptions
+      summary: WebAuthn登録オプション取得
+      description: WebAuthn認証器登録のためのオプションを取得します
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authenticatorType:
+                  type: string
+                  enum:
+                    - platform
+                    - cross-platform
+                    - any
+                  default: any
+                  description: 認証器タイプ
+                residentKey:
+                  type: string
+                  enum:
+                    - discouraged
+                    - preferred
+                    - required
+                  default: preferred
+      responses:
+        '200':
+          description: 登録オプション
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnRegistrationOptions'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/webauthn/register/verify:
+    post:
+      tags:
+        - WebAuthn
+      operationId: verifyWebAuthnRegistration
+      summary: WebAuthn登録検証
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebAuthnRegistrationResponse'
+      responses:
+        '200':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnCredential'
+        '400':
+          description: 登録失敗
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/webauthn/credentials:
+    get:
+      tags:
+        - WebAuthn
+      operationId: listWebAuthnCredentials
+      summary: WebAuthn認証器一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 認証器一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebAuthnCredential'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/webauthn/credentials/{credentialId}:
+    parameters:
+      - name: credentialId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - WebAuthn
+      operationId: updateWebAuthnCredential
+      summary: WebAuthn認証器更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnCredential'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - WebAuthn
+      operationId: deleteWebAuthnCredential
+      summary: WebAuthn認証器削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 最後の認証方式は削除できません
+
+  /mfa/backup-codes/generate:
+    post:
+      tags:
+        - Backup Codes
+      operationId: generateBackupCodes
+      summary: バックアップコード生成
+      description: 新しいバックアップコードを生成します（既存のコードは無効化されます）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - verificationCode
+              properties:
+                verificationCode:
+                  type: string
+                  description: 現在のMFA認証コード
+                count:
+                  type: integer
+                  minimum: 6
+                  maximum: 16
+                  default: 10
+      responses:
+        '200':
+          description: バックアップコード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupCodesResponse'
+        '400':
+          description: 認証コードが不正
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/backup-codes/status:
+    get:
+      tags:
+        - Backup Codes
+      operationId: getBackupCodesStatus
+      summary: バックアップコード状況取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: バックアップコード状況
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupCodesStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /mfa/challenge:
+    post:
+      tags:
+        - Verification
+      operationId: createMfaChallenge
+      summary: MFAチャレンジ作成
+      description: ログイン時などにMFA認証チャレンジを作成します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mfaToken
+              properties:
+                mfaToken:
+                  type: string
+                  description: ログイン時に受け取ったMFAトークン
+                method:
+                  type: string
+                  enum:
+                    - totp
+                    - sms
+                    - email
+                    - webauthn
+                    - backup_code
+                  description: 使用するMFA方式
+      responses:
+        '200':
+          description: チャレンジ情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaChallenge'
+        '400':
+          description: 不正なMFAトークン
+
+  /mfa/challenge/send:
+    post:
+      tags:
+        - Verification
+      operationId: sendMfaCode
+      summary: MFAコード送信
+      description: SMSまたはメールでMFAコードを送信します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - challengeId
+              properties:
+                challengeId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: コード送信成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: boolean
+                  maskedDestination:
+                    type: string
+                  retryAfter:
+                    type: integer
+                    description: 再送信可能までの秒数
+        '429':
+          description: 送信制限を超えました
+
+  /mfa/verify:
+    post:
+      tags:
+        - Verification
+      operationId: verifyMfa
+      summary: MFA検証
+      description: MFAコードを検証し、認証を完了します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/TotpVerification'
+                - $ref: '#/components/schemas/SmsEmailVerification'
+                - $ref: '#/components/schemas/WebAuthnVerification'
+                - $ref: '#/components/schemas/BackupCodeVerification'
+      responses:
+        '200':
+          description: 認証成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaVerificationResult'
+        '400':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaError'
+
+  /mfa/webauthn/authenticate/options:
+    post:
+      tags:
+        - WebAuthn
+      operationId: getWebAuthnAuthenticationOptions
+      summary: WebAuthn認証オプション取得
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - challengeId
+              properties:
+                challengeId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: 認証オプション
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnAuthenticationOptions'
+        '400':
+          description: 不正なチャレンジ
+
+  /mfa/recovery:
+    post:
+      tags:
+        - MFA Setup
+      operationId: initMfaRecovery
+      summary: MFAリカバリー開始
+      description: MFA認証器にアクセスできない場合のリカバリーを開始します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: リカバリーメール送信
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: アカウントが見つかりません
+
+  /mfa/recovery/verify:
+    post:
+      tags:
+        - MFA Setup
+      operationId: verifyMfaRecovery
+      summary: MFAリカバリー検証
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - identityVerification
+              properties:
+                token:
+                  type: string
+                  description: リカバリーメールのトークン
+                identityVerification:
+                  type: object
+                  description: 本人確認情報
+                  properties:
+                    dateOfBirth:
+                      type: string
+                      format: date
+                    lastFourDigits:
+                      type: string
+                      pattern: '^\d{4}$'
+                      description: 登録済み支払い方法の下4桁
+      responses:
+        '200':
+          description: リカバリー成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temporaryToken:
+                    type: string
+                    description: MFA再設定用の一時トークン
+                  expiresIn:
+                    type: integer
+        '400':
+          description: 検証失敗
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MfaStatus:
+      type: object
+      required:
+        - enabled
+        - methods
+      properties:
+        enabled:
+          type: boolean
+        enforced:
+          type: boolean
+          description: 組織ポリシーでMFAが強制されているか
+        preferredMethod:
+          type: string
+          enum:
+            - totp
+            - sms
+            - email
+            - webauthn
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/MfaMethod'
+        backupCodesRemaining:
+          type: integer
+
+    MfaMethod:
+      type: object
+      required:
+        - id
+        - type
+        - enabled
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - totp
+            - sms
+            - email
+            - webauthn
+        enabled:
+          type: boolean
+        name:
+          type: string
+          description: ユーザーが付けた名前
+        maskedValue:
+          type: string
+          description: マスクされた電話番号/メール
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    MfaMethodEnabled:
+      type: object
+      required:
+        - method
+        - backupCodes
+      properties:
+        method:
+          $ref: '#/components/schemas/MfaMethod'
+        backupCodes:
+          type: array
+          items:
+            type: string
+          description: 初回設定時のみバックアップコードを返す
+
+    TotpSetupResponse:
+      type: object
+      required:
+        - secret
+        - qrCode
+        - otpauthUri
+      properties:
+        secret:
+          type: string
+          description: Base32エンコードされたシークレット
+        qrCode:
+          type: string
+          description: Base64エンコードされたQRコード画像
+        otpauthUri:
+          type: string
+          format: uri
+          description: otpauth:// URI
+
+    WebAuthnRegistrationOptions:
+      type: object
+      required:
+        - challenge
+        - rp
+        - user
+        - pubKeyCredParams
+      properties:
+        challenge:
+          type: string
+          description: Base64URLエンコードされたチャレンジ
+        rp:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            displayName:
+              type: string
+        pubKeyCredParams:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              alg:
+                type: integer
+        timeout:
+          type: integer
+        excludeCredentials:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+              transports:
+                type: array
+                items:
+                  type: string
+        authenticatorSelection:
+          type: object
+          properties:
+            authenticatorAttachment:
+              type: string
+            residentKey:
+              type: string
+            userVerification:
+              type: string
+        attestation:
+          type: string
+
+    WebAuthnRegistrationResponse:
+      type: object
+      required:
+        - id
+        - rawId
+        - response
+        - type
+      properties:
+        id:
+          type: string
+        rawId:
+          type: string
+        response:
+          type: object
+          properties:
+            clientDataJSON:
+              type: string
+            attestationObject:
+              type: string
+            transports:
+              type: array
+              items:
+                type: string
+        type:
+          type: string
+        name:
+          type: string
+          description: 認証器の名前
+
+    WebAuthnCredential:
+      type: object
+      required:
+        - id
+        - credentialId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        credentialId:
+          type: string
+        name:
+          type: string
+        aaguid:
+          type: string
+          description: 認証器のAAGUID
+        deviceType:
+          type: string
+          enum:
+            - platform
+            - cross-platform
+        transports:
+          type: array
+          items:
+            type: string
+        signCount:
+          type: integer
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    WebAuthnAuthenticationOptions:
+      type: object
+      required:
+        - challenge
+        - allowCredentials
+      properties:
+        challenge:
+          type: string
+        timeout:
+          type: integer
+        rpId:
+          type: string
+        allowCredentials:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+              transports:
+                type: array
+                items:
+                  type: string
+        userVerification:
+          type: string
+
+    BackupCodesResponse:
+      type: object
+      required:
+        - codes
+        - generatedAt
+      properties:
+        codes:
+          type: array
+          items:
+            type: string
+        generatedAt:
+          type: string
+          format: date-time
+        warning:
+          type: string
+          description: 安全に保管するよう警告
+
+    BackupCodesStatus:
+      type: object
+      required:
+        - total
+        - remaining
+      properties:
+        total:
+          type: integer
+        remaining:
+          type: integer
+        usedCodes:
+          type: array
+          items:
+            type: object
+            properties:
+              usedAt:
+                type: string
+                format: date-time
+              ipAddress:
+                type: string
+        generatedAt:
+          type: string
+          format: date-time
+
+    MfaChallenge:
+      type: object
+      required:
+        - challengeId
+        - method
+        - expiresAt
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum:
+            - totp
+            - sms
+            - email
+            - webauthn
+            - backup_code
+        expiresAt:
+          type: string
+          format: date-time
+        maskedDestination:
+          type: string
+          description: SMSまたはメールの場合、マスクされた送信先
+        availableMethods:
+          type: array
+          items:
+            type: string
+          description: 利用可能な他のMFA方式
+
+    TotpVerification:
+      type: object
+      required:
+        - challengeId
+        - method
+        - code
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum:
+            - totp
+        code:
+          type: string
+          pattern: '^\d{6}$'
+
+    SmsEmailVerification:
+      type: object
+      required:
+        - challengeId
+        - method
+        - code
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum:
+            - sms
+            - email
+        code:
+          type: string
+          pattern: '^\d{6}$'
+
+    WebAuthnVerification:
+      type: object
+      required:
+        - challengeId
+        - method
+        - credential
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum:
+            - webauthn
+        credential:
+          type: object
+          required:
+            - id
+            - rawId
+            - response
+            - type
+          properties:
+            id:
+              type: string
+            rawId:
+              type: string
+            response:
+              type: object
+              properties:
+                clientDataJSON:
+                  type: string
+                authenticatorData:
+                  type: string
+                signature:
+                  type: string
+                userHandle:
+                  type: string
+            type:
+              type: string
+
+    BackupCodeVerification:
+      type: object
+      required:
+        - challengeId
+        - method
+        - code
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum:
+            - backup_code
+        code:
+          type: string
+          pattern: '^[A-Z0-9]{8}$'
+
+    MfaVerificationResult:
+      type: object
+      required:
+        - verified
+      properties:
+        verified:
+          type: boolean
+        accessToken:
+          type: string
+          description: 認証成功時のアクセストークン
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        backupCodesRemaining:
+          type: integer
+          description: バックアップコード使用時の残数
+
+    MfaError:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_code
+            - expired_code
+            - invalid_challenge
+            - too_many_attempts
+            - method_not_available
+            - already_configured
+        message:
+          type: string
+        attemptsRemaining:
+          type: integer
+        retryAfter:
+          type: integer
+          description: 秒数
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

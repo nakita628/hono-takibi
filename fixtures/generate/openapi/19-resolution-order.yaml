@@ -1,0 +1,919 @@
+openapi: 3.1.0
+info:
+  title: Reference Resolution Order API
+  version: 1.0.0
+  description: |
+    Tests reference resolution order dependencies:
+    - Forward references (schema defined after it's referenced)
+    - Backward references (schema defined before it's referenced)
+    - Mutual dependencies requiring multi-pass resolution
+    - Deep chains requiring specific resolution order
+    - References that appear to be circular but are not
+paths:
+  /entities:
+    get:
+      operationId: listEntities
+      responses:
+        '200':
+          description: Entities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  # Forward reference - EntityFull defined much later
+                  $ref: '#/components/schemas/EntityFull'
+
+  /process:
+    post:
+      operationId: processData
+      requestBody:
+        content:
+          application/json:
+            schema:
+              # References schema that references schema that references first schema
+              $ref: '#/components/schemas/ProcessRequest'
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessResult'
+
+  /graph:
+    get:
+      operationId: getGraph
+      responses:
+        '200':
+          description: Graph
+          content:
+            application/json:
+              schema:
+                # Complex graph with interdependent nodes
+                $ref: '#/components/schemas/DependencyGraph'
+
+  /transform:
+    post:
+      operationId: transform
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransformPipeline'
+      responses:
+        '200':
+          description: Transformed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransformResult'
+
+components:
+  schemas:
+    # ========================================
+    # Section 1: Forward references
+    # These schemas reference others defined later
+    # ========================================
+
+    # References EntityCore and EntityRelations before they're defined
+    EntityFull:
+      allOf:
+        - $ref: '#/components/schemas/EntityCore'
+        - $ref: '#/components/schemas/EntityRelations'
+        - $ref: '#/components/schemas/EntityMetrics'
+
+    # References EntityDetails before it's defined
+    EntityCore:
+      type: object
+      required:
+        - id
+        - type
+        - details
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/EntityType'
+        details:
+          $ref: '#/components/schemas/EntityDetails'
+        config:
+          $ref: '#/components/schemas/EntityConfig'
+
+    # References EntityLink before it's defined
+    EntityRelations:
+      type: object
+      properties:
+        parent:
+          $ref: '#/components/schemas/EntityLink'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityLink'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/DependencyLink'
+
+    # References MetricDefinition before it's defined
+    EntityMetrics:
+      type: object
+      properties:
+        metrics:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MetricValue'
+        aggregations:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricAggregation'
+
+    # ========================================
+    # Section 2: These are defined "in the middle"
+    # They reference both earlier and later schemas
+    # ========================================
+
+    EntityType:
+      type: string
+      enum:
+        - service
+        - database
+        - cache
+        - queue
+        - gateway
+
+    EntityDetails:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        # Forward reference
+        status:
+          $ref: '#/components/schemas/EntityStatus'
+        # Forward reference
+        health:
+          $ref: '#/components/schemas/HealthStatus'
+        tags:
+          type: array
+          items:
+            # Forward reference
+            $ref: '#/components/schemas/Tag'
+
+    EntityConfig:
+      type: object
+      properties:
+        settings:
+          type: object
+          additionalProperties:
+            # Forward reference
+            $ref: '#/components/schemas/ConfigValue'
+        secrets:
+          type: array
+          items:
+            # Forward reference
+            $ref: '#/components/schemas/SecretReference'
+        environment:
+          # Forward reference
+          $ref: '#/components/schemas/Environment'
+
+    EntityLink:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          # Backward reference
+          $ref: '#/components/schemas/EntityType'
+        # Forward reference
+        metadata:
+          $ref: '#/components/schemas/LinkMetadata'
+
+    DependencyLink:
+      allOf:
+        # Backward reference
+        - $ref: '#/components/schemas/EntityLink'
+        - type: object
+          properties:
+            # Forward reference
+            dependencyType:
+              $ref: '#/components/schemas/DependencyType'
+            # Forward reference
+            criticality:
+              $ref: '#/components/schemas/Criticality'
+
+    MetricValue:
+      type: object
+      properties:
+        value:
+          type: number
+        unit:
+          type: string
+        # Forward reference
+        definition:
+          $ref: '#/components/schemas/MetricDefinition'
+        timestamp:
+          type: string
+          format: date-time
+
+    MetricAggregation:
+      type: object
+      properties:
+        # Forward reference
+        metric:
+          $ref: '#/components/schemas/MetricDefinition'
+        function:
+          type: string
+          enum: [sum, avg, min, max, count, p50, p95, p99]
+        # Forward reference
+        dimensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dimension'
+
+    # ========================================
+    # Section 3: "Late" definitions
+    # These are defined after being referenced
+    # ========================================
+
+    EntityStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+        - maintenance
+        - deprecated
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+        # References something defined even later
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheck'
+        lastChecked:
+          type: string
+          format: date-time
+
+    Tag:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    ConfigValue:
+      oneOf:
+        - type: string
+        - type: number
+        - type: boolean
+        - type: array
+          items:
+            # Self-reference
+            $ref: '#/components/schemas/ConfigValue'
+        - type: object
+          additionalProperties:
+            # Self-reference
+            $ref: '#/components/schemas/ConfigValue'
+
+    SecretReference:
+      type: object
+      required:
+        - name
+        - source
+      properties:
+        name:
+          type: string
+        source:
+          type: string
+        version:
+          type: string
+
+    Environment:
+      type: object
+      properties:
+        name:
+          type: string
+        variables:
+          type: object
+          additionalProperties:
+            type: string
+        # References earlier schema
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecretReference'
+
+    LinkMetadata:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        # Forward reference to even later schema
+        annotations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Annotation'
+
+    DependencyType:
+      type: string
+      enum:
+        - hard
+        - soft
+        - optional
+
+    Criticality:
+      type: string
+      enum:
+        - critical
+        - high
+        - medium
+        - low
+
+    MetricDefinition:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [counter, gauge, histogram, summary]
+        unit:
+          type: string
+        # Forward reference
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Label'
+        # Forward reference
+        thresholds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Threshold'
+
+    Dimension:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        values:
+          type: array
+          items:
+            type: string
+
+    HealthCheck:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pass, fail, warn]
+        message:
+          type: string
+        # References earlier schema
+        metrics:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MetricValue'
+
+    Annotation:
+      type: object
+      properties:
+        value:
+          type: string
+        author:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Label:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        required:
+          type: boolean
+
+    Threshold:
+      type: object
+      properties:
+        level:
+          $ref: '#/components/schemas/Criticality'
+        operator:
+          type: string
+          enum: [lt, lte, gt, gte, eq, ne]
+        value:
+          type: number
+
+    # ========================================
+    # Section 4: Complex interdependent chain
+    # A -> B -> C -> D -> E, but with variations
+    # ========================================
+
+    ProcessRequest:
+      type: object
+      required:
+        - input
+        - pipeline
+      properties:
+        input:
+          $ref: '#/components/schemas/ProcessInput'
+        pipeline:
+          $ref: '#/components/schemas/Pipeline'
+        options:
+          $ref: '#/components/schemas/ProcessOptions'
+
+    ProcessInput:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/InputData'
+        source:
+          $ref: '#/components/schemas/DataSource'
+        validation:
+          $ref: '#/components/schemas/ValidationRules'
+
+    InputData:
+      oneOf:
+        - $ref: '#/components/schemas/StructuredData'
+        - $ref: '#/components/schemas/RawData'
+        - $ref: '#/components/schemas/StreamData'
+
+    StructuredData:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/DataSchema'
+        records:
+          type: array
+          items:
+            type: object
+
+    RawData:
+      type: object
+      properties:
+        format:
+          type: string
+        content:
+          type: string
+        encoding:
+          type: string
+
+    StreamData:
+      type: object
+      properties:
+        topic:
+          type: string
+        partition:
+          type: integer
+        offset:
+          type: integer
+
+    DataSource:
+      type: object
+      properties:
+        type:
+          type: string
+        connection:
+          $ref: '#/components/schemas/ConnectionConfig'
+        credentials:
+          $ref: '#/components/schemas/Credentials'
+
+    ConnectionConfig:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+        database:
+          type: string
+        options:
+          $ref: '#/components/schemas/ConfigValue'
+
+    Credentials:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [basic, token, oauth, certificate]
+        secrets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecretReference'
+
+    ValidationRules:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/DataSchema'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationRule'
+
+    DataSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDefinition'
+        # Nested schema reference
+        nested:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/DataSchema'
+
+    FieldDefinition:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        nullable:
+          type: boolean
+        default:
+          $ref: '#/components/schemas/ConfigValue'
+        validation:
+          $ref: '#/components/schemas/FieldValidation'
+
+    FieldValidation:
+      type: object
+      properties:
+        required:
+          type: boolean
+        pattern:
+          type: string
+        min:
+          type: number
+        max:
+          type: number
+        enum:
+          type: array
+          items:
+            type: string
+
+    ValidationRule:
+      type: object
+      properties:
+        name:
+          type: string
+        condition:
+          $ref: '#/components/schemas/Condition'
+        action:
+          $ref: '#/components/schemas/ValidationAction'
+
+    Condition:
+      oneOf:
+        - $ref: '#/components/schemas/SimpleCondition'
+        - $ref: '#/components/schemas/CompoundCondition'
+
+    SimpleCondition:
+      type: object
+      required:
+        - field
+        - operator
+        - value
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+        value: {}
+
+    CompoundCondition:
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+        not:
+          $ref: '#/components/schemas/Condition'
+
+    ValidationAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [reject, warn, transform, default]
+        message:
+          type: string
+        transform:
+          $ref: '#/components/schemas/Transform'
+
+    Pipeline:
+      type: object
+      required:
+        - stages
+      properties:
+        name:
+          type: string
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelineStage'
+
+    PipelineStage:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        config:
+          $ref: '#/components/schemas/StageConfig'
+        transform:
+          $ref: '#/components/schemas/Transform'
+        # Forward reference to output
+        output:
+          $ref: '#/components/schemas/StageOutput'
+
+    StageConfig:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/ConfigValue'
+
+    Transform:
+      type: object
+      properties:
+        type:
+          type: string
+        expression:
+          type: string
+        mapping:
+          type: object
+          additionalProperties:
+            type: string
+
+    StageOutput:
+      type: object
+      properties:
+        format:
+          type: string
+        schema:
+          $ref: '#/components/schemas/DataSchema'
+        destination:
+          $ref: '#/components/schemas/DataSource'
+
+    ProcessOptions:
+      type: object
+      properties:
+        parallel:
+          type: boolean
+        batchSize:
+          type: integer
+        timeout:
+          type: integer
+        retryPolicy:
+          $ref: '#/components/schemas/RetryPolicy'
+
+    RetryPolicy:
+      type: object
+      properties:
+        maxRetries:
+          type: integer
+        backoff:
+          type: string
+          enum: [fixed, exponential, linear]
+        initialDelay:
+          type: integer
+        maxDelay:
+          type: integer
+
+    ProcessResult:
+      type: object
+      properties:
+        status:
+          type: string
+        output:
+          $ref: '#/components/schemas/StageOutput'
+        metrics:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MetricValue'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessError'
+
+    ProcessError:
+      type: object
+      properties:
+        stage:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+    # ========================================
+    # Section 5: Graph with node interdependencies
+    # ========================================
+
+    DependencyGraph:
+      type: object
+      required:
+        - nodes
+        - edges
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        metadata:
+          $ref: '#/components/schemas/GraphMetadata'
+
+    GraphNode:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        entity:
+          # Back to EntityFull at the top
+          $ref: '#/components/schemas/EntityFull'
+        position:
+          $ref: '#/components/schemas/Position'
+        style:
+          $ref: '#/components/schemas/NodeStyle'
+
+    GraphEdge:
+      type: object
+      required:
+        - source
+        - target
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        target:
+          type: string
+        dependency:
+          $ref: '#/components/schemas/DependencyLink'
+        style:
+          $ref: '#/components/schemas/EdgeStyle'
+
+    GraphMetadata:
+      type: object
+      properties:
+        layout:
+          type: string
+        zoom:
+          type: number
+        viewport:
+          $ref: '#/components/schemas/Viewport'
+
+    Position:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+
+    Viewport:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+
+    NodeStyle:
+      type: object
+      properties:
+        color:
+          type: string
+        shape:
+          type: string
+        size:
+          type: number
+
+    EdgeStyle:
+      type: object
+      properties:
+        color:
+          type: string
+        width:
+          type: number
+        style:
+          type: string
+          enum: [solid, dashed, dotted]
+        animated:
+          type: boolean
+
+    # ========================================
+    # Section 6: Transform pipeline
+    # ========================================
+
+    TransformPipeline:
+      type: object
+      required:
+        - transforms
+      properties:
+        transforms:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransformStep'
+        input:
+          $ref: '#/components/schemas/ProcessInput'
+
+    TransformStep:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        config:
+          $ref: '#/components/schemas/TransformConfig'
+        # References Transform defined earlier
+        transform:
+          $ref: '#/components/schemas/Transform'
+
+    TransformConfig:
+      allOf:
+        - $ref: '#/components/schemas/StageConfig'
+        - type: object
+          properties:
+            errorHandling:
+              $ref: '#/components/schemas/ValidationAction'
+
+    TransformResult:
+      allOf:
+        - $ref: '#/components/schemas/ProcessResult'
+        - type: object
+          properties:
+            transformations:
+              type: array
+              items:
+                type: object
+                properties:
+                  step:
+                    type: string
+                  inputCount:
+                    type: integer
+                  outputCount:
+                    type: integer
+                  duration:
+                    type: integer

@@ -1,0 +1,778 @@
+openapi: 3.1.0
+info:
+  title: Extreme Validation Constraints API
+  version: 1.0.0
+  description: |
+    Tests extreme validation scenarios:
+    - Conflicting constraints
+    - Edge case numeric bounds
+    - Impossible or near-impossible constraints
+    - Deeply nested constraints
+paths:
+  /validate:
+    post:
+      operationId: validateExtreme
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtremeValidation'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    ExtremeValidation:
+      type: object
+      properties:
+        extremeStrings:
+          $ref: '#/components/schemas/ExtremeStrings'
+        extremeNumbers:
+          $ref: '#/components/schemas/ExtremeNumbers'
+        extremeArrays:
+          $ref: '#/components/schemas/ExtremeArrays'
+        extremeObjects:
+          $ref: '#/components/schemas/ExtremeObjects'
+        extremeCompositions:
+          $ref: '#/components/schemas/ExtremeCompositions'
+
+    ExtremeStrings:
+      type: object
+      properties:
+        # Zero length string only
+        emptyOnly:
+          type: string
+          minLength: 0
+          maxLength: 0
+        
+        # Exactly one character
+        singleChar:
+          type: string
+          minLength: 1
+          maxLength: 1
+        
+        # Very long string
+        veryLong:
+          type: string
+          minLength: 1000000
+          maxLength: 10000000
+        
+        # Conflicting pattern and format
+        conflictingPatternFormat:
+          type: string
+          format: email
+          pattern: '^[0-9]+$'
+        
+        # Multiple complex patterns
+        multiPattern:
+          type: string
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+          minLength: 8
+          maxLength: 128
+        
+        # Unicode pattern
+        unicodePattern:
+          type: string
+          pattern: '^[\p{L}\p{N}]+$'
+        
+        # Very complex regex
+        complexRegex:
+          type: string
+          pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$'
+        
+        # Empty pattern
+        emptyPattern:
+          type: string
+          pattern: ''
+        
+        # Pattern that matches nothing
+        impossiblePattern:
+          type: string
+          pattern: '^(?!.*)$'
+        
+        # All formats combined test
+        allFormats:
+          type: object
+          properties:
+            dateTime:
+              type: string
+              format: date-time
+            date:
+              type: string
+              format: date
+            time:
+              type: string
+              format: time
+            duration:
+              type: string
+              format: duration
+            email:
+              type: string
+              format: email
+            idnEmail:
+              type: string
+              format: idn-email
+            hostname:
+              type: string
+              format: hostname
+            idnHostname:
+              type: string
+              format: idn-hostname
+            ipv4:
+              type: string
+              format: ipv4
+            ipv6:
+              type: string
+              format: ipv6
+            uri:
+              type: string
+              format: uri
+            uriReference:
+              type: string
+              format: uri-reference
+            iri:
+              type: string
+              format: iri
+            iriReference:
+              type: string
+              format: iri-reference
+            uriTemplate:
+              type: string
+              format: uri-template
+            jsonPointer:
+              type: string
+              format: json-pointer
+            relativeJsonPointer:
+              type: string
+              format: relative-json-pointer
+            regex:
+              type: string
+              format: regex
+            uuid:
+              type: string
+              format: uuid
+            byte:
+              type: string
+              format: byte
+            binary:
+              type: string
+              format: binary
+            password:
+              type: string
+              format: password
+
+    ExtremeNumbers:
+      type: object
+      properties:
+        # Zero only
+        zeroOnly:
+          type: number
+          minimum: 0
+          maximum: 0
+        
+        # Negative zero edge case
+        negativeZero:
+          type: number
+          minimum: -0
+          maximum: 0
+        
+        # Very small range
+        tinyRange:
+          type: number
+          minimum: 0.0000001
+          maximum: 0.0000002
+        
+        # Huge numbers
+        hugePositive:
+          type: number
+          minimum: 1e308
+        
+        hugeNegative:
+          type: number
+          maximum: -1e308
+        
+        # Very precise multipleOf
+        preciseMultiple:
+          type: number
+          multipleOf: 0.0000000001
+        
+        # Conflicting multipleOf with range
+        conflictingMultiple:
+          type: number
+          minimum: 1
+          maximum: 10
+          multipleOf: 7
+        
+        # Integer with decimal multipleOf
+        integerDecimalMultiple:
+          type: integer
+          multipleOf: 0.5
+        
+        # Exclusive bounds equal to regular bounds
+        exclusiveEdge:
+          type: number
+          minimum: 0
+          exclusiveMinimum: 0
+          maximum: 100
+          exclusiveMaximum: 100
+        
+        # Both exclusive bounds
+        bothExclusive:
+          type: number
+          exclusiveMinimum: 0
+          exclusiveMaximum: 1
+        
+        # Integer formats with constraints
+        int32Bounded:
+          type: integer
+          format: int32
+          minimum: -2147483648
+          maximum: 2147483647
+        
+        int64Bounded:
+          type: integer
+          format: int64
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+        
+        # Float edge cases
+        floatEdge:
+          type: number
+          format: float
+          minimum: 1.17549435e-38
+          maximum: 3.40282347e+38
+        
+        doubleEdge:
+          type: number
+          format: double
+          minimum: 2.2250738585072014e-308
+          maximum: 1.7976931348623157e+308
+
+    ExtremeArrays:
+      type: object
+      properties:
+        # Empty array only
+        emptyOnly:
+          type: array
+          items: {}
+          minItems: 0
+          maxItems: 0
+        
+        # Single item only
+        singleOnly:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 1
+        
+        # Very large array
+        hugeArray:
+          type: array
+          items:
+            type: string
+          minItems: 1000000
+          maxItems: 10000000
+        
+        # Unique items with boolean (only 2 possible values)
+        uniqueBooleans:
+          type: array
+          items:
+            type: boolean
+          uniqueItems: true
+          maxItems: 2
+        
+        # Unique items with enum (limited values)
+        uniqueEnum:
+          type: array
+          items:
+            type: string
+            enum: [a, b, c]
+          uniqueItems: true
+          minItems: 3
+          maxItems: 3
+        
+        # Nested arrays with constraints at each level
+        deeplyNested:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: array
+            minItems: 2
+            maxItems: 4
+            items:
+              type: array
+              minItems: 3
+              maxItems: 5
+              items:
+                type: array
+                minItems: 4
+                maxItems: 6
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 10
+        
+        # Array of arrays with unique items at both levels
+        uniqueNested:
+          type: array
+          uniqueItems: true
+          items:
+            type: array
+            uniqueItems: true
+            items:
+              type: integer
+        
+        # Tuple with many items
+        largeTuple:
+          type: array
+          prefixItems:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: integer
+            - type: string
+            - type: number
+            - type: boolean
+            - type: integer
+            - type: string
+            - type: number
+          items: false
+          minItems: 10
+          maxItems: 10
+        
+        # Tuple with additional items
+        tupleWithAdditional:
+          type: array
+          prefixItems:
+            - type: string
+            - type: number
+          items:
+            type: boolean
+          minItems: 5
+        
+        # Contains constraint
+        containsConstraint:
+          type: array
+          contains:
+            type: object
+            required:
+              - special
+            properties:
+              special:
+                type: boolean
+                const: true
+          minContains: 2
+          maxContains: 5
+          minItems: 10
+
+    ExtremeObjects:
+      type: object
+      properties:
+        # Empty object only
+        emptyOnly:
+          type: object
+          properties: {}
+          additionalProperties: false
+          minProperties: 0
+          maxProperties: 0
+        
+        # Single property only
+        singleProperty:
+          type: object
+          minProperties: 1
+          maxProperties: 1
+          additionalProperties:
+            type: string
+        
+        # Many required properties
+        manyRequired:
+          type: object
+          required:
+            - prop1
+            - prop2
+            - prop3
+            - prop4
+            - prop5
+            - prop6
+            - prop7
+            - prop8
+            - prop9
+            - prop10
+            - prop11
+            - prop12
+            - prop13
+            - prop14
+            - prop15
+            - prop16
+            - prop17
+            - prop18
+            - prop19
+            - prop20
+          properties:
+            prop1:
+              type: string
+            prop2:
+              type: string
+            prop3:
+              type: string
+            prop4:
+              type: string
+            prop5:
+              type: string
+            prop6:
+              type: string
+            prop7:
+              type: string
+            prop8:
+              type: string
+            prop9:
+              type: string
+            prop10:
+              type: string
+            prop11:
+              type: string
+            prop12:
+              type: string
+            prop13:
+              type: string
+            prop14:
+              type: string
+            prop15:
+              type: string
+            prop16:
+              type: string
+            prop17:
+              type: string
+            prop18:
+              type: string
+            prop19:
+              type: string
+            prop20:
+              type: string
+        
+        # Property name pattern
+        patternProperties:
+          type: object
+          patternProperties:
+            '^x-':
+              type: string
+            '^[a-z]+$':
+              type: number
+            '^[A-Z]+$':
+              type: boolean
+            '^_':
+              type: integer
+          additionalProperties: false
+        
+        # Complex dependent required
+        dependentRequired:
+          type: object
+          properties:
+            billing_address:
+              type: string
+            shipping_address:
+              type: string
+            use_same_address:
+              type: boolean
+          dependentRequired:
+            billing_address:
+              - shipping_address
+            shipping_address:
+              - billing_address
+        
+        # Dependent schemas
+        dependentSchemas:
+          type: object
+          properties:
+            credit_card:
+              type: string
+            billing_address:
+              type: string
+          dependentSchemas:
+            credit_card:
+              properties:
+                billing_address:
+                  type: string
+                  minLength: 10
+              required:
+                - billing_address
+        
+        # Property names constraint
+        propertyNames:
+          type: object
+          propertyNames:
+            pattern: '^[a-z][a-zA-Z0-9]*$'
+            minLength: 2
+            maxLength: 20
+          additionalProperties:
+            type: string
+        
+        # Unevaluated properties
+        unevaluatedProps:
+          type: object
+          properties:
+            known:
+              type: string
+          unevaluatedProperties: false
+
+    ExtremeCompositions:
+      type: object
+      properties:
+        # Many items in oneOf
+        manyOneOf:
+          oneOf:
+            - type: string
+              const: type1
+            - type: string
+              const: type2
+            - type: string
+              const: type3
+            - type: string
+              const: type4
+            - type: string
+              const: type5
+            - type: string
+              const: type6
+            - type: string
+              const: type7
+            - type: string
+              const: type8
+            - type: string
+              const: type9
+            - type: string
+              const: type10
+            - type: number
+            - type: boolean
+            - type: array
+              items:
+                type: string
+            - type: object
+            - type: 'null'
+        
+        # Nested oneOf/anyOf/allOf
+        deeplyNestedComposition:
+          allOf:
+            - oneOf:
+                - anyOf:
+                    - allOf:
+                        - type: object
+                          properties:
+                            a:
+                              type: string
+                        - type: object
+                          properties:
+                            b:
+                              type: number
+                    - type: object
+                      properties:
+                        c:
+                          type: boolean
+                - type: object
+                  properties:
+                    d:
+                      type: integer
+            - type: object
+              properties:
+                e:
+                  type: string
+        
+        # Not with complex schema
+        complexNot:
+          allOf:
+            - type: object
+              properties:
+                value:
+                  type: string
+            - not:
+                anyOf:
+                  - type: object
+                    properties:
+                      value:
+                        const: forbidden1
+                  - type: object
+                    properties:
+                      value:
+                        const: forbidden2
+                  - type: object
+                    properties:
+                      value:
+                        pattern: '^bad'
+        
+        # If-then-else chains
+        conditionalChain:
+          type: object
+          if:
+            properties:
+              type:
+                const: A
+          then:
+            properties:
+              valueA:
+                type: string
+            required:
+              - valueA
+          else:
+            if:
+              properties:
+                type:
+                  const: B
+            then:
+              properties:
+                valueB:
+                  type: number
+              required:
+                - valueB
+            else:
+              if:
+                properties:
+                  type:
+                    const: C
+              then:
+                properties:
+                  valueC:
+                    type: boolean
+                required:
+                  - valueC
+              else:
+                properties:
+                  valueDefault:
+                    type: object
+                required:
+                  - valueDefault
+        
+        # Multiple allOf merging same property
+        conflictingAllOf:
+          allOf:
+            - type: object
+              properties:
+                shared:
+                  type: string
+                  minLength: 5
+            - type: object
+              properties:
+                shared:
+                  type: string
+                  maxLength: 10
+            - type: object
+              properties:
+                shared:
+                  type: string
+                  pattern: '^[a-z]+$'
+        
+        # Recursive with constraints
+        recursiveConstrained:
+          type: object
+          properties:
+            value:
+              type: string
+              minLength: 1
+            children:
+              type: array
+              maxItems: 5
+              items:
+                $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained'
+
+    # Enum edge cases
+    EnumEdgeCases:
+      type: object
+      properties:
+        # Single value enum
+        singleEnum:
+          type: string
+          enum:
+            - only_value
+        
+        # Many enum values
+        largeEnum:
+          type: string
+          enum:
+            - value001
+            - value002
+            - value003
+            - value004
+            - value005
+            - value006
+            - value007
+            - value008
+            - value009
+            - value010
+            - value011
+            - value012
+            - value013
+            - value014
+            - value015
+            - value016
+            - value017
+            - value018
+            - value019
+            - value020
+            - value021
+            - value022
+            - value023
+            - value024
+            - value025
+            - value026
+            - value027
+            - value028
+            - value029
+            - value030
+            - value031
+            - value032
+            - value033
+            - value034
+            - value035
+            - value036
+            - value037
+            - value038
+            - value039
+            - value040
+            - value041
+            - value042
+            - value043
+            - value044
+            - value045
+            - value046
+            - value047
+            - value048
+            - value049
+            - value050
+        
+        # Enum with special values
+        specialEnum:
+          enum:
+            - ''
+            - ' '
+            - '  '
+            - null
+            - true
+            - false
+            - 0
+            - -0
+            - 1
+            - -1
+            - 0.0
+            - 1.5
+            - -1.5
+            - 1e10
+            - []
+            - {}
+            - [1, 2, 3]
+            - { "key": "value" }
+        
+        # Const with null
+        constNull:
+          const: null
+        
+        # Const with complex object
+        constComplex:
+          const:
+            nested:
+              deeply:
+                value: 42
+            array:
+              - 1
+              - 2
+              - 3

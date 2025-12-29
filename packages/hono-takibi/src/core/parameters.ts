@@ -66,14 +66,9 @@ export async function parameters(
       if (!p) continue
 
       const schemaName = parameterBaseName(key)
-      const meta = {
-        parameters: {
-          name: p.name,
-          in: p.in,
-          required: p.required,
-        },
-      }
-      const z = zodToOpenAPI(p.schema, meta)
+      const z = zodToOpenAPI(p.schema, {
+        parameters: p,
+      })
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
@@ -113,14 +108,13 @@ export async function parameters(
     .map((key) => {
       const p: Parameter | undefined = params[key]
       const schemaName = parameterBaseName(key)
-      const meta = {
-        parameters: {
-          name: p.name,
-          in: p.in,
-          required: p.required,
-        },
-      }
-      const z = p ? zodToOpenAPI(p.schema, meta) : 'z.any()'
+      const z = p
+        ? zodToOpenAPI(p.schema, {
+            parameters: {
+              ...p,
+            },
+          })
+        : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')

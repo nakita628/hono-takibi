@@ -1,5 +1,5 @@
 import type { Parameter, Ref } from '../../../../../openapi/index.js'
-import { getToSafeIdentifier, refSchema } from '../../../../../utils/index.js'
+import { getToSafeIdentifier, ref } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
@@ -25,40 +25,22 @@ export function params(parameters: readonly Parameter[]): {
       },
       param,
     ) => {
-
-      const isSchemaOrParameterOrHeaderRef = (
-        ref: Ref,
-      ): ref is
-        | `#/components/schemas/${string}`
-        | `#/components/parameters/${string}`
-        | `#/components/headers/${string}` =>
-        ref.startsWith('#/components/schemas/') ||
-        ref.startsWith('#/components/parameters/') ||
-        ref.startsWith('#/components/headers/')
-
       if (param.$ref !== undefined) {
         if (!acc[param.in]) acc[param.in] = {}
-        if (isSchemaOrParameterOrHeaderRef(param.$ref)) {
-          acc[param.in][getToSafeIdentifier(param.name)] = refSchema(param.$ref)
+        if (param.$ref) {
+          acc[param.in][getToSafeIdentifier(param.name)] = ref(param.$ref)
         }
         return acc
       }
 
-      const meta = {
-        parameters: {
-          name: param.name,
-          in: param.in,
-          required: param.required,
-        },
-      }
-
-      const baseSchema = zodToOpenAPI(param.schema, meta)
+      const baseSchema = zodToOpenAPI(param.schema, {
+        parameters: param
+      })
       // Initialize section if it doesn't exist
       if (!acc[param.in]) {
         acc[param.in] = {}
       }
       // queryParameter check
-
       const z =
         param.in === 'query' && param.schema.type === 'number'
           ? `z.coerce.${baseSchema.replace('z.', '')}`

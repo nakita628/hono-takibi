@@ -1,0 +1,1099 @@
+openapi: 3.1.0
+info:
+  title: Social Login & SSO Integration API
+  version: 1.0.0
+  description: |
+    ソーシャルログイン・SSO連携API。
+    Google、GitHub、Microsoft、Apple等のソーシャルプロバイダーとの連携、
+    およびエンタープライズSSO（SAML、OIDC）の設定を提供します。
+
+servers:
+  - url: https://auth.example.com/v1
+    description: Production
+  - url: http://localhost:4000/v1
+    description: Development
+
+tags:
+  - name: Social Auth
+    description: ソーシャルログイン
+  - name: Providers
+    description: プロバイダー管理
+  - name: Account Linking
+    description: アカウント連携
+  - name: Enterprise SSO
+    description: エンタープライズSSO
+
+paths:
+  /social/authorize/{provider}:
+    parameters:
+      - $ref: '#/components/parameters/ProviderParam'
+    get:
+      tags:
+        - Social Auth
+      operationId: socialAuthorize
+      summary: ソーシャル認証開始
+      description: ソーシャルプロバイダーの認証画面にリダイレクト
+      parameters:
+        - name: redirect_uri
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: scope
+          in: query
+          description: 追加のスコープ（カンマ区切り）
+          schema:
+            type: string
+        - name: login_hint
+          in: query
+          description: ログインヒント
+          schema:
+            type: string
+        - name: prompt
+          in: query
+          schema:
+            type: string
+            enum:
+              - none
+              - consent
+              - select_account
+      responses:
+        '302':
+          description: プロバイダーの認証画面にリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: 不正なリクエスト
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /social/callback/{provider}:
+    parameters:
+      - $ref: '#/components/parameters/ProviderParam'
+    get:
+      tags:
+        - Social Auth
+      operationId: socialCallback
+      summary: ソーシャル認証コールバック
+      description: プロバイダーからのコールバックを処理
+      parameters:
+        - name: code
+          in: query
+          description: 認可コード
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: error
+          in: query
+          description: エラーコード
+          schema:
+            type: string
+        - name: error_description
+          in: query
+          schema:
+            type: string
+      responses:
+        '302':
+          description: アプリケーションにリダイレクト
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialAuthError'
+
+  /social/token:
+    post:
+      tags:
+        - Social Auth
+      operationId: exchangeSocialToken
+      summary: ソーシャルトークン交換
+      description: 認可コードをアクセストークンに交換
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - code
+                - redirectUri
+              properties:
+                provider:
+                  type: string
+                code:
+                  type: string
+                redirectUri:
+                  type: string
+                  format: uri
+                codeVerifier:
+                  type: string
+                  description: PKCE用
+      responses:
+        '200':
+          description: 認証成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialAuthResult'
+        '400':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialAuthError'
+
+  /social/token/native:
+    post:
+      tags:
+        - Social Auth
+      operationId: verifyNativeToken
+      summary: ネイティブトークン検証
+      description: モバイルアプリから直接取得したトークンを検証
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - token
+              properties:
+                provider:
+                  type: string
+                token:
+                  type: string
+                  description: ID Token または Access Token
+                tokenType:
+                  type: string
+                  enum:
+                    - id_token
+                    - access_token
+                  default: id_token
+      responses:
+        '200':
+          description: 検証成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialAuthResult'
+        '400':
+          description: 検証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialAuthError'
+
+  /providers:
+    get:
+      tags:
+        - Providers
+      operationId: listProviders
+      summary: 有効なプロバイダー一覧
+      responses:
+        '200':
+          description: プロバイダー一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderInfo'
+
+  /providers/admin:
+    get:
+      tags:
+        - Providers
+      operationId: listAllProviders
+      summary: 全プロバイダー一覧（管理用）
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: プロバイダー一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProviderConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Providers
+      operationId: createProvider
+      summary: プロバイダー追加
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProviderRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderConfig'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /providers/{providerId}:
+    parameters:
+      - name: providerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Providers
+      operationId: getProvider
+      summary: プロバイダー詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: プロバイダー詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Providers
+      operationId: updateProvider
+      summary: プロバイダー更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProviderRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Providers
+      operationId: deleteProvider
+      summary: プロバイダー削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /providers/{providerId}/test:
+    parameters:
+      - name: providerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Providers
+      operationId: testProvider
+      summary: プロバイダー接続テスト
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: テスト結果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  details:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /account/linked:
+    get:
+      tags:
+        - Account Linking
+      operationId: listLinkedAccounts
+      summary: 連携アカウント一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 連携アカウント一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LinkedAccount'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /account/link/{provider}:
+    parameters:
+      - $ref: '#/components/parameters/ProviderParam'
+    post:
+      tags:
+        - Account Linking
+      operationId: linkAccount
+      summary: アカウント連携
+      description: 既存アカウントにソーシャルアカウントを連携
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - redirectUri
+              properties:
+                code:
+                  type: string
+                redirectUri:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: 連携成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkedAccount'
+        '400':
+          description: 連携失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 既に他のアカウントに連携済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Account Linking
+      operationId: unlinkAccount
+      summary: アカウント連携解除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 解除成功
+        '400':
+          description: 解除できません（最後の認証方法など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /enterprise/sso:
+    get:
+      tags:
+        - Enterprise SSO
+      operationId: listEnterpriseSSOConfigs
+      summary: エンタープライズSSO設定一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SSO設定一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnterpriseSSOConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Enterprise SSO
+      operationId: createEnterpriseSSOConfig
+      summary: エンタープライズSSO設定作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnterpriseSSORequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnterpriseSSOConfig'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /enterprise/sso/{configId}:
+    parameters:
+      - name: configId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Enterprise SSO
+      operationId: getEnterpriseSSOConfig
+      summary: エンタープライズSSO設定詳細
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SSO設定詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnterpriseSSOConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+        - Enterprise SSO
+      operationId: updateEnterpriseSSOConfig
+      summary: エンタープライズSSO設定更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnterpriseSSORequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnterpriseSSOConfig'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Enterprise SSO
+      operationId: deleteEnterpriseSSOConfig
+      summary: エンタープライズSSO設定削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /enterprise/sso/domain-lookup:
+    get:
+      tags:
+        - Enterprise SSO
+      operationId: lookupSSOByDomain
+      summary: ドメインからSSO設定を検索
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          schema:
+            type: string
+          example: company.com
+      responses:
+        '200':
+          description: SSO設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnterpriseSSOConfig'
+        '404':
+          description: SSO設定が見つかりません
+
+  /enterprise/sso/{configId}/metadata:
+    parameters:
+      - name: configId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Enterprise SSO
+      operationId: getSPMetadata
+      summary: SPメタデータ取得
+      description: SAML SP メタデータを XML 形式で取得
+      responses:
+        '200':
+          description: SPメタデータ
+          content:
+            application/xml:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ProviderParam:
+      name: provider
+      in: path
+      required: true
+      description: プロバイダー識別子
+      schema:
+        type: string
+        enum:
+          - google
+          - github
+          - microsoft
+          - apple
+          - facebook
+          - twitter
+          - linkedin
+          - slack
+          - discord
+          - custom
+
+  schemas:
+    ProviderInfo:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - enabled
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: 表示名
+        type:
+          type: string
+          enum:
+            - oauth2
+            - oidc
+            - saml
+        enabled:
+          type: boolean
+        icon:
+          type: string
+          format: uri
+        buttonColor:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        buttonTextColor:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+
+    ProviderConfig:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - enabled
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - oauth2
+            - oidc
+            - saml
+        enabled:
+          type: boolean
+        clientId:
+          type: string
+        authorizationUrl:
+          type: string
+          format: uri
+        tokenUrl:
+          type: string
+          format: uri
+        userInfoUrl:
+          type: string
+          format: uri
+        scopes:
+          type: array
+          items:
+            type: string
+        attributeMapping:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            picture:
+              type: string
+        allowedDomains:
+          type: array
+          items:
+            type: string
+          description: 許可するメールドメイン
+        autoCreateUser:
+          type: boolean
+          default: true
+        autoLinkUser:
+          type: boolean
+          default: false
+          description: メールアドレスで既存ユーザーに自動連携
+        icon:
+          type: string
+          format: uri
+        buttonColor:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateProviderRequest:
+      type: object
+      required:
+        - name
+        - type
+        - clientId
+        - clientSecret
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          type: string
+          enum:
+            - oauth2
+            - oidc
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        authorizationUrl:
+          type: string
+          format: uri
+        tokenUrl:
+          type: string
+          format: uri
+        userInfoUrl:
+          type: string
+          format: uri
+        scopes:
+          type: array
+          items:
+            type: string
+        attributeMapping:
+          type: object
+        allowedDomains:
+          type: array
+          items:
+            type: string
+        autoCreateUser:
+          type: boolean
+          default: true
+        autoLinkUser:
+          type: boolean
+          default: false
+        icon:
+          type: string
+          format: uri
+        buttonColor:
+          type: string
+
+    UpdateProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        authorizationUrl:
+          type: string
+          format: uri
+        tokenUrl:
+          type: string
+          format: uri
+        userInfoUrl:
+          type: string
+          format: uri
+        scopes:
+          type: array
+          items:
+            type: string
+        attributeMapping:
+          type: object
+        allowedDomains:
+          type: array
+          items:
+            type: string
+        autoCreateUser:
+          type: boolean
+        autoLinkUser:
+          type: boolean
+
+    SocialAuthResult:
+      type: object
+      required:
+        - user
+        - isNewUser
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+            picture:
+              type: string
+              format: uri
+        isNewUser:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+        provider:
+          type: string
+        providerUserId:
+          type: string
+
+    SocialAuthError:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_request
+            - access_denied
+            - unauthorized_client
+            - invalid_scope
+            - server_error
+            - temporarily_unavailable
+            - invalid_token
+            - email_not_verified
+            - domain_not_allowed
+            - user_exists
+            - linking_failed
+        message:
+          type: string
+        provider:
+          type: string
+
+    LinkedAccount:
+      type: object
+      required:
+        - id
+        - provider
+        - providerUserId
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+        providerUserId:
+          type: string
+        providerEmail:
+          type: string
+          format: email
+        providerName:
+          type: string
+        providerPicture:
+          type: string
+          format: uri
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    EnterpriseSSOConfig:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - domains
+        - enabled
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: 組織名
+        type:
+          type: string
+          enum:
+            - saml
+            - oidc
+        domains:
+          type: array
+          items:
+            type: string
+          description: 関連付けられたメールドメイン
+        enabled:
+          type: boolean
+        samlConfig:
+          $ref: '#/components/schemas/SAMLConfig'
+        oidcConfig:
+          $ref: '#/components/schemas/OIDCConfig'
+        userProvisioning:
+          type: object
+          properties:
+            autoCreate:
+              type: boolean
+            autoUpdate:
+              type: boolean
+            defaultRole:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SAMLConfig:
+      type: object
+      properties:
+        entityId:
+          type: string
+          description: IdP Entity ID
+        ssoUrl:
+          type: string
+          format: uri
+          description: IdP SSO URL
+        sloUrl:
+          type: string
+          format: uri
+          description: IdP SLO URL
+        certificate:
+          type: string
+          description: IdP 証明書（PEM形式）
+        signRequest:
+          type: boolean
+        signatureAlgorithm:
+          type: string
+          enum:
+            - RSA-SHA256
+            - RSA-SHA512
+        digestAlgorithm:
+          type: string
+          enum:
+            - SHA256
+            - SHA512
+        nameIdFormat:
+          type: string
+        attributeMapping:
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            groups:
+              type: string
+
+    OIDCConfig:
+      type: object
+      properties:
+        issuer:
+          type: string
+          format: uri
+        clientId:
+          type: string
+        authorizationEndpoint:
+          type: string
+          format: uri
+        tokenEndpoint:
+          type: string
+          format: uri
+        userInfoEndpoint:
+          type: string
+          format: uri
+        jwksUri:
+          type: string
+          format: uri
+        scopes:
+          type: array
+          items:
+            type: string
+        attributeMapping:
+          type: object
+
+    CreateEnterpriseSSORequest:
+      type: object
+      required:
+        - name
+        - type
+        - domains
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        type:
+          type: string
+          enum:
+            - saml
+            - oidc
+        domains:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        samlConfig:
+          $ref: '#/components/schemas/SAMLConfig'
+        oidcConfig:
+          $ref: '#/components/schemas/OIDCConfig'
+        userProvisioning:
+          type: object
+
+    UpdateEnterpriseSSORequest:
+      type: object
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
+        domains:
+          type: array
+          items:
+            type: string
+        samlConfig:
+          $ref: '#/components/schemas/SAMLConfig'
+        oidcConfig:
+          $ref: '#/components/schemas/OIDCConfig'
+        userProvisioning:
+          type: object
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

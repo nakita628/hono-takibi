@@ -1,0 +1,890 @@
+openapi: 3.1.0
+info:
+  title: Edge Cases API
+  version: 1.0.0
+  description: API with edge cases and corner cases for testing code generators
+paths:
+  # Empty path item
+  /empty:
+    description: Path with no operations
+
+  # All HTTP methods
+  /all-methods:
+    get:
+      operationId: getAllMethods
+      responses:
+        '200':
+          description: GET response
+    post:
+      operationId: postAllMethods
+      responses:
+        '200':
+          description: POST response
+    put:
+      operationId: putAllMethods
+      responses:
+        '200':
+          description: PUT response
+    delete:
+      operationId: deleteAllMethods
+      responses:
+        '200':
+          description: DELETE response
+    patch:
+      operationId: patchAllMethods
+      responses:
+        '200':
+          description: PATCH response
+    options:
+      operationId: optionsAllMethods
+      responses:
+        '200':
+          description: OPTIONS response
+    head:
+      operationId: headAllMethods
+      responses:
+        '200':
+          description: HEAD response
+    trace:
+      operationId: traceAllMethods
+      responses:
+        '200':
+          description: TRACE response
+
+  # Complex path parameters
+  /users/{userId}/posts/{postId}/comments/{commentId}:
+    get:
+      operationId: getNestedResource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Nested resource
+
+  # All parameter locations
+  /params-test/{pathParam}:
+    get:
+      operationId: testAllParamLocations
+      parameters:
+        - name: pathParam
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: queryParam
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: X-Header-Param
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: session_id
+          in: cookie
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  # Empty response body
+  /no-content:
+    post:
+      operationId: createNoContent
+      responses:
+        '204':
+          description: No content
+
+  # Multiple content types
+  /multi-content:
+    get:
+      operationId: getMultiContent
+      responses:
+        '200':
+          description: Multiple content types
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataJson'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DataXml'
+            text/plain:
+              schema:
+                type: string
+            text/csv:
+              schema:
+                type: string
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+    post:
+      operationId: postMultiContent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataJson'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                metadata:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                field1:
+                  type: string
+                field2:
+                  type: string
+      responses:
+        '201':
+          description: Created
+
+  # Response range codes
+  /response-ranges:
+    get:
+      operationId: getResponseRanges
+      responses:
+        '200':
+          description: Success
+        '201':
+          description: Created
+        '202':
+          description: Accepted
+        '204':
+          description: No content
+        '301':
+          description: Moved permanently
+        '302':
+          description: Found
+        '304':
+          description: Not modified
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '405':
+          description: Method not allowed
+        '409':
+          description: Conflict
+        '410':
+          description: Gone
+        '412':
+          description: Precondition failed
+        '415':
+          description: Unsupported media type
+        '422':
+          description: Unprocessable entity
+        '429':
+          description: Too many requests
+        '500':
+          description: Internal server error
+        '502':
+          description: Bad gateway
+        '503':
+          description: Service unavailable
+        '504':
+          description: Gateway timeout
+        default:
+          description: Unexpected error
+
+  # Deprecated operation
+  /deprecated:
+    get:
+      operationId: getDeprecated
+      deprecated: true
+      summary: This operation is deprecated
+      responses:
+        '200':
+          description: Success
+
+  # No operationId (should be auto-generated)
+  /no-operation-id:
+    get:
+      summary: Operation without operationId
+      responses:
+        '200':
+          description: Success
+
+  # Empty request body
+  /empty-body:
+    post:
+      operationId: postEmptyBody
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Success
+
+  # Circular reference test
+  /circular:
+    get:
+      operationId: getCircular
+      responses:
+        '200':
+          description: Circular reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeNode'
+
+  # Deep nesting
+  /deep-nesting:
+    get:
+      operationId: getDeepNesting
+      responses:
+        '200':
+          description: Deeply nested structure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepNested'
+
+  # Array parameters
+  /array-params:
+    get:
+      operationId: getWithArrayParams
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - name: tags
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+        - name: values
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+          style: pipeDelimited
+        - name: coords
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+          style: spaceDelimited
+      responses:
+        '200':
+          description: Success
+
+  # Object parameter in query
+  /object-param:
+    get:
+      operationId: getWithObjectParam
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              minPrice:
+                type: number
+              maxPrice:
+                type: number
+          style: deepObject
+          explode: true
+      responses:
+        '200':
+          description: Success
+
+components:
+  schemas:
+    # Empty object
+    EmptyObject:
+      type: object
+
+    # Object with no properties (free-form)
+    FreeFormObject:
+      type: object
+      additionalProperties: true
+
+    # Strict additional properties
+    StrictObject:
+      type: object
+      properties:
+        known:
+          type: string
+      additionalProperties: false
+
+    # Typed additional properties
+    TypedAdditionalProps:
+      type: object
+      properties:
+        id:
+          type: string
+      additionalProperties:
+        type: integer
+
+    # Complex additional properties
+    ComplexAdditionalProps:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          value:
+            type: string
+          count:
+            type: integer
+
+    # All primitive types
+    AllPrimitives:
+      type: object
+      properties:
+        stringProp:
+          type: string
+        numberProp:
+          type: number
+        integerProp:
+          type: integer
+        booleanProp:
+          type: boolean
+        nullProp:
+          type: 'null'
+
+    # All string formats
+    AllStringFormats:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        uuid:
+          type: string
+          format: uuid
+        uri:
+          type: string
+          format: uri
+        date:
+          type: string
+          format: date
+        time:
+          type: string
+          format: time
+        dateTime:
+          type: string
+          format: date-time
+        duration:
+          type: string
+          format: duration
+        binary:
+          type: string
+          format: binary
+        base64:
+          type: string
+          format: base64
+        ipv4:
+          type: string
+          format: ipv4
+        ipv6:
+          type: string
+          format: ipv6
+        jwt:
+          type: string
+          format: jwt
+
+    # All number formats
+    AllNumberFormats:
+      type: object
+      properties:
+        int32:
+          type: integer
+          format: int32
+        int64:
+          type: integer
+          format: int64
+        float:
+          type: number
+          format: float
+        double:
+          type: number
+          format: double
+        float32:
+          type: number
+          format: float32
+        float64:
+          type: number
+          format: float64
+
+    # All validation keywords
+    AllValidations:
+      type: object
+      properties:
+        minMaxString:
+          type: string
+          minLength: 1
+          maxLength: 100
+        patternString:
+          type: string
+          pattern: '^[a-z]+$'
+        minMaxNumber:
+          type: number
+          minimum: 0
+          maximum: 100
+        exclusiveMinMax:
+          type: number
+          exclusiveMinimum: 0
+          exclusiveMaximum: 100
+        multipleOf:
+          type: number
+          multipleOf: 0.5
+        minMaxItems:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 10
+        uniqueItems:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+
+    # Enum variations
+    StringEnum:
+      type: string
+      enum:
+        - value1
+        - value2
+        - value3
+
+    IntegerEnum:
+      type: integer
+      enum:
+        - 1
+        - 2
+        - 3
+
+    MixedEnum:
+      enum:
+        - string_value
+        - 123
+        - true
+        - null
+
+    # Const value
+    ConstValue:
+      type: object
+      properties:
+        type:
+          type: string
+          const: fixed_type
+        version:
+          type: integer
+          const: 1
+
+    # Nullable variations
+    NullableString:
+      type:
+        - string
+        - 'null'
+
+    NullableObject:
+      type:
+        - object
+        - 'null'
+      properties:
+        name:
+          type: string
+
+    # Default values
+    WithDefaults:
+      type: object
+      properties:
+        status:
+          type: string
+          default: active
+        count:
+          type: integer
+          default: 0
+        enabled:
+          type: boolean
+          default: true
+        tags:
+          type: array
+          items:
+            type: string
+          default: []
+
+    # Read/write only
+    ReadWriteOnly:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        password:
+          type: string
+          writeOnly: true
+        name:
+          type: string
+
+    # Circular reference (self-referencing)
+    TreeNode:
+      type: object
+      properties:
+        value:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreeNode'
+        parent:
+          $ref: '#/components/schemas/TreeNode'
+
+    # Mutual circular reference
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        company:
+          $ref: '#/components/schemas/Company'
+
+    Company:
+      type: object
+      properties:
+        name:
+          type: string
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+
+    # Deeply nested
+    DeepNested:
+      type: object
+      properties:
+        level1:
+          type: object
+          properties:
+            level2:
+              type: object
+              properties:
+                level3:
+                  type: object
+                  properties:
+                    level4:
+                      type: object
+                      properties:
+                        level5:
+                          type: object
+                          properties:
+                            value:
+                              type: string
+
+    # Array of arrays
+    MatrixData:
+      type: array
+      items:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+
+    # Tuple-like array
+    Coordinate:
+      type: array
+      items:
+        - type: number
+        - type: number
+        - type: number
+      minItems: 3
+      maxItems: 3
+
+    # Complex oneOf/anyOf
+    ComplexUnion:
+      oneOf:
+        - type: string
+        - type: number
+        - type: array
+          items:
+            type: string
+        - type: object
+          properties:
+            key:
+              type: string
+
+    # allOf with conflicting properties (edge case)
+    MergedSchema:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+
+    # Single value enum
+    SingleValueEnum:
+      type: string
+      enum:
+        - only_value
+
+    DataJson:
+      type: object
+      properties:
+        data:
+          type: object
+
+    DataXml:
+      type: object
+      properties:
+        data:
+          type: string
+      xml:
+        name: data
+        namespace: http://example.com/schema
+
+    # Special characters in property names
+    SpecialPropertyNames:
+      type: object
+      properties:
+        normal_name:
+          type: string
+        kebab-case:
+          type: string
+        with.dots:
+          type: string
+        '@special':
+          type: string
+        '$dollar':
+          type: string
+
+    # Unicode property names
+    UnicodeProperties:
+      type: object
+      properties:
+        名前:
+          type: string
+        prénom:
+          type: string
+        имя:
+          type: string
+
+  parameters:
+    # Required vs optional
+    RequiredParam:
+      name: required
+      in: query
+      required: true
+      schema:
+        type: string
+
+    OptionalParam:
+      name: optional
+      in: query
+      required: false
+      schema:
+        type: string
+
+    # Deprecated parameter
+    DeprecatedParam:
+      name: deprecated
+      in: query
+      deprecated: true
+      schema:
+        type: string
+
+    # Allow empty value
+    AllowEmptyParam:
+      name: allowEmpty
+      in: query
+      allowEmptyValue: true
+      schema:
+        type: string
+
+  responses:
+    # Response with no content
+    NoContent:
+      description: No content response
+
+    # Response with only headers
+    HeadersOnly:
+      description: Response with headers only
+      headers:
+        X-Custom-Header:
+          schema:
+            type: string
+        X-Another-Header:
+          schema:
+            type: integer
+
+  examples:
+    # Null example
+    NullExample:
+      summary: Null value example
+      value: null
+
+    # Empty object example
+    EmptyObjectExample:
+      summary: Empty object
+      value: {}
+
+    # Empty array example
+    EmptyArrayExample:
+      summary: Empty array
+      value: []
+
+    # Complex nested example
+    ComplexExample:
+      summary: Complex nested structure
+      value:
+        users:
+          - id: 1
+            name: Alice
+            roles:
+              - admin
+              - user
+            metadata:
+              lastLogin: '2024-01-15T10:30:00Z'
+              preferences:
+                theme: dark
+                notifications: true
+          - id: 2
+            name: Bob
+            roles:
+              - user
+            metadata: null
+
+  headers:
+    # All header types
+    StringHeader:
+      schema:
+        type: string
+    IntegerHeader:
+      schema:
+        type: integer
+    BooleanHeader:
+      schema:
+        type: boolean
+    ArrayHeader:
+      schema:
+        type: array
+        items:
+          type: string
+
+  securitySchemes:
+    # All security scheme types
+    apiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+
+    apiKeyCookie:
+      type: apiKey
+      in: cookie
+      name: session
+
+    basicAuth:
+      type: http
+      scheme: basic
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    digestAuth:
+      type: http
+      scheme: digest
+
+    oauth2Implicit:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth/authorize
+          scopes:
+            read: Read access
+            write: Write access
+
+    oauth2AuthCode:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Read access
+
+    oauth2ClientCreds:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            admin: Admin access
+
+    openIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration

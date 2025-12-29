@@ -1,0 +1,1173 @@
+openapi: 3.1.0
+info:
+  title: File Storage API
+  version: 1.0.0
+  description: |
+    クラウドファイルストレージAPI。
+    ファイルアップロード、フォルダ管理、共有、バージョン管理などの機能を提供します。
+
+servers:
+  - url: https://api.storage.example.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Development
+
+tags:
+  - name: Files
+    description: ファイル操作
+  - name: Folders
+    description: フォルダ管理
+  - name: Sharing
+    description: 共有管理
+  - name: Versions
+    description: バージョン管理
+  - name: Trash
+    description: ゴミ箱
+
+paths:
+  /files:
+    get:
+      tags:
+        - Files
+      operationId: listFiles
+      summary: ファイル一覧取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: folderId
+          in: query
+          description: フォルダID（指定しない場合はルート）
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          description: ファイル名検索
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: ファイルタイプでフィルタ
+          schema:
+            type: string
+            enum:
+              - document
+              - image
+              - video
+              - audio
+              - archive
+              - other
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - name:asc
+              - name:desc
+              - size:asc
+              - size:desc
+              - updatedAt:desc
+              - updatedAt:asc
+            default: name:asc
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: ファイル一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/upload:
+    post:
+      tags:
+        - Files
+      operationId: uploadFile
+      summary: ファイルアップロード
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                folderId:
+                  type: string
+                  format: uuid
+                  description: アップロード先フォルダ
+                name:
+                  type: string
+                  description: ファイル名（省略時は元のファイル名）
+                overwrite:
+                  type: boolean
+                  default: false
+                  description: 同名ファイルを上書きするか
+      responses:
+        '201':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 同名ファイルが存在します
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: ファイルサイズが上限を超えています
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/upload/multipart/init:
+    post:
+      tags:
+        - Files
+      operationId: initMultipartUpload
+      summary: マルチパートアップロード開始
+      description: 大容量ファイルの分割アップロードを開始します
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - filename
+                - size
+              properties:
+                filename:
+                  type: string
+                size:
+                  type: integer
+                  description: ファイルサイズ（バイト）
+                folderId:
+                  type: string
+                  format: uuid
+                contentType:
+                  type: string
+      responses:
+        '200':
+          description: アップロードセッション作成
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadId:
+                    type: string
+                  partSize:
+                    type: integer
+                    description: 推奨パートサイズ
+                  partCount:
+                    type: integer
+                    description: 必要なパート数
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/upload/multipart/{uploadId}/part:
+    parameters:
+      - name: uploadId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Files
+      operationId: uploadPart
+      summary: パートアップロード
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: partNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: パートアップロード成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  partNumber:
+                    type: integer
+                  etag:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/upload/multipart/{uploadId}/complete:
+    parameters:
+      - name: uploadId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Files
+      operationId: completeMultipartUpload
+      summary: マルチパートアップロード完了
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - parts
+              properties:
+                parts:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - partNumber
+                      - etag
+                    properties:
+                      partNumber:
+                        type: integer
+                      etag:
+                        type: string
+      responses:
+        '201':
+          description: アップロード完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Files
+      operationId: getFile
+      summary: ファイル情報取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ファイル情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Files
+      operationId: updateFile
+      summary: ファイル情報更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Files
+      operationId: deleteFile
+      summary: ファイル削除（ゴミ箱へ移動）
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/download:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Files
+      operationId: downloadFile
+      summary: ファイルダウンロード
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ファイルコンテンツ
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+            Content-Type:
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /files/{fileId}/download-url:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Files
+      operationId: getDownloadUrl
+      summary: 署名付きダウンロードURL取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: expiresIn
+          in: query
+          description: 有効期限（秒）
+          schema:
+            type: integer
+            minimum: 60
+            maximum: 86400
+            default: 3600
+      responses:
+        '200':
+          description: ダウンロードURL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                  expiresAt:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/copy:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    post:
+      tags:
+        - Files
+      operationId: copyFile
+      summary: ファイルコピー
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - destinationFolderId
+              properties:
+                destinationFolderId:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                  description: 新しいファイル名
+      responses:
+        '201':
+          description: コピー成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/move:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    post:
+      tags:
+        - Files
+      operationId: moveFile
+      summary: ファイル移動
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - destinationFolderId
+              properties:
+                destinationFolderId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: 移動成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/thumbnail:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Files
+      operationId: getFileThumbnail
+      summary: サムネイル取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: size
+          in: query
+          schema:
+            type: string
+            enum:
+              - small
+              - medium
+              - large
+            default: medium
+      responses:
+        '200':
+          description: サムネイル画像
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /folders:
+    post:
+      tags:
+        - Folders
+      operationId: createFolder
+      summary: フォルダ作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /folders/{folderId}:
+    parameters:
+      - $ref: '#/components/parameters/FolderIdParam'
+    get:
+      tags:
+        - Folders
+      operationId: getFolder
+      summary: フォルダ情報取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: フォルダ情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Folders
+      operationId: updateFolder
+      summary: フォルダ情報更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+                  pattern: '^#[0-9A-Fa-f]{6}$'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Folders
+      operationId: deleteFolder
+      summary: フォルダ削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/share:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Sharing
+      operationId: getFileSharing
+      summary: 共有設定取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 共有設定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Sharing
+      operationId: shareFile
+      summary: ファイル共有
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareRequest'
+      responses:
+        '200':
+          description: 共有成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Sharing
+      operationId: unshareFile
+      summary: 共有解除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 解除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/share/link:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    post:
+      tags:
+        - Sharing
+      operationId: createShareLink
+      summary: 共有リンク作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: パスワード保護
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: 有効期限
+                allowDownload:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: リンク作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLink'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/versions:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    get:
+      tags:
+        - Versions
+      operationId: listFileVersions
+      summary: バージョン一覧取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: バージョン一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileVersion'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /files/{fileId}/versions/{versionId}/restore:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - Versions
+      operationId: restoreFileVersion
+      summary: バージョン復元
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 復元成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /trash:
+    get:
+      tags:
+        - Trash
+      operationId: listTrash
+      summary: ゴミ箱一覧取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: ゴミ箱一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Trash
+      operationId: emptyTrash
+      summary: ゴミ箱を空にする
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /trash/{fileId}/restore:
+    parameters:
+      - $ref: '#/components/parameters/FileIdParam'
+    post:
+      tags:
+        - Trash
+      operationId: restoreFromTrash
+      summary: ゴミ箱から復元
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 復元成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /storage/usage:
+    get:
+      tags:
+        - Files
+      operationId: getStorageUsage
+      summary: ストレージ使用量取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: ストレージ使用量
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageUsage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FileIdParam:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    FolderIdParam:
+      name: folderId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+
+  schemas:
+    File:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - size
+        - mimeType
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - document
+            - image
+            - video
+            - audio
+            - archive
+            - other
+        size:
+          type: integer
+          description: ファイルサイズ（バイト）
+        mimeType:
+          type: string
+        extension:
+          type: string
+        folderId:
+          type: string
+          format: uuid
+        path:
+          type: string
+          description: フルパス
+        thumbnailUrl:
+          type: string
+          format: uri
+        downloadUrl:
+          type: string
+          format: uri
+        isShared:
+          type: boolean
+        isFavorite:
+          type: boolean
+        version:
+          type: integer
+        owner:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+
+    Folder:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+        parentId:
+          type: string
+          format: uuid
+        path:
+          type: string
+        fileCount:
+          type: integer
+        folderCount:
+          type: integer
+        size:
+          type: integer
+          description: 総サイズ（バイト）
+        isShared:
+          type: boolean
+        owner:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatarUrl:
+          type: string
+          format: uri
+
+    ShareSettings:
+      type: object
+      properties:
+        isPublic:
+          type: boolean
+        publicLink:
+          $ref: '#/components/schemas/ShareLink'
+        collaborators:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collaborator'
+
+    ShareLink:
+      type: object
+      required:
+        - url
+        - createdAt
+      properties:
+        url:
+          type: string
+          format: uri
+        password:
+          type: boolean
+          description: パスワード保護されているか
+        expiresAt:
+          type: string
+          format: date-time
+        allowDownload:
+          type: boolean
+        viewCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    Collaborator:
+      type: object
+      required:
+        - user
+        - permission
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        permission:
+          type: string
+          enum:
+            - viewer
+            - editor
+            - owner
+        addedAt:
+          type: string
+          format: date-time
+
+    ShareRequest:
+      type: object
+      properties:
+        collaborators:
+          type: array
+          items:
+            type: object
+            required:
+              - email
+              - permission
+            properties:
+              email:
+                type: string
+                format: email
+              permission:
+                type: string
+                enum:
+                  - viewer
+                  - editor
+        message:
+          type: string
+          description: 招待メッセージ
+        notifyByEmail:
+          type: boolean
+          default: true
+
+    FileVersion:
+      type: object
+      required:
+        - id
+        - version
+        - size
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        size:
+          type: integer
+        modifiedBy:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateFolderRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        parentId:
+          type: string
+          format: uuid
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+
+    StorageUsage:
+      type: object
+      required:
+        - used
+        - total
+      properties:
+        used:
+          type: integer
+          description: 使用量（バイト）
+        total:
+          type: integer
+          description: 上限（バイト）
+        percentage:
+          type: number
+          description: 使用率（%）
+        breakdown:
+          type: object
+          properties:
+            documents:
+              type: integer
+            images:
+              type: integer
+            videos:
+              type: integer
+            audio:
+              type: integer
+            archives:
+              type: integer
+            other:
+              type: integer
+            trash:
+              type: integer
+
+    FileListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/File'
+              - $ref: '#/components/schemas/Folder'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

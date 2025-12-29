@@ -13,7 +13,7 @@ import {
   normalizeTypes,
   parseCli,
   parseConfig,
-  refSchema,
+  ref,
   regex,
   registerComponent,
   requestParamsArray,
@@ -546,15 +546,15 @@ describe('utils', () => {
     })
   })
   // refName
-  describe('refSchema', () => {
-    it.concurrent(`refSchema('#/components/schemas/Test') -> 'TestSchema'`, () => {
-      expect(refSchema('#/components/schemas/Test')).toBe('TestSchema')
+  describe('ref', () => {
+    it.concurrent(`ref('#/components/schemas/Test') -> 'TestSchema'`, () => {
+      expect(ref('#/components/schemas/Test')).toBe('TestSchema')
     })
-    it.concurrent(`refSchema('#/components/parameters/Test') -> 'TestParamsSchema'`, () => {
-      expect(refSchema('#/components/parameters/Test')).toBe('TestParamsSchema')
+    it.concurrent(`ref('#/components/parameters/Test') -> 'TestParamsSchema'`, () => {
+      expect(ref('#/components/parameters/Test')).toBe('TestParamsSchema')
     })
-    it.concurrent(`refSchema('#/components/headers/Test') -> 'TestHeaderSchema'`, () => {
-      expect(refSchema('#/components/headers/Test')).toBe('TestHeaderSchema')
+    it.concurrent(`ref('#/components/headers/Test') -> 'TestHeaderSchema'`, () => {
+      expect(ref('#/components/headers/Test')).toBe('TestHeaderSchema')
     })
   })
   // methodPath

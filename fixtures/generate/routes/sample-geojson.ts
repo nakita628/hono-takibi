@@ -1,10 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const ErrorSchema = z
-  .object({ message: z.string().optional().openapi({ type: 'string' }) })
-  .optional()
-  .openapi({ type: 'object', properties: { message: { type: 'string' } } })
-  .openapi('Error')
+  .object({ message: z.string().openapi({ type: 'string' }) })
+  .openapi({ type: 'object', properties: { message: { type: 'string' } }, required: ['message'] })
 
 const PositionSchema = z
   .array(z.number().optional().openapi({ type: 'number' }))
@@ -20,7 +18,6 @@ const PositionSchema = z
     maxItems: 3,
     items: { type: 'number' },
   })
-  .openapi('Position')
 
 const GeoJsonObjectSchema = z
   .object({
@@ -36,7 +33,6 @@ const GeoJsonObjectSchema = z
         'MultiPolygon',
         'GeometryCollection',
       ])
-      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -61,7 +57,6 @@ const GeoJsonObjectSchema = z
         items: { type: 'number' },
       }),
   })
-  .optional()
   .openapi({
     description:
       'GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n',
@@ -89,8 +84,9 @@ const GeoJsonObjectSchema = z
         items: { type: 'number' },
       },
     },
+    required: ['type'],
+    discriminator: { propertyName: 'type' },
   })
-  .openapi('GeoJsonObject')
 
 const GeometrySchema = z
   .intersection(
@@ -107,7 +103,6 @@ const GeometrySchema = z
             'MultiPolygon',
             'GeometryCollection',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -121,7 +116,6 @@ const GeometrySchema = z
             ],
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -138,6 +132,8 @@ const GeometrySchema = z
             ],
           },
         },
+        required: ['type'],
+        discriminator: { propertyName: 'type' },
       }),
   )
   .optional()
@@ -167,7 +163,6 @@ const GeometrySchema = z
       },
     ],
   })
-  .openapi('Geometry')
 
 const GeometryElementSchema = z
   .intersection(
@@ -176,7 +171,6 @@ const GeometryElementSchema = z
       .object({
         type: z
           .enum(['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -189,7 +183,6 @@ const GeometryElementSchema = z
             ],
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -205,6 +198,8 @@ const GeometryElementSchema = z
             ],
           },
         },
+        required: ['type'],
+        discriminator: { propertyName: 'type' },
       }),
   )
   .optional()
@@ -234,22 +229,18 @@ const GeometryElementSchema = z
       },
     ],
   })
-  .openapi('GeometryElement')
 
 const PointSchema = z
   .intersection(
     GeometryElementSchema,
     z
       .object({
-        type: z
-          .literal('Point')
-          .optional()
-          .openapi({ type: 'string', enum: ['Point'] }),
+        type: z.literal('Point').openapi({ type: 'string', enum: ['Point'] }),
         coordinates: PositionSchema,
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['type', 'coordinates'],
         properties: {
           type: { type: 'string', enum: ['Point'] },
           coordinates: { $ref: '#/components/schemas/Position' },
@@ -272,7 +263,6 @@ const PointSchema = z
       },
     ],
   })
-  .openapi('Point')
 
 const LinearRingSchema = z
   .array(PositionSchema)
@@ -286,7 +276,6 @@ const LinearRingSchema = z
     items: { $ref: '#/components/schemas/Position' },
     minItems: 4,
   })
-  .openapi('LinearRing')
 
 const PolygonSchema = z
   .intersection(
@@ -295,12 +284,11 @@ const PolygonSchema = z
       .object({
         coordinates: z
           .array(LinearRingSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['coordinates'],
         properties: {
           coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
         },
@@ -321,7 +309,6 @@ const PolygonSchema = z
       },
     ],
   })
-  .openapi('Polygon')
 
 const MultiPolygonSchema = z
   .intersection(
@@ -332,7 +319,6 @@ const MultiPolygonSchema = z
           .array(
             z
               .array(LinearRingSchema)
-              .optional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
           )
           .optional()
@@ -341,9 +327,9 @@ const MultiPolygonSchema = z
             items: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['coordinates'],
         properties: {
           coordinates: {
             type: 'array',
@@ -370,11 +356,10 @@ const MultiPolygonSchema = z
       },
     ],
   })
-  .openapi('MultiPolygon')
 
 const ProjectSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid', description: 'Project ID' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid', description: 'Project ID' }),
     polygon: z
       .union([MultiPolygonSchema, PolygonSchema])
       .optional()
@@ -385,21 +370,21 @@ const ProjectSchema = z
         ],
         description: 'Site polygon',
       }),
-    centre: PointSchema.optional().openapi({ description: 'Site center coordinates' }),
+    centre: PointSchema.optional().openapi({
+      $ref: '#/components/schemas/Point',
+      description: 'Site center coordinates',
+    }),
     createdAt: z.iso
       .datetime()
-      .optional()
       .openapi({ type: 'string', format: 'date-time', description: 'Site creation date and time' }),
     updatedAt: z.iso
       .datetime()
-      .optional()
       .openapi({
         type: 'string',
         format: 'date-time',
         description: 'Site last updated date and time',
       }),
   })
-  .optional()
   .openapi({
     type: 'object',
     properties: {
@@ -423,8 +408,8 @@ const ProjectSchema = z
         description: 'Site last updated date and time',
       },
     },
+    required: ['id', 'geojson', 'createdAt', 'updatedAt'],
   })
-  .openapi('Project')
 
 const FeatureSchema = z
   .intersection(
@@ -432,7 +417,7 @@ const FeatureSchema = z
     z
       .object({
         geometry: GeometrySchema.nullable(),
-        properties: z.object({}).nullable().optional().openapi({ type: 'object' }),
+        properties: z.object({}).nullable().openapi({ type: 'object' }),
         id: z
           .union([
             z.number().optional().openapi({ type: 'number' }),
@@ -441,9 +426,9 @@ const FeatureSchema = z
           .optional()
           .openapi({ oneOf: [{ type: 'number' }, { type: 'string' }] }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['geometry', 'properties'],
         properties: {
           geometry: { allOf: [{ nullable: true }, { $ref: '#/components/schemas/Geometry' }] },
           properties: { type: 'object', nullable: true },
@@ -468,7 +453,6 @@ const FeatureSchema = z
       },
     ],
   })
-  .openapi('Feature')
 
 const FeatureCollectionSchema = z
   .intersection(
@@ -477,12 +461,11 @@ const FeatureCollectionSchema = z
       .object({
         features: z
           .array(FeatureSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Feature' } }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['features'],
         properties: {
           features: { type: 'array', items: { $ref: '#/components/schemas/Feature' } },
         },
@@ -503,7 +486,6 @@ const FeatureCollectionSchema = z
       },
     ],
   })
-  .openapi('FeatureCollection')
 
 const LineStringCoordinatesSchema = z
   .array(PositionSchema)
@@ -516,7 +498,6 @@ const LineStringCoordinatesSchema = z
     items: { $ref: '#/components/schemas/Position' },
     minItems: 2,
   })
-  .openapi('LineStringCoordinates')
 
 const MultiPointSchema = z
   .intersection(
@@ -525,12 +506,11 @@ const MultiPointSchema = z
       .object({
         coordinates: z
           .array(PositionSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Position' } }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['coordinates'],
         properties: {
           coordinates: { type: 'array', items: { $ref: '#/components/schemas/Position' } },
         },
@@ -551,16 +531,15 @@ const MultiPointSchema = z
       },
     ],
   })
-  .openapi('MultiPoint')
 
 const LineStringSchema = z
   .intersection(
     GeometryElementSchema,
     z
       .object({ coordinates: LineStringCoordinatesSchema })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['coordinates'],
         properties: { coordinates: { $ref: '#/components/schemas/LineStringCoordinates' } },
       }),
   )
@@ -577,7 +556,6 @@ const LineStringSchema = z
       },
     ],
   })
-  .openapi('LineString')
 
 const MultiLineStringSchema = z
   .intersection(
@@ -586,15 +564,14 @@ const MultiLineStringSchema = z
       .object({
         coordinates: z
           .array(LineStringCoordinatesSchema)
-          .optional()
           .openapi({
             type: 'array',
             items: { $ref: '#/components/schemas/LineStringCoordinates' },
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['coordinates'],
         properties: {
           coordinates: {
             type: 'array',
@@ -621,7 +598,6 @@ const MultiLineStringSchema = z
       },
     ],
   })
-  .openapi('MultiLineString')
 
 const GeometryCollectionSchema = z
   .intersection(
@@ -631,16 +607,15 @@ const GeometryCollectionSchema = z
         geometries: z
           .array(GeometryElementSchema)
           .min(0)
-          .optional()
           .openapi({
             type: 'array',
             items: { $ref: '#/components/schemas/GeometryElement' },
             minItems: 0,
           }),
       })
-      .optional()
       .openapi({
         type: 'object',
+        required: ['geometries'],
         properties: {
           geometries: {
             type: 'array',
@@ -650,7 +625,6 @@ const GeometryCollectionSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     type: 'object',
     description:
@@ -671,7 +645,6 @@ const GeometryCollectionSchema = z
       },
     ],
   })
-  .openapi('GeometryCollection')
 
 export const getRoute = createRoute({
   method: 'get',
@@ -685,11 +658,11 @@ export const getRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ message: z.string().optional().openapi({ type: 'string', example: 'Pong' }) })
-            .optional()
+            .object({ message: z.string().openapi({ type: 'string', example: 'Pong' }) })
             .openapi({
               type: 'object',
               properties: { message: { type: 'string', example: 'Pong' } },
+              required: ['message'],
             }),
         },
       },
@@ -707,7 +680,16 @@ export const getProjectsRoute = createRoute({
     query: z.object({
       chiban: z
         .string()
-        .openapi({ param: { name: 'chiban', in: 'query', required: true }, type: 'string' }),
+        .openapi({
+          param: {
+            in: 'query',
+            name: 'chiban',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Chiban',
+          },
+          type: 'string',
+        }),
     }),
   },
   responses: {

@@ -1,16 +1,8 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
+import { exports } from '../helper/exports.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { lowerFirst, toIdentifier } from '../utils/index.js'
-
-const callbackConstName = (key: string): string => {
-  const base = key.endsWith('Callbacks')
-    ? key
-    : key.endsWith('Callback')
-      ? `${key}s`
-      : `${key}Callbacks`
-  return toIdentifier(base)
-}
+import { exportConst } from '../utils/index.js'
 
 export async function callbacks(
   input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
@@ -23,43 +15,20 @@ export async function callbacks(
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const cbs = openAPI.components?.callbacks
-  if (!cbs || Object.keys(cbs).length === 0) return { ok: false, error: 'No callbacks found' }
+  const callbacks = openAPI.components?.callbacks
+  if (!callbacks || Object.keys(callbacks).length === 0)
+    return { ok: false, error: 'No callbacks found' }
 
   if (split) {
-    const outDir = String(output).replace(/\.ts$/, '')
-
-    for (const key of Object.keys(cbs)) {
-      const val = cbs[key]
-      const name = callbackConstName(key)
-      const body = `export const ${name} = ${JSON.stringify(val ?? {})}\n`
-      const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
-      const coreResult = await core(body, path.dirname(filePath), filePath)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    }
-
-    const indexBody = `${Object.keys(cbs)
-      .map((n) => `export * from './${lowerFirst(callbackConstName(n))}'`)
-      .join('\n')}\n`
-    const coreResult = await core(
-      indexBody,
-      path.dirname(path.join(outDir, 'index.ts')),
-      path.join(outDir, 'index.ts'),
-    )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
-
-    return {
-      ok: true,
-      value: `Generated callbacks code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    const exportsResult = await exports(callbacks, 'Callback', output)
+    if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
+    return { ok: true, value: exportsResult.value }
   }
 
-  const outFile = String(output)
-  const defs = Object.keys(cbs)
-    .map((key) => `export const ${callbackConstName(key)} = ${JSON.stringify(cbs[key] ?? {})}`)
-    .join('\n\n')
+  const outFile = output
+  const code = exportConst(callbacks, 'Callback')
 
-  const coreResult = await core(defs, path.dirname(outFile), outFile)
+  const coreResult = await core(code, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
   return { ok: true, value: `Generated callbacks code written to ${outFile}` }

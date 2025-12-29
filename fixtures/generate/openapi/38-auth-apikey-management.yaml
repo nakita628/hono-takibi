@@ -1,0 +1,614 @@
+openapi: 3.1.0
+info:
+  title: API Key Management API
+  version: 1.0.0
+  description: |
+    APIキー管理システム。
+    APIキーの発行、ローテーション、権限管理、使用量追跡などを提供します。
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Development
+
+tags:
+  - name: API Keys
+    description: APIキー管理
+  - name: Scopes
+    description: スコープ・権限管理
+  - name: Usage
+    description: 使用量・統計
+  - name: Rate Limits
+    description: レート制限
+
+paths:
+  /api-keys:
+    get:
+      tags:
+        - API Keys
+      operationId: listApiKeys
+      summary: APIキー一覧取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - revoked
+              - expired
+        - name: environment
+          in: query
+          schema:
+            type: string
+            enum:
+              - production
+              - staging
+              - development
+              - test
+      responses:
+        '200':
+          description: APIキー一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - API Keys
+      operationId: createApiKey
+      summary: APIキー作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyWithSecret'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/{keyId}:
+    parameters:
+      - $ref: '#/components/parameters/ApiKeyIdParam'
+    get:
+      tags:
+        - API Keys
+      operationId: getApiKey
+      summary: APIキー詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: APIキー詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - API Keys
+      operationId: updateApiKey
+      summary: APIキー更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateApiKeyRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - API Keys
+      operationId: deleteApiKey
+      summary: APIキー削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/{keyId}/revoke:
+    parameters:
+      - $ref: '#/components/parameters/ApiKeyIdParam'
+    post:
+      tags:
+        - API Keys
+      operationId: revokeApiKey
+      summary: APIキー無効化
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: 無効化成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/{keyId}/rotate:
+    parameters:
+      - $ref: '#/components/parameters/ApiKeyIdParam'
+    post:
+      tags:
+        - API Keys
+      operationId: rotateApiKey
+      summary: APIキーローテーション
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gracePeriodHours:
+                  type: integer
+                  minimum: 0
+                  maximum: 168
+                  default: 24
+      responses:
+        '200':
+          description: ローテーション成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyRotationResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/{keyId}/usage:
+    parameters:
+      - $ref: '#/components/parameters/ApiKeyIdParam'
+    get:
+      tags:
+        - Usage
+      operationId: getApiKeyUsage
+      summary: APIキー使用量取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: granularity
+          in: query
+          schema:
+            type: string
+            enum:
+              - hour
+              - day
+              - week
+              - month
+            default: day
+      responses:
+        '200':
+          description: 使用量データ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/{keyId}/rate-limit/current:
+    parameters:
+      - $ref: '#/components/parameters/ApiKeyIdParam'
+    get:
+      tags:
+        - Rate Limits
+      operationId: getCurrentRateLimitStatus
+      summary: 現在のレート制限状況取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: レート制限状況
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api-keys/verify:
+    post:
+      tags:
+        - API Keys
+      operationId: verifyApiKey
+      summary: APIキー検証
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - apiKey
+              properties:
+                apiKey:
+                  type: string
+                requiredScopes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 検証結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyVerificationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /scopes:
+    get:
+      tags:
+        - Scopes
+      operationId: listScopes
+      summary: 利用可能なスコープ一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: スコープ一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScopeDefinition'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ApiKeyIdParam:
+      name: keyId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    ApiKey:
+      type: object
+      required:
+        - id
+        - name
+        - prefix
+        - status
+        - environment
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        prefix:
+          type: string
+          example: sk_live_
+        maskedKey:
+          type: string
+          example: sk_live_****abcd
+        status:
+          type: string
+          enum:
+            - active
+            - revoked
+            - expired
+        environment:
+          type: string
+          enum:
+            - production
+            - staging
+            - development
+            - test
+        scopes:
+          type: array
+          items:
+            type: string
+        expiresAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    ApiKeyWithSecret:
+      allOf:
+        - $ref: '#/components/schemas/ApiKey'
+        - type: object
+          required:
+            - secretKey
+          properties:
+            secretKey:
+              type: string
+              example: sk_live_1234567890abcdef
+
+    CreateApiKeyRequest:
+      type: object
+      required:
+        - name
+        - environment
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        environment:
+          type: string
+          enum:
+            - production
+            - staging
+            - development
+            - test
+        scopes:
+          type: array
+          items:
+            type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    UpdateApiKeyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+
+    ApiKeyRotationResult:
+      type: object
+      required:
+        - newKey
+        - oldKeyExpiresAt
+      properties:
+        newKey:
+          $ref: '#/components/schemas/ApiKeyWithSecret'
+        oldKeyExpiresAt:
+          type: string
+          format: date-time
+
+    UsageData:
+      type: object
+      required:
+        - from
+        - to
+        - dataPoints
+        - summary
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        dataPoints:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              requests:
+                type: integer
+              successCount:
+                type: integer
+              errorCount:
+                type: integer
+        summary:
+          type: object
+          properties:
+            totalRequests:
+              type: integer
+            successRate:
+              type: number
+
+    RateLimitStatus:
+      type: object
+      required:
+        - limit
+        - remaining
+        - resetAt
+      properties:
+        limit:
+          type: integer
+        remaining:
+          type: integer
+        resetAt:
+          type: string
+          format: date-time
+        currentUsage:
+          type: integer
+
+    ApiKeyVerificationResult:
+      type: object
+      required:
+        - valid
+      properties:
+        valid:
+          type: boolean
+        keyId:
+          type: string
+          format: uuid
+        environment:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        missingScopes:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
+
+    ScopeDefinition:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          example: users:read
+        description:
+          type: string
+        category:
+          type: string
+
+    ApiKeyListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiKey'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

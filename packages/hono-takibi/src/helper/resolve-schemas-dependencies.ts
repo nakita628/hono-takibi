@@ -43,7 +43,9 @@ export function resolveSchemasDependencies(schema: Record<string, Schema>): read
 
   const visit = (name: string): void => {
     if (perm.has(name)) return
-    if (temp.has(name)) throw new Error(`Circular dependency: ${name}`)
+    // Circular dependency detected - skip to break the cycle
+    // The schema will still be processed when its entry in the main loop is reached
+    if (temp.has(name)) return
 
     const s = schema[name]
     if (!s) return

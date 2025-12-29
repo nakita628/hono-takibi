@@ -50,27 +50,31 @@ export function response(responses: { [k: string]: Responses }): string {
   }
 
   const buildResponseCode = (code: string, res: Responses): string => {
+    // Only quote status codes that start with a digit but are not purely numeric (e.g., "2XX")
+    // Purely numeric codes (e.g., "200") should not be quoted
+    const quotedCode = /^\d+$/.test(code) ? code : /^\d/.test(code) ? `'${code}'` : code
+
     // Handle $ref responses
     if (res.$ref) {
       if (res.$ref.startsWith('#/components/responses/')) {
         const key = res.$ref.split('/').pop()
         if (key) {
-          return `${code}:${responseConstName(key)},`
+          return `${quotedCode}:${responseConstName(key)},`
         }
       }
-      return `${code}:{$ref:${JSON.stringify(res.$ref)}},`
+      return `${quotedCode}:{$ref:${JSON.stringify(res.$ref)}},`
     }
 
     const descriptionCode = `description:'${escapeStringLiteral(res.description ?? '')}'`
 
     if (!res.content) {
-      return `${code}:{${descriptionCode},},`
+      return `${quotedCode}:{${descriptionCode},},`
     }
 
     const contentCode = buildContentCode(res.content)
-    if (!contentCode) return `${code}:{${descriptionCode},},`
+    if (!contentCode) return `${quotedCode}:{${descriptionCode},},`
 
-    return `${code}:{${descriptionCode},${contentCode}},`
+    return `${quotedCode}:{${descriptionCode},${contentCode}},`
   }
 
   return Object.entries(responses)

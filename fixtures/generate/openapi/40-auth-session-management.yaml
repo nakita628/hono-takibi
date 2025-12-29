@@ -1,0 +1,979 @@
+openapi: 3.1.0
+info:
+  title: Session Management API
+  version: 1.0.0
+  description: |
+    セッション管理API。
+    ユーザーセッションの作成、検証、更新、破棄、および
+    同時セッション制御、セッション履歴などを提供します。
+
+servers:
+  - url: https://auth.example.com/v1
+    description: Production
+  - url: http://localhost:4000/v1
+    description: Development
+
+tags:
+  - name: Sessions
+    description: セッション操作
+  - name: Current Session
+    description: 現在のセッション
+  - name: Session History
+    description: セッション履歴
+  - name: Session Policies
+    description: セッションポリシー
+
+paths:
+  /sessions:
+    get:
+      tags:
+        - Sessions
+      operationId: listSessions
+      summary: アクティブセッション一覧
+      description: 現在のユーザーのアクティブなセッション一覧を取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: includeExpired
+          in: query
+          description: 期限切れセッションも含める
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: セッション一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Sessions
+      operationId: createSession
+      summary: セッション作成
+      description: 認証成功後にセッションを作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: セッション作成成功
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: セッションCookie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionWithTokens'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/current:
+    get:
+      tags:
+        - Current Session
+      operationId: getCurrentSession
+      summary: 現在のセッション取得
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 現在のセッション
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Current Session
+      operationId: deleteCurrentSession
+      summary: 現在のセッション終了（ログアウト）
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '204':
+          description: ログアウト成功
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: セッションCookie削除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/current/refresh:
+    post:
+      tags:
+        - Current Session
+      operationId: refreshSession
+      summary: セッション更新
+      description: リフレッシュトークンを使用してセッションを更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionWithTokens'
+        '401':
+          description: リフレッシュトークンが無効
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sessions/current/extend:
+    post:
+      tags:
+        - Current Session
+      operationId: extendSession
+      summary: セッション延長
+      description: アクティブなセッションの有効期限を延長
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: integer
+                  description: 延長時間（秒）
+                  minimum: 60
+                  maximum: 86400
+      responses:
+        '200':
+          description: 延長成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/current/activity:
+    post:
+      tags:
+        - Current Session
+      operationId: recordActivity
+      summary: アクティビティ記録
+      description: ユーザーアクティビティを記録してアイドルタイムアウトをリセット
+      security:
+        - bearerAuth: []
+        - cookieAuth: []
+      responses:
+        '200':
+          description: 記録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastActivityAt:
+                    type: string
+                    format: date-time
+                  idleTimeoutAt:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/{sessionId}:
+    parameters:
+      - $ref: '#/components/parameters/SessionIdParam'
+    get:
+      tags:
+        - Sessions
+      operationId: getSession
+      summary: セッション詳細取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: セッション詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Sessions
+      operationId: revokeSession
+      summary: セッション無効化
+      description: 指定したセッションを強制的に終了
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 無効化成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sessions/revoke-all:
+    post:
+      tags:
+        - Sessions
+      operationId: revokeAllSessions
+      summary: 全セッション無効化
+      description: 現在のセッション以外の全セッションを無効化
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                includeCurrent:
+                  type: boolean
+                  default: false
+                  description: 現在のセッションも含めるか
+      responses:
+        '200':
+          description: 無効化成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revokedCount:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/validate:
+    post:
+      tags:
+        - Sessions
+      operationId: validateSession
+      summary: セッション検証
+      description: セッショントークンの有効性を検証
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                sessionId:
+                  type: string
+      responses:
+        '200':
+          description: 検証結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionValidationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /sessions/history:
+    get:
+      tags:
+        - Session History
+      operationId: getSessionHistory
+      summary: セッション履歴取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: セッション履歴
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionHistoryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/security-events:
+    get:
+      tags:
+        - Session History
+      operationId: getSecurityEvents
+      summary: セキュリティイベント取得
+      description: 不審なログイン試行などのセキュリティイベントを取得
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum:
+              - low
+              - medium
+              - high
+              - critical
+      responses:
+        '200':
+          description: セキュリティイベント
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityEventListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/policies:
+    get:
+      tags:
+        - Session Policies
+      operationId: getSessionPolicies
+      summary: セッションポリシー取得
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: セッションポリシー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionPolicy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags:
+        - Session Policies
+      operationId: updateSessionPolicies
+      summary: セッションポリシー更新
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionPolicyRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionPolicy'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/trusted-devices:
+    get:
+      tags:
+        - Sessions
+      operationId: listTrustedDevices
+      summary: 信頼済みデバイス一覧
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 信頼済みデバイス一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrustedDevice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Sessions
+      operationId: trustCurrentDevice
+      summary: 現在のデバイスを信頼
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: デバイス名
+                trustDuration:
+                  type: integer
+                  description: 信頼期間（日）
+                  minimum: 1
+                  maximum: 365
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustedDevice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/trusted-devices/{deviceId}:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags:
+        - Sessions
+      operationId: removeTrustedDevice
+      summary: 信頼済みデバイス削除
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 削除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
+
+  parameters:
+    SessionIdParam:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    Session:
+      type: object
+      required:
+        - id
+        - userId
+        - status
+        - createdAt
+        - expiresAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - active
+            - expired
+            - revoked
+        isCurrent:
+          type: boolean
+          description: 現在のセッションかどうか
+        device:
+          $ref: '#/components/schemas/DeviceInfo'
+        location:
+          $ref: '#/components/schemas/LocationInfo'
+        authMethod:
+          type: string
+          enum:
+            - password
+            - mfa
+            - sso
+            - passkey
+            - magic_link
+            - social
+          description: 認証方法
+        authProvider:
+          type: string
+          description: 認証プロバイダー（SSO/Social の場合）
+        mfaVerified:
+          type: boolean
+          description: MFA検証済みか
+        riskScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: リスクスコア
+        lastActivityAt:
+          type: string
+          format: date-time
+        idleTimeoutAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: string
+          format: date-time
+        revokedReason:
+          type: string
+
+    SessionWithTokens:
+      allOf:
+        - $ref: '#/components/schemas/Session'
+        - type: object
+          required:
+            - accessToken
+            - refreshToken
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            tokenType:
+              type: string
+              default: Bearer
+            accessTokenExpiresIn:
+              type: integer
+              description: アクセストークン有効期限（秒）
+            refreshTokenExpiresIn:
+              type: integer
+              description: リフレッシュトークン有効期限（秒）
+
+    CreateSessionRequest:
+      type: object
+      required:
+        - grantType
+      properties:
+        grantType:
+          type: string
+          enum:
+            - password
+            - mfa_token
+            - sso_token
+            - passkey
+            - magic_link
+            - social
+        username:
+          type: string
+          description: password grant用
+        password:
+          type: string
+          description: password grant用
+        mfaToken:
+          type: string
+          description: mfa_token grant用
+        mfaCode:
+          type: string
+          description: mfa_token grant用
+        ssoToken:
+          type: string
+          description: sso_token grant用
+        passkeyResponse:
+          type: object
+          description: passkey grant用
+        magicLinkToken:
+          type: string
+          description: magic_link grant用
+        socialProvider:
+          type: string
+          description: social grant用
+        socialToken:
+          type: string
+          description: social grant用
+        deviceFingerprint:
+          type: string
+          description: デバイスフィンガープリント
+        rememberMe:
+          type: boolean
+          default: false
+
+    DeviceInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        fingerprint:
+          type: string
+        type:
+          type: string
+          enum:
+            - desktop
+            - mobile
+            - tablet
+            - unknown
+        os:
+          type: string
+        osVersion:
+          type: string
+        browser:
+          type: string
+        browserVersion:
+          type: string
+        userAgent:
+          type: string
+        isTrusted:
+          type: boolean
+
+    LocationInfo:
+      type: object
+      properties:
+        ipAddress:
+          type: string
+        country:
+          type: string
+        countryCode:
+          type: string
+        region:
+          type: string
+        city:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        timezone:
+          type: string
+        isp:
+          type: string
+        isVpn:
+          type: boolean
+        isTor:
+          type: boolean
+        isProxy:
+          type: boolean
+
+    SessionValidationResult:
+      type: object
+      required:
+        - valid
+      properties:
+        valid:
+          type: boolean
+        session:
+          $ref: '#/components/schemas/Session'
+        reason:
+          type: string
+          description: 無効な場合の理由
+
+    SessionHistory:
+      type: object
+      required:
+        - id
+        - eventType
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum:
+            - created
+            - refreshed
+            - extended
+            - activity
+            - expired
+            - revoked
+            - logout
+        device:
+          $ref: '#/components/schemas/DeviceInfo'
+        location:
+          $ref: '#/components/schemas/LocationInfo'
+        timestamp:
+          type: string
+          format: date-time
+
+    SecurityEvent:
+      type: object
+      required:
+        - id
+        - eventType
+        - severity
+        - timestamp
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+          enum:
+            - login_failed
+            - suspicious_login
+            - new_device
+            - new_location
+            - impossible_travel
+            - brute_force_attempt
+            - session_hijack_attempt
+            - password_spray
+            - concurrent_sessions_exceeded
+        severity:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+            - critical
+        description:
+          type: string
+        device:
+          $ref: '#/components/schemas/DeviceInfo'
+        location:
+          $ref: '#/components/schemas/LocationInfo'
+        actionTaken:
+          type: string
+          enum:
+            - none
+            - captcha_required
+            - mfa_required
+            - session_revoked
+            - account_locked
+            - alert_sent
+        resolved:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    SessionPolicy:
+      type: object
+      properties:
+        sessionDuration:
+          type: integer
+          description: セッション有効期間（秒）
+        idleTimeout:
+          type: integer
+          description: アイドルタイムアウト（秒）
+        maxConcurrentSessions:
+          type: integer
+          description: 最大同時セッション数
+        concurrentSessionAction:
+          type: string
+          enum:
+            - allow
+            - deny
+            - revoke_oldest
+          description: 同時セッション超過時のアクション
+        requireMfaForNewDevice:
+          type: boolean
+        requireMfaForNewLocation:
+          type: boolean
+        allowRememberMe:
+          type: boolean
+        rememberMeDuration:
+          type: integer
+          description: Remember Me の期間（秒）
+        refreshTokenRotation:
+          type: boolean
+          description: リフレッシュトークンのローテーション
+        absoluteTimeout:
+          type: integer
+          description: 絶対タイムアウト（秒）
+        ipBindingEnabled:
+          type: boolean
+          description: IPアドレスバインディング
+
+    UpdateSessionPolicyRequest:
+      type: object
+      properties:
+        sessionDuration:
+          type: integer
+          minimum: 300
+          maximum: 604800
+        idleTimeout:
+          type: integer
+          minimum: 60
+          maximum: 86400
+        maxConcurrentSessions:
+          type: integer
+          minimum: 1
+          maximum: 100
+        concurrentSessionAction:
+          type: string
+          enum:
+            - allow
+            - deny
+            - revoke_oldest
+        requireMfaForNewDevice:
+          type: boolean
+        requireMfaForNewLocation:
+          type: boolean
+        allowRememberMe:
+          type: boolean
+        rememberMeDuration:
+          type: integer
+        refreshTokenRotation:
+          type: boolean
+
+    TrustedDevice:
+      type: object
+      required:
+        - id
+        - device
+        - createdAt
+        - expiresAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        device:
+          $ref: '#/components/schemas/DeviceInfo'
+        lastUsedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    SessionHistoryResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionHistory'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    SecurityEventListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityEvent'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: リソースが見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

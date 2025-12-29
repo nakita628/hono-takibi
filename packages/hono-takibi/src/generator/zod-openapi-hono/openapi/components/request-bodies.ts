@@ -1,5 +1,5 @@
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, refSchema, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, ref, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
@@ -18,7 +18,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
               return `${JSON.stringify(k)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
             }
             if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
-              return `${JSON.stringify(k)}:${refSchema(mediaOrReference.$ref)}`
+              return `${JSON.stringify(k)}:${ref(mediaOrReference.$ref)}`
             }
             return undefined
           })

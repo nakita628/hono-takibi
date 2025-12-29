@@ -11,9 +11,13 @@ export const getPassthroughRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .strictObject({ test: z.string().optional().openapi({ type: 'string' }) })
-            .optional()
-            .openapi({ type: 'object', properties: { test: { type: 'string' } } }),
+            .strictObject({ test: z.string().openapi({ type: 'string' }) })
+            .openapi({
+              type: 'object',
+              properties: { test: { type: 'string' } },
+              required: ['test'],
+              additionalProperties: false,
+            }),
         },
       },
     },

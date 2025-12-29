@@ -1,0 +1,474 @@
+openapi: 3.1.0
+info:
+  title: Extreme Security API
+  version: 1.0.0
+  description: |
+    Tests extreme security scenarios:
+    - Many security schemes
+    - Complex security requirements
+    - Mixed security at different levels
+    - Unusual OAuth scopes
+paths:
+  /public:
+    get:
+      operationId: getPublic
+      summary: Completely public endpoint
+      security: []
+      responses:
+        '200':
+          description: OK
+
+  /single-auth:
+    get:
+      operationId: getSingleAuth
+      summary: Single authentication required
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+
+  /any-auth:
+    get:
+      operationId: getAnyAuth
+      summary: Any of these auth methods works (OR)
+      security:
+        - bearerAuth: []
+        - apiKeyHeader: []
+        - apiKeyQuery: []
+        - apiKeyCookie: []
+        - basicAuth: []
+        - digestAuth: []
+        - oauth2AuthCode:
+            - read
+        - oauth2Implicit:
+            - read
+        - oauth2ClientCreds:
+            - read
+        - oauth2Password:
+            - read
+        - openIdConnect:
+            - openid
+        - mutualTLS: []
+      responses:
+        '200':
+          description: OK
+
+  /all-auth:
+    get:
+      operationId: getAllAuth
+      summary: All of these auth methods required (AND)
+      security:
+        - bearerAuth: []
+          apiKeyHeader: []
+          mfaToken: []
+      responses:
+        '200':
+          description: OK
+
+  /complex-auth:
+    get:
+      operationId: getComplexAuth
+      summary: Complex AND/OR security requirements
+      security:
+        # Option 1: Bearer + API Key + MFA
+        - bearerAuth: []
+          apiKeyHeader: []
+          mfaToken: []
+        # Option 2: OAuth with many scopes
+        - oauth2AuthCode:
+            - read
+            - write
+            - delete
+            - admin
+            - superadmin
+        # Option 3: Basic + special header
+        - basicAuth: []
+          specialHeader: []
+        # Option 4: Client credentials + device
+        - oauth2ClientCreds:
+            - machine:read
+            - machine:write
+          deviceAuth: []
+        # Option 5: Just mutual TLS
+        - mutualTLS: []
+      responses:
+        '200':
+          description: OK
+
+  /scoped-oauth:
+    get:
+      operationId: getScopedOAuth
+      summary: OAuth with many specific scopes
+      security:
+        - oauth2AuthCode:
+            - users:read
+            - users:write
+            - users:delete
+            - users:admin
+            - organizations:read
+            - organizations:write
+            - organizations:delete
+            - organizations:admin
+            - projects:read
+            - projects:write
+            - projects:delete
+            - projects:admin
+            - billing:read
+            - billing:write
+            - audit:read
+            - settings:read
+            - settings:write
+            - webhooks:read
+            - webhooks:write
+            - webhooks:delete
+            - api_keys:read
+            - api_keys:write
+            - api_keys:delete
+            - integrations:read
+            - integrations:write
+            - integrations:delete
+      responses:
+        '200':
+          description: OK
+
+  /mixed-level-security:
+    get:
+      operationId: getMixedSecurity
+      summary: Path level + operation level security
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+    post:
+      operationId: postMixedSecurity
+      summary: Different security for POST
+      security:
+        - bearerAuth: []
+          apiKeyHeader: []
+      responses:
+        '201':
+          description: Created
+    put:
+      operationId: putMixedSecurity
+      summary: Admin-only security
+      security:
+        - oauth2AuthCode:
+            - admin
+            - write
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteMixedSecurity
+      summary: Super admin security
+      security:
+        - oauth2AuthCode:
+            - superadmin
+          mfaToken: []
+      responses:
+        '204':
+          description: Deleted
+
+  /override-global:
+    get:
+      operationId: getOverrideGlobal
+      summary: Override global security with public
+      security: []
+      responses:
+        '200':
+          description: OK
+
+  /optional-enhanced:
+    get:
+      operationId: getOptionalEnhanced
+      summary: Optional auth with enhanced access if authenticated
+      security:
+        - {}
+        - bearerAuth: []
+        - oauth2AuthCode:
+            - read
+      responses:
+        '200':
+          description: OK - Different response based on auth
+
+  /multi-tenant:
+    get:
+      operationId: getMultiTenant
+      summary: Multi-tenant with org-level auth
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+        - oauth2AuthCode:
+            - tenant:read
+          tenantHeader: []
+      responses:
+        '200':
+          description: OK
+
+# Global security (can be overridden)
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    # HTTP Authentication Schemes
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token with RS256 signature
+    
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic authentication
+    
+    digestAuth:
+      type: http
+      scheme: digest
+      description: HTTP Digest authentication
+    
+    hobaAuth:
+      type: http
+      scheme: hoba
+      description: HTTP Origin-Bound Authentication
+    
+    negotiateAuth:
+      type: http
+      scheme: negotiate
+      description: SPNEGO/Kerberos authentication
+    
+    scramAuth:
+      type: http
+      scheme: scram-sha-256
+      description: SCRAM-SHA-256 authentication
+    
+    vapidAuth:
+      type: http
+      scheme: vapid
+      description: VAPID authentication for push notifications
+    
+    # API Key Schemes - Various locations
+    apiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key in header
+    
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: API key in query string
+    
+    apiKeyCookie:
+      type: apiKey
+      in: cookie
+      name: api_key
+      description: API key in cookie
+    
+    # Multiple API keys for different purposes
+    primaryApiKey:
+      type: apiKey
+      in: header
+      name: X-Primary-Key
+      description: Primary API key for main operations
+    
+    secondaryApiKey:
+      type: apiKey
+      in: header
+      name: X-Secondary-Key
+      description: Secondary API key for backup
+    
+    rateLimitKey:
+      type: apiKey
+      in: header
+      name: X-RateLimit-Key
+      description: Key for rate limit bucket
+    
+    encryptionKey:
+      type: apiKey
+      in: header
+      name: X-Encryption-Key
+      description: Key for payload encryption
+    
+    signatureKey:
+      type: apiKey
+      in: header
+      name: X-Signature-Key
+      description: Key for request signing
+    
+    # Special purpose headers
+    mfaToken:
+      type: apiKey
+      in: header
+      name: X-MFA-Token
+      description: Multi-factor authentication token
+    
+    deviceAuth:
+      type: apiKey
+      in: header
+      name: X-Device-Token
+      description: Device authentication token
+    
+    sessionToken:
+      type: apiKey
+      in: header
+      name: X-Session-Token
+      description: Session token
+    
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: CSRF protection token
+    
+    idempotencyKey:
+      type: apiKey
+      in: header
+      name: Idempotency-Key
+      description: Idempotency key for safe retries
+    
+    tenantHeader:
+      type: apiKey
+      in: header
+      name: X-Tenant-ID
+      description: Multi-tenant organization identifier
+    
+    specialHeader:
+      type: apiKey
+      in: header
+      name: X-Special-Access
+      description: Special access token
+    
+    # OAuth 2.0 - All grant types
+    oauth2AuthCode:
+      type: oauth2
+      description: OAuth 2.0 Authorization Code flow
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          refreshUrl: https://auth.example.com/oauth/refresh
+          scopes:
+            read: Read access
+            write: Write access
+            delete: Delete access
+            admin: Admin access
+            superadmin: Super admin access
+            'users:read': Read users
+            'users:write': Write users
+            'users:delete': Delete users
+            'users:admin': Admin users
+            'organizations:read': Read organizations
+            'organizations:write': Write organizations
+            'organizations:delete': Delete organizations
+            'organizations:admin': Admin organizations
+            'projects:read': Read projects
+            'projects:write': Write projects
+            'projects:delete': Delete projects
+            'projects:admin': Admin projects
+            'billing:read': Read billing
+            'billing:write': Write billing
+            'audit:read': Read audit logs
+            'settings:read': Read settings
+            'settings:write': Write settings
+            'webhooks:read': Read webhooks
+            'webhooks:write': Write webhooks
+            'webhooks:delete': Delete webhooks
+            'api_keys:read': Read API keys
+            'api_keys:write': Write API keys
+            'api_keys:delete': Delete API keys
+            'integrations:read': Read integrations
+            'integrations:write': Write integrations
+            'integrations:delete': Delete integrations
+            'tenant:read': Read tenant data
+            'machine:read': Machine read access
+            'machine:write': Machine write access
+    
+    oauth2Implicit:
+      type: oauth2
+      description: OAuth 2.0 Implicit flow (legacy)
+      flows:
+        implicit:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          scopes:
+            read: Read access
+            profile: Access user profile
+    
+    oauth2ClientCreds:
+      type: oauth2
+      description: OAuth 2.0 Client Credentials flow
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            'machine:read': Machine read access
+            'machine:write': Machine write access
+            'service:access': Service-to-service access
+    
+    oauth2Password:
+      type: oauth2
+      description: OAuth 2.0 Resource Owner Password Credentials flow
+      flows:
+        password:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            read: Read access
+            write: Write access
+    
+    # OAuth 2.0 with multiple flows in single scheme
+    oauth2Multi:
+      type: oauth2
+      description: OAuth 2.0 with multiple flows
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            read: Read access
+            write: Write access
+        clientCredentials:
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            'machine:access': Machine access
+        implicit:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          scopes:
+            read: Read access
+    
+    # OpenID Connect
+    openIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://auth.example.com/.well-known/openid-configuration
+      description: OpenID Connect authentication
+    
+    # Mutual TLS
+    mutualTLS:
+      type: mutualTLS
+      description: Client certificate authentication
+    
+    # Additional security schemes for edge cases
+    customScheme:
+      type: http
+      scheme: custom
+      description: Custom authentication scheme
+    
+    awsSigV4:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: AWS Signature Version 4
+    
+    hawkAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Hawk authentication
+    
+    ntlmAuth:
+      type: http
+      scheme: ntlm
+      description: NTLM authentication

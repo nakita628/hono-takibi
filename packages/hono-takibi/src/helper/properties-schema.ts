@@ -47,12 +47,14 @@ import { getToSafeIdentifier } from '../utils/index.js'
  * // → 'z.object({user:userSchema.optional(),tags:z.array(tagSchema).optional()}).partial()'
  */
 export function propertiesSchema(
-  properties: Record<string, Schema>,
+  properties: { readonly [k: string]: Schema },
   required: readonly string[],
 ): string {
   const objectProperties = Object.entries(properties).map(([k, schema]) => {
+    const isRequired = required.includes(k)
+    const z = zodToOpenAPI(schema)
     const safeKey = getToSafeIdentifier(k)
-    return `${safeKey}:${zodToOpenAPI(schema)}`
+    return isRequired ? `${safeKey}:${z.replace('.optional()', '')}` : `${safeKey}:${z}`
   })
   // Check if all properties are optional
   const allOptional = objectProperties.every((v) => v.includes('.optional()'))
