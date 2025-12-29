@@ -67,7 +67,7 @@ export async function parameters(
 
       const schemaName = parameterBaseName(key)
       const z = zodToOpenAPI(p.schema, {
-        parameters: p
+        parameters: p,
       })
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
@@ -108,9 +108,13 @@ export async function parameters(
     .map((key) => {
       const p: Parameter | undefined = params[key]
       const schemaName = parameterBaseName(key)
-      const z = p ? zodToOpenAPI(p.schema, { parameters: {
-        ...p,
-      } }) : 'z.any()'
+      const z = p
+        ? zodToOpenAPI(p.schema, {
+            parameters: {
+              ...p,
+            },
+          })
+        : 'z.any()'
       return zodToOpenAPISchema(schemaName, z, true, exportType, true)
     })
     .join('\n\n')

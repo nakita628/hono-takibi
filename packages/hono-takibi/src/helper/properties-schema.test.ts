@@ -24,10 +24,10 @@ describe('propertiesSchema', () => {
         },
         ['test'],
       ),
-    ).toBe('z.object({test:z.string().optional().openapi({"type":"string"})})')
+    ).toBe('z.object({test:z.string().openapi({"type":"string"})})')
   })
 
-  it.concurrent('z.object({id:z.int().optional().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})', () => {
+  it.concurrent('z.object({id:z.int().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})', () => {
     const result = propertiesSchema(
       {
         id: { type: 'integer' },
@@ -36,18 +36,16 @@ describe('propertiesSchema', () => {
       ['id'],
     )
     expect(result).toBe(
-      'z.object({id:z.int().optional().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})',
+      'z.object({id:z.int().openapi({"type":"integer"}),note:z.string().optional().openapi({"type":"string"})})',
     )
   })
 
   it.concurrent('z.object({"invalid-key":z.boolean().optional().openapi({"type":"boolean"})})', () => {
     const result = propertiesSchema({ 'invalid-key': { type: 'boolean' } }, ['invalid-key'])
-    expect(result).toBe(
-      `z.object({"invalid-key":z.boolean().optional().openapi({"type":"boolean"})})`,
-    )
+    expect(result).toBe(`z.object({"invalid-key":z.boolean().openapi({"type":"boolean"})})`)
   })
 
-  it.concurrent('z.object({a:z.string().optional().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})', () => {
+  it.concurrent('z.object({a:z.string().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})', () => {
     const result = propertiesSchema(
       {
         a: { type: 'string' },
@@ -56,7 +54,7 @@ describe('propertiesSchema', () => {
       ['a'],
     )
     expect(result).toBe(
-      'z.object({a:z.string().optional().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})',
+      'z.object({a:z.string().openapi({"type":"string"}),b:z.string().optional().openapi({"type":"string"})})',
     )
   })
 })

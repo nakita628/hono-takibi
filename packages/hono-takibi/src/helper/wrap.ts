@@ -46,9 +46,14 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  const { nullable, ...rest } = schema
+  const args = Object.fromEntries(
+    Object.entries(schema).filter(
+      ([k, v]) =>
+        k !== 'nullable' && k !== 'const' && !(k === 'required' && typeof v === 'boolean'),
+    ),
+  )
 
-  const openapiSchema = rest ? JSON.stringify(rest) : undefined
+  const openapiSchema = args ? JSON.stringify(args) : undefined
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
@@ -60,7 +65,7 @@ export function wrap(
 
   // required true
   if (
-    schema.type === 'object' || 
+    schema.type === 'object' ||
     (schema.required !== undefined &&
       typeof schema.required === 'boolean' &&
       schema.required === true) ||

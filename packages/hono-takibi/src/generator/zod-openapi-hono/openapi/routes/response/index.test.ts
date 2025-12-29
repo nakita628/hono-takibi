@@ -25,8 +25,7 @@ describe('generateResponseSchema', () => {
         },
       },
     })
-    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().optional().openapi({"type":"string","example":"Hono🔥"})}).optional().openapi({"type":"object","properties":{"message":{"type":"string","example":"Hono🔥"}}})}}},`
-
+    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({"type":"string","example":"Hono🔥"})}).openapi({"type":"object","properties":{"message":{"type":"string","example":"Hono🔥"}},"required":["message"]})}}},`
     expect(result).toBe(expected)
   })
 
@@ -63,7 +62,7 @@ describe('generateResponseSchema', () => {
         },
       },
     })
-    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().optional().openapi({"type":"string"})}).optional().openapi({"type":"object","properties":{"message":{"type":"string"}}}),examples:{"example1":{summary:"Example 1",value:"Hono🔥"},"example2":{summary:"Example 2",value:"HonoX🔥"},"example3":{summary:"Example 3",value:"ZodOpenAPIHono🔥"}}}}},`
+    const expected = `200:{description:'Successful response with a welcome message.',content:{'application/json':{schema:z.object({message:z.string().openapi({"type":"string"})}).openapi({"type":"object","properties":{"message":{"type":"string"}},"required":["message"]}),examples:{"example1":{summary:"Example 1",value:"Hono🔥"},"example2":{summary:"Example 2",value:"HonoX🔥"},"example3":{summary:"Example 3",value:"ZodOpenAPIHono🔥"}}}}},`
     expect(result).toBe(expected)
   })
 })

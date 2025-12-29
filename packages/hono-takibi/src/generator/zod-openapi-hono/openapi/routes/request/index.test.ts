@@ -24,7 +24,7 @@ describe('request', () => {
         },
       },
     })
-    const expected = `request:{body:{content:{"application/json":{schema:z.object({post:z.string().min(1).max(140).optional().openapi({"type":"string","minLength":1,"maxLength":140})}).optional().openapi({"type":"object","properties":{"post":{"type":"string","minLength":1,"maxLength":140}}})}},required:true}},`
+    const expected = `request:{body:{content:{"application/json":{schema:z.object({post:z.string().min(1).max(140).openapi({"type":"string","minLength":1,"maxLength":140})}).openapi({"type":"object","properties":{"post":{"type":"string","minLength":1,"maxLength":140}},"required":["post"]})}},required:true}},`
     expect(result).toBe(expected)
   })
 

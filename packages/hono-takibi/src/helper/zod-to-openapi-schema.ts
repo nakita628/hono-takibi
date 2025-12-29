@@ -36,9 +36,9 @@ export function zodToOpenAPISchema(
   const safeTypeVariableName = sanitizeIdentifier(schemaName)
 
   const zodInferCode = exportType
-    ? `export type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
+    ? `\n\nexport type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
     : ''
 
-  if (notComponentSchema) return `${schemaCode}\n\n${zodInferCode}`
-  return `${componentSchemaCode}\n\n${zodInferCode}`
+  if (notComponentSchema) return `${schemaCode}${zodInferCode}`
+  return `${componentSchemaCode}${zodInferCode}`
 }

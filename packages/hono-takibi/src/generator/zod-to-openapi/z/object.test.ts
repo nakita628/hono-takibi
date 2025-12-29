@@ -10,11 +10,11 @@ describe('object', () => {
     [{ type: 'object' }, 'z.object({})'],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
-      'z.object({foo:z.string().optional().openapi({"type":"string"})})',
+      'z.object({foo:z.string().openapi({"type":"string"})})',
     ],
     [
       { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
-      'z.object({foo:z.string().optional().openapi({"type":"string"})})',
+      'z.object({foo:z.string().openapi({"type":"string"})})',
     ],
     [
       {
@@ -30,7 +30,7 @@ describe('object', () => {
           propertyName: 'type',
         },
       },
-      'z.object({type:z.enum(["A","B","C"]).optional().openapi({"type":"string","enum":["A","B","C"]})})',
+      'z.object({type:z.enum(["A","B","C"]).openapi({"type":"string","enum":["A","B","C"]})})',
     ],
     [
       {
@@ -43,7 +43,7 @@ describe('object', () => {
         required: ['test'],
         additionalProperties: false,
       },
-      'z.strictObject({test:z.string().optional().openapi({"type":"string"})})',
+      'z.strictObject({test:z.string().openapi({"type":"string"})})',
     ],
 
     [
@@ -57,7 +57,7 @@ describe('object', () => {
         required: ['test'],
         additionalProperties: true,
       },
-      'z.looseObject({test:z.string().optional().openapi({"type":"string"})})',
+      'z.looseObject({test:z.string().openapi({"type":"string"})})',
     ],
   ])('object(%o) → %s', (input, expected) => {
     expect(object(input)).toBe(expected)

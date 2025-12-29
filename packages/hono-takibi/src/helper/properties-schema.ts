@@ -47,7 +47,7 @@ import { getToSafeIdentifier } from '../utils/index.js'
  * // → 'z.object({user:userSchema.optional(),tags:z.array(tagSchema).optional()}).partial()'
  */
 export function propertiesSchema(
-  properties: {readonly [k: string]: Schema},
+  properties: { readonly [k: string]: Schema },
   required: readonly string[],
 ): string {
   const objectProperties = Object.entries(properties).map(([k, schema]) => {
