@@ -210,7 +210,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const out = path.join(dir, 'zod-openapi-hono.ts') as `${string}.ts`
       fs.writeFileSync(input, JSON.stringify(openapi))
 
-      const result = await runTakibi(input, out, { template: true, test: true })
+      const result = await runTakibi(openapi, out, { template: true, test: true })
 
       expect(result.ok).toBe(true)
       if (result.ok) {
@@ -235,7 +235,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(input, out, { template: true, test: true })
+      const result = await runTakibi(openapi, out, { template: true, test: true })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
@@ -262,7 +262,7 @@ describe('templateCode (sandbox)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
-      const result = await runTakibi(input, out, { template: true, test: false })
+      const result = await runTakibi(openapi, out, { template: true, test: false })
 
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
