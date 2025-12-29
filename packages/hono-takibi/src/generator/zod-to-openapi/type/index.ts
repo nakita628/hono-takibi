@@ -8,9 +8,7 @@ function schemaToTypeString(schema: Schema, selfTypeName: string): string {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() ?? ''
     // Self-reference uses Type suffix, others use z.infer
-    return refName === selfTypeName
-      ? `${refName}Type`
-      : `z.infer<typeof ${refName}Schema>`
+    return refName === selfTypeName ? `${refName}Type` : `z.infer<typeof ${refName}Schema>`
   }
 
   if (schema.oneOf && schema.oneOf.length > 0) {

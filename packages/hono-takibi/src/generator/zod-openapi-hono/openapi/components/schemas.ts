@@ -27,7 +27,7 @@ export function schemas(
       const selfToken = toIdentifier(ensureSuffix(schemaName, 'Schema'))
 
       const isSelfReferencing = zSchema.includes(selfToken)
-      
+
       const typeDefinition = isSelfReferencing ? `${zodType(schema, schemaName)}\n\n` : ''
 
       const z = isSelfReferencing ? `z.lazy(() => ${zSchema})` : zSchema
