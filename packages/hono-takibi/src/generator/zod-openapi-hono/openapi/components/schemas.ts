@@ -23,6 +23,7 @@ export function schemas(
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
       const zSchema = zodToOpenAPI(schema)
+      const safeSchemaName = sanitizeIdentifier(schemaName)
       // 4.3 wrap self-referencing schemas with z.lazy() to handle circular dependencies
       const selfToken = toIdentifier(ensureSuffix(schemaName, 'Schema'))
 
@@ -37,8 +38,8 @@ export function schemas(
       const variableName = toIdentifier(ensureSuffix(schemaName, 'Schema'))
       const safeVariableName = variableName
       const schemaCode = exportSchemas
-        ? `export const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}`
-        : `const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}`
+        ? `export const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
+        : `const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
 
       const safeTypeVariableName = sanitizeIdentifier(schemaName)
 
