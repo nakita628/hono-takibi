@@ -1,9 +1,8 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { callbacks } from '../core/callbacks.js'
-import { examples } from '../core/examples.js'
 import { headers } from '../core/headers.js'
+import { componentsCore } from '../core/index.js'
 import { links } from '../core/links.js'
 import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -14,6 +13,7 @@ import { schemas } from '../core/schemas.js'
 import { securitySchemes } from '../core/security-schemes.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
+import { parseOpenAPI } from '../openapi/index.js'
 import { parseCli } from '../utils/index.js'
 
 /**
@@ -89,11 +89,8 @@ export async function honoTakibi(): Promise<
 > {
   /** Slice the arguments to remove the first two (node and script path) */
   const args = process.argv.slice(2)
-  const isHelpRequested = (args: readonly string[]): boolean => {
-    return args.length === 1 && (args[0] === '--help' || args[0] === '-h')
-  }
   /** help */
-  if (isHelpRequested(args)) {
+  if (args.length === 1 && (args[0] === '--help' || args[0] === '-h')) {
     return {
       ok: true,
       value: HELP_TEXT,
@@ -121,6 +118,11 @@ export async function honoTakibi(): Promise<
 
   if (!configResult.ok) return { ok: false, error: configResult.error }
   const c = configResult.value
+
+  /** Parse OpenAPI */
+  const openAPIResult = await parseOpenAPI(c.input)
+  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
+  const openAPI = openAPIResult.value
 
   const zo = c['zod-openapi']
   const components = zo?.components
@@ -194,7 +196,12 @@ export async function honoTakibi(): Promise<
 
   /** examples */
   const examplesResult = components?.examples
-    ? await examples(c.input, components.examples.output, components.examples.split ?? false)
+    ? await componentsCore(
+        openAPI.components?.examples ?? {},
+        'Example',
+        components.examples.output,
+        components.examples.split ?? false,
+      )
     : undefined
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
 
@@ -205,8 +212,14 @@ export async function honoTakibi(): Promise<
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
 
   /** callbacks */
+
   const callbacksResult = components?.callbacks
-    ? await callbacks(c.input, components.callbacks.output, components.callbacks.split ?? false)
+    ? await componentsCore(
+        openAPI.components?.callbacks ?? {},
+        'Callback',
+        components.callbacks.output,
+        components.callbacks.split ?? false,
+      )
     : undefined
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
 

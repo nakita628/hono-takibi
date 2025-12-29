@@ -1,10 +1,11 @@
 import path from 'node:path'
 import { core } from '../helper/core.js'
 import { exports } from '../helper/exports.js'
+import type { Components } from '../openapi/index.js'
 import { exportConst } from '../utils/index.js'
 
-export async function componentsCore<T>(
-  components: { readonly [k: string]: T },
+export async function componentsCore(
+  components: Components,
   suffix:
     | 'Schema'
     | 'Parameter'
@@ -17,7 +18,9 @@ export async function componentsCore<T>(
     | 'Callback',
   output: string | `${string}.ts`,
   split?: boolean,
-) {
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
   if (split) {
     const exportsResult = await exports(components, suffix, output)
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
