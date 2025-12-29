@@ -61,7 +61,7 @@ describe('type', () => {
         | `${string}.tsp`
       const out = path.join(dir, 'index.d.ts') as `${string}.d.ts`
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
-      const result = await type(input, out)
+      const result = await type(openapi, out)
       expect(result.ok).toBe(true)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })

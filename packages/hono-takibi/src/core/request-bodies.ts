@@ -3,8 +3,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { examplesPropExpr } from '../helper/examples.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, RequestBody } from '../openapi/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import type { Components, Content, OpenAPI, RequestBody } from '../openapi/index.js'
 import {
   ensureSuffix,
   findSchema,
@@ -104,17 +103,13 @@ const buildImportExamples = (
  * Generates `components.requestBodies` constants (objects containing Zod schemas).
  */
 export async function requestBodies(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: string | `${string}.ts`,
   split?: boolean,
   imports?: Imports,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
-
   const bodies = openAPI.components?.requestBodies
   if (!bodies || Object.keys(bodies).length === 0)
     return { ok: false, error: 'No requestBodies found' }

@@ -3,7 +3,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { lowerFirst } from '../utils/index.js'
 
 const findSchemaRefs = (code: string, selfName: string): string[] => {
@@ -37,7 +37,7 @@ const findSchemaRefs = (code: string, selfName: string): string[] => {
  * ```
  */
 export async function schemas(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: string | `${string}.ts`,
   exportType: boolean,
   split?: boolean,
@@ -51,14 +51,8 @@ export async function schemas(
       readonly error: string
     }
 > {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) {
-    return { ok: false, error: openAPIResult.error }
-  }
-  const openAPI = openAPIResult.value
-  const { schemas } = openAPI.components ? openAPI.components : {}
-  if (!schemas) return { ok: false, error: 'No schemas found' }
-
+  if (!openAPI.components?.schemas) return { ok: false, error: 'No schemas found' }
+  const schemas = openAPI.components.schemas
   // split
   if (split) {
     const outDir = output.replace(/\.ts$/, '')

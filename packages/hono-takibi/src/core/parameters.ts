@@ -4,8 +4,7 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Parameter } from '../openapi/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import type { OpenAPI, Parameter } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
 
 const parameterBaseName = (key: string): string => {
@@ -21,7 +20,7 @@ const parameterBaseName = (key: string): string => {
  * - When `split=true`, writes one file per parameter (and an `index.ts`).
  */
 export async function parameters(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: string | `${string}.ts`,
   exportType: boolean,
   split?: boolean,
@@ -35,12 +34,8 @@ export async function parameters(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
-
-  const params = openAPI.components?.parameters
-  if (!params || Object.keys(params).length === 0)
+  const parameters = openAPI.components?.parameters
+  if (!parameters || Object.keys(parameters).length === 0)
     return { ok: false, error: 'No parameters found' }
 
   const importZ = `import { z } from '@hono/zod-openapi'`
@@ -61,8 +56,8 @@ export async function parameters(
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(params)) {
-      const p: Parameter | undefined = params[key]
+    for (const key of Object.keys(parameters)) {
+      const p: Parameter | undefined = parameters[key]
       if (!p) continue
 
       const schemaName = parameterBaseName(key)
@@ -87,7 +82,7 @@ export async function parameters(
       if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
 
-    const indexBody = `${Object.keys(params)
+    const indexBody = `${Object.keys(parameters)
       .map((n) => `export * from './${lowerFirst(n)}'`)
       .join('\n')}\n`
 
@@ -104,9 +99,9 @@ export async function parameters(
     }
   }
 
-  const defs = Object.keys(params)
+  const defs = Object.keys(parameters)
     .map((key) => {
-      const p: Parameter | undefined = params[key]
+      const p: Parameter | undefined = parameters[key]
       const schemaName = parameterBaseName(key)
       const z = p
         ? zodToOpenAPI(p.schema, {
@@ -121,7 +116,7 @@ export async function parameters(
 
   const outFile = String(output)
   const locals = new Set(
-    Object.keys(params).map((k) => sanitizeIdentifier(`${parameterBaseName(k)}Schema`)),
+    Object.keys(parameters).map((k) => sanitizeIdentifier(`${parameterBaseName(k)}Schema`)),
   )
   const importSchemas = buildImportSchemas(outFile, defs, locals)
   const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
