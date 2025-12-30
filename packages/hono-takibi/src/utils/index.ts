@@ -797,33 +797,12 @@ export function getToSafeIdentifier(text: string): string {
   return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text) ? text : JSON.stringify(text)
 }
 
-/**
- * Replaces any character not matching `[A-Za-z0-9_$]` with `_`.
- *
- * @param text - The raw string to sanitize.
- * @returns A valid identifier string.
- *
- * @example
- * ```ts
- * sanitizeIdentifier('foo-bar')        // → 'foo_bar'
- * sanitizeIdentifier('123user@name')   // → '123user_name'
- * sanitizeIdentifier('日本語')           // → '___'
- * sanitizeIdentifier('post.title')     // → 'post_title'
- * sanitizeIdentifier('valid_Name')     // → 'valid_Name'
- * ```
- */
-export function sanitizeIdentifier(text: string): string {
-  return text.replace(/[^A-Za-z0-9_$]/g, '_')
-}
-
-/**
- *
- * @param text - The string to convert to a safe identifier.
- * @returns
- */
-export function toIdentifier(text: string): string {
-  const sanitized = text.replace(/[^A-Za-z0-9_$]/g, '_')
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
+export function toIdentifierPascalCase(text: string): string {
+  return text
+    .replace(/[^A-Za-z0-9_$]/g, '_') // invalid character to _
+    .replace(/^([0-9])/, '_$1') // if starts with number, add _
+    .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase()) // _letter to uppercase (e.g. _letter -> Letter)
+    .replace(/^([a-z])/, (_, c) => c.toUpperCase()) // first letter to uppercase (e.g. letter -> Letter)
 }
 
 /**
@@ -1008,7 +987,7 @@ export function exportConst(value: { readonly [k: string]: unknown }, suffix: st
   return Object.keys(value)
     .map(
       (key) =>
-        `export const ${toIdentifier(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key] ?? {})}`,
+        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key] ?? {})}`,
     )
     .join('\n\n')
 }

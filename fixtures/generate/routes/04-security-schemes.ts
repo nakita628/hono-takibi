@@ -1,33 +1,33 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const bearerAuthSecurityScheme = {
+const BearerAuthSecurityScheme = {
   type: 'http',
   scheme: 'bearer',
   bearerFormat: 'JWT',
   description: 'JWT Bearer token authentication',
 }
 
-const apiKeySecurityScheme = {
+const ApiKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-API-Key',
   description: 'API key passed in header',
 }
 
-const apiKeyCookieSecurityScheme = {
+const ApiKeyCookieSecurityScheme = {
   type: 'apiKey',
   in: 'cookie',
   name: 'session_id',
   description: 'Session ID in cookie',
 }
 
-const basicAuthSecurityScheme = {
+const BasicAuthSecurityScheme = {
   type: 'http',
   scheme: 'basic',
   description: 'HTTP Basic authentication',
 }
 
-const oauth2SecurityScheme = {
+const Oauth2SecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 authentication',
   flows: {
@@ -53,7 +53,7 @@ const oauth2SecurityScheme = {
   },
 }
 
-const openIdConnectSecurityScheme = {
+const OpenIdConnectSecurityScheme = {
   type: 'openIdConnect',
   openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
   description: 'OpenID Connect authentication',

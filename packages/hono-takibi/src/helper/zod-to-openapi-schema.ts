@@ -1,4 +1,4 @@
-import { ensureSuffix, sanitizeIdentifier, toIdentifier } from '../utils/index.js'
+import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
 /**
  * Generates a Zod schema constant and optional inferred type alias.
@@ -20,23 +20,20 @@ export function zodToOpenAPISchema(
   exportType: boolean,
   notComponentSchema?: boolean,
 ): string {
-  const variableName = toIdentifier(ensureSuffix(schemaName, 'Schema'))
-  const safeVariableName = variableName
-  const safeSchemaName = sanitizeIdentifier(schemaName)
+  const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
+  const safeSchemaName = toIdentifierPascalCase(schemaName)
 
   const schemaCode = exportSchema
-    ? `export const ${safeVariableName} = ${zodSchema}`
-    : `const ${safeVariableName} = ${zodSchema}`
+    ? `export const ${variableName} = ${zodSchema}`
+    : `const ${variableName} = ${zodSchema}`
 
   // schema code
   const componentSchemaCode = exportSchema
-    ? `export const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
-    : `const ${safeVariableName} = ${zodSchema}.openapi('${safeSchemaName}')`
-  // zod infer code
-  const safeTypeVariableName = sanitizeIdentifier(schemaName)
+    ? `export const ${variableName} = ${zodSchema}.openapi('${safeSchemaName}')`
+    : `const ${variableName} = ${zodSchema}.openapi('${safeSchemaName}')`
 
   const zodInferCode = exportType
-    ? `\n\nexport type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
+    ? `\n\nexport type ${safeSchemaName} = z.infer<typeof ${variableName}>`
     : ''
 
   if (notComponentSchema) return `${schemaCode}${zodInferCode}`

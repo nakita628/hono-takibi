@@ -1,154 +1,154 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const bearerAuthSecurityScheme = {
+const BearerAuthSecurityScheme = {
   type: 'http',
   scheme: 'bearer',
   bearerFormat: 'JWT',
   description: 'JWT Bearer token with RS256 signature',
 }
 
-const basicAuthSecurityScheme = {
+const BasicAuthSecurityScheme = {
   type: 'http',
   scheme: 'basic',
   description: 'HTTP Basic authentication',
 }
 
-const digestAuthSecurityScheme = {
+const DigestAuthSecurityScheme = {
   type: 'http',
   scheme: 'digest',
   description: 'HTTP Digest authentication',
 }
 
-const hobaAuthSecurityScheme = {
+const HobaAuthSecurityScheme = {
   type: 'http',
   scheme: 'hoba',
   description: 'HTTP Origin-Bound Authentication',
 }
 
-const negotiateAuthSecurityScheme = {
+const NegotiateAuthSecurityScheme = {
   type: 'http',
   scheme: 'negotiate',
   description: 'SPNEGO/Kerberos authentication',
 }
 
-const scramAuthSecurityScheme = {
+const ScramAuthSecurityScheme = {
   type: 'http',
   scheme: 'scram-sha-256',
   description: 'SCRAM-SHA-256 authentication',
 }
 
-const vapidAuthSecurityScheme = {
+const VapidAuthSecurityScheme = {
   type: 'http',
   scheme: 'vapid',
   description: 'VAPID authentication for push notifications',
 }
 
-const apiKeyHeaderSecurityScheme = {
+const ApiKeyHeaderSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-API-Key',
   description: 'API key in header',
 }
 
-const apiKeyQuerySecurityScheme = {
+const ApiKeyQuerySecurityScheme = {
   type: 'apiKey',
   in: 'query',
   name: 'api_key',
   description: 'API key in query string',
 }
 
-const apiKeyCookieSecurityScheme = {
+const ApiKeyCookieSecurityScheme = {
   type: 'apiKey',
   in: 'cookie',
   name: 'api_key',
   description: 'API key in cookie',
 }
 
-const primaryApiKeySecurityScheme = {
+const PrimaryApiKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Primary-Key',
   description: 'Primary API key for main operations',
 }
 
-const secondaryApiKeySecurityScheme = {
+const SecondaryApiKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Secondary-Key',
   description: 'Secondary API key for backup',
 }
 
-const rateLimitKeySecurityScheme = {
+const RateLimitKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-RateLimit-Key',
   description: 'Key for rate limit bucket',
 }
 
-const encryptionKeySecurityScheme = {
+const EncryptionKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Encryption-Key',
   description: 'Key for payload encryption',
 }
 
-const signatureKeySecurityScheme = {
+const SignatureKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Signature-Key',
   description: 'Key for request signing',
 }
 
-const mfaTokenSecurityScheme = {
+const MfaTokenSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-MFA-Token',
   description: 'Multi-factor authentication token',
 }
 
-const deviceAuthSecurityScheme = {
+const DeviceAuthSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Device-Token',
   description: 'Device authentication token',
 }
 
-const sessionTokenSecurityScheme = {
+const SessionTokenSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Session-Token',
   description: 'Session token',
 }
 
-const csrfTokenSecurityScheme = {
+const CsrfTokenSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-CSRF-Token',
   description: 'CSRF protection token',
 }
 
-const idempotencyKeySecurityScheme = {
+const IdempotencyKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'Idempotency-Key',
   description: 'Idempotency key for safe retries',
 }
 
-const tenantHeaderSecurityScheme = {
+const TenantHeaderSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Tenant-ID',
   description: 'Multi-tenant organization identifier',
 }
 
-const specialHeaderSecurityScheme = {
+const SpecialHeaderSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-Special-Access',
   description: 'Special access token',
 }
 
-const oauth2AuthCodeSecurityScheme = {
+const Oauth2AuthCodeSecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 Authorization Code flow',
   flows: {
@@ -196,7 +196,7 @@ const oauth2AuthCodeSecurityScheme = {
   },
 }
 
-const oauth2ImplicitSecurityScheme = {
+const Oauth2ImplicitSecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 Implicit flow (legacy)',
   flows: {
@@ -207,7 +207,7 @@ const oauth2ImplicitSecurityScheme = {
   },
 }
 
-const oauth2ClientCredsSecurityScheme = {
+const Oauth2ClientCredsSecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 Client Credentials flow',
   flows: {
@@ -222,7 +222,7 @@ const oauth2ClientCredsSecurityScheme = {
   },
 }
 
-const oauth2PasswordSecurityScheme = {
+const Oauth2PasswordSecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 Resource Owner Password Credentials flow',
   flows: {
@@ -233,7 +233,7 @@ const oauth2PasswordSecurityScheme = {
   },
 }
 
-const oauth2MultiSecurityScheme = {
+const Oauth2MultiSecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 with multiple flows',
   flows: {
@@ -253,38 +253,38 @@ const oauth2MultiSecurityScheme = {
   },
 }
 
-const openIdConnectSecurityScheme = {
+const OpenIdConnectSecurityScheme = {
   type: 'openIdConnect',
   openIdConnectUrl: 'https://auth.example.com/.well-known/openid-configuration',
   description: 'OpenID Connect authentication',
 }
 
-const mutualTLSSecurityScheme = {
+const MutualTLSSecurityScheme = {
   type: 'mutualTLS',
   description: 'Client certificate authentication',
 }
 
-const customSchemeSecurityScheme = {
+const CustomSchemeSecurityScheme = {
   type: 'http',
   scheme: 'custom',
   description: 'Custom authentication scheme',
 }
 
-const awsSigV4SecurityScheme = {
+const AwsSigV4SecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'Authorization',
   description: 'AWS Signature Version 4',
 }
 
-const hawkAuthSecurityScheme = {
+const HawkAuthSecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'Authorization',
   description: 'Hawk authentication',
 }
 
-const ntlmAuthSecurityScheme = { type: 'http', scheme: 'ntlm', description: 'NTLM authentication' }
+const NtlmAuthSecurityScheme = { type: 'http', scheme: 'ntlm', description: 'NTLM authentication' }
 
 export const getPublicRoute = createRoute({
   method: 'get',

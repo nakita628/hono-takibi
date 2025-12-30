@@ -431,7 +431,7 @@ const LimitParamParamsSchema = z
     default: 20,
   })
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const NotFoundResponse = {
   description: 'Resource not found',

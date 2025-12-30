@@ -611,32 +611,57 @@ const IfNoneMatchHeaderParamsSchema = z
     type: 'string',
   })
 
-const X_Request_IDHeader = z.uuid().optional().openapi({ type: 'string', format: 'uuid' })
+const XRequestIDHeader = z
+  .uuid()
+  .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
 
-const X_RateLimit_LimitHeader = z.int32().optional().openapi({ type: 'integer', format: 'int32' })
-
-const X_RateLimit_RemainingHeader = z
+const XRateLimitLimitHeader = z
   .int32()
   .optional()
-  .openapi({ type: 'integer', format: 'int32' })
+  .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
 
-const X_RateLimit_ResetHeader = z.int64().optional().openapi({ type: 'integer', format: 'int64' })
+const XRateLimitRemainingHeader = z
+  .int32()
+  .optional()
+  .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
 
-const X_Total_CountHeader = z.int64().optional().openapi({ type: 'integer', format: 'int64' })
+const XRateLimitResetHeader = z
+  .int64()
+  .optional()
+  .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
 
-const ETagHeader = z.string().optional().openapi({ type: 'string' })
+const XTotalCountHeader = z
+  .int64()
+  .optional()
+  .openapi({ description: 'Total number of items', type: 'integer', format: 'int64' })
 
-const Cache_ControlHeader = z
+const ETagHeader = z
   .string()
   .optional()
-  .openapi({ type: 'string', example: 'max-age=3600, must-revalidate' })
+  .openapi({ description: 'Entity tag for caching', type: 'string' })
 
-const LocationHeader = z.url().optional().openapi({ type: 'string', format: 'uri' })
+const CacheControlHeader = z
+  .string()
+  .optional()
+  .openapi({
+    description: 'Caching directives',
+    type: 'string',
+    example: 'max-age=3600, must-revalidate',
+  })
+
+const LocationHeader = z
+  .url()
+  .optional()
+  .openapi({ description: 'URL of created resource', type: 'string', format: 'uri' })
 
 const LinkHeader = z
   .string()
   .optional()
-  .openapi({ type: 'string', example: '<https://api.example.com/products?page=2>; rel="next"' })
+  .openapi({
+    description: 'Pagination links (RFC 5988)',
+    type: 'string',
+    example: '<https://api.example.com/products?page=2>; rel="next"',
+  })
 
 const ProductExample = {
   summary: 'Example product',
@@ -739,21 +764,21 @@ const CancelOrderByIdLink = {
   description: 'Cancel this order',
 }
 
-const bearerAuthSecurityScheme = {
+const BearerAuthSecurityScheme = {
   type: 'http',
   scheme: 'bearer',
   bearerFormat: 'JWT',
   description: 'JWT authentication token',
 }
 
-const apiKeySecurityScheme = {
+const ApiKeySecurityScheme = {
   type: 'apiKey',
   in: 'header',
   name: 'X-API-Key',
   description: 'API key for server-to-server communication',
 }
 
-const oauth2SecurityScheme = {
+const Oauth2SecurityScheme = {
   type: 'oauth2',
   description: 'OAuth 2.0 authentication',
   flows: {

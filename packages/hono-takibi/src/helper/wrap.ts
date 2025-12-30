@@ -54,7 +54,7 @@ export function wrap(
     ),
   )
 
-  console.log(meta?.parameters)
+  // console.log(meta?.parameters)
 
   const headerMetaProps = meta?.headers
     ? [

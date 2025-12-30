@@ -214,7 +214,7 @@ const ApiResponseSchema = z
   })
   .openapi('ApiResponse')
 
-const petstore_authSecurityScheme = {
+const PetstoreAuthSecurityScheme = {
   type: 'oauth2',
   flows: {
     implicit: {
@@ -224,7 +224,7 @@ const petstore_authSecurityScheme = {
   },
 }
 
-const api_keySecurityScheme = { type: 'apiKey', name: 'api_key', in: 'header' }
+const ApiKeySecurityScheme = { type: 'apiKey', name: 'api_key', in: 'header' }
 
 const PetRequestBody = {
   description: 'Pet object that needs to be added to the store',

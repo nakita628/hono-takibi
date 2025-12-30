@@ -146,7 +146,10 @@ async function main() {
   const queue = [...files]
   await Promise.all(
     Array.from({ length: Math.min(WORKERS, files.length) }, async () => {
-      while (queue.length) await run(queue.pop()!)
+      while (queue.length > 0) {
+        const file = queue.pop()
+        if (file) await run(file)
+      }
     }),
   )
 }

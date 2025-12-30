@@ -1,5 +1,5 @@
 import type { Components, Content } from '../openapi/index.js'
-import { ensureSuffix, isRecord, toIdentifier } from '../utils/index.js'
+import { ensureSuffix, isRecord, toIdentifierPascalCase } from '../utils/index.js'
 
 type ExampleFields = {
   readonly summary?: unknown
@@ -48,7 +48,7 @@ export const exampleExpr = (
     if (key && resolved) {
       if (imports?.examples) {
         usedExampleKeys.add(key)
-        return toIdentifier(ensureSuffix(key, 'Example'))
+        return toIdentifierPascalCase(ensureSuffix(key, 'Example'))
       }
       return inlineExampleExpr(resolved)
     }

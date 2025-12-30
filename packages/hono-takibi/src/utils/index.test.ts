@@ -17,8 +17,7 @@ import {
   regex,
   registerComponent,
   requestParamsArray,
-  sanitizeIdentifier,
-  toIdentifier,
+  toIdentifierPascalCase,
 } from '.'
 
 // Test run
@@ -674,37 +673,20 @@ describe('utils', () => {
       expect(getToSafeIdentifier(input)).toBe(expected)
     })
   })
-  // sanitizeIdentifier
-  describe('sanitizeIdentifier', () => {
+  // toIdentifierPascalCase
+  describe('toIdentifierPascalCase', () => {
     it.concurrent.each([
-      ['test', 'test'],
-      ['test123', 'test123'],
-      ['_test', '_test'],
+      ['test', 'Test'],
+      ['test123', 'Test123'],
+      ['_test', 'Test'],
       ['$test', '$test'],
-      ['foo-bar', 'foo_bar'],
-      ['foo@bar!baz', 'foo_bar_baz'],
-      ['post.title', 'post_title'],
+      ['foo-bar', 'FooBar'],
+      ['foo@bar!baz', 'FooBarBaz'],
+      ['post.title', 'PostTitle'],
       ['テスト', '___'],
-      ['', ''],
-    ])(`sanitizeIdentifier('%s') -> '%s'`, (input, expected) => {
-      expect(sanitizeIdentifier(input)).toBe(expected)
-    })
-  })
-  // toIdentifier
-  describe('toIdentifier', () => {
-    it.concurrent.each([
-      ['test', 'test'],
-      ['test123', 'test123'],
-      ['_test', '_test'],
-      ['$test', '$test'],
-      ['foo-bar', 'foo_bar'],
-      ['foo@bar!baz', 'foo_bar_baz'],
-      ['post.title', 'post_title'],
-      ['テスト', '___'],
-      ['', '_'],
       ['123startWithNumber', '_123startWithNumber'],
-    ])(`toIdentifier('%s') -> '%s'`, (input, expected) => {
-      expect(toIdentifier(input)).toBe(expected)
+    ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
+      expect(toIdentifierPascalCase(input)).toBe(expected)
     })
   })
   // regex

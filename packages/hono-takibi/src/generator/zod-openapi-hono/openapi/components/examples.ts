@@ -1,5 +1,5 @@
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 
 export function examples(components: Components, exportExamples: boolean): string {
   const { examples } = components
@@ -7,7 +7,7 @@ export function examples(components: Components, exportExamples: boolean): strin
 
   return Object.keys(examples)
     .map((k) => {
-      return `${exportExamples ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Example'))} = ${JSON.stringify(examples[k])}`
+      return `${exportExamples ? 'export const' : 'const'} ${toIdentifierPascalCase(ensureSuffix(k, 'Example'))} = ${JSON.stringify(examples[k])}`
     })
     .join('\n\n')
 }
