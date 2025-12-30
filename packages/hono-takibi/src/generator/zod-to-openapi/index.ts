@@ -15,10 +15,6 @@ export function zodToOpenAPI(
     headers?: Header
   },
 ): string {
-  // console.log('--------------------------------')
-  // console.log(JSON.stringify(schema, null, 2))
-  // console.log('--------------------------------')
-
   if (schema === undefined) throw new Error('Schema is undefined')
   /** ref */
   if (schema.$ref !== undefined) {

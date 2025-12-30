@@ -1,279 +1,203 @@
-openapi: '3.0.3'
+openapi: 3.1.0
 info:
-  title: 'ABC only / components x3 (B -> C -> A)'
-  version: '1.0.0'
-
+  title: Headers API
+  version: 1.0.0
 paths:
-  '/A/{C}':
-    post:
-      operationId: A
-      security:
-        - A: []
+  /resources:
+    get:
+      operationId: listResources
       parameters:
-        - $ref: '#/components/parameters/C'
-        - $ref: '#/components/parameters/B'
-        - $ref: '#/components/parameters/A'
-      requestBody:
-        $ref: '#/components/requestBodies/A'
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
-          $ref: '#/components/responses/A'
-      callbacks:
-        A:
-          $ref: '#/components/callbacks/A'
-
-  '/B/{C}':
-    post:
-      operationId: B
-      security:
-        - B: []
+          description: List of resources
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resource'
+  /resources/{id}:
+    get:
+      operationId: getResource
       parameters:
-        - $ref: '#/components/parameters/C'
-        - $ref: '#/components/parameters/B'
-        - $ref: '#/components/parameters/A'
-      requestBody:
-        $ref: '#/components/requestBodies/B'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         '200':
-          $ref: '#/components/responses/B'
-      callbacks:
-        B:
-          $ref: '#/components/callbacks/B'
-
-  '/C/{C}':
-    post:
-      operationId: C
-      security:
-        - C: []
+          description: Resource details
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            Last-Modified:
+              $ref: '#/components/headers/Last-Modified'
+            Cache-Control:
+              $ref: '#/components/headers/Cache-Control'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '304':
+          description: Not modified
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+    put:
+      operationId: updateResource
       parameters:
-        - $ref: '#/components/parameters/C'
-        - $ref: '#/components/parameters/B'
-        - $ref: '#/components/parameters/A'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          required: true
+          schema:
+            type: string
       requestBody:
-        $ref: '#/components/requestBodies/C'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resource'
       responses:
         '200':
-          $ref: '#/components/responses/C'
-      callbacks:
-        C:
-          $ref: '#/components/callbacks/C'
-
+          description: Resource updated
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '412':
+          description: Precondition failed
+          headers:
+            X-Request-ID:
+              $ref: '#/components/headers/X-Request-ID'
+  /download/{id}:
+    get:
+      operationId: downloadFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File download
+          headers:
+            Content-Disposition:
+              $ref: '#/components/headers/Content-Disposition'
+            Content-Length:
+              $ref: '#/components/headers/Content-Length'
+            X-Checksum-SHA256:
+              $ref: '#/components/headers/X-Checksum-SHA256'
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
 components:
   schemas:
-    B:
+    Resource:
       type: object
-      required:
-        - B
-        - C
       properties:
-        B:
+        id:
           type: string
-          format: uri
-        C:
-          $ref: '#/components/schemas/C'
-    C:
-      type: object
-      required:
-        - B
-        - A
-      properties:
-        B:
+        name:
           type: string
-          format: uri
-        A:
-          $ref: '#/components/schemas/A'
-    A:
-      type: object
-      required:
-        - B
-        - A
-      properties:
-        B:
-          type: string
-          format: uri
-        A:
-          type: string
-
-  parameters:
-    B:
-      name: B
-      in: query
-      required: false
-      schema:
-        type: string
-    C:
-      name: C
-      in: path
-      required: true
-      schema:
-        type: string
-    A:
-      name: A
-      in: header
-      required: false
-      schema:
-        type: string
-
-  securitySchemes:
-    B:
-      type: http
-      scheme: bearer
-    C:
-      type: http
-      scheme: bearer
-    A:
-      type: http
-      scheme: bearer
-
-  requestBodies:
-    B:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/B'
-          examples:
-            B:
-              $ref: '#/components/examples/B'
-    C:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/C'
-          examples:
-            C:
-              $ref: '#/components/examples/C'
-    A:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/A'
-          examples:
-            A:
-              $ref: '#/components/examples/A'
-
-  responses:
-    B:
-      description: B
-      headers:
-        B:
-          $ref: '#/components/headers/B'
-        C:
-          $ref: '#/components/headers/C'
-        A:
-          $ref: '#/components/headers/A'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/B'
-          examples:
-            B:
-              $ref: '#/components/examples/B'
-      links:
-        B:
-          $ref: '#/components/links/B'
-    C:
-      description: C
-      headers:
-        B:
-          $ref: '#/components/headers/B'
-        C:
-          $ref: '#/components/headers/C'
-        A:
-          $ref: '#/components/headers/A'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/C'
-          examples:
-            C:
-              $ref: '#/components/examples/C'
-      links:
-        C:
-          $ref: '#/components/links/C'
-    A:
-      description: A
-      headers:
-        B:
-          $ref: '#/components/headers/B'
-        C:
-          $ref: '#/components/headers/C'
-        A:
-          $ref: '#/components/headers/A'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/A'
-          examples:
-            A:
-              $ref: '#/components/examples/A'
-      links:
-        A:
-          $ref: '#/components/links/A'
-
+        data:
+          type: object
   headers:
-    B:
+    X-Request-ID:
+      description: Unique request identifier for tracing
+      required: true
       schema:
         type: string
-    C:
+        format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+    X-RateLimit-Limit:
+      description: Maximum requests per time window
+      required: true
+      schema:
+        type: integer
+        format: int32
+      example: 1000
+    X-RateLimit-Remaining:
+      description: Remaining requests in current window
+      required: true
+      schema:
+        type: integer
+        format: int32
+      example: 999
+    X-RateLimit-Reset:
+      description: Unix timestamp when rate limit resets
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1640995200
+    ETag:
+      description: Entity tag for cache validation
+      required: true
       schema:
         type: string
-    A:
+      example: '"33a64df551425fcc55e4d42a148795d9f25f89d4"'
+    Last-Modified:
+      description: Last modification timestamp
+      required: false
       schema:
         type: string
-
-  examples:
-    B:
-      value:
-        B: 'https://example.com/B'
-        C:
-          B: 'https://example.com/C'
-          A:
-            B: 'https://example.com/A'
-            A: A
-    C:
-      value:
-        B: 'https://example.com/C'
-        A:
-          B: 'https://example.com/A'
-          A: A
-    A:
-      value:
-        B: 'https://example.com/A'
-        A: A
-
-  links:
-    B:
-      operationId: B
-    C:
-      operationId: C
-    A:
-      operationId: A
-
-  callbacks:
-    B:
-      '{$request.body#/B}':
-        post:
-          requestBody:
-            $ref: '#/components/requestBodies/B'
-          responses:
-            '200':
-              $ref: '#/components/responses/B'
-    C:
-      '{$request.body#/B}':
-        post:
-          requestBody:
-            $ref: '#/components/requestBodies/C'
-          responses:
-            '200':
-              $ref: '#/components/responses/C'
-    A:
-      '{$request.body#/B}':
-        post:
-          requestBody:
-            $ref: '#/components/requestBodies/A'
-          responses:
-            '200':
-              $ref: '#/components/responses/A'
+        format: date-time
+      example: '2024-01-15T10:30:00Z'
+    Cache-Control:
+      description: Caching directives
+      required: false
+      schema:
+        type: string
+      example: 'max-age=3600, must-revalidate'
+    Content-Disposition:
+      description: Content disposition for downloads
+      required: true
+      schema:
+        type: string
+      example: 'attachment; filename="document.pdf"'
+    Content-Length:
+      description: Size in bytes
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1048576
+    X-Checksum-SHA256:
+      description: SHA256 checksum of content
+      required: false
+      schema:
+        type: string
+      example: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'

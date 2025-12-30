@@ -186,11 +186,11 @@ export async function honoTakibi(): Promise<
   /** headers */
   const headersResult = components?.headers
     ? await headers(
-        c.input,
+        openAPI,
         components.headers.output,
         components.headers.exportTypes ?? false,
         components.headers.split ?? false,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
+        // schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }

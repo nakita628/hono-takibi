@@ -1,4 +1,7 @@
+import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
+import { buildExamples } from '../utils/index.js'
+import { makeContent } from './components.js'
 
 type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
 
@@ -52,6 +55,98 @@ export function wrap(
         k !== 'nullable' && k !== 'const' && !(k === 'required' && typeof v === 'boolean'),
     ),
   )
+
+  const headerObject = [
+    meta?.headers?.description
+      ? `description:${JSON.stringify(meta.headers.description)}`
+      : undefined,
+    meta?.headers?.required ? `required:${JSON.stringify(meta.headers.required)}` : undefined,
+    meta?.headers?.deprecated ? `deprecated:${JSON.stringify(meta.headers.deprecated)}` : undefined,
+    meta?.headers?.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
+    meta?.headers?.examples ? `examples:${buildExamples(meta.headers.examples)}` : undefined,
+    meta?.headers?.strict ? `strict:${JSON.stringify(meta.headers.strict)}` : undefined,
+    meta?.headers?.explode ? `explode:${JSON.stringify(meta.headers.explode)}` : undefined,
+    meta?.headers?.schema ? `schema:${zodToOpenAPI(meta.headers.schema)}` : undefined,
+    meta?.headers?.content ? `content:${makeContent(meta.headers.content)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+
+  console.log('--------------------------------')
+  console.log(JSON.stringify(meta?.headers, null, 2))
+  console.log('--------------------------------')
+
+  Object.entries(meta?.headers ?? {}).map(([headerKey, header]) => {
+    const isHeaders = (v: unknown): v is Header[] =>
+      Array.isArray(v) && v.every((v) => typeof v === 'object' && v !== null)
+    const isHeader = (v: unknown): v is Header => typeof v === 'object' && v !== null
+
+    // if (isHeaders(header)) {
+    //   Object.entries(header).map(([k, v]) => {
+    //     if (isHeader(v)) {
+    //       const props = [
+    //         'description' in v && typeof v.description === 'string'
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.description)}`
+    //           : undefined,
+    //         'required' in v && typeof v.required === 'boolean'
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.required)}`
+    //           : undefined,
+    //         'deprecated' in v && typeof v.deprecated === 'boolean'
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.deprecated)}`
+    //           : undefined,
+    //         'example' in v && typeof v.example !== undefined
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.example)}`
+    //           : undefined,
+    //         'examples' in v && typeof v.examples !== undefined
+    //           ? `${JSON.stringify(k)}:${buildExamples(v.examples)}`
+    //           : undefined,
+    //         'strict' in v && typeof v.strict === 'string'
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.strict)}`
+    //           : undefined,
+    //         'explode' in v && typeof v.explode === 'boolean'
+    //           ? `${JSON.stringify(k)}:${JSON.stringify(v.explode)}`
+    //           : undefined,
+    //         'schema' in v && typeof v.schema !== undefined
+    //           ? `${JSON.stringify(k)}:${zodToOpenAPI(v.schema)}`
+    //           : undefined,
+    //         'content' in v && typeof v.content !== undefined
+    //           ? `${JSON.stringify(k)}:${makeContent(v.content)}`
+    //           : undefined,
+    //       ]
+    //         .filter((v) => v !== undefined)
+    //         .join(',')
+
+    //       console.log('--------------------------------')
+    //       console.log(props)
+    //       console.log('--------------------------------')
+    //     }
+    //   })
+    // }
+
+    // if (isHeader(v)) {
+    //   const props = [
+    //     'description' in v && v.description
+    //       ? `description:${JSON.stringify(v.description)}`
+    //       : undefined,
+    //     'required' in v && v.required ? `required:${JSON.stringify(v.required)}` : undefined,
+    //     'deprecated' in v && v.deprecated
+    //       ? `deprecated:${JSON.stringify(v.deprecated)}`
+    //       : undefined,
+    //     'example' in v && v.example ? `example:${JSON.stringify(v.example)}` : undefined,
+    //     'examples' in v && v.examples ? `examples:${buildExamples(v.examples)}` : undefined,
+    //     'strict' in v && v.strict ? `strict:${JSON.stringify(v.strict)}` : undefined,
+    //     'explode' in v && v.explode ? `explode:${JSON.stringify(v.explode)}` : undefined,
+    //     'schema' in v && v.schema ? `schema:${zodToOpenAPI(v.schema)}` : undefined,
+    //     'content' in v && v.content ? `content:${makeContent(v.content)}` : undefined,
+    //   ]
+    //     .filter((v) => v !== undefined)
+    //     .join(',')
+
+    //   console.log('--------------------------------')
+    //   console.log(props)
+    //   console.log('--------------------------------')
+    // }
+  })
 
   const openapiSchema = args ? JSON.stringify(args) : undefined
   const openapiSchemaBody =

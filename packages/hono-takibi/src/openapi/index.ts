@@ -270,6 +270,10 @@ export type Header = {
         }
       | Reference
   }
+  style?: string
+  explode?: boolean
+  schema?: Schema
+  content?: Content
 }
 
 type Link = {

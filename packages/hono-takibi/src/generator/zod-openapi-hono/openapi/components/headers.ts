@@ -1,5 +1,7 @@
-import type { Components, Schema } from '../../../../openapi/index.js'
-import { ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
+import { ref } from 'node:process'
+import { makeContent } from '../../../../helper/components.js'
+import type { Components, Reference, Schema } from '../../../../openapi/index.js'
+import { buildExamples, ensureSuffix, isRecord, toIdentifier } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function headers(
@@ -7,33 +9,29 @@ export function headers(
   exportHeaders: boolean,
   exportHeadersTypes: boolean,
 ) {
+  const isReference = (v: unknown): v is Reference =>
+    typeof v === 'object' && v !== null && '$ref' in v
   const { headers } = components
   if (!headers) return ''
 
-  return Object.keys(headers)
-    .map((k) => {
-      const header = headers[k]
-      const h: Record<string, unknown> = isRecord(header) ? header : {}
-      const rawSchema = isRecord(h.schema) ? (h.schema as Schema) : {}
-      const description = h.description as string | undefined
-      const example = h.example
-      const schema: Schema = {
-        ...rawSchema,
-        ...(description !== undefined && rawSchema.description === undefined
-          ? { description }
-          : {}),
-        ...(example !== undefined && rawSchema.example === undefined ? { example } : {}),
-      }
-      const meta = {
-        headers: {
-          ...header,
-        },
-      }
-      const z = zodToOpenAPI(schema, meta)
+  return Object.entries(headers)
+    .map(([k, header]) => {
       const zInfer = exportHeadersTypes
-        ? `export type ${toIdentifier(ensureSuffix(k, 'Header'))} = z.infer<typeof ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))}>`
+        ? `\n\nexport type ${toIdentifier(ensureSuffix(k, 'Header'))} = z.infer<typeof ${toIdentifier(ensureSuffix(k, 'Header'))}>`
         : ''
-      return `${exportHeaders ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'HeaderSchema'))} = ${z}${zInfer ? `\n\n${zInfer}` : ''}`
+
+      if (isReference(header)) {
+        const schema = ref(header.$ref)
+        return `${exportHeaders ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Header'))}=${schema}${zInfer}`
+      }
+      if (header.schema) {
+        const schema = zodToOpenAPI(header.schema, { headers })
+        return `${exportHeaders ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Header'))}=${schema}${zInfer}`
+      }
+      if (header.content) {
+        const content = makeContent(header.content)
+        return `${exportHeaders ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'Header'))}={${content}}${zInfer}`
+      }
     })
     .join('\n\n')
 }

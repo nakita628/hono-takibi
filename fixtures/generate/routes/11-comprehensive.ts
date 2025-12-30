@@ -776,57 +776,32 @@ const InternalErrorResponse = {
   },
 }
 
-const X_Request_IDHeaderSchema = z
-  .uuid()
-  .openapi({ type: 'string', format: 'uuid', description: 'Unique request identifier for tracing' })
+const X_Request_IDHeader = z.uuid().optional().openapi({ type: 'string', format: 'uuid' })
 
-const X_RateLimit_LimitHeaderSchema = z
+const X_RateLimit_LimitHeader = z.int32().optional().openapi({ type: 'integer', format: 'int32' })
+
+const X_RateLimit_RemainingHeader = z
   .int32()
   .optional()
-  .openapi({ type: 'integer', format: 'int32', description: 'Maximum requests per window' })
+  .openapi({ type: 'integer', format: 'int32' })
 
-const X_RateLimit_RemainingHeaderSchema = z
-  .int32()
-  .optional()
-  .openapi({ type: 'integer', format: 'int32', description: 'Remaining requests in window' })
+const X_RateLimit_ResetHeader = z.int64().optional().openapi({ type: 'integer', format: 'int64' })
 
-const X_RateLimit_ResetHeaderSchema = z
-  .int64()
-  .optional()
-  .openapi({ type: 'integer', format: 'int64', description: 'Unix timestamp when limit resets' })
+const X_Total_CountHeader = z.int64().optional().openapi({ type: 'integer', format: 'int64' })
 
-const X_Total_CountHeaderSchema = z
-  .int64()
-  .optional()
-  .openapi({ type: 'integer', format: 'int64', description: 'Total number of items' })
+const ETagHeader = z.string().optional().openapi({ type: 'string' })
 
-const ETagHeaderSchema = z
+const Cache_ControlHeader = z
   .string()
   .optional()
-  .openapi({ type: 'string', description: 'Entity tag for caching' })
+  .openapi({ type: 'string', example: 'max-age=3600, must-revalidate' })
 
-const Cache_ControlHeaderSchema = z
+const LocationHeader = z.url().optional().openapi({ type: 'string', format: 'uri' })
+
+const LinkHeader = z
   .string()
   .optional()
-  .openapi({
-    type: 'string',
-    example: 'max-age=3600, must-revalidate',
-    description: 'Caching directives',
-  })
-
-const LocationHeaderSchema = z
-  .url()
-  .optional()
-  .openapi({ type: 'string', format: 'uri', description: 'URL of created resource' })
-
-const LinkHeaderSchema = z
-  .string()
-  .optional()
-  .openapi({
-    type: 'string',
-    example: '<https://api.example.com/products?page=2>; rel="next"',
-    description: 'Pagination links (RFC 5988)',
-  })
+  .openapi({ type: 'string', example: '<https://api.example.com/products?page=2>; rel="next"' })
 
 const ProductExample = {
   summary: 'Example product',
