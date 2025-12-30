@@ -1,7 +1,5 @@
-import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { buildExamples } from '../utils/index.js'
-import { makeContent } from './components.js'
 
 type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
 
