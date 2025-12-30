@@ -43,7 +43,7 @@ export function app(
   const routesImport =
     routeNames.length > 0 ? `import { ${routeNames.join(',')} } from '${routeModule}'` : ''
 
-  const path = basePath !== undefined ? `${basePath}/doc` : '/doc'
+  const path = basePath === '/' ? '/doc' : `${basePath}/doc`
   const registerComponentCode = openapi.components?.securitySchemes
     ? registerComponent(openapi.components.securitySchemes)
     : ''
@@ -63,9 +63,10 @@ export function app(
     .filter(Boolean)
     .join('\n')
 
-  const appInit = basePath !== '/'
-    ? `const app = new OpenAPIHono().basePath('${basePath}')`
-    : 'const app = new OpenAPIHono()'
+  const appInit =
+    basePath !== '/'
+      ? `const app = new OpenAPIHono().basePath('${basePath}')`
+      : 'const app = new OpenAPIHono()'
 
   const apiInit =
     'export const api = app' +
