@@ -10,8 +10,7 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 const isReference = (v: unknown): v is Reference =>
   typeof v === 'object' && v !== null && '$ref' in v
 
-const isHeader = (v: unknown): v is Header =>
-  typeof v === 'object' && v !== null && !('$ref' in v)
+const isHeader = (v: unknown): v is Header => typeof v === 'object' && v !== null && !('$ref' in v)
 
 export function headers(
   components: Components,

@@ -126,16 +126,27 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const WORKERS = availableParallelism()
 
-const run = (file: string): Promise<void> =>
+type Result = { file: string; success: true } | { file: string; success: false; stderr: string }
+
+const run = (file: string): Promise<Result> =>
   new Promise((resolve) => {
-    spawn(
+    const chunks: Buffer[] = []
+    const child = spawn(
       'hono-takibi',
       [`openapi/${file}`, '-o', `routes/${file.replace(/\.(yaml|json|tsp)$/i, '.ts')}`],
       {
-        stdio: 'ignore',
+        stdio: ['ignore', 'ignore', 'pipe'],
         shell: false,
       },
-    ).on('close', resolve)
+    )
+    child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk))
+    child.on('close', (code) => {
+      resolve(
+        code === 0
+          ? { file, success: true }
+          : { file, success: false, stderr: Buffer.concat(chunks).toString() },
+      )
+    })
   })
 
 async function main() {
@@ -144,14 +155,29 @@ async function main() {
   )
 
   const queue = [...files]
+  const results: Result[] = []
+
   await Promise.all(
     Array.from({ length: Math.min(WORKERS, files.length) }, async () => {
       while (queue.length > 0) {
         const file = queue.pop()
-        if (file) await run(file)
+        if (file) results.push(await run(file))
       }
     }),
   )
+
+  const failures = results.filter((r): r is Extract<Result, { success: false }> => !r.success)
+
+  if (failures.length > 0) {
+    console.error(`\n❌ ${failures.length}/${results.length} files failed:\n`)
+    for (const { file, stderr } of failures) {
+      console.error(`--- ${file} ---`)
+      console.error(stderr || '(no stderr output)')
+    }
+    process.exit(1)
+  }
+
+  console.log(`✅ ${results.length} files processed successfully`)
 }
 
 main()

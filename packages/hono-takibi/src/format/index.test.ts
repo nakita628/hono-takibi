@@ -6,8 +6,8 @@ import { fmt } from '.'
 
 describe('fmt', () => {
   it.concurrent('returns formatted code as ok result', async () => {
-    const code = "const takibi = 'hono-takibi';"
-    const result = await fmt(code)
+    const input = "const takibi = 'hono-takibi';"
+    const result = await fmt(input)
     const expected = `const takibi = 'hono-takibi'
 `
     expect(result).toStrictEqual({ ok: true, value: expected })
