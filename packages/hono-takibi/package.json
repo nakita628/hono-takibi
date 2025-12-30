@@ -58,7 +58,7 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.7.0",
     "@typespec/openapi3": "^1.7.0",
-    "prettier": "^3.7.4",
+    "oxfmt": "^0.21.0",
     "tsx": "^4.21.0"
   },
   "devDependencies": {
