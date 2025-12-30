@@ -230,14 +230,14 @@ export async function route(
     const responseTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Response') : []
     const requestBodyTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'RequestBody') : []
     const linkTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Link') : []
-    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callbacks') : []
+    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callback') : []
     const exampleTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Example') : []
 
     const missing =
       requireTarget('responses', componentConfig?.responses, responseTokens) ??
       requireTarget('requestBodies', componentConfig?.requestBodies, requestBodyTokens) ??
       requireTarget('links', componentConfig?.links, linkTokens) ??
-      requireTarget('callbacks', componentConfig?.callbacks, callbackTokens) ??
+      requireTarget('callback', componentConfig?.callbacks, callbackTokens) ??
       requireTarget('examples', componentConfig?.examples, exampleTokens)
 
     if (missing) throw new Error(missing)

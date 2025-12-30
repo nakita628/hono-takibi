@@ -44,11 +44,11 @@ export function route(path: string, method: string, operation: Operation): strin
     return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
   }
   const callbackConstName = (key: string): string => {
-    const base = key.endsWith('Callbacks')
+    const base = key.endsWith('Callback')
       ? key
       : key.endsWith('Callback')
-        ? `${key}s`
-        : `${key}Callbacks`
+        ? `${key}`
+        : `${key}Callback`
     return toIdentifier(base)
   }
 
