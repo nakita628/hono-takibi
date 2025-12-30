@@ -63,7 +63,7 @@ export function app(
     .filter(Boolean)
     .join('\n')
 
-  const appInit = basePath
+  const appInit = basePath !== '/'
     ? `const app = new OpenAPIHono().basePath('${basePath}')`
     : 'const app = new OpenAPIHono()'
 
