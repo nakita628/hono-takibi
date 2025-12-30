@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { headers } from '../core/headers.js'
 import { componentsCore } from '../core/index.js'
 import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -185,12 +184,12 @@ export async function honoTakibi(): Promise<
 
   /** headers */
   const headersResult = components?.headers
-    ? await headers(
-        openAPI,
+    ? await componentsCore(
+        openAPI.components?.headers ?? {},
+        'Header',
         components.headers.output,
-        components.headers.exportTypes ?? false,
         components.headers.split ?? false,
-        // schemaTarget ? { schemas: schemaTarget } : undefined,
+        components.headers.exportTypes ?? false,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
@@ -257,7 +256,7 @@ export async function honoTakibi(): Promise<
   /** responses */
   const responsesResult = components?.responses
     ? await responses(
-        openAPI.components?.responses ?? {},
+        openAPI.components ?? {},
         components.responses.output,
         components.responses.split ?? false,
         schemaTarget || headersTarget || examplesTarget || linksTarget

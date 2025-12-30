@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { moduleSpecFrom } from './module-spec-from'
 
 describe('moduleSpecFrom', () => {
-  it.concurrent('returns relative path from file to output', () => {
+  it.concurrent('returns relative path from file to output (strips /index)', () => {
     const result = moduleSpecFrom('/src/routes/index.ts', { output: '/src/schemas/index.ts' })
-    expect(result).toBe('../schemas/index')
+    expect(result).toBe('../schemas')
   })
 
   it.concurrent('returns relative path without .ts extension', () => {
@@ -12,9 +12,9 @@ describe('moduleSpecFrom', () => {
     expect(result).toBe('../schemas/user')
   })
 
-  it.concurrent('returns ./index for split directory in same directory', () => {
+  it.concurrent('returns . for split directory in same directory', () => {
     const result = moduleSpecFrom('/src/routes/index.ts', { output: '/src/routes', split: true })
-    expect(result).toBe('./index')
+    expect(result).toBe('.')
   })
 
   it.concurrent('returns relative path to directory for split mode', () => {
@@ -27,10 +27,10 @@ describe('moduleSpecFrom', () => {
     expect(result).toBe('./schemas')
   })
 
-  it.concurrent('handles nested paths', () => {
+  it.concurrent('handles nested paths (strips /index)', () => {
     const result = moduleSpecFrom('/src/api/v1/routes/users.ts', {
       output: '/src/shared/schemas/index.ts',
     })
-    expect(result).toBe('../../../shared/schemas/index')
+    expect(result).toBe('../../../shared/schemas')
   })
 })

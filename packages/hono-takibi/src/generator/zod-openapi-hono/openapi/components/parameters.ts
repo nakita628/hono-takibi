@@ -1,6 +1,9 @@
-import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
+import {
+  ensureSuffix,
+  toIdentifierPascalCase,
+  zodToOpenAPISchema,
+} from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**

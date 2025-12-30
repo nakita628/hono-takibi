@@ -3,7 +3,6 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { OpenAPI, Parameter } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -11,6 +10,7 @@ import {
   lowerFirst,
   renderNamedImport,
   toIdentifierPascalCase,
+  zodToOpenAPISchema,
 } from '../utils/index.js'
 
 /**

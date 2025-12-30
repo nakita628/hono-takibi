@@ -265,15 +265,17 @@ export async function route(
         ? renderNamedImport(Array.from(schemaImportFromRoute), schemaSpec, { sort: true })
         : undefined
 
+    // OpenAPI Specification order:
+    // schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
     return [
       schemaImportLine,
       makeImportLine(parameterImportFromTarget, componentConfig?.parameters),
-      makeImportLine(headerImportFromTarget, componentConfig?.headers),
-      makeImportLine(responseTokens, componentConfig?.responses),
       makeImportLine(requestBodyTokens, componentConfig?.requestBodies),
+      makeImportLine(responseTokens, componentConfig?.responses),
+      makeImportLine(headerImportFromTarget, componentConfig?.headers),
+      makeImportLine(exampleTokens, componentConfig?.examples),
       makeImportLine(linkTokens, componentConfig?.links),
       makeImportLine(callbackTokens, componentConfig?.callbacks),
-      makeImportLine(exampleTokens, componentConfig?.examples),
     ].filter((line): line is string => Boolean(line))
   }
 
