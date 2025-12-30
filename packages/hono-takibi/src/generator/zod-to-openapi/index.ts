@@ -85,7 +85,11 @@ export function zodToOpenAPI(
       }
       return wrap(allOfSchemas[0], { ...schema, nullable }, meta)
     }
-    const z = `z.intersection(${allOfSchemas.join(',')})`
+    // z.intersection only accepts 2 arguments, so use .and() chain for 3+
+    const z =
+      allOfSchemas.length === 2
+        ? `z.intersection(${allOfSchemas[0]},${allOfSchemas[1]})`
+        : allOfSchemas.slice(1).reduce((acc, s) => `${acc}.and(${s})`, allOfSchemas[0])
     return wrap(z, schema, meta)
   }
 

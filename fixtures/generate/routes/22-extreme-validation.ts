@@ -184,15 +184,16 @@ const ExtremeCompositionsSchema = z
         },
       }),
     conflictingAllOf: z
-      .intersection(
-        z
-          .object({ shared: z.string().min(5).openapi({ type: 'string', minLength: 5 }) })
-          .partial()
-          .openapi({ type: 'object', properties: { shared: { type: 'string', minLength: 5 } } }),
+      .object({ shared: z.string().min(5).openapi({ type: 'string', minLength: 5 }) })
+      .partial()
+      .openapi({ type: 'object', properties: { shared: { type: 'string', minLength: 5 } } })
+      .and(
         z
           .object({ shared: z.string().max(10).openapi({ type: 'string', maxLength: 10 }) })
           .partial()
           .openapi({ type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } }),
+      )
+      .and(
         z
           .object({
             shared: z
