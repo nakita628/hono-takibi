@@ -14,7 +14,9 @@
     "coverage": "pnpm -F hono-takibi coverage",
     "release": "pnpm -F hono-takibi release",
     "takibis": "pnpm -F hono-takibi takibis",
-    "fixtures": "pnpm -F @fixtures/generate dev"
+    "fixtures": "pnpm -F @fixtures/generate dev",
+    "tsgo": "pnpm -F @fixtures/generate typecheck"
+
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10"
