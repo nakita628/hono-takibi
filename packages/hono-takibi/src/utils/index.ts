@@ -991,3 +991,40 @@ export function exportConst(value: { readonly [k: string]: unknown }, suffix: st
     )
     .join('\n\n')
 }
+
+/**
+ * Generates a Zod schema constant and optional inferred type alias.
+ *
+ * @param schemaName - The base name of the schema (used for variable and type names)
+ * @param zodSchema - The Zod schema string to assign
+ * @param exportSchema - Whether to `export` the Zod schema constant
+ * @param exportType - Whether to `export` the inferred type alias
+ * @returns The generated code string containing the schema and optional type alias
+ *
+ * @example
+ * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
+ * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ */
+export function zodToOpenAPISchema(
+  schemaName: string,
+  zodSchema: string,
+  exportSchema: boolean,
+  exportType: boolean,
+  notComponentSchema?: boolean,
+): string {
+  const schemaCode = exportSchema
+    ? `export const ${schemaName} = ${zodSchema}`
+    : `const ${schemaName} = ${zodSchema}`
+
+  // schema code
+  const componentSchemaCode = exportSchema
+    ? `export const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    : `const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+  // zod infer code
+  const zodInferCode = exportType
+    ? `\n\nexport type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>`
+    : ''
+
+  if (notComponentSchema) return `${schemaCode}${zodInferCode}`
+  return `${componentSchemaCode}${zodInferCode}`
+}

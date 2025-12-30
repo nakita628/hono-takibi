@@ -18,6 +18,7 @@ import {
   registerComponent,
   requestParamsArray,
   toIdentifierPascalCase,
+  zodToOpenAPISchema,
 } from '.'
 
 // Test run
@@ -746,6 +747,33 @@ export type Limit = z.infer<typeof LimitSchema>`)
       ['', 'Example', 'Example'],
     ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
       expect(ensureSuffix(input, suffix)).toBe(expected)
+    })
+  })
+  // zodToOpenAPISchema
+  describe('zodToOpenAPISchema Test', () => {
+    // #1: exportSchema=true, exportType=true
+    it.concurrent('zodToOpenAPISchema --export-schema true --export-type true', () => {
+      const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', true, true)
+      const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')\n\nexport type Test = z.infer<typeof TestSchema>`
+      expect(result).toBe(expected)
+    })
+    // #2: exportSchema=true, exportType=false
+    it.concurrent('zodToOpenAPISchema --export-schema true --export-type false', () => {
+      const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', true, false)
+      const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')`
+      expect(result).toBe(expected)
+    })
+    // #3: exportSchema=false, exportType=true
+    it.concurrent('zodToOpenAPISchema --export-schema false --export-type true', () => {
+      const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', false, true)
+      const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')\n\nexport type Test = z.infer<typeof TestSchema>`
+      expect(result).toBe(expected)
+    })
+    // #4: exportSchema=false, exportType=false
+    it.concurrent('zodToOpenAPISchema --export-schema false --export-type false', () => {
+      const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', false, false)
+      const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')`
+      expect(result).toBe(expected)
     })
   })
 })
