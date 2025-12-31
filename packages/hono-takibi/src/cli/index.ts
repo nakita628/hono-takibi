@@ -186,11 +186,10 @@ export async function honoTakibi(): Promise<
   /** headers */
   const headersResult = components?.headers
     ? await headers(
-        c.input,
+        openAPI,
         components.headers.output,
         components.headers.exportTypes ?? false,
         components.headers.split ?? false,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
@@ -257,7 +256,7 @@ export async function honoTakibi(): Promise<
   /** responses */
   const responsesResult = components?.responses
     ? await responses(
-        openAPI.components?.responses ?? {},
+        openAPI.components ?? {},
         components.responses.output,
         components.responses.split ?? false,
         schemaTarget || headersTarget || examplesTarget || linksTarget

@@ -297,7 +297,7 @@ const SortParamParamsSchema = z
     type: 'string',
   })
 
-const bearerAuthSecurityScheme = {
+const BearerAuthSecurityScheme = {
   type: 'http',
   scheme: 'bearer',
   bearerFormat: 'JWT',

@@ -2,8 +2,10 @@ import path from 'node:path'
 
 const stripTsExt = (p: string): string => (p.endsWith('.ts') ? p.slice(0, -3) : p)
 
+const stripIndex = (p: string): string => (p.endsWith('/index') ? p.slice(0, -6) : p)
+
 const ensureDotRelative = (spec: string): string => {
-  if (spec === '') return './index'
+  if (spec === '') return '.'
   if (spec.startsWith('.')) return spec
   return `./${spec}`
 }
@@ -11,7 +13,7 @@ const ensureDotRelative = (spec: string): string => {
 /**
  * Builds a relative module specifier from `fromFile` to a configured output.
  *
- * - If `target.split=true`, imports `.../index` in that directory.
+ * - If `target.split=true`, imports the directory (without `/index`).
  * - Strips the `.ts` extension to match existing generated output style.
  *
  * @param fromFile - The file path to resolve the module specifier from.
@@ -28,5 +30,5 @@ export function moduleSpecFrom(
   const fromDir = path.dirname(fromFile)
   const entry = target.split ? path.join(target.output) : target.output
   const rel = path.relative(fromDir, entry).replace(/\\/g, '/')
-  return ensureDotRelative(stripTsExt(rel))
+  return ensureDotRelative(stripIndex(stripTsExt(rel)))
 }

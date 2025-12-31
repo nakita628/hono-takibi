@@ -17,6 +17,7 @@ const EntityLinksSchema = z
       related: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
     },
   })
+  .openapi('EntityLinks')
 
 const PermissionsSchema = z
   .object({
@@ -35,6 +36,7 @@ const PermissionsSchema = z
       canShare: { type: 'boolean' },
     },
   })
+  .openapi('Permissions')
 
 const EntityMetaSchema = z
   .object({
@@ -54,6 +56,7 @@ const EntityMetaSchema = z
       permissions: { $ref: '#/components/schemas/Permissions' },
     },
   })
+  .openapi('EntityMeta')
 
 const RelationshipMetaSchema = z
   .object({
@@ -65,6 +68,7 @@ const RelationshipMetaSchema = z
     type: 'object',
     properties: { count: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } },
   })
+  .openapi('RelationshipMeta')
 
 const RelationshipLinkUrlsSchema = z
   .object({
@@ -79,11 +83,13 @@ const RelationshipLinkUrlsSchema = z
       related: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('RelationshipLinkUrls')
 
 const EntityIdSchema = z
   .uuid()
   .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Unique entity identifier' })
+  .openapi('EntityId')
 
 const EntityTypeSchema = z
   .enum(['user', 'organization', 'project', 'resource'])
@@ -93,6 +99,7 @@ const EntityTypeSchema = z
     enum: ['user', 'organization', 'project', 'resource'],
     description: 'Entity type discriminator',
   })
+  .openapi('EntityType')
 
 const ResourceIdentifierSchema = z
   .object({ type: EntityTypeSchema, id: EntityIdSchema })
@@ -104,6 +111,7 @@ const ResourceIdentifierSchema = z
       id: { $ref: '#/components/schemas/EntityId' },
     },
   })
+  .openapi('ResourceIdentifier')
 
 const RelationshipLinksSchema = z
   .object({
@@ -122,6 +130,7 @@ const RelationshipLinksSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
+  .openapi('RelationshipLinks')
 
 const RelationshipLinkSchema = z
   .object({
@@ -137,6 +146,7 @@ const RelationshipLinkSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
+  .openapi('RelationshipLink')
 
 const EntityRelationshipsSchema = z
   .object({
@@ -154,6 +164,7 @@ const EntityRelationshipsSchema = z
       members: { $ref: '#/components/schemas/RelationshipLinks' },
     },
   })
+  .openapi('EntityRelationships')
 
 const NestedCustomFieldSchema = z
   .record(z.string(), CustomFieldValueSchema)
@@ -161,6 +172,7 @@ const NestedCustomFieldSchema = z
     type: 'object',
     additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
   })
+  .openapi('NestedCustomField')
 
 const CustomFieldValueSchema = z
   .union([
@@ -183,6 +195,7 @@ const CustomFieldValueSchema = z
       { $ref: '#/components/schemas/NestedCustomField' },
     ],
   })
+  .openapi('CustomFieldValue')
 
 const TagSchema = z
   .object({
@@ -197,11 +210,13 @@ const TagSchema = z
       value: { type: 'string', maxLength: 200 },
     },
   })
+  .openapi('Tag')
 
 const EntityStatusSchema = z
   .enum(['active', 'inactive', 'pending', 'archived'])
   .optional()
   .openapi({ type: 'string', enum: ['active', 'inactive', 'pending', 'archived'] })
+  .openapi('EntityStatus')
 
 const EntityAttributesSchema = z
   .looseObject({
@@ -233,6 +248,7 @@ const EntityAttributesSchema = z
     },
     additionalProperties: true,
   })
+  .openapi('EntityAttributes')
 
 const EntitySchema = z
   .object({
@@ -255,6 +271,7 @@ const EntitySchema = z
       links: { $ref: '#/components/schemas/EntityLinks' },
     },
   })
+  .openapi('Entity')
 
 const PaginationLinksSchema = z
   .object({
@@ -275,6 +292,7 @@ const PaginationLinksSchema = z
       next: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('PaginationLinks')
 
 const ListMetaSchema = z
   .object({
@@ -293,6 +311,7 @@ const ListMetaSchema = z
       totalPages: { type: 'integer' },
     },
   })
+  .openapi('ListMeta')
 
 const EntityListWrapperSchema = z
   .object({
@@ -316,6 +335,7 @@ const EntityListWrapperSchema = z
       links: { $ref: '#/components/schemas/PaginationLinks' },
     },
   })
+  .openapi('EntityListWrapper')
 
 const ResponseMetaSchema = z
   .object({
@@ -330,6 +350,7 @@ const ResponseMetaSchema = z
       processingTime: { type: 'number' },
     },
   })
+  .openapi('ResponseMeta')
 
 const EntityWrapperSchema = z
   .object({
@@ -349,6 +370,7 @@ const EntityWrapperSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
+  .openapi('EntityWrapper')
 
 const CreateEntityInputSchema = z
   .object({
@@ -365,6 +387,7 @@ const CreateEntityInputSchema = z
       relationships: { $ref: '#/components/schemas/EntityRelationships' },
     },
   })
+  .openapi('CreateEntityInput')
 
 const UpdateEntityInputSchema = z
   .object({ attributes: EntityAttributesSchema, relationships: EntityRelationshipsSchema })
@@ -375,6 +398,7 @@ const UpdateEntityInputSchema = z
       relationships: { $ref: '#/components/schemas/EntityRelationships' },
     },
   })
+  .openapi('UpdateEntityInput')
 
 const CreateRelationshipInputSchema = z
   .object({
@@ -391,8 +415,12 @@ const CreateRelationshipInputSchema = z
       meta: { $ref: '#/components/schemas/RelationshipMeta' },
     },
   })
+  .openapi('CreateRelationshipInput')
 
-const ErrorMetaSchema = z.looseObject({}).openapi({ type: 'object', additionalProperties: true })
+const ErrorMetaSchema = z
+  .looseObject({})
+  .openapi({ type: 'object', additionalProperties: true })
+  .openapi('ErrorMeta')
 
 const ErrorSourceSchema = z
   .object({
@@ -409,6 +437,7 @@ const ErrorSourceSchema = z
       header: { type: 'string' },
     },
   })
+  .openapi('ErrorSource')
 
 const ErrorSchema = z
   .object({
@@ -433,6 +462,7 @@ const ErrorSchema = z
       meta: { $ref: '#/components/schemas/ErrorMeta' },
     },
   })
+  .openapi('Error')
 
 const ErrorListSchema = z
   .object({
@@ -449,6 +479,7 @@ const ErrorListSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
+  .openapi('ErrorList')
 
 const BatchOperationSchema = z
   .object({
@@ -486,6 +517,7 @@ const BatchOperationSchema = z
       },
     },
   })
+  .openapi('BatchOperation')
 
 const BatchResponseItemSchema = z
   .object({
@@ -519,6 +551,7 @@ const BatchResponseItemSchema = z
       },
     },
   })
+  .openapi('BatchResponseItem')
 
 const BatchResultSchema = z
   .object({
@@ -535,6 +568,7 @@ const BatchResultSchema = z
       meta: { $ref: '#/components/schemas/ResponseMeta' },
     },
   })
+  .openapi('BatchResult')
 
 const WebhookMetaSchema = z
   .object({
@@ -548,11 +582,13 @@ const WebhookMetaSchema = z
       correlationId: { type: 'string' },
     },
   })
+  .openapi('WebhookMeta')
 
 const WebhookEventSchema = z
   .enum(['entity.created', 'entity.updated', 'entity.deleted'])
   .optional()
   .openapi({ type: 'string', enum: ['entity.created', 'entity.updated', 'entity.deleted'] })
+  .openapi('WebhookEvent')
 
 const WebhookPayloadSchema = z
   .object({
@@ -575,6 +611,7 @@ const WebhookPayloadSchema = z
       meta: { $ref: '#/components/schemas/WebhookMeta' },
     },
   })
+  .openapi('WebhookPayload')
 
 type FilterExpressionType = {
   field?: string
@@ -590,32 +627,18 @@ type FilterExpressionType = {
     | 'contains'
     | 'startsWith'
     | 'endsWith'
-  value?: string | number | boolean | string[]
-  and?: unknown[]
-  or?: unknown[]
+  value?: string | number | boolean | unknown[]
+  and?: FilterExpressionType[]
+  or?: FilterExpressionType[]
 }
 
-const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z.lazy(() =>
-  z
-    .object({
-      field: z.string().openapi({ type: 'string' }),
-      operator: z
-        .enum([
-          'eq',
-          'ne',
-          'gt',
-          'gte',
-          'lt',
-          'lte',
-          'in',
-          'nin',
-          'contains',
-          'startsWith',
-          'endsWith',
-        ])
-        .openapi({
-          type: 'string',
-          enum: [
+const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
+  .lazy(() =>
+    z
+      .object({
+        field: z.string().openapi({ type: 'string' }),
+        operator: z
+          .enum([
             'eq',
             'ne',
             'gt',
@@ -627,68 +650,84 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z.lazy(() =>
             'contains',
             'startsWith',
             'endsWith',
-          ],
-        }),
-      value: z
-        .union([
-          z.string().openapi({ type: 'string' }),
-          z.number().optional().openapi({ type: 'number' }),
-          z.boolean().optional().openapi({ type: 'boolean' }),
-          z
-            .array(z.string().optional().openapi({ type: 'string' }))
-            .optional()
-            .openapi({ type: 'array', items: { type: 'string' } }),
-        ])
-        .optional()
-        .openapi({
-          oneOf: [
-            { type: 'string' },
-            { type: 'number' },
-            { type: 'boolean' },
-            { type: 'array', items: { type: 'string' } },
-          ],
-        }),
-      and: z
-        .array(FilterExpressionSchema)
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
-      or: z
-        .array(FilterExpressionSchema)
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
-    })
-    .partial()
-    .openapi({
-      type: 'object',
-      properties: {
-        field: { type: 'string' },
-        operator: {
-          type: 'string',
-          enum: [
-            'eq',
-            'ne',
-            'gt',
-            'gte',
-            'lt',
-            'lte',
-            'in',
-            'nin',
-            'contains',
-            'startsWith',
-            'endsWith',
-          ],
+          ])
+          .openapi({
+            type: 'string',
+            enum: [
+              'eq',
+              'ne',
+              'gt',
+              'gte',
+              'lt',
+              'lte',
+              'in',
+              'nin',
+              'contains',
+              'startsWith',
+              'endsWith',
+            ],
+          }),
+        value: z
+          .union([
+            z.string().openapi({ type: 'string' }),
+            z.number().optional().openapi({ type: 'number' }),
+            z.boolean().optional().openapi({ type: 'boolean' }),
+            z
+              .array(z.string().optional().openapi({ type: 'string' }))
+              .optional()
+              .openapi({ type: 'array', items: { type: 'string' } }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { type: 'string' } },
+            ],
+          }),
+        and: z
+          .array(FilterExpressionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
+        or: z
+          .array(FilterExpressionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          field: { type: 'string' },
+          operator: {
+            type: 'string',
+            enum: [
+              'eq',
+              'ne',
+              'gt',
+              'gte',
+              'lt',
+              'lte',
+              'in',
+              'nin',
+              'contains',
+              'startsWith',
+              'endsWith',
+            ],
+          },
+          value: {
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { type: 'string' } },
+            ],
+          },
+          and: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
+          or: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
         },
-        value: {
-          oneOf: [
-            { type: 'string' },
-            { type: 'number' },
-            { type: 'boolean' },
-            { type: 'array', items: { type: 'string' } },
-          ],
-        },
-        and: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
-        or: { type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } },
-      },
-    }),
-)
+      }),
+  )
+  .openapi('FilterExpression')
 
 const PaginationInputSchema = z
   .object({
@@ -710,6 +749,7 @@ const PaginationInputSchema = z
       cursor: { type: 'string' },
     },
   })
+  .openapi('PaginationInput')
 
 const SortExpressionSchema = z
   .object({
@@ -727,6 +767,7 @@ const SortExpressionSchema = z
       direction: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
     },
   })
+  .openapi('SortExpression')
 
 const EntityIdPathParamsSchema = EntityIdSchema
 
@@ -836,7 +877,185 @@ const IdempotencyKeyHeaderParamsSchema = z
     format: 'uuid',
   })
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const XRequestIdHeader = z
+  .uuid()
+  .openapi({
+    description: 'Unique request identifier',
+    example: { $ref: '#/components/examples/RequestIdExample' },
+    type: 'string',
+    format: 'uuid',
+  })
+
+const XTotalCountHeader = z
+  .int()
+  .optional()
+  .openapi({ description: 'Total number of items', type: 'integer' })
+
+const XPageHeader = z
+  .int()
+  .optional()
+  .openapi({ description: 'Current page number', type: 'integer' })
+
+const XPerPageHeader = z
+  .int()
+  .optional()
+  .openapi({ description: 'Items per page', type: 'integer' })
+
+const LinkHeader = z
+  .string()
+  .optional()
+  .openapi({ description: 'Pagination links (RFC 5988)', type: 'string' })
+
+const ETagHeader = z.string().openapi({ description: 'Entity tag', type: 'string' })
+
+const LastModifiedHeader = z.iso
+  .datetime()
+  .optional()
+  .openapi({ description: 'Last modification date', type: 'string', format: 'date-time' })
+
+const LocationHeader = z
+  .url()
+  .openapi({ description: 'Created resource URL', type: 'string', format: 'uri' })
+
+const WWWAuthenticateHeader = z
+  .string()
+  .openapi({ description: 'Authentication challenge', type: 'string' })
+
+const EntityIdExample = {
+  summary: 'Valid entity ID',
+  value: '550e8400-e29b-41d4-a716-446655440000',
+}
+
+const EtagExample = { summary: 'ETag value', value: '"33a64df551425fcc55e4d42a148795d9f25f89d4"' }
+
+const IdempotencyKeyExample = {
+  summary: 'Idempotency key',
+  value: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+}
+
+const RequestIdExample = {
+  summary: 'Request ID',
+  value: 'req-550e8400-e29b-41d4-a716-446655440000',
+}
+
+const SimpleFilterExample = {
+  summary: 'Simple filter',
+  value: { field: 'status', operator: 'eq', value: 'active' },
+}
+
+const ComplexFilterExample = {
+  summary: 'Complex filter with AND/OR',
+  value: {
+    and: [
+      { field: 'status', operator: 'eq', value: 'active' },
+      {
+        or: [
+          { field: 'type', operator: 'eq', value: 'user' },
+          { field: 'type', operator: 'eq', value: 'project' },
+        ],
+      },
+    ],
+  },
+}
+
+const EntityExample = {
+  summary: 'Complete entity',
+  value: {
+    data: {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      type: 'user',
+      attributes: { name: 'John Doe', status: 'active' },
+      relationships: {
+        owner: { data: { type: 'organization', id: '660e8400-e29b-41d4-a716-446655440001' } },
+      },
+      meta: { createdAt: '2024-01-15T10:30:00Z', version: 1 },
+    },
+  },
+}
+
+const EntityListExample = {
+  summary: 'Entity list',
+  value: {
+    data: [
+      {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        type: 'user',
+        attributes: { name: 'John Doe' },
+      },
+    ],
+    meta: { total: 1, page: 1, perPage: 20 },
+  },
+}
+
+const CreatedEntityExample = {
+  summary: 'Newly created entity',
+  value: {
+    data: {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      type: 'user',
+      attributes: { name: 'John Doe', status: 'active' },
+    },
+  },
+}
+
+const CreateUserExample = {
+  summary: 'Create user request',
+  value: { type: 'user', attributes: { name: 'John Doe', status: 'active' } },
+}
+
+const CreateProjectExample = {
+  summary: 'Create project request',
+  value: {
+    type: 'project',
+    attributes: { name: 'New Project', description: 'Project description' },
+  },
+}
+
+const UpdateEntityExample = {
+  summary: 'Update entity request',
+  value: { attributes: { name: 'Updated Name', status: 'inactive' } },
+}
+
+const ValidationErrorExample = {
+  summary: 'Validation error response',
+  value: {
+    errors: [
+      {
+        status: '400',
+        code: 'VALIDATION_ERROR',
+        title: 'Validation Failed',
+        detail: 'Name is required',
+        source: { pointer: '/data/attributes/name' },
+      },
+    ],
+  },
+}
+
+const NotFoundErrorExample = {
+  summary: 'Not found error response',
+  value: {
+    errors: [
+      {
+        status: '404',
+        code: 'NOT_FOUND',
+        title: 'Resource Not Found',
+        detail: 'Entity with ID 550e8400-e29b-41d4-a716-446655440000 not found',
+      },
+    ],
+  },
+}
+
+const GetEntityByIdLink = {
+  operationId: 'getEntity',
+  parameters: { entityId: '$response.body#/data/id' },
+}
+
+const GetEntityRelationshipsLink = {
+  operationId: 'getEntityRelationships',
+  parameters: { entityId: '$response.body#/data/id' },
+}
+
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const CreateEntityBodyRequestBody = {
   description: 'Create entity request',
@@ -973,185 +1192,7 @@ const PreconditionFailedResponse = {
   content: { 'application/json': { schema: ErrorListSchema } },
 }
 
-const XRequestIdHeaderSchema = z
-  .uuid()
-  .openapi({
-    type: 'string',
-    format: 'uuid',
-    description: 'Unique request identifier',
-    example: { $ref: '#/components/examples/RequestIdExample' },
-  })
-
-const XTotalCountHeaderSchema = z
-  .int()
-  .optional()
-  .openapi({ type: 'integer', description: 'Total number of items' })
-
-const XPageHeaderSchema = z
-  .int()
-  .optional()
-  .openapi({ type: 'integer', description: 'Current page number' })
-
-const XPerPageHeaderSchema = z
-  .int()
-  .optional()
-  .openapi({ type: 'integer', description: 'Items per page' })
-
-const LinkHeaderHeaderSchema = z
-  .string()
-  .optional()
-  .openapi({ type: 'string', description: 'Pagination links (RFC 5988)' })
-
-const ETagHeaderSchema = z.string().openapi({ type: 'string', description: 'Entity tag' })
-
-const LastModifiedHeaderSchema = z.iso
-  .datetime()
-  .optional()
-  .openapi({ type: 'string', format: 'date-time', description: 'Last modification date' })
-
-const LocationHeaderSchema = z
-  .url()
-  .openapi({ type: 'string', format: 'uri', description: 'Created resource URL' })
-
-const WWWAuthenticateHeaderSchema = z
-  .string()
-  .openapi({ type: 'string', description: 'Authentication challenge' })
-
-const EntityIdExample = {
-  summary: 'Valid entity ID',
-  value: '550e8400-e29b-41d4-a716-446655440000',
-}
-
-const EtagExample = { summary: 'ETag value', value: '"33a64df551425fcc55e4d42a148795d9f25f89d4"' }
-
-const IdempotencyKeyExample = {
-  summary: 'Idempotency key',
-  value: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-}
-
-const RequestIdExample = {
-  summary: 'Request ID',
-  value: 'req-550e8400-e29b-41d4-a716-446655440000',
-}
-
-const SimpleFilterExample = {
-  summary: 'Simple filter',
-  value: { field: 'status', operator: 'eq', value: 'active' },
-}
-
-const ComplexFilterExample = {
-  summary: 'Complex filter with AND/OR',
-  value: {
-    and: [
-      { field: 'status', operator: 'eq', value: 'active' },
-      {
-        or: [
-          { field: 'type', operator: 'eq', value: 'user' },
-          { field: 'type', operator: 'eq', value: 'project' },
-        ],
-      },
-    ],
-  },
-}
-
-const EntityExample = {
-  summary: 'Complete entity',
-  value: {
-    data: {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      type: 'user',
-      attributes: { name: 'John Doe', status: 'active' },
-      relationships: {
-        owner: { data: { type: 'organization', id: '660e8400-e29b-41d4-a716-446655440001' } },
-      },
-      meta: { createdAt: '2024-01-15T10:30:00Z', version: 1 },
-    },
-  },
-}
-
-const EntityListExample = {
-  summary: 'Entity list',
-  value: {
-    data: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        type: 'user',
-        attributes: { name: 'John Doe' },
-      },
-    ],
-    meta: { total: 1, page: 1, perPage: 20 },
-  },
-}
-
-const CreatedEntityExample = {
-  summary: 'Newly created entity',
-  value: {
-    data: {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      type: 'user',
-      attributes: { name: 'John Doe', status: 'active' },
-    },
-  },
-}
-
-const CreateUserExample = {
-  summary: 'Create user request',
-  value: { type: 'user', attributes: { name: 'John Doe', status: 'active' } },
-}
-
-const CreateProjectExample = {
-  summary: 'Create project request',
-  value: {
-    type: 'project',
-    attributes: { name: 'New Project', description: 'Project description' },
-  },
-}
-
-const UpdateEntityExample = {
-  summary: 'Update entity request',
-  value: { attributes: { name: 'Updated Name', status: 'inactive' } },
-}
-
-const ValidationErrorExample = {
-  summary: 'Validation error response',
-  value: {
-    errors: [
-      {
-        status: '400',
-        code: 'VALIDATION_ERROR',
-        title: 'Validation Failed',
-        detail: 'Name is required',
-        source: { pointer: '/data/attributes/name' },
-      },
-    ],
-  },
-}
-
-const NotFoundErrorExample = {
-  summary: 'Not found error response',
-  value: {
-    errors: [
-      {
-        status: '404',
-        code: 'NOT_FOUND',
-        title: 'Resource Not Found',
-        detail: 'Entity with ID 550e8400-e29b-41d4-a716-446655440000 not found',
-      },
-    ],
-  },
-}
-
-const GetEntityByIdLink = {
-  operationId: 'getEntity',
-  parameters: { entityId: '$response.body#/data/id' },
-}
-
-const GetEntityRelationshipsLink = {
-  operationId: 'getEntityRelationships',
-  parameters: { entityId: '$response.body#/data/id' },
-}
-
-const EntityWebhookCallbacks = {
+const EntityWebhookCallback = {
   '{$request.header.X-Callback-Url}': {
     post: {
       operationId: 'entityWebhookCallback',
@@ -1193,7 +1234,7 @@ export const postEntitiesRoute = createRoute({
     headers: z.object({ 'Idempotency-Key': IdempotencyKeyHeaderParamsSchema }),
   },
   responses: { 201: EntityCreatedResponse, 400: ValidationErrorResponse, 409: ConflictResponse },
-  callbacks: { onEntityCreated: EntityWebhookCallbacks },
+  callbacks: { onEntityCreated: EntityWebhookCallback },
 })
 
 export const getEntitiesEntityIdRoute = createRoute({
@@ -1223,7 +1264,7 @@ export const putEntitiesEntityIdRoute = createRoute({
     409: ConflictResponse,
     412: PreconditionFailedResponse,
   },
-  callbacks: { onEntityUpdated: EntityWebhookCallbacks },
+  callbacks: { onEntityUpdated: EntityWebhookCallback },
 })
 
 export const deleteEntitiesEntityIdRoute = createRoute({
@@ -1235,7 +1276,7 @@ export const deleteEntitiesEntityIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: { 204: NoContentResponse, 404: NotFoundResponse },
-  callbacks: { onEntityDeleted: EntityWebhookCallbacks },
+  callbacks: { onEntityDeleted: EntityWebhookCallback },
 })
 
 export const getEntitiesEntityIdRelationshipsRoute = createRoute({

@@ -1,4 +1,3 @@
-import { docs } from '../../../helper/docs.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { isHttpMethod, methodPath, registerComponent } from '../../../utils/index.js'
 
@@ -10,11 +9,7 @@ import { isHttpMethod, methodPath, registerComponent } from '../../../utils/inde
  * @param basePath - Optional base path for the app.
  * @returns The generated application code as a string.
  */
-export function app(
-  openapi: OpenAPI,
-  output: `${string}.ts`,
-  basePath: string | undefined,
-): string {
+export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string): string {
   const getRouteMaps = (
     openapi: OpenAPI,
   ): { routeName: string; handlerName: string; path: string }[] => {
@@ -43,7 +38,7 @@ export function app(
   const routesImport =
     routeNames.length > 0 ? `import { ${routeNames.join(',')} } from '${routeModule}'` : ''
 
-  const path = basePath !== undefined ? `${basePath}/doc` : '/doc'
+  const path = basePath === '/' ? '/doc' : `${basePath}/doc`
   const registerComponentCode = openapi.components?.securitySchemes
     ? registerComponent(openapi.components.securitySchemes)
     : ''
@@ -63,9 +58,10 @@ export function app(
     .filter(Boolean)
     .join('\n')
 
-  const appInit = basePath
-    ? `const app = new OpenAPIHono().basePath('${basePath}')`
-    : 'const app = new OpenAPIHono()'
+  const appInit =
+    basePath !== '/'
+      ? `const app = new OpenAPIHono().basePath('${basePath}')`
+      : 'const app = new OpenAPIHono()'
 
   const apiInit =
     'export const api = app' +
@@ -73,10 +69,20 @@ export function app(
       .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')
 
+  const docs = Object.fromEntries(
+    Object.entries({
+      openapi: openapi.openapi,
+      info: openapi.info,
+      servers: openapi.servers,
+      tags: openapi.tags,
+      externalDocs: openapi.externalDocs,
+    }).filter(([, v]) => v !== undefined),
+  )
+
   const swagger =
     `if(process.env.NODE_ENV === 'development'){` +
     `${registerComponentCode}\n` +
-    `app.${doc}('/doc',${JSON.stringify(docs(openapi))})` +
+    `app.${doc}('/doc',${JSON.stringify(docs)})` +
     `.get('/ui',swaggerUI({url:'${path}'}))` +
     '}'
 

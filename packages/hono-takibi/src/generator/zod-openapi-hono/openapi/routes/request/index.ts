@@ -1,5 +1,5 @@
 import type { Content, Parameter, RequestBody } from '../../../../../openapi/index.js'
-import { isRecord, requestParamsArray, toIdentifier } from '../../../../../utils/index.js'
+import { isRecord, requestParamsArray, toIdentifierPascalCase } from '../../../../../utils/index.js'
 import { requestBody } from '../request/body/index.js'
 import { params } from '../params/index.js'
 
@@ -12,7 +12,7 @@ const isMedia = (v: unknown): v is Content[string] =>
 
 // Helper functions
 const requestBodyConstName = (key: string): string =>
-  toIdentifier(
+  toIdentifierPascalCase(
     key.endsWith('Body')
       ? `${key.slice(0, -'Body'.length)}RequestBody`
       : `${key}RequestBody`,

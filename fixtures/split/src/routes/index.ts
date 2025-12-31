@@ -284,7 +284,18 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
-const CompanySchema = z
+
+const PersonSchema = z
+  .object({ name: z.string().optional().openapi({ type: 'string' }), company: {
+    $ref: '#/components/schemas/Company'
+  }})
+  .openapi({
+    type: 'object',
+    properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
+  })
+  .openapi('Person')
+
+  const CompanySchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
     employees: z
@@ -300,14 +311,6 @@ const CompanySchema = z
     },
   })
   .openapi('Company')
-
-const PersonSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }), company: CompanySchema })
-  .openapi({
-    type: 'object',
-    properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
-  })
-  .openapi('Person')
 
 const DeepNestedSchema = z
   .object({

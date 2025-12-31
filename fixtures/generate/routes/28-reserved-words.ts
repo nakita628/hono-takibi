@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const classSchema = z
+const ClassSchema = z
   .object({
     class: z.string().openapi({ type: 'string' }),
     extends: z.string().openapi({ type: 'string' }),
@@ -18,30 +18,30 @@ const classSchema = z
       implements: { type: 'array', items: { type: 'string' } },
     },
   })
-  .openapi('class')
+  .openapi('Class')
 
-const interfaceSchema = z
+const InterfaceSchema = z
   .object({ name: z.string().openapi({ type: 'string' }) })
   .partial()
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
-  .openapi('interface')
+  .openapi('Interface')
 
-const typeSchema = z
+const TypeSchema = z
   .object({ type: z.string().openapi({ type: 'string' }) })
   .partial()
   .openapi({ type: 'object', properties: { type: { type: 'string' } } })
-  .openapi('type')
+  .openapi('Type')
 
-const functionSchema = z
+const FunctionSchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
     return: z.string().openapi({ type: 'string' }),
   })
   .partial()
   .openapi({ type: 'object', properties: { name: { type: 'string' }, return: { type: 'string' } } })
-  .openapi('function')
+  .openapi('Function')
 
-const enumSchema = z
+const EnumSchema = z
   .object({
     values: z
       .array(z.string().openapi({ type: 'string' }))
@@ -50,19 +50,19 @@ const enumSchema = z
   })
   .partial()
   .openapi({ type: 'object', properties: { values: { type: 'array', items: { type: 'string' } } } })
-  .openapi('enum')
+  .openapi('Enum')
 
-const constSchema = z
+const ConstSchema = z
   .object({ value: z.string().openapi({ type: 'string' }) })
   .partial()
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
-  .openapi('const')
+  .openapi('Const')
 
-const nullSchema = z
+const NullSchema = z
   .object({ isNull: z.boolean().openapi({ type: 'boolean' }) })
   .partial()
   .openapi({ type: 'object', properties: { isNull: { type: 'boolean' } } })
-  .openapi('null')
+  .openapi('Null')
 
 const ObjectSchema = z
   .object({ data: z.object({}).openapi({ type: 'object' }) })
@@ -141,11 +141,11 @@ const UserSchema = z
   .openapi({ type: 'object', properties: { id: { type: 'string' } } })
   .openapi('User')
 
-const userSchema = z
+const UserSchema = z
   .object({ id: z.int().openapi({ type: 'integer' }) })
   .partial()
   .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
-  .openapi('user')
+  .openapi('User')
 
 const USERSchema = z
   .object({ id: z.number().openapi({ type: 'number' }) })
@@ -159,11 +159,11 @@ const MyModelSchema = z
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('MyModel')
 
-const myModelSchema = z
+const MyModelSchema = z
   .object({ value: z.int().openapi({ type: 'integer' }) })
   .partial()
   .openapi({ type: 'object', properties: { value: { type: 'integer' } } })
-  .openapi('myModel')
+  .openapi('MyModel')
 
 const MYMODELSchema = z
   .object({ value: z.boolean().openapi({ type: 'boolean' }) })
@@ -171,11 +171,11 @@ const MYMODELSchema = z
   .openapi({ type: 'object', properties: { value: { type: 'boolean' } } })
   .openapi('MYMODEL')
 
-const mymodelSchema = z
+const MymodelSchema = z
   .object({ value: z.number().openapi({ type: 'number' }) })
   .partial()
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
-  .openapi('mymodel')
+  .openapi('Mymodel')
 
 const ReservedPropertiesSchema = z
   .object({
@@ -571,32 +571,32 @@ const RustReservedSchema = z
   })
   .openapi('RustReserved')
 
-const classParamsSchema = z
+const ClassParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'class', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
-const typeParamsSchema = z
+const TypeParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'type', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
-const defaultParamsSchema = z
+const DefaultParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'default', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
-const nullParamsSchema = z
+const NullParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'null', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
-const trueParamsSchema = z
+const TrueParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'true', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
-const falseParamsSchema = z
+const FalseParamsSchema = z
   .string()
   .optional()
   .openapi({ param: { name: 'false', in: 'query', schema: { type: 'string' } }, type: 'string' })
@@ -606,7 +606,7 @@ export const getClassRoute = createRoute({
   path: '/class',
   operationId: 'class',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: classSchema } } },
+    200: { description: 'OK', content: { 'application/json': { schema: ClassSchema } } },
   },
 })
 

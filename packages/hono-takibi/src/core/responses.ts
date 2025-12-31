@@ -10,27 +10,10 @@ import {
   isRecord,
   lowerFirst,
   renderNamedImport,
-  toIdentifier,
+  toIdentifierPascalCase,
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-
-function withSuffix(name: string, suffix: string): string {
-  return name.endsWith(suffix) ? name : `${name}${suffix}`
-}
-
-const responseConstName = (key: string): string => toIdentifier(withSuffix(key, 'Response'))
-
-const headerConstName = (key: string): string => {
-  const base = key.endsWith('HeaderSchema')
-    ? key
-    : key.endsWith('Header')
-      ? `${key}Schema`
-      : `${key}HeaderSchema`
-  return toIdentifier(base)
-}
-
-const linkConstName = (key: string): string => toIdentifier(withSuffix(key, 'Link'))
 
 const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
   if (!$ref.startsWith(prefix)) return undefined
@@ -77,7 +60,7 @@ const headersPropExpr = (
       const resolved = key ? components.headers?.[key] : undefined
       if (key && resolved && imports?.headers) {
         usedHeaderKeys.add(key)
-        const base = headerConstName(key)
+        const base = toIdentifierPascalCase(ensureSuffix(key, 'Header'))
         return `${JSON.stringify(name)}:${base}`
       }
       const base = headerSchemaExpr(resolved ?? header)
@@ -114,7 +97,7 @@ const linksPropExpr = (
       const resolved = key ? components.links?.[key] : undefined
       if (key && resolved && imports?.links) {
         usedLinkKeys.add(key)
-        return `${JSON.stringify(name)}:${linkConstName(key)}`
+        return `${JSON.stringify(name)}:${toIdentifierPascalCase(ensureSuffix(key, 'Link'))}`
       }
       if (key && resolved) return `${JSON.stringify(name)}:${JSON.stringify(resolved)}`
       return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
@@ -169,7 +152,7 @@ const buildImportHeaders = (
   if (!target) return ''
   const names = Array.from(usedHeaderKeys)
     .sort()
-    .map((k) => headerConstName(k))
+    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Header')))
   if (names.length === 0) return ''
   const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return renderNamedImport(names, spec)
@@ -184,7 +167,7 @@ const buildImportExamples = (
   if (!target) return ''
   const names = Array.from(usedExampleKeys)
     .sort()
-    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
+    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Example')))
   if (names.length === 0) return ''
   const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return renderNamedImport(names, spec)
@@ -199,7 +182,7 @@ const buildImportLinks = (
   if (!target) return ''
   const names = Array.from(usedLinkKeys)
     .sort()
-    .map((k) => linkConstName(k))
+    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Link')))
   if (names.length === 0) return ''
   const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return renderNamedImport(names, spec)
@@ -242,7 +225,7 @@ export async function responses(
           imports,
         )
       : '{}'
-    const name = responseConstName(key)
+    const name = toIdentifierPascalCase(ensureSuffix(key, 'Response'))
     return {
       name,
       usedHeaderKeys,
@@ -281,7 +264,10 @@ export async function responses(
     }
 
     const indexBody = `${Object.keys(responses)
-      .map((n) => `export * from './${lowerFirst(responseConstName(n))}'`)
+      .map(
+        (n) =>
+          `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'Response')))}'`,
+      )
       .join('\n')}\n`
 
     const coreResult = await core(
@@ -313,7 +299,7 @@ export async function responses(
             imports,
           )
         : '{}'
-      return `export const ${responseConstName(key)} = ${expr}`
+      return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'Response'))} = ${expr}`
     })
     .join('\n\n')
 

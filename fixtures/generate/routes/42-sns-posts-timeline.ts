@@ -24,6 +24,7 @@ const LinkCardSchema = z
       type: { type: 'string', enum: ['link', 'photo', 'video', 'rich'] },
     },
   })
+  .openapi('LinkCard')
 
 const UrlEntitySchema = z
   .object({
@@ -44,6 +45,7 @@ const UrlEntitySchema = z
       end: { type: 'integer', description: 'テキスト内の終了位置' },
     },
   })
+  .openapi('UrlEntity')
 
 const UserSummarySchema = z
   .object({
@@ -68,6 +70,7 @@ const UserSummarySchema = z
       isFollowedBy: { type: 'boolean' },
     },
   })
+  .openapi('UserSummary')
 
 const PollSchema = z
   .object({
@@ -138,6 +141,7 @@ const PollSchema = z
       viewerVote: { type: 'string', description: '閲覧者が投票したオプションID' },
     },
   })
+  .openapi('Poll')
 
 const MediaSchema = z
   .object({
@@ -171,20 +175,21 @@ const MediaSchema = z
       blurhash: { type: 'string', description: 'プレースホルダー用ハッシュ' },
     },
   })
+  .openapi('Media')
 
 type PostType = {
   id: string
-  author: unknown
+  author: z.infer<typeof UserSummarySchema>
   text: string
-  media?: unknown[]
-  poll?: unknown
-  quotedPost?: unknown
-  replyTo?: { postId?: string; author?: unknown }
-  repostOf?: unknown
-  hashtags?: string[]
-  mentions?: unknown[]
-  urls?: unknown[]
-  card?: unknown
+  media?: z.infer<typeof MediaSchema>[]
+  poll?: z.infer<typeof PollSchema>
+  quotedPost?: PostType
+  replyTo?: { postId?: string; author?: z.infer<typeof UserSummarySchema> }
+  repostOf?: PostType
+  hashtags?: unknown[]
+  mentions?: z.infer<typeof UserSummarySchema>[]
+  urls?: z.infer<typeof UrlEntitySchema>[]
+  card?: z.infer<typeof LinkCardSchema>
   visibility?: 'public' | 'followers' | 'mentioned'
   replySettings?: 'everyone' | 'followers' | 'mentioned'
   metrics: {
@@ -200,215 +205,224 @@ type PostType = {
   source?: string
   createdAt: string
   editedAt?: string
-  editHistory?: { text?: string; editedAt?: string }[]
+  editHistory?: unknown[]
 }
 
-const PostSchema: z.ZodType<PostType> = z.lazy(() =>
-  z
-    .object({
-      id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-      author: UserSummarySchema,
-      text: z.string().max(280).openapi({ type: 'string', maxLength: 280 }),
-      media: z
-        .array(MediaSchema)
-        .max(4)
-        .optional()
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 }),
-      poll: PollSchema,
-      quotedPost: PostSchema.optional().openapi({
-        $ref: '#/components/schemas/Post',
-        description: '引用元投稿',
-      }),
-      replyTo: z
-        .object({
-          postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-          author: UserSummarySchema,
-        })
-        .openapi({
-          type: 'object',
-          description: '返信先情報',
-          properties: {
-            postId: { type: 'string', format: 'uuid' },
-            author: { $ref: '#/components/schemas/UserSummary' },
-          },
+const PostSchema: z.ZodType<PostType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+        author: UserSummarySchema,
+        text: z.string().max(280).openapi({ type: 'string', maxLength: 280 }),
+        media: z
+          .array(MediaSchema)
+          .max(4)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 }),
+        poll: PollSchema,
+        quotedPost: PostSchema.optional().openapi({
+          $ref: '#/components/schemas/Post',
+          description: '引用元投稿',
         }),
-      repostOf: PostSchema.optional().openapi({
-        $ref: '#/components/schemas/Post',
-        description: 'リポスト元（リポストの場合）',
-      }),
-      hashtags: z
-        .array(z.string().optional().openapi({ type: 'string' }))
-        .optional()
-        .openapi({ type: 'array', items: { type: 'string' } }),
-      mentions: z
-        .array(UserSummarySchema)
-        .optional()
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
-      urls: z
-        .array(UrlEntitySchema)
-        .optional()
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } }),
-      card: LinkCardSchema.optional().openapi({
-        $ref: '#/components/schemas/LinkCard',
-        description: 'リンクカード',
-      }),
-      visibility: z
-        .enum(['public', 'followers', 'mentioned'])
-        .default('public')
-        .optional()
-        .openapi({ type: 'string', enum: ['public', 'followers', 'mentioned'], default: 'public' }),
-      replySettings: z
-        .enum(['everyone', 'followers', 'mentioned'])
-        .default('everyone')
-        .optional()
-        .openapi({
-          type: 'string',
-          enum: ['everyone', 'followers', 'mentioned'],
-          default: 'everyone',
+        replyTo: z
+          .object({
+            postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+            author: UserSummarySchema,
+          })
+          .openapi({
+            type: 'object',
+            description: '返信先情報',
+            properties: {
+              postId: { type: 'string', format: 'uuid' },
+              author: { $ref: '#/components/schemas/UserSummary' },
+            },
+          }),
+        repostOf: PostSchema.optional().openapi({
+          $ref: '#/components/schemas/Post',
+          description: 'リポスト元（リポストの場合）',
         }),
-      metrics: z
-        .object({
-          likeCount: z.int().openapi({ type: 'integer' }),
-          repostCount: z.int().openapi({ type: 'integer' }),
-          replyCount: z.int().openapi({ type: 'integer' }),
-          quoteCount: z.int().openapi({ type: 'integer' }),
-          viewCount: z.int().openapi({ type: 'integer' }),
-          bookmarkCount: z.int().openapi({ type: 'integer' }),
-        })
-        .openapi({
-          type: 'object',
-          required: ['likeCount', 'repostCount', 'replyCount', 'quoteCount', 'viewCount'],
-          properties: {
-            likeCount: { type: 'integer' },
-            repostCount: { type: 'integer' },
-            replyCount: { type: 'integer' },
-            quoteCount: { type: 'integer' },
-            viewCount: { type: 'integer' },
-            bookmarkCount: { type: 'integer' },
-          },
+        hashtags: z
+          .array(z.string().optional().openapi({ type: 'string' }))
+          .optional()
+          .openapi({ type: 'array', items: { type: 'string' } }),
+        mentions: z
+          .array(UserSummarySchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
+        urls: z
+          .array(UrlEntitySchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } }),
+        card: LinkCardSchema.optional().openapi({
+          $ref: '#/components/schemas/LinkCard',
+          description: 'リンクカード',
         }),
-      viewer: z
-        .object({
-          liked: z.boolean().openapi({ type: 'boolean' }),
-          reposted: z.boolean().openapi({ type: 'boolean' }),
-          bookmarked: z.boolean().openapi({ type: 'boolean' }),
-        })
-        .partial()
-        .openapi({
-          type: 'object',
-          description: '閲覧者のアクション状態',
-          properties: {
-            liked: { type: 'boolean' },
-            reposted: { type: 'boolean' },
-            bookmarked: { type: 'boolean' },
-          },
-        }),
-      language: z.string().optional().openapi({ type: 'string', description: '言語コード' }),
-      source: z.string().optional().openapi({ type: 'string', description: '投稿元クライアント' }),
-      createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-      editedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-      editHistory: z
-        .array(
-          z
-            .object({
-              text: z.string().openapi({ type: 'string' }),
-              editedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-            })
-            .partial()
-            .openapi({
+        visibility: z
+          .enum(['public', 'followers', 'mentioned'])
+          .default('public')
+          .optional()
+          .openapi({
+            type: 'string',
+            enum: ['public', 'followers', 'mentioned'],
+            default: 'public',
+          }),
+        replySettings: z
+          .enum(['everyone', 'followers', 'mentioned'])
+          .default('everyone')
+          .optional()
+          .openapi({
+            type: 'string',
+            enum: ['everyone', 'followers', 'mentioned'],
+            default: 'everyone',
+          }),
+        metrics: z
+          .object({
+            likeCount: z.int().openapi({ type: 'integer' }),
+            repostCount: z.int().openapi({ type: 'integer' }),
+            replyCount: z.int().openapi({ type: 'integer' }),
+            quoteCount: z.int().openapi({ type: 'integer' }),
+            viewCount: z.int().openapi({ type: 'integer' }),
+            bookmarkCount: z.int().openapi({ type: 'integer' }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['likeCount', 'repostCount', 'replyCount', 'quoteCount', 'viewCount'],
+            properties: {
+              likeCount: { type: 'integer' },
+              repostCount: { type: 'integer' },
+              replyCount: { type: 'integer' },
+              quoteCount: { type: 'integer' },
+              viewCount: { type: 'integer' },
+              bookmarkCount: { type: 'integer' },
+            },
+          }),
+        viewer: z
+          .object({
+            liked: z.boolean().openapi({ type: 'boolean' }),
+            reposted: z.boolean().openapi({ type: 'boolean' }),
+            bookmarked: z.boolean().openapi({ type: 'boolean' }),
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            description: '閲覧者のアクション状態',
+            properties: {
+              liked: { type: 'boolean' },
+              reposted: { type: 'boolean' },
+              bookmarked: { type: 'boolean' },
+            },
+          }),
+        language: z.string().optional().openapi({ type: 'string', description: '言語コード' }),
+        source: z
+          .string()
+          .optional()
+          .openapi({ type: 'string', description: '投稿元クライアント' }),
+        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+        editedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        editHistory: z
+          .array(
+            z
+              .object({
+                text: z.string().openapi({ type: 'string' }),
+                editedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+              })
+              .partial()
+              .openapi({
+                type: 'object',
+                properties: {
+                  text: { type: 'string' },
+                  editedAt: { type: 'string', format: 'date-time' },
+                },
+              }),
+          )
+          .optional()
+          .openapi({
+            type: 'array',
+            items: {
               type: 'object',
               properties: {
                 text: { type: 'string' },
                 editedAt: { type: 'string', format: 'date-time' },
               },
-            }),
-        )
-        .optional()
-        .openapi({
-          type: 'array',
-          items: {
+            },
+          }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['id', 'author', 'text', 'createdAt', 'metrics'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          author: { $ref: '#/components/schemas/UserSummary' },
+          text: { type: 'string', maxLength: 280 },
+          media: { type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 },
+          poll: { $ref: '#/components/schemas/Poll' },
+          quotedPost: { $ref: '#/components/schemas/Post', description: '引用元投稿' },
+          replyTo: {
             type: 'object',
+            description: '返信先情報',
             properties: {
-              text: { type: 'string' },
-              editedAt: { type: 'string', format: 'date-time' },
+              postId: { type: 'string', format: 'uuid' },
+              author: { $ref: '#/components/schemas/UserSummary' },
             },
           },
-        }),
-    })
-    .openapi({
-      type: 'object',
-      required: ['id', 'author', 'text', 'createdAt', 'metrics'],
-      properties: {
-        id: { type: 'string', format: 'uuid' },
-        author: { $ref: '#/components/schemas/UserSummary' },
-        text: { type: 'string', maxLength: 280 },
-        media: { type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 },
-        poll: { $ref: '#/components/schemas/Poll' },
-        quotedPost: { $ref: '#/components/schemas/Post', description: '引用元投稿' },
-        replyTo: {
-          type: 'object',
-          description: '返信先情報',
-          properties: {
-            postId: { type: 'string', format: 'uuid' },
-            author: { $ref: '#/components/schemas/UserSummary' },
+          repostOf: {
+            $ref: '#/components/schemas/Post',
+            description: 'リポスト元（リポストの場合）',
           },
-        },
-        repostOf: {
-          $ref: '#/components/schemas/Post',
-          description: 'リポスト元（リポストの場合）',
-        },
-        hashtags: { type: 'array', items: { type: 'string' } },
-        mentions: { type: 'array', items: { $ref: '#/components/schemas/UserSummary' } },
-        urls: { type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } },
-        card: { $ref: '#/components/schemas/LinkCard', description: 'リンクカード' },
-        visibility: {
-          type: 'string',
-          enum: ['public', 'followers', 'mentioned'],
-          default: 'public',
-        },
-        replySettings: {
-          type: 'string',
-          enum: ['everyone', 'followers', 'mentioned'],
-          default: 'everyone',
-        },
-        metrics: {
-          type: 'object',
-          required: ['likeCount', 'repostCount', 'replyCount', 'quoteCount', 'viewCount'],
-          properties: {
-            likeCount: { type: 'integer' },
-            repostCount: { type: 'integer' },
-            replyCount: { type: 'integer' },
-            quoteCount: { type: 'integer' },
-            viewCount: { type: 'integer' },
-            bookmarkCount: { type: 'integer' },
+          hashtags: { type: 'array', items: { type: 'string' } },
+          mentions: { type: 'array', items: { $ref: '#/components/schemas/UserSummary' } },
+          urls: { type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } },
+          card: { $ref: '#/components/schemas/LinkCard', description: 'リンクカード' },
+          visibility: {
+            type: 'string',
+            enum: ['public', 'followers', 'mentioned'],
+            default: 'public',
           },
-        },
-        viewer: {
-          type: 'object',
-          description: '閲覧者のアクション状態',
-          properties: {
-            liked: { type: 'boolean' },
-            reposted: { type: 'boolean' },
-            bookmarked: { type: 'boolean' },
+          replySettings: {
+            type: 'string',
+            enum: ['everyone', 'followers', 'mentioned'],
+            default: 'everyone',
           },
-        },
-        language: { type: 'string', description: '言語コード' },
-        source: { type: 'string', description: '投稿元クライアント' },
-        createdAt: { type: 'string', format: 'date-time' },
-        editedAt: { type: 'string', format: 'date-time' },
-        editHistory: {
-          type: 'array',
-          items: {
+          metrics: {
             type: 'object',
+            required: ['likeCount', 'repostCount', 'replyCount', 'quoteCount', 'viewCount'],
             properties: {
-              text: { type: 'string' },
-              editedAt: { type: 'string', format: 'date-time' },
+              likeCount: { type: 'integer' },
+              repostCount: { type: 'integer' },
+              replyCount: { type: 'integer' },
+              quoteCount: { type: 'integer' },
+              viewCount: { type: 'integer' },
+              bookmarkCount: { type: 'integer' },
+            },
+          },
+          viewer: {
+            type: 'object',
+            description: '閲覧者のアクション状態',
+            properties: {
+              liked: { type: 'boolean' },
+              reposted: { type: 'boolean' },
+              bookmarked: { type: 'boolean' },
+            },
+          },
+          language: { type: 'string', description: '言語コード' },
+          source: { type: 'string', description: '投稿元クライアント' },
+          createdAt: { type: 'string', format: 'date-time' },
+          editedAt: { type: 'string', format: 'date-time' },
+          editHistory: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                text: { type: 'string' },
+                editedAt: { type: 'string', format: 'date-time' },
+              },
             },
           },
         },
-      },
-    }),
-)
+      }),
+  )
+  .openapi('Post')
 
 const CreatePostRequestSchema = z
   .object({
@@ -494,32 +508,39 @@ const CreatePostRequestSchema = z
       quotedPostId: { type: 'string', format: 'uuid' },
     },
   })
+  .openapi('CreatePostRequest')
 
-type PostThreadType = { post: unknown; ancestors?: unknown[]; replies?: unknown[] }
+type PostThreadType = {
+  post: z.infer<typeof PostSchema>
+  ancestors?: z.infer<typeof PostSchema>[]
+  replies?: PostThreadType[]
+}
 
-const PostThreadSchema: z.ZodType<PostThreadType> = z.lazy(() =>
-  z
-    .object({
-      post: PostSchema,
-      ancestors: z
-        .array(PostSchema)
-        .optional()
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-      replies: z
-        .array(PostThreadSchema)
-        .optional()
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostThread' } }),
-    })
-    .openapi({
-      type: 'object',
-      required: ['post'],
-      properties: {
-        post: { $ref: '#/components/schemas/Post' },
-        ancestors: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
-        replies: { type: 'array', items: { $ref: '#/components/schemas/PostThread' } },
-      },
-    }),
-)
+const PostThreadSchema: z.ZodType<PostThreadType> = z
+  .lazy(() =>
+    z
+      .object({
+        post: PostSchema,
+        ancestors: z
+          .array(PostSchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
+        replies: z
+          .array(PostThreadSchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostThread' } }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['post'],
+        properties: {
+          post: { $ref: '#/components/schemas/Post' },
+          ancestors: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
+          replies: { type: 'array', items: { $ref: '#/components/schemas/PostThread' } },
+        },
+      }),
+  )
+  .openapi('PostThread')
 
 const PostListResponseSchema = z
   .object({
@@ -538,6 +559,7 @@ const PostListResponseSchema = z
       previousCursor: { type: 'string' },
     },
   })
+  .openapi('PostListResponse')
 
 const TimelineItemSchema = z
   .object({
@@ -564,6 +586,7 @@ const TimelineItemSchema = z
       reason: { type: 'string', description: 'おすすめの理由など' },
     },
   })
+  .openapi('TimelineItem')
 
 const TimelineResponseSchema = z
   .object({
@@ -582,6 +605,7 @@ const TimelineResponseSchema = z
       previousCursor: { type: 'string' },
     },
   })
+  .openapi('TimelineResponse')
 
 const UserListResponseSchema = z
   .object({
@@ -598,6 +622,7 @@ const UserListResponseSchema = z
       nextCursor: { type: 'string' },
     },
   })
+  .openapi('UserListResponse')
 
 const ErrorSchema = z
   .object({
@@ -609,6 +634,7 @@ const ErrorSchema = z
     required: ['code', 'message'],
     properties: { code: { type: 'string' }, message: { type: 'string' } },
   })
+  .openapi('Error')
 
 const PostIdParamParamsSchema = z
   .uuid()
@@ -654,7 +680,7 @@ const LimitParamParamsSchema = z
     default: 20,
   })
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',

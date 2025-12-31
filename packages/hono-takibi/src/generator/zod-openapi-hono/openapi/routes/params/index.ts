@@ -1,6 +1,16 @@
-import type { Parameter, Ref } from '../../../../../openapi/index.js'
+import type { Content, Parameter, Schema } from '../../../../../openapi/index.js'
 import { getToSafeIdentifier, ref } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
+
+/**
+ * Extracts schema from parameter content (for parameters using content instead of schema)
+ */
+function getSchemaFromContent(content: Content | undefined): Schema | undefined {
+  if (!content) return undefined
+  const firstKey = Object.keys(content)[0]
+  if (!firstKey) return undefined
+  return content[firstKey]?.schema
+}
 
 /**
  * Converts OpenAPI component schemas into TypeScript code using Zod.
@@ -33,7 +43,16 @@ export function params(parameters: readonly Parameter[]): {
         return acc
       }
 
-      const baseSchema = zodToOpenAPI(param.schema, {
+      // Handle parameters with content instead of schema (OpenAPI 3.x)
+      const schema = param.schema ?? getSchemaFromContent(param.content)
+      if (!schema) {
+        // Skip parameters without schema
+        if (!acc[param.in]) acc[param.in] = {}
+        acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
+        return acc
+      }
+
+      const baseSchema = zodToOpenAPI(schema, {
         parameters: param
       })
       // Initialize section if it doesn't exist
@@ -42,11 +61,11 @@ export function params(parameters: readonly Parameter[]): {
       }
       // queryParameter check
       const z =
-        param.in === 'query' && param.schema.type === 'number'
+        param.in === 'query' && schema.type === 'number'
           ? `z.coerce.${baseSchema.replace('z.', '')}`
-          : param.in === 'query' && param.schema.type === 'boolean'
+          : param.in === 'query' && schema.type === 'boolean'
             ? baseSchema.replace('boolean', 'stringbool')
-            : param.in === 'query' && param.schema.type === 'date'
+            : param.in === 'query' && schema.type === 'date'
               ? `z.coerce.${baseSchema.replace('z.', '')}`
               : baseSchema
 

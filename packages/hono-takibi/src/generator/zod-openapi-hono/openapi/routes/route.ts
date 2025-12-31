@@ -1,8 +1,9 @@
 import type { Operation } from '../../../../openapi/index.js'
 import {
+  ensureSuffix,
   escapeStringLiteral,
   methodPath,
-  sanitizeIdentifier,
+  toIdentifierPascalCase,
 } from '../../../../utils/index.js'
 import { request } from './request/index.js'
 import { response } from './response/index.js'
@@ -39,26 +40,13 @@ export function route(path: string, method: string, operation: Operation): strin
   const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
   const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
 
-  const toIdentifier = (raw: string): string => {
-    const sanitized = sanitizeIdentifier(raw)
-    return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-  }
-  const callbackConstName = (key: string): string => {
-    const base = key.endsWith('Callbacks')
-      ? key
-      : key.endsWith('Callback')
-        ? `${key}s`
-        : `${key}Callbacks`
-    return toIdentifier(base)
-  }
-
   const callbacksCode = (() => {
     if (!(callbacks && isRecord(callbacks))) return ''
 
     const entries = Object.entries(callbacks).map(([callbackName, value]) => {
       if (isRef(value) && value.$ref.startsWith('#/components/callbacks/')) {
         const key = value.$ref.split('/').pop()
-        if (key) return `${JSON.stringify(callbackName)}:${callbackConstName(key)}`
+        if (key) return `${JSON.stringify(callbackName)}:${toIdentifierPascalCase(ensureSuffix(key, 'Callback'))}`
         return `${JSON.stringify(callbackName)}:{$ref:${JSON.stringify(value.$ref)}}`
       }
       return `${JSON.stringify(callbackName)}:${JSON.stringify(value)}`

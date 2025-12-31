@@ -2,9 +2,13 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
 import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
-import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { lowerFirst } from '../utils/index.js'
+import {
+  ensureSuffix,
+  lowerFirst,
+  toIdentifierPascalCase,
+  zodToOpenAPISchema,
+} from '../utils/index.js'
 
 const findSchemaRefs = (code: string, selfName: string): string[] => {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
@@ -62,7 +66,12 @@ export async function schemas(
       const selfToken = `${schemaName}Schema`
       const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
       // export schema must be true
-      const zs = zodToOpenAPISchema(schemaName, zExpr, true, exportType)
+      const zs = zodToOpenAPISchema(
+        toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema')),
+        zExpr,
+        true,
+        exportType,
+      )
 
       const importZ = `import { z } from '@hono/zod-openapi'`
       const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
@@ -100,7 +109,12 @@ export async function schemas(
       const z = zodToOpenAPI(schema)
       const selfToken = `${schemaName}Schema`
       const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
-      return zodToOpenAPISchema(schemaName, zExpr, true, exportType)
+      return zodToOpenAPISchema(
+        toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema')),
+        zExpr,
+        true,
+        exportType,
+      )
     })
     .join('\n\n')
   const importCode = `import { z } from '@hono/zod-openapi'`

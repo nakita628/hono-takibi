@@ -39,16 +39,17 @@ export function componentsCode(
     readonly exportCallbacks: boolean
   },
 ): string {
-  // Order follows OpenAPI Specification: schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
+  // Order: schemas, parameters, headers, examples, links, securitySchemes, requestBodies, responses, callbacks
+  // (examples must come before responses since responses may reference them)
   return [
     schemas(components, options.exportSchemas, options.exportSchemasTypes),
     parameters(components, options.exportParameters, options.exportParametersTypes),
-    securitySchemes(components, options.exportSecuritySchemes),
-    requestBodies(components, options.exportRequestBodies),
-    responses(components, options.exportResponses),
     headers(components, options.exportHeaders, options.exportHeadersTypes),
     examples(components, options.exportExamples),
     links(components, options.exportLinks),
+    securitySchemes(components, options.exportSecuritySchemes),
+    requestBodies(components, options.exportRequestBodies),
+    responses(components, options.exportResponses),
     callbacks(components, options.exportCallbacks),
   ]
     .filter(Boolean)

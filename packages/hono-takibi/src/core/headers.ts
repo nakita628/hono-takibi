@@ -1,104 +1,94 @@
 import path from 'node:path'
+import { fmt } from '../format/index.js'
+import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { core } from '../helper/core.js'
-import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
-import type { Schema } from '../openapi/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
-import {
-  findSchema,
-  isRecord,
-  lowerFirst,
-  renderNamedImport,
-  sanitizeIdentifier,
-} from '../utils/index.js'
+import type { Header, OpenAPI, Reference } from '../openapi/index.js'
+import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
 
-const headerBaseName = (key: string): string => {
-  const safe = sanitizeIdentifier(key)
-  if (safe.endsWith('HeaderSchema')) return safe.slice(0, -'Schema'.length)
-  if (safe.endsWith('Header')) return safe
-  return `${safe}Header`
+const isReference = (v: unknown): v is Reference =>
+  typeof v === 'object' && v !== null && '$ref' in v
+
+const isHeader = (v: unknown): v is Header => typeof v === 'object' && v !== null && !('$ref' in v)
+
+/**
+ * Builds a header schema definition.
+ */
+function buildHeaderSchema(
+  key: string,
+  header: Header | Reference,
+  exportHeader: boolean,
+  exportType: boolean,
+): string {
+  const constName = toIdentifierPascalCase(ensureSuffix(key, 'Header'))
+  const typeName = toIdentifierPascalCase(key)
+  const zInfer = exportType ? `\n\nexport type ${typeName} = z.infer<typeof ${constName}>` : ''
+  const exportPrefix = exportHeader ? 'export const' : 'const'
+
+  if (isReference(header) && header.$ref) {
+    const refName = header.$ref.split('/').pop() ?? key
+    return `${exportPrefix} ${constName} = ${toIdentifierPascalCase(ensureSuffix(refName, 'Header'))}${zInfer}`
+  }
+
+  if (isHeader(header)) {
+    if (header.schema) {
+      const schema = zodToOpenAPI(header.schema, { headers: header })
+      return `${exportPrefix} ${constName} = ${schema}${zInfer}`
+    }
+  }
+
+  return `${exportPrefix} ${constName} = z.any()${zInfer}`
 }
-
-const schemaVarName = (schemaName: string): string => sanitizeIdentifier(`${schemaName}Schema`)
 
 /**
  * Generates `components.headers` as Zod schemas.
  *
- * - Emits `<HeaderName>HeaderSchema` consts.
+ * - Emits `<HeaderName>Header` consts.
  * - When `split=true`, writes one file per header (and an `index.ts`).
  */
 export async function headers(
-  input: `${string}.yaml` | `${string}.json` | `${string}.tsp`,
+  openAPI: OpenAPI,
   output: string | `${string}.ts`,
   exportType: boolean,
   split?: boolean,
-  imports?: {
-    readonly schemas?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-  },
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  const openAPIResult = await parseOpenAPI(input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
-  const openAPI = openAPIResult.value
-
-  const hs = openAPI.components?.headers
-  if (!hs || Object.keys(hs).length === 0) return { ok: false, error: 'No headers found' }
+): Promise<{ ok: true; value: string } | { ok: false; error: string }> {
+  const headers = openAPI.components?.headers
+  if (headers === undefined) return { ok: false, error: 'No headers found' }
 
   const importZ = `import { z } from '@hono/zod-openapi'`
-
-  const buildImportSchemas = (
-    fromFile: string,
-    code: string,
-    exclude: ReadonlySet<string>,
-  ): string => {
-    const target = imports?.schemas
-    if (!target) return ''
-    const tokens = findSchema(code).filter((t) => !exclude.has(t))
-    if (tokens.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(tokens, spec)
-  }
 
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
-    for (const key of Object.keys(hs)) {
-      const header = hs[key]
+    for (const key of Object.keys(headers)) {
+      const header = headers[key]
       if (!header) continue
 
-      const schemaName = headerBaseName(key)
-      const h: Record<string, unknown> = isRecord(header) ? header : {}
-      const rawSchema = isRecord(h.schema) ? (h.schema as Schema) : {}
-      const mergedSchema: Schema =
-        header.description !== undefined && rawSchema.description === undefined
-          ? { ...rawSchema, description: header.description }
-          : rawSchema
-      const z = zodToOpenAPI(mergedSchema)
-      const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
+      const code = buildHeaderSchema(key, header, true, exportType)
+      const fileName = lowerFirst(toIdentifierPascalCase(ensureSuffix(key, 'Header')))
+      const filePath = path.join(outDir, `${fileName}.ts`)
+      const fileCode = [importZ, '\n', code, ''].filter(Boolean).join('\n')
 
-      const filePath = path.join(outDir, `${lowerFirst(schemaName)}.ts`)
-      const importSchemas = buildImportSchemas(filePath, code, new Set([schemaVarName(schemaName)]))
-      const fileCode = [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
-      const coreResult = await core(fileCode, path.dirname(filePath), filePath)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
+      const fmtResult = await fmt(fileCode)
+      if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+      const mkdirResult = await mkdir(path.dirname(filePath))
+      if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+      const writeResult = await writeFile(filePath, fmtResult.value)
+      if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
 
-    const indexBody = `${Object.keys(hs)
-      .map((n) => `export * from './${lowerFirst(headerBaseName(n))}'`)
+    const indexBody = `${Object.keys(headers)
+      .sort()
+      .map(
+        (n) => `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'Header')))}'`,
+      )
       .join('\n')}\n`
 
-    const coreResult = await core(
-      indexBody,
-      path.dirname(path.join(outDir, 'index.ts')),
-      path.join(outDir, 'index.ts'),
-    )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    const fmtResult = await fmt(indexBody)
+    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+    const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
+    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+    const writeResult = await writeFile(path.join(outDir, 'index.ts'), fmtResult.value)
+    if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
     return {
       ok: true,
@@ -106,29 +96,25 @@ export async function headers(
     }
   }
 
-  const defs = Object.keys(hs)
+  // Non-split mode: single file
+  const defs = Object.keys(headers)
     .map((key) => {
-      const header = hs[key]
-      const schemaName = headerBaseName(key)
-      const schema: Schema = (() => {
-        if (!header) return {}
-        const h: Record<string, unknown> = isRecord(header) ? header : {}
-        const rawSchema = isRecord(h.schema) ? (h.schema as Schema) : {}
-        return header.description !== undefined && rawSchema.description === undefined
-          ? { ...rawSchema, description: header.description }
-          : rawSchema
-      })()
-      const z = isRecord(schema) ? zodToOpenAPI(schema) : 'z.any()'
-      return zodToOpenAPISchema(schemaName, z, true, exportType, true)
+      const header = headers[key]
+      if (!header) return ''
+      return buildHeaderSchema(key, header, true, exportType)
     })
+    .filter(Boolean)
     .join('\n\n')
 
   const outFile = String(output)
-  const locals = new Set(Object.keys(hs).map((k) => schemaVarName(headerBaseName(k))))
-  const importSchemas = buildImportSchemas(outFile, defs, locals)
-  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
-  const coreResult = await core(fileCode, path.dirname(outFile), outFile)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
+  const fileCode = [importZ, '\n', defs, ''].filter(Boolean).join('\n')
+
+  const fmtResult = await fmt(fileCode)
+  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
+  const mkdirResult = await mkdir(path.dirname(outFile))
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  const writeResult = await writeFile(outFile, fmtResult.value)
+  if (!writeResult.ok) return { ok: false, error: writeResult.error }
 
   return { ok: true, value: `Generated header code written to ${outFile}` }
 }

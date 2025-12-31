@@ -17,6 +17,7 @@ const BaseEventSchema = z
       metadata: { type: 'object', additionalProperties: true },
     },
   })
+  .openapi('BaseEvent')
 
 const SystemEventSchema = z
   .intersection(
@@ -55,6 +56,7 @@ const SystemEventSchema = z
       },
     ],
   })
+  .openapi('SystemEvent')
 
 const OrderEventSchema = z
   .intersection(
@@ -117,6 +119,7 @@ const OrderEventSchema = z
       },
     ],
   })
+  .openapi('OrderEvent')
 
 const UserEventSchema = z
   .intersection(
@@ -170,34 +173,40 @@ const UserEventSchema = z
       },
     ],
   })
+  .openapi('UserEvent')
 
-type EventType = unknown | unknown | unknown
+type EventType =
+  | z.infer<typeof UserEventSchema>
+  | z.infer<typeof OrderEventSchema>
+  | z.infer<typeof SystemEventSchema>
 
-const EventSchema: z.ZodType<EventType> = z.lazy(() =>
-  z
-    .union([UserEventSchema, OrderEventSchema, SystemEventSchema])
-    .optional()
-    .openapi({
-      oneOf: [
-        { $ref: '#/components/schemas/UserEvent' },
-        { $ref: '#/components/schemas/OrderEvent' },
-        { $ref: '#/components/schemas/SystemEvent' },
-      ],
-      discriminator: {
-        propertyName: 'eventType',
-        mapping: {
-          'user.created': '#/components/schemas/UserEvent',
-          'user.updated': '#/components/schemas/UserEvent',
-          'user.deleted': '#/components/schemas/UserEvent',
-          'order.placed': '#/components/schemas/OrderEvent',
-          'order.shipped': '#/components/schemas/OrderEvent',
-          'order.delivered': '#/components/schemas/OrderEvent',
-          'system.startup': '#/components/schemas/SystemEvent',
-          'system.shutdown': '#/components/schemas/SystemEvent',
+const EventSchema: z.ZodType<EventType> = z
+  .lazy(() =>
+    z
+      .union([UserEventSchema, OrderEventSchema, SystemEventSchema])
+      .optional()
+      .openapi({
+        oneOf: [
+          { $ref: '#/components/schemas/UserEvent' },
+          { $ref: '#/components/schemas/OrderEvent' },
+          { $ref: '#/components/schemas/SystemEvent' },
+        ],
+        discriminator: {
+          propertyName: 'eventType',
+          mapping: {
+            'user.created': '#/components/schemas/UserEvent',
+            'user.updated': '#/components/schemas/UserEvent',
+            'user.deleted': '#/components/schemas/UserEvent',
+            'order.placed': '#/components/schemas/OrderEvent',
+            'order.shipped': '#/components/schemas/OrderEvent',
+            'order.delivered': '#/components/schemas/OrderEvent',
+            'system.startup': '#/components/schemas/SystemEvent',
+            'system.shutdown': '#/components/schemas/SystemEvent',
+          },
         },
-      },
-    }),
-)
+      }),
+  )
+  .openapi('Event')
 
 const NotificationContentSchema = z
   .object({
@@ -216,6 +225,7 @@ const NotificationContentSchema = z
       actionUrl: { type: 'string', format: 'uri' },
     },
   })
+  .openapi('NotificationContent')
 
 const PushRecipientSchema = z
   .object({
@@ -235,6 +245,7 @@ const PushRecipientSchema = z
       platform: { type: 'string', enum: ['ios', 'android', 'web'] },
     },
   })
+  .openapi('PushRecipient')
 
 const SmsRecipientSchema = z
   .object({
@@ -252,6 +263,7 @@ const SmsRecipientSchema = z
       phoneNumber: { type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' },
     },
   })
+  .openapi('SmsRecipient')
 
 const EmailRecipientSchema = z
   .object({
@@ -268,6 +280,7 @@ const EmailRecipientSchema = z
       name: { type: 'string' },
     },
   })
+  .openapi('EmailRecipient')
 
 const MultiRecipientSchema = z
   .object({
@@ -316,6 +329,7 @@ const MultiRecipientSchema = z
       },
     },
   })
+  .openapi('MultiRecipient')
 
 const NotificationSchema = z
   .object({
@@ -351,6 +365,7 @@ const NotificationSchema = z
       priority: { type: 'string', enum: ['low', 'normal', 'high', 'urgent'] },
     },
   })
+  .openapi('Notification')
 
 const PointSchema = z
   .object({
@@ -365,6 +380,7 @@ const PointSchema = z
       y: { type: 'number', format: 'float64' },
     },
   })
+  .openapi('Point')
 
 const PolygonSchema = z
   .object({
@@ -382,6 +398,7 @@ const PolygonSchema = z
       vertices: { type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 },
     },
   })
+  .openapi('Polygon')
 
 const TriangleSchema = z
   .object({
@@ -409,6 +426,7 @@ const TriangleSchema = z
       },
     },
   })
+  .openapi('Triangle')
 
 const RectangleSchema = z
   .object({
@@ -427,6 +445,7 @@ const RectangleSchema = z
       topLeft: { $ref: '#/components/schemas/Point' },
     },
   })
+  .openapi('Rectangle')
 
 const CircleSchema = z
   .object({
@@ -443,6 +462,7 @@ const CircleSchema = z
       center: { $ref: '#/components/schemas/Point' },
     },
   })
+  .openapi('Circle')
 
 const ShapeSchema = z
   .union([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
@@ -455,6 +475,7 @@ const ShapeSchema = z
       { $ref: '#/components/schemas/Polygon' },
     ],
   })
+  .openapi('Shape')
 
 const TaggableSchema = z
   .object({
@@ -475,6 +496,7 @@ const TaggableSchema = z
       categories: { type: 'array', items: { type: 'string' } },
     },
   })
+  .openapi('Taggable')
 
 const AuditableSchema = z
   .object({
@@ -495,6 +517,7 @@ const AuditableSchema = z
       version: { type: 'integer', format: 'int32' },
     },
   })
+  .openapi('Auditable')
 
 const BaseDocumentSchema = z
   .object({
@@ -511,124 +534,133 @@ const BaseDocumentSchema = z
       description: { type: 'string' },
     },
   })
+  .openapi('BaseDocument')
 
-type DocumentType = unknown &
-  unknown &
-  unknown & { content?: string; format?: 'markdown' | 'html' | 'plain' }
+type DocumentType = z.infer<typeof BaseDocumentSchema> &
+  z.infer<typeof AuditableSchema> &
+  z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
 
-const DocumentSchema: z.ZodType<DocumentType> = z.lazy(() =>
-  z
-    .intersection(
-      BaseDocumentSchema,
-      AuditableSchema,
-      TaggableSchema,
-      z
-        .object({
-          content: z.string().openapi({ type: 'string' }),
-          format: z
-            .enum(['markdown', 'html', 'plain'])
-            .openapi({ type: 'string', enum: ['markdown', 'html', 'plain'] }),
-        })
-        .partial()
-        .openapi({
-          type: 'object',
-          properties: {
-            content: { type: 'string' },
-            format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
+const DocumentSchema: z.ZodType<DocumentType> = z
+  .lazy(() =>
+    BaseDocumentSchema.and(AuditableSchema)
+      .and(TaggableSchema)
+      .and(
+        z
+          .object({
+            content: z.string().openapi({ type: 'string' }),
+            format: z
+              .enum(['markdown', 'html', 'plain'])
+              .openapi({ type: 'string', enum: ['markdown', 'html', 'plain'] }),
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: {
+              content: { type: 'string' },
+              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
+            },
+          }),
+      )
+      .optional()
+      .openapi({
+        allOf: [
+          { $ref: '#/components/schemas/BaseDocument' },
+          { $ref: '#/components/schemas/Auditable' },
+          { $ref: '#/components/schemas/Taggable' },
+          {
+            type: 'object',
+            properties: {
+              content: { type: 'string' },
+              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
+            },
           },
-        }),
-    )
-    .optional()
-    .openapi({
-      allOf: [
-        { $ref: '#/components/schemas/BaseDocument' },
-        { $ref: '#/components/schemas/Auditable' },
-        { $ref: '#/components/schemas/Taggable' },
-        {
-          type: 'object',
-          properties: {
-            content: { type: 'string' },
-            format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
-          },
-        },
-      ],
-    }),
-)
+        ],
+      }),
+  )
+  .openapi('Document')
 
 type MixedContentType = {
-  value: string | number | boolean | unknown[] | Record<string, unknown>
+  value: string | number | boolean | MixedContentType[] | Record<string, MixedContentType>
   notNull?: Record<string, unknown>
   restrictedValue?: string & Record<string, unknown>
 }
 
-const MixedContentSchema: z.ZodType<MixedContentType> = z.lazy(() =>
-  z
-    .object({
-      value: z
-        .union([
-          z.string().openapi({ type: 'string' }),
-          z.number().optional().openapi({ type: 'number' }),
-          z.boolean().optional().openapi({ type: 'boolean' }),
-          z
-            .array(MixedContentSchema)
-            .optional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
-          z
-            .record(z.string(), MixedContentSchema)
-            .openapi({
-              type: 'object',
-              additionalProperties: { $ref: '#/components/schemas/MixedContent' },
-            }),
-        ])
-        .optional()
-        .openapi({
-          oneOf: [
-            { type: 'string' },
-            { type: 'number' },
-            { type: 'boolean' },
-            { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-            { type: 'object', additionalProperties: { $ref: '#/components/schemas/MixedContent' } },
-          ],
-        }),
-      notNull: z
-        .any()
-        .refine((v) => typeof v !== 'null')
-        .optional()
-        .openapi({ not: { type: 'null' } }),
-      restrictedValue: z
-        .intersection(
-          z.string().optional().openapi({ type: 'string' }),
-          z
-            .any()
-            .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
-            .optional()
-            .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
-        )
-        .optional()
-        .openapi({
-          allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-        }),
-    })
-    .openapi({
-      type: 'object',
-      required: ['value'],
-      properties: {
-        value: {
-          oneOf: [
-            { type: 'string' },
-            { type: 'number' },
-            { type: 'boolean' },
-            { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-            { type: 'object', additionalProperties: { $ref: '#/components/schemas/MixedContent' } },
-          ],
+const MixedContentSchema: z.ZodType<MixedContentType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z
+          .union([
+            z.string().openapi({ type: 'string' }),
+            z.number().optional().openapi({ type: 'number' }),
+            z.boolean().optional().openapi({ type: 'boolean' }),
+            z
+              .array(MixedContentSchema)
+              .optional()
+              .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
+            z
+              .record(z.string(), MixedContentSchema)
+              .openapi({
+                type: 'object',
+                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
+              }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
+              {
+                type: 'object',
+                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
+              },
+            ],
+          }),
+        notNull: z
+          .any()
+          .refine((v) => typeof v !== 'null')
+          .optional()
+          .openapi({ not: { type: 'null' } }),
+        restrictedValue: z
+          .intersection(
+            z.string().optional().openapi({ type: 'string' }),
+            z
+              .any()
+              .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
+              .optional()
+              .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
+          )
+          .optional()
+          .openapi({
+            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
+          }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: {
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
+              {
+                type: 'object',
+                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
+              },
+            ],
+          },
+          notNull: { not: { type: 'null' } },
+          restrictedValue: {
+            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
+          },
         },
-        notNull: { not: { type: 'null' } },
-        restrictedValue: {
-          allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-        },
-      },
-    }),
-)
+      }),
+  )
+  .openapi('MixedContent')
 
 const NullableTypesSchema = z
   .object({
@@ -659,6 +691,7 @@ const NullableTypesSchema = z
       deprecated: { type: 'string', deprecated: true },
     },
   })
+  .openapi('NullableTypes')
 
 export const postEventsRoute = createRoute({
   method: 'post',

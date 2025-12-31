@@ -1,6 +1,9 @@
-import { zodToOpenAPISchema } from '../../../../helper/zod-to-openapi-schema.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifier } from '../../../../utils/index.js'
+import {
+  ensureSuffix,
+  toIdentifierPascalCase,
+  zodToOpenAPISchema,
+} from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**
@@ -29,7 +32,7 @@ export function parameters(
       }
       const z = zodToOpenAPI(parameter.schema, meta)
       return zodToOpenAPISchema(
-        toIdentifier(ensureSuffix(k, 'ParamsSchema')),
+        toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
         z,
         exportParameters,
         exportParametersTypes,

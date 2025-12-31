@@ -10,16 +10,11 @@ import {
   isRecord,
   lowerFirst,
   renderNamedImport,
-  toIdentifier,
+  toIdentifierPascalCase,
 } from '../utils/index.js'
 
 const isMedia = (v: unknown): v is Content[string] =>
   isRecord(v) && 'schema' in v && isRecord(v.schema)
-
-const requestBodyConstName = (key: string): string =>
-  toIdentifier(
-    key.endsWith('Body') ? `${key.slice(0, -'Body'.length)}RequestBody` : `${key}RequestBody`,
-  )
 
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
@@ -93,7 +88,7 @@ const buildImportExamples = (
   if (!target) return ''
   const names = Array.from(usedExampleKeys)
     .sort()
-    .map((k) => toIdentifier(ensureSuffix(k, 'Example')))
+    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Example')))
   if (names.length === 0) return ''
   const spec = target.import ?? moduleSpecFrom(fromFile, target)
   return renderNamedImport(names, spec)
@@ -120,7 +115,7 @@ export async function requestBodies(
     const usedExampleKeys = new Set<string>()
     const body = bodies[key]
     const expr = body ? requestBodyExpr(body, components, usedExampleKeys, imports) : '{}'
-    const name = requestBodyConstName(key)
+    const name = toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))
     return { name, usedExampleKeys, code: `export const ${name} = ${expr}` }
   }
 
@@ -142,7 +137,10 @@ export async function requestBodies(
     }
 
     const indexBody = `${Object.keys(bodies)
-      .map((n) => `export * from './${lowerFirst(requestBodyConstName(n))}'`)
+      .map(
+        (n) =>
+          `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'RequestBody')))}'`,
+      )
       .join('\n')}\n`
 
     const coreResult = await core(
@@ -163,7 +161,7 @@ export async function requestBodies(
     .map((key) => {
       const body = bodies[key]
       const expr = body ? requestBodyExpr(body, components, usedExampleKeys, imports) : '{}'
-      return `export const ${requestBodyConstName(key)} = ${expr}`
+      return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))} = ${expr}`
     })
     .join('\n\n')
 

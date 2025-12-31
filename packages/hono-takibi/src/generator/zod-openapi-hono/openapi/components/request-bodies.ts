@@ -1,5 +1,5 @@
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, ref, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, ref, toIdentifierPascalCase } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
@@ -33,7 +33,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
           .filter((v) => v !== undefined)
           .join(',')
 
-        return `${exportRequestBodies ? 'export const' : 'const'} ${toIdentifier(ensureSuffix(k, 'RequestBody'))}={${props}}`
+        return `${exportRequestBodies ? 'export const' : 'const'} ${toIdentifierPascalCase(ensureSuffix(k, 'RequestBody'))}={${props}}`
       }
       return undefined
     })

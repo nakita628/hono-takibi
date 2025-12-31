@@ -645,68 +645,59 @@ export function isUniqueContentSchema(
  * // → 'AddressSchema'
  * ```
  */
-export function ref(
-  $ref: `#/components/${string}/${string}`,
-  // $ref:
-  // | `#/components/schemas/${string}`
-  // | `#/components/parameters/${string}`
-  // | `#/components/securitySchemes/${string}`
-  // | `#/components/requestBodies/${string}`
-  // | `#/components/responses/${string}`u
-  // | `#/components/headers/${string}`
-  // | `#/components/examples/${string}`
-  // | `#/components/links/${string}`
-  // | `#/components/callbacks/${string}`
-): string {
+export function ref($ref: `#/components/${string}/${string}`): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
   // 2. "Address"
-  const ref = $ref.split('/').pop()
-  if (!ref) return 'Schema'
+  const rawRef = $ref.split('/').pop()
+  if (!rawRef) return 'Schema'
+  // Decode URL-encoded names (e.g., %E6%97%A5%E6%9C%AC%E8%AA%9E -> 日本語)
+  // and convert to safe identifier
+  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
   if ($ref.startsWith('#/components/schemas/')) {
-    if (ref.endsWith('Schema')) return ref
-    return `${ref}Schema`
+    if (refName.endsWith('Schema')) return refName
+    return `${refName}Schema`
   }
   if ($ref.startsWith('#/components/parameters/')) {
-    if (ref.endsWith('ParamsSchema')) return ref
-    if (ref.endsWith('Params')) return `${ref}Schema`
-    return `${ref}ParamsSchema`
+    if (refName.endsWith('ParamsSchema')) return refName
+    if (refName.endsWith('Params')) return `${refName}Schema`
+    return `${refName}ParamsSchema`
   }
   if ($ref.startsWith('#/components/headers/')) {
-    if (ref.endsWith('HeaderSchema')) return ref
-    if (ref.endsWith('Header')) return `${ref}Schema`
-    return `${ref}HeaderSchema`
+    if (refName.endsWith('HeaderSchema')) return refName
+    if (refName.endsWith('Header')) return `${refName}Schema`
+    return `${refName}HeaderSchema`
   }
   if ($ref.startsWith('#/components/securitySchemes/')) {
-    if (ref.endsWith('SecurityScheme')) return ref
-    return `${ref}SecurityScheme`
+    if (refName.endsWith('SecurityScheme')) return refName
+    return `${refName}SecurityScheme`
   }
   if ($ref.startsWith('#/components/requestBodies/')) {
-    if (ref.endsWith('RequestBody')) return ref
-    return `${ref}RequestBody`
+    if (refName.endsWith('RequestBody')) return refName
+    return `${refName}RequestBody`
   }
   if ($ref.startsWith('#/components/responses/')) {
-    if (ref.endsWith('Response')) return ref
-    return `${ref}Response`
+    if (refName.endsWith('Response')) return refName
+    return `${refName}Response`
   }
   if ($ref.startsWith('#/components/headers/')) {
-    if (ref.endsWith('Header')) return ref
-    return `${ref}Header`
+    if (refName.endsWith('Header')) return refName
+    return `${refName}Header`
   }
   if ($ref.startsWith('#/components/examples/')) {
-    if (ref.endsWith('Example')) return ref
-    return `${ref}Example`
+    if (refName.endsWith('Example')) return refName
+    return `${refName}Example`
   }
   if ($ref.startsWith('#/components/links/')) {
-    if (ref.endsWith('Link')) return ref
-    return `${ref}Link`
+    if (refName.endsWith('Link')) return refName
+    return `${refName}Link`
   }
   if ($ref.startsWith('#/components/callbacks/')) {
-    if (ref.endsWith('Callback')) return ref
-    return `${ref}Callback`
+    if (refName.endsWith('Callback')) return refName
+    return `${refName}Callback`
   }
-  return `${ref}Schema`
+  return `${refName}Schema`
 }
 
 /**
@@ -797,33 +788,12 @@ export function getToSafeIdentifier(text: string): string {
   return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text) ? text : JSON.stringify(text)
 }
 
-/**
- * Replaces any character not matching `[A-Za-z0-9_$]` with `_`.
- *
- * @param text - The raw string to sanitize.
- * @returns A valid identifier string.
- *
- * @example
- * ```ts
- * sanitizeIdentifier('foo-bar')        // → 'foo_bar'
- * sanitizeIdentifier('123user@name')   // → '123user_name'
- * sanitizeIdentifier('日本語')           // → '___'
- * sanitizeIdentifier('post.title')     // → 'post_title'
- * sanitizeIdentifier('valid_Name')     // → 'valid_Name'
- * ```
- */
-export function sanitizeIdentifier(text: string): string {
-  return text.replace(/[^A-Za-z0-9_$]/g, '_')
-}
-
-/**
- *
- * @param text - The string to convert to a safe identifier.
- * @returns
- */
-export function toIdentifier(text: string): string {
-  const sanitized = text.replace(/[^A-Za-z0-9_$]/g, '_')
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
+export function toIdentifierPascalCase(text: string): string {
+  return text
+    .replace(/[^A-Za-z0-9_$]/g, '_') // invalid character to _
+    .replace(/^([0-9])/, '_$1') // if starts with number, add _
+    .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase()) // _letter to uppercase (e.g. _letter -> Letter)
+    .replace(/^([a-z])/, (_, c) => c.toUpperCase()) // first letter to uppercase (e.g. letter -> Letter)
 }
 
 /**
@@ -1008,7 +978,44 @@ export function exportConst(value: { readonly [k: string]: unknown }, suffix: st
   return Object.keys(value)
     .map(
       (key) =>
-        `export const ${toIdentifier(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key] ?? {})}`,
+        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key] ?? {})}`,
     )
     .join('\n\n')
+}
+
+/**
+ * Generates a Zod schema constant and optional inferred type alias.
+ *
+ * @param schemaName - The base name of the schema (used for variable and type names)
+ * @param zodSchema - The Zod schema string to assign
+ * @param exportSchema - Whether to `export` the Zod schema constant
+ * @param exportType - Whether to `export` the inferred type alias
+ * @returns The generated code string containing the schema and optional type alias
+ *
+ * @example
+ * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
+ * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ */
+export function zodToOpenAPISchema(
+  schemaName: string,
+  zodSchema: string,
+  exportSchema: boolean,
+  exportType: boolean,
+  notComponentSchema?: boolean,
+): string {
+  const schemaCode = exportSchema
+    ? `export const ${schemaName} = ${zodSchema}`
+    : `const ${schemaName} = ${zodSchema}`
+
+  // schema code
+  const componentSchemaCode = exportSchema
+    ? `export const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    : `const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+  // zod infer code
+  const zodInferCode = exportType
+    ? `\n\nexport type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>`
+    : ''
+
+  if (notComponentSchema) return `${schemaCode}${zodInferCode}`
+  return `${componentSchemaCode}${zodInferCode}`
 }

@@ -440,7 +440,7 @@ const LimitParamParamsSchema = z
     default: 50,
   })
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',

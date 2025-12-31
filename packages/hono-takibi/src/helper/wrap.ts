@@ -1,4 +1,5 @@
 import type { Header, Parameter, Schema } from '../openapi/index.js'
+import { buildExamples } from '../utils/index.js'
 
 type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
 
@@ -53,6 +54,26 @@ export function wrap(
     ),
   )
 
+  const headerMetaProps = meta?.headers
+    ? [
+        meta.headers.description
+          ? `description:${JSON.stringify(meta.headers.description)}`
+          : undefined,
+        // meta.headers.required ? `required:${JSON.stringify(meta.headers.required)}` : undefined,
+        meta.headers.deprecated
+          ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
+          : undefined,
+        meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
+        meta.headers.examples ? `examples:${buildExamples(meta.headers.examples)}` : undefined,
+        meta.headers.style ? `style:${JSON.stringify(meta.headers.style)}` : undefined,
+        meta.headers.explode ? `explode:${JSON.stringify(meta.headers.explode)}` : undefined,
+        // meta.headers.schema
+        //   ? `schema:${JSON.stringify(meta.headers.schema)}`
+        //   : undefined,
+        meta.headers.content ? `content:${JSON.stringify(meta.headers.content)}` : undefined,
+      ].filter((v) => v !== undefined)
+    : []
+
   const openapiSchema = args ? JSON.stringify(args) : undefined
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
@@ -60,6 +81,7 @@ export function wrap(
       : openapiSchema
   const openapiProps = [
     meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
+    ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
 

@@ -728,7 +728,7 @@ const ErrorSchema = z
   })
   .openapi('Error')
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',

@@ -818,9 +818,9 @@ const ErrorSchema = z
   })
   .openapi('Error')
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-const basicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
+const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',

@@ -3,19 +3,21 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
+    "@typescript/native-preview": "7.0.0-dev.20251229.1",
     "@typespec/http": "^1.3.0",
     "@typespec/rest": "^0.73.0",
     "@typespec/versioning": "^0.73.0",
     "tsx": "^4.20.3"
   },
   "dependencies": {
-    "hono-takibi": "workspace:^",
     "@hono/zod-openapi": "^1.1.0",
     "hono": "^4.9.5",
+    "hono-takibi": "workspace:^",
     "swr": "^2.3.6"
   }
 }

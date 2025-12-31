@@ -3,15 +3,15 @@ import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import { zodToOpenAPISchema } from '../helper/zod-to-openapi-schema.js'
 import type { OpenAPI, Parameter } from '../openapi/index.js'
-import { findSchema, lowerFirst, renderNamedImport, sanitizeIdentifier } from '../utils/index.js'
-
-const parameterBaseName = (key: string): string => {
-  if (key.endsWith('ParamsSchema')) return key.slice(0, -'Schema'.length)
-  if (key.endsWith('Params')) return key
-  return `${key}Params`
-}
+import {
+  ensureSuffix,
+  findSchema,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+  zodToOpenAPISchema,
+} from '../utils/index.js'
 
 /**
  * Generates `components.parameters` schemas as Zod definitions.
@@ -60,7 +60,7 @@ export async function parameters(
       const p: Parameter | undefined = parameters[key]
       if (!p) continue
 
-      const schemaName = parameterBaseName(key)
+      const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'ParamsSchema'))
       const z = zodToOpenAPI(p.schema, {
         parameters: p,
       })
@@ -70,7 +70,7 @@ export async function parameters(
       const importSchemas = buildImportSchemas(
         filePath,
         code,
-        new Set([sanitizeIdentifier(`${schemaName}Schema`)]),
+        new Set([toIdentifierPascalCase(ensureSuffix(schemaName, 'ParamsSchema'))]),
       )
       const fileCode = [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
 
@@ -102,7 +102,7 @@ export async function parameters(
   const defs = Object.keys(parameters)
     .map((key) => {
       const p: Parameter | undefined = parameters[key]
-      const schemaName = parameterBaseName(key)
+      const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'ParamsSchema'))
       const z = p
         ? zodToOpenAPI(p.schema, {
             parameters: {
@@ -116,7 +116,7 @@ export async function parameters(
 
   const outFile = String(output)
   const locals = new Set(
-    Object.keys(parameters).map((k) => sanitizeIdentifier(`${parameterBaseName(k)}Schema`)),
+    Object.keys(parameters).map((k) => toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema'))),
   )
   const importSchemas = buildImportSchemas(outFile, defs, locals)
   const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')

@@ -427,7 +427,7 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: { onEvent: GenericWebhookCallbacks },
+  callbacks: { onEvent: GenericWebhookCallback },
 })
 
 export const postSubscriptionsRoute = createRoute({
@@ -448,10 +448,10 @@ export const postSubscriptionsRoute = createRoute({
     },
   },
   callbacks: {
-    paymentSuccess: PaymentSuccessCallbacks,
-    paymentFailed: PaymentFailedCallbacks,
-    subscriptionRenewed: SubscriptionRenewedCallbacks,
-    subscriptionCancelled: SubscriptionCancelledCallbacks,
+    paymentSuccess: PaymentSuccessCallback,
+    paymentFailed: PaymentFailedCallback,
+    subscriptionRenewed: SubscriptionRenewedCallback,
+    subscriptionCancelled: SubscriptionCancelledCallback,
   },
 })
 
@@ -467,9 +467,9 @@ export const postJobsRoute = createRoute({
     202: { description: 'Job accepted', content: { 'application/json': { schema: JobSchema } } },
   },
   callbacks: {
-    onProgress: JobProgressCallbacks,
-    onComplete: JobCompleteCallbacks,
-    onError: JobErrorCallbacks,
+    onProgress: JobProgressCallback,
+    onComplete: JobCompleteCallback,
+    onError: JobErrorCallback,
   },
 })
 

@@ -1,6 +1,6 @@
 import { resolveSchemasDependencies } from '../../../../helper/resolve-schemas-dependencies.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, sanitizeIdentifier, toIdentifier } from '../../../../utils/index.js'
+import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 import { zodType } from '../../../zod-to-openapi/type/index.js'
 
@@ -23,28 +23,25 @@ export function schemas(
       const schema = schemas[schemaName]
       // 4.2 generate zod schema
       const zSchema = zodToOpenAPI(schema)
-      const safeSchemaName = sanitizeIdentifier(schemaName)
+      const safeSchemaName = toIdentifierPascalCase(schemaName)
       // 4.3 wrap self-referencing schemas with z.lazy() to handle circular dependencies
-      const selfToken = toIdentifier(ensureSuffix(schemaName, 'Schema'))
+      const selfToken = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
 
       const isSelfReferencing = zSchema.includes(selfToken)
 
-      const typeDefinition = isSelfReferencing ? `${zodType(schema, schemaName)}\n\n` : ''
+      const typeDefinition = isSelfReferencing ? `${zodType(schema, safeSchemaName)}\n\n` : ''
 
       const z = isSelfReferencing ? `z.lazy(() => ${zSchema})` : zSchema
-      const returnValue = `:z.ZodType<${schemaName}Type>`
+      const returnValue = `:z.ZodType<${safeSchemaName}Type>`
 
       // 4.4 generate zod schema definition
-      const variableName = toIdentifier(ensureSuffix(schemaName, 'Schema'))
-      const safeVariableName = variableName
+      const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
       const schemaCode = exportSchemas
-        ? `export const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
-        : `const ${safeVariableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
-
-      const safeTypeVariableName = sanitizeIdentifier(schemaName)
+        ? `export const ${variableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
+        : `const ${variableName}${isSelfReferencing ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
 
       const zodInferCode = exportSchemasTypes
-        ? `\n\nexport type ${safeTypeVariableName} = z.infer<typeof ${safeVariableName}>`
+        ? `\n\nexport type ${toIdentifierPascalCase(schemaName)} = z.infer<typeof ${variableName}>`
         : ''
 
       return `${typeDefinition}${schemaCode}${zodInferCode}`

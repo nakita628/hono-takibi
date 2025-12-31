@@ -915,9 +915,9 @@ const LimitParamParamsSchema = z
     default: 20,
   })
 
-const bearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
-const apiKeySecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
+const ApiKeySecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',

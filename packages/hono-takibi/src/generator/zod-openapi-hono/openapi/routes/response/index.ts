@@ -1,14 +1,6 @@
 import type { Responses } from '../../../../../openapi/index.js'
-import { escapeStringLiteral, isUniqueContentSchema, sanitizeIdentifier } from '../../../../../utils/index.js'
+import { ensureSuffix, escapeStringLiteral, isUniqueContentSchema, toIdentifierPascalCase } from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
-
-const toIdentifier = (raw: string): string => {
-  const sanitized = sanitizeIdentifier(raw)
-  return /^[A-Za-z_$]/.test(sanitized) ? sanitized : `_${sanitized}`
-}
-
-const responseConstName = (key: string): string =>
-  toIdentifier(key.endsWith('Response') ? key : `${key}Response`)
 
 /**
  * Generates a Zod-compatible response schema definition from OpenAPI responses.
@@ -59,7 +51,7 @@ export function response(responses: { [k: string]: Responses }): string {
       if (res.$ref.startsWith('#/components/responses/')) {
         const key = res.$ref.split('/').pop()
         if (key) {
-          return `${quotedCode}:${responseConstName(key)},`
+          return `${quotedCode}:${toIdentifierPascalCase(ensureSuffix(key, 'Response'))},`
         }
       }
       return `${quotedCode}:{$ref:${JSON.stringify(res.$ref)}},`
