@@ -645,19 +645,7 @@ export function isUniqueContentSchema(
  * // → 'AddressSchema'
  * ```
  */
-export function ref(
-  $ref: `#/components/${string}/${string}`,
-  // $ref:
-  // | `#/components/schemas/${string}`
-  // | `#/components/parameters/${string}`
-  // | `#/components/securitySchemes/${string}`
-  // | `#/components/requestBodies/${string}`
-  // | `#/components/responses/${string}`u
-  // | `#/components/headers/${string}`
-  // | `#/components/examples/${string}`
-  // | `#/components/links/${string}`
-  // | `#/components/callbacks/${string}`
-): string {
+export function ref($ref: `#/components/${string}/${string}`): string {
   // split('/'): Split a string into an array using slashes
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element

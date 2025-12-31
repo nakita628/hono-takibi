@@ -53,7 +53,7 @@ export function wrap(
         k !== 'nullable' && k !== 'const' && !(k === 'required' && typeof v === 'boolean'),
     ),
   )
-  
+
   const headerMetaProps = meta?.headers
     ? [
         meta.headers.description
