@@ -219,7 +219,7 @@ const ExtremeCompositionsSchema = z
       .object({
         value: z.string().min(1).openapi({ type: 'string', minLength: 1 }),
         children: z
-          .array(recursiveConstrainedSchema)
+          .array(RecursiveConstrainedSchema)
           .max(5)
           .openapi({
             type: 'array',

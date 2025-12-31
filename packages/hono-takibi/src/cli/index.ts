@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
+import { headers } from '../core/headers.js'
 import { componentsCore } from '../core/index.js'
 import { parameters } from '../core/parameters.js'
 import { requestBodies } from '../core/request-bodies.js'
@@ -184,12 +185,11 @@ export async function honoTakibi(): Promise<
 
   /** headers */
   const headersResult = components?.headers
-    ? await componentsCore(
-        openAPI.components?.headers ?? {},
-        'Header',
+    ? await headers(
+        openAPI,
         components.headers.output,
-        components.headers.split ?? false,
         components.headers.exportTypes ?? false,
+        components.headers.split ?? false,
       )
     : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }

@@ -1,29 +1,33 @@
 import type { Schema } from '../../../openapi/index.js'
+import { toIdentifierPascalCase } from '../../../utils/index.js'
 
 export function zodType(schema: Schema, typeName: string): string {
   return `type ${typeName}Type=${schemaToTypeString(schema, typeName)}`
 }
 
 function schemaToTypeString(schema: Schema, selfTypeName: string): string {
+  if (!schema) return 'unknown'
+
   if (schema.$ref) {
-    const refName = schema.$ref.split('/').pop() ?? ''
+    const rawRef = schema.$ref.split('/').pop() ?? ''
+    const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
     // Self-reference uses Type suffix, others use z.infer
     return refName === selfTypeName ? `${refName}Type` : `z.infer<typeof ${refName}Schema>`
   }
 
   if (schema.oneOf && schema.oneOf.length > 0) {
-    const types = schema.oneOf.map((s) => schemaToTypeString(s, selfTypeName))
-    return types.length === 1 ? types[0] : `(${types.join('|')})`
+    const types = schema.oneOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('|')})`
   }
 
   if (schema.anyOf && schema.anyOf.length > 0) {
-    const types = schema.anyOf.map((s) => schemaToTypeString(s, selfTypeName))
-    return types.length === 1 ? types[0] : `(${types.join('|')})`
+    const types = schema.anyOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('|')})`
   }
 
   if (schema.allOf && schema.allOf.length > 0) {
-    const types = schema.allOf.map((s) => schemaToTypeString(s, selfTypeName))
-    return types.length === 1 ? types[0] : `(${types.join('&')})`
+    const types = schema.allOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('&')})`
   }
 
   if (schema.enum && schema.enum.length > 0) {
@@ -76,11 +80,34 @@ function generateSingleType(schema: Schema, type: string, selfTypeName: string):
 
 function generateArrayType(schema: Schema, selfTypeName: string): string {
   if (!schema.items) return 'unknown[]'
-  if (Array.isArray(schema.items)) {
-    return `[${schema.items.map((item) => schemaToTypeString(item, selfTypeName)).join(',')}]`
+
+  const items = schema.items
+  const firstItem = items[0]
+
+  // Multiple elements (tuple)
+  if (items.length > 1) {
+    return `[${items
+      .filter(Boolean)
+      .map((item) => schemaToTypeString(item, selfTypeName))
+      .join(',')}]`
   }
-  const itemType = schemaToTypeString(schema.items ? schema.items[0] : schema.items, selfTypeName)
-  return `${itemType}[]`
+
+  // Single element array
+  if (firstItem !== undefined) {
+    return `${schemaToTypeString(firstItem, selfTypeName)}[]`
+  }
+
+  // items[0] is undefined = items might be a Schema object (not an array)
+  // Type says readonly Schema[] but runtime might be a single Schema
+  // Use Object.getOwnPropertyDescriptor to access $ref without type assertion
+  const refValue = Object.getOwnPropertyDescriptor(items, '$ref')?.value
+  if (typeof refValue === 'string') {
+    const rawRef = refValue.split('/').pop() ?? ''
+    const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+    return refName === selfTypeName ? `${refName}Type[]` : `z.infer<typeof ${refName}Schema>[]`
+  }
+
+  return 'unknown[]'
 }
 
 function generateObjectType(schema: Schema, selfTypeName: string): string {

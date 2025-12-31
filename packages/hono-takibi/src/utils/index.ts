@@ -662,51 +662,54 @@ export function ref(
   // 1. ["#", "components", "schemas", "Address"]
   // pop() to get the last element
   // 2. "Address"
-  const ref = $ref.split('/').pop()
-  if (!ref) return 'Schema'
+  const rawRef = $ref.split('/').pop()
+  if (!rawRef) return 'Schema'
+  // Decode URL-encoded names (e.g., %E6%97%A5%E6%9C%AC%E8%AA%9E -> 日本語)
+  // and convert to safe identifier
+  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
   if ($ref.startsWith('#/components/schemas/')) {
-    if (ref.endsWith('Schema')) return ref
-    return `${ref}Schema`
+    if (refName.endsWith('Schema')) return refName
+    return `${refName}Schema`
   }
   if ($ref.startsWith('#/components/parameters/')) {
-    if (ref.endsWith('ParamsSchema')) return ref
-    if (ref.endsWith('Params')) return `${ref}Schema`
-    return `${ref}ParamsSchema`
+    if (refName.endsWith('ParamsSchema')) return refName
+    if (refName.endsWith('Params')) return `${refName}Schema`
+    return `${refName}ParamsSchema`
   }
   if ($ref.startsWith('#/components/headers/')) {
-    if (ref.endsWith('HeaderSchema')) return ref
-    if (ref.endsWith('Header')) return `${ref}Schema`
-    return `${ref}HeaderSchema`
+    if (refName.endsWith('HeaderSchema')) return refName
+    if (refName.endsWith('Header')) return `${refName}Schema`
+    return `${refName}HeaderSchema`
   }
   if ($ref.startsWith('#/components/securitySchemes/')) {
-    if (ref.endsWith('SecurityScheme')) return ref
-    return `${ref}SecurityScheme`
+    if (refName.endsWith('SecurityScheme')) return refName
+    return `${refName}SecurityScheme`
   }
   if ($ref.startsWith('#/components/requestBodies/')) {
-    if (ref.endsWith('RequestBody')) return ref
-    return `${ref}RequestBody`
+    if (refName.endsWith('RequestBody')) return refName
+    return `${refName}RequestBody`
   }
   if ($ref.startsWith('#/components/responses/')) {
-    if (ref.endsWith('Response')) return ref
-    return `${ref}Response`
+    if (refName.endsWith('Response')) return refName
+    return `${refName}Response`
   }
   if ($ref.startsWith('#/components/headers/')) {
-    if (ref.endsWith('Header')) return ref
-    return `${ref}Header`
+    if (refName.endsWith('Header')) return refName
+    return `${refName}Header`
   }
   if ($ref.startsWith('#/components/examples/')) {
-    if (ref.endsWith('Example')) return ref
-    return `${ref}Example`
+    if (refName.endsWith('Example')) return refName
+    return `${refName}Example`
   }
   if ($ref.startsWith('#/components/links/')) {
-    if (ref.endsWith('Link')) return ref
-    return `${ref}Link`
+    if (refName.endsWith('Link')) return refName
+    return `${refName}Link`
   }
   if ($ref.startsWith('#/components/callbacks/')) {
-    if (ref.endsWith('Callback')) return ref
-    return `${ref}Callback`
+    if (refName.endsWith('Callback')) return refName
+    return `${refName}Callback`
   }
-  return `${ref}Schema`
+  return `${refName}Schema`
 }
 
 /**

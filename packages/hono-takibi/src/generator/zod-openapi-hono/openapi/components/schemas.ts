@@ -29,10 +29,10 @@ export function schemas(
 
       const isSelfReferencing = zSchema.includes(selfToken)
 
-      const typeDefinition = isSelfReferencing ? `${zodType(schema, schemaName)}\n\n` : ''
+      const typeDefinition = isSelfReferencing ? `${zodType(schema, safeSchemaName)}\n\n` : ''
 
       const z = isSelfReferencing ? `z.lazy(() => ${zSchema})` : zSchema
-      const returnValue = `:z.ZodType<${schemaName}Type>`
+      const returnValue = `:z.ZodType<${safeSchemaName}Type>`
 
       // 4.4 generate zod schema definition
       const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))

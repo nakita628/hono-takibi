@@ -606,7 +606,7 @@ export const getClassRoute = createRoute({
   path: '/class',
   operationId: 'class',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: classSchema } } },
+    200: { description: 'OK', content: { 'application/json': { schema: ClassSchema } } },
   },
 })
 
