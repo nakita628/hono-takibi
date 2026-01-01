@@ -50,7 +50,10 @@ export function wrap(
   const args = Object.fromEntries(
     Object.entries(schema).filter(
       ([k, v]) =>
-        k !== 'nullable' && k !== 'const' && !(k === 'required' && typeof v === 'boolean'),
+        k !== 'nullable' &&
+        k !== 'const' &&
+        k !== '$ref' &&
+        !(k === 'required' && typeof v === 'boolean'),
     ),
   )
 
