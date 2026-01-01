@@ -14,13 +14,13 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
       .object({
         id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
         value: z.string().openapi({ type: 'string' }),
-        parent: TreeNodeSchema,
+        parent: TreeNodeSchema.optional(),
         children: z
           .array(TreeNodeSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
         metadata: z
-          .record(z.string(), TreeNodeSchema)
+          .record(z.string(), TreeNodeSchema.optional())
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/TreeNode' },
@@ -48,9 +48,9 @@ const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
     z
       .object({
         value: z.string().openapi({ type: 'string' }),
-        prev: LinkedListNodeSchema,
-        next: LinkedListNodeSchema,
-        list: LinkedListSchema,
+        prev: LinkedListNodeSchema.optional(),
+        next: LinkedListNodeSchema.optional(),
+        list: LinkedListSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -69,8 +69,9 @@ const LinkedListSchema = z
   .object({
     head: LinkedListNodeSchema,
     tail: LinkedListNodeSchema,
-    length: z.int().optional().openapi({ type: 'integer' }),
+    length: z.int().openapi({ type: 'integer' }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -111,7 +112,7 @@ const GraphEdgeSchema = z
     source: GraphNodeSchema,
     target: GraphNodeSchema,
     weight: z.number().optional().openapi({ type: 'number' }),
-    metadata: EdgeMetadataSchema,
+    metadata: EdgeMetadataSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -134,7 +135,7 @@ const GraphNodeSchema = z
       .array(GraphEdgeSchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
-    graph: GraphSchema,
+    graph: GraphSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -149,7 +150,8 @@ const GraphNodeSchema = z
   .openapi('GraphNode')
 
 const GraphMetadataSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }), rootNode: GraphNodeSchema })
+  .object({ name: z.string().openapi({ type: 'string' }), rootNode: GraphNodeSchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string' }, rootNode: { $ref: '#/components/schemas/GraphNode' } },
@@ -162,7 +164,7 @@ const GraphSchema = z
     nodes: z
       .array(GraphNodeSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
-    metadata: GraphMetadataSchema,
+    metadata: GraphMetadataSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -190,7 +192,7 @@ const PostSchema: z.ZodType<PostType> = z
           .array(PostSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-        replyTo: PostSchema,
+        replyTo: PostSchema.optional(),
         replies: z
           .array(PostSchema)
           .optional()
@@ -223,7 +225,7 @@ const SocialUserSchema: z.ZodType<SocialUserType> = z
       .object({
         id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
         username: z.string().openapi({ type: 'string' }),
-        profile: UserProfileSchema,
+        profile: UserProfileSchema.optional(),
         followers: z
           .array(SocialUserSchema)
           .optional()
@@ -259,10 +261,11 @@ const SocialUserSchema: z.ZodType<SocialUserType> = z
 
 const ProfileSettingsSchema = z
   .object({
-    privacy: z.string().optional().openapi({ type: 'string' }),
-    notifications: z.boolean().optional().openapi({ type: 'boolean' }),
+    privacy: z.string().openapi({ type: 'string' }),
+    notifications: z.boolean().openapi({ type: 'boolean' }),
     profile: UserProfileSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -275,11 +278,12 @@ const ProfileSettingsSchema = z
 
 const UserProfileSchema = z
   .object({
-    bio: z.string().optional().openapi({ type: 'string' }),
-    avatar: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    bio: z.string().openapi({ type: 'string' }),
+    avatar: z.url().openapi({ type: 'string', format: 'uri' }),
     user: SocialUserSchema,
     settings: ProfileSettingsSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -314,14 +318,14 @@ type PostType = {
 
 const FileOwnerSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     ownedFiles: z
       .array(FileSystemEntrySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } }),
     homeDirectory: FileSystemEntrySchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -339,6 +343,7 @@ const AccessControlEntrySchema = z
     permissions: FilePermissionsSchema,
     entry: FileSystemEntrySchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -376,8 +381,8 @@ const FileSystemEntrySchema = z
     type: z
       .enum(['file', 'directory', 'symlink'])
       .openapi({ type: 'string', enum: ['file', 'directory', 'symlink'] }),
-    permissions: FilePermissionsSchema,
-    owner: FileOwnerSchema,
+    permissions: FilePermissionsSchema.optional(),
+    owner: FileOwnerSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -393,13 +398,13 @@ const FileSystemEntrySchema = z
 
 const CommentThreadSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().openapi({ type: 'string' }),
     rootComment: CommentSchema,
     allComments: z
       .array(CommentSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -416,14 +421,14 @@ const CommentSchema: z.ZodType<CommentType> = z
       .object({
         id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
         content: z.string().openapi({ type: 'string' }),
-        author: CommentAuthorSchema,
-        parent: CommentSchema,
+        author: CommentAuthorSchema.optional(),
+        parent: CommentSchema.optional(),
         replies: z
           .array(CommentSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-        thread: CommentThreadSchema,
-        quotedComment: CommentSchema,
+        thread: CommentThreadSchema.optional(),
+        quotedComment: CommentSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -604,7 +609,7 @@ const CategorySchema: z.ZodType<CategoryType> = z
       .object({
         id: z.string().openapi({ type: 'string' }),
         name: z.string().openapi({ type: 'string' }),
-        parent: CategorySchema,
+        parent: CategorySchema.optional(),
         children: z
           .array(CategorySchema)
           .optional()
@@ -618,7 +623,7 @@ const CategorySchema: z.ZodType<CategoryType> = z
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
         relatedCategories: z
-          .record(z.string(), CategorySchema)
+          .record(z.string(), CategorySchema.optional())
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/Category' },
@@ -650,14 +655,14 @@ const CategorySchema: z.ZodType<CategoryType> = z
 
 const CategorizedProductSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     primaryCategory: CategorySchema,
     secondaryCategories: z
       .array(CategorySchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -686,9 +691,9 @@ const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
       .object({
         type: z.string().optional().openapi({ type: 'string' }),
         config: z.object({}).openapi({ type: 'object' }),
-        nextAction: WorkflowActionSchema,
-        fallbackAction: WorkflowActionSchema,
-        triggerTransition: StateTransitionSchema,
+        nextAction: WorkflowActionSchema.optional(),
+        fallbackAction: WorkflowActionSchema.optional(),
+        triggerTransition: StateTransitionSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -722,7 +727,7 @@ const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
           .array(WorkflowActionSchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
-        parentState: WorkflowStateSchema,
+        parentState: WorkflowStateSchema.optional(),
         childStates: z
           .array(WorkflowStateSchema)
           .optional()
@@ -768,9 +773,9 @@ const TransitionGuardSchema = z
 const StateTransitionSchema = z
   .object({
     event: z.string().openapi({ type: 'string' }),
-    sourceState: WorkflowStateSchema,
+    sourceState: WorkflowStateSchema.optional(),
     targetState: WorkflowStateSchema,
-    guard: TransitionGuardSchema,
+    guard: TransitionGuardSchema.optional(),
     actions: z
       .array(WorkflowActionSchema)
       .optional()
@@ -815,10 +820,11 @@ const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
         BaseEntitySchema,
         z
           .object({
-            name: z.string().optional().openapi({ type: 'string' }),
+            name: z.string().openapi({ type: 'string' }),
             parent: ExtendedEntitySchema,
             baseReference: BaseEntitySchema,
           })
+          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -846,10 +852,8 @@ const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   .openapi('ExtendedEntity')
 
 const BaseEntitySchema = z
-  .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    relatedEntity: ExtendedEntitySchema,
-  })
+  .object({ id: z.string().openapi({ type: 'string' }), relatedEntity: ExtendedEntitySchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -876,8 +880,8 @@ const RecursiveMapSchema: z.ZodType<RecursiveMapType> = z
   .lazy(() =>
     z
       .object({
-        key: z.string().optional().openapi({ type: 'string' }),
-        value: z.string().optional().openapi({ type: 'string' }),
+        key: z.string().openapi({ type: 'string' }),
+        value: z.string().openapi({ type: 'string' }),
         nested: z
           .record(z.string(), RecursiveMapSchema)
           .openapi({
@@ -886,9 +890,9 @@ const RecursiveMapSchema: z.ZodType<RecursiveMapType> = z
           }),
         items: z
           .array(RecursiveMapSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/RecursiveMap' } }),
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -923,8 +927,8 @@ const NullableCircularSchema: z.ZodType<NullableCircularType> = z
           }),
         prev: z
           .object({ id: z.string().openapi({ type: 'string' }), next: NullableCircularSchema })
+          .partial()
           .nullable()
-          .optional()
           .openapi({
             type: ['object', 'null'],
             properties: {
@@ -974,7 +978,7 @@ export const postTreesRoute = createRoute({
   method: 'post',
   path: '/trees',
   operationId: 'createTree',
-  request: { body: { content: { 'application/json': { schema: TreeNodeSchema } } } },
+  request: { body: { content: { 'application/json': { schema: TreeNodeSchema.optional() } } } },
   responses: { 201: { description: 'Created' } },
 })
 
@@ -985,7 +989,7 @@ export const getGraphsRoute = createRoute({
   responses: {
     200: {
       description: 'Graph structures',
-      content: { 'application/json': { schema: GraphSchema } },
+      content: { 'application/json': { schema: GraphSchema.optional() } },
     },
   },
 })
@@ -997,7 +1001,7 @@ export const getLinkedListsRoute = createRoute({
   responses: {
     200: {
       description: 'Linked list',
-      content: { 'application/json': { schema: LinkedListNodeSchema } },
+      content: { 'application/json': { schema: LinkedListNodeSchema.optional() } },
     },
   },
 })
@@ -1009,7 +1013,7 @@ export const getSocialNetworkRoute = createRoute({
   responses: {
     200: {
       description: 'Social network data',
-      content: { 'application/json': { schema: SocialUserSchema } },
+      content: { 'application/json': { schema: SocialUserSchema.optional() } },
     },
   },
 })
@@ -1021,7 +1025,7 @@ export const getFileSystemRoute = createRoute({
   responses: {
     200: {
       description: 'File system structure',
-      content: { 'application/json': { schema: FileSystemEntrySchema } },
+      content: { 'application/json': { schema: FileSystemEntrySchema.optional() } },
     },
   },
 })
@@ -1052,7 +1056,7 @@ export const getPolymorphicRoute = createRoute({
   responses: {
     200: {
       description: 'Polymorphic circular reference',
-      content: { 'application/json': { schema: ExpressionSchema } },
+      content: { 'application/json': { schema: ExpressionSchema.optional() } },
     },
   },
 })
@@ -1064,7 +1068,7 @@ export const getCategoriesRoute = createRoute({
   responses: {
     200: {
       description: 'Category hierarchy',
-      content: { 'application/json': { schema: CategorySchema } },
+      content: { 'application/json': { schema: CategorySchema.optional() } },
     },
   },
 })
@@ -1076,7 +1080,7 @@ export const getWorkflowRoute = createRoute({
   responses: {
     200: {
       description: 'Workflow with circular state transitions',
-      content: { 'application/json': { schema: WorkflowStateSchema } },
+      content: { 'application/json': { schema: WorkflowStateSchema.optional() } },
     },
   },
 })

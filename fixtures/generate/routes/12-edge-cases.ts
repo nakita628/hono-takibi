@@ -266,13 +266,13 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().optional().openapi({ type: 'string' }),
+        value: z.string().openapi({ type: 'string' }),
         children: z
           .array(TreeNodeSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
         parent: TreeNodeSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -302,7 +302,8 @@ const CompanySchema = z
   .openapi('Company')
 
 const PersonSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }), company: CompanySchema })
+  .object({ name: z.string().openapi({ type: 'string' }), company: CompanySchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
@@ -842,7 +843,7 @@ export const postMultiContentRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: DataJsonSchema },
+        'application/json': { schema: DataJsonSchema.optional() },
         'multipart/form-data': {
           schema: z
             .object({
@@ -940,7 +941,7 @@ export const getCircularRoute = createRoute({
   responses: {
     200: {
       description: 'Circular reference',
-      content: { 'application/json': { schema: TreeNodeSchema } },
+      content: { 'application/json': { schema: TreeNodeSchema.optional() } },
     },
   },
 })
@@ -952,7 +953,7 @@ export const getDeepNestingRoute = createRoute({
   responses: {
     200: {
       description: 'Deeply nested structure',
-      content: { 'application/json': { schema: DeepNestedSchema } },
+      content: { 'application/json': { schema: DeepNestedSchema.optional() } },
     },
   },
 })

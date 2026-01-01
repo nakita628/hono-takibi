@@ -49,7 +49,7 @@ export const getExampleRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response',
-      content: { 'application/json': { schema: ASchema } },
+      content: { 'application/json': { schema: ASchema.optional() } },
     },
   },
 })

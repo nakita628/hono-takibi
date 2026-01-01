@@ -38,7 +38,7 @@ const TagSchema = z
   .openapi('Tag')
 
 const NestedCustomFieldSchema = z
-  .record(z.string(), CustomFieldValueSchema)
+  .record(z.string(), CustomFieldValueSchema.optional())
   .openapi({
     type: 'object',
     additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
@@ -70,12 +70,11 @@ const CustomFieldValueSchema = z
 
 const EntityAttributesSchema = z
   .looseObject({
-    name: z.string().optional().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
+    description: z.string().openapi({ type: 'string' }),
     status: EntityStatusSchema,
     tags: z
       .array(TagSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
     customFields: z
       .record(z.string(), CustomFieldValueSchema)
@@ -84,6 +83,7 @@ const EntityAttributesSchema = z
         additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
       }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -145,6 +145,7 @@ const RelationshipLinkSchema = z
     links: RelationshipLinkUrlsSchema,
     meta: RelationshipMetaSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -159,11 +160,11 @@ const RelationshipLinksSchema = z
   .object({
     data: z
       .array(ResourceIdentifierSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } }),
     links: RelationshipLinkUrlsSchema,
     meta: RelationshipMetaSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -181,6 +182,7 @@ const EntityRelationshipsSchema = z
     owner: RelationshipLinkSchema,
     members: RelationshipLinksSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -213,12 +215,13 @@ const PermissionsSchema = z
 
 const EntityMetaSchema = z
   .object({
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    version: z.int().optional().openapi({ type: 'integer' }),
-    etag: z.string().optional().openapi({ type: 'string' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    version: z.int().openapi({ type: 'integer' }),
+    etag: z.string().openapi({ type: 'string' }),
     permissions: PermissionsSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -255,9 +258,9 @@ const EntitySchema = z
     id: EntityIdSchema,
     type: EntityTypeSchema,
     attributes: EntityAttributesSchema,
-    relationships: EntityRelationshipsSchema,
-    meta: EntityMetaSchema,
-    links: EntityLinksSchema,
+    relationships: EntityRelationshipsSchema.optional(),
+    meta: EntityMetaSchema.optional(),
+    links: EntityLinksSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -322,8 +325,8 @@ const EntityListWrapperSchema = z
       .array(EntitySchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Entity' } }),
-    meta: ListMetaSchema,
-    links: PaginationLinksSchema,
+    meta: ListMetaSchema.optional(),
+    links: PaginationLinksSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -359,7 +362,7 @@ const EntityWrapperSchema = z
       .array(EntitySchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Entity' } }),
-    meta: ResponseMetaSchema,
+    meta: ResponseMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -376,7 +379,7 @@ const CreateEntityInputSchema = z
   .object({
     type: EntityTypeSchema,
     attributes: EntityAttributesSchema,
-    relationships: EntityRelationshipsSchema,
+    relationships: EntityRelationshipsSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -391,6 +394,7 @@ const CreateEntityInputSchema = z
 
 const UpdateEntityInputSchema = z
   .object({ attributes: EntityAttributesSchema, relationships: EntityRelationshipsSchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -404,7 +408,7 @@ const CreateRelationshipInputSchema = z
   .object({
     type: z.string().openapi({ type: 'string' }),
     targetId: EntityIdSchema,
-    meta: RelationshipMetaSchema,
+    meta: RelationshipMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -446,8 +450,8 @@ const ErrorSchema = z
     code: z.string().openapi({ type: 'string' }),
     title: z.string().openapi({ type: 'string' }),
     detail: z.string().optional().openapi({ type: 'string' }),
-    source: ErrorSourceSchema,
-    meta: ErrorMetaSchema,
+    source: ErrorSourceSchema.optional(),
+    meta: ErrorMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -469,7 +473,7 @@ const ErrorListSchema = z
     errors: z
       .array(ErrorSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Error' } }),
-    meta: ResponseMetaSchema,
+    meta: ResponseMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -558,7 +562,7 @@ const BatchResultSchema = z
     responses: z
       .array(BatchResponseItemSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/BatchResponseItem' } }),
-    meta: ResponseMetaSchema,
+    meta: ResponseMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -579,8 +583,9 @@ const WebhookEventSchema = z
 const WebhookMetaSchema = z
   .object({
     triggeredBy: ResourceIdentifierSchema,
-    correlationId: z.string().optional().openapi({ type: 'string' }),
+    correlationId: z.string().openapi({ type: 'string' }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -595,9 +600,9 @@ const WebhookPayloadSchema = z
     id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     event: WebhookEventSchema,
     data: EntitySchema,
-    previousData: EntitySchema,
+    previousData: EntitySchema.optional(),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    meta: WebhookMetaSchema,
+    meta: WebhookMetaSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -769,11 +774,44 @@ const SortExpressionSchema = z
   })
   .openapi('SortExpression')
 
-const EntityIdPathParamsSchema = EntityIdSchema
+const EntityIdPathParamsSchema = EntityIdSchema.openapi({
+  param: {
+    name: 'entityId',
+    in: 'path',
+    required: true,
+    description: 'Entity unique identifier',
+    schema: { $ref: '#/components/schemas/EntityId' },
+    examples: { validUuid: { $ref: '#/components/examples/EntityIdExample' } },
+  },
+})
 
-const FilterParamParamsSchema = FilterExpressionSchema
+const FilterParamParamsSchema = FilterExpressionSchema.optional().openapi({
+  param: {
+    name: 'filter',
+    in: 'query',
+    description: 'Filter expression',
+    required: false,
+    style: 'deepObject',
+    explode: true,
+    schema: { $ref: '#/components/schemas/FilterExpression' },
+    examples: {
+      simpleFilter: { $ref: '#/components/examples/SimpleFilterExample' },
+      complexFilter: { $ref: '#/components/examples/ComplexFilterExample' },
+    },
+  },
+})
 
-const PaginationParamParamsSchema = PaginationInputSchema
+const PaginationParamParamsSchema = PaginationInputSchema.optional().openapi({
+  param: {
+    name: 'page',
+    in: 'query',
+    description: 'Pagination parameters',
+    required: false,
+    style: 'deepObject',
+    explode: true,
+    schema: { $ref: '#/components/schemas/PaginationInput' },
+  },
+})
 
 const SortParamParamsSchema = z
   .array(SortExpressionSchema)
@@ -881,19 +919,19 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const CreateEntityBodyRequestBody = {
   description: 'Create entity request',
-  content: { 'application/json': { schema: CreateEntityInputSchema } },
+  content: { 'application/json': { schema: CreateEntityInputSchema.optional() } },
   required: true,
 }
 
 const UpdateEntityBodyRequestBody = {
   description: 'Update entity request',
-  content: { 'application/json': { schema: UpdateEntityInputSchema } },
+  content: { 'application/json': { schema: UpdateEntityInputSchema.optional() } },
   required: true,
 }
 
 const CreateRelationshipBodyRequestBody = {
   description: 'Create relationship request',
-  content: { 'application/json': { schema: CreateRelationshipInputSchema } },
+  content: { 'application/json': { schema: CreateRelationshipInputSchema.optional() } },
   required: true,
 }
 
@@ -931,12 +969,41 @@ const BatchOperationBodyRequestBody = {
   required: true,
 }
 
+const EntityListExample = {
+  summary: 'Entity list',
+  value: {
+    data: [
+      {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        type: 'user',
+        attributes: { name: 'John Doe' },
+      },
+    ],
+    meta: { total: 1, page: 1, perPage: 20 },
+  },
+}
+
 const EntityListResponse = {
   description: 'List of entities',
   content: {
     'application/json': {
-      schema: EntityListWrapperSchema,
+      schema: EntityListWrapperSchema.optional(),
       examples: { entityList: EntityListExample },
+    },
+  },
+}
+
+const EntityExample = {
+  summary: 'Complete entity',
+  value: {
+    data: {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      type: 'user',
+      attributes: { name: 'John Doe', status: 'active' },
+      relationships: {
+        owner: { data: { type: 'organization', id: '660e8400-e29b-41d4-a716-446655440001' } },
+      },
+      meta: { createdAt: '2024-01-15T10:30:00Z', version: 1 },
     },
   },
 }
@@ -944,7 +1011,21 @@ const EntityListResponse = {
 const EntityResponse = {
   description: 'Single entity',
   content: {
-    'application/json': { schema: EntityWrapperSchema, examples: { entity: EntityExample } },
+    'application/json': {
+      schema: EntityWrapperSchema.optional(),
+      examples: { entity: EntityExample },
+    },
+  },
+}
+
+const CreatedEntityExample = {
+  summary: 'Newly created entity',
+  value: {
+    data: {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      type: 'user',
+      attributes: { name: 'John Doe', status: 'active' },
+    },
   },
 }
 
@@ -952,7 +1033,7 @@ const EntityCreatedResponse = {
   description: 'Entity created',
   content: {
     'application/json': {
-      schema: EntityWrapperSchema,
+      schema: EntityWrapperSchema.optional(),
       examples: { createdEntity: CreatedEntityExample },
     },
   },
@@ -960,33 +1041,48 @@ const EntityCreatedResponse = {
 
 const RelationshipListResponse = {
   description: 'List of relationships',
-  content: { 'application/json': { schema: RelationshipLinksSchema } },
+  content: { 'application/json': { schema: RelationshipLinksSchema.optional() } },
 }
 
 const RelationshipResponse = {
   description: 'Single relationship',
-  content: { 'application/json': { schema: RelationshipLinkSchema } },
+  content: { 'application/json': { schema: RelationshipLinkSchema.optional() } },
 }
 
 const BatchResultResponse = {
   description: 'Batch operation result (all succeeded)',
-  content: { 'application/json': { schema: BatchResultSchema } },
+  content: { 'application/json': { schema: BatchResultSchema.optional() } },
 }
 
 const MultiStatusResponse = {
   description: 'Batch operation result (partial success)',
-  content: { 'application/json': { schema: BatchResultSchema } },
+  content: { 'application/json': { schema: BatchResultSchema.optional() } },
 }
 
 const NoContentResponse = { description: 'No content' }
 
 const NotModifiedResponse = { description: 'Not modified' }
 
+const ValidationErrorExample = {
+  summary: 'Validation error response',
+  value: {
+    errors: [
+      {
+        status: '400',
+        code: 'VALIDATION_ERROR',
+        title: 'Validation Failed',
+        detail: 'Name is required',
+        source: { pointer: '/data/attributes/name' },
+      },
+    ],
+  },
+}
+
 const ValidationErrorResponse = {
   description: 'Validation error',
   content: {
     'application/json': {
-      schema: ErrorListSchema,
+      schema: ErrorListSchema.optional(),
       examples: { validationError: ValidationErrorExample },
     },
   },
@@ -994,24 +1090,41 @@ const ValidationErrorResponse = {
 
 const UnauthorizedResponse = {
   description: 'Unauthorized',
-  content: { 'application/json': { schema: ErrorListSchema } },
+  content: { 'application/json': { schema: ErrorListSchema.optional() } },
+}
+
+const NotFoundErrorExample = {
+  summary: 'Not found error response',
+  value: {
+    errors: [
+      {
+        status: '404',
+        code: 'NOT_FOUND',
+        title: 'Resource Not Found',
+        detail: 'Entity with ID 550e8400-e29b-41d4-a716-446655440000 not found',
+      },
+    ],
+  },
 }
 
 const NotFoundResponse = {
   description: 'Not found',
   content: {
-    'application/json': { schema: ErrorListSchema, examples: { notFound: NotFoundErrorExample } },
+    'application/json': {
+      schema: ErrorListSchema.optional(),
+      examples: { notFound: NotFoundErrorExample },
+    },
   },
 }
 
 const ConflictResponse = {
   description: 'Conflict',
-  content: { 'application/json': { schema: ErrorListSchema } },
+  content: { 'application/json': { schema: ErrorListSchema.optional() } },
 }
 
 const PreconditionFailedResponse = {
   description: 'Precondition failed',
-  content: { 'application/json': { schema: ErrorListSchema } },
+  content: { 'application/json': { schema: ErrorListSchema.optional() } },
 }
 
 const XRequestIdHeader = z
@@ -1095,46 +1208,6 @@ const ComplexFilterExample = {
   },
 }
 
-const EntityExample = {
-  summary: 'Complete entity',
-  value: {
-    data: {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      type: 'user',
-      attributes: { name: 'John Doe', status: 'active' },
-      relationships: {
-        owner: { data: { type: 'organization', id: '660e8400-e29b-41d4-a716-446655440001' } },
-      },
-      meta: { createdAt: '2024-01-15T10:30:00Z', version: 1 },
-    },
-  },
-}
-
-const EntityListExample = {
-  summary: 'Entity list',
-  value: {
-    data: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        type: 'user',
-        attributes: { name: 'John Doe' },
-      },
-    ],
-    meta: { total: 1, page: 1, perPage: 20 },
-  },
-}
-
-const CreatedEntityExample = {
-  summary: 'Newly created entity',
-  value: {
-    data: {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      type: 'user',
-      attributes: { name: 'John Doe', status: 'active' },
-    },
-  },
-}
-
 const CreateUserExample = {
   summary: 'Create user request',
   value: { type: 'user', attributes: { name: 'John Doe', status: 'active' } },
@@ -1153,35 +1226,6 @@ const UpdateEntityExample = {
   value: { attributes: { name: 'Updated Name', status: 'inactive' } },
 }
 
-const ValidationErrorExample = {
-  summary: 'Validation error response',
-  value: {
-    errors: [
-      {
-        status: '400',
-        code: 'VALIDATION_ERROR',
-        title: 'Validation Failed',
-        detail: 'Name is required',
-        source: { pointer: '/data/attributes/name' },
-      },
-    ],
-  },
-}
-
-const NotFoundErrorExample = {
-  summary: 'Not found error response',
-  value: {
-    errors: [
-      {
-        status: '404',
-        code: 'NOT_FOUND',
-        title: 'Resource Not Found',
-        detail: 'Entity with ID 550e8400-e29b-41d4-a716-446655440000 not found',
-      },
-    ],
-  },
-}
-
 const GetEntityByIdLink = {
   operationId: 'getEntity',
   parameters: { entityId: '$response.body#/data/id' },
@@ -1197,7 +1241,7 @@ const EntityWebhookCallback = {
     post: {
       operationId: 'entityWebhookCallback',
       requestBody: {
-        content: { 'application/json': { schema: WebhookPayloadSchema } },
+        content: { 'application/json': { schema: WebhookPayloadSchema.optional() } },
         required: true,
       },
       responses: {

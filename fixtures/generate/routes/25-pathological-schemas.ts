@@ -917,7 +917,8 @@ const EdgeCasesSchema = z
   .openapi('EdgeCases')
 
 const RecursiveCSchema = z
-  .object({ value: z.boolean().optional().openapi({ type: 'boolean' }), refA: RecursiveASchema })
+  .object({ value: z.boolean().openapi({ type: 'boolean' }), refA: RecursiveASchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: { value: { type: 'boolean' }, refA: { $ref: '#/components/schemas/RecursiveA' } },
@@ -925,7 +926,8 @@ const RecursiveCSchema = z
   .openapi('RecursiveC')
 
 const RecursiveBSchema = z
-  .object({ value: z.number().optional().openapi({ type: 'number' }), refC: RecursiveCSchema })
+  .object({ value: z.number().openapi({ type: 'number' }), refC: RecursiveCSchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: { value: { type: 'number' }, refC: { $ref: '#/components/schemas/RecursiveC' } },
@@ -933,7 +935,8 @@ const RecursiveBSchema = z
   .openapi('RecursiveB')
 
 const RecursiveASchema = z
-  .object({ value: z.string().optional().openapi({ type: 'string' }), refB: RecursiveBSchema })
+  .object({ value: z.string().openapi({ type: 'string' }), refB: RecursiveBSchema })
+  .partial()
   .openapi({
     type: 'object',
     properties: { value: { type: 'string' }, refB: { $ref: '#/components/schemas/RecursiveB' } },
@@ -954,7 +957,7 @@ const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
             maxItems: 10,
             items: { $ref: '#/components/schemas/ConstrainedTree' },
           }),
-        parent: ConstrainedTreeSchema,
+        parent: ConstrainedTreeSchema.optional(),
         siblings: z
           .array(ConstrainedTreeSchema)
           .optional()
@@ -997,6 +1000,7 @@ const RecursiveNightmaresSchema = z
           .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
         z
           .object({ child: RecursiveInAllOfSchema })
+          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -1006,7 +1010,6 @@ const RecursiveNightmaresSchema = z
             },
           }),
       )
-      .optional()
       .openapi({
         allOf: [
           { type: 'object', properties: { value: { type: 'string' } } },
@@ -1022,9 +1025,10 @@ const RecursiveNightmaresSchema = z
       }),
     recursiveInOneOf: z
       .union([
-        z.string().optional().openapi({ type: 'string' }),
+        z.string().openapi({ type: 'string' }),
         z
           .object({ nested: RecursiveInOneOfSchema })
+          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -1060,7 +1064,6 @@ const RecursiveNightmaresSchema = z
       .array(
         z
           .array(RecursiveArraySchema)
-          .optional()
           .openapi({
             type: 'array',
             items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
@@ -1075,6 +1078,7 @@ const RecursiveNightmaresSchema = z
         },
       }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1566,6 +1570,7 @@ const PathologicalRootSchema = z
     recursive: RecursiveNightmaresSchema,
     composition: CompositionHellSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1590,6 +1595,8 @@ export const postPathologicalRoute = createRoute({
   method: 'post',
   path: '/pathological',
   operationId: 'testPathological',
-  request: { body: { content: { 'application/json': { schema: PathologicalRootSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: PathologicalRootSchema.optional() } } },
+  },
   responses: { 200: { description: 'OK' } },
 })

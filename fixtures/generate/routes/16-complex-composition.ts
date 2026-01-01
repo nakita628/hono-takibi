@@ -175,10 +175,11 @@ const ImageMessageSchema = BaseMessageSchema.and(MediaContentSchema)
   .and(
     z
       .object({
-        type: z.literal('image').optional().openapi({ type: 'string' }),
+        type: z.literal('image').openapi({ type: 'string' }),
         dimensions: DimensionsSchema,
-        alt: z.string().optional().openapi({ type: 'string' }),
+        alt: z.string().openapi({ type: 'string' }),
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -209,10 +210,11 @@ const VideoMessageSchema = BaseMessageSchema.and(MediaContentSchema)
   .and(
     z
       .object({
-        type: z.literal('video').optional().openapi({ type: 'string' }),
-        duration: z.int().optional().openapi({ type: 'integer' }),
+        type: z.literal('video').openapi({ type: 'string' }),
+        duration: z.int().openapi({ type: 'integer' }),
         thumbnail: ImageMessageSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -243,10 +245,11 @@ const DocumentMessageSchema = BaseMessageSchema.and(MediaContentSchema)
   .and(
     z
       .object({
-        type: z.literal('document').optional().openapi({ type: 'string' }),
-        pageCount: z.int().optional().openapi({ type: 'integer' }),
+        type: z.literal('document').openapi({ type: 'string' }),
+        pageCount: z.int().openapi({ type: 'integer' }),
         preview: ImageMessageSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -346,11 +349,11 @@ const MessageMetadataSchema = z
   .object({
     priority: z
       .enum(['low', 'normal', 'high', 'urgent'])
-      .optional()
       .openapi({ type: 'string', enum: ['low', 'normal', 'high', 'urgent'] }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     replyTo: MessageSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -369,7 +372,7 @@ const BaseMessageSchema = z
         type: z.string().openapi({ type: 'string' }),
         sender: ParticipantSchema,
         recipient: ParticipantSchema,
-        metadata: MessageMetadataSchema,
+        metadata: MessageMetadataSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -462,7 +465,7 @@ const TextMessageSchema = z
       .object({
         type: z.literal('text').optional().openapi({ type: 'string' }),
         content: z.string().openapi({ type: 'string' }),
-        formatting: TextFormattingSchema,
+        formatting: TextFormattingSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -542,6 +545,7 @@ const MessageResponseSchema = z
     MessageSchema,
     z
       .object({ deliveryStatus: DeliveryStatusSchema })
+      .partial()
       .openapi({
         type: 'object',
         properties: { deliveryStatus: { $ref: '#/components/schemas/DeliveryStatus' } },
@@ -605,8 +609,8 @@ const UserEventPayloadSchema = z
           .enum(['login', 'logout', 'register', 'update', 'delete'])
           .optional()
           .openapi({ type: 'string', enum: ['login', 'logout', 'register', 'update', 'delete'] }),
-        previousState: UserStateSchema,
-        newState: UserStateSchema,
+        previousState: UserStateSchema.optional(),
+        newState: UserStateSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -855,7 +859,7 @@ const EventSchema = z
   .object({
     eventType: z.string().openapi({ type: 'string' }),
     payload: EventPayloadSchema,
-    context: EventContextSchema,
+    context: EventContextSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -887,7 +891,7 @@ const ConfigSectionSchema = z
   .openapi('ConfigSection')
 
 const ConfigSettingsSchema = z
-  .record(z.string(), ConfigSectionSchema)
+  .record(z.string(), ConfigSectionSchema.optional())
   .openapi({
     type: 'object',
     properties: {
@@ -911,7 +915,7 @@ const ConfigValueSchema: z.ZodType<ConfigValueType> = z
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ConfigValue' } }),
         z
-          .record(z.string(), ConfigValueSchema)
+          .record(z.string(), ConfigValueSchema.optional())
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
@@ -937,7 +941,7 @@ const ConfigurationSchema = z
       .object({
         settings: ConfigSettingsSchema,
         overrides: z
-          .record(z.string(), ConfigValueSchema)
+          .record(z.string(), ConfigValueSchema.optional())
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
@@ -1114,7 +1118,7 @@ const FeatureFlagsSchema = z
   .intersection(
     ConfigSectionSchema,
     z
-      .record(z.string(), FeatureFlagSchema)
+      .record(z.string(), FeatureFlagSchema.optional())
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/FeatureFlag' },
@@ -1152,7 +1156,7 @@ const RateLimitsSchema = z
   .intersection(
     ConfigSectionSchema,
     z
-      .record(z.string(), RateLimitSchema)
+      .record(z.string(), RateLimitSchema.optional())
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/RateLimit' },
@@ -1186,6 +1190,7 @@ const ConfigurationUpdateSchema = z
             additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
           }),
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -1255,7 +1260,7 @@ const StorageResourceSchema = z
           .enum(['ssd', 'hdd', 'nvme'])
           .openapi({ type: 'string', enum: ['ssd', 'hdd', 'nvme'] }),
         iops: z.int().optional().openapi({ type: 'integer' }),
-        attachedTo: ComputeResourceSchema,
+        attachedTo: ComputeResourceSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -1301,7 +1306,7 @@ const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
               .array(NetworkResourceSchema)
               .optional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/NetworkResource' } }),
-            parentNetwork: NetworkResourceSchema,
+            parentNetwork: NetworkResourceSchema.optional(),
             connectedResources: z
               .array(
                 z
@@ -1375,8 +1380,8 @@ const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
 
 const ResourceTemplateSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    version: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
+    version: z.string().openapi({ type: 'string' }),
     parameters: z
       .record(z.string(), ConfigValueSchema)
       .openapi({
@@ -1384,6 +1389,7 @@ const ResourceTemplateSchema = z
         additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
       }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1406,7 +1412,7 @@ const CompositeResourceSchema = z
         components: z
           .array(ResourceSchema)
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Resource' } }),
-        template: ResourceTemplateSchema,
+        template: ResourceTemplateSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -1469,7 +1475,7 @@ const ResourceDependencySchema = z
   .object({
     resourceId: z.string().openapi({ type: 'string' }),
     type: z.enum(['hard', 'soft']).openapi({ type: 'string', enum: ['hard', 'soft'] }),
-    resource: ResourceSchema,
+    resource: ResourceSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -1510,7 +1516,7 @@ const BaseResourceSchema = z
           .array(ResourceDependencySchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceDependency' } }),
-        cost: ResourceCostSchema,
+        cost: ResourceCostSchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -1873,11 +1879,11 @@ export const postMessagesRoute = createRoute({
   method: 'post',
   path: '/messages',
   operationId: 'sendMessage',
-  request: { body: { content: { 'application/json': { schema: MessageSchema } } } },
+  request: { body: { content: { 'application/json': { schema: MessageSchema.optional() } } } },
   responses: {
     201: {
       description: 'Message sent',
-      content: { 'application/json': { schema: MessageResponseSchema } },
+      content: { 'application/json': { schema: MessageResponseSchema.optional() } },
     },
   },
 })
@@ -1886,7 +1892,7 @@ export const postEventsRoute = createRoute({
   method: 'post',
   path: '/events',
   operationId: 'processEvent',
-  request: { body: { content: { 'application/json': { schema: EventSchema } } } },
+  request: { body: { content: { 'application/json': { schema: EventSchema.optional() } } } },
   responses: { 200: { description: 'Event processed' } },
 })
 
@@ -1897,7 +1903,7 @@ export const getConfigsRoute = createRoute({
   responses: {
     200: {
       description: 'Configuration',
-      content: { 'application/json': { schema: ConfigurationSchema } },
+      content: { 'application/json': { schema: ConfigurationSchema.optional() } },
     },
   },
 })
@@ -1906,7 +1912,9 @@ export const putConfigsRoute = createRoute({
   method: 'put',
   path: '/configs',
   operationId: 'updateConfig',
-  request: { body: { content: { 'application/json': { schema: ConfigurationUpdateSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: ConfigurationUpdateSchema.optional() } } },
+  },
   responses: { 200: { description: 'Updated' } },
 })
 
@@ -1914,9 +1922,12 @@ export const postResourcesRoute = createRoute({
   method: 'post',
   path: '/resources',
   operationId: 'createResource',
-  request: { body: { content: { 'application/json': { schema: ResourceSchema } } } },
+  request: { body: { content: { 'application/json': { schema: ResourceSchema.optional() } } } },
   responses: {
-    201: { description: 'Created', content: { 'application/json': { schema: ResourceSchema } } },
+    201: {
+      description: 'Created',
+      content: { 'application/json': { schema: ResourceSchema.optional() } },
+    },
   },
 })
 
@@ -1924,11 +1935,13 @@ export const postValidationsRoute = createRoute({
   method: 'post',
   path: '/validations',
   operationId: 'validate',
-  request: { body: { content: { 'application/json': { schema: ValidationRequestSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: ValidationRequestSchema.optional() } } },
+  },
   responses: {
     200: {
       description: 'Validation result',
-      content: { 'application/json': { schema: ValidationResultSchema } },
+      content: { 'application/json': { schema: ValidationResultSchema.optional() } },
     },
   },
 })

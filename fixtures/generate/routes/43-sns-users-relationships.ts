@@ -68,10 +68,7 @@ const UserSchema = z
           listedCount: { type: 'integer' },
         },
       }),
-    relationship: RelationshipSchema.optional().openapi({
-      $ref: '#/components/schemas/Relationship',
-      description: '認証ユーザーとの関係',
-    }),
+    relationship: RelationshipSchema.optional().openapi({ description: '認証ユーザーとの関係' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -331,22 +328,22 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getUsersUserIdRoute = createRoute({
@@ -357,7 +354,10 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: { params: z.object({ userId: UserIdParamParamsSchema }) },
   responses: {
-    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: 'ユーザー情報',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -379,7 +379,10 @@ export const getUsersByUsernameUsernameRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: 'ユーザー情報',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -411,7 +414,7 @@ export const getUsersSearchRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
   },
 })
@@ -472,7 +475,10 @@ export const getMeRoute = createRoute({
   summary: '現在のユーザー情報取得',
   operationId: 'getCurrentUser',
   responses: {
-    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: 'ユーザー情報',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -486,12 +492,15 @@ export const patchMeRoute = createRoute({
   operationId: 'updateProfile',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProfileRequestSchema } },
+      content: { 'application/json': { schema: UpdateProfileRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -612,7 +621,7 @@ export const postUsersUserIdFollowRoute = createRoute({
   responses: {
     200: {
       description: 'フォロー成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -629,7 +638,7 @@ export const deleteUsersUserIdFollowRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -649,7 +658,7 @@ export const getUsersUserIdFollowersRoute = createRoute({
   responses: {
     200: {
       description: 'フォロワー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     404: NotFoundResponse,
   },
@@ -668,7 +677,7 @@ export const getUsersUserIdFollowingRoute = createRoute({
   responses: {
     200: {
       description: 'フォロー中一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     404: NotFoundResponse,
   },
@@ -736,7 +745,7 @@ export const getFollowRequestsRoute = createRoute({
   responses: {
     200: {
       description: 'リクエスト一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -775,7 +784,7 @@ export const postUsersUserIdBlockRoute = createRoute({
   responses: {
     200: {
       description: 'ブロック成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -792,7 +801,7 @@ export const deleteUsersUserIdBlockRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -838,7 +847,7 @@ export const postUsersUserIdMuteRoute = createRoute({
   responses: {
     200: {
       description: 'ミュート成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -855,7 +864,7 @@ export const deleteUsersUserIdMuteRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema } },
+      content: { 'application/json': { schema: RelationshipSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -872,7 +881,7 @@ export const getBlocksRoute = createRoute({
   responses: {
     200: {
       description: 'ブロック一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -889,7 +898,7 @@ export const getMutesRoute = createRoute({
   responses: {
     200: {
       description: 'ミュート一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -926,10 +935,16 @@ export const postListsRoute = createRoute({
   summary: 'リスト作成',
   operationId: 'createList',
   request: {
-    body: { content: { 'application/json': { schema: CreateListRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreateListRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: ListSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: ListSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -943,7 +958,10 @@ export const getListsListIdRoute = createRoute({
   operationId: 'getList',
   request: { params: z.object({ listId: ListIdParamParamsSchema }) },
   responses: {
-    200: { description: 'リスト詳細', content: { 'application/json': { schema: ListSchema } } },
+    200: {
+      description: 'リスト詳細',
+      content: { 'application/json': { schema: ListSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -955,10 +973,16 @@ export const putListsListIdRoute = createRoute({
   summary: 'リスト更新',
   operationId: 'updateList',
   request: {
-    body: { content: { 'application/json': { schema: UpdateListRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: UpdateListRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: ListSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: ListSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -988,7 +1012,7 @@ export const getListsListIdMembersRoute = createRoute({
   responses: {
     200: {
       description: 'メンバー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
   },
 })
@@ -1045,7 +1069,7 @@ export const getListsListIdTimelineRoute = createRoute({
   responses: {
     200: {
       description: 'タイムライン',
-      content: { 'application/json': { schema: PostListResponseSchema } },
+      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

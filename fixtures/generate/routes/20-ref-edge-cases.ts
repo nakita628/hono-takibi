@@ -1,7 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const FinalLevelSchema = z
-  .object({ value: z.string().openapi({ type: 'string' }), parent: Level1Schema })
+  .object({ value: z.string().openapi({ type: 'string' }), parent: Level1Schema.optional() })
   .openapi({
     type: 'object',
     required: ['value'],
@@ -10,7 +10,8 @@ const FinalLevelSchema = z
   .openapi('FinalLevel')
 
 const Level12Schema = z
-  .object({ data: FinalLevelSchema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: FinalLevelSchema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/FinalLevel' }, meta: { type: 'string' } },
@@ -18,7 +19,8 @@ const Level12Schema = z
   .openapi('Level12')
 
 const Level11Schema = z
-  .object({ data: Level12Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level12Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level12' }, meta: { type: 'string' } },
@@ -26,7 +28,8 @@ const Level11Schema = z
   .openapi('Level11')
 
 const Level10Schema = z
-  .object({ data: Level11Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level11Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level11' }, meta: { type: 'string' } },
@@ -34,7 +37,8 @@ const Level10Schema = z
   .openapi('Level10')
 
 const Level9Schema = z
-  .object({ data: Level10Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level10Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level10' }, meta: { type: 'string' } },
@@ -42,7 +46,8 @@ const Level9Schema = z
   .openapi('Level9')
 
 const Level8Schema = z
-  .object({ data: Level9Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level9Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level9' }, meta: { type: 'string' } },
@@ -50,7 +55,8 @@ const Level8Schema = z
   .openapi('Level8')
 
 const Level7Schema = z
-  .object({ data: Level8Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level8Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level8' }, meta: { type: 'string' } },
@@ -58,7 +64,8 @@ const Level7Schema = z
   .openapi('Level7')
 
 const Level6Schema = z
-  .object({ data: Level7Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level7Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level7' }, meta: { type: 'string' } },
@@ -66,7 +73,8 @@ const Level6Schema = z
   .openapi('Level6')
 
 const Level5Schema = z
-  .object({ data: Level6Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level6Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level6' }, meta: { type: 'string' } },
@@ -74,7 +82,8 @@ const Level5Schema = z
   .openapi('Level5')
 
 const Level4Schema = z
-  .object({ data: Level5Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level5Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level5' }, meta: { type: 'string' } },
@@ -82,7 +91,8 @@ const Level4Schema = z
   .openapi('Level4')
 
 const Level3Schema = z
-  .object({ data: Level4Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level4Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level4' }, meta: { type: 'string' } },
@@ -90,7 +100,8 @@ const Level3Schema = z
   .openapi('Level3')
 
 const Level2Schema = z
-  .object({ data: Level3Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level3Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level3' }, meta: { type: 'string' } },
@@ -98,7 +109,8 @@ const Level2Schema = z
   .openapi('Level2')
 
 const Level1Schema = z
-  .object({ data: Level2Schema, meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: Level2Schema, meta: z.string().openapi({ type: 'string' }) })
+  .partial()
   .openapi({
     type: 'object',
     properties: { data: { $ref: '#/components/schemas/Level2' }, meta: { type: 'string' } },
@@ -214,21 +226,25 @@ const Wrapper5Schema = z
 
 const Wrapper4Schema = z
   .object({ wrapped: Wrapper5Schema })
+  .partial()
   .openapi({ type: 'object', properties: { wrapped: { $ref: '#/components/schemas/Wrapper5' } } })
   .openapi('Wrapper4')
 
 const Wrapper3Schema = z
   .object({ wrapped: Wrapper4Schema })
+  .partial()
   .openapi({ type: 'object', properties: { wrapped: { $ref: '#/components/schemas/Wrapper4' } } })
   .openapi('Wrapper3')
 
 const Wrapper2Schema = z
   .object({ wrapped: Wrapper3Schema })
+  .partial()
   .openapi({ type: 'object', properties: { wrapped: { $ref: '#/components/schemas/Wrapper3' } } })
   .openapi('Wrapper2')
 
 const Wrapper1Schema = z
   .object({ wrapped: Wrapper2Schema })
+  .partial()
   .openapi({ type: 'object', properties: { wrapped: { $ref: '#/components/schemas/Wrapper2' } } })
   .openapi('Wrapper1')
 
@@ -246,7 +262,7 @@ const ItemSchema = z
   .openapi('Item')
 
 const ItemRefSchema = z
-  .object({ itemId: z.string().openapi({ type: 'string' }), item: ItemSchema })
+  .object({ itemId: z.string().openapi({ type: 'string' }), item: ItemSchema.optional() })
   .openapi({
     type: 'object',
     required: ['itemId'],
@@ -272,7 +288,7 @@ const ItemListSchema = z
   .openapi('ItemList')
 
 const ItemMapSchema = z
-  .record(z.string(), ItemSchema)
+  .record(z.string(), ItemSchema.optional())
   .openapi({ type: 'object', additionalProperties: { $ref: '#/components/schemas/Item' } })
   .openapi('ItemMap')
 
@@ -285,9 +301,9 @@ const ItemTreeSchema: z.ZodType<ItemTreeType> = z
         item: ItemSchema,
         children: z
           .array(ItemTreeSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ItemTree' } }),
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -314,7 +330,7 @@ const PolyBaseSchema = z
   .object({
     polyType: z.string().openapi({ type: 'string' }),
     baseField: z.string().openapi({ type: 'string' }),
-    sharedRef: SharedComponentSchema,
+    sharedRef: SharedComponentSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -332,10 +348,11 @@ const PolyTypeASchema = z
     PolyBaseSchema,
     z
       .object({
-        polyType: z.literal('typeA').optional(),
-        fieldA: z.string().optional().openapi({ type: 'string' }),
+        polyType: z.literal('typeA'),
+        fieldA: z.string().openapi({ type: 'string' }),
         nestedRef: SharedComponentSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -366,10 +383,11 @@ const PolyTypeBSchema = z
     PolyBaseSchema,
     z
       .object({
-        polyType: z.literal('typeB').optional(),
-        fieldB: z.number().optional().openapi({ type: 'number' }),
+        polyType: z.literal('typeB'),
+        fieldB: z.number().openapi({ type: 'number' }),
         nestedRef: SharedComponentSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -400,10 +418,11 @@ const PolyTypeCSchema = z
     PolyBaseSchema,
     z
       .object({
-        polyType: z.literal('typeC').optional(),
-        fieldC: z.boolean().optional().openapi({ type: 'boolean' }),
+        polyType: z.literal('typeC'),
+        fieldC: z.boolean().openapi({ type: 'boolean' }),
         nestedRef: SharedComponentSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -537,7 +556,6 @@ const ComplexDataSchema = z
   .object({
     values: z
       .array(SimpleDataSchema)
-      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SimpleData' } }),
     metadata: z
       .record(z.string(), SimpleDataSchema)
@@ -546,6 +564,7 @@ const ComplexDataSchema = z
         additionalProperties: { $ref: '#/components/schemas/SimpleData' },
       }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -589,10 +608,11 @@ const RecursiveASchema: z.ZodType<RecursiveAType> = z
   .lazy(() =>
     z
       .object({
-        name: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().openapi({ type: 'string' }),
         refToB: RecursiveBSchema,
         selfRef: RecursiveASchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -606,10 +626,11 @@ const RecursiveASchema: z.ZodType<RecursiveAType> = z
 
 const RecursiveCSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     refToA: RecursiveASchema,
     refToB: RecursiveBSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -622,10 +643,11 @@ const RecursiveCSchema = z
 
 const RecursiveBSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().openapi({ type: 'string' }),
     refToC: RecursiveCSchema,
     refToA: RecursiveASchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -667,11 +689,12 @@ const ForbiddenSchema = z
 
 const MultiRefSchema = z
   .object({
-    first: SharedComponentSchema,
-    second: SharedComponentSchema,
-    third: SharedComponentSchema,
+    first: SharedComponentSchema.optional(),
+    second: SharedComponentSchema.optional(),
+    third: SharedComponentSchema.optional(),
     nested: z
       .object({ inner: SharedComponentSchema })
+      .partial()
       .openapi({
         type: 'object',
         properties: { inner: { $ref: '#/components/schemas/SharedComponent' } },
@@ -681,7 +704,7 @@ const MultiRefSchema = z
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SharedComponent' } }),
     map: z
-      .record(z.string(), SharedComponentSchema)
+      .record(z.string(), SharedComponentSchema.optional())
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/SharedComponent' },
@@ -720,6 +743,7 @@ const ShortRefSchema = z
     longNameRef:
       ThisIsAVeryLongSchemaNameThatExceedsNormalNamingConventionsAndMightCauseIssuesInSomeCodeGeneratorsSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -730,13 +754,15 @@ const ShortRefSchema = z
   })
   .openapi('ShortRef')
 
-const RefParamParamsSchema = ItemSchema
+const RefParamParamsSchema = ItemSchema.optional().openapi({
+  param: { name: 'refParam', in: 'query', schema: { $ref: '#/components/schemas/Item' } },
+})
 
-const RefBodyRequestBody = { content: { 'application/json': { schema: ItemSchema } } }
+const RefBodyRequestBody = { content: { 'application/json': { schema: ItemSchema.optional() } } }
 
 const CreatedResponse = {
   description: 'Created',
-  content: { 'application/json': { schema: ItemSchema } },
+  content: { 'application/json': { schema: ItemSchema.optional() } },
 }
 
 const ErrorResponse = {
@@ -744,10 +770,8 @@ const ErrorResponse = {
   content: {
     'application/json': {
       schema: z
-        .object({
-          error: z.string().optional().openapi({ type: 'string' }),
-          details: SharedComponentSchema,
-        })
+        .object({ error: z.string().openapi({ type: 'string' }), details: SharedComponentSchema })
+        .partial()
         .openapi({
           type: 'object',
           properties: {
@@ -759,7 +783,7 @@ const ErrorResponse = {
   },
 }
 
-const RefHeader = ItemSchema
+const RefHeader = ItemSchema.optional()
 
 const ItemExample = { summary: 'Item example', value: { id: '123', name: 'Example', value: 42 } }
 
@@ -769,7 +793,10 @@ export const getTestRoute = createRoute({
   operationId: 'testEndpoint',
   request: { query: z.object({ refParam: RefParamParamsSchema }) },
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: Level1Schema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: Level1Schema.optional() } },
+    },
     201: CreatedResponse,
     400: ErrorResponse,
     401: ErrorResponse,
@@ -791,7 +818,10 @@ export const getUnicodeRefsRoute = createRoute({
   path: '/unicode-refs',
   operationId: 'getUnicodeRefs',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: _______Schema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: _______Schema.optional() } },
+    },
   },
 })
 
@@ -802,7 +832,7 @@ export const getSpecialCharsRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: SchemaWithUnderscoresSchema } },
+      content: { 'application/json': { schema: SchemaWithUnderscoresSchema.optional() } },
     },
   },
 })
@@ -812,7 +842,10 @@ export const getNumericStartRoute = createRoute({
   path: '/numeric-start',
   operationId: 'getNumericStart',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: _2FAConfigSchema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: _2FAConfigSchema.optional() } },
+    },
   },
 })
 
@@ -855,7 +888,10 @@ export const getDeeplyNestedRoute = createRoute({
   path: '/deeply-nested',
   operationId: 'getDeeplyNested',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: Wrapper1Schema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: Wrapper1Schema.optional() } },
+    },
   },
 })
 
@@ -876,6 +912,7 @@ export const getSameNameDiffContextRoute = createRoute({
               itemMap: ItemMapSchema,
               itemTree: ItemTreeSchema,
             })
+            .partial()
             .openapi({
               type: 'object',
               properties: {

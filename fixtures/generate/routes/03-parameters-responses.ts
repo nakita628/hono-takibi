@@ -148,27 +148,27 @@ const IfMatchHeaderParamsSchema = z
 
 const BadRequestResponse = {
   description: 'Invalid request parameters',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: 'Authentication required',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'Resource not found',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const PreconditionFailedResponse = {
   description: 'ETag mismatch',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const InternalErrorResponse = {
   description: 'Internal server error',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getItemsRoute = createRoute({
@@ -185,7 +185,7 @@ export const getItemsRoute = createRoute({
   responses: {
     200: {
       description: 'Paginated list of items',
-      content: { 'application/json': { schema: ItemListSchema } },
+      content: { 'application/json': { schema: ItemListSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -199,7 +199,10 @@ export const getItemsItemIdRoute = createRoute({
   operationId: 'getItem',
   request: { params: z.object({ itemId: ItemIdPathParamsSchema }) },
   responses: {
-    200: { description: 'Item details', content: { 'application/json': { schema: ItemSchema } } },
+    200: {
+      description: 'Item details',
+      content: { 'application/json': { schema: ItemSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })

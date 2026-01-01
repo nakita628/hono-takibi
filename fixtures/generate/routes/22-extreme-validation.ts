@@ -1149,6 +1149,7 @@ const ExtremeValidationSchema = z
     extremeObjects: ExtremeObjectsSchema,
     extremeCompositions: ExtremeCompositionsSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1410,6 +1411,8 @@ export const postValidateRoute = createRoute({
   method: 'post',
   path: '/validate',
   operationId: 'validateExtreme',
-  request: { body: { content: { 'application/json': { schema: ExtremeValidationSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: ExtremeValidationSchema.optional() } } },
+  },
   responses: { 200: { description: 'OK' } },
 })

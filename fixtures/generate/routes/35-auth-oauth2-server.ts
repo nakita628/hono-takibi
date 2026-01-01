@@ -824,17 +824,17 @@ const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getOauthAuthorizeRoute = createRoute({
@@ -993,7 +993,7 @@ export const getOauthAuthorizeRoute = createRoute({
     302: { description: 'ログイン画面またはコールバックURLへリダイレクト' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema } },
+      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
     },
   },
 })
@@ -1065,15 +1065,15 @@ export const postOauthTokenRoute = createRoute({
   responses: {
     200: {
       description: 'トークン発行成功',
-      content: { 'application/json': { schema: TokenResponseSchema } },
+      content: { 'application/json': { schema: TokenResponseSchema.optional() } },
     },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema } },
+      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
     },
     401: {
       description: 'クライアント認証失敗',
-      content: { 'application/json': { schema: OAuthErrorSchema } },
+      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
     },
   },
 })
@@ -1126,7 +1126,7 @@ export const postOauthRevokeRoute = createRoute({
     200: { description: '無効化成功（トークンが存在しない場合も成功）' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema } },
+      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
     },
   },
 })
@@ -1166,7 +1166,7 @@ export const postOauthIntrospectRoute = createRoute({
   responses: {
     200: {
       description: 'トークン情報',
-      content: { 'application/json': { schema: IntrospectionResponseSchema } },
+      content: { 'application/json': { schema: IntrospectionResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1202,11 +1202,11 @@ export const postOauthDeviceCodeRoute = createRoute({
   responses: {
     200: {
       description: 'デバイス認可レスポンス',
-      content: { 'application/json': { schema: DeviceAuthorizationResponseSchema } },
+      content: { 'application/json': { schema: DeviceAuthorizationResponseSchema.optional() } },
     },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema } },
+      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
     },
   },
 })
@@ -1221,7 +1221,7 @@ export const getOauthUserinfoRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー情報',
-      content: { 'application/json': { schema: UserInfoSchema } },
+      content: { 'application/json': { schema: UserInfoSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1238,7 +1238,7 @@ export const getWellKnownOpenidConfigurationRoute = createRoute({
   responses: {
     200: {
       description: 'OpenID Connect 設定',
-      content: { 'application/json': { schema: OpenIDConfigurationSchema } },
+      content: { 'application/json': { schema: OpenIDConfigurationSchema.optional() } },
     },
   },
 })
@@ -1251,7 +1251,10 @@ export const getWellKnownJwksJsonRoute = createRoute({
   description: 'JWTの検証に使用する公開鍵セット',
   operationId: 'getJWKS',
   responses: {
-    200: { description: 'JWKS', content: { 'application/json': { schema: JWKSSchema } } },
+    200: {
+      description: 'JWKS',
+      content: { 'application/json': { schema: JWKSSchema.optional() } },
+    },
   },
 })
 
@@ -1286,14 +1289,14 @@ export const postOauthClientsRoute = createRoute({
   operationId: 'createClient',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateClientRequestSchema } },
+      content: { 'application/json': { schema: CreateClientRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: OAuthClientWithSecretSchema } },
+      content: { 'application/json': { schema: OAuthClientWithSecretSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1320,7 +1323,7 @@ export const getOauthClientsClientIdRoute = createRoute({
   responses: {
     200: {
       description: 'クライアント詳細',
-      content: { 'application/json': { schema: OAuthClientSchema } },
+      content: { 'application/json': { schema: OAuthClientSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1336,14 +1339,14 @@ export const putOauthClientsClientIdRoute = createRoute({
   operationId: 'updateClient',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateClientRequestSchema } },
+      content: { 'application/json': { schema: UpdateClientRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: OAuthClientSchema } },
+      content: { 'application/json': { schema: OAuthClientSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

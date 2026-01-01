@@ -165,7 +165,7 @@ const ItemUpdatedEventSchema = z
   .object({
     event: z.literal('item.updated'),
     data: ItemSchema,
-    previousData: ItemSchema,
+    previousData: ItemSchema.optional(),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     changedFields: z
       .array(z.string().optional().openapi({ type: 'string' }))
@@ -435,12 +435,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const NotFoundResponse = {
   description: 'Resource not found',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const ServerErrorResponse = {
   description: 'Internal server error',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getStreamRoute = createRoute({

@@ -189,9 +189,14 @@ export const postOrdersRoute = createRoute({
   method: 'post',
   path: '/orders',
   operationId: 'createOrder',
-  request: { body: { content: { 'application/json': { schema: CreateOrderInputSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: CreateOrderInputSchema.optional() } } },
+  },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema.optional() } },
+    },
   },
 })
 
@@ -216,7 +221,10 @@ export const getOrdersOrderIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'Order details', content: { 'application/json': { schema: OrderSchema } } },
+    200: {
+      description: 'Order details',
+      content: { 'application/json': { schema: OrderSchema.optional() } },
+    },
   },
 })
 
@@ -301,7 +309,7 @@ export const getCustomersCustomerIdRoute = createRoute({
   responses: {
     200: {
       description: 'Customer details',
-      content: { 'application/json': { schema: CustomerSchema } },
+      content: { 'application/json': { schema: CustomerSchema.optional() } },
     },
   },
 })
@@ -364,7 +372,7 @@ export const getPaymentsPaymentIdRoute = createRoute({
   responses: {
     200: {
       description: 'Payment details',
-      content: { 'application/json': { schema: PaymentSchema } },
+      content: { 'application/json': { schema: PaymentSchema.optional() } },
     },
   },
 })

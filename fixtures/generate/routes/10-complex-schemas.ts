@@ -386,7 +386,7 @@ const CircleSchema = z
   .object({
     type: z.literal('circle').openapi({ type: 'string' }),
     radius: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    center: PointSchema,
+    center: PointSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -404,7 +404,7 @@ const RectangleSchema = z
     type: z.literal('rectangle').openapi({ type: 'string' }),
     width: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
     height: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    topLeft: PointSchema,
+    topLeft: PointSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -599,7 +599,7 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
               .optional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
             z
-              .record(z.string(), MixedContentSchema)
+              .record(z.string(), MixedContentSchema.optional())
               .openapi({
                 type: 'object',
                 additionalProperties: { $ref: '#/components/schemas/MixedContent' },
@@ -697,7 +697,7 @@ export const postEventsRoute = createRoute({
   method: 'post',
   path: '/events',
   operationId: 'createEvent',
-  request: { body: { content: { 'application/json': { schema: EventSchema } } } },
+  request: { body: { content: { 'application/json': { schema: EventSchema.optional() } } } },
   responses: { 201: { description: 'Event created' } },
 })
 
@@ -705,7 +705,7 @@ export const postNotificationsRoute = createRoute({
   method: 'post',
   path: '/notifications',
   operationId: 'sendNotification',
-  request: { body: { content: { 'application/json': { schema: NotificationSchema } } } },
+  request: { body: { content: { 'application/json': { schema: NotificationSchema.optional() } } } },
   responses: { 200: { description: 'Notification sent' } },
 })
 
@@ -713,7 +713,7 @@ export const postShapesRoute = createRoute({
   method: 'post',
   path: '/shapes',
   operationId: 'createShape',
-  request: { body: { content: { 'application/json': { schema: ShapeSchema } } } },
+  request: { body: { content: { 'application/json': { schema: ShapeSchema.optional() } } } },
   responses: { 201: { description: 'Shape created' } },
 })
 
@@ -721,7 +721,7 @@ export const postDocumentsRoute = createRoute({
   method: 'post',
   path: '/documents',
   operationId: 'createDocument',
-  request: { body: { content: { 'application/json': { schema: DocumentSchema } } } },
+  request: { body: { content: { 'application/json': { schema: DocumentSchema.optional() } } } },
   responses: { 201: { description: 'Document created' } },
 })
 
@@ -729,6 +729,6 @@ export const postMixedRoute = createRoute({
   method: 'post',
   path: '/mixed',
   operationId: 'processMixed',
-  request: { body: { content: { 'application/json': { schema: MixedContentSchema } } } },
+  request: { body: { content: { 'application/json': { schema: MixedContentSchema.optional() } } } },
   responses: { 200: { description: 'Processed' } },
 })

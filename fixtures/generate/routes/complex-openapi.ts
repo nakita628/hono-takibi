@@ -64,8 +64,8 @@ const UserSchema = z
     id: z.string().openapi({ type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' }),
     name: z.string().openapi({ type: 'string', example: 'John Doe' }),
     email: z.email().openapi({ type: 'string', format: 'email', example: 'john.doe@example.com' }),
-    address: AddressSchema,
-    profile: UserProfileSchema,
+    address: AddressSchema.optional(),
+    profile: UserProfileSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -84,8 +84,8 @@ const NewUserSchema = z
   .object({
     name: z.string().openapi({ type: 'string', example: 'Jane Doe' }),
     email: z.email().openapi({ type: 'string', format: 'email', example: 'jane.doe@example.com' }),
-    address: AddressSchema,
-    profile: UserProfileSchema,
+    address: AddressSchema.optional(),
+    profile: UserProfileSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -101,11 +101,12 @@ const NewUserSchema = z
 
 const UpdateUserSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    name: z.string().openapi({ type: 'string' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
     address: AddressSchema,
     profile: UserProfileSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -205,7 +206,7 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
         example: 'pending',
       }),
-    paymentMethod: PaymentMethodSchema,
+    paymentMethod: PaymentMethodSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -231,7 +232,7 @@ const NewOrderSchema = z
     items: z
       .array(OrderItemSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-    paymentMethod: PaymentMethodSchema,
+    paymentMethod: PaymentMethodSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -350,14 +351,14 @@ export const postUsersRoute = createRoute({
   request: {
     body: {
       description: 'User to add',
-      content: { 'application/json': { schema: NewUserSchema } },
+      content: { 'application/json': { schema: NewUserSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'User created successfully',
-      content: { 'application/json': { schema: UserSchema } },
+      content: { 'application/json': { schema: UserSchema.optional() } },
     },
   },
 })
@@ -377,7 +378,10 @@ export const getUsersUserIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'User details', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: 'User details',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     404: { description: 'User not found' },
   },
 })
@@ -389,14 +393,14 @@ export const putUsersUserIdRoute = createRoute({
   request: {
     body: {
       description: 'Updated user information',
-      content: { 'application/json': { schema: UpdateUserSchema } },
+      content: { 'application/json': { schema: UpdateUserSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: 'User updated successfully',
-      content: { 'application/json': { schema: UserSchema } },
+      content: { 'application/json': { schema: UserSchema.optional() } },
     },
     404: { description: 'User not found' },
   },
@@ -448,14 +452,14 @@ export const postOrdersRoute = createRoute({
   request: {
     body: {
       description: 'Order to create',
-      content: { 'application/json': { schema: NewOrderSchema } },
+      content: { 'application/json': { schema: NewOrderSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'Order created successfully',
-      content: { 'application/json': { schema: OrderSchema } },
+      content: { 'application/json': { schema: OrderSchema.optional() } },
     },
   },
 })

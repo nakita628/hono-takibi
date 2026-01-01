@@ -575,7 +575,7 @@ export const getResponseEncodingRoute = createRoute({
   responses: {
     200: {
       description: 'Response with various encodings',
-      content: { 'application/json': { schema: ResponseSchema } },
+      content: { 'application/json': { schema: ResponseSchema.optional() } },
     },
   },
 })

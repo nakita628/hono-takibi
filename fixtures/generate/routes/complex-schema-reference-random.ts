@@ -187,6 +187,7 @@ const RootSchema = z
         Y: YSchema,
         Z: ZSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -222,6 +223,7 @@ const RootSchema = z
       .object({
         group1: z
           .object({ A: ASchema, M: MSchema, Z: ZSchema })
+          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -232,6 +234,7 @@ const RootSchema = z
           }),
         group2: z
           .object({ B: BSchema, N: NSchema, Y: YSchema })
+          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -407,6 +410,7 @@ const RootSchema = z
                                                                                                                                                                                                                                               Z: ZSchema,
                                                                                                                                                                                                                                             },
                                                                                                                                                                                                                                           )
+                                                                                                                                                                                                                                          .partial()
                                                                                                                                                                                                                                           .openapi(
                                                                                                                                                                                                                                             {
                                                                                                                                                                                                                                               type: 'object',
@@ -10270,6 +10274,7 @@ const RootSchema = z
         CSchema,
         z
           .object({ D: DSchema })
+          .partial()
           .openapi({ type: 'object', properties: { D: { $ref: '#/components/schemas/D' } } }),
       ])
       .optional()
@@ -10284,6 +10289,7 @@ const RootSchema = z
         ESchema,
         z
           .object({ A: ASchema })
+          .partial()
           .openapi({ type: 'object', properties: { A: { $ref: '#/components/schemas/A' } } }),
       ])
       .optional()
@@ -10298,6 +10304,7 @@ const RootSchema = z
         ASchema,
         z
           .object({ B: BSchema })
+          .partial()
           .openapi({ type: 'object', properties: { B: { $ref: '#/components/schemas/B' } } }),
       )
       .optional()
@@ -10333,6 +10340,7 @@ const RootSchema = z
                                     YSchema,
                                     z
                                       .object({ Z: ZSchema })
+                                      .partial()
                                       .openapi({
                                         type: 'object',
                                         properties: { Z: { $ref: '#/components/schemas/Z' } },
@@ -10586,6 +10594,7 @@ const RootSchema = z
                 MSchema,
                 z
                   .object({ N: NSchema })
+                  .partial()
                   .openapi({
                     type: 'object',
                     properties: { N: { $ref: '#/components/schemas/N' } },
@@ -11122,7 +11131,7 @@ export const getTestRoute = createRoute({
   responses: {
     200: {
       description: 'A complex response containing various schema references',
-      content: { 'application/json': { schema: RootSchema } },
+      content: { 'application/json': { schema: RootSchema.optional() } },
     },
   },
 })

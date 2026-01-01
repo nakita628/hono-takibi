@@ -360,17 +360,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getApiKeysRoute = createRoute({
@@ -412,7 +412,7 @@ export const getApiKeysRoute = createRoute({
   responses: {
     200: {
       description: 'APIキー一覧',
-      content: { 'application/json': { schema: ApiKeyListResponseSchema } },
+      content: { 'application/json': { schema: ApiKeyListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -427,14 +427,14 @@ export const postApiKeysRoute = createRoute({
   operationId: 'createApiKey',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateApiKeyRequestSchema } },
+      content: { 'application/json': { schema: CreateApiKeyRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ApiKeyWithSecretSchema } },
+      content: { 'application/json': { schema: ApiKeyWithSecretSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -450,7 +450,10 @@ export const getApiKeysKeyIdRoute = createRoute({
   operationId: 'getApiKey',
   request: { params: z.object({ keyId: ApiKeyIdParamParamsSchema }) },
   responses: {
-    200: { description: 'APIキー詳細', content: { 'application/json': { schema: ApiKeySchema } } },
+    200: {
+      description: 'APIキー詳細',
+      content: { 'application/json': { schema: ApiKeySchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -476,12 +479,15 @@ export const patchApiKeysKeyIdRoute = createRoute({
   operationId: 'updateApiKey',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateApiKeyRequestSchema } },
+      content: { 'application/json': { schema: UpdateApiKeyRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: ApiKeySchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: ApiKeySchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -506,7 +512,10 @@ export const postApiKeysKeyIdRevokeRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '無効化成功', content: { 'application/json': { schema: ApiKeySchema } } },
+    200: {
+      description: '無効化成功',
+      content: { 'application/json': { schema: ApiKeySchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -545,7 +554,7 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
   responses: {
     200: {
       description: 'ローテーション成功',
-      content: { 'application/json': { schema: ApiKeyRotationResultSchema } },
+      content: { 'application/json': { schema: ApiKeyRotationResultSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -604,7 +613,7 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
   responses: {
     200: {
       description: '使用量データ',
-      content: { 'application/json': { schema: UsageDataSchema } },
+      content: { 'application/json': { schema: UsageDataSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -621,7 +630,7 @@ export const getApiKeysKeyIdRateLimitCurrentRoute = createRoute({
   responses: {
     200: {
       description: 'レート制限状況',
-      content: { 'application/json': { schema: RateLimitStatusSchema } },
+      content: { 'application/json': { schema: RateLimitStatusSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -662,7 +671,7 @@ export const postApiKeysVerifyRoute = createRoute({
   responses: {
     200: {
       description: '検証結果',
-      content: { 'application/json': { schema: ApiKeyVerificationResultSchema } },
+      content: { 'application/json': { schema: ApiKeyVerificationResultSchema.optional() } },
     },
     400: BadRequestResponse,
   },

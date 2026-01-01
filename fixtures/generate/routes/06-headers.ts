@@ -163,7 +163,7 @@ export const getResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource details',
-      content: { 'application/json': { schema: ResourceSchema } },
+      content: { 'application/json': { schema: ResourceSchema.optional() } },
     },
     304: { description: 'Not modified' },
   },
@@ -173,11 +173,11 @@ export const putResourcesIdRoute = createRoute({
   method: 'put',
   path: '/resources/{id}',
   operationId: 'updateResource',
-  request: { body: { content: { 'application/json': { schema: ResourceSchema } } } },
+  request: { body: { content: { 'application/json': { schema: ResourceSchema.optional() } } } },
   responses: {
     200: {
       description: 'Resource updated',
-      content: { 'application/json': { schema: ResourceSchema } },
+      content: { 'application/json': { schema: ResourceSchema.optional() } },
     },
     412: { description: 'Precondition failed' },
   },

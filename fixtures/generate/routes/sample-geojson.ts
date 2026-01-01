@@ -379,10 +379,7 @@ const ProjectSchema = z
         ],
         description: 'Site polygon',
       }),
-    centre: PointSchema.optional().openapi({
-      $ref: '#/components/schemas/Point',
-      description: 'Site center coordinates',
-    }),
+    centre: PointSchema.optional().openapi({ description: 'Site center coordinates' }),
     createdAt: z.iso
       .datetime()
       .openapi({ type: 'string', format: 'date-time', description: 'Site creation date and time' }),
@@ -723,8 +720,11 @@ export const getProjectsRoute = createRoute({
     },
     400: {
       description: 'Invalid request',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
-    500: { description: 'Server error', content: { 'application/json': { schema: ErrorSchema } } },
+    500: {
+      description: 'Server error',
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
+    },
   },
 })

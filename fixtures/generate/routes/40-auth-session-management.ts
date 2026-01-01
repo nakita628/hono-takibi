@@ -77,8 +77,8 @@ const SessionSchema = z
       .boolean()
       .optional()
       .openapi({ type: 'boolean', description: '現在のセッションかどうか' }),
-    device: DeviceInfoSchema,
-    location: LocationInfoSchema,
+    device: DeviceInfoSchema.optional(),
+    location: LocationInfoSchema.optional(),
     authMethod: z
       .enum(['password', 'mfa', 'sso', 'passkey', 'magic_link', 'social'])
       .optional()
@@ -246,7 +246,7 @@ const CreateSessionRequestSchema = z
 const SessionValidationResultSchema = z
   .object({
     valid: z.boolean().openapi({ type: 'boolean' }),
-    session: SessionSchema,
+    session: SessionSchema.optional(),
     reason: z.string().optional().openapi({ type: 'string', description: '無効な場合の理由' }),
   })
   .openapi({
@@ -270,8 +270,8 @@ const SessionHistorySchema = z
         type: 'string',
         enum: ['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'],
       }),
-    device: DeviceInfoSchema,
-    location: LocationInfoSchema,
+    device: DeviceInfoSchema.optional(),
+    location: LocationInfoSchema.optional(),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -324,8 +324,8 @@ const SecurityEventSchema = z
       .enum(['low', 'medium', 'high', 'critical'])
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'critical'] }),
     description: z.string().optional().openapi({ type: 'string' }),
-    device: DeviceInfoSchema,
-    location: LocationInfoSchema,
+    device: DeviceInfoSchema.optional(),
+    location: LocationInfoSchema.optional(),
     actionTaken: z
       .enum([
         'none',
@@ -624,17 +624,17 @@ const CookieAuthSecurityScheme = { type: 'apiKey', in: 'cookie', name: 'session_
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getSessionsRoute = createRoute({
@@ -688,17 +688,20 @@ export const postSessionsRoute = createRoute({
   operationId: 'createSession',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateSessionRequestSchema } },
+      content: { 'application/json': { schema: CreateSessionRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'セッション作成成功',
-      content: { 'application/json': { schema: SessionWithTokensSchema } },
+      content: { 'application/json': { schema: SessionWithTokensSchema.optional() } },
     },
     400: BadRequestResponse,
-    401: { description: '認証失敗', content: { 'application/json': { schema: ErrorSchema } } },
+    401: {
+      description: '認証失敗',
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
+    },
   },
 })
 
@@ -711,7 +714,7 @@ export const getSessionsCurrentRoute = createRoute({
   responses: {
     200: {
       description: '現在のセッション',
-      content: { 'application/json': { schema: SessionSchema } },
+      content: { 'application/json': { schema: SessionSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -754,11 +757,11 @@ export const postSessionsCurrentRefreshRoute = createRoute({
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: SessionWithTokensSchema } },
+      content: { 'application/json': { schema: SessionWithTokensSchema.optional() } },
     },
     401: {
       description: 'リフレッシュトークンが無効',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
   },
 })
@@ -804,7 +807,10 @@ export const postSessionsCurrentExtendRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '延長成功', content: { 'application/json': { schema: SessionSchema } } },
+    200: {
+      description: '延長成功',
+      content: { 'application/json': { schema: SessionSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }, { cookieAuth: [] }],
@@ -853,7 +859,7 @@ export const getSessionsSessionIdRoute = createRoute({
   responses: {
     200: {
       description: 'セッション詳細',
-      content: { 'application/json': { schema: SessionSchema } },
+      content: { 'application/json': { schema: SessionSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -960,7 +966,7 @@ export const postSessionsValidateRoute = createRoute({
   responses: {
     200: {
       description: '検証結果',
-      content: { 'application/json': { schema: SessionValidationResultSchema } },
+      content: { 'application/json': { schema: SessionValidationResultSchema.optional() } },
     },
     400: BadRequestResponse,
   },
@@ -997,7 +1003,7 @@ export const getSessionsHistoryRoute = createRoute({
   responses: {
     200: {
       description: 'セッション履歴',
-      content: { 'application/json': { schema: SessionHistoryResponseSchema } },
+      content: { 'application/json': { schema: SessionHistoryResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1032,7 +1038,7 @@ export const getSessionsSecurityEventsRoute = createRoute({
   responses: {
     200: {
       description: 'セキュリティイベント',
-      content: { 'application/json': { schema: SecurityEventListResponseSchema } },
+      content: { 'application/json': { schema: SecurityEventListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1048,7 +1054,7 @@ export const getSessionsPoliciesRoute = createRoute({
   responses: {
     200: {
       description: 'セッションポリシー',
-      content: { 'application/json': { schema: SessionPolicySchema } },
+      content: { 'application/json': { schema: SessionPolicySchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1063,14 +1069,14 @@ export const putSessionsPoliciesRoute = createRoute({
   operationId: 'updateSessionPolicies',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateSessionPolicyRequestSchema } },
+      content: { 'application/json': { schema: UpdateSessionPolicyRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: SessionPolicySchema } },
+      content: { 'application/json': { schema: SessionPolicySchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1144,7 +1150,7 @@ export const postSessionsTrustedDevicesRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: TrustedDeviceSchema } },
+      content: { 'application/json': { schema: TrustedDeviceSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

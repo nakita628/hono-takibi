@@ -12,6 +12,32 @@ interface SchemaBlock {
 }
 
 /**
+ * Collects all declaration names from TypeScript code.
+ *
+ * @param sourceFile - The parsed TypeScript source file.
+ * @returns A set of all declared variable and type alias names.
+ */
+function collectDeclaredNames(sourceFile: ts.SourceFile): ReadonlySet<string> {
+  const names = new Set<string>()
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableStatement(node)) {
+      for (const decl of node.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name)) {
+          names.add(decl.name.text)
+        }
+      }
+    } else if (ts.isTypeAliasDeclaration(node)) {
+      names.add(node.name.text)
+    }
+    ts.forEachChild(node, visit)
+  }
+
+  visit(sourceFile)
+  return names
+}
+
+/**
  * Parses TypeScript code and extracts variable and type alias declarations with their references.
  *
  * @param code - The TypeScript code to parse.
@@ -19,6 +45,7 @@ interface SchemaBlock {
  */
 function parseDeclarations(code: string): readonly Declaration[] {
   const sourceFile = ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true)
+  const declaredNames = collectDeclaredNames(sourceFile)
   const declarations: Declaration[] = []
 
   const visit = (node: ts.Node): void => {
@@ -27,14 +54,14 @@ function parseDeclarations(code: string): readonly Declaration[] {
         if (ts.isIdentifier(decl.name)) {
           const name = decl.name.text
           const fullText = node.getFullText(sourceFile).trim()
-          const references = extractReferences(decl, name)
+          const references = extractReferences(decl, name, declaredNames)
           declarations.push({ name, fullText, references })
         }
       }
     } else if (ts.isTypeAliasDeclaration(node)) {
       const name = node.name.text
       const fullText = node.getFullText(sourceFile).trim()
-      const references = extractTypeReferences(node, name)
+      const references = extractTypeReferences(node, name, declaredNames)
       declarations.push({ name, fullText, references })
     }
     ts.forEachChild(node, visit)
@@ -45,19 +72,24 @@ function parseDeclarations(code: string): readonly Declaration[] {
 }
 
 /**
- * Extracts schema references from a variable declaration.
+ * Extracts references from a variable declaration.
  *
  * @param decl - The variable declaration node.
  * @param selfName - The name of the current declaration (to exclude self-references).
- * @returns An array of referenced schema names.
+ * @param declaredNames - Set of all declared names in the code.
+ * @returns An array of referenced names.
  */
-function extractReferences(decl: ts.VariableDeclaration, selfName: string): readonly string[] {
+function extractReferences(
+  decl: ts.VariableDeclaration,
+  selfName: string,
+  declaredNames: ReadonlySet<string>,
+): readonly string[] {
   const refs = new Set<string>()
 
   const visit = (node: ts.Node): void => {
     if (ts.isIdentifier(node)) {
       const name = node.text
-      if (name !== selfName && name.endsWith('Schema')) {
+      if (name !== selfName && declaredNames.has(name)) {
         refs.add(name)
       }
     }
@@ -72,19 +104,24 @@ function extractReferences(decl: ts.VariableDeclaration, selfName: string): read
 }
 
 /**
- * Extracts schema references from a type alias declaration.
+ * Extracts references from a type alias declaration.
  *
  * @param node - The type alias declaration node.
  * @param selfName - The name of the current declaration (to exclude self-references).
- * @returns An array of referenced schema names.
+ * @param declaredNames - Set of all declared names in the code.
+ * @returns An array of referenced names.
  */
-function extractTypeReferences(node: ts.TypeAliasDeclaration, selfName: string): readonly string[] {
+function extractTypeReferences(
+  node: ts.TypeAliasDeclaration,
+  selfName: string,
+  declaredNames: ReadonlySet<string>,
+): readonly string[] {
   const refs = new Set<string>()
 
   const visit = (n: ts.Node): void => {
     if (ts.isIdentifier(n)) {
       const name = n.text
-      if (name !== selfName && name.endsWith('Schema')) {
+      if (name !== selfName && declaredNames.has(name)) {
         refs.add(name)
       }
     }

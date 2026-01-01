@@ -518,6 +518,7 @@ const ChannelPreferencesSchema = z
     push: ChannelSettingSchema,
     inApp: ChannelSettingSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -536,6 +537,7 @@ const UpdateChannelPreferencesRequestSchema = z
     push: ChannelSettingSchema,
     inApp: ChannelSettingSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -921,17 +923,17 @@ const ApiKeySecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getNotificationsRoute = createRoute({
@@ -974,7 +976,7 @@ export const getNotificationsRoute = createRoute({
   responses: {
     200: {
       description: '通知一覧',
-      content: { 'application/json': { schema: NotificationListResponseSchema } },
+      content: { 'application/json': { schema: NotificationListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1006,7 +1008,7 @@ export const getNotificationsNotificationIdRoute = createRoute({
   responses: {
     200: {
       description: '通知詳細',
-      content: { 'application/json': { schema: NotificationSchema } },
+      content: { 'application/json': { schema: NotificationSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1063,7 +1065,10 @@ export const postNotificationsNotificationIdReadRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: '成功', content: { 'application/json': { schema: NotificationSchema } } },
+    200: {
+      description: '成功',
+      content: { 'application/json': { schema: NotificationSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1123,12 +1128,15 @@ export const postMessagesSendRoute = createRoute({
   description: '指定したチャンネルでメッセージを送信します',
   operationId: 'sendMessage',
   request: {
-    body: { content: { 'application/json': { schema: SendMessageRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: SendMessageRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
     202: {
       description: '送信受付',
-      content: { 'application/json': { schema: MessageResultSchema } },
+      content: { 'application/json': { schema: MessageResultSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1176,7 +1184,7 @@ export const postMessagesSendBatchRoute = createRoute({
   responses: {
     202: {
       description: '送信受付',
-      content: { 'application/json': { schema: BatchMessageResultSchema } },
+      content: { 'application/json': { schema: BatchMessageResultSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1209,7 +1217,7 @@ export const getMessagesMessageIdRoute = createRoute({
   responses: {
     200: {
       description: '送信状況',
-      content: { 'application/json': { schema: MessageStatusSchema } },
+      content: { 'application/json': { schema: MessageStatusSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1271,12 +1279,15 @@ export const postTemplatesRoute = createRoute({
   operationId: 'createTemplate',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateTemplateRequestSchema } },
+      content: { 'application/json': { schema: CreateTemplateRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: TemplateSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: TemplateSchema.optional() } },
+    },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -1308,7 +1319,7 @@ export const getTemplatesTemplateIdRoute = createRoute({
   responses: {
     200: {
       description: 'テンプレート詳細',
-      content: { 'application/json': { schema: TemplateSchema } },
+      content: { 'application/json': { schema: TemplateSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1324,12 +1335,15 @@ export const putTemplatesTemplateIdRoute = createRoute({
   operationId: 'updateTemplate',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateTemplateRequestSchema } },
+      content: { 'application/json': { schema: UpdateTemplateRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: TemplateSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: TemplateSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1426,7 +1440,7 @@ export const getChannelsPreferencesRoute = createRoute({
   responses: {
     200: {
       description: 'チャンネル設定',
-      content: { 'application/json': { schema: ChannelPreferencesSchema } },
+      content: { 'application/json': { schema: ChannelPreferencesSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1441,14 +1455,14 @@ export const putChannelsPreferencesRoute = createRoute({
   operationId: 'updateChannelPreferences',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateChannelPreferencesRequestSchema } },
+      content: { 'application/json': { schema: UpdateChannelPreferencesRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ChannelPreferencesSchema } },
+      content: { 'application/json': { schema: ChannelPreferencesSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1486,12 +1500,15 @@ export const postChannelsDevicesRoute = createRoute({
   operationId: 'registerDevice',
   request: {
     body: {
-      content: { 'application/json': { schema: RegisterDeviceRequestSchema } },
+      content: { 'application/json': { schema: RegisterDeviceRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '登録成功', content: { 'application/json': { schema: DeviceSchema } } },
+    201: {
+      description: '登録成功',
+      content: { 'application/json': { schema: DeviceSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1548,12 +1565,15 @@ export const postWebhooksRoute = createRoute({
   operationId: 'createWebhook',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateWebhookRequestSchema } },
+      content: { 'application/json': { schema: CreateWebhookRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: WebhookSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: WebhookSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1582,7 +1602,10 @@ export const getWebhooksWebhookIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'Webhook詳細', content: { 'application/json': { schema: WebhookSchema } } },
+    200: {
+      description: 'Webhook詳細',
+      content: { 'application/json': { schema: WebhookSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1597,12 +1620,15 @@ export const putWebhooksWebhookIdRoute = createRoute({
   operationId: 'updateWebhook',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateWebhookRequestSchema } },
+      content: { 'application/json': { schema: UpdateWebhookRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: WebhookSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: WebhookSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

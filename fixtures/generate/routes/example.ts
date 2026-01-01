@@ -193,14 +193,14 @@ const CustomFormatModelSchema = z
     bigIntValue: BigIntSchema,
     float32Value: Float32Schema,
     float64Value: Float64Schema,
-    decimalValue: DecimalSchema,
+    decimalValue: DecimalSchema.optional(),
     jwtValue: JwtTokenSchema,
-    uuidV7Value: UuidV7Schema,
-    base64UrlValue: Base64UrlSchema,
-    durationValue: IsoDurationSchema,
-    shortCode: ShortCodeSchema,
-    nullableInt32Value: NullableInt32Schema,
-    nullableShortCode: NullableShortCodeSchema,
+    uuidV7Value: UuidV7Schema.optional(),
+    base64UrlValue: Base64UrlSchema.optional(),
+    durationValue: IsoDurationSchema.optional(),
+    shortCode: ShortCodeSchema.optional(),
+    nullableInt32Value: NullableInt32Schema.optional(),
+    nullableShortCode: NullableShortCodeSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -237,7 +237,7 @@ export const getSampleRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: CustomFormatModelSchema } },
+      content: { 'application/json': { schema: CustomFormatModelSchema.optional() } },
     },
   },
 })

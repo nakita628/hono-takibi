@@ -254,7 +254,7 @@ export const postProductsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: CreateProductInputSchema,
+          schema: CreateProductInputSchema.optional(),
           examples: { laptop: CreateLaptopExample, tshirt: CreateTShirtExample },
         },
       },
@@ -265,7 +265,7 @@ export const postProductsRoute = createRoute({
       description: 'Product created',
       content: {
         'application/json': {
-          schema: ProductSchema,
+          schema: ProductSchema.optional(),
           examples: { laptop: { $ref: '#/components/examples/LaptopProduct' } },
         },
       },
@@ -274,7 +274,7 @@ export const postProductsRoute = createRoute({
       description: 'Validation error',
       content: {
         'application/json': {
-          schema: ValidationErrorSchema,
+          schema: ValidationErrorSchema.optional(),
           examples: {
             missingName: { $ref: '#/components/examples/MissingNameError' },
             invalidPrice: { $ref: '#/components/examples/InvalidPriceError' },
@@ -313,7 +313,7 @@ export const getProductsProductIdRoute = createRoute({
       description: 'Product details',
       content: {
         'application/json': {
-          schema: ProductSchema,
+          schema: ProductSchema.optional(),
           examples: {
             laptop: { $ref: '#/components/examples/LaptopProduct' },
             tshirt: { $ref: '#/components/examples/TShirtProduct' },
