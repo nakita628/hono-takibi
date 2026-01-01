@@ -8,7 +8,10 @@ import { zodToOpenAPI } from './index.js'
 describe('zodToOpenAPI', () => {
   describe('ref', () => {
     it.concurrent.each([
-      [{ $ref: '#/components/schemas/Test' }, 'TestSchema'],
+      [
+        { $ref: '#/components/schemas/Test' },
+        'TestSchema.optional().openapi({"$ref":"#/components/schemas/Test"})',
+      ],
       [
         {
           type: 'array',
