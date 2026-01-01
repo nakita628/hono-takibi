@@ -611,159 +611,6 @@ const IfNoneMatchHeaderParamsSchema = z
     type: 'string',
   })
 
-const XRequestIDHeader = z
-  .uuid()
-  .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
-
-const XRateLimitLimitHeader = z
-  .int32()
-  .optional()
-  .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
-
-const XRateLimitRemainingHeader = z
-  .int32()
-  .optional()
-  .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
-
-const XRateLimitResetHeader = z
-  .int64()
-  .optional()
-  .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
-
-const XTotalCountHeader = z
-  .int64()
-  .optional()
-  .openapi({ description: 'Total number of items', type: 'integer', format: 'int64' })
-
-const ETagHeader = z
-  .string()
-  .optional()
-  .openapi({ description: 'Entity tag for caching', type: 'string' })
-
-const CacheControlHeader = z
-  .string()
-  .optional()
-  .openapi({
-    description: 'Caching directives',
-    type: 'string',
-    example: 'max-age=3600, must-revalidate',
-  })
-
-const LocationHeader = z
-  .url()
-  .optional()
-  .openapi({ description: 'URL of created resource', type: 'string', format: 'uri' })
-
-const LinkHeader = z
-  .string()
-  .optional()
-  .openapi({
-    description: 'Pagination links (RFC 5988)',
-    type: 'string',
-    example: '<https://api.example.com/products?page=2>; rel="next"',
-  })
-
-const ProductExample = {
-  summary: 'Example product',
-  value: {
-    id: '550e8400-e29b-41d4-a716-446655440000',
-    sku: 'EL-123456',
-    name: 'Wireless Bluetooth Headphones',
-    description: 'Premium noise-cancelling wireless headphones',
-    price: { amount: 199.99, currency: 'USD' },
-    category: 'electronics',
-    tags: ['wireless', 'bluetooth', 'audio'],
-    inventory: 150,
-    status: 'active',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-20T14:45:00Z',
-  },
-}
-
-const ProductListExample = {
-  summary: 'Product list with pagination',
-  value: {
-    items: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        name: 'Wireless Headphones',
-        price: { amount: 199.99, currency: 'USD' },
-        category: 'electronics',
-      },
-      {
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        name: 'Running Shoes',
-        price: { amount: 129.99, currency: 'USD' },
-        category: 'sports',
-      },
-    ],
-    pagination: {
-      page: 1,
-      limit: 20,
-      total: 150,
-      totalPages: 8,
-      hasNext: true,
-      hasPrevious: false,
-    },
-  },
-}
-
-const EmptyProductListExample = {
-  summary: 'Empty product list',
-  value: {
-    items: [],
-    pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrevious: false },
-  },
-}
-
-const ValidationErrorExample = {
-  summary: 'Validation error',
-  value: {
-    code: 'VALIDATION_ERROR',
-    message: 'Request validation failed',
-    details: [
-      { code: 'REQUIRED', message: 'Name is required', target: 'name' },
-      { code: 'INVALID_FORMAT', message: 'Price must be positive', target: 'price.amount' },
-    ],
-  },
-}
-
-const GetProductByIdLink = {
-  operationId: 'getProduct',
-  parameters: { productId: '$response.body#/id' },
-  description: 'Get the created product',
-}
-
-const UpdateProductByIdLink = {
-  operationId: 'updateProduct',
-  parameters: { productId: '$response.body#/id' },
-  description: 'Update this product',
-}
-
-const DeleteProductByIdLink = {
-  operationId: 'deleteProduct',
-  parameters: { productId: '$response.body#/id' },
-  description: 'Delete this product',
-}
-
-const GetProductReviewsLink = {
-  operationRef: '#/paths/~1products~1{productId}~1reviews/get',
-  parameters: { productId: '$response.body#/id' },
-  description: 'Get reviews for this product',
-}
-
-const GetOrderByIdLink = {
-  operationId: 'getOrder',
-  parameters: { orderId: '$response.body#/id' },
-  description: 'Get the created order',
-}
-
-const CancelOrderByIdLink = {
-  operationId: 'cancelOrder',
-  parameters: { orderId: '$response.body#/id' },
-  description: 'Cancel this order',
-}
-
 const BearerAuthSecurityScheme = {
   type: 'http',
   scheme: 'bearer',
@@ -927,6 +774,159 @@ const InternalErrorResponse = {
       example: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
     },
   },
+}
+
+const XRequestIDHeader = z
+  .uuid()
+  .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
+
+const XRateLimitLimitHeader = z
+  .int32()
+  .optional()
+  .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
+
+const XRateLimitRemainingHeader = z
+  .int32()
+  .optional()
+  .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
+
+const XRateLimitResetHeader = z
+  .int64()
+  .optional()
+  .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
+
+const XTotalCountHeader = z
+  .int64()
+  .optional()
+  .openapi({ description: 'Total number of items', type: 'integer', format: 'int64' })
+
+const ETagHeader = z
+  .string()
+  .optional()
+  .openapi({ description: 'Entity tag for caching', type: 'string' })
+
+const CacheControlHeader = z
+  .string()
+  .optional()
+  .openapi({
+    description: 'Caching directives',
+    type: 'string',
+    example: 'max-age=3600, must-revalidate',
+  })
+
+const LocationHeader = z
+  .url()
+  .optional()
+  .openapi({ description: 'URL of created resource', type: 'string', format: 'uri' })
+
+const LinkHeader = z
+  .string()
+  .optional()
+  .openapi({
+    description: 'Pagination links (RFC 5988)',
+    type: 'string',
+    example: '<https://api.example.com/products?page=2>; rel="next"',
+  })
+
+const ProductExample = {
+  summary: 'Example product',
+  value: {
+    id: '550e8400-e29b-41d4-a716-446655440000',
+    sku: 'EL-123456',
+    name: 'Wireless Bluetooth Headphones',
+    description: 'Premium noise-cancelling wireless headphones',
+    price: { amount: 199.99, currency: 'USD' },
+    category: 'electronics',
+    tags: ['wireless', 'bluetooth', 'audio'],
+    inventory: 150,
+    status: 'active',
+    createdAt: '2024-01-15T10:30:00Z',
+    updatedAt: '2024-01-20T14:45:00Z',
+  },
+}
+
+const ProductListExample = {
+  summary: 'Product list with pagination',
+  value: {
+    items: [
+      {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        name: 'Wireless Headphones',
+        price: { amount: 199.99, currency: 'USD' },
+        category: 'electronics',
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        name: 'Running Shoes',
+        price: { amount: 129.99, currency: 'USD' },
+        category: 'sports',
+      },
+    ],
+    pagination: {
+      page: 1,
+      limit: 20,
+      total: 150,
+      totalPages: 8,
+      hasNext: true,
+      hasPrevious: false,
+    },
+  },
+}
+
+const EmptyProductListExample = {
+  summary: 'Empty product list',
+  value: {
+    items: [],
+    pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrevious: false },
+  },
+}
+
+const ValidationErrorExample = {
+  summary: 'Validation error',
+  value: {
+    code: 'VALIDATION_ERROR',
+    message: 'Request validation failed',
+    details: [
+      { code: 'REQUIRED', message: 'Name is required', target: 'name' },
+      { code: 'INVALID_FORMAT', message: 'Price must be positive', target: 'price.amount' },
+    ],
+  },
+}
+
+const GetProductByIdLink = {
+  operationId: 'getProduct',
+  parameters: { productId: '$response.body#/id' },
+  description: 'Get the created product',
+}
+
+const UpdateProductByIdLink = {
+  operationId: 'updateProduct',
+  parameters: { productId: '$response.body#/id' },
+  description: 'Update this product',
+}
+
+const DeleteProductByIdLink = {
+  operationId: 'deleteProduct',
+  parameters: { productId: '$response.body#/id' },
+  description: 'Delete this product',
+}
+
+const GetProductReviewsLink = {
+  operationRef: '#/paths/~1products~1{productId}~1reviews/get',
+  parameters: { productId: '$response.body#/id' },
+  description: 'Get reviews for this product',
+}
+
+const GetOrderByIdLink = {
+  operationId: 'getOrder',
+  parameters: { orderId: '$response.body#/id' },
+  description: 'Get the created order',
+}
+
+const CancelOrderByIdLink = {
+  operationId: 'cancelOrder',
+  parameters: { orderId: '$response.body#/id' },
+  description: 'Cancel this order',
 }
 
 const OrderStatusCallback = {

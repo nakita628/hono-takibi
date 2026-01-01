@@ -764,10 +764,6 @@ const ShortRefSchema = z
 
 const RefParamParamsSchema = ItemSchema
 
-const RefHeader = ItemSchema
-
-const ItemExample = { summary: 'Item example', value: { id: '123', name: 'Example', value: 42 } }
-
 const RefBodyRequestBody = { content: { 'application/json': { schema: ItemSchema } } }
 
 const CreatedResponse = {
@@ -794,6 +790,10 @@ const ErrorResponse = {
     },
   },
 }
+
+const RefHeader = ItemSchema
+
+const ItemExample = { summary: 'Item example', value: { id: '123', name: 'Example', value: 42 } }
 
 export const getTestRoute = createRoute({
   method: 'get',

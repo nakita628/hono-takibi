@@ -592,41 +592,6 @@ const AllowEmptyParamParamsSchema = z
     type: 'string',
   })
 
-const StringHeader = z.string().optional().openapi({ type: 'string' })
-
-const IntegerHeader = z.int().optional().openapi({ type: 'integer' })
-
-const BooleanHeader = z.boolean().optional().openapi({ type: 'boolean' })
-
-const ArrayHeader = z
-  .array(z.string().optional().openapi({ type: 'string' }))
-  .optional()
-  .openapi({ type: 'array', items: { type: 'string' } })
-
-const NullExample = { summary: 'Null value example', value: null }
-
-const EmptyObjectExample = { summary: 'Empty object', value: {} }
-
-const EmptyArrayExample = { summary: 'Empty array', value: [] }
-
-const ComplexExample = {
-  summary: 'Complex nested structure',
-  value: {
-    users: [
-      {
-        id: 1,
-        name: 'Alice',
-        roles: ['admin', 'user'],
-        metadata: {
-          lastLogin: '2024-01-15T10:30:00Z',
-          preferences: { theme: 'dark', notifications: true },
-        },
-      },
-      { id: 2, name: 'Bob', roles: ['user'], metadata: null },
-    ],
-  },
-}
-
 const ApiKeyHeaderSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
 const ApiKeyQuerySecurityScheme = { type: 'apiKey', in: 'query', name: 'api_key' }
@@ -680,6 +645,41 @@ const OpenIdConnectSecurityScheme = {
 const NoContentResponse = { description: 'No content response' }
 
 const HeadersOnlyResponse = { description: 'Response with headers only' }
+
+const StringHeader = z.string().optional().openapi({ type: 'string' })
+
+const IntegerHeader = z.int().optional().openapi({ type: 'integer' })
+
+const BooleanHeader = z.boolean().optional().openapi({ type: 'boolean' })
+
+const ArrayHeader = z
+  .array(z.string().optional().openapi({ type: 'string' }))
+  .optional()
+  .openapi({ type: 'array', items: { type: 'string' } })
+
+const NullExample = { summary: 'Null value example', value: null }
+
+const EmptyObjectExample = { summary: 'Empty object', value: {} }
+
+const EmptyArrayExample = { summary: 'Empty array', value: [] }
+
+const ComplexExample = {
+  summary: 'Complex nested structure',
+  value: {
+    users: [
+      {
+        id: 1,
+        name: 'Alice',
+        roles: ['admin', 'user'],
+        metadata: {
+          lastLogin: '2024-01-15T10:30:00Z',
+          preferences: { theme: 'dark', notifications: true },
+        },
+      },
+      { id: 2, name: 'Bob', roles: ['user'], metadata: null },
+    ],
+  },
+}
 
 export const getAllMethodsRoute = createRoute({
   method: 'get',

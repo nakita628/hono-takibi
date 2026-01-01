@@ -877,6 +877,143 @@ const IdempotencyKeyHeaderParamsSchema = z
     format: 'uuid',
   })
 
+const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
+
+const CreateEntityBodyRequestBody = {
+  description: 'Create entity request',
+  content: { 'application/json': { schema: CreateEntityInputSchema } },
+  required: true,
+}
+
+const UpdateEntityBodyRequestBody = {
+  description: 'Update entity request',
+  content: { 'application/json': { schema: UpdateEntityInputSchema } },
+  required: true,
+}
+
+const CreateRelationshipBodyRequestBody = {
+  description: 'Create relationship request',
+  content: { 'application/json': { schema: CreateRelationshipInputSchema } },
+  required: true,
+}
+
+const BatchOperationBodyRequestBody = {
+  description: 'Batch operation request',
+  content: {
+    'application/json': {
+      schema: z
+        .object({
+          operations: z
+            .array(BatchOperationSchema)
+            .min(1)
+            .max(100)
+            .openapi({
+              type: 'array',
+              items: { $ref: '#/components/schemas/BatchOperation' },
+              minItems: 1,
+              maxItems: 100,
+            }),
+        })
+        .openapi({
+          type: 'object',
+          required: ['operations'],
+          properties: {
+            operations: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/BatchOperation' },
+              minItems: 1,
+              maxItems: 100,
+            },
+          },
+        }),
+    },
+  },
+  required: true,
+}
+
+const EntityListResponse = {
+  description: 'List of entities',
+  content: {
+    'application/json': {
+      schema: EntityListWrapperSchema,
+      examples: { entityList: EntityListExample },
+    },
+  },
+}
+
+const EntityResponse = {
+  description: 'Single entity',
+  content: {
+    'application/json': { schema: EntityWrapperSchema, examples: { entity: EntityExample } },
+  },
+}
+
+const EntityCreatedResponse = {
+  description: 'Entity created',
+  content: {
+    'application/json': {
+      schema: EntityWrapperSchema,
+      examples: { createdEntity: CreatedEntityExample },
+    },
+  },
+}
+
+const RelationshipListResponse = {
+  description: 'List of relationships',
+  content: { 'application/json': { schema: RelationshipLinksSchema } },
+}
+
+const RelationshipResponse = {
+  description: 'Single relationship',
+  content: { 'application/json': { schema: RelationshipLinkSchema } },
+}
+
+const BatchResultResponse = {
+  description: 'Batch operation result (all succeeded)',
+  content: { 'application/json': { schema: BatchResultSchema } },
+}
+
+const MultiStatusResponse = {
+  description: 'Batch operation result (partial success)',
+  content: { 'application/json': { schema: BatchResultSchema } },
+}
+
+const NoContentResponse = { description: 'No content' }
+
+const NotModifiedResponse = { description: 'Not modified' }
+
+const ValidationErrorResponse = {
+  description: 'Validation error',
+  content: {
+    'application/json': {
+      schema: ErrorListSchema,
+      examples: { validationError: ValidationErrorExample },
+    },
+  },
+}
+
+const UnauthorizedResponse = {
+  description: 'Unauthorized',
+  content: { 'application/json': { schema: ErrorListSchema } },
+}
+
+const NotFoundResponse = {
+  description: 'Not found',
+  content: {
+    'application/json': { schema: ErrorListSchema, examples: { notFound: NotFoundErrorExample } },
+  },
+}
+
+const ConflictResponse = {
+  description: 'Conflict',
+  content: { 'application/json': { schema: ErrorListSchema } },
+}
+
+const PreconditionFailedResponse = {
+  description: 'Precondition failed',
+  content: { 'application/json': { schema: ErrorListSchema } },
+}
+
 const XRequestIdHeader = z
   .uuid()
   .openapi({
@@ -1053,143 +1190,6 @@ const GetEntityByIdLink = {
 const GetEntityRelationshipsLink = {
   operationId: 'getEntityRelationships',
   parameters: { entityId: '$response.body#/data/id' },
-}
-
-const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
-
-const CreateEntityBodyRequestBody = {
-  description: 'Create entity request',
-  content: { 'application/json': { schema: CreateEntityInputSchema } },
-  required: true,
-}
-
-const UpdateEntityBodyRequestBody = {
-  description: 'Update entity request',
-  content: { 'application/json': { schema: UpdateEntityInputSchema } },
-  required: true,
-}
-
-const CreateRelationshipBodyRequestBody = {
-  description: 'Create relationship request',
-  content: { 'application/json': { schema: CreateRelationshipInputSchema } },
-  required: true,
-}
-
-const BatchOperationBodyRequestBody = {
-  description: 'Batch operation request',
-  content: {
-    'application/json': {
-      schema: z
-        .object({
-          operations: z
-            .array(BatchOperationSchema)
-            .min(1)
-            .max(100)
-            .openapi({
-              type: 'array',
-              items: { $ref: '#/components/schemas/BatchOperation' },
-              minItems: 1,
-              maxItems: 100,
-            }),
-        })
-        .openapi({
-          type: 'object',
-          required: ['operations'],
-          properties: {
-            operations: {
-              type: 'array',
-              items: { $ref: '#/components/schemas/BatchOperation' },
-              minItems: 1,
-              maxItems: 100,
-            },
-          },
-        }),
-    },
-  },
-  required: true,
-}
-
-const EntityListResponse = {
-  description: 'List of entities',
-  content: {
-    'application/json': {
-      schema: EntityListWrapperSchema,
-      examples: { entityList: EntityListExample },
-    },
-  },
-}
-
-const EntityResponse = {
-  description: 'Single entity',
-  content: {
-    'application/json': { schema: EntityWrapperSchema, examples: { entity: EntityExample } },
-  },
-}
-
-const EntityCreatedResponse = {
-  description: 'Entity created',
-  content: {
-    'application/json': {
-      schema: EntityWrapperSchema,
-      examples: { createdEntity: CreatedEntityExample },
-    },
-  },
-}
-
-const RelationshipListResponse = {
-  description: 'List of relationships',
-  content: { 'application/json': { schema: RelationshipLinksSchema } },
-}
-
-const RelationshipResponse = {
-  description: 'Single relationship',
-  content: { 'application/json': { schema: RelationshipLinkSchema } },
-}
-
-const BatchResultResponse = {
-  description: 'Batch operation result (all succeeded)',
-  content: { 'application/json': { schema: BatchResultSchema } },
-}
-
-const MultiStatusResponse = {
-  description: 'Batch operation result (partial success)',
-  content: { 'application/json': { schema: BatchResultSchema } },
-}
-
-const NoContentResponse = { description: 'No content' }
-
-const NotModifiedResponse = { description: 'Not modified' }
-
-const ValidationErrorResponse = {
-  description: 'Validation error',
-  content: {
-    'application/json': {
-      schema: ErrorListSchema,
-      examples: { validationError: ValidationErrorExample },
-    },
-  },
-}
-
-const UnauthorizedResponse = {
-  description: 'Unauthorized',
-  content: { 'application/json': { schema: ErrorListSchema } },
-}
-
-const NotFoundResponse = {
-  description: 'Not found',
-  content: {
-    'application/json': { schema: ErrorListSchema, examples: { notFound: NotFoundErrorExample } },
-  },
-}
-
-const ConflictResponse = {
-  description: 'Conflict',
-  content: { 'application/json': { schema: ErrorListSchema } },
-}
-
-const PreconditionFailedResponse = {
-  description: 'Precondition failed',
-  content: { 'application/json': { schema: ErrorListSchema } },
 }
 
 const EntityWebhookCallback = {
