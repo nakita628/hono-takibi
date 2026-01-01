@@ -1,24 +1,25 @@
+import { constCode } from '../../../../helper/const.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, ref, toIdentifierPascalCase } from '../../../../utils/index.js'
+import { ref } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''
 
-  const isComponentsRef = (ref: unknown): ref is `#/components/${string}/${string}` =>
-    typeof ref === 'string' && ref.startsWith('#/components/')
+  const isComponentsRef = (refValue: unknown): refValue is `#/components/${string}/${string}` =>
+    typeof refValue === 'string' && refValue.startsWith('#/components/')
 
   return Object.entries(requestBodies)
     .map(([k, body]) => {
       if (body.content) {
         const content = Object.entries(body.content)
-          .map(([k, mediaOrReference]) => {
+          .map(([contentKey, mediaOrReference]) => {
             if ('schema' in mediaOrReference) {
-              return `${JSON.stringify(k)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
+              return `${JSON.stringify(contentKey)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
             }
             if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
-              return `${JSON.stringify(k)}:${ref(mediaOrReference.$ref)}`
+              return `${JSON.stringify(contentKey)}:${ref(mediaOrReference.$ref)}`
             }
             return undefined
           })
@@ -33,7 +34,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
           .filter((v) => v !== undefined)
           .join(',')
 
-        return `${exportRequestBodies ? 'export const' : 'const'} ${toIdentifierPascalCase(ensureSuffix(k, 'RequestBody'))}={${props}}`
+        return `${constCode(exportRequestBodies, k, 'RequestBody')}{${props}}`
       }
       return undefined
     })

@@ -1,6 +1,6 @@
 import { makeContent } from '../../../../helper/components.js'
+import { constCode } from '../../../../helper/const.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 
 export function responses(components: Components, exportResponses: boolean): string {
   const { responses } = components
@@ -20,7 +20,7 @@ export function responses(components: Components, exportResponses: boolean): str
         .filter((v) => v !== undefined)
         .join(',')
 
-      return `${exportResponses ? 'export const' : 'const'} ${toIdentifierPascalCase(ensureSuffix(k, 'Response'))}={${props}}`
+      return `${constCode(exportResponses, k, 'Response')}{${props}}`
     })
     .join('\n\n')
 }
