@@ -1,3 +1,4 @@
+import { sortByDependencies } from '../../../../helper/sort-by-dependencies.js'
 import type { Components } from '../../../../openapi/index.js'
 import { callbacks } from './callbacks.js'
 import { examples } from './examples.js'
@@ -39,7 +40,7 @@ export function componentsCode(
     readonly exportCallbacks: boolean
   },
 ): string {
-  return [
+  const code = [
     schemas(components, options.exportSchemas, options.exportSchemasTypes),
     parameters(components, options.exportParameters, options.exportParametersTypes),
     securitySchemes(components, options.exportSecuritySchemes),
@@ -52,4 +53,5 @@ export function componentsCode(
   ]
     .filter(Boolean)
     .join('\n\n')
+  return sortByDependencies(code)
 }
