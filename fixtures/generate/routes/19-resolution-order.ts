@@ -506,51 +506,6 @@ type ConfigValueType =
   | ConfigValueType[]
   | Record<string, ConfigValueType>
 
-const FieldValidationSchema = z
-  .object({
-    required: z.boolean().openapi({ type: 'boolean' }),
-    pattern: z.string().openapi({ type: 'string' }),
-    min: z.number().openapi({ type: 'number' }),
-    max: z.number().openapi({ type: 'number' }),
-    enum: z
-      .array(z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      required: { type: 'boolean' },
-      pattern: { type: 'string' },
-      min: { type: 'number' },
-      max: { type: 'number' },
-      enum: { type: 'array', items: { type: 'string' } },
-    },
-  })
-  .openapi('FieldValidation')
-
-const FieldDefinitionSchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    type: z.string().openapi({ type: 'string' }),
-    nullable: z.boolean().optional().openapi({ type: 'boolean' }),
-    default: ConfigValueSchema.optional(),
-    validation: FieldValidationSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['name', 'type'],
-    properties: {
-      name: { type: 'string' },
-      type: { type: 'string' },
-      nullable: { type: 'boolean' },
-      default: { $ref: '#/components/schemas/ConfigValue' },
-      validation: { $ref: '#/components/schemas/FieldValidation' },
-    },
-  })
-  .openapi('FieldDefinition')
-
 const DataSchema: z.ZodType<DataSchemaType> = z
   .lazy(() =>
     z
@@ -698,40 +653,6 @@ const DataSourceSchema = z
     },
   })
   .openapi('DataSource')
-
-const SimpleConditionSchema = z
-  .object({
-    field: z.string().openapi({ type: 'string' }),
-    operator: z.string().openapi({ type: 'string' }),
-    value: z.any(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['field', 'operator', 'value'],
-    properties: { field: { type: 'string' }, operator: { type: 'string' }, value: {} },
-  })
-  .openapi('SimpleCondition')
-
-const CompoundConditionSchema = z
-  .object({
-    and: z
-      .array(ConditionSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Condition' } }),
-    or: z
-      .array(ConditionSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Condition' } }),
-    not: ConditionSchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      and: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
-      or: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
-      not: { $ref: '#/components/schemas/Condition' },
-    },
-  })
-  .openapi('CompoundCondition')
 
 const ConditionSchema: z.ZodType<ConditionType> = z
   .lazy(() =>
@@ -949,13 +870,101 @@ const ProcessRequestSchema = z
   })
   .openapi('ProcessRequest')
 
+const FieldValidationSchema = z
+  .object({
+    required: z.boolean().openapi({ type: 'boolean' }),
+    pattern: z.string().openapi({ type: 'string' }),
+    min: z.number().openapi({ type: 'number' }),
+    max: z.number().openapi({ type: 'number' }),
+    enum: z
+      .array(z.string().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' } }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      required: { type: 'boolean' },
+      pattern: { type: 'string' },
+      min: { type: 'number' },
+      max: { type: 'number' },
+      enum: { type: 'array', items: { type: 'string' } },
+    },
+  })
+  .openapi('FieldValidation')
+
+const FieldDefinitionSchema = z
+  .object({
+    name: z.string().openapi({ type: 'string' }),
+    type: z.string().openapi({ type: 'string' }),
+    nullable: z.boolean().optional().openapi({ type: 'boolean' }),
+    default: ConfigValueSchema.optional(),
+    validation: FieldValidationSchema.optional(),
+  })
+  .openapi({
+    type: 'object',
+    required: ['name', 'type'],
+    properties: {
+      name: { type: 'string' },
+      type: { type: 'string' },
+      nullable: { type: 'boolean' },
+      default: { $ref: '#/components/schemas/ConfigValue' },
+      validation: { $ref: '#/components/schemas/FieldValidation' },
+    },
+  })
+  .openapi('FieldDefinition')
+
 type DataSchemaType = {
   name?: string
   fields?: z.infer<typeof FieldDefinitionSchema>[]
   nested?: Record<string, DataSchemaType>
 }
 
+const SimpleConditionSchema = z
+  .object({
+    field: z.string().openapi({ type: 'string' }),
+    operator: z.string().openapi({ type: 'string' }),
+    value: z.any(),
+  })
+  .openapi({
+    type: 'object',
+    required: ['field', 'operator', 'value'],
+    properties: { field: { type: 'string' }, operator: { type: 'string' }, value: {} },
+  })
+  .openapi('SimpleCondition')
+
+const CompoundConditionSchema: z.ZodType<CompoundConditionType> = z
+  .lazy(() =>
+    z
+      .object({
+        and: z
+          .array(ConditionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Condition' } }),
+        or: z
+          .array(ConditionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Condition' } }),
+        not: ConditionSchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          and: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
+          or: { type: 'array', items: { $ref: '#/components/schemas/Condition' } },
+          not: { $ref: '#/components/schemas/Condition' },
+        },
+      }),
+  )
+  .openapi('CompoundCondition')
+
 type ConditionType = z.infer<typeof SimpleConditionSchema> | z.infer<typeof CompoundConditionSchema>
+
+type CompoundConditionType = {
+  and?: z.infer<typeof ConditionSchema>[]
+  or?: z.infer<typeof ConditionSchema>[]
+  not?: z.infer<typeof ConditionSchema>
+}
 
 const ProcessErrorSchema = z
   .object({

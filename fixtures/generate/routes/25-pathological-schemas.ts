@@ -916,31 +916,19 @@ const EdgeCasesSchema = z
   })
   .openapi('EdgeCases')
 
-const RecursiveCSchema = z
-  .object({ value: z.boolean().openapi({ type: 'boolean' }), refA: RecursiveASchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'boolean' }, refA: { $ref: '#/components/schemas/RecursiveA' } },
-  })
-  .openapi('RecursiveC')
-
-const RecursiveBSchema = z
-  .object({ value: z.number().openapi({ type: 'number' }), refC: RecursiveCSchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'number' }, refC: { $ref: '#/components/schemas/RecursiveC' } },
-  })
-  .openapi('RecursiveB')
-
-const RecursiveASchema = z
-  .object({ value: z.string().openapi({ type: 'string' }), refB: RecursiveBSchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'string' }, refB: { $ref: '#/components/schemas/RecursiveB' } },
-  })
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.string().openapi({ type: 'string' }), refB: RecursiveBSchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          refB: { $ref: '#/components/schemas/RecursiveB' },
+        },
+      }),
+  )
   .openapi('RecursiveA')
 
 const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
@@ -1583,6 +1571,42 @@ const PathologicalRootSchema = z
     },
   })
   .openapi('PathologicalRoot')
+
+const RecursiveBSchema: z.ZodType<RecursiveBType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.number().openapi({ type: 'number' }), refC: RecursiveCSchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'number' },
+          refC: { $ref: '#/components/schemas/RecursiveC' },
+        },
+      }),
+  )
+  .openapi('RecursiveB')
+
+type RecursiveAType = { value?: string; refB?: z.infer<typeof RecursiveBSchema> }
+
+const RecursiveCSchema: z.ZodType<RecursiveCType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.boolean().openapi({ type: 'boolean' }), refA: RecursiveASchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'boolean' },
+          refA: { $ref: '#/components/schemas/RecursiveA' },
+        },
+      }),
+  )
+  .openapi('RecursiveC')
+
+type RecursiveBType = { value?: number; refC?: z.infer<typeof RecursiveCSchema> }
+
+type RecursiveCType = { value?: boolean; refA?: z.infer<typeof RecursiveASchema> }
 
 type ConstrainedTreeType = {
   value: string

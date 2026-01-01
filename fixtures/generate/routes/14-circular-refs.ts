@@ -43,6 +43,33 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
+const LinkedListSchema: z.ZodType<LinkedListType> = z
+  .lazy(() =>
+    z
+      .object({
+        head: LinkedListNodeSchema,
+        tail: LinkedListNodeSchema,
+        length: z.int().openapi({ type: 'integer' }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          head: { $ref: '#/components/schemas/LinkedListNode' },
+          tail: { $ref: '#/components/schemas/LinkedListNode' },
+          length: { type: 'integer' },
+        },
+      }),
+  )
+  .openapi('LinkedList')
+
+type LinkedListNodeType = {
+  value: string
+  prev?: LinkedListNodeType
+  next?: LinkedListNodeType
+  list?: z.infer<typeof LinkedListSchema>
+}
+
 const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
   .lazy(() =>
     z
@@ -65,117 +92,164 @@ const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
   )
   .openapi('LinkedListNode')
 
-const LinkedListSchema = z
-  .object({
-    head: LinkedListNodeSchema,
-    tail: LinkedListNodeSchema,
-    length: z.int().openapi({ type: 'integer' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      head: { $ref: '#/components/schemas/LinkedListNode' },
-      tail: { $ref: '#/components/schemas/LinkedListNode' },
-      length: { type: 'integer' },
-    },
-  })
-  .openapi('LinkedList')
-
-type LinkedListNodeType = {
-  value: string
-  prev?: LinkedListNodeType
-  next?: LinkedListNodeType
-  list?: z.infer<typeof LinkedListSchema>
+type LinkedListType = {
+  head?: z.infer<typeof LinkedListNodeSchema>
+  tail?: z.infer<typeof LinkedListNodeSchema>
+  length?: number
 }
 
-const EdgeMetadataSchema = z
-  .object({
-    label: z.string().openapi({ type: 'string' }),
-    relatedEdges: z
-      .array(GraphEdgeSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      label: { type: 'string' },
-      relatedEdges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
-    },
-  })
-  .openapi('EdgeMetadata')
-
-const GraphEdgeSchema = z
-  .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    source: GraphNodeSchema,
-    target: GraphNodeSchema,
-    weight: z.number().optional().openapi({ type: 'number' }),
-    metadata: EdgeMetadataSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['source', 'target'],
-    properties: {
-      id: { type: 'string' },
-      source: { $ref: '#/components/schemas/GraphNode' },
-      target: { $ref: '#/components/schemas/GraphNode' },
-      weight: { type: 'number' },
-      metadata: { $ref: '#/components/schemas/EdgeMetadata' },
-    },
-  })
-  .openapi('GraphEdge')
-
-const GraphNodeSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    data: z.object({}).openapi({ type: 'object' }),
-    edges: z
-      .array(GraphEdgeSchema)
-      .optional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
-    graph: GraphSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'string' },
-      data: { type: 'object' },
-      edges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
-      graph: { $ref: '#/components/schemas/Graph' },
-    },
-  })
+const GraphNodeSchema: z.ZodType<GraphNodeType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().openapi({ type: 'string' }),
+        data: z.object({}).openapi({ type: 'object' }),
+        edges: z
+          .array(GraphEdgeSchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
+        graph: GraphSchema.optional(),
+      })
+      .openapi({
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' },
+          data: { type: 'object' },
+          edges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
+          graph: { $ref: '#/components/schemas/Graph' },
+        },
+      }),
+  )
   .openapi('GraphNode')
 
-const GraphMetadataSchema = z
-  .object({ name: z.string().openapi({ type: 'string' }), rootNode: GraphNodeSchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { name: { type: 'string' }, rootNode: { $ref: '#/components/schemas/GraphNode' } },
-  })
+const GraphMetadataSchema: z.ZodType<GraphMetadataType> = z
+  .lazy(() =>
+    z
+      .object({ name: z.string().openapi({ type: 'string' }), rootNode: GraphNodeSchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          rootNode: { $ref: '#/components/schemas/GraphNode' },
+        },
+      }),
+  )
   .openapi('GraphMetadata')
 
-const GraphSchema = z
-  .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    nodes: z
-      .array(GraphNodeSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
-    metadata: GraphMetadataSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['nodes'],
-    properties: {
-      id: { type: 'string' },
-      nodes: { type: 'array', items: { $ref: '#/components/schemas/GraphNode' } },
-      metadata: { $ref: '#/components/schemas/GraphMetadata' },
-    },
-  })
+type GraphType = {
+  id?: string
+  nodes: z.infer<typeof GraphNodeSchema>[]
+  metadata?: z.infer<typeof GraphMetadataSchema>
+}
+
+const GraphSchema: z.ZodType<GraphType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().optional().openapi({ type: 'string' }),
+        nodes: z
+          .array(GraphNodeSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
+        metadata: GraphMetadataSchema.optional(),
+      })
+      .openapi({
+        type: 'object',
+        required: ['nodes'],
+        properties: {
+          id: { type: 'string' },
+          nodes: { type: 'array', items: { $ref: '#/components/schemas/GraphNode' } },
+          metadata: { $ref: '#/components/schemas/GraphMetadata' },
+        },
+      }),
+  )
   .openapi('Graph')
+
+const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().optional().openapi({ type: 'string' }),
+        source: GraphNodeSchema,
+        target: GraphNodeSchema,
+        weight: z.number().optional().openapi({ type: 'number' }),
+        metadata: EdgeMetadataSchema.optional(),
+      })
+      .openapi({
+        type: 'object',
+        required: ['source', 'target'],
+        properties: {
+          id: { type: 'string' },
+          source: { $ref: '#/components/schemas/GraphNode' },
+          target: { $ref: '#/components/schemas/GraphNode' },
+          weight: { type: 'number' },
+          metadata: { $ref: '#/components/schemas/EdgeMetadata' },
+        },
+      }),
+  )
+  .openapi('GraphEdge')
+
+type GraphNodeType = {
+  id: string
+  data?: Record<string, unknown>
+  edges?: z.infer<typeof GraphEdgeSchema>[]
+  graph?: z.infer<typeof GraphSchema>
+}
+
+const EdgeMetadataSchema: z.ZodType<EdgeMetadataType> = z
+  .lazy(() =>
+    z
+      .object({
+        label: z.string().openapi({ type: 'string' }),
+        relatedEdges: z
+          .array(GraphEdgeSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          label: { type: 'string' },
+          relatedEdges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
+        },
+      }),
+  )
+  .openapi('EdgeMetadata')
+
+type GraphEdgeType = {
+  id?: string
+  source: z.infer<typeof GraphNodeSchema>
+  target: z.infer<typeof GraphNodeSchema>
+  weight?: number
+  metadata?: z.infer<typeof EdgeMetadataSchema>
+}
+
+type GraphMetadataType = { name?: string; rootNode?: z.infer<typeof GraphNodeSchema> }
+
+type EdgeMetadataType = { label?: string; relatedEdges?: z.infer<typeof GraphEdgeSchema>[] }
+
+const UserProfileSchema: z.ZodType<UserProfileType> = z
+  .lazy(() =>
+    z
+      .object({
+        bio: z.string().openapi({ type: 'string' }),
+        avatar: z.url().openapi({ type: 'string', format: 'uri' }),
+        user: SocialUserSchema,
+        settings: ProfileSettingsSchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          bio: { type: 'string' },
+          avatar: { type: 'string', format: 'uri' },
+          user: { $ref: '#/components/schemas/SocialUser' },
+          settings: { $ref: '#/components/schemas/ProfileSettings' },
+        },
+      }),
+  )
+  .openapi('UserProfile')
 
 const PostSchema: z.ZodType<PostType> = z
   .lazy(() =>
@@ -219,6 +293,16 @@ const PostSchema: z.ZodType<PostType> = z
   )
   .openapi('Post')
 
+type SocialUserType = {
+  id: string
+  username: string
+  profile?: z.infer<typeof UserProfileSchema>
+  followers?: SocialUserType[]
+  following?: SocialUserType[]
+  posts?: z.infer<typeof PostSchema>[]
+  blockedUsers?: SocialUserType[]
+}
+
 const SocialUserSchema: z.ZodType<SocialUserType> = z
   .lazy(() =>
     z
@@ -259,50 +343,37 @@ const SocialUserSchema: z.ZodType<SocialUserType> = z
   )
   .openapi('SocialUser')
 
-const ProfileSettingsSchema = z
-  .object({
-    privacy: z.string().openapi({ type: 'string' }),
-    notifications: z.boolean().openapi({ type: 'boolean' }),
-    profile: UserProfileSchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      privacy: { type: 'string' },
-      notifications: { type: 'boolean' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-    },
-  })
+const ProfileSettingsSchema: z.ZodType<ProfileSettingsType> = z
+  .lazy(() =>
+    z
+      .object({
+        privacy: z.string().openapi({ type: 'string' }),
+        notifications: z.boolean().openapi({ type: 'boolean' }),
+        profile: UserProfileSchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          privacy: { type: 'string' },
+          notifications: { type: 'boolean' },
+          profile: { $ref: '#/components/schemas/UserProfile' },
+        },
+      }),
+  )
   .openapi('ProfileSettings')
 
-const UserProfileSchema = z
-  .object({
-    bio: z.string().openapi({ type: 'string' }),
-    avatar: z.url().openapi({ type: 'string', format: 'uri' }),
-    user: SocialUserSchema,
-    settings: ProfileSettingsSchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      bio: { type: 'string' },
-      avatar: { type: 'string', format: 'uri' },
-      user: { $ref: '#/components/schemas/SocialUser' },
-      settings: { $ref: '#/components/schemas/ProfileSettings' },
-    },
-  })
-  .openapi('UserProfile')
+type UserProfileType = {
+  bio?: string
+  avatar?: string
+  user?: z.infer<typeof SocialUserSchema>
+  settings?: z.infer<typeof ProfileSettingsSchema>
+}
 
-type SocialUserType = {
-  id: string
-  username: string
+type ProfileSettingsType = {
+  privacy?: string
+  notifications?: boolean
   profile?: z.infer<typeof UserProfileSchema>
-  followers?: SocialUserType[]
-  following?: SocialUserType[]
-  posts?: z.infer<typeof PostSchema>[]
-  blockedUsers?: SocialUserType[]
 }
 
 type PostType = {
@@ -316,104 +387,178 @@ type PostType = {
   mentions?: z.infer<typeof SocialUserSchema>[]
 }
 
-const FileOwnerSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
-    ownedFiles: z
-      .array(FileSystemEntrySchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } }),
-    homeDirectory: FileSystemEntrySchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      ownedFiles: { type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } },
-      homeDirectory: { $ref: '#/components/schemas/FileSystemEntry' },
-    },
-  })
-  .openapi('FileOwner')
-
-const AccessControlEntrySchema = z
-  .object({
-    principal: FileOwnerSchema,
-    permissions: FilePermissionsSchema,
-    entry: FileSystemEntrySchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      principal: { $ref: '#/components/schemas/FileOwner' },
-      permissions: { $ref: '#/components/schemas/FilePermissions' },
-      entry: { $ref: '#/components/schemas/FileSystemEntry' },
-    },
-  })
-  .openapi('AccessControlEntry')
-
-const FilePermissionsSchema = z
-  .object({
-    read: z.boolean().openapi({ type: 'boolean' }),
-    write: z.boolean().openapi({ type: 'boolean' }),
-    execute: z.boolean().openapi({ type: 'boolean' }),
-    acl: z
-      .array(AccessControlEntrySchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      read: { type: 'boolean' },
-      write: { type: 'boolean' },
-      execute: { type: 'boolean' },
-      acl: { type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } },
-    },
-  })
+const FilePermissionsSchema: z.ZodType<FilePermissionsType> = z
+  .lazy(() =>
+    z
+      .object({
+        read: z.boolean().openapi({ type: 'boolean' }),
+        write: z.boolean().openapi({ type: 'boolean' }),
+        execute: z.boolean().openapi({ type: 'boolean' }),
+        acl: z
+          .array(AccessControlEntrySchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          read: { type: 'boolean' },
+          write: { type: 'boolean' },
+          execute: { type: 'boolean' },
+          acl: { type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } },
+        },
+      }),
+  )
   .openapi('FilePermissions')
 
-const FileSystemEntrySchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    type: z
-      .enum(['file', 'directory', 'symlink'])
-      .openapi({ type: 'string', enum: ['file', 'directory', 'symlink'] }),
-    permissions: FilePermissionsSchema.optional(),
-    owner: FileOwnerSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['name', 'type'],
-    properties: {
-      name: { type: 'string' },
-      type: { type: 'string', enum: ['file', 'directory', 'symlink'] },
-      permissions: { $ref: '#/components/schemas/FilePermissions' },
-      owner: { $ref: '#/components/schemas/FileOwner' },
-    },
-  })
+const FileOwnerSchema: z.ZodType<FileOwnerType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().openapi({ type: 'string' }),
+        name: z.string().openapi({ type: 'string' }),
+        ownedFiles: z
+          .array(FileSystemEntrySchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } }),
+        homeDirectory: FileSystemEntrySchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          ownedFiles: { type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } },
+          homeDirectory: { $ref: '#/components/schemas/FileSystemEntry' },
+        },
+      }),
+  )
+  .openapi('FileOwner')
+
+type FileSystemEntryType = {
+  name: string
+  type: 'file' | 'directory' | 'symlink'
+  permissions?: z.infer<typeof FilePermissionsSchema>
+  owner?: z.infer<typeof FileOwnerSchema>
+}
+
+const FileSystemEntrySchema: z.ZodType<FileSystemEntryType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().openapi({ type: 'string' }),
+        type: z
+          .enum(['file', 'directory', 'symlink'])
+          .openapi({ type: 'string', enum: ['file', 'directory', 'symlink'] }),
+        permissions: FilePermissionsSchema.optional(),
+        owner: FileOwnerSchema.optional(),
+      })
+      .openapi({
+        type: 'object',
+        required: ['name', 'type'],
+        properties: {
+          name: { type: 'string' },
+          type: { type: 'string', enum: ['file', 'directory', 'symlink'] },
+          permissions: { $ref: '#/components/schemas/FilePermissions' },
+          owner: { $ref: '#/components/schemas/FileOwner' },
+        },
+      }),
+  )
   .openapi('FileSystemEntry')
 
-const CommentThreadSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    rootComment: CommentSchema,
-    allComments: z
-      .array(CommentSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      rootComment: { $ref: '#/components/schemas/Comment' },
-      allComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-    },
-  })
+const AccessControlEntrySchema: z.ZodType<AccessControlEntryType> = z
+  .lazy(() =>
+    z
+      .object({
+        principal: FileOwnerSchema,
+        permissions: FilePermissionsSchema,
+        entry: FileSystemEntrySchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          principal: { $ref: '#/components/schemas/FileOwner' },
+          permissions: { $ref: '#/components/schemas/FilePermissions' },
+          entry: { $ref: '#/components/schemas/FileSystemEntry' },
+        },
+      }),
+  )
+  .openapi('AccessControlEntry')
+
+type FilePermissionsType = {
+  read?: boolean
+  write?: boolean
+  execute?: boolean
+  acl?: z.infer<typeof AccessControlEntrySchema>[]
+}
+
+type AccessControlEntryType = {
+  principal?: z.infer<typeof FileOwnerSchema>
+  permissions?: z.infer<typeof FilePermissionsSchema>
+  entry?: z.infer<typeof FileSystemEntrySchema>
+}
+
+type FileOwnerType = {
+  id?: string
+  name?: string
+  ownedFiles?: z.infer<typeof FileSystemEntrySchema>[]
+  homeDirectory?: z.infer<typeof FileSystemEntrySchema>
+}
+
+const CommentAuthorSchema: z.ZodType<CommentAuthorType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().openapi({ type: 'string' }),
+        name: z.string().openapi({ type: 'string' }),
+        recentComments: z
+          .array(CommentSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          recentComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+        },
+      }),
+  )
+  .openapi('CommentAuthor')
+
+const CommentThreadSchema: z.ZodType<CommentThreadType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().openapi({ type: 'string' }),
+        rootComment: CommentSchema,
+        allComments: z
+          .array(CommentSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          rootComment: { $ref: '#/components/schemas/Comment' },
+          allComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
+        },
+      }),
+  )
   .openapi('CommentThread')
+
+type CommentType = {
+  id: string
+  content: string
+  author?: z.infer<typeof CommentAuthorSchema>
+  parent?: CommentType
+  replies?: CommentType[]
+  thread?: z.infer<typeof CommentThreadSchema>
+  quotedComment?: CommentType
+}
 
 const CommentSchema: z.ZodType<CommentType> = z
   .lazy(() =>
@@ -446,33 +591,16 @@ const CommentSchema: z.ZodType<CommentType> = z
   )
   .openapi('Comment')
 
-const CommentAuthorSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
-    recentComments: z
-      .array(CommentSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      recentComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-    },
-  })
-  .openapi('CommentAuthor')
+type CommentAuthorType = {
+  id?: string
+  name?: string
+  recentComments?: z.infer<typeof CommentSchema>[]
+}
 
-type CommentType = {
-  id: string
-  content: string
-  author?: z.infer<typeof CommentAuthorSchema>
-  parent?: CommentType
-  replies?: CommentType[]
-  thread?: z.infer<typeof CommentThreadSchema>
-  quotedComment?: CommentType
+type CommentThreadType = {
+  id?: string
+  rootComment?: z.infer<typeof CommentSchema>
+  allComments?: z.infer<typeof CommentSchema>[]
 }
 
 const LiteralExpressionSchema = z
@@ -497,60 +625,106 @@ const LiteralExpressionSchema = z
   })
   .openapi('LiteralExpression')
 
-const UnaryExpressionSchema = z
-  .object({
-    type: z.literal('unary').openapi({ type: 'string' }),
-    operator: z.enum(['-', '!', '~']).openapi({ type: 'string', enum: ['-', '!', '~'] }),
-    operand: ExpressionSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'operator', 'operand'],
-    properties: {
-      type: { type: 'string', const: 'unary' },
-      operator: { type: 'string', enum: ['-', '!', '~'] },
-      operand: { $ref: '#/components/schemas/Expression' },
-    },
-  })
+const BinaryExpressionSchema: z.ZodType<BinaryExpressionType> = z
+  .lazy(() =>
+    z
+      .object({
+        type: z.literal('binary').openapi({ type: 'string' }),
+        operator: z
+          .enum(['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'])
+          .openapi({
+            type: 'string',
+            enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'],
+          }),
+        left: ExpressionSchema,
+        right: ExpressionSchema,
+      })
+      .openapi({
+        type: 'object',
+        required: ['type', 'operator', 'left', 'right'],
+        properties: {
+          type: { type: 'string', const: 'binary' },
+          operator: {
+            type: 'string',
+            enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'],
+          },
+          left: { $ref: '#/components/schemas/Expression' },
+          right: { $ref: '#/components/schemas/Expression' },
+        },
+      }),
+  )
+  .openapi('BinaryExpression')
+
+const UnaryExpressionSchema: z.ZodType<UnaryExpressionType> = z
+  .lazy(() =>
+    z
+      .object({
+        type: z.literal('unary').openapi({ type: 'string' }),
+        operator: z.enum(['-', '!', '~']).openapi({ type: 'string', enum: ['-', '!', '~'] }),
+        operand: ExpressionSchema,
+      })
+      .openapi({
+        type: 'object',
+        required: ['type', 'operator', 'operand'],
+        properties: {
+          type: { type: 'string', const: 'unary' },
+          operator: { type: 'string', enum: ['-', '!', '~'] },
+          operand: { $ref: '#/components/schemas/Expression' },
+        },
+      }),
+  )
   .openapi('UnaryExpression')
 
-const ConditionalExpressionSchema = z
-  .object({
-    type: z.literal('conditional').openapi({ type: 'string' }),
-    condition: ExpressionSchema,
-    consequent: ExpressionSchema,
-    alternate: ExpressionSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'condition', 'consequent', 'alternate'],
-    properties: {
-      type: { type: 'string', const: 'conditional' },
-      condition: { $ref: '#/components/schemas/Expression' },
-      consequent: { $ref: '#/components/schemas/Expression' },
-      alternate: { $ref: '#/components/schemas/Expression' },
-    },
-  })
+const ConditionalExpressionSchema: z.ZodType<ConditionalExpressionType> = z
+  .lazy(() =>
+    z
+      .object({
+        type: z.literal('conditional').openapi({ type: 'string' }),
+        condition: ExpressionSchema,
+        consequent: ExpressionSchema,
+        alternate: ExpressionSchema,
+      })
+      .openapi({
+        type: 'object',
+        required: ['type', 'condition', 'consequent', 'alternate'],
+        properties: {
+          type: { type: 'string', const: 'conditional' },
+          condition: { $ref: '#/components/schemas/Expression' },
+          consequent: { $ref: '#/components/schemas/Expression' },
+          alternate: { $ref: '#/components/schemas/Expression' },
+        },
+      }),
+  )
   .openapi('ConditionalExpression')
 
-const FunctionCallExpressionSchema = z
-  .object({
-    type: z.literal('call').openapi({ type: 'string' }),
-    callee: ExpressionSchema,
-    arguments: z
-      .array(ExpressionSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Expression' } }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'callee', 'arguments'],
-    properties: {
-      type: { type: 'string', const: 'call' },
-      callee: { $ref: '#/components/schemas/Expression' },
-      arguments: { type: 'array', items: { $ref: '#/components/schemas/Expression' } },
-    },
-  })
+const FunctionCallExpressionSchema: z.ZodType<FunctionCallExpressionType> = z
+  .lazy(() =>
+    z
+      .object({
+        type: z.literal('call').openapi({ type: 'string' }),
+        callee: ExpressionSchema,
+        arguments: z
+          .array(ExpressionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Expression' } }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['type', 'callee', 'arguments'],
+        properties: {
+          type: { type: 'string', const: 'call' },
+          callee: { $ref: '#/components/schemas/Expression' },
+          arguments: { type: 'array', items: { $ref: '#/components/schemas/Expression' } },
+        },
+      }),
+  )
   .openapi('FunctionCallExpression')
+
+type ExpressionType =
+  | z.infer<typeof LiteralExpressionSchema>
+  | z.infer<typeof BinaryExpressionSchema>
+  | z.infer<typeof UnaryExpressionSchema>
+  | z.infer<typeof ConditionalExpressionSchema>
+  | z.infer<typeof FunctionCallExpressionSchema>
 
 const ExpressionSchema: z.ZodType<ExpressionType> = z
   .lazy(() =>
@@ -575,33 +749,66 @@ const ExpressionSchema: z.ZodType<ExpressionType> = z
   )
   .openapi('Expression')
 
-const BinaryExpressionSchema = z
-  .object({
-    type: z.literal('binary').openapi({ type: 'string' }),
-    operator: z
-      .enum(['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'])
-      .openapi({ type: 'string', enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'] }),
-    left: ExpressionSchema,
-    right: ExpressionSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'operator', 'left', 'right'],
-    properties: {
-      type: { type: 'string', const: 'binary' },
-      operator: { type: 'string', enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'] },
-      left: { $ref: '#/components/schemas/Expression' },
-      right: { $ref: '#/components/schemas/Expression' },
-    },
-  })
-  .openapi('BinaryExpression')
+type BinaryExpressionType = {
+  type: 'binary'
+  operator: '+' | '-' | '*' | '/' | '==' | '!=' | '<' | '>' | '&&' | '||'
+  left: z.infer<typeof ExpressionSchema>
+  right: z.infer<typeof ExpressionSchema>
+}
 
-type ExpressionType =
-  | z.infer<typeof LiteralExpressionSchema>
-  | z.infer<typeof BinaryExpressionSchema>
-  | z.infer<typeof UnaryExpressionSchema>
-  | z.infer<typeof ConditionalExpressionSchema>
-  | z.infer<typeof FunctionCallExpressionSchema>
+type UnaryExpressionType = {
+  type: 'unary'
+  operator: '-' | '!' | '~'
+  operand: z.infer<typeof ExpressionSchema>
+}
+
+type ConditionalExpressionType = {
+  type: 'conditional'
+  condition: z.infer<typeof ExpressionSchema>
+  consequent: z.infer<typeof ExpressionSchema>
+  alternate: z.infer<typeof ExpressionSchema>
+}
+
+type FunctionCallExpressionType = {
+  type: 'call'
+  callee: z.infer<typeof ExpressionSchema>
+  arguments: z.infer<typeof ExpressionSchema>[]
+}
+
+const CategorizedProductSchema: z.ZodType<CategorizedProductType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().openapi({ type: 'string' }),
+        name: z.string().openapi({ type: 'string' }),
+        primaryCategory: CategorySchema,
+        secondaryCategories: z
+          .array(CategorySchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          primaryCategory: { $ref: '#/components/schemas/Category' },
+          secondaryCategories: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
+        },
+      }),
+  )
+  .openapi('CategorizedProduct')
+
+type CategoryType = {
+  id: string
+  name: string
+  parent?: CategoryType
+  children?: CategoryType[]
+  ancestors?: CategoryType[]
+  descendants?: CategoryType[]
+  relatedCategories?: Record<string, CategoryType>
+  products?: z.infer<typeof CategorizedProductSchema>[]
+}
 
 const CategorySchema: z.ZodType<CategoryType> = z
   .lazy(() =>
@@ -653,37 +860,39 @@ const CategorySchema: z.ZodType<CategoryType> = z
   )
   .openapi('Category')
 
-const CategorizedProductSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
-    primaryCategory: CategorySchema,
-    secondaryCategories: z
-      .array(CategorySchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      primaryCategory: { $ref: '#/components/schemas/Category' },
-      secondaryCategories: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
-    },
-  })
-  .openapi('CategorizedProduct')
-
-type CategoryType = {
-  id: string
-  name: string
-  parent?: CategoryType
-  children?: CategoryType[]
-  ancestors?: CategoryType[]
-  descendants?: CategoryType[]
-  relatedCategories?: Record<string, CategoryType>
-  products?: z.infer<typeof CategorizedProductSchema>[]
+type CategorizedProductType = {
+  id?: string
+  name?: string
+  primaryCategory?: z.infer<typeof CategorySchema>
+  secondaryCategories?: z.infer<typeof CategorySchema>[]
 }
+
+const StateTransitionSchema: z.ZodType<StateTransitionType> = z
+  .lazy(() =>
+    z
+      .object({
+        event: z.string().openapi({ type: 'string' }),
+        sourceState: WorkflowStateSchema.optional(),
+        targetState: WorkflowStateSchema,
+        guard: TransitionGuardSchema.optional(),
+        actions: z
+          .array(WorkflowActionSchema)
+          .optional()
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['event', 'targetState'],
+        properties: {
+          event: { type: 'string' },
+          sourceState: { $ref: '#/components/schemas/WorkflowState' },
+          targetState: { $ref: '#/components/schemas/WorkflowState' },
+          guard: { $ref: '#/components/schemas/TransitionGuard' },
+          actions: { type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } },
+        },
+      }),
+  )
+  .openapi('StateTransition')
 
 const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
   .lazy(() =>
@@ -707,6 +916,17 @@ const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
       }),
   )
   .openapi('WorkflowAction')
+
+type WorkflowStateType = {
+  id: string
+  name: string
+  description?: string
+  transitions?: z.infer<typeof StateTransitionSchema>[]
+  entryActions?: z.infer<typeof WorkflowActionSchema>[]
+  exitActions?: z.infer<typeof WorkflowActionSchema>[]
+  parentState?: WorkflowStateType
+  childStates?: WorkflowStateType[]
+}
 
 const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
   .lazy(() =>
@@ -750,59 +970,40 @@ const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
   )
   .openapi('WorkflowState')
 
-const TransitionGuardSchema = z
-  .object({
-    condition: z.string().openapi({ type: 'string' }),
-    relatedTransitions: z
-      .array(StateTransitionSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/StateTransition' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      condition: { type: 'string' },
-      relatedTransitions: {
-        type: 'array',
-        items: { $ref: '#/components/schemas/StateTransition' },
-      },
-    },
-  })
+const TransitionGuardSchema: z.ZodType<TransitionGuardType> = z
+  .lazy(() =>
+    z
+      .object({
+        condition: z.string().openapi({ type: 'string' }),
+        relatedTransitions: z
+          .array(StateTransitionSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/StateTransition' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          condition: { type: 'string' },
+          relatedTransitions: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/StateTransition' },
+          },
+        },
+      }),
+  )
   .openapi('TransitionGuard')
 
-const StateTransitionSchema = z
-  .object({
-    event: z.string().openapi({ type: 'string' }),
-    sourceState: WorkflowStateSchema.optional(),
-    targetState: WorkflowStateSchema,
-    guard: TransitionGuardSchema.optional(),
-    actions: z
-      .array(WorkflowActionSchema)
-      .optional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['event', 'targetState'],
-    properties: {
-      event: { type: 'string' },
-      sourceState: { $ref: '#/components/schemas/WorkflowState' },
-      targetState: { $ref: '#/components/schemas/WorkflowState' },
-      guard: { $ref: '#/components/schemas/TransitionGuard' },
-      actions: { type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } },
-    },
-  })
-  .openapi('StateTransition')
+type StateTransitionType = {
+  event: string
+  sourceState?: z.infer<typeof WorkflowStateSchema>
+  targetState: z.infer<typeof WorkflowStateSchema>
+  guard?: z.infer<typeof TransitionGuardSchema>
+  actions?: z.infer<typeof WorkflowActionSchema>[]
+}
 
-type WorkflowStateType = {
-  id: string
-  name: string
-  description?: string
-  transitions?: z.infer<typeof StateTransitionSchema>[]
-  entryActions?: z.infer<typeof WorkflowActionSchema>[]
-  exitActions?: z.infer<typeof WorkflowActionSchema>[]
-  parentState?: WorkflowStateType
-  childStates?: WorkflowStateType[]
+type TransitionGuardType = {
+  condition?: string
+  relatedTransitions?: z.infer<typeof StateTransitionSchema>[]
 }
 
 type WorkflowActionType = {
@@ -851,16 +1052,21 @@ const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   )
   .openapi('ExtendedEntity')
 
-const BaseEntitySchema = z
-  .object({ id: z.string().openapi({ type: 'string' }), relatedEntity: ExtendedEntitySchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      relatedEntity: { $ref: '#/components/schemas/ExtendedEntity' },
-    },
-  })
+type BaseEntityType = { id?: string; relatedEntity?: z.infer<typeof ExtendedEntitySchema> }
+
+const BaseEntitySchema: z.ZodType<BaseEntityType> = z
+  .lazy(() =>
+    z
+      .object({ id: z.string().openapi({ type: 'string' }), relatedEntity: ExtendedEntitySchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          relatedEntity: { $ref: '#/components/schemas/ExtendedEntity' },
+        },
+      }),
+  )
   .openapi('BaseEntity')
 
 type ExtendedEntityType = z.infer<typeof BaseEntitySchema> & {

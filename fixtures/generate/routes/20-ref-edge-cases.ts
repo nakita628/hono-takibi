@@ -1,121 +1,186 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const FinalLevelSchema = z
-  .object({ value: z.string().openapi({ type: 'string' }), parent: Level1Schema.optional() })
-  .openapi({
-    type: 'object',
-    required: ['value'],
-    properties: { value: { type: 'string' }, parent: { $ref: '#/components/schemas/Level1' } },
-  })
-  .openapi('FinalLevel')
-
-const Level12Schema = z
-  .object({ data: FinalLevelSchema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/FinalLevel' }, meta: { type: 'string' } },
-  })
-  .openapi('Level12')
-
-const Level11Schema = z
-  .object({ data: Level12Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level12' }, meta: { type: 'string' } },
-  })
-  .openapi('Level11')
-
-const Level10Schema = z
-  .object({ data: Level11Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level11' }, meta: { type: 'string' } },
-  })
-  .openapi('Level10')
-
-const Level9Schema = z
-  .object({ data: Level10Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level10' }, meta: { type: 'string' } },
-  })
-  .openapi('Level9')
-
-const Level8Schema = z
-  .object({ data: Level9Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level9' }, meta: { type: 'string' } },
-  })
-  .openapi('Level8')
-
-const Level7Schema = z
-  .object({ data: Level8Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level8' }, meta: { type: 'string' } },
-  })
-  .openapi('Level7')
-
-const Level6Schema = z
-  .object({ data: Level7Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level7' }, meta: { type: 'string' } },
-  })
-  .openapi('Level6')
-
-const Level5Schema = z
-  .object({ data: Level6Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level6' }, meta: { type: 'string' } },
-  })
-  .openapi('Level5')
-
-const Level4Schema = z
-  .object({ data: Level5Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level5' }, meta: { type: 'string' } },
-  })
-  .openapi('Level4')
-
-const Level3Schema = z
-  .object({ data: Level4Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level4' }, meta: { type: 'string' } },
-  })
-  .openapi('Level3')
-
-const Level2Schema = z
-  .object({ data: Level3Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level3' }, meta: { type: 'string' } },
-  })
+const Level2Schema: z.ZodType<Level2Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level3Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level3' }, meta: { type: 'string' } },
+      }),
+  )
   .openapi('Level2')
 
-const Level1Schema = z
-  .object({ data: Level2Schema, meta: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { data: { $ref: '#/components/schemas/Level2' }, meta: { type: 'string' } },
-  })
+type Level1Type = { data?: z.infer<typeof Level2Schema>; meta?: string }
+
+const Level1Schema: z.ZodType<Level1Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level2Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level2' }, meta: { type: 'string' } },
+      }),
+  )
   .openapi('Level1')
+
+const Level3Schema: z.ZodType<Level3Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level4Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level4' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level3')
+
+type Level2Type = { data?: z.infer<typeof Level3Schema>; meta?: string }
+
+const Level4Schema: z.ZodType<Level4Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level5Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level5' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level4')
+
+type Level3Type = { data?: z.infer<typeof Level4Schema>; meta?: string }
+
+const Level5Schema: z.ZodType<Level5Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level6Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level6' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level5')
+
+type Level4Type = { data?: z.infer<typeof Level5Schema>; meta?: string }
+
+const Level6Schema: z.ZodType<Level6Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level7Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level7' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level6')
+
+type Level5Type = { data?: z.infer<typeof Level6Schema>; meta?: string }
+
+const Level7Schema: z.ZodType<Level7Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level8Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level8' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level7')
+
+type Level6Type = { data?: z.infer<typeof Level7Schema>; meta?: string }
+
+const Level8Schema: z.ZodType<Level8Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level9Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level9' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level8')
+
+type Level7Type = { data?: z.infer<typeof Level8Schema>; meta?: string }
+
+const Level9Schema: z.ZodType<Level9Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level10Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level10' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level9')
+
+type Level8Type = { data?: z.infer<typeof Level9Schema>; meta?: string }
+
+const Level10Schema: z.ZodType<Level10Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level11Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level11' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level10')
+
+type Level9Type = { data?: z.infer<typeof Level10Schema>; meta?: string }
+
+const Level11Schema: z.ZodType<Level11Type> = z
+  .lazy(() =>
+    z
+      .object({ data: Level12Schema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/Level12' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level11')
+
+type Level10Type = { data?: z.infer<typeof Level11Schema>; meta?: string }
+
+const Level12Schema: z.ZodType<Level12Type> = z
+  .lazy(() =>
+    z
+      .object({ data: FinalLevelSchema, meta: z.string().openapi({ type: 'string' }) })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { data: { $ref: '#/components/schemas/FinalLevel' }, meta: { type: 'string' } },
+      }),
+  )
+  .openapi('Level12')
+
+type Level11Type = { data?: z.infer<typeof Level12Schema>; meta?: string }
+
+const FinalLevelSchema: z.ZodType<FinalLevelType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.string().openapi({ type: 'string' }), parent: Level1Schema.optional() })
+      .openapi({
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'string' }, parent: { $ref: '#/components/schemas/Level1' } },
+      }),
+  )
+  .openapi('FinalLevel')
+
+type Level12Type = { data?: z.infer<typeof FinalLevelSchema>; meta?: string }
+
+type FinalLevelType = { value: string; parent?: z.infer<typeof Level1Schema> }
 
 const EmptyObjectSchema = z.object({}).openapi({ type: 'object' }).openapi('EmptyObject')
 
@@ -604,6 +669,32 @@ const ConditionalSchema = z
   })
   .openapi('ConditionalSchema')
 
+const RecursiveBSchema: z.ZodType<RecursiveBType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().openapi({ type: 'string' }),
+        refToC: RecursiveCSchema,
+        refToA: RecursiveASchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          refToC: { $ref: '#/components/schemas/RecursiveC' },
+          refToA: { $ref: '#/components/schemas/RecursiveA' },
+        },
+      }),
+  )
+  .openapi('RecursiveB')
+
+type RecursiveAType = {
+  name?: string
+  refToB?: z.infer<typeof RecursiveBSchema>
+  selfRef?: RecursiveAType
+}
+
 const RecursiveASchema: z.ZodType<RecursiveAType> = z
   .lazy(() =>
     z
@@ -624,44 +715,36 @@ const RecursiveASchema: z.ZodType<RecursiveAType> = z
   )
   .openapi('RecursiveA')
 
-const RecursiveCSchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    refToA: RecursiveASchema,
-    refToB: RecursiveBSchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      refToA: { $ref: '#/components/schemas/RecursiveA' },
-      refToB: { $ref: '#/components/schemas/RecursiveB' },
-    },
-  })
+const RecursiveCSchema: z.ZodType<RecursiveCType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().openapi({ type: 'string' }),
+        refToA: RecursiveASchema,
+        refToB: RecursiveBSchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          refToA: { $ref: '#/components/schemas/RecursiveA' },
+          refToB: { $ref: '#/components/schemas/RecursiveB' },
+        },
+      }),
+  )
   .openapi('RecursiveC')
 
-const RecursiveBSchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    refToC: RecursiveCSchema,
-    refToA: RecursiveASchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      refToC: { $ref: '#/components/schemas/RecursiveC' },
-      refToA: { $ref: '#/components/schemas/RecursiveA' },
-    },
-  })
-  .openapi('RecursiveB')
-
-type RecursiveAType = {
+type RecursiveBType = {
   name?: string
+  refToC?: z.infer<typeof RecursiveCSchema>
+  refToA?: z.infer<typeof RecursiveASchema>
+}
+
+type RecursiveCType = {
+  name?: string
+  refToA?: z.infer<typeof RecursiveASchema>
   refToB?: z.infer<typeof RecursiveBSchema>
-  selfRef?: RecursiveAType
 }
 
 const NotExampleSchema = z

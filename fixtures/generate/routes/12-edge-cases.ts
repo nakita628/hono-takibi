@@ -284,31 +284,41 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
-const CompanySchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    employees: z
-      .array(PersonSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-    },
-  })
+const CompanySchema: z.ZodType<CompanyType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().openapi({ type: 'string' }),
+        employees: z
+          .array(PersonSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
+        },
+      }),
+  )
   .openapi('Company')
 
-const PersonSchema = z
-  .object({ name: z.string().openapi({ type: 'string' }), company: CompanySchema })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
-  })
+type PersonType = { name?: string; company?: z.infer<typeof CompanySchema> }
+
+const PersonSchema: z.ZodType<PersonType> = z
+  .lazy(() =>
+    z
+      .object({ name: z.string().openapi({ type: 'string' }), company: CompanySchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
+      }),
+  )
   .openapi('Person')
+
+type CompanyType = { name?: string; employees?: z.infer<typeof PersonSchema>[] }
 
 const DeepNestedSchema = z
   .object({

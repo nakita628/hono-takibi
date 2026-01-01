@@ -72,18 +72,39 @@ function parseDeclarations(code: string): readonly Declaration[] {
 }
 
 /**
+ * Checks if a variable declaration is wrapped with z.lazy().
+ *
+ * @param decl - The variable declaration node.
+ * @returns True if the declaration is wrapped with z.lazy().
+ */
+function isLazyWrapped(decl: ts.VariableDeclaration): boolean {
+  if (!decl.initializer) return false
+  const initText = decl.initializer.getFullText().trimStart()
+  return initText.startsWith('z.lazy(') || initText.startsWith('z.lazy (')
+}
+
+/**
  * Extracts references from a variable declaration.
  *
  * @param decl - The variable declaration node.
  * @param selfName - The name of the current declaration (to exclude self-references).
  * @param declaredNames - Set of all declared names in the code.
  * @returns An array of referenced names.
+ *
+ * @remarks
+ * - If the declaration is wrapped with z.lazy(), returns empty array since
+ *   z.lazy() allows forward references (the initializer is evaluated lazily).
  */
 function extractReferences(
   decl: ts.VariableDeclaration,
   selfName: string,
   declaredNames: ReadonlySet<string>,
 ): readonly string[] {
+  // z.lazy() wrapped declarations can forward-reference, so no dependencies
+  if (isLazyWrapped(decl)) {
+    return []
+  }
+
   const refs = new Set<string>()
 
   const visit = (node: ts.Node): void => {

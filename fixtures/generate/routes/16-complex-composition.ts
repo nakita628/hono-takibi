@@ -113,204 +113,216 @@ const ExtendedEntitySchema = z
   })
   .openapi('ExtendedEntity')
 
-const ParticipantSchema = z
-  .intersection(
-    IdentifiableSchema,
+const TextMessageSchema: z.ZodType<TextMessageType> = z
+  .lazy(() =>
     z
-      .object({
-        name: z.string().openapi({ type: 'string' }),
-        avatar: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-      })
+      .intersection(
+        BaseMessageSchema,
+        z
+          .object({
+            type: z.literal('text').optional().openapi({ type: 'string' }),
+            content: z.string().openapi({ type: 'string' }),
+            formatting: TextFormattingSchema.optional(),
+          })
+          .openapi({
+            type: 'object',
+            required: ['content'],
+            properties: {
+              type: { type: 'string', const: 'text' },
+              content: { type: 'string' },
+              formatting: { $ref: '#/components/schemas/TextFormatting' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        required: ['name'],
-        properties: { name: { type: 'string' }, avatar: { type: 'string', format: 'uri' } },
+        allOf: [
+          { $ref: '#/components/schemas/BaseMessage' },
+          {
+            type: 'object',
+            required: ['content'],
+            properties: {
+              type: { type: 'string', const: 'text' },
+              content: { type: 'string' },
+              formatting: { $ref: '#/components/schemas/TextFormatting' },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Identifiable' },
-      {
-        type: 'object',
-        required: ['name'],
-        properties: { name: { type: 'string' }, avatar: { type: 'string', format: 'uri' } },
-      },
-    ],
-  })
-  .openapi('Participant')
+  .openapi('TextMessage')
 
-const MediaContentSchema = z
-  .object({
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    mimeType: z.string().openapi({ type: 'string' }),
-    size: z.int().openapi({ type: 'integer' }),
-    checksum: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['url', 'mimeType', 'size'],
-    properties: {
-      url: { type: 'string', format: 'uri' },
-      mimeType: { type: 'string' },
-      size: { type: 'integer' },
-      checksum: { type: 'string' },
-    },
-  })
-  .openapi('MediaContent')
-
-const DimensionsSchema = z
-  .object({
-    width: z.int().openapi({ type: 'integer' }),
-    height: z.int().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['width', 'height'],
-    properties: { width: { type: 'integer' }, height: { type: 'integer' } },
-  })
-  .openapi('Dimensions')
-
-const ImageMessageSchema = BaseMessageSchema.and(MediaContentSchema)
-  .and(
-    z
-      .object({
-        type: z.literal('image').openapi({ type: 'string' }),
-        dimensions: DimensionsSchema,
-        alt: z.string().openapi({ type: 'string' }),
-      })
-      .partial()
+const ImageMessageSchema: z.ZodType<ImageMessageType> = z
+  .lazy(() =>
+    BaseMessageSchema.and(MediaContentSchema)
+      .and(
+        z
+          .object({
+            type: z.literal('image').openapi({ type: 'string' }),
+            dimensions: DimensionsSchema,
+            alt: z.string().openapi({ type: 'string' }),
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'image' },
+              dimensions: { $ref: '#/components/schemas/Dimensions' },
+              alt: { type: 'string' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'image' },
-          dimensions: { $ref: '#/components/schemas/Dimensions' },
-          alt: { type: 'string' },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseMessage' },
+          { $ref: '#/components/schemas/MediaContent' },
+          {
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'image' },
+              dimensions: { $ref: '#/components/schemas/Dimensions' },
+              alt: { type: 'string' },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseMessage' },
-      { $ref: '#/components/schemas/MediaContent' },
-      {
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'image' },
-          dimensions: { $ref: '#/components/schemas/Dimensions' },
-          alt: { type: 'string' },
-        },
-      },
-    ],
-  })
   .openapi('ImageMessage')
 
-const VideoMessageSchema = BaseMessageSchema.and(MediaContentSchema)
-  .and(
-    z
-      .object({
-        type: z.literal('video').openapi({ type: 'string' }),
-        duration: z.int().openapi({ type: 'integer' }),
-        thumbnail: ImageMessageSchema,
-      })
-      .partial()
+const VideoMessageSchema: z.ZodType<VideoMessageType> = z
+  .lazy(() =>
+    BaseMessageSchema.and(MediaContentSchema)
+      .and(
+        z
+          .object({
+            type: z.literal('video').openapi({ type: 'string' }),
+            duration: z.int().openapi({ type: 'integer' }),
+            thumbnail: ImageMessageSchema,
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'video' },
+              duration: { type: 'integer' },
+              thumbnail: { $ref: '#/components/schemas/ImageMessage' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'video' },
-          duration: { type: 'integer' },
-          thumbnail: { $ref: '#/components/schemas/ImageMessage' },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseMessage' },
+          { $ref: '#/components/schemas/MediaContent' },
+          {
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'video' },
+              duration: { type: 'integer' },
+              thumbnail: { $ref: '#/components/schemas/ImageMessage' },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseMessage' },
-      { $ref: '#/components/schemas/MediaContent' },
-      {
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'video' },
-          duration: { type: 'integer' },
-          thumbnail: { $ref: '#/components/schemas/ImageMessage' },
-        },
-      },
-    ],
-  })
   .openapi('VideoMessage')
 
-const DocumentMessageSchema = BaseMessageSchema.and(MediaContentSchema)
-  .and(
-    z
-      .object({
-        type: z.literal('document').openapi({ type: 'string' }),
-        pageCount: z.int().openapi({ type: 'integer' }),
-        preview: ImageMessageSchema,
-      })
-      .partial()
+const DocumentMessageSchema: z.ZodType<DocumentMessageType> = z
+  .lazy(() =>
+    BaseMessageSchema.and(MediaContentSchema)
+      .and(
+        z
+          .object({
+            type: z.literal('document').openapi({ type: 'string' }),
+            pageCount: z.int().openapi({ type: 'integer' }),
+            preview: ImageMessageSchema,
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'document' },
+              pageCount: { type: 'integer' },
+              preview: { $ref: '#/components/schemas/ImageMessage' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'document' },
-          pageCount: { type: 'integer' },
-          preview: { $ref: '#/components/schemas/ImageMessage' },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseMessage' },
+          { $ref: '#/components/schemas/MediaContent' },
+          {
+            type: 'object',
+            properties: {
+              type: { type: 'string', const: 'document' },
+              pageCount: { type: 'integer' },
+              preview: { $ref: '#/components/schemas/ImageMessage' },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseMessage' },
-      { $ref: '#/components/schemas/MediaContent' },
-      {
-        type: 'object',
-        properties: {
-          type: { type: 'string', const: 'document' },
-          pageCount: { type: 'integer' },
-          preview: { $ref: '#/components/schemas/ImageMessage' },
-        },
-      },
-    ],
-  })
   .openapi('DocumentMessage')
 
-const CompositeMessageSchema = z
-  .intersection(
-    BaseMessageSchema,
+const CompositeMessageSchema: z.ZodType<CompositeMessageType> = z
+  .lazy(() =>
     z
-      .object({
-        type: z.literal('composite').optional().openapi({ type: 'string' }),
-        parts: z
-          .array(MessageSchema)
-          .min(2)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Message' }, minItems: 2 }),
-      })
+      .intersection(
+        BaseMessageSchema,
+        z
+          .object({
+            type: z.literal('composite').optional().openapi({ type: 'string' }),
+            parts: z
+              .array(MessageSchema)
+              .min(2)
+              .openapi({
+                type: 'array',
+                items: { $ref: '#/components/schemas/Message' },
+                minItems: 2,
+              }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['parts'],
+            properties: {
+              type: { type: 'string', const: 'composite' },
+              parts: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Message' },
+                minItems: 2,
+              },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        required: ['parts'],
-        properties: {
-          type: { type: 'string', const: 'composite' },
-          parts: { type: 'array', items: { $ref: '#/components/schemas/Message' }, minItems: 2 },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseMessage' },
+          {
+            type: 'object',
+            required: ['parts'],
+            properties: {
+              type: { type: 'string', const: 'composite' },
+              parts: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Message' },
+                minItems: 2,
+              },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseMessage' },
-      {
-        type: 'object',
-        required: ['parts'],
-        properties: {
-          type: { type: 'string', const: 'composite' },
-          parts: { type: 'array', items: { $ref: '#/components/schemas/Message' }, minItems: 2 },
-        },
-      },
-    ],
-  })
   .openapi('CompositeMessage')
+
+type MessageType =
+  | z.infer<typeof TextMessageSchema>
+  | z.infer<typeof ImageMessageSchema>
+  | z.infer<typeof VideoMessageSchema>
+  | z.infer<typeof DocumentMessageSchema>
+  | z.infer<typeof CompositeMessageSchema>
 
 const MessageSchema: z.ZodType<MessageType> = z
   .lazy(() =>
@@ -345,63 +357,109 @@ const MessageSchema: z.ZodType<MessageType> = z
   )
   .openapi('Message')
 
-const MessageMetadataSchema = z
-  .object({
-    priority: z
-      .enum(['low', 'normal', 'high', 'urgent'])
-      .openapi({ type: 'string', enum: ['low', 'normal', 'high', 'urgent'] }),
-    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    replyTo: MessageSchema,
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      priority: { type: 'string', enum: ['low', 'normal', 'high', 'urgent'] },
-      expiresAt: { type: 'string', format: 'date-time' },
-      replyTo: { $ref: '#/components/schemas/Message' },
-    },
-  })
-  .openapi('MessageMetadata')
-
-const BaseMessageSchema = z
+const ParticipantSchema = z
   .intersection(
-    BaseEntitySchema,
+    IdentifiableSchema,
     z
       .object({
-        type: z.string().openapi({ type: 'string' }),
-        sender: ParticipantSchema,
-        recipient: ParticipantSchema,
-        metadata: MessageMetadataSchema.optional(),
+        name: z.string().openapi({ type: 'string' }),
+        avatar: z.url().optional().openapi({ type: 'string', format: 'uri' }),
       })
       .openapi({
         type: 'object',
-        required: ['type', 'sender', 'recipient'],
-        properties: {
-          type: { type: 'string' },
-          sender: { $ref: '#/components/schemas/Participant' },
-          recipient: { $ref: '#/components/schemas/Participant' },
-          metadata: { $ref: '#/components/schemas/MessageMetadata' },
-        },
+        required: ['name'],
+        properties: { name: { type: 'string' }, avatar: { type: 'string', format: 'uri' } },
       }),
   )
   .optional()
   .openapi({
     allOf: [
-      { $ref: '#/components/schemas/BaseEntity' },
+      { $ref: '#/components/schemas/Identifiable' },
       {
         type: 'object',
-        required: ['type', 'sender', 'recipient'],
-        properties: {
-          type: { type: 'string' },
-          sender: { $ref: '#/components/schemas/Participant' },
-          recipient: { $ref: '#/components/schemas/Participant' },
-          metadata: { $ref: '#/components/schemas/MessageMetadata' },
-        },
+        required: ['name'],
+        properties: { name: { type: 'string' }, avatar: { type: 'string', format: 'uri' } },
       },
     ],
   })
+  .openapi('Participant')
+
+const MessageMetadataSchema: z.ZodType<MessageMetadataType> = z
+  .lazy(() =>
+    z
+      .object({
+        priority: z
+          .enum(['low', 'normal', 'high', 'urgent'])
+          .openapi({ type: 'string', enum: ['low', 'normal', 'high', 'urgent'] }),
+        expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+        replyTo: MessageSchema,
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          priority: { type: 'string', enum: ['low', 'normal', 'high', 'urgent'] },
+          expiresAt: { type: 'string', format: 'date-time' },
+          replyTo: { $ref: '#/components/schemas/Message' },
+        },
+      }),
+  )
+  .openapi('MessageMetadata')
+
+type BaseMessageType = z.infer<typeof BaseEntitySchema> & {
+  type: string
+  sender: z.infer<typeof ParticipantSchema>
+  recipient: z.infer<typeof ParticipantSchema>
+  metadata?: z.infer<typeof MessageMetadataSchema>
+}
+
+const BaseMessageSchema: z.ZodType<BaseMessageType> = z
+  .lazy(() =>
+    z
+      .intersection(
+        BaseEntitySchema,
+        z
+          .object({
+            type: z.string().openapi({ type: 'string' }),
+            sender: ParticipantSchema,
+            recipient: ParticipantSchema,
+            metadata: MessageMetadataSchema.optional(),
+          })
+          .openapi({
+            type: 'object',
+            required: ['type', 'sender', 'recipient'],
+            properties: {
+              type: { type: 'string' },
+              sender: { $ref: '#/components/schemas/Participant' },
+              recipient: { $ref: '#/components/schemas/Participant' },
+              metadata: { $ref: '#/components/schemas/MessageMetadata' },
+            },
+          }),
+      )
+      .optional()
+      .openapi({
+        allOf: [
+          { $ref: '#/components/schemas/BaseEntity' },
+          {
+            type: 'object',
+            required: ['type', 'sender', 'recipient'],
+            properties: {
+              type: { type: 'string' },
+              sender: { $ref: '#/components/schemas/Participant' },
+              recipient: { $ref: '#/components/schemas/Participant' },
+              metadata: { $ref: '#/components/schemas/MessageMetadata' },
+            },
+          },
+        ],
+      }),
+  )
   .openapi('BaseMessage')
+
+type MessageMetadataType = {
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  expiresAt?: string
+  replyTo?: z.infer<typeof MessageSchema>
+}
 
 const TextRangeSchema = z
   .object({
@@ -458,48 +516,68 @@ const TextFormattingSchema = z
   })
   .openapi('TextFormatting')
 
-const TextMessageSchema = z
-  .intersection(
-    BaseMessageSchema,
-    z
-      .object({
-        type: z.literal('text').optional().openapi({ type: 'string' }),
-        content: z.string().openapi({ type: 'string' }),
-        formatting: TextFormattingSchema.optional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['content'],
-        properties: {
-          type: { type: 'string', const: 'text' },
-          content: { type: 'string' },
-          formatting: { $ref: '#/components/schemas/TextFormatting' },
-        },
-      }),
-  )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseMessage' },
-      {
-        type: 'object',
-        required: ['content'],
-        properties: {
-          type: { type: 'string', const: 'text' },
-          content: { type: 'string' },
-          formatting: { $ref: '#/components/schemas/TextFormatting' },
-        },
-      },
-    ],
-  })
-  .openapi('TextMessage')
+type TextMessageType = z.infer<typeof BaseMessageSchema> & {
+  type?: 'text'
+  content: string
+  formatting?: z.infer<typeof TextFormattingSchema>
+}
 
-type MessageType =
-  | z.infer<typeof TextMessageSchema>
-  | z.infer<typeof ImageMessageSchema>
-  | z.infer<typeof VideoMessageSchema>
-  | z.infer<typeof DocumentMessageSchema>
-  | z.infer<typeof CompositeMessageSchema>
+const MediaContentSchema = z
+  .object({
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    mimeType: z.string().openapi({ type: 'string' }),
+    size: z.int().openapi({ type: 'integer' }),
+    checksum: z.string().optional().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['url', 'mimeType', 'size'],
+    properties: {
+      url: { type: 'string', format: 'uri' },
+      mimeType: { type: 'string' },
+      size: { type: 'integer' },
+      checksum: { type: 'string' },
+    },
+  })
+  .openapi('MediaContent')
+
+const DimensionsSchema = z
+  .object({
+    width: z.int().openapi({ type: 'integer' }),
+    height: z.int().openapi({ type: 'integer' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['width', 'height'],
+    properties: { width: { type: 'integer' }, height: { type: 'integer' } },
+  })
+  .openapi('Dimensions')
+
+type ImageMessageType = z.infer<typeof BaseMessageSchema> &
+  z.infer<typeof MediaContentSchema> & {
+    type?: 'image'
+    dimensions?: z.infer<typeof DimensionsSchema>
+    alt?: string
+  }
+
+type VideoMessageType = z.infer<typeof BaseMessageSchema> &
+  z.infer<typeof MediaContentSchema> & {
+    type?: 'video'
+    duration?: number
+    thumbnail?: z.infer<typeof ImageMessageSchema>
+  }
+
+type DocumentMessageType = z.infer<typeof BaseMessageSchema> &
+  z.infer<typeof MediaContentSchema> & {
+    type?: 'document'
+    pageCount?: number
+    preview?: z.infer<typeof ImageMessageSchema>
+  }
+
+type CompositeMessageType = z.infer<typeof BaseMessageSchema> & {
+  type?: 'composite'
+  parts: z.infer<typeof MessageSchema>[]
+}
 
 const DeliveryStatusSchema = z
   .object({
@@ -562,6 +640,107 @@ const MessageResponseSchema = z
     ],
   })
   .openapi('MessageResponse')
+
+const EventPayloadSchema: z.ZodType<EventPayloadType> = z
+  .lazy(() =>
+    z
+      .union([
+        UserEventPayloadSchema,
+        OrderEventPayloadSchema,
+        SystemEventPayloadSchema,
+        CustomEventPayloadSchema,
+      ])
+      .optional()
+      .openapi({
+        anyOf: [
+          { $ref: '#/components/schemas/UserEventPayload' },
+          { $ref: '#/components/schemas/OrderEventPayload' },
+          { $ref: '#/components/schemas/SystemEventPayload' },
+          { $ref: '#/components/schemas/CustomEventPayload' },
+        ],
+      }),
+  )
+  .openapi('EventPayload')
+
+const WebContextSchema = z
+  .object({
+    userAgent: z.string().openapi({ type: 'string' }),
+    referrer: z.string().openapi({ type: 'string' }),
+    sessionId: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      userAgent: { type: 'string' },
+      referrer: { type: 'string' },
+      sessionId: { type: 'string' },
+    },
+  })
+  .openapi('WebContext')
+
+const MobileContextSchema = z
+  .object({
+    deviceId: z.string().openapi({ type: 'string' }),
+    platform: z.enum(['ios', 'android']).openapi({ type: 'string', enum: ['ios', 'android'] }),
+    appVersion: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      deviceId: { type: 'string' },
+      platform: { type: 'string', enum: ['ios', 'android'] },
+      appVersion: { type: 'string' },
+    },
+  })
+  .openapi('MobileContext')
+
+const ApiContextSchema = z
+  .object({
+    apiKey: z.string().openapi({ type: 'string' }),
+    clientId: z.string().openapi({ type: 'string' }),
+    ipAddress: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      apiKey: { type: 'string' },
+      clientId: { type: 'string' },
+      ipAddress: { type: 'string' },
+    },
+  })
+  .openapi('ApiContext')
+
+const EventContextSchema = z
+  .union([WebContextSchema, MobileContextSchema, ApiContextSchema])
+  .optional()
+  .openapi({
+    anyOf: [
+      { $ref: '#/components/schemas/WebContext' },
+      { $ref: '#/components/schemas/MobileContext' },
+      { $ref: '#/components/schemas/ApiContext' },
+    ],
+  })
+  .openapi('EventContext')
+
+const EventSchema = z
+  .object({
+    eventType: z.string().openapi({ type: 'string' }),
+    payload: EventPayloadSchema,
+    context: EventContextSchema.optional(),
+  })
+  .openapi({
+    type: 'object',
+    required: ['eventType', 'payload'],
+    properties: {
+      eventType: { type: 'string' },
+      payload: { $ref: '#/components/schemas/EventPayload' },
+      context: { $ref: '#/components/schemas/EventContext' },
+    },
+  })
+  .openapi('Event')
 
 const BaseEventPayloadSchema = z
   .object({
@@ -771,107 +950,6 @@ const CustomEventPayloadSchema = z
   })
   .openapi('CustomEventPayload')
 
-const EventPayloadSchema: z.ZodType<EventPayloadType> = z
-  .lazy(() =>
-    z
-      .union([
-        UserEventPayloadSchema,
-        OrderEventPayloadSchema,
-        SystemEventPayloadSchema,
-        CustomEventPayloadSchema,
-      ])
-      .optional()
-      .openapi({
-        anyOf: [
-          { $ref: '#/components/schemas/UserEventPayload' },
-          { $ref: '#/components/schemas/OrderEventPayload' },
-          { $ref: '#/components/schemas/SystemEventPayload' },
-          { $ref: '#/components/schemas/CustomEventPayload' },
-        ],
-      }),
-  )
-  .openapi('EventPayload')
-
-const WebContextSchema = z
-  .object({
-    userAgent: z.string().openapi({ type: 'string' }),
-    referrer: z.string().openapi({ type: 'string' }),
-    sessionId: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      userAgent: { type: 'string' },
-      referrer: { type: 'string' },
-      sessionId: { type: 'string' },
-    },
-  })
-  .openapi('WebContext')
-
-const MobileContextSchema = z
-  .object({
-    deviceId: z.string().openapi({ type: 'string' }),
-    platform: z.enum(['ios', 'android']).openapi({ type: 'string', enum: ['ios', 'android'] }),
-    appVersion: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      deviceId: { type: 'string' },
-      platform: { type: 'string', enum: ['ios', 'android'] },
-      appVersion: { type: 'string' },
-    },
-  })
-  .openapi('MobileContext')
-
-const ApiContextSchema = z
-  .object({
-    apiKey: z.string().openapi({ type: 'string' }),
-    clientId: z.string().openapi({ type: 'string' }),
-    ipAddress: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      apiKey: { type: 'string' },
-      clientId: { type: 'string' },
-      ipAddress: { type: 'string' },
-    },
-  })
-  .openapi('ApiContext')
-
-const EventContextSchema = z
-  .union([WebContextSchema, MobileContextSchema, ApiContextSchema])
-  .optional()
-  .openapi({
-    anyOf: [
-      { $ref: '#/components/schemas/WebContext' },
-      { $ref: '#/components/schemas/MobileContext' },
-      { $ref: '#/components/schemas/ApiContext' },
-    ],
-  })
-  .openapi('EventContext')
-
-const EventSchema = z
-  .object({
-    eventType: z.string().openapi({ type: 'string' }),
-    payload: EventPayloadSchema,
-    context: EventContextSchema.optional(),
-  })
-  .openapi({
-    type: 'object',
-    required: ['eventType', 'payload'],
-    properties: {
-      eventType: { type: 'string' },
-      payload: { $ref: '#/components/schemas/EventPayload' },
-      context: { $ref: '#/components/schemas/EventContext' },
-    },
-  })
-  .openapi('Event')
-
 type EventPayloadType =
   | z.infer<typeof UserEventPayloadSchema>
   | z.infer<typeof OrderEventPayloadSchema>
@@ -1013,6 +1091,36 @@ const GeneralSettingsSchema = z
   })
   .openapi('GeneralSettings')
 
+const FeatureFlagSchema: z.ZodType<FeatureFlagType> = z
+  .lazy(() =>
+    z
+      .union([z.boolean().optional().openapi({ type: 'boolean' }), ConditionalFeatureFlagSchema])
+      .optional()
+      .openapi({
+        oneOf: [{ type: 'boolean' }, { $ref: '#/components/schemas/ConditionalFeatureFlag' }],
+      }),
+  )
+  .openapi('FeatureFlag')
+
+const FeatureFlagsSchema = z
+  .intersection(
+    ConfigSectionSchema,
+    z
+      .record(z.string(), FeatureFlagSchema.optional())
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/FeatureFlag' },
+      }),
+  )
+  .optional()
+  .openapi({
+    allOf: [
+      { $ref: '#/components/schemas/ConfigSection' },
+      { type: 'object', additionalProperties: { $ref: '#/components/schemas/FeatureFlag' } },
+    ],
+  })
+  .openapi('FeatureFlags')
+
 const UserConditionSchema = z
   .object({
     type: z.literal('user').openapi({ type: 'string' }),
@@ -1103,36 +1211,6 @@ const ConditionalFeatureFlagSchema = z
   })
   .openapi('ConditionalFeatureFlag')
 
-const FeatureFlagSchema: z.ZodType<FeatureFlagType> = z
-  .lazy(() =>
-    z
-      .union([z.boolean().optional().openapi({ type: 'boolean' }), ConditionalFeatureFlagSchema])
-      .optional()
-      .openapi({
-        oneOf: [{ type: 'boolean' }, { $ref: '#/components/schemas/ConditionalFeatureFlag' }],
-      }),
-  )
-  .openapi('FeatureFlag')
-
-const FeatureFlagsSchema = z
-  .intersection(
-    ConfigSectionSchema,
-    z
-      .record(z.string(), FeatureFlagSchema.optional())
-      .openapi({
-        type: 'object',
-        additionalProperties: { $ref: '#/components/schemas/FeatureFlag' },
-      }),
-  )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/ConfigSection' },
-      { type: 'object', additionalProperties: { $ref: '#/components/schemas/FeatureFlag' } },
-    ],
-  })
-  .openapi('FeatureFlags')
-
 type FeatureFlagType = boolean | z.infer<typeof ConditionalFeatureFlagSchema>
 
 const RateLimitSchema = z
@@ -1221,76 +1299,96 @@ const ConfigurationUpdateSchema = z
   })
   .openapi('ConfigurationUpdate')
 
-const ResourceStatusSchema = z
-  .object({
-    state: z
-      .enum(['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'])
-      .openapi({
-        type: 'string',
-        enum: ['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'],
-      }),
-    health: z
-      .enum(['healthy', 'degraded', 'unhealthy', 'unknown'])
-      .optional()
-      .openapi({ type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] }),
-    lastChecked: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['state'],
-    properties: {
-      state: {
-        type: 'string',
-        enum: ['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'],
-      },
-      health: { type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] },
-      lastChecked: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('ResourceStatus')
-
-const StorageResourceSchema = z
-  .intersection(
-    BaseResourceSchema,
+const ComputeResourceSchema: z.ZodType<ComputeResourceType> = z
+  .lazy(() =>
     z
-      .object({
-        resourceType: z.literal('storage').optional().openapi({ type: 'string' }),
-        size: z.int().openapi({ type: 'integer' }),
-        storageType: z
-          .enum(['ssd', 'hdd', 'nvme'])
-          .openapi({ type: 'string', enum: ['ssd', 'hdd', 'nvme'] }),
-        iops: z.int().optional().openapi({ type: 'integer' }),
-        attachedTo: ComputeResourceSchema.optional(),
-      })
+      .intersection(
+        BaseResourceSchema,
+        z
+          .object({
+            resourceType: z.literal('compute').optional().openapi({ type: 'string' }),
+            cpu: CpuSpecSchema,
+            memory: MemorySpecSchema,
+            storage: z
+              .array(StorageResourceSchema)
+              .optional()
+              .openapi({ type: 'array', items: { $ref: '#/components/schemas/StorageResource' } }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['cpu', 'memory'],
+            properties: {
+              resourceType: { type: 'string', const: 'compute' },
+              cpu: { $ref: '#/components/schemas/CpuSpec' },
+              memory: { $ref: '#/components/schemas/MemorySpec' },
+              storage: { type: 'array', items: { $ref: '#/components/schemas/StorageResource' } },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        required: ['size', 'storageType'],
-        properties: {
-          resourceType: { type: 'string', const: 'storage' },
-          size: { type: 'integer' },
-          storageType: { type: 'string', enum: ['ssd', 'hdd', 'nvme'] },
-          iops: { type: 'integer' },
-          attachedTo: { $ref: '#/components/schemas/ComputeResource' },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseResource' },
+          {
+            type: 'object',
+            required: ['cpu', 'memory'],
+            properties: {
+              resourceType: { type: 'string', const: 'compute' },
+              cpu: { $ref: '#/components/schemas/CpuSpec' },
+              memory: { $ref: '#/components/schemas/MemorySpec' },
+              storage: { type: 'array', items: { $ref: '#/components/schemas/StorageResource' } },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseResource' },
-      {
-        type: 'object',
-        required: ['size', 'storageType'],
-        properties: {
-          resourceType: { type: 'string', const: 'storage' },
-          size: { type: 'integer' },
-          storageType: { type: 'string', enum: ['ssd', 'hdd', 'nvme'] },
-          iops: { type: 'integer' },
-          attachedTo: { $ref: '#/components/schemas/ComputeResource' },
-        },
-      },
-    ],
-  })
+  .openapi('ComputeResource')
+
+const StorageResourceSchema: z.ZodType<StorageResourceType> = z
+  .lazy(() =>
+    z
+      .intersection(
+        BaseResourceSchema,
+        z
+          .object({
+            resourceType: z.literal('storage').optional().openapi({ type: 'string' }),
+            size: z.int().openapi({ type: 'integer' }),
+            storageType: z
+              .enum(['ssd', 'hdd', 'nvme'])
+              .openapi({ type: 'string', enum: ['ssd', 'hdd', 'nvme'] }),
+            iops: z.int().optional().openapi({ type: 'integer' }),
+            attachedTo: ComputeResourceSchema.optional(),
+          })
+          .openapi({
+            type: 'object',
+            required: ['size', 'storageType'],
+            properties: {
+              resourceType: { type: 'string', const: 'storage' },
+              size: { type: 'integer' },
+              storageType: { type: 'string', enum: ['ssd', 'hdd', 'nvme'] },
+              iops: { type: 'integer' },
+              attachedTo: { $ref: '#/components/schemas/ComputeResource' },
+            },
+          }),
+      )
+      .optional()
+      .openapi({
+        allOf: [
+          { $ref: '#/components/schemas/BaseResource' },
+          {
+            type: 'object',
+            required: ['size', 'storageType'],
+            properties: {
+              resourceType: { type: 'string', const: 'storage' },
+              size: { type: 'integer' },
+              storageType: { type: 'string', enum: ['ssd', 'hdd', 'nvme'] },
+              iops: { type: 'integer' },
+              attachedTo: { $ref: '#/components/schemas/ComputeResource' },
+            },
+          },
+        ],
+      }),
+  )
   .openapi('StorageResource')
 
 const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
@@ -1378,68 +1476,52 @@ const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
   )
   .openapi('NetworkResource')
 
-const ResourceTemplateSchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    version: z.string().openapi({ type: 'string' }),
-    parameters: z
-      .record(z.string(), ConfigValueSchema)
-      .openapi({
-        type: 'object',
-        additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
-      }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      version: { type: 'string' },
-      parameters: {
-        type: 'object',
-        additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
-      },
-    },
-  })
-  .openapi('ResourceTemplate')
-
-const CompositeResourceSchema = z
-  .intersection(
-    BaseResourceSchema,
+const CompositeResourceSchema: z.ZodType<CompositeResourceType> = z
+  .lazy(() =>
     z
-      .object({
-        resourceType: z.literal('composite').optional().openapi({ type: 'string' }),
-        components: z
-          .array(ResourceSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Resource' } }),
-        template: ResourceTemplateSchema.optional(),
-      })
+      .intersection(
+        BaseResourceSchema,
+        z
+          .object({
+            resourceType: z.literal('composite').optional().openapi({ type: 'string' }),
+            components: z
+              .array(ResourceSchema)
+              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Resource' } }),
+            template: ResourceTemplateSchema.optional(),
+          })
+          .openapi({
+            type: 'object',
+            required: ['components'],
+            properties: {
+              resourceType: { type: 'string', const: 'composite' },
+              components: { type: 'array', items: { $ref: '#/components/schemas/Resource' } },
+              template: { $ref: '#/components/schemas/ResourceTemplate' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        required: ['components'],
-        properties: {
-          resourceType: { type: 'string', const: 'composite' },
-          components: { type: 'array', items: { $ref: '#/components/schemas/Resource' } },
-          template: { $ref: '#/components/schemas/ResourceTemplate' },
-        },
+        allOf: [
+          { $ref: '#/components/schemas/BaseResource' },
+          {
+            type: 'object',
+            required: ['components'],
+            properties: {
+              resourceType: { type: 'string', const: 'composite' },
+              components: { type: 'array', items: { $ref: '#/components/schemas/Resource' } },
+              template: { $ref: '#/components/schemas/ResourceTemplate' },
+            },
+          },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseResource' },
-      {
-        type: 'object',
-        required: ['components'],
-        properties: {
-          resourceType: { type: 'string', const: 'composite' },
-          components: { type: 'array', items: { $ref: '#/components/schemas/Resource' } },
-          template: { $ref: '#/components/schemas/ResourceTemplate' },
-        },
-      },
-    ],
-  })
   .openapi('CompositeResource')
+
+type ResourceType =
+  | z.infer<typeof ComputeResourceSchema>
+  | z.infer<typeof StorageResourceSchema>
+  | z.infer<typeof NetworkResourceSchema>
+  | z.infer<typeof CompositeResourceSchema>
 
 const ResourceSchema: z.ZodType<ResourceType> = z
   .lazy(() =>
@@ -1471,21 +1553,52 @@ const ResourceSchema: z.ZodType<ResourceType> = z
   )
   .openapi('Resource')
 
-const ResourceDependencySchema = z
+const ResourceStatusSchema = z
   .object({
-    resourceId: z.string().openapi({ type: 'string' }),
-    type: z.enum(['hard', 'soft']).openapi({ type: 'string', enum: ['hard', 'soft'] }),
-    resource: ResourceSchema.optional(),
+    state: z
+      .enum(['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'])
+      .openapi({
+        type: 'string',
+        enum: ['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'],
+      }),
+    health: z
+      .enum(['healthy', 'degraded', 'unhealthy', 'unknown'])
+      .optional()
+      .openapi({ type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] }),
+    lastChecked: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
-    required: ['resourceId', 'type'],
+    required: ['state'],
     properties: {
-      resourceId: { type: 'string' },
-      type: { type: 'string', enum: ['hard', 'soft'] },
-      resource: { $ref: '#/components/schemas/Resource' },
+      state: {
+        type: 'string',
+        enum: ['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated'],
+      },
+      health: { type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] },
+      lastChecked: { type: 'string', format: 'date-time' },
     },
   })
+  .openapi('ResourceStatus')
+
+const ResourceDependencySchema: z.ZodType<ResourceDependencyType> = z
+  .lazy(() =>
+    z
+      .object({
+        resourceId: z.string().openapi({ type: 'string' }),
+        type: z.enum(['hard', 'soft']).openapi({ type: 'string', enum: ['hard', 'soft'] }),
+        resource: ResourceSchema.optional(),
+      })
+      .openapi({
+        type: 'object',
+        required: ['resourceId', 'type'],
+        properties: {
+          resourceId: { type: 'string' },
+          type: { type: 'string', enum: ['hard', 'soft'] },
+          resource: { $ref: '#/components/schemas/Resource' },
+        },
+      }),
+  )
   .openapi('ResourceDependency')
 
 const ResourceCostSchema = z
@@ -1505,53 +1618,72 @@ const ResourceCostSchema = z
   })
   .openapi('ResourceCost')
 
-const BaseResourceSchema = z
-  .intersection(
-    ExtendedEntitySchema,
+type BaseResourceType = z.infer<typeof ExtendedEntitySchema> & {
+  resourceType: string
+  status: z.infer<typeof ResourceStatusSchema>
+  dependencies?: z.infer<typeof ResourceDependencySchema>[]
+  cost?: z.infer<typeof ResourceCostSchema>
+}
+
+const BaseResourceSchema: z.ZodType<BaseResourceType> = z
+  .lazy(() =>
     z
-      .object({
-        resourceType: z.string().openapi({ type: 'string' }),
-        status: ResourceStatusSchema,
-        dependencies: z
-          .array(ResourceDependencySchema)
-          .optional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceDependency' } }),
-        cost: ResourceCostSchema.optional(),
-      })
+      .intersection(
+        ExtendedEntitySchema,
+        z
+          .object({
+            resourceType: z.string().openapi({ type: 'string' }),
+            status: ResourceStatusSchema,
+            dependencies: z
+              .array(ResourceDependencySchema)
+              .optional()
+              .openapi({
+                type: 'array',
+                items: { $ref: '#/components/schemas/ResourceDependency' },
+              }),
+            cost: ResourceCostSchema.optional(),
+          })
+          .openapi({
+            type: 'object',
+            required: ['resourceType', 'status'],
+            properties: {
+              resourceType: { type: 'string' },
+              status: { $ref: '#/components/schemas/ResourceStatus' },
+              dependencies: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/ResourceDependency' },
+              },
+              cost: { $ref: '#/components/schemas/ResourceCost' },
+            },
+          }),
+      )
+      .optional()
       .openapi({
-        type: 'object',
-        required: ['resourceType', 'status'],
-        properties: {
-          resourceType: { type: 'string' },
-          status: { $ref: '#/components/schemas/ResourceStatus' },
-          dependencies: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ResourceDependency' },
+        allOf: [
+          { $ref: '#/components/schemas/ExtendedEntity' },
+          {
+            type: 'object',
+            required: ['resourceType', 'status'],
+            properties: {
+              resourceType: { type: 'string' },
+              status: { $ref: '#/components/schemas/ResourceStatus' },
+              dependencies: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/ResourceDependency' },
+              },
+              cost: { $ref: '#/components/schemas/ResourceCost' },
+            },
           },
-          cost: { $ref: '#/components/schemas/ResourceCost' },
-        },
+        ],
       }),
   )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/ExtendedEntity' },
-      {
-        type: 'object',
-        required: ['resourceType', 'status'],
-        properties: {
-          resourceType: { type: 'string' },
-          status: { $ref: '#/components/schemas/ResourceStatus' },
-          dependencies: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ResourceDependency' },
-          },
-          cost: { $ref: '#/components/schemas/ResourceCost' },
-        },
-      },
-    ],
-  })
   .openapi('BaseResource')
+
+type ResourceDependencyType = {
+  resourceId: string
+  type: 'hard' | 'soft'
+  resource?: z.infer<typeof ResourceSchema>
+}
 
 const CpuSpecSchema = z
   .object({
@@ -1580,53 +1712,20 @@ const MemorySpecSchema = z
   })
   .openapi('MemorySpec')
 
-const ComputeResourceSchema = z
-  .intersection(
-    BaseResourceSchema,
-    z
-      .object({
-        resourceType: z.literal('compute').optional().openapi({ type: 'string' }),
-        cpu: CpuSpecSchema,
-        memory: MemorySpecSchema,
-        storage: z
-          .array(StorageResourceSchema)
-          .optional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/StorageResource' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['cpu', 'memory'],
-        properties: {
-          resourceType: { type: 'string', const: 'compute' },
-          cpu: { $ref: '#/components/schemas/CpuSpec' },
-          memory: { $ref: '#/components/schemas/MemorySpec' },
-          storage: { type: 'array', items: { $ref: '#/components/schemas/StorageResource' } },
-        },
-      }),
-  )
-  .optional()
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseResource' },
-      {
-        type: 'object',
-        required: ['cpu', 'memory'],
-        properties: {
-          resourceType: { type: 'string', const: 'compute' },
-          cpu: { $ref: '#/components/schemas/CpuSpec' },
-          memory: { $ref: '#/components/schemas/MemorySpec' },
-          storage: { type: 'array', items: { $ref: '#/components/schemas/StorageResource' } },
-        },
-      },
-    ],
-  })
-  .openapi('ComputeResource')
+type ComputeResourceType = z.infer<typeof BaseResourceSchema> & {
+  resourceType?: 'compute'
+  cpu: z.infer<typeof CpuSpecSchema>
+  memory: z.infer<typeof MemorySpecSchema>
+  storage?: z.infer<typeof StorageResourceSchema>[]
+}
 
-type ResourceType =
-  | z.infer<typeof ComputeResourceSchema>
-  | z.infer<typeof StorageResourceSchema>
-  | z.infer<typeof NetworkResourceSchema>
-  | z.infer<typeof CompositeResourceSchema>
+type StorageResourceType = z.infer<typeof BaseResourceSchema> & {
+  resourceType?: 'storage'
+  size: number
+  storageType: 'ssd' | 'hdd' | 'nvme'
+  iops?: number
+  attachedTo?: z.infer<typeof ComputeResourceSchema>
+}
 
 type NetworkResourceType = z.infer<typeof BaseResourceSchema> & {
   resourceType?: 'network'
@@ -1634,6 +1733,37 @@ type NetworkResourceType = z.infer<typeof BaseResourceSchema> & {
   subnets?: NetworkResourceType[]
   parentNetwork?: NetworkResourceType
   connectedResources?: unknown[]
+}
+
+const ResourceTemplateSchema = z
+  .object({
+    name: z.string().openapi({ type: 'string' }),
+    version: z.string().openapi({ type: 'string' }),
+    parameters: z
+      .record(z.string(), ConfigValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
+      }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      version: { type: 'string' },
+      parameters: {
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
+      },
+    },
+  })
+  .openapi('ResourceTemplate')
+
+type CompositeResourceType = z.infer<typeof BaseResourceSchema> & {
+  resourceType?: 'composite'
+  components: z.infer<typeof ResourceSchema>[]
+  template?: z.infer<typeof ResourceTemplateSchema>
 }
 
 const ValidationTargetSchema = z
@@ -1647,52 +1777,6 @@ const ValidationTargetSchema = z
     ],
   })
   .openapi('ValidationTarget')
-
-const SchemaValidationRuleSchema = z
-  .object({
-    ruleType: z.literal('schema').optional().openapi({ type: 'string' }),
-    schema: z.object({}).openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['schema'],
-    properties: { ruleType: { type: 'string', const: 'schema' }, schema: { type: 'object' } },
-  })
-  .openapi('SchemaValidationRule')
-
-const BusinessValidationRuleSchema = z
-  .object({
-    ruleType: z.literal('business').optional().openapi({ type: 'string' }),
-    expression: z.string().openapi({ type: 'string' }),
-    parameters: z.object({}).openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['expression'],
-    properties: {
-      ruleType: { type: 'string', const: 'business' },
-      expression: { type: 'string' },
-      parameters: { type: 'object' },
-    },
-  })
-  .openapi('BusinessValidationRule')
-
-const CustomValidationRuleSchema = z
-  .object({
-    ruleType: z.literal('custom').optional().openapi({ type: 'string' }),
-    handler: z.string().openapi({ type: 'string' }),
-    config: z.object({}).openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['handler'],
-    properties: {
-      ruleType: { type: 'string', const: 'custom' },
-      handler: { type: 'string' },
-      config: { type: 'object' },
-    },
-  })
-  .openapi('CustomValidationRule')
 
 const ValidationRuleSchema: z.ZodType<ValidationRuleType> = z
   .lazy(() =>
@@ -1768,6 +1852,52 @@ const ValidationRequestSchema = z
     },
   })
   .openapi('ValidationRequest')
+
+const SchemaValidationRuleSchema = z
+  .object({
+    ruleType: z.literal('schema').optional().openapi({ type: 'string' }),
+    schema: z.object({}).openapi({ type: 'object' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['schema'],
+    properties: { ruleType: { type: 'string', const: 'schema' }, schema: { type: 'object' } },
+  })
+  .openapi('SchemaValidationRule')
+
+const BusinessValidationRuleSchema = z
+  .object({
+    ruleType: z.literal('business').optional().openapi({ type: 'string' }),
+    expression: z.string().openapi({ type: 'string' }),
+    parameters: z.object({}).openapi({ type: 'object' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['expression'],
+    properties: {
+      ruleType: { type: 'string', const: 'business' },
+      expression: { type: 'string' },
+      parameters: { type: 'object' },
+    },
+  })
+  .openapi('BusinessValidationRule')
+
+const CustomValidationRuleSchema = z
+  .object({
+    ruleType: z.literal('custom').optional().openapi({ type: 'string' }),
+    handler: z.string().openapi({ type: 'string' }),
+    config: z.object({}).openapi({ type: 'object' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['handler'],
+    properties: {
+      ruleType: { type: 'string', const: 'custom' },
+      handler: { type: 'string' },
+      config: { type: 'object' },
+    },
+  })
+  .openapi('CustomValidationRule')
 
 type ValidationRuleType = { ruleType: string; severity?: 'error' | 'warning' | 'info' } & (
   | z.infer<typeof SchemaValidationRuleSchema>

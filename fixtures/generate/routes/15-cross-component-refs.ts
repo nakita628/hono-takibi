@@ -37,35 +37,30 @@ const TagSchema = z
   })
   .openapi('Tag')
 
-const NestedCustomFieldSchema = z
-  .record(z.string(), CustomFieldValueSchema.optional())
-  .openapi({
-    type: 'object',
-    additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
-  })
-  .openapi('NestedCustomField')
-
-const CustomFieldValueSchema = z
-  .union([
-    z.string().optional().openapi({ type: 'string' }),
-    z.number().optional().openapi({ type: 'number' }),
-    z.boolean().optional().openapi({ type: 'boolean' }),
+const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
+  .lazy(() =>
     z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .union([
+        z.string().optional().openapi({ type: 'string' }),
+        z.number().optional().openapi({ type: 'number' }),
+        z.boolean().optional().openapi({ type: 'boolean' }),
+        z
+          .array(z.string().optional().openapi({ type: 'string' }))
+          .optional()
+          .openapi({ type: 'array', items: { type: 'string' } }),
+        NestedCustomFieldSchema,
+      ])
       .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    NestedCustomFieldSchema,
-  ])
-  .optional()
-  .openapi({
-    oneOf: [
-      { type: 'string' },
-      { type: 'number' },
-      { type: 'boolean' },
-      { type: 'array', items: { type: 'string' } },
-      { $ref: '#/components/schemas/NestedCustomField' },
-    ],
-  })
+      .openapi({
+        oneOf: [
+          { type: 'string' },
+          { type: 'number' },
+          { type: 'boolean' },
+          { type: 'array', items: { type: 'string' } },
+          { $ref: '#/components/schemas/NestedCustomField' },
+        ],
+      }),
+  )
   .openapi('CustomFieldValue')
 
 const EntityAttributesSchema = z
@@ -275,6 +270,26 @@ const EntitySchema = z
     },
   })
   .openapi('Entity')
+
+const NestedCustomFieldSchema: z.ZodType<NestedCustomFieldType> = z
+  .lazy(() =>
+    z
+      .record(z.string(), CustomFieldValueSchema.optional())
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
+      }),
+  )
+  .openapi('NestedCustomField')
+
+type CustomFieldValueType =
+  | string
+  | number
+  | boolean
+  | unknown[]
+  | z.infer<typeof NestedCustomFieldSchema>
+
+type NestedCustomFieldType = Record<string, z.infer<typeof CustomFieldValueSchema>>
 
 const ListMetaSchema = z
   .object({
