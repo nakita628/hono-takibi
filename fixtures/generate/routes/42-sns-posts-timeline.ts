@@ -1,52 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const LinkCardSchema = z
-  .object({
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    title: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    siteName: z.string().optional().openapi({ type: 'string' }),
-    type: z
-      .enum(['link', 'photo', 'video', 'rich'])
-      .optional()
-      .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['url', 'title'],
-    properties: {
-      url: { type: 'string', format: 'uri' },
-      title: { type: 'string' },
-      description: { type: 'string' },
-      image: { type: 'string', format: 'uri' },
-      siteName: { type: 'string' },
-      type: { type: 'string', enum: ['link', 'photo', 'video', 'rich'] },
-    },
-  })
-  .openapi('LinkCard')
-
-const UrlEntitySchema = z
-  .object({
-    url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
-    expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
-    displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
-    start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
-    end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['url', 'expandedUrl', 'displayUrl'],
-    properties: {
-      url: { type: 'string', format: 'uri', description: '短縮URL' },
-      expandedUrl: { type: 'string', format: 'uri', description: '展開URL' },
-      displayUrl: { type: 'string', description: '表示用URL' },
-      start: { type: 'integer', description: 'テキスト内の開始位置' },
-      end: { type: 'integer', description: 'テキスト内の終了位置' },
-    },
-  })
-  .openapi('UrlEntity')
-
 const UserSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -71,6 +24,40 @@ const UserSummarySchema = z
     },
   })
   .openapi('UserSummary')
+
+const MediaSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    type: z
+      .enum(['image', 'gif', 'video'])
+      .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    alt: z.string().optional().openapi({ type: 'string' }),
+    width: z.int().optional().openapi({ type: 'integer' }),
+    height: z.int().optional().openapi({ type: 'integer' }),
+    duration: z.number().optional().openapi({ type: 'number', description: '動画の長さ（秒）' }),
+    blurhash: z
+      .string()
+      .optional()
+      .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'type', 'url'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      type: { type: 'string', enum: ['image', 'gif', 'video'] },
+      url: { type: 'string', format: 'uri' },
+      previewUrl: { type: 'string', format: 'uri' },
+      alt: { type: 'string' },
+      width: { type: 'integer' },
+      height: { type: 'integer' },
+      duration: { type: 'number', description: '動画の長さ（秒）' },
+      blurhash: { type: 'string', description: 'プレースホルダー用ハッシュ' },
+    },
+  })
+  .openapi('Media')
 
 const PollSchema = z
   .object({
@@ -143,39 +130,52 @@ const PollSchema = z
   })
   .openapi('Poll')
 
-const MediaSchema = z
+const UrlEntitySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    type: z
-      .enum(['image', 'gif', 'video'])
-      .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    alt: z.string().optional().openapi({ type: 'string' }),
-    width: z.int().optional().openapi({ type: 'integer' }),
-    height: z.int().optional().openapi({ type: 'integer' }),
-    duration: z.number().optional().openapi({ type: 'number', description: '動画の長さ（秒）' }),
-    blurhash: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
+    url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
+    expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
+    displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
+    start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
+    end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
   })
   .openapi({
     type: 'object',
-    required: ['id', 'type', 'url'],
+    required: ['url', 'expandedUrl', 'displayUrl'],
     properties: {
-      id: { type: 'string', format: 'uuid' },
-      type: { type: 'string', enum: ['image', 'gif', 'video'] },
-      url: { type: 'string', format: 'uri' },
-      previewUrl: { type: 'string', format: 'uri' },
-      alt: { type: 'string' },
-      width: { type: 'integer' },
-      height: { type: 'integer' },
-      duration: { type: 'number', description: '動画の長さ（秒）' },
-      blurhash: { type: 'string', description: 'プレースホルダー用ハッシュ' },
+      url: { type: 'string', format: 'uri', description: '短縮URL' },
+      expandedUrl: { type: 'string', format: 'uri', description: '展開URL' },
+      displayUrl: { type: 'string', description: '表示用URL' },
+      start: { type: 'integer', description: 'テキスト内の開始位置' },
+      end: { type: 'integer', description: 'テキスト内の終了位置' },
     },
   })
-  .openapi('Media')
+  .openapi('UrlEntity')
+
+const LinkCardSchema = z
+  .object({
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    title: z.string().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    siteName: z.string().optional().openapi({ type: 'string' }),
+    type: z
+      .enum(['link', 'photo', 'video', 'rich'])
+      .optional()
+      .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['url', 'title'],
+    properties: {
+      url: { type: 'string', format: 'uri' },
+      title: { type: 'string' },
+      description: { type: 'string' },
+      image: { type: 'string', format: 'uri' },
+      siteName: { type: 'string' },
+      type: { type: 'string', enum: ['link', 'photo', 'video', 'rich'] },
+    },
+  })
+  .openapi('LinkCard')
 
 type PostType = {
   id: string

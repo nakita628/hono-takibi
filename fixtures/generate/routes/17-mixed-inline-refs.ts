@@ -1,99 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EntityMetadataSchema = z
-  .object({
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    version: z.int().openapi({ type: 'integer' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-      version: { type: 'integer' },
-    },
-  })
-  .openapi('EntityMetadata')
-
-const UserPreferencesSchema = z
-  .object({
-    language: z.string().openapi({ type: 'string' }),
-    timezone: z.string().openapi({ type: 'string' }),
-    theme: z
-      .enum(['light', 'dark', 'system'])
-      .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
-    dateFormat: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      language: { type: 'string' },
-      timezone: { type: 'string' },
-      theme: { type: 'string', enum: ['light', 'dark', 'system'] },
-      dateFormat: { type: 'string' },
-    },
-  })
-  .openapi('UserPreferences')
-
-const PrivacySettingsSchema = z
-  .object({
-    profileVisibility: z
-      .enum(['public', 'private', 'connections'])
-      .openapi({ type: 'string', enum: ['public', 'private', 'connections'] }),
-    showEmail: z.boolean().openapi({ type: 'boolean' }),
-    showActivity: z.boolean().openapi({ type: 'boolean' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      profileVisibility: { type: 'string', enum: ['public', 'private', 'connections'] },
-      showEmail: { type: 'boolean' },
-      showActivity: { type: 'boolean' },
-    },
-  })
-  .openapi('PrivacySettings')
-
-const NotificationSettingsSchema = z
-  .object({
-    email: z.boolean().openapi({ type: 'boolean' }),
-    push: z.boolean().openapi({ type: 'boolean' }),
-    sms: z.boolean().openapi({ type: 'boolean' }),
-    channels: z
-      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
-      .openapi({ type: 'object', additionalProperties: { type: 'boolean' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      email: { type: 'boolean' },
-      push: { type: 'boolean' },
-      sms: { type: 'boolean' },
-      channels: { type: 'object', additionalProperties: { type: 'boolean' } },
-    },
-  })
-  .openapi('NotificationSettings')
-
-const UserSettingsSchema = z
-  .object({
-    notifications: NotificationSettingsSchema,
-    privacy: PrivacySettingsSchema,
-    preferences: UserPreferencesSchema,
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      notifications: { $ref: '#/components/schemas/NotificationSettings' },
-      privacy: { $ref: '#/components/schemas/PrivacySettings' },
-      preferences: { $ref: '#/components/schemas/UserPreferences' },
-    },
-  })
-  .openapi('UserSettings')
-
 const UserProfileSchema = z
   .object({
     firstName: z.string().openapi({ type: 'string' }),
@@ -116,6 +22,100 @@ const UserProfileSchema = z
     },
   })
   .openapi('UserProfile')
+
+const NotificationSettingsSchema = z
+  .object({
+    email: z.boolean().openapi({ type: 'boolean' }),
+    push: z.boolean().openapi({ type: 'boolean' }),
+    sms: z.boolean().openapi({ type: 'boolean' }),
+    channels: z
+      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
+      .openapi({ type: 'object', additionalProperties: { type: 'boolean' } }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      email: { type: 'boolean' },
+      push: { type: 'boolean' },
+      sms: { type: 'boolean' },
+      channels: { type: 'object', additionalProperties: { type: 'boolean' } },
+    },
+  })
+  .openapi('NotificationSettings')
+
+const PrivacySettingsSchema = z
+  .object({
+    profileVisibility: z
+      .enum(['public', 'private', 'connections'])
+      .openapi({ type: 'string', enum: ['public', 'private', 'connections'] }),
+    showEmail: z.boolean().openapi({ type: 'boolean' }),
+    showActivity: z.boolean().openapi({ type: 'boolean' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      profileVisibility: { type: 'string', enum: ['public', 'private', 'connections'] },
+      showEmail: { type: 'boolean' },
+      showActivity: { type: 'boolean' },
+    },
+  })
+  .openapi('PrivacySettings')
+
+const UserPreferencesSchema = z
+  .object({
+    language: z.string().openapi({ type: 'string' }),
+    timezone: z.string().openapi({ type: 'string' }),
+    theme: z
+      .enum(['light', 'dark', 'system'])
+      .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
+    dateFormat: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      language: { type: 'string' },
+      timezone: { type: 'string' },
+      theme: { type: 'string', enum: ['light', 'dark', 'system'] },
+      dateFormat: { type: 'string' },
+    },
+  })
+  .openapi('UserPreferences')
+
+const UserSettingsSchema = z
+  .object({
+    notifications: NotificationSettingsSchema,
+    privacy: PrivacySettingsSchema,
+    preferences: UserPreferencesSchema,
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      notifications: { $ref: '#/components/schemas/NotificationSettings' },
+      privacy: { $ref: '#/components/schemas/PrivacySettings' },
+      preferences: { $ref: '#/components/schemas/UserPreferences' },
+    },
+  })
+  .openapi('UserSettings')
+
+const EntityMetadataSchema = z
+  .object({
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    version: z.int().openapi({ type: 'integer' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      createdAt: { type: 'string', format: 'date-time' },
+      updatedAt: { type: 'string', format: 'date-time' },
+      version: { type: 'integer' },
+    },
+  })
+  .openapi('EntityMetadata')
 
 const UserSchema = z
   .object({
@@ -177,25 +177,6 @@ const UserFilterSchema = z
   })
   .openapi('UserFilter')
 
-const OrganizationMemberSchema = z
-  .object({
-    user: UserSchema,
-    role: z
-      .enum(['owner', 'admin', 'member', 'viewer'])
-      .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
-    joinedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['user', 'role'],
-    properties: {
-      user: { $ref: '#/components/schemas/User' },
-      role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
-      joinedAt: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('OrganizationMember')
-
 const AddressSchema = z
   .object({
     street: z.string().openapi({ type: 'string' }),
@@ -216,6 +197,25 @@ const AddressSchema = z
     },
   })
   .openapi('Address')
+
+const OrganizationMemberSchema = z
+  .object({
+    user: UserSchema,
+    role: z
+      .enum(['owner', 'admin', 'member', 'viewer'])
+      .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
+    joinedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['user', 'role'],
+    properties: {
+      user: { $ref: '#/components/schemas/User' },
+      role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
+      joinedAt: { type: 'string', format: 'date-time' },
+    },
+  })
+  .openapi('OrganizationMember')
 
 const OrganizationSchema = z
   .object({
@@ -357,23 +357,6 @@ const OrderSchema = z
   })
   .openapi('Order')
 
-const BankTransferPaymentSchema = z
-  .object({
-    method: z.literal('bank_transfer').openapi({ type: 'string' }),
-    bankAccount: z.string().openapi({ type: 'string' }),
-    routingNumber: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['method', 'bankAccount'],
-    properties: {
-      method: { type: 'string', const: 'bank_transfer' },
-      bankAccount: { type: 'string' },
-      routingNumber: { type: 'string' },
-    },
-  })
-  .openapi('BankTransferPayment')
-
 const CreditCardPaymentSchema = z
   .object({
     method: z.literal('credit_card').openapi({ type: 'string' }),
@@ -390,6 +373,23 @@ const CreditCardPaymentSchema = z
     },
   })
   .openapi('CreditCardPayment')
+
+const BankTransferPaymentSchema = z
+  .object({
+    method: z.literal('bank_transfer').openapi({ type: 'string' }),
+    bankAccount: z.string().openapi({ type: 'string' }),
+    routingNumber: z.string().optional().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['method', 'bankAccount'],
+    properties: {
+      method: { type: 'string', const: 'bank_transfer' },
+      bankAccount: { type: 'string' },
+      routingNumber: { type: 'string' },
+    },
+  })
+  .openapi('BankTransferPayment')
 
 const CreateOrderInputSchema = z
   .object({

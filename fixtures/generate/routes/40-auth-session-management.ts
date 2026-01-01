@@ -1,5 +1,36 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+const DeviceInfoSchema = z
+  .object({
+    id: z.string().openapi({ type: 'string' }),
+    fingerprint: z.string().openapi({ type: 'string' }),
+    type: z
+      .enum(['desktop', 'mobile', 'tablet', 'unknown'])
+      .openapi({ type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] }),
+    os: z.string().openapi({ type: 'string' }),
+    osVersion: z.string().openapi({ type: 'string' }),
+    browser: z.string().openapi({ type: 'string' }),
+    browserVersion: z.string().openapi({ type: 'string' }),
+    userAgent: z.string().openapi({ type: 'string' }),
+    isTrusted: z.boolean().openapi({ type: 'boolean' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      fingerprint: { type: 'string' },
+      type: { type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] },
+      os: { type: 'string' },
+      osVersion: { type: 'string' },
+      browser: { type: 'string' },
+      browserVersion: { type: 'string' },
+      userAgent: { type: 'string' },
+      isTrusted: { type: 'boolean' },
+    },
+  })
+  .openapi('DeviceInfo')
+
 const LocationInfoSchema = z
   .object({
     ipAddress: z.string().openapi({ type: 'string' }),
@@ -34,37 +65,6 @@ const LocationInfoSchema = z
     },
   })
   .openapi('LocationInfo')
-
-const DeviceInfoSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    fingerprint: z.string().openapi({ type: 'string' }),
-    type: z
-      .enum(['desktop', 'mobile', 'tablet', 'unknown'])
-      .openapi({ type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] }),
-    os: z.string().openapi({ type: 'string' }),
-    osVersion: z.string().openapi({ type: 'string' }),
-    browser: z.string().openapi({ type: 'string' }),
-    browserVersion: z.string().openapi({ type: 'string' }),
-    userAgent: z.string().openapi({ type: 'string' }),
-    isTrusted: z.boolean().openapi({ type: 'boolean' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      fingerprint: { type: 'string' },
-      type: { type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] },
-      os: { type: 'string' },
-      osVersion: { type: 'string' },
-      browser: { type: 'string' },
-      browserVersion: { type: 'string' },
-      userAgent: { type: 'string' },
-      isTrusted: { type: 'boolean' },
-    },
-  })
-  .openapi('DeviceInfo')
 
 const SessionSchema = z
   .object({

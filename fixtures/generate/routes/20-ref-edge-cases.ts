@@ -125,47 +125,6 @@ const NullOnlySchema = z.null().nullable().optional().openapi({ type: 'null' }).
 
 type _______Type = { 名前?: string; 値?: number; 子要素?: _______Type[] }
 
-const Schema: z.ZodType<_______Type> = z
-  .lazy(() =>
-    z
-      .object({
-        名前: z.string().openapi({ type: 'string' }),
-        値: z.number().openapi({ type: 'number' }),
-        子要素: z
-          .array(_______Schema)
-          .openapi({
-            type: 'array',
-            items: {
-              $ref: '#/components/schemas/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%82%B9%E3%82%AD%E3%83%BC%E3%83%9E',
-            },
-          }),
-      })
-      .partial()
-      .openapi({
-        type: 'object',
-        properties: {
-          名前: { type: 'string' },
-          値: { type: 'number' },
-          子要素: {
-            type: 'array',
-            items: {
-              $ref: '#/components/schemas/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%82%B9%E3%82%AD%E3%83%BC%E3%83%9E',
-            },
-          },
-        },
-      }),
-  )
-  .openapi('_______')
-
-const SchMaFranAisSchema = z
-  .object({
-    prénom: z.string().openapi({ type: 'string' }),
-    nom: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({ type: 'object', properties: { prénom: { type: 'string' }, nom: { type: 'string' } } })
-  .openapi('SchMaFranAis')
-
 const Schema = z
   .object({
     имя: z.string().openapi({ type: 'string' }),
@@ -177,6 +136,15 @@ const Schema = z
     properties: { имя: { type: 'string' }, значение: { type: 'number' } },
   })
   .openapi('_____________')
+
+const SchMaFranAisSchema = z
+  .object({
+    prénom: z.string().openapi({ type: 'string' }),
+    nom: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({ type: 'object', properties: { prénom: { type: 'string' }, nom: { type: 'string' } } })
+  .openapi('SchMaFranAis')
 
 const SchemaWithUnderscoresSchema = z
   .object({
@@ -359,20 +327,20 @@ const PolyBaseSchema = z
   })
   .openapi('PolyBase')
 
-const PolyTypeCSchema = z
+const PolyTypeASchema = z
   .intersection(
     PolyBaseSchema,
     z
       .object({
-        polyType: z.literal('typeC').optional(),
-        fieldC: z.boolean().optional().openapi({ type: 'boolean' }),
+        polyType: z.literal('typeA').optional(),
+        fieldA: z.string().optional().openapi({ type: 'string' }),
         nestedRef: SharedComponentSchema,
       })
       .openapi({
         type: 'object',
         properties: {
-          polyType: { const: 'typeC' },
-          fieldC: { type: 'boolean' },
+          polyType: { const: 'typeA' },
+          fieldA: { type: 'string' },
           nestedRef: { $ref: '#/components/schemas/SharedComponent' },
         },
       }),
@@ -384,14 +352,14 @@ const PolyTypeCSchema = z
       {
         type: 'object',
         properties: {
-          polyType: { const: 'typeC' },
-          fieldC: { type: 'boolean' },
+          polyType: { const: 'typeA' },
+          fieldA: { type: 'string' },
           nestedRef: { $ref: '#/components/schemas/SharedComponent' },
         },
       },
     ],
   })
-  .openapi('PolyTypeC')
+  .openapi('PolyTypeA')
 
 const PolyTypeBSchema = z
   .intersection(
@@ -427,20 +395,20 @@ const PolyTypeBSchema = z
   })
   .openapi('PolyTypeB')
 
-const PolyTypeASchema = z
+const PolyTypeCSchema = z
   .intersection(
     PolyBaseSchema,
     z
       .object({
-        polyType: z.literal('typeA').optional(),
-        fieldA: z.string().optional().openapi({ type: 'string' }),
+        polyType: z.literal('typeC').optional(),
+        fieldC: z.boolean().optional().openapi({ type: 'boolean' }),
         nestedRef: SharedComponentSchema,
       })
       .openapi({
         type: 'object',
         properties: {
-          polyType: { const: 'typeA' },
-          fieldA: { type: 'string' },
+          polyType: { const: 'typeC' },
+          fieldC: { type: 'boolean' },
           nestedRef: { $ref: '#/components/schemas/SharedComponent' },
         },
       }),
@@ -452,14 +420,14 @@ const PolyTypeASchema = z
       {
         type: 'object',
         properties: {
-          polyType: { const: 'typeA' },
-          fieldA: { type: 'string' },
+          polyType: { const: 'typeC' },
+          fieldC: { type: 'boolean' },
           nestedRef: { $ref: '#/components/schemas/SharedComponent' },
         },
       },
     ],
   })
-  .openapi('PolyTypeA')
+  .openapi('PolyTypeC')
 
 const PolymorphicSchema = z
   .union([PolyTypeASchema, PolyTypeBSchema, PolyTypeCSchema])
@@ -617,6 +585,25 @@ const ConditionalSchema = z
   })
   .openapi('ConditionalSchema')
 
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().optional().openapi({ type: 'string' }),
+        refToB: RecursiveBSchema,
+        selfRef: RecursiveASchema,
+      })
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          refToB: { $ref: '#/components/schemas/RecursiveB' },
+          selfRef: { $ref: '#/components/schemas/RecursiveA' },
+        },
+      }),
+  )
+  .openapi('RecursiveA')
+
 const RecursiveCSchema = z
   .object({
     name: z.string().optional().openapi({ type: 'string' }),
@@ -655,31 +642,6 @@ type RecursiveAType = {
   selfRef?: RecursiveAType
 }
 
-const RecursiveASchema: z.ZodType<RecursiveAType> = z
-  .lazy(() =>
-    z
-      .object({
-        name: z.string().optional().openapi({ type: 'string' }),
-        refToB: RecursiveBSchema,
-        selfRef: RecursiveASchema,
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          refToB: { $ref: '#/components/schemas/RecursiveB' },
-          selfRef: { $ref: '#/components/schemas/RecursiveA' },
-        },
-      }),
-  )
-  .openapi('RecursiveA')
-
-const ForbiddenSchema = z
-  .object({ forbiddenField: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({ type: 'object', properties: { forbiddenField: { type: 'string' } } })
-  .openapi('Forbidden')
-
 const NotExampleSchema = z
   .intersection(
     BaseSchema,
@@ -696,6 +658,12 @@ const NotExampleSchema = z
     ],
   })
   .openapi('NotExample')
+
+const ForbiddenSchema = z
+  .object({ forbiddenField: z.string().openapi({ type: 'string' }) })
+  .partial()
+  .openapi({ type: 'object', properties: { forbiddenField: { type: 'string' } } })
+  .openapi('Forbidden')
 
 const MultiRefSchema = z
   .object({

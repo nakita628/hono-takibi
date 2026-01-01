@@ -1,49 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const InventorySchema = z
-  .object({
-    quantity: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
-    reservedQuantity: z.int().min(0).optional().openapi({ type: 'integer', minimum: 0 }),
-    status: z
-      .enum(['in_stock', 'low_stock', 'out_of_stock'])
-      .openapi({ type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] }),
-    lowStockThreshold: z.int().optional().openapi({ type: 'integer' }),
-    trackInventory: z.boolean().optional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['quantity', 'status'],
-    properties: {
-      quantity: { type: 'integer', minimum: 0 },
-      reservedQuantity: { type: 'integer', minimum: 0 },
-      status: { type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] },
-      lowStockThreshold: { type: 'integer' },
-      trackInventory: { type: 'boolean' },
-    },
-  })
-  .openapi('Inventory')
-
-const ProductImageSchema = z
-  .object({
-    id: z.string().openapi({ type: 'string' }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    altText: z.string().optional().openapi({ type: 'string' }),
-    isPrimary: z.boolean().optional().openapi({ type: 'boolean' }),
-    sortOrder: z.int().optional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'url'],
-    properties: {
-      id: { type: 'string' },
-      url: { type: 'string', format: 'uri' },
-      altText: { type: 'string' },
-      isPrimary: { type: 'boolean' },
-      sortOrder: { type: 'integer' },
-    },
-  })
-  .openapi('ProductImage')
-
 const CategorySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -68,6 +24,50 @@ const CategorySchema = z
     },
   })
   .openapi('Category')
+
+const ProductImageSchema = z
+  .object({
+    id: z.string().openapi({ type: 'string' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    altText: z.string().optional().openapi({ type: 'string' }),
+    isPrimary: z.boolean().optional().openapi({ type: 'boolean' }),
+    sortOrder: z.int().optional().openapi({ type: 'integer' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'url'],
+    properties: {
+      id: { type: 'string' },
+      url: { type: 'string', format: 'uri' },
+      altText: { type: 'string' },
+      isPrimary: { type: 'boolean' },
+      sortOrder: { type: 'integer' },
+    },
+  })
+  .openapi('ProductImage')
+
+const InventorySchema = z
+  .object({
+    quantity: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
+    reservedQuantity: z.int().min(0).optional().openapi({ type: 'integer', minimum: 0 }),
+    status: z
+      .enum(['in_stock', 'low_stock', 'out_of_stock'])
+      .openapi({ type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] }),
+    lowStockThreshold: z.int().optional().openapi({ type: 'integer' }),
+    trackInventory: z.boolean().optional().openapi({ type: 'boolean' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['quantity', 'status'],
+    properties: {
+      quantity: { type: 'integer', minimum: 0 },
+      reservedQuantity: { type: 'integer', minimum: 0 },
+      status: { type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] },
+      lowStockThreshold: { type: 'integer' },
+      trackInventory: { type: 'boolean' },
+    },
+  })
+  .openapi('Inventory')
 
 const ProductSchema = z
   .object({
@@ -174,31 +174,6 @@ const CartSchema = z
   })
   .openapi('Cart')
 
-const AddressSchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    postalCode: z.string().openapi({ type: 'string' }),
-    prefecture: z.string().openapi({ type: 'string' }),
-    city: z.string().openapi({ type: 'string' }),
-    address1: z.string().openapi({ type: 'string' }),
-    address2: z.string().optional().openapi({ type: 'string' }),
-    phone: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['name', 'postalCode', 'prefecture', 'city', 'address1'],
-    properties: {
-      name: { type: 'string' },
-      postalCode: { type: 'string' },
-      prefecture: { type: 'string' },
-      city: { type: 'string' },
-      address1: { type: 'string' },
-      address2: { type: 'string' },
-      phone: { type: 'string' },
-    },
-  })
-  .openapi('Address')
-
 const OrderItemSchema = z
   .object({
     id: z.string().openapi({ type: 'string' }),
@@ -225,6 +200,31 @@ const OrderItemSchema = z
     },
   })
   .openapi('OrderItem')
+
+const AddressSchema = z
+  .object({
+    name: z.string().openapi({ type: 'string' }),
+    postalCode: z.string().openapi({ type: 'string' }),
+    prefecture: z.string().openapi({ type: 'string' }),
+    city: z.string().openapi({ type: 'string' }),
+    address1: z.string().openapi({ type: 'string' }),
+    address2: z.string().optional().openapi({ type: 'string' }),
+    phone: z.string().optional().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['name', 'postalCode', 'prefecture', 'city', 'address1'],
+    properties: {
+      name: { type: 'string' },
+      postalCode: { type: 'string' },
+      prefecture: { type: 'string' },
+      city: { type: 'string' },
+      address1: { type: 'string' },
+      address2: { type: 'string' },
+      phone: { type: 'string' },
+    },
+  })
+  .openapi('Address')
 
 const OrderSchema = z
   .object({

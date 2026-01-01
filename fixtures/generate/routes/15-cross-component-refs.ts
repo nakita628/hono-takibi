@@ -1,23 +1,196 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EntityLinksSchema = z
+const EntityIdSchema = z
+  .uuid()
+  .optional()
+  .openapi({ type: 'string', format: 'uuid', description: 'Unique entity identifier' })
+  .openapi('EntityId')
+
+const EntityTypeSchema = z
+  .enum(['user', 'organization', 'project', 'resource'])
+  .optional()
+  .openapi({
+    type: 'string',
+    enum: ['user', 'organization', 'project', 'resource'],
+    description: 'Entity type discriminator',
+  })
+  .openapi('EntityType')
+
+const EntityStatusSchema = z
+  .enum(['active', 'inactive', 'pending', 'archived'])
+  .optional()
+  .openapi({ type: 'string', enum: ['active', 'inactive', 'pending', 'archived'] })
+  .openapi('EntityStatus')
+
+const TagSchema = z
+  .object({
+    key: z.string().max(50).openapi({ type: 'string', maxLength: 50 }),
+    value: z.string().max(200).openapi({ type: 'string', maxLength: 200 }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['key', 'value'],
+    properties: {
+      key: { type: 'string', maxLength: 50 },
+      value: { type: 'string', maxLength: 200 },
+    },
+  })
+  .openapi('Tag')
+
+const NestedCustomFieldSchema = z
+  .record(z.string(), CustomFieldValueSchema)
+  .openapi({
+    type: 'object',
+    additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
+  })
+  .openapi('NestedCustomField')
+
+const CustomFieldValueSchema = z
+  .union([
+    z.string().optional().openapi({ type: 'string' }),
+    z.number().optional().openapi({ type: 'number' }),
+    z.boolean().optional().openapi({ type: 'boolean' }),
+    z
+      .array(z.string().optional().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' } }),
+    NestedCustomFieldSchema,
+  ])
+  .optional()
+  .openapi({
+    oneOf: [
+      { type: 'string' },
+      { type: 'number' },
+      { type: 'boolean' },
+      { type: 'array', items: { type: 'string' } },
+      { $ref: '#/components/schemas/NestedCustomField' },
+    ],
+  })
+  .openapi('CustomFieldValue')
+
+const EntityAttributesSchema = z
+  .looseObject({
+    name: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    status: EntityStatusSchema,
+    tags: z
+      .array(TagSchema)
+      .optional()
+      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
+    customFields: z
+      .record(z.string(), CustomFieldValueSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
+      }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      description: { type: 'string' },
+      status: { $ref: '#/components/schemas/EntityStatus' },
+      tags: { type: 'array', items: { $ref: '#/components/schemas/Tag' } },
+      customFields: {
+        type: 'object',
+        additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
+      },
+    },
+    additionalProperties: true,
+  })
+  .openapi('EntityAttributes')
+
+const ResourceIdentifierSchema = z
+  .object({ type: EntityTypeSchema, id: EntityIdSchema })
+  .openapi({
+    type: 'object',
+    required: ['type', 'id'],
+    properties: {
+      type: { $ref: '#/components/schemas/EntityType' },
+      id: { $ref: '#/components/schemas/EntityId' },
+    },
+  })
+  .openapi('ResourceIdentifier')
+
+const RelationshipLinkUrlsSchema = z
   .object({
     self: z.url().openapi({ type: 'string', format: 'uri' }),
-    collection: z.url().openapi({ type: 'string', format: 'uri' }),
-    related: z
-      .record(z.string(), z.url().openapi({ type: 'string', format: 'uri' }))
-      .openapi({ type: 'object', additionalProperties: { type: 'string', format: 'uri' } }),
+    related: z.url().openapi({ type: 'string', format: 'uri' }),
   })
   .partial()
   .openapi({
     type: 'object',
     properties: {
       self: { type: 'string', format: 'uri' },
-      collection: { type: 'string', format: 'uri' },
-      related: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
+      related: { type: 'string', format: 'uri' },
     },
   })
-  .openapi('EntityLinks')
+  .openapi('RelationshipLinkUrls')
+
+const RelationshipMetaSchema = z
+  .object({
+    count: z.int().openapi({ type: 'integer' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: { count: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } },
+  })
+  .openapi('RelationshipMeta')
+
+const RelationshipLinkSchema = z
+  .object({
+    data: ResourceIdentifierSchema,
+    links: RelationshipLinkUrlsSchema,
+    meta: RelationshipMetaSchema,
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      data: { $ref: '#/components/schemas/ResourceIdentifier' },
+      links: { $ref: '#/components/schemas/RelationshipLinkUrls' },
+      meta: { $ref: '#/components/schemas/RelationshipMeta' },
+    },
+  })
+  .openapi('RelationshipLink')
+
+const RelationshipLinksSchema = z
+  .object({
+    data: z
+      .array(ResourceIdentifierSchema)
+      .optional()
+      .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } }),
+    links: RelationshipLinkUrlsSchema,
+    meta: RelationshipMetaSchema,
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      data: { type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } },
+      links: { $ref: '#/components/schemas/RelationshipLinkUrls' },
+      meta: { $ref: '#/components/schemas/RelationshipMeta' },
+    },
+  })
+  .openapi('RelationshipLinks')
+
+const EntityRelationshipsSchema = z
+  .object({
+    parent: RelationshipLinkSchema,
+    children: RelationshipLinksSchema,
+    owner: RelationshipLinkSchema,
+    members: RelationshipLinksSchema,
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      parent: { $ref: '#/components/schemas/RelationshipLink' },
+      children: { $ref: '#/components/schemas/RelationshipLinks' },
+      owner: { $ref: '#/components/schemas/RelationshipLink' },
+      members: { $ref: '#/components/schemas/RelationshipLinks' },
+    },
+  })
+  .openapi('EntityRelationships')
 
 const PermissionsSchema = z
   .object({
@@ -58,197 +231,24 @@ const EntityMetaSchema = z
   })
   .openapi('EntityMeta')
 
-const RelationshipMetaSchema = z
-  .object({
-    count: z.int().openapi({ type: 'integer' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: { count: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } },
-  })
-  .openapi('RelationshipMeta')
-
-const RelationshipLinkUrlsSchema = z
+const EntityLinksSchema = z
   .object({
     self: z.url().openapi({ type: 'string', format: 'uri' }),
-    related: z.url().openapi({ type: 'string', format: 'uri' }),
+    collection: z.url().openapi({ type: 'string', format: 'uri' }),
+    related: z
+      .record(z.string(), z.url().openapi({ type: 'string', format: 'uri' }))
+      .openapi({ type: 'object', additionalProperties: { type: 'string', format: 'uri' } }),
   })
   .partial()
   .openapi({
     type: 'object',
     properties: {
       self: { type: 'string', format: 'uri' },
-      related: { type: 'string', format: 'uri' },
+      collection: { type: 'string', format: 'uri' },
+      related: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
     },
   })
-  .openapi('RelationshipLinkUrls')
-
-const EntityIdSchema = z
-  .uuid()
-  .optional()
-  .openapi({ type: 'string', format: 'uuid', description: 'Unique entity identifier' })
-  .openapi('EntityId')
-
-const EntityTypeSchema = z
-  .enum(['user', 'organization', 'project', 'resource'])
-  .optional()
-  .openapi({
-    type: 'string',
-    enum: ['user', 'organization', 'project', 'resource'],
-    description: 'Entity type discriminator',
-  })
-  .openapi('EntityType')
-
-const ResourceIdentifierSchema = z
-  .object({ type: EntityTypeSchema, id: EntityIdSchema })
-  .openapi({
-    type: 'object',
-    required: ['type', 'id'],
-    properties: {
-      type: { $ref: '#/components/schemas/EntityType' },
-      id: { $ref: '#/components/schemas/EntityId' },
-    },
-  })
-  .openapi('ResourceIdentifier')
-
-const RelationshipLinksSchema = z
-  .object({
-    data: z
-      .array(ResourceIdentifierSchema)
-      .optional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } }),
-    links: RelationshipLinkUrlsSchema,
-    meta: RelationshipMetaSchema,
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } },
-      links: { $ref: '#/components/schemas/RelationshipLinkUrls' },
-      meta: { $ref: '#/components/schemas/RelationshipMeta' },
-    },
-  })
-  .openapi('RelationshipLinks')
-
-const RelationshipLinkSchema = z
-  .object({
-    data: ResourceIdentifierSchema,
-    links: RelationshipLinkUrlsSchema,
-    meta: RelationshipMetaSchema,
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      data: { $ref: '#/components/schemas/ResourceIdentifier' },
-      links: { $ref: '#/components/schemas/RelationshipLinkUrls' },
-      meta: { $ref: '#/components/schemas/RelationshipMeta' },
-    },
-  })
-  .openapi('RelationshipLink')
-
-const EntityRelationshipsSchema = z
-  .object({
-    parent: RelationshipLinkSchema,
-    children: RelationshipLinksSchema,
-    owner: RelationshipLinkSchema,
-    members: RelationshipLinksSchema,
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      parent: { $ref: '#/components/schemas/RelationshipLink' },
-      children: { $ref: '#/components/schemas/RelationshipLinks' },
-      owner: { $ref: '#/components/schemas/RelationshipLink' },
-      members: { $ref: '#/components/schemas/RelationshipLinks' },
-    },
-  })
-  .openapi('EntityRelationships')
-
-const NestedCustomFieldSchema = z
-  .record(z.string(), CustomFieldValueSchema)
-  .openapi({
-    type: 'object',
-    additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
-  })
-  .openapi('NestedCustomField')
-
-const CustomFieldValueSchema = z
-  .union([
-    z.string().optional().openapi({ type: 'string' }),
-    z.number().optional().openapi({ type: 'number' }),
-    z.boolean().optional().openapi({ type: 'boolean' }),
-    z
-      .array(z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    NestedCustomFieldSchema,
-  ])
-  .optional()
-  .openapi({
-    oneOf: [
-      { type: 'string' },
-      { type: 'number' },
-      { type: 'boolean' },
-      { type: 'array', items: { type: 'string' } },
-      { $ref: '#/components/schemas/NestedCustomField' },
-    ],
-  })
-  .openapi('CustomFieldValue')
-
-const TagSchema = z
-  .object({
-    key: z.string().max(50).openapi({ type: 'string', maxLength: 50 }),
-    value: z.string().max(200).openapi({ type: 'string', maxLength: 200 }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['key', 'value'],
-    properties: {
-      key: { type: 'string', maxLength: 50 },
-      value: { type: 'string', maxLength: 200 },
-    },
-  })
-  .openapi('Tag')
-
-const EntityStatusSchema = z
-  .enum(['active', 'inactive', 'pending', 'archived'])
-  .optional()
-  .openapi({ type: 'string', enum: ['active', 'inactive', 'pending', 'archived'] })
-  .openapi('EntityStatus')
-
-const EntityAttributesSchema = z
-  .looseObject({
-    name: z.string().optional().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    status: EntityStatusSchema,
-    tags: z
-      .array(TagSchema)
-      .optional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    customFields: z
-      .record(z.string(), CustomFieldValueSchema)
-      .openapi({
-        type: 'object',
-        additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      description: { type: 'string' },
-      status: { $ref: '#/components/schemas/EntityStatus' },
-      tags: { type: 'array', items: { $ref: '#/components/schemas/Tag' } },
-      customFields: {
-        type: 'object',
-        additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
-      },
-    },
-    additionalProperties: true,
-  })
-  .openapi('EntityAttributes')
+  .openapi('EntityLinks')
 
 const EntitySchema = z
   .object({
@@ -273,6 +273,25 @@ const EntitySchema = z
   })
   .openapi('Entity')
 
+const ListMetaSchema = z
+  .object({
+    total: z.int().openapi({ type: 'integer' }),
+    page: z.int().openapi({ type: 'integer' }),
+    perPage: z.int().openapi({ type: 'integer' }),
+    totalPages: z.int().openapi({ type: 'integer' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      total: { type: 'integer' },
+      page: { type: 'integer' },
+      perPage: { type: 'integer' },
+      totalPages: { type: 'integer' },
+    },
+  })
+  .openapi('ListMeta')
+
 const PaginationLinksSchema = z
   .object({
     self: z.url().openapi({ type: 'string', format: 'uri' }),
@@ -293,25 +312,6 @@ const PaginationLinksSchema = z
     },
   })
   .openapi('PaginationLinks')
-
-const ListMetaSchema = z
-  .object({
-    total: z.int().openapi({ type: 'integer' }),
-    page: z.int().openapi({ type: 'integer' }),
-    perPage: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().openapi({ type: 'integer' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      total: { type: 'integer' },
-      page: { type: 'integer' },
-      perPage: { type: 'integer' },
-      totalPages: { type: 'integer' },
-    },
-  })
-  .openapi('ListMeta')
 
 const EntityListWrapperSchema = z
   .object({
@@ -417,11 +417,6 @@ const CreateRelationshipInputSchema = z
   })
   .openapi('CreateRelationshipInput')
 
-const ErrorMetaSchema = z
-  .looseObject({})
-  .openapi({ type: 'object', additionalProperties: true })
-  .openapi('ErrorMeta')
-
 const ErrorSourceSchema = z
   .object({
     pointer: z.string().openapi({ type: 'string' }),
@@ -438,6 +433,11 @@ const ErrorSourceSchema = z
     },
   })
   .openapi('ErrorSource')
+
+const ErrorMetaSchema = z
+  .looseObject({})
+  .openapi({ type: 'object', additionalProperties: true })
+  .openapi('ErrorMeta')
 
 const ErrorSchema = z
   .object({
@@ -570,6 +570,12 @@ const BatchResultSchema = z
   })
   .openapi('BatchResult')
 
+const WebhookEventSchema = z
+  .enum(['entity.created', 'entity.updated', 'entity.deleted'])
+  .optional()
+  .openapi({ type: 'string', enum: ['entity.created', 'entity.updated', 'entity.deleted'] })
+  .openapi('WebhookEvent')
+
 const WebhookMetaSchema = z
   .object({
     triggeredBy: ResourceIdentifierSchema,
@@ -583,12 +589,6 @@ const WebhookMetaSchema = z
     },
   })
   .openapi('WebhookMeta')
-
-const WebhookEventSchema = z
-  .enum(['entity.created', 'entity.updated', 'entity.deleted'])
-  .optional()
-  .openapi({ type: 'string', enum: ['entity.created', 'entity.updated', 'entity.deleted'] })
-  .openapi('WebhookEvent')
 
 const WebhookPayloadSchema = z
   .object({

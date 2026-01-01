@@ -1,127 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const SEOSchema = z
-  .object({
-    metaTitle: z.string().max(60).openapi({ type: 'string', maxLength: 60 }),
-    metaDescription: z.string().max(160).openapi({ type: 'string', maxLength: 160 }),
-    ogTitle: z.string().openapi({ type: 'string' }),
-    ogDescription: z.string().openapi({ type: 'string' }),
-    ogImage: z.url().openapi({ type: 'string', format: 'uri' }),
-    canonicalUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-    noIndex: z.boolean().default(false).openapi({ type: 'boolean', default: false }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      metaTitle: { type: 'string', maxLength: 60 },
-      metaDescription: { type: 'string', maxLength: 160 },
-      ogTitle: { type: 'string' },
-      ogDescription: { type: 'string' },
-      ogImage: { type: 'string', format: 'uri' },
-      canonicalUrl: { type: 'string', format: 'uri' },
-      noIndex: { type: 'boolean', default: false },
-    },
-  })
-  .openapi('SEO')
-
-const TagSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    slug: z.string().openapi({ type: 'string' }),
-    postCount: z.int().optional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'slug'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      slug: { type: 'string' },
-      postCount: { type: 'integer' },
-    },
-  })
-  .openapi('Tag')
-
-const CategorySchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    slug: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    postCount: z.int().optional().openapi({ type: 'integer' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'slug'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      slug: { type: 'string' },
-      description: { type: 'string' },
-      parentId: { type: 'string', format: 'uuid' },
-      postCount: { type: 'integer' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('Category')
-
-const AuthorSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    slug: z.string().optional().openapi({ type: 'string' }),
-    bio: z.string().optional().openapi({ type: 'string' }),
-    avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    website: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    socialLinks: z
-      .object({
-        twitter: z.string().openapi({ type: 'string' }),
-        facebook: z.string().openapi({ type: 'string' }),
-        instagram: z.string().openapi({ type: 'string' }),
-        linkedin: z.string().openapi({ type: 'string' }),
-      })
-      .partial()
-      .openapi({
-        type: 'object',
-        properties: {
-          twitter: { type: 'string' },
-          facebook: { type: 'string' },
-          instagram: { type: 'string' },
-          linkedin: { type: 'string' },
-        },
-      }),
-    postCount: z.int().optional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      slug: { type: 'string' },
-      bio: { type: 'string' },
-      avatarUrl: { type: 'string', format: 'uri' },
-      email: { type: 'string', format: 'email' },
-      website: { type: 'string', format: 'uri' },
-      socialLinks: {
-        type: 'object',
-        properties: {
-          twitter: { type: 'string' },
-          facebook: { type: 'string' },
-          instagram: { type: 'string' },
-          linkedin: { type: 'string' },
-        },
-      },
-      postCount: { type: 'integer' },
-    },
-  })
-  .openapi('Author')
-
 const MediaSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -182,6 +60,128 @@ const MediaSchema = z
     },
   })
   .openapi('Media')
+
+const AuthorSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    slug: z.string().optional().openapi({ type: 'string' }),
+    bio: z.string().optional().openapi({ type: 'string' }),
+    avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    website: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    socialLinks: z
+      .object({
+        twitter: z.string().openapi({ type: 'string' }),
+        facebook: z.string().openapi({ type: 'string' }),
+        instagram: z.string().openapi({ type: 'string' }),
+        linkedin: z.string().openapi({ type: 'string' }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          twitter: { type: 'string' },
+          facebook: { type: 'string' },
+          instagram: { type: 'string' },
+          linkedin: { type: 'string' },
+        },
+      }),
+    postCount: z.int().optional().openapi({ type: 'integer' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'name'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      name: { type: 'string' },
+      slug: { type: 'string' },
+      bio: { type: 'string' },
+      avatarUrl: { type: 'string', format: 'uri' },
+      email: { type: 'string', format: 'email' },
+      website: { type: 'string', format: 'uri' },
+      socialLinks: {
+        type: 'object',
+        properties: {
+          twitter: { type: 'string' },
+          facebook: { type: 'string' },
+          instagram: { type: 'string' },
+          linkedin: { type: 'string' },
+        },
+      },
+      postCount: { type: 'integer' },
+    },
+  })
+  .openapi('Author')
+
+const CategorySchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    slug: z.string().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    postCount: z.int().optional().openapi({ type: 'integer' }),
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'name', 'slug'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      name: { type: 'string' },
+      slug: { type: 'string' },
+      description: { type: 'string' },
+      parentId: { type: 'string', format: 'uuid' },
+      postCount: { type: 'integer' },
+      createdAt: { type: 'string', format: 'date-time' },
+    },
+  })
+  .openapi('Category')
+
+const TagSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+    slug: z.string().openapi({ type: 'string' }),
+    postCount: z.int().optional().openapi({ type: 'integer' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'name', 'slug'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      name: { type: 'string' },
+      slug: { type: 'string' },
+      postCount: { type: 'integer' },
+    },
+  })
+  .openapi('Tag')
+
+const SEOSchema = z
+  .object({
+    metaTitle: z.string().max(60).openapi({ type: 'string', maxLength: 60 }),
+    metaDescription: z.string().max(160).openapi({ type: 'string', maxLength: 160 }),
+    ogTitle: z.string().openapi({ type: 'string' }),
+    ogDescription: z.string().openapi({ type: 'string' }),
+    ogImage: z.url().openapi({ type: 'string', format: 'uri' }),
+    canonicalUrl: z.url().openapi({ type: 'string', format: 'uri' }),
+    noIndex: z.boolean().default(false).openapi({ type: 'boolean', default: false }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      metaTitle: { type: 'string', maxLength: 60 },
+      metaDescription: { type: 'string', maxLength: 160 },
+      ogTitle: { type: 'string' },
+      ogDescription: { type: 'string' },
+      ogImage: { type: 'string', format: 'uri' },
+      canonicalUrl: { type: 'string', format: 'uri' },
+      noIndex: { type: 'boolean', default: false },
+    },
+  })
+  .openapi('SEO')
 
 const PostSchema = z
   .object({

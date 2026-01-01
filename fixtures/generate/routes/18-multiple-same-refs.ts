@@ -86,29 +86,6 @@ const PermissionSchema = z
   .openapi({ type: 'string', enum: ['view', 'comment', 'edit', 'admin'] })
   .openapi('Permission')
 
-const DocumentStatusSchema = z
-  .enum(['draft', 'in_review', 'approved', 'published', 'archived'])
-  .optional()
-  .openapi({ type: 'string', enum: ['draft', 'in_review', 'approved', 'published', 'archived'] })
-  .openapi('DocumentStatus')
-
-const DocumentReferenceSchema = z
-  .object({
-    id: DocumentIdSchema,
-    title: z.string().openapi({ type: 'string' }),
-    status: DocumentStatusSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'title'],
-    properties: {
-      id: { $ref: '#/components/schemas/DocumentId' },
-      title: { type: 'string' },
-      status: { $ref: '#/components/schemas/DocumentStatus' },
-    },
-  })
-  .openapi('DocumentReference')
-
 const AttachmentSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -154,6 +131,29 @@ const DocumentContentSchema = z
     },
   })
   .openapi('DocumentContent')
+
+const DocumentStatusSchema = z
+  .enum(['draft', 'in_review', 'approved', 'published', 'archived'])
+  .optional()
+  .openapi({ type: 'string', enum: ['draft', 'in_review', 'approved', 'published', 'archived'] })
+  .openapi('DocumentStatus')
+
+const DocumentReferenceSchema = z
+  .object({
+    id: DocumentIdSchema,
+    title: z.string().openapi({ type: 'string' }),
+    status: DocumentStatusSchema,
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'title'],
+    properties: {
+      id: { $ref: '#/components/schemas/DocumentId' },
+      title: { type: 'string' },
+      status: { $ref: '#/components/schemas/DocumentStatus' },
+    },
+  })
+  .openapi('DocumentReference')
 
 const DocumentSchema = z
   .object({
@@ -243,6 +243,33 @@ const DocumentSchema = z
   })
   .openapi('Document')
 
+const DocumentVersionSchema = z
+  .object({
+    id: VersionIdSchema,
+    documentId: DocumentIdSchema,
+    versionNumber: z.int().openapi({ type: 'integer' }),
+    content: DocumentContentSchema,
+    author: UserReferenceSchema,
+    createdAt: TimestampSchema,
+    changeDescription: z.string().optional().openapi({ type: 'string' }),
+    previousVersion: VersionIdSchema,
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'documentId', 'versionNumber', 'content'],
+    properties: {
+      id: { $ref: '#/components/schemas/VersionId' },
+      documentId: { $ref: '#/components/schemas/DocumentId' },
+      versionNumber: { type: 'integer' },
+      content: { $ref: '#/components/schemas/DocumentContent' },
+      author: { $ref: '#/components/schemas/UserReference' },
+      createdAt: { $ref: '#/components/schemas/Timestamp' },
+      changeDescription: { type: 'string' },
+      previousVersion: { $ref: '#/components/schemas/VersionId' },
+    },
+  })
+  .openapi('DocumentVersion')
+
 const ActivityEntrySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -294,33 +321,6 @@ const ActivityEntrySchema = z
     },
   })
   .openapi('ActivityEntry')
-
-const DocumentVersionSchema = z
-  .object({
-    id: VersionIdSchema,
-    documentId: DocumentIdSchema,
-    versionNumber: z.int().openapi({ type: 'integer' }),
-    content: DocumentContentSchema,
-    author: UserReferenceSchema,
-    createdAt: TimestampSchema,
-    changeDescription: z.string().optional().openapi({ type: 'string' }),
-    previousVersion: VersionIdSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'documentId', 'versionNumber', 'content'],
-    properties: {
-      id: { $ref: '#/components/schemas/VersionId' },
-      documentId: { $ref: '#/components/schemas/DocumentId' },
-      versionNumber: { type: 'integer' },
-      content: { $ref: '#/components/schemas/DocumentContent' },
-      author: { $ref: '#/components/schemas/UserReference' },
-      createdAt: { $ref: '#/components/schemas/Timestamp' },
-      changeDescription: { type: 'string' },
-      previousVersion: { $ref: '#/components/schemas/VersionId' },
-    },
-  })
-  .openapi('DocumentVersion')
 
 const DocumentWithHistorySchema = z
   .intersection(

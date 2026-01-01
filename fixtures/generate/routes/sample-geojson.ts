@@ -5,22 +5,6 @@ const ErrorSchema = z
   .openapi({ type: 'object', properties: { message: { type: 'string' } }, required: ['message'] })
   .openapi('Error')
 
-const PositionSchema = z
-  .array(z.number().optional().openapi({ type: 'number' }))
-  .min(2)
-  .max(3)
-  .optional()
-  .openapi({
-    description:
-      'GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as "M") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n',
-    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.1' },
-    type: 'array',
-    minItems: 2,
-    maxItems: 3,
-    items: { type: 'number' },
-  })
-  .openapi('Position')
-
 const GeoJsonObjectSchema = z
   .object({
     type: z
@@ -235,40 +219,21 @@ const GeometryElementSchema = z
   })
   .openapi('GeometryElement')
 
-const PointSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        type: z.literal('Point').openapi({ type: 'string', enum: ['Point'] }),
-        coordinates: PositionSchema,
-      })
-      .openapi({
-        type: 'object',
-        required: ['type', 'coordinates'],
-        properties: {
-          type: { type: 'string', enum: ['Point'] },
-          coordinates: { $ref: '#/components/schemas/Position' },
-        },
-      }),
-  )
+const PositionSchema = z
+  .array(z.number().optional().openapi({ type: 'number' }))
+  .min(2)
+  .max(3)
   .optional()
   .openapi({
-    description: 'GeoJSon geometry',
-    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.2' },
-    allOf: [
-      { $ref: '#/components/schemas/GeometryElement' },
-      {
-        type: 'object',
-        required: ['type', 'coordinates'],
-        properties: {
-          type: { type: 'string', enum: ['Point'] },
-          coordinates: { $ref: '#/components/schemas/Position' },
-        },
-      },
-    ],
+    description:
+      'GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as "M") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n',
+    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.1' },
+    type: 'array',
+    minItems: 2,
+    maxItems: 3,
+    items: { type: 'number' },
   })
-  .openapi('Point')
+  .openapi('Position')
 
 const LinearRingSchema = z
   .array(PositionSchema)
@@ -283,40 +248,6 @@ const LinearRingSchema = z
     minItems: 4,
   })
   .openapi('LinearRing')
-
-const PolygonSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        coordinates: z
-          .array(LinearRingSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
-        },
-      }),
-  )
-  .optional()
-  .openapi({
-    description: 'GeoJSon geometry',
-    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.6' },
-    allOf: [
-      { $ref: '#/components/schemas/GeometryElement' },
-      {
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
-        },
-      },
-    ],
-  })
-  .openapi('Polygon')
 
 const MultiPolygonSchema = z
   .intersection(
@@ -365,6 +296,75 @@ const MultiPolygonSchema = z
     ],
   })
   .openapi('MultiPolygon')
+
+const PolygonSchema = z
+  .intersection(
+    GeometryElementSchema,
+    z
+      .object({
+        coordinates: z
+          .array(LinearRingSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['coordinates'],
+        properties: {
+          coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
+        },
+      }),
+  )
+  .optional()
+  .openapi({
+    description: 'GeoJSon geometry',
+    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.6' },
+    allOf: [
+      { $ref: '#/components/schemas/GeometryElement' },
+      {
+        type: 'object',
+        required: ['coordinates'],
+        properties: {
+          coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
+        },
+      },
+    ],
+  })
+  .openapi('Polygon')
+
+const PointSchema = z
+  .intersection(
+    GeometryElementSchema,
+    z
+      .object({
+        type: z.literal('Point').openapi({ type: 'string', enum: ['Point'] }),
+        coordinates: PositionSchema,
+      })
+      .openapi({
+        type: 'object',
+        required: ['type', 'coordinates'],
+        properties: {
+          type: { type: 'string', enum: ['Point'] },
+          coordinates: { $ref: '#/components/schemas/Position' },
+        },
+      }),
+  )
+  .optional()
+  .openapi({
+    description: 'GeoJSon geometry',
+    externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.2' },
+    allOf: [
+      { $ref: '#/components/schemas/GeometryElement' },
+      {
+        type: 'object',
+        required: ['type', 'coordinates'],
+        properties: {
+          type: { type: 'string', enum: ['Point'] },
+          coordinates: { $ref: '#/components/schemas/Position' },
+        },
+      },
+    ],
+  })
+  .openapi('Point')
 
 const ProjectSchema = z
   .object({

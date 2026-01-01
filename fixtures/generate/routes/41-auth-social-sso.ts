@@ -362,35 +362,6 @@ const LinkedAccountSchema = z
   })
   .openapi('LinkedAccount')
 
-const OIDCConfigSchema = z
-  .object({
-    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    authorizationEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    tokenEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      issuer: { type: 'string', format: 'uri' },
-      clientId: { type: 'string' },
-      authorizationEndpoint: { type: 'string', format: 'uri' },
-      tokenEndpoint: { type: 'string', format: 'uri' },
-      userInfoEndpoint: { type: 'string', format: 'uri' },
-      jwksUri: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: { type: 'object' },
-    },
-  })
-  .openapi('OIDCConfig')
-
 const SAMLConfigSchema = z
   .object({
     entityId: z.string().optional().openapi({ type: 'string', description: 'IdP Entity ID' }),
@@ -460,6 +431,35 @@ const SAMLConfigSchema = z
     },
   })
   .openapi('SAMLConfig')
+
+const OIDCConfigSchema = z
+  .object({
+    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    clientId: z.string().optional().openapi({ type: 'string' }),
+    authorizationEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    tokenEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    scopes: z
+      .array(z.string().optional().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' } }),
+    attributeMapping: z.object({}).openapi({ type: 'object' }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      issuer: { type: 'string', format: 'uri' },
+      clientId: { type: 'string' },
+      authorizationEndpoint: { type: 'string', format: 'uri' },
+      tokenEndpoint: { type: 'string', format: 'uri' },
+      userInfoEndpoint: { type: 'string', format: 'uri' },
+      jwksUri: { type: 'string', format: 'uri' },
+      scopes: { type: 'array', items: { type: 'string' } },
+      attributeMapping: { type: 'object' },
+    },
+  })
+  .openapi('OIDCConfig')
 
 const EnterpriseSSOConfigSchema = z
   .object({

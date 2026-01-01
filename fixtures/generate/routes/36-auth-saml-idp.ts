@@ -1,39 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const SingleLogoutServiceSchema = z
-  .object({
-    binding: z
-      .enum([
-        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-      ])
-      .openapi({
-        type: 'string',
-        enum: [
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        ],
-      }),
-    location: z.url().openapi({ type: 'string', format: 'uri' }),
-    responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['binding', 'location'],
-    properties: {
-      binding: {
-        type: 'string',
-        enum: [
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        ],
-      },
-      location: { type: 'string', format: 'uri' },
-      responseLocation: { type: 'string', format: 'uri' },
-    },
-  })
-  .openapi('SingleLogoutService')
-
 const AssertionConsumerServiceSchema = z
   .object({
     binding: z
@@ -69,6 +35,40 @@ const AssertionConsumerServiceSchema = z
     },
   })
   .openapi('AssertionConsumerService')
+
+const SingleLogoutServiceSchema = z
+  .object({
+    binding: z
+      .enum([
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      ])
+      .openapi({
+        type: 'string',
+        enum: [
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        ],
+      }),
+    location: z.url().openapi({ type: 'string', format: 'uri' }),
+    responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['binding', 'location'],
+    properties: {
+      binding: {
+        type: 'string',
+        enum: [
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        ],
+      },
+      location: { type: 'string', format: 'uri' },
+      responseLocation: { type: 'string', format: 'uri' },
+    },
+  })
+  .openapi('SingleLogoutService')
 
 const ServiceProviderSchema = z
   .object({

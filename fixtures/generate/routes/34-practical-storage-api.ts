@@ -106,25 +106,6 @@ const FolderSchema = z
   })
   .openapi('Folder')
 
-const CollaboratorSchema = z
-  .object({
-    user: UserSchema,
-    permission: z
-      .enum(['viewer', 'editor', 'owner'])
-      .openapi({ type: 'string', enum: ['viewer', 'editor', 'owner'] }),
-    addedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['user', 'permission'],
-    properties: {
-      user: { $ref: '#/components/schemas/User' },
-      permission: { type: 'string', enum: ['viewer', 'editor', 'owner'] },
-      addedAt: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('Collaborator')
-
 const ShareLinkSchema = z
   .object({
     url: z.url().openapi({ type: 'string', format: 'uri' }),
@@ -150,6 +131,25 @@ const ShareLinkSchema = z
     },
   })
   .openapi('ShareLink')
+
+const CollaboratorSchema = z
+  .object({
+    user: UserSchema,
+    permission: z
+      .enum(['viewer', 'editor', 'owner'])
+      .openapi({ type: 'string', enum: ['viewer', 'editor', 'owner'] }),
+    addedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['user', 'permission'],
+    properties: {
+      user: { $ref: '#/components/schemas/User' },
+      permission: { type: 'string', enum: ['viewer', 'editor', 'owner'] },
+      addedAt: { type: 'string', format: 'date-time' },
+    },
+  })
+  .openapi('Collaborator')
 
 const ShareSettingsSchema = z
   .object({

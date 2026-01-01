@@ -93,22 +93,34 @@ const ProjectSchema = z
   })
   .openapi('Project')
 
-const SubtaskSchema = z
+const ProjectSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().openapi({ type: 'string' }),
-    completed: z.boolean().openapi({ type: 'boolean' }),
+    name: z.string().openapi({ type: 'string' }),
+    color: z.string().optional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
-    required: ['id', 'title', 'completed'],
+    required: ['id', 'name'],
     properties: {
       id: { type: 'string', format: 'uuid' },
-      title: { type: 'string' },
-      completed: { type: 'boolean' },
+      name: { type: 'string' },
+      color: { type: 'string' },
     },
   })
-  .openapi('Subtask')
+  .openapi('ProjectSummary')
+
+const MilestoneSummarySchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'name'],
+    properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
+  })
+  .openapi('MilestoneSummary')
 
 const AttachmentSchema = z
   .object({
@@ -135,34 +147,22 @@ const AttachmentSchema = z
   })
   .openapi('Attachment')
 
-const MilestoneSummarySchema = z
+const SubtaskSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
+    title: z.string().openapi({ type: 'string' }),
+    completed: z.boolean().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
-    required: ['id', 'name'],
-    properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
-  })
-  .openapi('MilestoneSummary')
-
-const ProjectSummarySchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    color: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
+    required: ['id', 'title', 'completed'],
     properties: {
       id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      color: { type: 'string' },
+      title: { type: 'string' },
+      completed: { type: 'boolean' },
     },
   })
-  .openapi('ProjectSummary')
+  .openapi('Subtask')
 
 const TaskSchema = z
   .object({

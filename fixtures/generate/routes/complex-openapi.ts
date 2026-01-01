@@ -1,5 +1,26 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+const AddressSchema = z
+  .object({
+    street: z.string().openapi({ type: 'string', example: '123 Main St' }),
+    city: z.string().openapi({ type: 'string', example: 'Anytown' }),
+    state: z.string().openapi({ type: 'string', example: 'CA' }),
+    postalCode: z.string().openapi({ type: 'string', example: '12345' }),
+    country: z.string().openapi({ type: 'string', example: 'USA' }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      street: { type: 'string', example: '123 Main St' },
+      city: { type: 'string', example: 'Anytown' },
+      state: { type: 'string', example: 'CA' },
+      postalCode: { type: 'string', example: '12345' },
+      country: { type: 'string', example: 'USA' },
+    },
+    required: ['street', 'city', 'state', 'postalCode', 'country'],
+  })
+  .openapi('Address')
+
 const UserProfileSchema = z
   .strictObject({
     bio: z
@@ -37,27 +58,6 @@ const UserProfileSchema = z
     additionalProperties: false,
   })
   .openapi('UserProfile')
-
-const AddressSchema = z
-  .object({
-    street: z.string().openapi({ type: 'string', example: '123 Main St' }),
-    city: z.string().openapi({ type: 'string', example: 'Anytown' }),
-    state: z.string().openapi({ type: 'string', example: 'CA' }),
-    postalCode: z.string().openapi({ type: 'string', example: '12345' }),
-    country: z.string().openapi({ type: 'string', example: 'USA' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      street: { type: 'string', example: '123 Main St' },
-      city: { type: 'string', example: 'Anytown' },
-      state: { type: 'string', example: 'CA' },
-      postalCode: { type: 'string', example: '12345' },
-      country: { type: 'string', example: 'USA' },
-    },
-    required: ['street', 'city', 'state', 'postalCode', 'country'],
-  })
-  .openapi('Address')
 
 const UserSchema = z
   .object({
@@ -117,23 +117,22 @@ const UpdateUserSchema = z
   })
   .openapi('UpdateUser')
 
-const PaypalPaymentSchema = z
+const OrderItemSchema = z
   .object({
-    method: z
-      .literal('paypal')
-      .default('paypal')
-      .openapi({ type: 'string', enum: ['paypal'], default: 'paypal' }),
-    email: z.email().openapi({ type: 'string', format: 'email', example: 'user@paypal.com' }),
+    productId: z.string().openapi({ type: 'string', example: 'PROD-001' }),
+    quantity: z.int().openapi({ type: 'integer', example: 2 }),
+    price: z.float32().openapi({ type: 'number', format: 'float', example: 49.99 }),
   })
   .openapi({
     type: 'object',
     properties: {
-      method: { type: 'string', enum: ['paypal'], default: 'paypal' },
-      email: { type: 'string', format: 'email', example: 'user@paypal.com' },
+      productId: { type: 'string', example: 'PROD-001' },
+      quantity: { type: 'integer', example: 2 },
+      price: { type: 'number', format: 'float', example: 49.99 },
     },
-    required: ['method', 'email'],
+    required: ['productId', 'quantity', 'price'],
   })
-  .openapi('PaypalPayment')
+  .openapi('OrderItem')
 
 const CreditCardPaymentSchema = z
   .object({
@@ -160,6 +159,24 @@ const CreditCardPaymentSchema = z
   })
   .openapi('CreditCardPayment')
 
+const PaypalPaymentSchema = z
+  .object({
+    method: z
+      .literal('paypal')
+      .default('paypal')
+      .openapi({ type: 'string', enum: ['paypal'], default: 'paypal' }),
+    email: z.email().openapi({ type: 'string', format: 'email', example: 'user@paypal.com' }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      method: { type: 'string', enum: ['paypal'], default: 'paypal' },
+      email: { type: 'string', format: 'email', example: 'user@paypal.com' },
+    },
+    required: ['method', 'email'],
+  })
+  .openapi('PaypalPayment')
+
 const PaymentMethodSchema = z
   .union([CreditCardPaymentSchema, PaypalPaymentSchema])
   .optional()
@@ -172,23 +189,6 @@ const PaymentMethodSchema = z
     discriminator: { propertyName: 'method' },
   })
   .openapi('PaymentMethod')
-
-const OrderItemSchema = z
-  .object({
-    productId: z.string().openapi({ type: 'string', example: 'PROD-001' }),
-    quantity: z.int().openapi({ type: 'integer', example: 2 }),
-    price: z.float32().openapi({ type: 'number', format: 'float', example: 49.99 }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      productId: { type: 'string', example: 'PROD-001' },
-      quantity: { type: 'integer', example: 2 },
-      price: { type: 'number', format: 'float', example: 49.99 },
-    },
-    required: ['productId', 'quantity', 'price'],
-  })
-  .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
