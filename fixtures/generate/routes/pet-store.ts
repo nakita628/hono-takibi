@@ -147,7 +147,7 @@ const PetSchema = z
   .object({
     id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
     name: z.string().openapi({ type: 'string', example: 'doggie' }),
-    category: CategorySchema,
+    category: CategorySchema.optional(),
     photoUrls: z
       .array(z.string().openapi({ type: 'string', xml: { name: 'photoUrl' } }))
       .optional()
@@ -228,7 +228,10 @@ const ApiKeySecurityScheme = { type: 'apiKey', name: 'api_key', in: 'header' }
 
 const PetRequestBody = {
   description: 'Pet object that needs to be added to the store',
-  content: { 'application/json': { schema: PetSchema }, 'application/xml': { schema: PetSchema } },
+  content: {
+    'application/json': { schema: PetSchema.optional() },
+    'application/xml': { schema: PetSchema.optional() },
+  },
 }
 
 const UserArrayRequestBody = {
@@ -254,9 +257,9 @@ export const putPetRoute = createRoute({
     body: {
       description: 'Update an existent pet in the store',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
-        'application/x-www-form-urlencoded': { schema: PetSchema },
+        'application/json': { schema: PetSchema.optional() },
+        'application/xml': { schema: PetSchema.optional() },
+        'application/x-www-form-urlencoded': { schema: PetSchema.optional() },
       },
       required: true,
     },
@@ -265,8 +268,8 @@ export const putPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: PetSchema.optional() },
+        'application/xml': { schema: PetSchema.optional() },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -287,9 +290,9 @@ export const postPetRoute = createRoute({
     body: {
       description: 'Create a new pet in the store',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
-        'application/x-www-form-urlencoded': { schema: PetSchema },
+        'application/json': { schema: PetSchema.optional() },
+        'application/xml': { schema: PetSchema.optional() },
+        'application/x-www-form-urlencoded': { schema: PetSchema.optional() },
       },
       required: true,
     },
@@ -298,8 +301,8 @@ export const postPetRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: PetSchema.optional() },
+        'application/xml': { schema: PetSchema.optional() },
       },
     },
     400: { description: 'Invalid input' },
@@ -456,8 +459,8 @@ export const getPetPetIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: PetSchema },
-        'application/xml': { schema: PetSchema },
+        'application/json': { schema: PetSchema.optional() },
+        'application/xml': { schema: PetSchema.optional() },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -580,7 +583,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: ApiResponseSchema } },
+      content: { 'application/json': { schema: ApiResponseSchema.optional() } },
     },
   },
   security: [{ petstore_auth: ['write:pets', 'read:pets'] }],
@@ -621,16 +624,16 @@ export const postStoreOrderRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: OrderSchema },
-        'application/xml': { schema: OrderSchema },
-        'application/x-www-form-urlencoded': { schema: OrderSchema },
+        'application/json': { schema: OrderSchema.optional() },
+        'application/xml': { schema: OrderSchema.optional() },
+        'application/x-www-form-urlencoded': { schema: OrderSchema.optional() },
       },
     },
   },
   responses: {
     200: {
       description: 'successful operation',
-      content: { 'application/json': { schema: OrderSchema } },
+      content: { 'application/json': { schema: OrderSchema.optional() } },
     },
     400: { description: 'Invalid input' },
     422: { description: 'Validation exception' },
@@ -666,8 +669,8 @@ export const getStoreOrderOrderIdRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: OrderSchema },
-        'application/xml': { schema: OrderSchema },
+        'application/json': { schema: OrderSchema.optional() },
+        'application/xml': { schema: OrderSchema.optional() },
       },
     },
     400: { description: 'Invalid ID supplied' },
@@ -717,9 +720,9 @@ export const postUserRoute = createRoute({
     body: {
       description: 'Created user object',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
-        'application/x-www-form-urlencoded': { schema: UserSchema },
+        'application/json': { schema: UserSchema.optional() },
+        'application/xml': { schema: UserSchema.optional() },
+        'application/x-www-form-urlencoded': { schema: UserSchema.optional() },
       },
     },
   },
@@ -727,8 +730,8 @@ export const postUserRoute = createRoute({
     default: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: UserSchema.optional() },
+        'application/xml': { schema: UserSchema.optional() },
       },
     },
   },
@@ -757,8 +760,8 @@ export const postUserCreateWithListRoute = createRoute({
     200: {
       description: 'Successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: UserSchema.optional() },
+        'application/xml': { schema: UserSchema.optional() },
       },
     },
     default: { description: 'successful operation' },
@@ -848,8 +851,8 @@ export const getUserUsernameRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
+        'application/json': { schema: UserSchema.optional() },
+        'application/xml': { schema: UserSchema.optional() },
       },
     },
     400: { description: 'Invalid username supplied' },
@@ -868,9 +871,9 @@ export const putUserUsernameRoute = createRoute({
     body: {
       description: 'Update an existent user in the store',
       content: {
-        'application/json': { schema: UserSchema },
-        'application/xml': { schema: UserSchema },
-        'application/x-www-form-urlencoded': { schema: UserSchema },
+        'application/json': { schema: UserSchema.optional() },
+        'application/xml': { schema: UserSchema.optional() },
+        'application/x-www-form-urlencoded': { schema: UserSchema.optional() },
       },
     },
   },

@@ -1,5 +1,5 @@
 export { exampleExpr, examplesPropExpr, inlineExampleExpr } from './examples.js'
 export { moduleSpecFrom } from './module-spec-from.js'
 export { propertiesSchema } from './properties-schema.js'
-export { resolveSchemasDependencies } from './resolve-schemas-dependencies.js'
+export { sortByDependencies } from './sort-by-dependencies.js'
 export { wrap } from './wrap.js'

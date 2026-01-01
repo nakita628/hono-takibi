@@ -56,8 +56,8 @@ const ProjectSchema = z
       .regex(/^#[0-9A-Fa-f]{6}$/)
       .optional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
-    owner: UserSchema,
-    team: TeamSchema,
+    owner: UserSchema.optional(),
+    team: TeamSchema.optional(),
     startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     taskCount: z.int().optional().openapi({ type: 'integer' }),
@@ -93,60 +93,6 @@ const ProjectSchema = z
   })
   .openapi('Project')
 
-const SubtaskSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().openapi({ type: 'string' }),
-    completed: z.boolean().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'title', 'completed'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      title: { type: 'string' },
-      completed: { type: 'boolean' },
-    },
-  })
-  .openapi('Subtask')
-
-const AttachmentSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    filename: z.string().openapi({ type: 'string' }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    mimeType: z.string().optional().openapi({ type: 'string' }),
-    filesize: z.int().optional().openapi({ type: 'integer' }),
-    uploadedBy: UserSchema,
-    uploadedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'filename', 'url'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      filename: { type: 'string' },
-      url: { type: 'string', format: 'uri' },
-      mimeType: { type: 'string' },
-      filesize: { type: 'integer' },
-      uploadedBy: { $ref: '#/components/schemas/User' },
-      uploadedAt: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('Attachment')
-
-const MilestoneSummarySchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
-  })
-  .openapi('MilestoneSummary')
-
 const ProjectSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -164,6 +110,60 @@ const ProjectSummarySchema = z
   })
   .openapi('ProjectSummary')
 
+const MilestoneSummarySchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'name'],
+    properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' } },
+  })
+  .openapi('MilestoneSummary')
+
+const AttachmentSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    filename: z.string().openapi({ type: 'string' }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    mimeType: z.string().optional().openapi({ type: 'string' }),
+    filesize: z.int().optional().openapi({ type: 'integer' }),
+    uploadedBy: UserSchema.optional(),
+    uploadedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'filename', 'url'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      filename: { type: 'string' },
+      url: { type: 'string', format: 'uri' },
+      mimeType: { type: 'string' },
+      filesize: { type: 'integer' },
+      uploadedBy: { $ref: '#/components/schemas/User' },
+      uploadedAt: { type: 'string', format: 'date-time' },
+    },
+  })
+  .openapi('Attachment')
+
+const SubtaskSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().openapi({ type: 'string' }),
+    completed: z.boolean().openapi({ type: 'boolean' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'title', 'completed'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      title: { type: 'string' },
+      completed: { type: 'boolean' },
+    },
+  })
+  .openapi('Subtask')
+
 const TaskSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -175,10 +175,10 @@ const TaskSchema = z
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    project: ProjectSummarySchema,
-    assignee: UserSchema,
-    reporter: UserSchema,
-    milestone: MilestoneSummarySchema,
+    project: ProjectSummarySchema.optional(),
+    assignee: UserSchema.optional(),
+    reporter: UserSchema.optional(),
+    milestone: MilestoneSummarySchema.optional(),
     dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     estimatedHours: z.number().optional().openapi({ type: 'number' }),
     actualHours: z.number().optional().openapi({ type: 'number' }),
@@ -671,17 +671,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getProjectsRoute = createRoute({
@@ -718,7 +718,7 @@ export const getProjectsRoute = createRoute({
   responses: {
     200: {
       description: 'プロジェクト一覧',
-      content: { 'application/json': { schema: ProjectListResponseSchema } },
+      content: { 'application/json': { schema: ProjectListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -733,12 +733,15 @@ export const postProjectsRoute = createRoute({
   operationId: 'createProject',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateProjectRequestSchema } },
+      content: { 'application/json': { schema: CreateProjectRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: ProjectSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: ProjectSchema.optional() } },
+    },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -755,7 +758,7 @@ export const getProjectsProjectIdRoute = createRoute({
   responses: {
     200: {
       description: 'プロジェクト詳細',
-      content: { 'application/json': { schema: ProjectSchema } },
+      content: { 'application/json': { schema: ProjectSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -771,12 +774,15 @@ export const putProjectsProjectIdRoute = createRoute({
   operationId: 'updateProject',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProjectRequestSchema } },
+      content: { 'application/json': { schema: UpdateProjectRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: ProjectSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: ProjectSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -825,12 +831,15 @@ export const postProjectsProjectIdMembersRoute = createRoute({
   summary: 'メンバー追加',
   operationId: 'addProjectMember',
   request: {
-    body: { content: { 'application/json': { schema: AddMemberRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: AddMemberRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
     201: {
       description: '追加成功',
-      content: { 'application/json': { schema: ProjectMemberSchema } },
+      content: { 'application/json': { schema: ProjectMemberSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -888,7 +897,7 @@ export const getProjectsProjectIdTasksRoute = createRoute({
   responses: {
     200: {
       description: 'タスク一覧',
-      content: { 'application/json': { schema: TaskListResponseSchema } },
+      content: { 'application/json': { schema: TaskListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -902,10 +911,16 @@ export const postProjectsProjectIdTasksRoute = createRoute({
   summary: 'タスク作成',
   operationId: 'createTask',
   request: {
-    body: { content: { 'application/json': { schema: CreateTaskRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreateTaskRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: TaskSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: TaskSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -919,7 +934,10 @@ export const getTasksTaskIdRoute = createRoute({
   operationId: 'getTask',
   request: { params: z.object({ taskId: TaskIdParamParamsSchema }) },
   responses: {
-    200: { description: 'タスク詳細', content: { 'application/json': { schema: TaskSchema } } },
+    200: {
+      description: 'タスク詳細',
+      content: { 'application/json': { schema: TaskSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -933,10 +951,16 @@ export const putTasksTaskIdRoute = createRoute({
   summary: 'タスク更新',
   operationId: 'updateTask',
   request: {
-    body: { content: { 'application/json': { schema: UpdateTaskRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: UpdateTaskRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: TaskSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: TaskSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -988,7 +1012,10 @@ export const patchTasksTaskIdStatusRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: TaskSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: TaskSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1043,7 +1070,7 @@ export const postTasksTaskIdCommentsRoute = createRoute({
   responses: {
     201: {
       description: '追加成功',
-      content: { 'application/json': { schema: TaskCommentSchema } },
+      content: { 'application/json': { schema: TaskCommentSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1082,12 +1109,15 @@ export const postTasksTaskIdTimeEntriesRoute = createRoute({
   operationId: 'createTimeEntry',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateTimeEntryRequestSchema } },
+      content: { 'application/json': { schema: CreateTimeEntryRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: TimeEntrySchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: TimeEntrySchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1125,12 +1155,15 @@ export const postProjectsProjectIdMilestonesRoute = createRoute({
   operationId: 'createMilestone',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateMilestoneRequestSchema } },
+      content: { 'application/json': { schema: CreateMilestoneRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: MilestoneSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: MilestoneSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1166,10 +1199,16 @@ export const postTeamsRoute = createRoute({
   summary: 'チーム作成',
   operationId: 'createTeam',
   request: {
-    body: { content: { 'application/json': { schema: CreateTeamRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreateTeamRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '作成成功', content: { 'application/json': { schema: TeamSchema } } },
+    201: {
+      description: '作成成功',
+      content: { 'application/json': { schema: TeamSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

@@ -84,21 +84,21 @@ const PatchUserInputSchema = z
 
 const CreateUserRequestBody = {
   description: 'User creation request',
-  content: { 'application/json': { schema: CreateUserInputSchema } },
+  content: { 'application/json': { schema: CreateUserInputSchema.optional() } },
   required: true,
 }
 
 const UpdateUserRequestBody = {
   description: 'Full user update request',
-  content: { 'application/json': { schema: UpdateUserInputSchema } },
+  content: { 'application/json': { schema: UpdateUserInputSchema.optional() } },
   required: true,
 }
 
 const PatchUserRequestBody = {
   description: 'Partial user update request',
   content: {
-    'application/json': { schema: PatchUserInputSchema },
-    'application/merge-patch+json': { schema: PatchUserInputSchema },
+    'application/json': { schema: PatchUserInputSchema.optional() },
+    'application/merge-patch+json': { schema: PatchUserInputSchema.optional() },
   },
 }
 
@@ -142,7 +142,7 @@ const BulkCreateUsersRequestBody = {
           items: { $ref: '#/components/schemas/CreateUserInput' },
         }),
     },
-    'application/x-ndjson': { schema: CreateUserInputSchema },
+    'application/x-ndjson': { schema: CreateUserInputSchema.optional() },
   },
   required: true,
 }

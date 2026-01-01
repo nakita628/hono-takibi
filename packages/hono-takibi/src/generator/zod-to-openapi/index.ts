@@ -19,9 +19,9 @@ export function zodToOpenAPI(
   /** ref */
   if (schema.$ref !== undefined) {
     if (schema.$ref) {
-      if (Object.keys(schema).length === 1) {
-        return ref(schema.$ref)
-      }
+      // if (Object.keys(schema).length === 1) {
+      //   return wrap(ref(schema.$ref), schema, meta)
+      // }
       return wrap(ref(schema.$ref), schema, meta)
     }
   }

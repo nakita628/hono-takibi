@@ -136,12 +136,6 @@ const SetSchema = z
   .openapi('Set')
 
 const UserSchema = z
-  .object({ id: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({ type: 'object', properties: { id: { type: 'string' } } })
-  .openapi('User')
-
-const UserSchema = z
   .object({ id: z.int().openapi({ type: 'integer' }) })
   .partial()
   .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
@@ -152,12 +146,6 @@ const USERSchema = z
   .partial()
   .openapi({ type: 'object', properties: { id: { type: 'number' } } })
   .openapi('USER')
-
-const MyModelSchema = z
-  .object({ value: z.string().openapi({ type: 'string' }) })
-  .partial()
-  .openapi({ type: 'object', properties: { value: { type: 'string' } } })
-  .openapi('MyModel')
 
 const MyModelSchema = z
   .object({ value: z.int().openapi({ type: 'integer' }) })
@@ -606,7 +594,7 @@ export const getClassRoute = createRoute({
   path: '/class',
   operationId: 'class',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: ClassSchema } } },
+    200: { description: 'OK', content: { 'application/json': { schema: ClassSchema.optional() } } },
   },
 })
 

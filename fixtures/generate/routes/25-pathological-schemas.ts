@@ -1,652 +1,245 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const DiscrimCSchema = z
-  .object({ kind: z.literal('typeC'), valueC: z.boolean().optional().openapi({ type: 'boolean' }) })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeC' }, valueC: { type: 'boolean' } },
-  })
-  .openapi('DiscrimC')
-
-const DiscrimBSchema = z
-  .object({ kind: z.literal('typeB'), valueB: z.number().optional().openapi({ type: 'number' }) })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } },
-  })
-  .openapi('DiscrimB')
-
-const DiscrimASchema = z
-  .object({ kind: z.literal('typeA'), valueA: z.string().optional().openapi({ type: 'string' }) })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } },
-  })
-  .openapi('DiscrimA')
-
-const CompositionHellSchema = z
+const ContradictionsSchema = z
   .object({
-    nestedAllOf: z
+    impossibleLength: z
+      .string()
+      .min(100)
+      .max(10)
+      .optional()
+      .openapi({ type: 'string', minLength: 100, maxLength: 10 }),
+    impossibleRange: z
+      .number()
+      .min(100)
+      .max(10)
+      .optional()
+      .openapi({ type: 'number', minimum: 100, maximum: 10 }),
+    noValidInteger: z
+      .int()
+      .gt(5)
+      .lt(6)
+      .optional()
+      .openapi({ type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 }),
+    impossibleArray: z
+      .array(z.string().optional().openapi({ type: 'string' }))
+      .min(10)
+      .max(5)
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 }),
+    impossibleObject: z.object({}).openapi({ type: 'object', minProperties: 10, maxProperties: 5 }),
+    missingRequired: z
+      .object({ existingProperty: z.string().optional().openapi({ type: 'string' }) })
+      .openapi({
+        type: 'object',
+        required: ['nonExistentProperty'],
+        properties: { existingProperty: { type: 'string' } },
+      }),
+    constEnumConflict: z
+      .literal('fixed')
+      .optional()
+      .openapi({ type: 'string', enum: ['other1', 'other2'] }),
+    typeConflictAllOf: z
       .intersection(
-        z
-          .intersection(
-            z
-              .intersection(
-                z
-                  .object({ a: z.string().openapi({ type: 'string' }) })
-                  .partial()
-                  .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
-                z
-                  .object({ b: z.string().openapi({ type: 'string' }) })
-                  .partial()
-                  .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
-              )
-              .openapi({
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              }),
-            z
-              .object({ c: z.string().openapi({ type: 'string' }) })
-              .partial()
-              .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
-          )
-          .optional()
-          .openapi({
-            allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
-            ],
-          }),
-        z
-          .object({ d: z.string().openapi({ type: 'string' }) })
-          .partial()
-          .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
+        z.string().optional().openapi({ type: 'string' }),
+        z.number().optional().openapi({ type: 'number' }),
       )
       .optional()
-      .openapi({
-        allOf: [
-          {
-            allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
-            ],
-          },
-          { type: 'object', properties: { d: { type: 'string' } } },
-        ],
-      }),
-    nestedOneOf: z
-      .union([
-        z
-          .union([
-            z.literal('deep1').openapi({ type: 'string' }),
-            z.literal('deep2').optional().openapi({ type: 'string' }),
-          ])
-          .optional()
-          .openapi({
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          }),
-        z
-          .union([
-            z.literal(1).optional().openapi({ type: 'number' }),
-            z.literal(2).optional().openapi({ type: 'number' }),
-          ])
-          .optional()
-          .openapi({
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          }),
-      ])
+      .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
+    formatTypeMismatch: z.int().optional().openapi({ type: 'integer', format: 'email' }),
+    multipleConst: z
+      .intersection(z.literal('value1').optional(), z.literal('value2').optional())
+      .optional()
+      .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      impossibleLength: { type: 'string', minLength: 100, maxLength: 10 },
+      impossibleRange: { type: 'number', minimum: 100, maximum: 10 },
+      noValidInteger: { type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 },
+      impossibleArray: { type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 },
+      impossibleObject: { type: 'object', minProperties: 10, maxProperties: 5 },
+      missingRequired: {
+        type: 'object',
+        required: ['nonExistentProperty'],
+        properties: { existingProperty: { type: 'string' } },
+      },
+      constEnumConflict: { type: 'string', const: 'fixed', enum: ['other1', 'other2'] },
+      typeConflictAllOf: { allOf: [{ type: 'string' }, { type: 'number' }] },
+      formatTypeMismatch: { type: 'integer', format: 'email' },
+      multipleConst: { allOf: [{ const: 'value1' }, { const: 'value2' }] },
+    },
+  })
+  .openapi('Contradictions')
+
+const ImpossibleSchemasSchema = z
+  .object({
+    alwaysFalse: z.any().optional().openapi({ not: {} }),
+    emptyOneOf: z.any().optional().openapi({ oneOf: [] }),
+    emptyAnyOf: z.any().optional().openapi({ anyOf: [] }),
+    impossibleAllOf: z
+      .string()
+      .optional()
+      .openapi({ type: 'string' })
+      .and(z.array(z.any()).optional().openapi({ type: 'array' }))
+      .and(z.object({}).openapi({ type: 'object' }))
+      .and(z.number().optional().openapi({ type: 'number' }))
       .optional()
       .openapi({
-        oneOf: [
-          {
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          },
-          {
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          },
-        ],
+        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
       }),
-    nestedAnyOf: z
-      .union([
-        z
-          .union([
-            z.string().openapi({ type: 'string' }),
-            z.number().optional().openapi({ type: 'number' }),
-          ])
-          .optional()
-          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-        z
-          .union([
-            z.boolean().optional().openapi({ type: 'boolean' }),
-            z.null().nullable().optional().openapi({ type: 'null' }),
-          ])
-          .optional()
-          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
-      ])
+    emptyEnum: z.any().optional().openapi({ type: 'string', enum: [] }),
+    impossiblePattern: z
+      .string()
+      .regex(/^$/)
+      .min(1)
       .optional()
-      .openapi({
-        anyOf: [
-          { anyOf: [{ type: 'string' }, { type: 'number' }] },
-          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-        ],
-      }),
-    allMixed: z
-      .intersection(
+      .openapi({ type: 'string', minLength: 1, pattern: '^$' }),
+    integerDecimal: z
+      .int()
+      .gt(0)
+      .lt(0.5)
+      .multipleOf(0.1)
+      .optional()
+      .openapi({ type: 'integer', multipleOf: 0.1, exclusiveMinimum: 0, exclusiveMaximum: 0.5 }),
+    closedEmpty: z
+      .strictObject({})
+      .openapi({ type: 'object', additionalProperties: false, minProperties: 1 }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      alwaysFalse: { not: {} },
+      emptyOneOf: { oneOf: [] },
+      emptyAnyOf: { anyOf: [] },
+      impossibleAllOf: {
+        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
+      },
+      emptyEnum: { type: 'string', enum: [] },
+      impossiblePattern: { type: 'string', minLength: 1, pattern: '^$' },
+      integerDecimal: {
+        type: 'integer',
+        multipleOf: 0.1,
+        exclusiveMinimum: 0,
+        exclusiveMaximum: 0.5,
+      },
+      closedEmpty: { type: 'object', additionalProperties: false, minProperties: 1 },
+    },
+  })
+  .openapi('ImpossibleSchemas')
+
+const AmbiguousSchemasSchema = z
+  .object({
+    noType: z.any().openapi({ description: 'Schema with no type constraint' }),
+    empty: z.any(),
+    justFalse: z.any().openapi({ not: { not: false } }),
+    justTrue: z.any().openapi({ not: { not: true } }),
+    deepAny: z
+      .union([
         z
           .union([
             z
               .union([
-                z.string().openapi({ type: 'string' }),
-                z.number().optional().openapi({ type: 'number' }),
+                z
+                  .union([z.any()])
+                  .optional()
+                  .openapi({ anyOf: [{}] }),
               ])
               .optional()
-              .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-            z
-              .union([
-                z.boolean().optional().openapi({ type: 'boolean' }),
-                z.null().nullable().optional().openapi({ type: 'null' }),
-              ])
-              .optional()
-              .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+              .openapi({ anyOf: [{ anyOf: [{}] }] }),
           ])
           .optional()
-          .openapi({
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          }),
-        z
-          .any()
-          .optional()
-          .openapi({ not: { const: null } }),
-      )
+          .openapi({ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }),
+      ])
       .optional()
-      .openapi({
-        allOf: [
-          {
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          },
-          { not: { const: null } },
-        ],
-      }),
-    conditionalInAllOf: z
-      .intersection(
-        z
-          .object({ type: z.string().openapi({ type: 'string' }) })
-          .partial()
-          .openapi({ type: 'object', properties: { type: { type: 'string' } } }),
-        z
-          .any()
-          .openapi({
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          }),
-      )
-      .optional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
-      }),
-    multiDiscriminator: z
-      .union([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
-      .openapi({
-        oneOf: [
-          { $ref: '#/components/schemas/DiscrimA' },
-          { $ref: '#/components/schemas/DiscrimB' },
-          { $ref: '#/components/schemas/DiscrimC' },
-        ],
-        discriminator: {
-          propertyName: 'kind',
-          mapping: {
-            typeA: '#/components/schemas/DiscrimA',
-            typeB: '#/components/schemas/DiscrimB',
-            typeC: '#/components/schemas/DiscrimC',
-          },
-        },
-      }),
-    conflictingRequired: z
-      .object({ fieldA: z.string().openapi({ type: 'string' }) })
-      .openapi({ type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } })
-      .and(
-        z
-          .object({ fieldB: z.string().openapi({ type: 'string' }) })
-          .openapi({
-            type: 'object',
-            required: ['fieldB'],
-            properties: { fieldB: { type: 'string' } },
-          }),
-      )
-      .and(
-        z
-          .object({ fieldC: z.string().openapi({ type: 'string' }) })
-          .openapi({
-            type: 'object',
-            required: ['fieldC'],
-            properties: { fieldC: { type: 'string' } },
-          }),
-      )
-      .and(z.strictObject({}).openapi({ type: 'object', additionalProperties: false }))
-      .openapi({
-        allOf: [
-          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
-          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
-          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
-          { type: 'object', additionalProperties: false },
-        ],
-      }),
-    overlappingSchemas: z
+      .openapi({ anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] }),
+    overlappingOneOf: z
       .union([
+        z
+          .object({ a: z.string().openapi({ type: 'string' }) })
+          .partial()
+          .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
         z
           .object({
             a: z.string().openapi({ type: 'string' }),
             b: z.string().openapi({ type: 'string' }),
           })
+          .partial()
           .openapi({
             type: 'object',
-            required: ['a', 'b'],
             properties: { a: { type: 'string' }, b: { type: 'string' } },
           }),
-        z
-          .object({
-            a: z.string().openapi({ type: 'string' }),
-            c: z.string().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          }),
-        z
-          .object({
-            b: z.string().openapi({ type: 'string' }),
-            c: z.string().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          }),
+        z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
       ])
       .openapi({
         oneOf: [
-          {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          },
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+          { type: 'object', additionalProperties: true },
         ],
+      }),
+    ambiguousAnyOf: z
+      .union([
+        z.number().openapi({ type: 'number' }),
+        z.int().optional().openapi({ type: 'integer' }),
+        z
+          .union([z.literal(1), z.literal(2), z.literal(3)])
+          .optional()
+          .openapi({ enum: [1, 2, 3] }),
+        z.literal(2).optional(),
+      ])
+      .optional()
+      .openapi({
+        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
+      }),
+    ambiguousDiscriminator: z
+      .union([
+        z
+          .object({ type: z.enum(['a', 'b']).openapi({ enum: ['a', 'b'] }) })
+          .partial()
+          .openapi({ type: 'object', properties: { type: { enum: ['a', 'b'] } } }),
+        z
+          .object({ type: z.enum(['b', 'c']).openapi({ enum: ['b', 'c'] }) })
+          .partial()
+          .openapi({ type: 'object', properties: { type: { enum: ['b', 'c'] } } }),
+      ])
+      .openapi({
+        oneOf: [
+          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
+          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
+        ],
+        discriminator: { propertyName: 'type' },
       }),
   })
   .partial()
   .openapi({
     type: 'object',
     properties: {
-      nestedAllOf: {
-        allOf: [
-          {
-            allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
-            ],
-          },
-          { type: 'object', properties: { d: { type: 'string' } } },
-        ],
-      },
-      nestedOneOf: {
+      noType: { description: 'Schema with no type constraint' },
+      empty: {},
+      justFalse: { not: { not: false } },
+      justTrue: { not: { not: true } },
+      deepAny: { anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] },
+      overlappingOneOf: {
         oneOf: [
-          {
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          },
-          {
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          },
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+          { type: 'object', additionalProperties: true },
         ],
       },
-      nestedAnyOf: {
-        anyOf: [
-          { anyOf: [{ type: 'string' }, { type: 'number' }] },
-          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-        ],
+      ambiguousAnyOf: {
+        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
       },
-      allMixed: {
-        allOf: [
-          {
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          },
-          { not: { const: null } },
-        ],
-      },
-      conditionalInAllOf: {
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
-      },
-      multiDiscriminator: {
+      ambiguousDiscriminator: {
         oneOf: [
-          { $ref: '#/components/schemas/DiscrimA' },
-          { $ref: '#/components/schemas/DiscrimB' },
-          { $ref: '#/components/schemas/DiscrimC' },
+          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
+          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
         ],
-        discriminator: {
-          propertyName: 'kind',
-          mapping: {
-            typeA: '#/components/schemas/DiscrimA',
-            typeB: '#/components/schemas/DiscrimB',
-            typeC: '#/components/schemas/DiscrimC',
-          },
-        },
-      },
-      conflictingRequired: {
-        allOf: [
-          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
-          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
-          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
-          { type: 'object', additionalProperties: false },
-        ],
-      },
-      overlappingSchemas: {
-        oneOf: [
-          {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          },
-        ],
+        discriminator: { propertyName: 'type' },
       },
     },
   })
-  .openapi('CompositionHell')
-
-type ConstrainedTreeType = {
-  value: string
-  children?: ConstrainedTreeType[]
-  parent?: ConstrainedTreeType
-  siblings?: ConstrainedTreeType[]
-}
-
-const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-        children: z
-          .array(ConstrainedTreeSchema)
-          .max(10)
-          .optional()
-          .openapi({
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          }),
-        parent: ConstrainedTreeSchema,
-        siblings: z
-          .array(ConstrainedTreeSchema)
-          .optional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string', minLength: 1, maxLength: 100 },
-          children: {
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          },
-          parent: { $ref: '#/components/schemas/ConstrainedTree' },
-          siblings: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          },
-        },
-      }),
-  )
-  .openapi('ConstrainedTree')
-
-const RecursiveCSchema = z
-  .object({ value: z.boolean().optional().openapi({ type: 'boolean' }), refA: RecursiveASchema })
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'boolean' }, refA: { $ref: '#/components/schemas/RecursiveA' } },
-  })
-  .openapi('RecursiveC')
-
-const RecursiveBSchema = z
-  .object({ value: z.number().optional().openapi({ type: 'number' }), refC: RecursiveCSchema })
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'number' }, refC: { $ref: '#/components/schemas/RecursiveC' } },
-  })
-  .openapi('RecursiveB')
-
-const RecursiveASchema = z
-  .object({ value: z.string().optional().openapi({ type: 'string' }), refB: RecursiveBSchema })
-  .openapi({
-    type: 'object',
-    properties: { value: { type: 'string' }, refB: { $ref: '#/components/schemas/RecursiveB' } },
-  })
-  .openapi('RecursiveA')
-
-const RecursiveNightmaresSchema = z
-  .object({
-    mutuallyRecursive: RecursiveASchema,
-    constrainedRecursive: ConstrainedTreeSchema,
-    recursiveInAllOf: z
-      .intersection(
-        z
-          .object({ value: z.string().openapi({ type: 'string' }) })
-          .partial()
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
-        z
-          .object({ child: RecursiveInAllOfSchema })
-          .openapi({
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          }),
-      )
-      .optional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveInOneOf: z
-      .union([
-        z.string().optional().openapi({ type: 'string' }),
-        z
-          .object({ nested: RecursiveInOneOfSchema })
-          .openapi({
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          }),
-      ])
-      .optional()
-      .openapi({
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveMap: z
-      .record(z.string(), RecursiveMapSchema)
-      .openapi({
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      }),
-    recursiveArray: z
-      .array(
-        z
-          .array(RecursiveArraySchema)
-          .optional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-          }),
-      )
-      .optional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-        },
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
-      constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
-      recursiveInAllOf: {
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveInOneOf: {
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveMap: {
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      },
-      recursiveArray: {
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-        },
-      },
-    },
-  })
-  .openapi('RecursiveNightmares')
+  .openapi('AmbiguousSchemas')
 
 const EdgeCasesSchema = z
   .object({
@@ -1323,246 +916,638 @@ const EdgeCasesSchema = z
   })
   .openapi('EdgeCases')
 
-const AmbiguousSchemasSchema = z
-  .object({
-    noType: z.any().openapi({ description: 'Schema with no type constraint' }),
-    empty: z.any(),
-    justFalse: z.any().openapi({ not: { not: false } }),
-    justTrue: z.any().openapi({ not: { not: true } }),
-    deepAny: z
-      .union([
-        z
-          .union([
-            z
-              .union([
-                z
-                  .union([z.any()])
-                  .optional()
-                  .openapi({ anyOf: [{}] }),
-              ])
-              .optional()
-              .openapi({ anyOf: [{ anyOf: [{}] }] }),
-          ])
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.string().openapi({ type: 'string' }), refB: RecursiveBSchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          refB: { $ref: '#/components/schemas/RecursiveB' },
+        },
+      }),
+  )
+  .openapi('RecursiveA')
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+        children: z
+          .array(ConstrainedTreeSchema)
+          .max(10)
           .optional()
-          .openapi({ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }),
-      ])
-      .optional()
-      .openapi({ anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] }),
-    overlappingOneOf: z
-      .union([
+          .openapi({
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          }),
+        parent: ConstrainedTreeSchema.optional(),
+        siblings: z
+          .array(ConstrainedTreeSchema)
+          .optional()
+          .openapi({
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: { type: 'string', minLength: 1, maxLength: 100 },
+          children: {
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          },
+          parent: { $ref: '#/components/schemas/ConstrainedTree' },
+          siblings: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          },
+        },
+      }),
+  )
+  .openapi('ConstrainedTree')
+
+const RecursiveNightmaresSchema = z
+  .object({
+    mutuallyRecursive: RecursiveASchema,
+    constrainedRecursive: ConstrainedTreeSchema,
+    recursiveInAllOf: z
+      .intersection(
         z
-          .object({ a: z.string().openapi({ type: 'string' }) })
+          .object({ value: z.string().openapi({ type: 'string' }) })
           .partial()
-          .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
+          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
         z
-          .object({
-            a: z.string().openapi({ type: 'string' }),
-            b: z.string().openapi({ type: 'string' }),
-          })
+          .object({ child: RecursiveInAllOfSchema })
           .partial()
           .openapi({
             type: 'object',
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
+            properties: {
+              child: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+              },
+            },
           }),
-        z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
-      ])
+      )
       .openapi({
-        oneOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
-          { type: 'object', additionalProperties: true },
+        allOf: [
+          { type: 'object', properties: { value: { type: 'string' } } },
+          {
+            type: 'object',
+            properties: {
+              child: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+              },
+            },
+          },
         ],
       }),
-    ambiguousAnyOf: z
+    recursiveInOneOf: z
       .union([
-        z.number().openapi({ type: 'number' }),
-        z.int().optional().openapi({ type: 'integer' }),
+        z.string().openapi({ type: 'string' }),
         z
-          .union([z.literal(1), z.literal(2), z.literal(3)])
-          .optional()
-          .openapi({ enum: [1, 2, 3] }),
-        z.literal(2).optional(),
+          .object({ nested: RecursiveInOneOfSchema })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: {
+              nested: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+              },
+            },
+          }),
       ])
       .optional()
       .openapi({
-        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
-      }),
-    ambiguousDiscriminator: z
-      .union([
-        z
-          .object({ type: z.enum(['a', 'b']).openapi({ enum: ['a', 'b'] }) })
-          .partial()
-          .openapi({ type: 'object', properties: { type: { enum: ['a', 'b'] } } }),
-        z
-          .object({ type: z.enum(['b', 'c']).openapi({ enum: ['b', 'c'] }) })
-          .partial()
-          .openapi({ type: 'object', properties: { type: { enum: ['b', 'c'] } } }),
-      ])
-      .openapi({
         oneOf: [
-          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
-          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
+          { type: 'string' },
+          {
+            type: 'object',
+            properties: {
+              nested: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+              },
+            },
+          },
         ],
-        discriminator: { propertyName: 'type' },
+      }),
+    recursiveMap: z
+      .record(z.string(), RecursiveMapSchema)
+      .openapi({
+        type: 'object',
+        additionalProperties: {
+          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+        },
+      }),
+    recursiveArray: z
+      .array(
+        z
+          .array(RecursiveArraySchema)
+          .openapi({
+            type: 'array',
+            items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+          }),
+      )
+      .optional()
+      .openapi({
+        type: 'array',
+        items: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+        },
       }),
   })
   .partial()
   .openapi({
     type: 'object',
     properties: {
-      noType: { description: 'Schema with no type constraint' },
-      empty: {},
-      justFalse: { not: { not: false } },
-      justTrue: { not: { not: true } },
-      deepAny: { anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] },
-      overlappingOneOf: {
-        oneOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
-          { type: 'object', additionalProperties: true },
+      mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
+      constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
+      recursiveInAllOf: {
+        allOf: [
+          { type: 'object', properties: { value: { type: 'string' } } },
+          {
+            type: 'object',
+            properties: {
+              child: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+              },
+            },
+          },
         ],
       },
-      ambiguousAnyOf: {
-        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
-      },
-      ambiguousDiscriminator: {
+      recursiveInOneOf: {
         oneOf: [
-          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
-          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
+          { type: 'string' },
+          {
+            type: 'object',
+            properties: {
+              nested: {
+                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+              },
+            },
+          },
         ],
-        discriminator: { propertyName: 'type' },
+      },
+      recursiveMap: {
+        type: 'object',
+        additionalProperties: {
+          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+        },
+      },
+      recursiveArray: {
+        type: 'array',
+        items: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+        },
       },
     },
   })
-  .openapi('AmbiguousSchemas')
+  .openapi('RecursiveNightmares')
 
-const ImpossibleSchemasSchema = z
-  .object({
-    alwaysFalse: z.any().optional().openapi({ not: {} }),
-    emptyOneOf: z.any().optional().openapi({ oneOf: [] }),
-    emptyAnyOf: z.any().optional().openapi({ anyOf: [] }),
-    impossibleAllOf: z
-      .string()
-      .optional()
-      .openapi({ type: 'string' })
-      .and(z.array(z.any()).optional().openapi({ type: 'array' }))
-      .and(z.object({}).openapi({ type: 'object' }))
-      .and(z.number().optional().openapi({ type: 'number' }))
-      .optional()
-      .openapi({
-        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
-      }),
-    emptyEnum: z.any().optional().openapi({ type: 'string', enum: [] }),
-    impossiblePattern: z
-      .string()
-      .regex(/^$/)
-      .min(1)
-      .optional()
-      .openapi({ type: 'string', minLength: 1, pattern: '^$' }),
-    integerDecimal: z
-      .int()
-      .gt(0)
-      .lt(0.5)
-      .multipleOf(0.1)
-      .optional()
-      .openapi({ type: 'integer', multipleOf: 0.1, exclusiveMinimum: 0, exclusiveMaximum: 0.5 }),
-    closedEmpty: z
-      .strictObject({})
-      .openapi({ type: 'object', additionalProperties: false, minProperties: 1 }),
-  })
+const DiscrimASchema = z
+  .object({ kind: z.literal('typeA'), valueA: z.string().optional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
-    properties: {
-      alwaysFalse: { not: {} },
-      emptyOneOf: { oneOf: [] },
-      emptyAnyOf: { anyOf: [] },
-      impossibleAllOf: {
-        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
-      },
-      emptyEnum: { type: 'string', enum: [] },
-      impossiblePattern: { type: 'string', minLength: 1, pattern: '^$' },
-      integerDecimal: {
-        type: 'integer',
-        multipleOf: 0.1,
-        exclusiveMinimum: 0,
-        exclusiveMaximum: 0.5,
-      },
-      closedEmpty: { type: 'object', additionalProperties: false, minProperties: 1 },
-    },
+    required: ['kind'],
+    properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } },
   })
-  .openapi('ImpossibleSchemas')
+  .openapi('DiscrimA')
 
-const ContradictionsSchema = z
+const DiscrimBSchema = z
+  .object({ kind: z.literal('typeB'), valueB: z.number().optional().openapi({ type: 'number' }) })
+  .openapi({
+    type: 'object',
+    required: ['kind'],
+    properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } },
+  })
+  .openapi('DiscrimB')
+
+const DiscrimCSchema = z
+  .object({ kind: z.literal('typeC'), valueC: z.boolean().optional().openapi({ type: 'boolean' }) })
+  .openapi({
+    type: 'object',
+    required: ['kind'],
+    properties: { kind: { const: 'typeC' }, valueC: { type: 'boolean' } },
+  })
+  .openapi('DiscrimC')
+
+const CompositionHellSchema = z
   .object({
-    impossibleLength: z
-      .string()
-      .min(100)
-      .max(10)
-      .optional()
-      .openapi({ type: 'string', minLength: 100, maxLength: 10 }),
-    impossibleRange: z
-      .number()
-      .min(100)
-      .max(10)
-      .optional()
-      .openapi({ type: 'number', minimum: 100, maximum: 10 }),
-    noValidInteger: z
-      .int()
-      .gt(5)
-      .lt(6)
-      .optional()
-      .openapi({ type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 }),
-    impossibleArray: z
-      .array(z.string().optional().openapi({ type: 'string' }))
-      .min(10)
-      .max(5)
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 }),
-    impossibleObject: z.object({}).openapi({ type: 'object', minProperties: 10, maxProperties: 5 }),
-    missingRequired: z
-      .object({ existingProperty: z.string().optional().openapi({ type: 'string' }) })
-      .openapi({
-        type: 'object',
-        required: ['nonExistentProperty'],
-        properties: { existingProperty: { type: 'string' } },
-      }),
-    constEnumConflict: z
-      .literal('fixed')
-      .optional()
-      .openapi({ type: 'string', enum: ['other1', 'other2'] }),
-    typeConflictAllOf: z
+    nestedAllOf: z
       .intersection(
-        z.string().optional().openapi({ type: 'string' }),
-        z.number().optional().openapi({ type: 'number' }),
+        z
+          .intersection(
+            z
+              .intersection(
+                z
+                  .object({ a: z.string().openapi({ type: 'string' }) })
+                  .partial()
+                  .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
+                z
+                  .object({ b: z.string().openapi({ type: 'string' }) })
+                  .partial()
+                  .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
+              )
+              .openapi({
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'string' } } },
+                ],
+              }),
+            z
+              .object({ c: z.string().openapi({ type: 'string' }) })
+              .partial()
+              .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
+          )
+          .optional()
+          .openapi({
+            allOf: [
+              {
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'string' } } },
+                ],
+              },
+              { type: 'object', properties: { c: { type: 'string' } } },
+            ],
+          }),
+        z
+          .object({ d: z.string().openapi({ type: 'string' }) })
+          .partial()
+          .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
       )
       .optional()
-      .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
-    formatTypeMismatch: z.int().optional().openapi({ type: 'integer', format: 'email' }),
-    multipleConst: z
-      .intersection(z.literal('value1').optional(), z.literal('value2').optional())
+      .openapi({
+        allOf: [
+          {
+            allOf: [
+              {
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'string' } } },
+                ],
+              },
+              { type: 'object', properties: { c: { type: 'string' } } },
+            ],
+          },
+          { type: 'object', properties: { d: { type: 'string' } } },
+        ],
+      }),
+    nestedOneOf: z
+      .union([
+        z
+          .union([
+            z.literal('deep1').openapi({ type: 'string' }),
+            z.literal('deep2').optional().openapi({ type: 'string' }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { type: 'string', const: 'deep1' },
+              { type: 'string', const: 'deep2' },
+            ],
+          }),
+        z
+          .union([
+            z.literal(1).optional().openapi({ type: 'number' }),
+            z.literal(2).optional().openapi({ type: 'number' }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { type: 'number', const: 1 },
+              { type: 'number', const: 2 },
+            ],
+          }),
+      ])
       .optional()
-      .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
+      .openapi({
+        oneOf: [
+          {
+            oneOf: [
+              { type: 'string', const: 'deep1' },
+              { type: 'string', const: 'deep2' },
+            ],
+          },
+          {
+            oneOf: [
+              { type: 'number', const: 1 },
+              { type: 'number', const: 2 },
+            ],
+          },
+        ],
+      }),
+    nestedAnyOf: z
+      .union([
+        z
+          .union([
+            z.string().openapi({ type: 'string' }),
+            z.number().optional().openapi({ type: 'number' }),
+          ])
+          .optional()
+          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
+        z
+          .union([
+            z.boolean().optional().openapi({ type: 'boolean' }),
+            z.null().nullable().optional().openapi({ type: 'null' }),
+          ])
+          .optional()
+          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+      ])
+      .optional()
+      .openapi({
+        anyOf: [
+          { anyOf: [{ type: 'string' }, { type: 'number' }] },
+          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+        ],
+      }),
+    allMixed: z
+      .intersection(
+        z
+          .union([
+            z
+              .union([
+                z.string().openapi({ type: 'string' }),
+                z.number().optional().openapi({ type: 'number' }),
+              ])
+              .optional()
+              .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
+            z
+              .union([
+                z.boolean().optional().openapi({ type: 'boolean' }),
+                z.null().nullable().optional().openapi({ type: 'null' }),
+              ])
+              .optional()
+              .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+          ])
+          .optional()
+          .openapi({
+            oneOf: [
+              { anyOf: [{ type: 'string' }, { type: 'number' }] },
+              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+            ],
+          }),
+        z
+          .any()
+          .optional()
+          .openapi({ not: { const: null } }),
+      )
+      .optional()
+      .openapi({
+        allOf: [
+          {
+            oneOf: [
+              { anyOf: [{ type: 'string' }, { type: 'number' }] },
+              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+            ],
+          },
+          { not: { const: null } },
+        ],
+      }),
+    conditionalInAllOf: z
+      .intersection(
+        z
+          .object({ type: z.string().openapi({ type: 'string' }) })
+          .partial()
+          .openapi({ type: 'object', properties: { type: { type: 'string' } } }),
+        z
+          .any()
+          .openapi({
+            if: { properties: { type: { const: 'A' } } },
+            then: { properties: { valueA: { type: 'string' } } },
+            else: { properties: { valueOther: { type: 'number' } } },
+          }),
+      )
+      .optional()
+      .openapi({
+        allOf: [
+          { type: 'object', properties: { type: { type: 'string' } } },
+          {
+            if: { properties: { type: { const: 'A' } } },
+            then: { properties: { valueA: { type: 'string' } } },
+            else: { properties: { valueOther: { type: 'number' } } },
+          },
+        ],
+      }),
+    multiDiscriminator: z
+      .union([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
+      .openapi({
+        oneOf: [
+          { $ref: '#/components/schemas/DiscrimA' },
+          { $ref: '#/components/schemas/DiscrimB' },
+          { $ref: '#/components/schemas/DiscrimC' },
+        ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: {
+            typeA: '#/components/schemas/DiscrimA',
+            typeB: '#/components/schemas/DiscrimB',
+            typeC: '#/components/schemas/DiscrimC',
+          },
+        },
+      }),
+    conflictingRequired: z
+      .object({ fieldA: z.string().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } })
+      .and(
+        z
+          .object({ fieldB: z.string().openapi({ type: 'string' }) })
+          .openapi({
+            type: 'object',
+            required: ['fieldB'],
+            properties: { fieldB: { type: 'string' } },
+          }),
+      )
+      .and(
+        z
+          .object({ fieldC: z.string().openapi({ type: 'string' }) })
+          .openapi({
+            type: 'object',
+            required: ['fieldC'],
+            properties: { fieldC: { type: 'string' } },
+          }),
+      )
+      .and(z.strictObject({}).openapi({ type: 'object', additionalProperties: false }))
+      .openapi({
+        allOf: [
+          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
+          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
+          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
+          { type: 'object', additionalProperties: false },
+        ],
+      }),
+    overlappingSchemas: z
+      .union([
+        z
+          .object({
+            a: z.string().openapi({ type: 'string' }),
+            b: z.string().openapi({ type: 'string' }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['a', 'b'],
+            properties: { a: { type: 'string' }, b: { type: 'string' } },
+          }),
+        z
+          .object({
+            a: z.string().openapi({ type: 'string' }),
+            c: z.string().openapi({ type: 'string' }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['a', 'c'],
+            properties: { a: { type: 'string' }, c: { type: 'string' } },
+          }),
+        z
+          .object({
+            b: z.string().openapi({ type: 'string' }),
+            c: z.string().openapi({ type: 'string' }),
+          })
+          .openapi({
+            type: 'object',
+            required: ['b', 'c'],
+            properties: { b: { type: 'string' }, c: { type: 'string' } },
+          }),
+      ])
+      .openapi({
+        oneOf: [
+          {
+            type: 'object',
+            required: ['a', 'b'],
+            properties: { a: { type: 'string' }, b: { type: 'string' } },
+          },
+          {
+            type: 'object',
+            required: ['a', 'c'],
+            properties: { a: { type: 'string' }, c: { type: 'string' } },
+          },
+          {
+            type: 'object',
+            required: ['b', 'c'],
+            properties: { b: { type: 'string' }, c: { type: 'string' } },
+          },
+        ],
+      }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
-      impossibleLength: { type: 'string', minLength: 100, maxLength: 10 },
-      impossibleRange: { type: 'number', minimum: 100, maximum: 10 },
-      noValidInteger: { type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 },
-      impossibleArray: { type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 },
-      impossibleObject: { type: 'object', minProperties: 10, maxProperties: 5 },
-      missingRequired: {
-        type: 'object',
-        required: ['nonExistentProperty'],
-        properties: { existingProperty: { type: 'string' } },
+      nestedAllOf: {
+        allOf: [
+          {
+            allOf: [
+              {
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'string' } } },
+                ],
+              },
+              { type: 'object', properties: { c: { type: 'string' } } },
+            ],
+          },
+          { type: 'object', properties: { d: { type: 'string' } } },
+        ],
       },
-      constEnumConflict: { type: 'string', const: 'fixed', enum: ['other1', 'other2'] },
-      typeConflictAllOf: { allOf: [{ type: 'string' }, { type: 'number' }] },
-      formatTypeMismatch: { type: 'integer', format: 'email' },
-      multipleConst: { allOf: [{ const: 'value1' }, { const: 'value2' }] },
+      nestedOneOf: {
+        oneOf: [
+          {
+            oneOf: [
+              { type: 'string', const: 'deep1' },
+              { type: 'string', const: 'deep2' },
+            ],
+          },
+          {
+            oneOf: [
+              { type: 'number', const: 1 },
+              { type: 'number', const: 2 },
+            ],
+          },
+        ],
+      },
+      nestedAnyOf: {
+        anyOf: [
+          { anyOf: [{ type: 'string' }, { type: 'number' }] },
+          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+        ],
+      },
+      allMixed: {
+        allOf: [
+          {
+            oneOf: [
+              { anyOf: [{ type: 'string' }, { type: 'number' }] },
+              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+            ],
+          },
+          { not: { const: null } },
+        ],
+      },
+      conditionalInAllOf: {
+        allOf: [
+          { type: 'object', properties: { type: { type: 'string' } } },
+          {
+            if: { properties: { type: { const: 'A' } } },
+            then: { properties: { valueA: { type: 'string' } } },
+            else: { properties: { valueOther: { type: 'number' } } },
+          },
+        ],
+      },
+      multiDiscriminator: {
+        oneOf: [
+          { $ref: '#/components/schemas/DiscrimA' },
+          { $ref: '#/components/schemas/DiscrimB' },
+          { $ref: '#/components/schemas/DiscrimC' },
+        ],
+        discriminator: {
+          propertyName: 'kind',
+          mapping: {
+            typeA: '#/components/schemas/DiscrimA',
+            typeB: '#/components/schemas/DiscrimB',
+            typeC: '#/components/schemas/DiscrimC',
+          },
+        },
+      },
+      conflictingRequired: {
+        allOf: [
+          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
+          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
+          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
+          { type: 'object', additionalProperties: false },
+        ],
+      },
+      overlappingSchemas: {
+        oneOf: [
+          {
+            type: 'object',
+            required: ['a', 'b'],
+            properties: { a: { type: 'string' }, b: { type: 'string' } },
+          },
+          {
+            type: 'object',
+            required: ['a', 'c'],
+            properties: { a: { type: 'string' }, c: { type: 'string' } },
+          },
+          {
+            type: 'object',
+            required: ['b', 'c'],
+            properties: { b: { type: 'string' }, c: { type: 'string' } },
+          },
+        ],
+      },
     },
   })
-  .openapi('Contradictions')
+  .openapi('CompositionHell')
 
 const PathologicalRootSchema = z
   .object({
@@ -1573,6 +1558,7 @@ const PathologicalRootSchema = z
     recursive: RecursiveNightmaresSchema,
     composition: CompositionHellSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1586,10 +1572,55 @@ const PathologicalRootSchema = z
   })
   .openapi('PathologicalRoot')
 
+const RecursiveBSchema: z.ZodType<RecursiveBType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.number().openapi({ type: 'number' }), refC: RecursiveCSchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'number' },
+          refC: { $ref: '#/components/schemas/RecursiveC' },
+        },
+      }),
+  )
+  .openapi('RecursiveB')
+
+type RecursiveAType = { value?: string; refB?: z.infer<typeof RecursiveBSchema> }
+
+const RecursiveCSchema: z.ZodType<RecursiveCType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.boolean().openapi({ type: 'boolean' }), refA: RecursiveASchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'boolean' },
+          refA: { $ref: '#/components/schemas/RecursiveA' },
+        },
+      }),
+  )
+  .openapi('RecursiveC')
+
+type RecursiveBType = { value?: number; refC?: z.infer<typeof RecursiveCSchema> }
+
+type RecursiveCType = { value?: boolean; refA?: z.infer<typeof RecursiveASchema> }
+
+type ConstrainedTreeType = {
+  value: string
+  children?: ConstrainedTreeType[]
+  parent?: ConstrainedTreeType
+  siblings?: ConstrainedTreeType[]
+}
+
 export const postPathologicalRoute = createRoute({
   method: 'post',
   path: '/pathological',
   operationId: 'testPathological',
-  request: { body: { content: { 'application/json': { schema: PathologicalRootSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: PathologicalRootSchema.optional() } } },
+  },
   responses: { 200: { description: 'OK' } },
 })

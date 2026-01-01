@@ -1,39 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const SingleLogoutServiceSchema = z
-  .object({
-    binding: z
-      .enum([
-        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-      ])
-      .openapi({
-        type: 'string',
-        enum: [
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        ],
-      }),
-    location: z.url().openapi({ type: 'string', format: 'uri' }),
-    responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['binding', 'location'],
-    properties: {
-      binding: {
-        type: 'string',
-        enum: [
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        ],
-      },
-      location: { type: 'string', format: 'uri' },
-      responseLocation: { type: 'string', format: 'uri' },
-    },
-  })
-  .openapi('SingleLogoutService')
-
 const AssertionConsumerServiceSchema = z
   .object({
     binding: z
@@ -69,6 +35,40 @@ const AssertionConsumerServiceSchema = z
     },
   })
   .openapi('AssertionConsumerService')
+
+const SingleLogoutServiceSchema = z
+  .object({
+    binding: z
+      .enum([
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      ])
+      .openapi({
+        type: 'string',
+        enum: [
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        ],
+      }),
+    location: z.url().openapi({ type: 'string', format: 'uri' }),
+    responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['binding', 'location'],
+    properties: {
+      binding: {
+        type: 'string',
+        enum: [
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        ],
+      },
+      location: { type: 'string', format: 'uri' },
+      responseLocation: { type: 'string', format: 'uri' },
+    },
+  })
+  .openapi('SingleLogoutService')
 
 const ServiceProviderSchema = z
   .object({
@@ -661,17 +661,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: '不正なリクエスト',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getSamlSsoRoute = createRoute({
@@ -737,7 +737,7 @@ export const getSamlSsoRoute = createRoute({
     302: { description: '認証フォームまたはSPへリダイレクト' },
     400: {
       description: '不正なSAMLリクエスト',
-      content: { 'application/json': { schema: SamlErrorSchema } },
+      content: { 'application/json': { schema: SamlErrorSchema.optional() } },
     },
   },
 })
@@ -787,7 +787,7 @@ export const postSamlSsoRoute = createRoute({
     302: { description: 'SPへリダイレクト' },
     400: {
       description: '不正なSAMLリクエスト',
-      content: { 'application/json': { schema: SamlErrorSchema } },
+      content: { 'application/json': { schema: SamlErrorSchema.optional() } },
     },
   },
 })
@@ -992,7 +992,7 @@ export const postServiceProvidersRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: CreateServiceProviderRequestSchema },
+        'application/json': { schema: CreateServiceProviderRequestSchema.optional() },
         'application/xml': {
           schema: z.string().optional().openapi({ type: 'string', description: 'SPメタデータXML' }),
         },
@@ -1003,7 +1003,7 @@ export const postServiceProvidersRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: ServiceProviderSchema } },
+      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1036,7 +1036,7 @@ export const getServiceProvidersSpIdRoute = createRoute({
   responses: {
     200: {
       description: 'SP詳細',
-      content: { 'application/json': { schema: ServiceProviderSchema } },
+      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1052,14 +1052,14 @@ export const putServiceProvidersSpIdRoute = createRoute({
   operationId: 'updateServiceProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateServiceProviderRequestSchema } },
+      content: { 'application/json': { schema: UpdateServiceProviderRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ServiceProviderSchema } },
+      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1150,7 +1150,7 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ServiceProviderSchema } },
+      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
     },
     400: { description: '不正なメタデータ' },
     401: UnauthorizedResponse,
@@ -1317,7 +1317,7 @@ export const postCertificatesRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: CertificateSchema } },
+      content: { 'application/json': { schema: CertificateSchema.optional() } },
     },
     400: { description: '不正な証明書' },
     401: UnauthorizedResponse,
@@ -1380,7 +1380,7 @@ export const postCertificatesCertIdActivateRoute = createRoute({
   responses: {
     200: {
       description: '有効化成功',
-      content: { 'application/json': { schema: CertificateSchema } },
+      content: { 'application/json': { schema: CertificateSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1504,7 +1504,7 @@ export const getAuditLogsRoute = createRoute({
   responses: {
     200: {
       description: '監査ログ',
-      content: { 'application/json': { schema: AuditLogListResponseSchema } },
+      content: { 'application/json': { schema: AuditLogListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

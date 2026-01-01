@@ -1,99 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const EntityMetadataSchema = z
-  .object({
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    version: z.int().openapi({ type: 'integer' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-      version: { type: 'integer' },
-    },
-  })
-  .openapi('EntityMetadata')
-
-const UserPreferencesSchema = z
-  .object({
-    language: z.string().openapi({ type: 'string' }),
-    timezone: z.string().openapi({ type: 'string' }),
-    theme: z
-      .enum(['light', 'dark', 'system'])
-      .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
-    dateFormat: z.string().openapi({ type: 'string' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      language: { type: 'string' },
-      timezone: { type: 'string' },
-      theme: { type: 'string', enum: ['light', 'dark', 'system'] },
-      dateFormat: { type: 'string' },
-    },
-  })
-  .openapi('UserPreferences')
-
-const PrivacySettingsSchema = z
-  .object({
-    profileVisibility: z
-      .enum(['public', 'private', 'connections'])
-      .openapi({ type: 'string', enum: ['public', 'private', 'connections'] }),
-    showEmail: z.boolean().openapi({ type: 'boolean' }),
-    showActivity: z.boolean().openapi({ type: 'boolean' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      profileVisibility: { type: 'string', enum: ['public', 'private', 'connections'] },
-      showEmail: { type: 'boolean' },
-      showActivity: { type: 'boolean' },
-    },
-  })
-  .openapi('PrivacySettings')
-
-const NotificationSettingsSchema = z
-  .object({
-    email: z.boolean().openapi({ type: 'boolean' }),
-    push: z.boolean().openapi({ type: 'boolean' }),
-    sms: z.boolean().openapi({ type: 'boolean' }),
-    channels: z
-      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
-      .openapi({ type: 'object', additionalProperties: { type: 'boolean' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      email: { type: 'boolean' },
-      push: { type: 'boolean' },
-      sms: { type: 'boolean' },
-      channels: { type: 'object', additionalProperties: { type: 'boolean' } },
-    },
-  })
-  .openapi('NotificationSettings')
-
-const UserSettingsSchema = z
-  .object({
-    notifications: NotificationSettingsSchema,
-    privacy: PrivacySettingsSchema,
-    preferences: UserPreferencesSchema,
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      notifications: { $ref: '#/components/schemas/NotificationSettings' },
-      privacy: { $ref: '#/components/schemas/PrivacySettings' },
-      preferences: { $ref: '#/components/schemas/UserPreferences' },
-    },
-  })
-  .openapi('UserSettings')
-
 const UserProfileSchema = z
   .object({
     firstName: z.string().openapi({ type: 'string' }),
@@ -117,13 +23,108 @@ const UserProfileSchema = z
   })
   .openapi('UserProfile')
 
+const NotificationSettingsSchema = z
+  .object({
+    email: z.boolean().openapi({ type: 'boolean' }),
+    push: z.boolean().openapi({ type: 'boolean' }),
+    sms: z.boolean().openapi({ type: 'boolean' }),
+    channels: z
+      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
+      .openapi({ type: 'object', additionalProperties: { type: 'boolean' } }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      email: { type: 'boolean' },
+      push: { type: 'boolean' },
+      sms: { type: 'boolean' },
+      channels: { type: 'object', additionalProperties: { type: 'boolean' } },
+    },
+  })
+  .openapi('NotificationSettings')
+
+const PrivacySettingsSchema = z
+  .object({
+    profileVisibility: z
+      .enum(['public', 'private', 'connections'])
+      .openapi({ type: 'string', enum: ['public', 'private', 'connections'] }),
+    showEmail: z.boolean().openapi({ type: 'boolean' }),
+    showActivity: z.boolean().openapi({ type: 'boolean' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      profileVisibility: { type: 'string', enum: ['public', 'private', 'connections'] },
+      showEmail: { type: 'boolean' },
+      showActivity: { type: 'boolean' },
+    },
+  })
+  .openapi('PrivacySettings')
+
+const UserPreferencesSchema = z
+  .object({
+    language: z.string().openapi({ type: 'string' }),
+    timezone: z.string().openapi({ type: 'string' }),
+    theme: z
+      .enum(['light', 'dark', 'system'])
+      .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
+    dateFormat: z.string().openapi({ type: 'string' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      language: { type: 'string' },
+      timezone: { type: 'string' },
+      theme: { type: 'string', enum: ['light', 'dark', 'system'] },
+      dateFormat: { type: 'string' },
+    },
+  })
+  .openapi('UserPreferences')
+
+const UserSettingsSchema = z
+  .object({
+    notifications: NotificationSettingsSchema,
+    privacy: PrivacySettingsSchema,
+    preferences: UserPreferencesSchema,
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      notifications: { $ref: '#/components/schemas/NotificationSettings' },
+      privacy: { $ref: '#/components/schemas/PrivacySettings' },
+      preferences: { $ref: '#/components/schemas/UserPreferences' },
+    },
+  })
+  .openapi('UserSettings')
+
+const EntityMetadataSchema = z
+  .object({
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    version: z.int().openapi({ type: 'integer' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      createdAt: { type: 'string', format: 'date-time' },
+      updatedAt: { type: 'string', format: 'date-time' },
+      version: { type: 'integer' },
+    },
+  })
+  .openapi('EntityMetadata')
+
 const UserSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    profile: UserProfileSchema,
-    settings: UserSettingsSchema,
-    metadata: EntityMetadataSchema,
+    profile: UserProfileSchema.optional(),
+    settings: UserSettingsSchema.optional(),
+    metadata: EntityMetadataSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -141,7 +142,7 @@ const UserSchema = z
 const CreateUserInputSchema = z
   .object({
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    profile: UserProfileSchema,
+    profile: UserProfileSchema.optional(),
     password: z.string().optional().openapi({ type: 'string', format: 'password' }),
   })
   .openapi({
@@ -177,25 +178,6 @@ const UserFilterSchema = z
   })
   .openapi('UserFilter')
 
-const OrganizationMemberSchema = z
-  .object({
-    user: UserSchema,
-    role: z
-      .enum(['owner', 'admin', 'member', 'viewer'])
-      .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
-    joinedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['user', 'role'],
-    properties: {
-      user: { $ref: '#/components/schemas/User' },
-      role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
-      joinedAt: { type: 'string', format: 'date-time' },
-    },
-  })
-  .openapi('OrganizationMember')
-
 const AddressSchema = z
   .object({
     street: z.string().openapi({ type: 'string' }),
@@ -217,12 +199,31 @@ const AddressSchema = z
   })
   .openapi('Address')
 
+const OrganizationMemberSchema = z
+  .object({
+    user: UserSchema,
+    role: z
+      .enum(['owner', 'admin', 'member', 'viewer'])
+      .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
+    joinedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['user', 'role'],
+    properties: {
+      user: { $ref: '#/components/schemas/User' },
+      role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
+      joinedAt: { type: 'string', format: 'date-time' },
+    },
+  })
+  .openapi('OrganizationMember')
+
 const OrganizationSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    address: AddressSchema,
+    address: AddressSchema.optional(),
     members: z
       .array(OrganizationMemberSchema)
       .optional()
@@ -289,7 +290,7 @@ const ProductVariantSchema = z
     attributes: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-    price: PriceSchema,
+    price: PriceSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -324,7 +325,7 @@ const OrderItemSchema = z
 const OrderSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    customer: UserSchema,
+    customer: UserSchema.optional(),
     items: z
       .array(OrderItemSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
@@ -336,8 +337,8 @@ const OrderSchema = z
         type: 'string',
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
       }),
-    shippingAddress: AddressSchema,
-    billingAddress: AddressSchema,
+    shippingAddress: AddressSchema.optional(),
+    billingAddress: AddressSchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -357,23 +358,6 @@ const OrderSchema = z
   })
   .openapi('Order')
 
-const BankTransferPaymentSchema = z
-  .object({
-    method: z.literal('bank_transfer').openapi({ type: 'string' }),
-    bankAccount: z.string().openapi({ type: 'string' }),
-    routingNumber: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['method', 'bankAccount'],
-    properties: {
-      method: { type: 'string', const: 'bank_transfer' },
-      bankAccount: { type: 'string' },
-      routingNumber: { type: 'string' },
-    },
-  })
-  .openapi('BankTransferPayment')
-
 const CreditCardPaymentSchema = z
   .object({
     method: z.literal('credit_card').openapi({ type: 'string' }),
@@ -390,6 +374,23 @@ const CreditCardPaymentSchema = z
     },
   })
   .openapi('CreditCardPayment')
+
+const BankTransferPaymentSchema = z
+  .object({
+    method: z.literal('bank_transfer').openapi({ type: 'string' }),
+    bankAccount: z.string().openapi({ type: 'string' }),
+    routingNumber: z.string().optional().openapi({ type: 'string' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['method', 'bankAccount'],
+    properties: {
+      method: { type: 'string', const: 'bank_transfer' },
+      bankAccount: { type: 'string' },
+      routingNumber: { type: 'string' },
+    },
+  })
+  .openapi('BankTransferPayment')
 
 const CreateOrderInputSchema = z
   .object({
@@ -423,8 +424,8 @@ const CreateOrderInputSchema = z
           },
         },
       }),
-    shippingAddress: AddressSchema,
-    billingAddress: AddressSchema,
+    shippingAddress: AddressSchema.optional(),
+    billingAddress: AddressSchema.optional(),
     paymentMethod: z
       .union([CreditCardPaymentSchema, BankTransferPaymentSchema])
       .optional()
@@ -501,12 +502,13 @@ const DateRangeSchema = z
 
 const ShippingInfoSchema = z
   .object({
-    carrier: z.string().optional().openapi({ type: 'string' }),
-    method: z.string().optional().openapi({ type: 'string' }),
-    trackingNumber: z.string().optional().openapi({ type: 'string' }),
+    carrier: z.string().openapi({ type: 'string' }),
+    method: z.string().openapi({ type: 'string' }),
+    trackingNumber: z.string().openapi({ type: 'string' }),
     estimatedDelivery: DateRangeSchema,
     cost: PriceSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -523,7 +525,7 @@ const WarehouseSchema = z
   .object({
     id: z.string().openapi({ type: 'string' }),
     name: z.string().openapi({ type: 'string' }),
-    address: AddressSchema,
+    address: AddressSchema.optional(),
     capacity: z.int().optional().openapi({ type: 'integer' }),
   })
   .openapi({
@@ -599,11 +601,12 @@ const UserReportParamsSchema = z
   .object({
     dateRange: DateRangeSchema,
     segments: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    includeInactive: z.boolean().optional().openapi({ type: 'boolean' }),
+    includeInactive: z.boolean().openapi({ type: 'boolean' }),
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -715,7 +718,7 @@ const WebhookDeliverySchema = z
     headers: z
       .record(z.string(), z.string().optional().openapi({ type: 'string' }))
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-    retryPolicy: RetryPolicySchema,
+    retryPolicy: RetryPolicySchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -941,7 +944,9 @@ export const getUsersRoute = createRoute({
         }),
       limit: LimitParamParamsSchema,
       offset: OffsetParamParamsSchema,
-      filter: UserFilterSchema,
+      filter: UserFilterSchema.optional().openapi({
+        param: { name: 'filter', in: 'query', schema: { $ref: '#/components/schemas/UserFilter' } },
+      }),
     }),
   },
   responses: {
@@ -1003,9 +1008,10 @@ export const postUsersRoute = createRoute({
               CreateUserInputSchema,
               z
                 .object({
-                  invitationCode: z.string().optional().openapi({ type: 'string' }),
+                  invitationCode: z.string().openapi({ type: 'string' }),
                   preferences: UserPreferencesSchema,
                 })
+                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1032,7 +1038,10 @@ export const postUsersRoute = createRoute({
     },
   },
   responses: {
-    201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
+    201: {
+      description: 'Created',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
   },
 })
 
@@ -1048,7 +1057,7 @@ export const getUsersUserIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              data: UserSchema,
+              data: UserSchema.optional(),
               computed: z
                 .object({
                   fullName: z.string().openapi({ type: 'string' }),
@@ -1067,9 +1076,9 @@ export const getUsersUserIdRoute = createRoute({
                   organization: OrganizationSchema,
                   teams: z
                     .array(TeamSchema)
-                    .optional()
                     .openapi({ type: 'array', items: { $ref: '#/components/schemas/Team' } }),
                 })
+                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1108,7 +1117,9 @@ export const postOrdersRoute = createRoute({
   method: 'post',
   path: '/orders',
   operationId: 'createOrder',
-  request: { body: { content: { 'application/json': { schema: CreateOrderInputSchema } } } },
+  request: {
+    body: { content: { 'application/json': { schema: CreateOrderInputSchema.optional() } } },
+  },
   responses: {
     201: {
       description: 'Order created',
@@ -1125,7 +1136,11 @@ export const postOrdersRoute = createRoute({
                     .object({
                       method: z.literal('invoice').openapi({ type: 'string' }),
                       invoiceAddress: AddressSchema,
-                      paymentTerms: z.int().default(30).openapi({ type: 'integer', default: 30 }),
+                      paymentTerms: z
+                        .int()
+                        .default(30)
+                        .optional()
+                        .openapi({ type: 'integer', default: 30 }),
                     })
                     .openapi({
                       type: 'object',
@@ -1153,7 +1168,7 @@ export const postOrdersRoute = createRoute({
                     },
                   ],
                 }),
-              shipping: ShippingInfoSchema,
+              shipping: ShippingInfoSchema.optional(),
             })
             .openapi({
               type: 'object',
@@ -1261,6 +1276,7 @@ export const getProductsProductIdVariantsRoute = createRoute({
                                       localQuantity: z.int().openapi({ type: 'integer' }),
                                       estimatedDelivery: DateRangeSchema,
                                     })
+                                    .partial()
                                     .openapi({
                                       type: 'object',
                                       properties: {
@@ -1286,7 +1302,6 @@ export const getProductsProductIdVariantsRoute = createRoute({
                                   ],
                                 }),
                             )
-                            .optional()
                             .openapi({
                               type: 'array',
                               items: {
@@ -1573,16 +1588,16 @@ export const postReportsGenerateRoute = createRoute({
                     },
                   ],
                 }),
-              format: ReportFormatSchema,
+              format: ReportFormatSchema.optional(),
               delivery: z
                 .object({
                   method: z
                     .enum(['download', 'email', 'webhook'])
-                    .optional()
                     .openapi({ type: 'string', enum: ['download', 'email', 'webhook'] }),
                   email: EmailDeliverySchema,
                   webhook: WebhookDeliverySchema,
                 })
+                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1640,7 +1655,7 @@ export const postReportsGenerateRoute = createRoute({
   responses: {
     202: {
       description: 'Report generation started',
-      content: { 'application/json': { schema: ReportJobSchema } },
+      content: { 'application/json': { schema: ReportJobSchema.optional() } },
     },
   },
 })
@@ -1673,7 +1688,7 @@ export const postWebhooksTestRoute = createRoute({
                           z
                             .union([
                               z.string().openapi({ type: 'string' }),
-                              z.number().optional().openapi({ type: 'number' }),
+                              z.number().openapi({ type: 'number' }),
                               z.boolean().optional().openapi({ type: 'boolean' }),
                               z
                                 .array(GenericEntitySchema)
@@ -1757,7 +1772,6 @@ export const postWebhooksTestRoute = createRoute({
                                   },
                                 }),
                             )
-                            .optional()
                             .openapi({
                               type: 'array',
                               items: {
@@ -1810,6 +1824,7 @@ export const postWebhooksTestRoute = createRoute({
                       ],
                     }),
                 })
+                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1858,7 +1873,7 @@ export const postWebhooksTestRoute = createRoute({
                     },
                   },
                 }),
-              retryPolicy: RetryPolicySchema,
+              retryPolicy: RetryPolicySchema.optional(),
             })
             .openapi({
               type: 'object',
@@ -1924,7 +1939,7 @@ export const postWebhooksTestRoute = createRoute({
   responses: {
     200: {
       description: 'Test result',
-      content: { 'application/json': { schema: WebhookTestResultSchema } },
+      content: { 'application/json': { schema: WebhookTestResultSchema.optional() } },
     },
   },
 })

@@ -290,7 +290,7 @@ const GenericWebhookCallback = {
       summary: 'Webhook event notification',
       operationId: 'webhookCallback',
       requestBody: {
-        content: { 'application/json': { schema: WebhookPayloadSchema } },
+        content: { 'application/json': { schema: WebhookPayloadSchema.optional() } },
         required: true,
       },
       responses: {
@@ -306,7 +306,7 @@ const PaymentSuccessCallback = {
   '{$request.body#/callbackUrl}/payment/success': {
     post: {
       operationId: 'onPaymentSuccess',
-      requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
+      requestBody: { content: { 'application/json': { schema: PaymentEventSchema.optional() } } },
       responses: { '200': { description: 'Acknowledged' } },
     },
   },
@@ -316,7 +316,7 @@ const PaymentFailedCallback = {
   '{$request.body#/callbackUrl}/payment/failed': {
     post: {
       operationId: 'onPaymentFailed',
-      requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
+      requestBody: { content: { 'application/json': { schema: PaymentEventSchema.optional() } } },
       responses: { '200': { description: 'Acknowledged' } },
     },
   },
@@ -384,7 +384,7 @@ const JobProgressCallback = {
   '{$request.body#/callbackUrl}/job/progress': {
     post: {
       operationId: 'onJobProgress',
-      requestBody: { content: { 'application/json': { schema: JobProgressSchema } } },
+      requestBody: { content: { 'application/json': { schema: JobProgressSchema.optional() } } },
       responses: { '200': { description: 'Acknowledged' } },
     },
   },
@@ -394,7 +394,7 @@ const JobCompleteCallback = {
   '{$request.body#/callbackUrl}/job/complete': {
     post: {
       operationId: 'onJobComplete',
-      requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
+      requestBody: { content: { 'application/json': { schema: JobResultSchema.optional() } } },
       responses: { '200': { description: 'Acknowledged' } },
     },
   },
@@ -404,7 +404,7 @@ const JobErrorCallback = {
   '{$request.body#/callbackUrl}/job/error': {
     post: {
       operationId: 'onJobError',
-      requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
+      requestBody: { content: { 'application/json': { schema: JobResultSchema.optional() } } },
       responses: { '200': { description: 'Acknowledged' } },
     },
   },
@@ -417,14 +417,14 @@ export const postWebhooksRoute = createRoute({
   operationId: 'registerWebhook',
   request: {
     body: {
-      content: { 'application/json': { schema: WebhookRegistrationSchema } },
+      content: { 'application/json': { schema: WebhookRegistrationSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'Webhook registered',
-      content: { 'application/json': { schema: WebhookSchema } },
+      content: { 'application/json': { schema: WebhookSchema.optional() } },
     },
   },
   callbacks: { onEvent: GenericWebhookCallback },
@@ -437,14 +437,14 @@ export const postSubscriptionsRoute = createRoute({
   operationId: 'createSubscription',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateSubscriptionInputSchema } },
+      content: { 'application/json': { schema: CreateSubscriptionInputSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'Subscription created',
-      content: { 'application/json': { schema: SubscriptionSchema } },
+      content: { 'application/json': { schema: SubscriptionSchema.optional() } },
     },
   },
   callbacks: {
@@ -461,10 +461,16 @@ export const postJobsRoute = createRoute({
   summary: 'Create an async job with progress callbacks',
   operationId: 'createJob',
   request: {
-    body: { content: { 'application/json': { schema: CreateJobInputSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreateJobInputSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    202: { description: 'Job accepted', content: { 'application/json': { schema: JobSchema } } },
+    202: {
+      description: 'Job accepted',
+      content: { 'application/json': { schema: JobSchema.optional() } },
+    },
   },
   callbacks: {
     onProgress: JobProgressCallback,

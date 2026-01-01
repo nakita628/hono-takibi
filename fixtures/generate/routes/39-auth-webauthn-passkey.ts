@@ -752,12 +752,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const postWebauthnRegisterOptionsRoute = createRoute({
@@ -842,7 +842,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
   responses: {
     200: {
       description: '登録オプション',
-      content: { 'application/json': { schema: RegistrationOptionsSchema } },
+      content: { 'application/json': { schema: RegistrationOptionsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -858,15 +858,18 @@ export const postWebauthnRegisterVerifyRoute = createRoute({
   operationId: 'verifyRegistration',
   request: {
     body: {
-      content: { 'application/json': { schema: RegistrationResponseSchema } },
+      content: { 'application/json': { schema: RegistrationResponseSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '登録成功', content: { 'application/json': { schema: CredentialSchema } } },
+    201: {
+      description: '登録成功',
+      content: { 'application/json': { schema: CredentialSchema.optional() } },
+    },
     400: {
       description: '検証失敗',
-      content: { 'application/json': { schema: WebAuthnErrorSchema } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -923,7 +926,7 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
   responses: {
     200: {
       description: '認証オプション',
-      content: { 'application/json': { schema: AuthenticationOptionsSchema } },
+      content: { 'application/json': { schema: AuthenticationOptionsSchema.optional() } },
     },
   },
 })
@@ -937,22 +940,22 @@ export const postWebauthnAuthenticateVerifyRoute = createRoute({
   operationId: 'verifyAuthentication',
   request: {
     body: {
-      content: { 'application/json': { schema: AuthenticationResponseSchema } },
+      content: { 'application/json': { schema: AuthenticationResponseSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '認証成功',
-      content: { 'application/json': { schema: AuthenticationResultSchema } },
+      content: { 'application/json': { schema: AuthenticationResultSchema.optional() } },
     },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: WebAuthnErrorSchema } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
     },
     401: {
       description: '認証情報が無効',
-      content: { 'application/json': { schema: WebAuthnErrorSchema } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
     },
   },
 })
@@ -1000,7 +1003,7 @@ export const getWebauthnCredentialsCredentialIdRoute = createRoute({
   responses: {
     200: {
       description: '認証情報詳細',
-      content: { 'application/json': { schema: CredentialSchema } },
+      content: { 'application/json': { schema: CredentialSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1029,7 +1032,7 @@ export const deleteWebauthnCredentialsCredentialIdRoute = createRoute({
     204: { description: '削除成功' },
     400: {
       description: '削除できません（最後の認証情報など）',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1066,7 +1069,10 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: CredentialSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: CredentialSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1082,7 +1088,7 @@ export const getWebauthnSettingsRoute = createRoute({
   responses: {
     200: {
       description: 'WebAuthn設定',
-      content: { 'application/json': { schema: WebAuthnSettingsSchema } },
+      content: { 'application/json': { schema: WebAuthnSettingsSchema.optional() } },
     },
   },
 })
@@ -1096,7 +1102,7 @@ export const getWebauthnSettingsRpRoute = createRoute({
   responses: {
     200: {
       description: 'リライングパーティ情報',
-      content: { 'application/json': { schema: RelyingPartySchema } },
+      content: { 'application/json': { schema: RelyingPartySchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1111,14 +1117,14 @@ export const putWebauthnSettingsRpRoute = createRoute({
   operationId: 'updateRelyingPartyInfo',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateRelyingPartyRequestSchema } },
+      content: { 'application/json': { schema: UpdateRelyingPartyRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: RelyingPartySchema } },
+      content: { 'application/json': { schema: RelyingPartySchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

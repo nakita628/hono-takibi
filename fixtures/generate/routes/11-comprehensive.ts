@@ -272,8 +272,8 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
       }),
     total: MoneySchema,
-    shippingAddress: AddressSchema,
-    billingAddress: AddressSchema,
+    shippingAddress: AddressSchema.optional(),
+    billingAddress: AddressSchema.optional(),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
@@ -329,7 +329,7 @@ const CreateOrderInputSchema = z
         },
       }),
     shippingAddress: AddressSchema,
-    billingAddress: AddressSchema,
+    billingAddress: AddressSchema.optional(),
     callbackUrl: z
       .url()
       .optional()
@@ -611,6 +611,183 @@ const IfNoneMatchHeaderParamsSchema = z
     type: 'string',
   })
 
+const BearerAuthSecurityScheme = {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT',
+  description: 'JWT authentication token',
+}
+
+const ApiKeySecurityScheme = {
+  type: 'apiKey',
+  in: 'header',
+  name: 'X-API-Key',
+  description: 'API key for server-to-server communication',
+}
+
+const Oauth2SecurityScheme = {
+  type: 'oauth2',
+  description: 'OAuth 2.0 authentication',
+  flows: {
+    authorizationCode: {
+      authorizationUrl: 'https://auth.example.com/authorize',
+      tokenUrl: 'https://auth.example.com/token',
+      refreshUrl: 'https://auth.example.com/refresh',
+      scopes: {
+        'products:read': 'Read product information',
+        'products:write': 'Create and update products',
+        'orders:read': 'Read order information',
+        'orders:write': 'Create and manage orders',
+        admin: 'Full administrative access',
+      },
+    },
+    clientCredentials: {
+      tokenUrl: 'https://auth.example.com/token',
+      scopes: {
+        'products:read': 'Read product information',
+        'orders:read': 'Read order information',
+      },
+    },
+  },
+}
+
+const CreateProductRequestBody = {
+  description: 'Product creation request',
+  content: { 'application/json': { schema: CreateProductInputSchema.optional() } },
+  required: true,
+}
+
+const UpdateProductRequestBody = {
+  description: 'Product update request',
+  content: { 'application/json': { schema: UpdateProductInputSchema.optional() } },
+  required: true,
+}
+
+const CreateOrderRequestBody = {
+  description: 'Order creation request',
+  content: { 'application/json': { schema: CreateOrderInputSchema.optional() } },
+  required: true,
+}
+
+const CreateWebhookRequestBody = {
+  description: 'Webhook registration request',
+  content: {
+    'application/json': {
+      schema: z
+        .object({
+          url: z.url().openapi({ type: 'string', format: 'uri' }),
+          events: z
+            .array(z.string().openapi({ type: 'string' }))
+            .optional()
+            .openapi({ type: 'array', items: { type: 'string' } }),
+          secret: z.string().optional().openapi({ type: 'string' }),
+        })
+        .openapi({
+          type: 'object',
+          required: ['url', 'events'],
+          properties: {
+            url: { type: 'string', format: 'uri' },
+            events: { type: 'array', items: { type: 'string' } },
+            secret: { type: 'string' },
+          },
+        }),
+    },
+  },
+  required: true,
+}
+
+const ValidationErrorExample = {
+  summary: 'Validation error',
+  value: {
+    code: 'VALIDATION_ERROR',
+    message: 'Request validation failed',
+    details: [
+      { code: 'REQUIRED', message: 'Name is required', target: 'name' },
+      { code: 'INVALID_FORMAT', message: 'Price must be positive', target: 'price.amount' },
+    ],
+  },
+}
+
+const BadRequestResponse = {
+  description: 'Bad request - invalid parameters',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      examples: { validationError: ValidationErrorExample },
+    },
+  },
+}
+
+const UnauthorizedResponse = {
+  description: 'Authentication required',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+    },
+  },
+}
+
+const ForbiddenResponse = {
+  description: 'Insufficient permissions',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
+    },
+  },
+}
+
+const NotFoundResponse = {
+  description: 'Resource not found',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'NOT_FOUND', message: 'Resource not found' },
+    },
+  },
+}
+
+const ConflictResponse = {
+  description: 'Resource conflict',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'CONFLICT', message: 'Resource already exists' },
+    },
+  },
+}
+
+const PreconditionFailedResponse = {
+  description: 'Precondition failed (ETag mismatch)',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'PRECONDITION_FAILED', message: 'ETag mismatch' },
+    },
+  },
+}
+
+const TooManyRequestsResponse = {
+  description: 'Rate limit exceeded',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'RATE_LIMITED', message: 'Too many requests' },
+    },
+  },
+}
+
+const InternalErrorResponse = {
+  description: 'Internal server error',
+  content: {
+    'application/json': {
+      schema: ErrorSchema.optional(),
+      example: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
+    },
+  },
+}
+
 const XRequestIDHeader = z
   .uuid()
   .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
@@ -716,18 +893,6 @@ const EmptyProductListExample = {
   },
 }
 
-const ValidationErrorExample = {
-  summary: 'Validation error',
-  value: {
-    code: 'VALIDATION_ERROR',
-    message: 'Request validation failed',
-    details: [
-      { code: 'REQUIRED', message: 'Name is required', target: 'name' },
-      { code: 'INVALID_FORMAT', message: 'Price must be positive', target: 'price.amount' },
-    ],
-  },
-}
-
 const GetProductByIdLink = {
   operationId: 'getProduct',
   parameters: { productId: '$response.body#/id' },
@@ -762,171 +927,6 @@ const CancelOrderByIdLink = {
   operationId: 'cancelOrder',
   parameters: { orderId: '$response.body#/id' },
   description: 'Cancel this order',
-}
-
-const BearerAuthSecurityScheme = {
-  type: 'http',
-  scheme: 'bearer',
-  bearerFormat: 'JWT',
-  description: 'JWT authentication token',
-}
-
-const ApiKeySecurityScheme = {
-  type: 'apiKey',
-  in: 'header',
-  name: 'X-API-Key',
-  description: 'API key for server-to-server communication',
-}
-
-const Oauth2SecurityScheme = {
-  type: 'oauth2',
-  description: 'OAuth 2.0 authentication',
-  flows: {
-    authorizationCode: {
-      authorizationUrl: 'https://auth.example.com/authorize',
-      tokenUrl: 'https://auth.example.com/token',
-      refreshUrl: 'https://auth.example.com/refresh',
-      scopes: {
-        'products:read': 'Read product information',
-        'products:write': 'Create and update products',
-        'orders:read': 'Read order information',
-        'orders:write': 'Create and manage orders',
-        admin: 'Full administrative access',
-      },
-    },
-    clientCredentials: {
-      tokenUrl: 'https://auth.example.com/token',
-      scopes: {
-        'products:read': 'Read product information',
-        'orders:read': 'Read order information',
-      },
-    },
-  },
-}
-
-const CreateProductRequestBody = {
-  description: 'Product creation request',
-  content: { 'application/json': { schema: CreateProductInputSchema } },
-  required: true,
-}
-
-const UpdateProductRequestBody = {
-  description: 'Product update request',
-  content: { 'application/json': { schema: UpdateProductInputSchema } },
-  required: true,
-}
-
-const CreateOrderRequestBody = {
-  description: 'Order creation request',
-  content: { 'application/json': { schema: CreateOrderInputSchema } },
-  required: true,
-}
-
-const CreateWebhookRequestBody = {
-  description: 'Webhook registration request',
-  content: {
-    'application/json': {
-      schema: z
-        .object({
-          url: z.url().openapi({ type: 'string', format: 'uri' }),
-          events: z
-            .array(z.string().openapi({ type: 'string' }))
-            .optional()
-            .openapi({ type: 'array', items: { type: 'string' } }),
-          secret: z.string().optional().openapi({ type: 'string' }),
-        })
-        .openapi({
-          type: 'object',
-          required: ['url', 'events'],
-          properties: {
-            url: { type: 'string', format: 'uri' },
-            events: { type: 'array', items: { type: 'string' } },
-            secret: { type: 'string' },
-          },
-        }),
-    },
-  },
-  required: true,
-}
-
-const BadRequestResponse = {
-  description: 'Bad request - invalid parameters',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      examples: { validationError: ValidationErrorExample },
-    },
-  },
-}
-
-const UnauthorizedResponse = {
-  description: 'Authentication required',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'UNAUTHORIZED', message: 'Authentication required' },
-    },
-  },
-}
-
-const ForbiddenResponse = {
-  description: 'Insufficient permissions',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
-    },
-  },
-}
-
-const NotFoundResponse = {
-  description: 'Resource not found',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'NOT_FOUND', message: 'Resource not found' },
-    },
-  },
-}
-
-const ConflictResponse = {
-  description: 'Resource conflict',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'CONFLICT', message: 'Resource already exists' },
-    },
-  },
-}
-
-const PreconditionFailedResponse = {
-  description: 'Precondition failed (ETag mismatch)',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'PRECONDITION_FAILED', message: 'ETag mismatch' },
-    },
-  },
-}
-
-const TooManyRequestsResponse = {
-  description: 'Rate limit exceeded',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'RATE_LIMITED', message: 'Too many requests' },
-    },
-  },
-}
-
-const InternalErrorResponse = {
-  description: 'Internal server error',
-  content: {
-    'application/json': {
-      schema: ErrorSchema,
-      example: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
-    },
-  },
 }
 
 const OrderStatusCallback = {
@@ -992,7 +992,7 @@ const PaymentCallback = {
                     type: 'string',
                     enum: ['pending', 'completed', 'failed', 'refunded'],
                   }),
-                amount: MoneySchema,
+                amount: MoneySchema.optional(),
                 transactionId: z.string().optional().openapi({ type: 'string' }),
               })
               .openapi({
@@ -1021,7 +1021,7 @@ const GenericWebhookCallback = {
     post: {
       summary: 'Webhook event delivery',
       operationId: 'onWebhookEvent',
-      requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema } } },
+      requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema.optional() } } },
       responses: {
         '200': { description: 'Webhook received' },
         '401': { description: 'Invalid signature' },
@@ -1043,7 +1043,13 @@ export const getProductsRoute = createRoute({
       page: PageParamParamsSchema,
       limit: LimitParamParamsSchema,
       q: SearchParamParamsSchema,
-      category: ProductCategorySchema,
+      category: ProductCategorySchema.optional().openapi({
+        param: {
+          name: 'category',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/ProductCategory' },
+        },
+      }),
     }),
     headers: z.object({ 'Accept-Language': AcceptLanguageHeaderParamsSchema }),
   },
@@ -1052,7 +1058,7 @@ export const getProductsRoute = createRoute({
       description: 'Product list retrieved successfully',
       content: {
         'application/json': {
-          schema: ProductListSchema,
+          schema: ProductListSchema.optional(),
           examples: {
             multipleProducts: { $ref: '#/components/examples/ProductListExample' },
             emptyList: { $ref: '#/components/examples/EmptyProductList' },
@@ -1079,7 +1085,7 @@ export const postProductsRoute = createRoute({
       description: 'Product created successfully',
       content: {
         'application/json': {
-          schema: ProductSchema,
+          schema: ProductSchema.optional(),
           examples: { createdProduct: { $ref: '#/components/examples/ProductExample' } },
         },
       },
@@ -1107,7 +1113,7 @@ export const getProductsProductIdRoute = createRoute({
       description: 'Product details',
       content: {
         'application/json': {
-          schema: ProductSchema,
+          schema: ProductSchema.optional(),
           examples: { product: { $ref: '#/components/examples/ProductExample' } },
         },
       },
@@ -1131,7 +1137,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
-      content: { 'application/json': { schema: ProductSchema } },
+      content: { 'application/json': { schema: ProductSchema.optional() } },
     },
     404: NotFoundResponse,
     409: ConflictResponse,
@@ -1164,7 +1170,10 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: CreateOrderRequestBody },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema.optional() } },
+    },
   },
   callbacks: { orderStatusUpdate: OrderStatusCallback, paymentConfirmation: PaymentCallback },
 })
@@ -1179,7 +1188,7 @@ export const postWebhooksRoute = createRoute({
   responses: {
     201: {
       description: 'Webhook registered',
-      content: { 'application/json': { schema: WebhookSchema } },
+      content: { 'application/json': { schema: WebhookSchema.optional() } },
     },
   },
   callbacks: { webhookEvent: GenericWebhookCallback },

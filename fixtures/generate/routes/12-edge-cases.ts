@@ -266,13 +266,13 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().optional().openapi({ type: 'string' }),
+        value: z.string().openapi({ type: 'string' }),
         children: z
           .array(TreeNodeSchema)
-          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
         parent: TreeNodeSchema,
       })
+      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -284,30 +284,41 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
-const CompanySchema = z
-  .object({
-    name: z.string().openapi({ type: 'string' }),
-    employees: z
-      .array(PersonSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-    },
-  })
+const CompanySchema: z.ZodType<CompanyType> = z
+  .lazy(() =>
+    z
+      .object({
+        name: z.string().openapi({ type: 'string' }),
+        employees: z
+          .array(PersonSchema)
+          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
+      })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          employees: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
+        },
+      }),
+  )
   .openapi('Company')
 
-const PersonSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }), company: CompanySchema })
-  .openapi({
-    type: 'object',
-    properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
-  })
+type PersonType = { name?: string; company?: z.infer<typeof CompanySchema> }
+
+const PersonSchema: z.ZodType<PersonType> = z
+  .lazy(() =>
+    z
+      .object({ name: z.string().openapi({ type: 'string' }), company: CompanySchema })
+      .partial()
+      .openapi({
+        type: 'object',
+        properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
+      }),
+  )
   .openapi('Person')
+
+type CompanyType = { name?: string; employees?: z.infer<typeof PersonSchema>[] }
 
 const DeepNestedSchema = z
   .object({
@@ -592,41 +603,6 @@ const AllowEmptyParamParamsSchema = z
     type: 'string',
   })
 
-const StringHeader = z.string().optional().openapi({ type: 'string' })
-
-const IntegerHeader = z.int().optional().openapi({ type: 'integer' })
-
-const BooleanHeader = z.boolean().optional().openapi({ type: 'boolean' })
-
-const ArrayHeader = z
-  .array(z.string().optional().openapi({ type: 'string' }))
-  .optional()
-  .openapi({ type: 'array', items: { type: 'string' } })
-
-const NullExample = { summary: 'Null value example', value: null }
-
-const EmptyObjectExample = { summary: 'Empty object', value: {} }
-
-const EmptyArrayExample = { summary: 'Empty array', value: [] }
-
-const ComplexExample = {
-  summary: 'Complex nested structure',
-  value: {
-    users: [
-      {
-        id: 1,
-        name: 'Alice',
-        roles: ['admin', 'user'],
-        metadata: {
-          lastLogin: '2024-01-15T10:30:00Z',
-          preferences: { theme: 'dark', notifications: true },
-        },
-      },
-      { id: 2, name: 'Bob', roles: ['user'], metadata: null },
-    ],
-  },
-}
-
 const ApiKeyHeaderSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
 const ApiKeyQuerySecurityScheme = { type: 'apiKey', in: 'query', name: 'api_key' }
@@ -680,6 +656,41 @@ const OpenIdConnectSecurityScheme = {
 const NoContentResponse = { description: 'No content response' }
 
 const HeadersOnlyResponse = { description: 'Response with headers only' }
+
+const StringHeader = z.string().optional().openapi({ type: 'string' })
+
+const IntegerHeader = z.int().optional().openapi({ type: 'integer' })
+
+const BooleanHeader = z.boolean().optional().openapi({ type: 'boolean' })
+
+const ArrayHeader = z
+  .array(z.string().optional().openapi({ type: 'string' }))
+  .optional()
+  .openapi({ type: 'array', items: { type: 'string' } })
+
+const NullExample = { summary: 'Null value example', value: null }
+
+const EmptyObjectExample = { summary: 'Empty object', value: {} }
+
+const EmptyArrayExample = { summary: 'Empty array', value: [] }
+
+const ComplexExample = {
+  summary: 'Complex nested structure',
+  value: {
+    users: [
+      {
+        id: 1,
+        name: 'Alice',
+        roles: ['admin', 'user'],
+        metadata: {
+          lastLogin: '2024-01-15T10:30:00Z',
+          preferences: { theme: 'dark', notifications: true },
+        },
+      },
+      { id: 2, name: 'Bob', roles: ['user'], metadata: null },
+    ],
+  },
+}
 
 export const getAllMethodsRoute = createRoute({
   method: 'get',
@@ -842,7 +853,7 @@ export const postMultiContentRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: DataJsonSchema },
+        'application/json': { schema: DataJsonSchema.optional() },
         'multipart/form-data': {
           schema: z
             .object({
@@ -940,7 +951,7 @@ export const getCircularRoute = createRoute({
   responses: {
     200: {
       description: 'Circular reference',
-      content: { 'application/json': { schema: TreeNodeSchema } },
+      content: { 'application/json': { schema: TreeNodeSchema.optional() } },
     },
   },
 })
@@ -952,7 +963,7 @@ export const getDeepNestingRoute = createRoute({
   responses: {
     200: {
       description: 'Deeply nested structure',
-      content: { 'application/json': { schema: DeepNestedSchema } },
+      content: { 'application/json': { schema: DeepNestedSchema.optional() } },
     },
   },
 })

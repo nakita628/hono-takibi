@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
-import { resolveSchemasDependencies } from '../helper/resolve-schemas-dependencies.js'
+import { sortSchemaBlocks } from '../helper/sort-by-dependencies.js'
 import type { OpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -98,25 +98,22 @@ export async function schemas(
     }
   }
 
-  const orderedSchemas = resolveSchemasDependencies(schemas)
-  if (orderedSchemas.length === 0) {
+  const schemaNames = Object.keys(schemas)
+  if (schemaNames.length === 0) {
     return { ok: true, value: 'No schemas found' }
   }
 
-  const schemaDefinitions = orderedSchemas
-    .map((schemaName) => {
-      const schema = schemas[schemaName]
-      const z = zodToOpenAPI(schema)
-      const selfToken = `${schemaName}Schema`
-      const zExpr = z.includes(selfToken) ? `z.lazy(() => ${z})` : z
-      return zodToOpenAPISchema(
-        toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema')),
-        zExpr,
-        true,
-        exportType,
-      )
-    })
-    .join('\n\n')
+  const schemaBlocks = schemaNames.map((schemaName) => {
+    const schema = schemas[schemaName]
+    const z = zodToOpenAPI(schema)
+    const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
+    const zExpr = z.includes(variableName) ? `z.lazy(() => ${z})` : z
+    const code = zodToOpenAPISchema(variableName, zExpr, true, exportType)
+    return { name: variableName, code }
+  })
+
+  const sortedBlocks = sortSchemaBlocks(schemaBlocks)
+  const schemaDefinitions = sortedBlocks.map((block) => block.code).join('\n\n')
   const importCode = `import { z } from '@hono/zod-openapi'`
   const schemaDefinitionsCode = `${importCode}\n\n${schemaDefinitions}`
   const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)

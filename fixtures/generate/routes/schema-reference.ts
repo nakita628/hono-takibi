@@ -1,20 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const CSchema = z
-  .object({
-    count: z.int().openapi({ type: 'integer', description: 'Count value' }),
-    flag: z.boolean().openapi({ type: 'boolean', description: 'A boolean flag' }),
-  })
-  .partial()
-  .openapi({
-    type: 'object',
-    properties: {
-      count: { type: 'integer', description: 'Count value' },
-      flag: { type: 'boolean', description: 'A boolean flag' },
-    },
-  })
-  .openapi('C')
-
 const BSchema = z
   .object({
     id: z.string().openapi({ type: 'string', description: 'Identifier for schema B' }),
@@ -33,6 +18,21 @@ const BSchema = z
   })
   .openapi('B')
 
+const CSchema = z
+  .object({
+    count: z.int().openapi({ type: 'integer', description: 'Count value' }),
+    flag: z.boolean().openapi({ type: 'boolean', description: 'A boolean flag' }),
+  })
+  .partial()
+  .openapi({
+    type: 'object',
+    properties: {
+      count: { type: 'integer', description: 'Count value' },
+      flag: { type: 'boolean', description: 'A boolean flag' },
+    },
+  })
+  .openapi('C')
+
 const ASchema = z
   .object({ b: BSchema, c: CSchema })
   .openapi({
@@ -49,7 +49,7 @@ export const getExampleRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response',
-      content: { 'application/json': { schema: ASchema } },
+      content: { 'application/json': { schema: ASchema.optional() } },
     },
   },
 })

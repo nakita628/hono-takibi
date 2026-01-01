@@ -25,7 +25,7 @@ const PostSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     text: z.string().openapi({ type: 'string' }),
-    author: UserSummarySchema,
+    author: UserSummarySchema.optional(),
   })
   .openapi({
     type: 'object',
@@ -69,10 +69,7 @@ const NotificationSchema = z
           'new_posts_from',
         ],
       }),
-    actor: UserSummarySchema.optional().openapi({
-      $ref: '#/components/schemas/UserSummary',
-      description: 'アクションを起こしたユーザー',
-    }),
+    actor: UserSummarySchema.optional().openapi({ description: 'アクションを起こしたユーザー' }),
     actors: z
       .array(UserSummarySchema)
       .optional()
@@ -81,11 +78,8 @@ const NotificationSchema = z
         items: { $ref: '#/components/schemas/UserSummary' },
         description: '複数ユーザーの場合（いいねなど）',
       }),
-    post: PostSummarySchema,
-    targetPost: PostSummarySchema.optional().openapi({
-      $ref: '#/components/schemas/PostSummary',
-      description: '引用・返信の場合の対象投稿',
-    }),
+    post: PostSummarySchema.optional(),
+    targetPost: PostSummarySchema.optional().openapi({ description: '引用・返信の場合の対象投稿' }),
     isRead: z.boolean().optional().openapi({ type: 'boolean' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
@@ -221,7 +215,7 @@ const MessageSchema = z
       .array(MediaAttachmentSchema)
       .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/MediaAttachment' } }),
-    sharedPost: PostSummarySchema,
+    sharedPost: PostSummarySchema.optional(),
     reactions: z
       .array(
         z
@@ -293,7 +287,7 @@ const ConversationSchema = z
     participants: z
       .array(UserSummarySchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
-    lastMessage: MessageSchema,
+    lastMessage: MessageSchema.optional(),
     unreadCount: z.int().optional().openapi({ type: 'integer' }),
     isMuted: z.boolean().optional().openapi({ type: 'boolean' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
@@ -606,12 +600,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getNotificationsRoute = createRoute({
@@ -656,7 +650,7 @@ export const getNotificationsRoute = createRoute({
   responses: {
     200: {
       description: '通知一覧',
-      content: { 'application/json': { schema: NotificationListResponseSchema } },
+      content: { 'application/json': { schema: NotificationListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -743,7 +737,7 @@ export const getNotificationsSettingsRoute = createRoute({
   responses: {
     200: {
       description: '通知設定',
-      content: { 'application/json': { schema: NotificationSettingsSchema } },
+      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -758,14 +752,14 @@ export const putNotificationsSettingsRoute = createRoute({
   operationId: 'updateNotificationSettings',
   request: {
     body: {
-      content: { 'application/json': { schema: NotificationSettingsSchema } },
+      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: NotificationSettingsSchema } },
+      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -782,7 +776,7 @@ export const getDmConversationsRoute = createRoute({
   responses: {
     200: {
       description: '会話一覧',
-      content: { 'application/json': { schema: ConversationListResponseSchema } },
+      content: { 'application/json': { schema: ConversationListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -841,7 +835,7 @@ export const postDmConversationsRoute = createRoute({
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ConversationSchema } },
+      content: { 'application/json': { schema: ConversationSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -858,7 +852,7 @@ export const getDmConversationsConversationIdRoute = createRoute({
   responses: {
     200: {
       description: '会話詳細',
-      content: { 'application/json': { schema: ConversationSchema } },
+      content: { 'application/json': { schema: ConversationSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -890,7 +884,7 @@ export const getDmConversationsConversationIdMessagesRoute = createRoute({
   responses: {
     200: {
       description: 'メッセージ一覧',
-      content: { 'application/json': { schema: MessageListResponseSchema } },
+      content: { 'application/json': { schema: MessageListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -904,10 +898,16 @@ export const postDmConversationsConversationIdMessagesRoute = createRoute({
   summary: 'メッセージ送信',
   operationId: 'sendMessage',
   request: {
-    body: { content: { 'application/json': { schema: SendMessageRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: SendMessageRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '送信成功', content: { 'application/json': { schema: MessageSchema } } },
+    201: {
+      description: '送信成功',
+      content: { 'application/json': { schema: MessageSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1172,7 +1172,7 @@ export const getSearchPostsRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: PostSearchResponseSchema } },
+      content: { 'application/json': { schema: PostSearchResponseSchema.optional() } },
     },
   },
 })
@@ -1198,7 +1198,7 @@ export const getSearchUsersRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: UserSearchResponseSchema } },
+      content: { 'application/json': { schema: UserSearchResponseSchema.optional() } },
     },
   },
 })

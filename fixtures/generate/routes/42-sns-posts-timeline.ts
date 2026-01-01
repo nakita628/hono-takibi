@@ -1,52 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const LinkCardSchema = z
-  .object({
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    title: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    siteName: z.string().optional().openapi({ type: 'string' }),
-    type: z
-      .enum(['link', 'photo', 'video', 'rich'])
-      .optional()
-      .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['url', 'title'],
-    properties: {
-      url: { type: 'string', format: 'uri' },
-      title: { type: 'string' },
-      description: { type: 'string' },
-      image: { type: 'string', format: 'uri' },
-      siteName: { type: 'string' },
-      type: { type: 'string', enum: ['link', 'photo', 'video', 'rich'] },
-    },
-  })
-  .openapi('LinkCard')
-
-const UrlEntitySchema = z
-  .object({
-    url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
-    expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
-    displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
-    start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
-    end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['url', 'expandedUrl', 'displayUrl'],
-    properties: {
-      url: { type: 'string', format: 'uri', description: '短縮URL' },
-      expandedUrl: { type: 'string', format: 'uri', description: '展開URL' },
-      displayUrl: { type: 'string', description: '表示用URL' },
-      start: { type: 'integer', description: 'テキスト内の開始位置' },
-      end: { type: 'integer', description: 'テキスト内の終了位置' },
-    },
-  })
-  .openapi('UrlEntity')
-
 const UserSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -71,6 +24,40 @@ const UserSummarySchema = z
     },
   })
   .openapi('UserSummary')
+
+const MediaSchema = z
+  .object({
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    type: z
+      .enum(['image', 'gif', 'video'])
+      .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    alt: z.string().optional().openapi({ type: 'string' }),
+    width: z.int().optional().openapi({ type: 'integer' }),
+    height: z.int().optional().openapi({ type: 'integer' }),
+    duration: z.number().optional().openapi({ type: 'number', description: '動画の長さ（秒）' }),
+    blurhash: z
+      .string()
+      .optional()
+      .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['id', 'type', 'url'],
+    properties: {
+      id: { type: 'string', format: 'uuid' },
+      type: { type: 'string', enum: ['image', 'gif', 'video'] },
+      url: { type: 'string', format: 'uri' },
+      previewUrl: { type: 'string', format: 'uri' },
+      alt: { type: 'string' },
+      width: { type: 'integer' },
+      height: { type: 'integer' },
+      duration: { type: 'number', description: '動画の長さ（秒）' },
+      blurhash: { type: 'string', description: 'プレースホルダー用ハッシュ' },
+    },
+  })
+  .openapi('Media')
 
 const PollSchema = z
   .object({
@@ -143,39 +130,52 @@ const PollSchema = z
   })
   .openapi('Poll')
 
-const MediaSchema = z
+const UrlEntitySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    type: z
-      .enum(['image', 'gif', 'video'])
-      .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    alt: z.string().optional().openapi({ type: 'string' }),
-    width: z.int().optional().openapi({ type: 'integer' }),
-    height: z.int().optional().openapi({ type: 'integer' }),
-    duration: z.number().optional().openapi({ type: 'number', description: '動画の長さ（秒）' }),
-    blurhash: z
-      .string()
-      .optional()
-      .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
+    url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
+    expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
+    displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
+    start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
+    end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
   })
   .openapi({
     type: 'object',
-    required: ['id', 'type', 'url'],
+    required: ['url', 'expandedUrl', 'displayUrl'],
     properties: {
-      id: { type: 'string', format: 'uuid' },
-      type: { type: 'string', enum: ['image', 'gif', 'video'] },
-      url: { type: 'string', format: 'uri' },
-      previewUrl: { type: 'string', format: 'uri' },
-      alt: { type: 'string' },
-      width: { type: 'integer' },
-      height: { type: 'integer' },
-      duration: { type: 'number', description: '動画の長さ（秒）' },
-      blurhash: { type: 'string', description: 'プレースホルダー用ハッシュ' },
+      url: { type: 'string', format: 'uri', description: '短縮URL' },
+      expandedUrl: { type: 'string', format: 'uri', description: '展開URL' },
+      displayUrl: { type: 'string', description: '表示用URL' },
+      start: { type: 'integer', description: 'テキスト内の開始位置' },
+      end: { type: 'integer', description: 'テキスト内の終了位置' },
     },
   })
-  .openapi('Media')
+  .openapi('UrlEntity')
+
+const LinkCardSchema = z
+  .object({
+    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    title: z.string().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    siteName: z.string().optional().openapi({ type: 'string' }),
+    type: z
+      .enum(['link', 'photo', 'video', 'rich'])
+      .optional()
+      .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['url', 'title'],
+    properties: {
+      url: { type: 'string', format: 'uri' },
+      title: { type: 'string' },
+      description: { type: 'string' },
+      image: { type: 'string', format: 'uri' },
+      siteName: { type: 'string' },
+      type: { type: 'string', enum: ['link', 'photo', 'video', 'rich'] },
+    },
+  })
+  .openapi('LinkCard')
 
 type PostType = {
   id: string
@@ -220,16 +220,14 @@ const PostSchema: z.ZodType<PostType> = z
           .max(4)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 }),
-        poll: PollSchema,
-        quotedPost: PostSchema.optional().openapi({
-          $ref: '#/components/schemas/Post',
-          description: '引用元投稿',
-        }),
+        poll: PollSchema.optional(),
+        quotedPost: PostSchema.optional().openapi({ description: '引用元投稿' }),
         replyTo: z
           .object({
-            postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+            postId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
             author: UserSummarySchema,
           })
+          .partial()
           .openapi({
             type: 'object',
             description: '返信先情報',
@@ -238,10 +236,7 @@ const PostSchema: z.ZodType<PostType> = z
               author: { $ref: '#/components/schemas/UserSummary' },
             },
           }),
-        repostOf: PostSchema.optional().openapi({
-          $ref: '#/components/schemas/Post',
-          description: 'リポスト元（リポストの場合）',
-        }),
+        repostOf: PostSchema.optional().openapi({ description: 'リポスト元（リポストの場合）' }),
         hashtags: z
           .array(z.string().optional().openapi({ type: 'string' }))
           .optional()
@@ -254,10 +249,7 @@ const PostSchema: z.ZodType<PostType> = z
           .array(UrlEntitySchema)
           .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } }),
-        card: LinkCardSchema.optional().openapi({
-          $ref: '#/components/schemas/LinkCard',
-          description: 'リンクカード',
-        }),
+        card: LinkCardSchema.optional().openapi({ description: 'リンクカード' }),
         visibility: z
           .enum(['public', 'followers', 'mentioned'])
           .default('public')
@@ -568,7 +560,6 @@ const TimelineItemSchema = z
       .openapi({ type: 'string', enum: ['post', 'repost', 'reply', 'quote', 'promoted'] }),
     post: PostSchema,
     repostedBy: UserSummarySchema.optional().openapi({
-      $ref: '#/components/schemas/UserSummary',
       description: 'リポストの場合、リポストしたユーザー',
     }),
     reason: z.string().optional().openapi({ type: 'string', description: 'おすすめの理由など' }),
@@ -684,22 +675,22 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getPostsRoute = createRoute({
@@ -755,7 +746,7 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: '投稿一覧',
-      content: { 'application/json': { schema: PostListResponseSchema } },
+      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
     },
   },
 })
@@ -767,10 +758,16 @@ export const postPostsRoute = createRoute({
   summary: '投稿作成',
   operationId: 'createPost',
   request: {
-    body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreatePostRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '投稿成功', content: { 'application/json': { schema: PostSchema } } },
+    201: {
+      description: '投稿成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -785,7 +782,10 @@ export const getPostsPostIdRoute = createRoute({
   operationId: 'getPost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: '投稿詳細', content: { 'application/json': { schema: PostSchema } } },
+    200: {
+      description: '投稿詳細',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -814,7 +814,10 @@ export const getPostsPostIdThreadRoute = createRoute({
   operationId: 'getPostThread',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: 'スレッド', content: { 'application/json': { schema: PostThreadSchema } } },
+    200: {
+      description: 'スレッド',
+      content: { 'application/json': { schema: PostThreadSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -836,7 +839,6 @@ export const getPostsPostIdContextRoute = createRoute({
             .object({
               ancestors: z
                 .array(PostSchema)
-                .optional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
@@ -845,13 +847,13 @@ export const getPostsPostIdContextRoute = createRoute({
               post: PostSchema,
               descendants: z
                 .array(PostSchema)
-                .optional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
                   description: '返信',
                 }),
             })
+            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -918,7 +920,7 @@ export const getTimelineHomeRoute = createRoute({
   responses: {
     200: {
       description: 'タイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema } },
+      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -936,7 +938,7 @@ export const getTimelineForYouRoute = createRoute({
   responses: {
     200: {
       description: 'おすすめタイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema } },
+      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1007,7 +1009,7 @@ export const getTimelineUserUserIdRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザータイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema } },
+      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
     },
     404: NotFoundResponse,
   },
@@ -1033,7 +1035,7 @@ export const getTimelineHashtagHashtagRoute = createRoute({
   responses: {
     200: {
       description: 'ハッシュタグタイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema } },
+      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
     },
   },
 })
@@ -1046,7 +1048,10 @@ export const postPostsPostIdLikeRoute = createRoute({
   operationId: 'likePost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: 'いいね成功', content: { 'application/json': { schema: PostSchema } } },
+    200: {
+      description: 'いいね成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1060,7 +1065,10 @@ export const deletePostsPostIdLikeRoute = createRoute({
   operationId: 'unlikePost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: '解除成功', content: { 'application/json': { schema: PostSchema } } },
+    200: {
+      description: '解除成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1074,7 +1082,10 @@ export const postPostsPostIdRepostRoute = createRoute({
   operationId: 'repost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: 'リポスト成功', content: { 'application/json': { schema: PostSchema } } },
+    200: {
+      description: 'リポスト成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1088,7 +1099,10 @@ export const deletePostsPostIdRepostRoute = createRoute({
   operationId: 'unrepost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: { description: '解除成功', content: { 'application/json': { schema: PostSchema } } },
+    200: {
+      description: '解除成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1131,7 +1145,10 @@ export const postPostsPostIdQuoteRoute = createRoute({
     },
   },
   responses: {
-    201: { description: '引用投稿成功', content: { 'application/json': { schema: PostSchema } } },
+    201: {
+      description: '引用投稿成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1169,7 +1186,7 @@ export const getBookmarksRoute = createRoute({
   responses: {
     200: {
       description: 'ブックマーク一覧',
-      content: { 'application/json': { schema: PostListResponseSchema } },
+      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1189,7 +1206,7 @@ export const getPostsPostIdLikesRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
   },
 })
@@ -1207,7 +1224,7 @@ export const getPostsPostIdRepostsRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
   },
 })
@@ -1225,7 +1242,7 @@ export const getPostsPostIdQuotesRoute = createRoute({
   responses: {
     200: {
       description: '引用投稿一覧',
-      content: { 'application/json': { schema: PostListResponseSchema } },
+      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
     },
   },
 })
@@ -1264,7 +1281,7 @@ export const getPostsPostIdRepliesRoute = createRoute({
   responses: {
     200: {
       description: '返信一覧',
-      content: { 'application/json': { schema: PostListResponseSchema } },
+      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
     },
   },
 })
@@ -1276,10 +1293,16 @@ export const postPostsPostIdRepliesRoute = createRoute({
   summary: '返信投稿',
   operationId: 'replyToPost',
   request: {
-    body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: CreatePostRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    201: { description: '返信成功', content: { 'application/json': { schema: PostSchema } } },
+    201: {
+      description: '返信成功',
+      content: { 'application/json': { schema: PostSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1320,11 +1343,11 @@ export const postMediaUploadRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: MediaSchema } },
+      content: { 'application/json': { schema: MediaSchema.optional() } },
     },
     400: {
       description: 'ファイル形式エラー',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
     401: UnauthorizedResponse,
     413: { description: 'ファイルサイズ超過' },
@@ -1355,7 +1378,10 @@ export const getMediaMediaIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'メディア情報', content: { 'application/json': { schema: MediaSchema } } },
+    200: {
+      description: 'メディア情報',
+      content: { 'application/json': { schema: MediaSchema.optional() } },
+    },
     404: NotFoundResponse,
   },
 })
@@ -1380,7 +1406,10 @@ export const patchMediaMediaIdRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: MediaSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: MediaSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

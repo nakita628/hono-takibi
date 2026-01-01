@@ -19,25 +19,37 @@ const BaseEventSchema = z
   })
   .openapi('BaseEvent')
 
-const SystemEventSchema = z
+const UserEventSchema = z
   .intersection(
     BaseEventSchema,
     z
       .object({
         eventType: z
-          .enum(['system.startup', 'system.shutdown'])
+          .enum(['user.created', 'user.updated', 'user.deleted'])
           .optional()
-          .openapi({ type: 'string', enum: ['system.startup', 'system.shutdown'] }),
-        component: z.string().openapi({ type: 'string' }),
-        details: z.string().optional().openapi({ type: 'string' }),
+          .openapi({ type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] }),
+        userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+        userData: z
+          .object({
+            email: z.email().openapi({ type: 'string', format: 'email' }),
+            name: z.string().openapi({ type: 'string' }),
+          })
+          .partial()
+          .openapi({
+            type: 'object',
+            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
+          }),
       })
       .openapi({
         type: 'object',
-        required: ['component'],
+        required: ['userId'],
         properties: {
-          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
-          component: { type: 'string' },
-          details: { type: 'string' },
+          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
+          userId: { type: 'string', format: 'uuid' },
+          userData: {
+            type: 'object',
+            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
+          },
         },
       }),
   )
@@ -47,16 +59,19 @@ const SystemEventSchema = z
       { $ref: '#/components/schemas/BaseEvent' },
       {
         type: 'object',
-        required: ['component'],
+        required: ['userId'],
         properties: {
-          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
-          component: { type: 'string' },
-          details: { type: 'string' },
+          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
+          userId: { type: 'string', format: 'uuid' },
+          userData: {
+            type: 'object',
+            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
+          },
         },
       },
     ],
   })
-  .openapi('SystemEvent')
+  .openapi('UserEvent')
 
 const OrderEventSchema = z
   .intersection(
@@ -121,37 +136,25 @@ const OrderEventSchema = z
   })
   .openapi('OrderEvent')
 
-const UserEventSchema = z
+const SystemEventSchema = z
   .intersection(
     BaseEventSchema,
     z
       .object({
         eventType: z
-          .enum(['user.created', 'user.updated', 'user.deleted'])
+          .enum(['system.startup', 'system.shutdown'])
           .optional()
-          .openapi({ type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] }),
-        userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        userData: z
-          .object({
-            email: z.email().openapi({ type: 'string', format: 'email' }),
-            name: z.string().openapi({ type: 'string' }),
-          })
-          .partial()
-          .openapi({
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          }),
+          .openapi({ type: 'string', enum: ['system.startup', 'system.shutdown'] }),
+        component: z.string().openapi({ type: 'string' }),
+        details: z.string().optional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
-        required: ['userId'],
+        required: ['component'],
         properties: {
-          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
-          userId: { type: 'string', format: 'uuid' },
-          userData: {
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          },
+          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
+          component: { type: 'string' },
+          details: { type: 'string' },
         },
       }),
   )
@@ -161,19 +164,16 @@ const UserEventSchema = z
       { $ref: '#/components/schemas/BaseEvent' },
       {
         type: 'object',
-        required: ['userId'],
+        required: ['component'],
         properties: {
-          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
-          userId: { type: 'string', format: 'uuid' },
-          userData: {
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          },
+          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
+          component: { type: 'string' },
+          details: { type: 'string' },
         },
       },
     ],
   })
-  .openapi('UserEvent')
+  .openapi('SystemEvent')
 
 type EventType =
   | z.infer<typeof UserEventSchema>
@@ -208,24 +208,40 @@ const EventSchema: z.ZodType<EventType> = z
   )
   .openapi('Event')
 
-const NotificationContentSchema = z
+const EmailRecipientSchema = z
   .object({
-    title: z.string().max(100).openapi({ type: 'string', maxLength: 100 }),
-    body: z.string().max(1000).openapi({ type: 'string', maxLength: 1000 }),
-    imageUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    actionUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    type: z.literal('email').openapi({ type: 'string' }),
+    email: z.email().openapi({ type: 'string', format: 'email' }),
+    name: z.string().optional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
-    required: ['title', 'body'],
+    required: ['type', 'email'],
     properties: {
-      title: { type: 'string', maxLength: 100 },
-      body: { type: 'string', maxLength: 1000 },
-      imageUrl: { type: 'string', format: 'uri' },
-      actionUrl: { type: 'string', format: 'uri' },
+      type: { type: 'string', const: 'email' },
+      email: { type: 'string', format: 'email' },
+      name: { type: 'string' },
     },
   })
-  .openapi('NotificationContent')
+  .openapi('EmailRecipient')
+
+const SmsRecipientSchema = z
+  .object({
+    type: z.literal('sms').openapi({ type: 'string' }),
+    phoneNumber: z
+      .string()
+      .regex(/^\+[1-9]\d{1,14}$/)
+      .openapi({ type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['type', 'phoneNumber'],
+    properties: {
+      type: { type: 'string', const: 'sms' },
+      phoneNumber: { type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' },
+    },
+  })
+  .openapi('SmsRecipient')
 
 const PushRecipientSchema = z
   .object({
@@ -246,41 +262,6 @@ const PushRecipientSchema = z
     },
   })
   .openapi('PushRecipient')
-
-const SmsRecipientSchema = z
-  .object({
-    type: z.literal('sms').openapi({ type: 'string' }),
-    phoneNumber: z
-      .string()
-      .regex(/^\+[1-9]\d{1,14}$/)
-      .openapi({ type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'phoneNumber'],
-    properties: {
-      type: { type: 'string', const: 'sms' },
-      phoneNumber: { type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' },
-    },
-  })
-  .openapi('SmsRecipient')
-
-const EmailRecipientSchema = z
-  .object({
-    type: z.literal('email').openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'email'],
-    properties: {
-      type: { type: 'string', const: 'email' },
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-    },
-  })
-  .openapi('EmailRecipient')
 
 const MultiRecipientSchema = z
   .object({
@@ -330,6 +311,25 @@ const MultiRecipientSchema = z
     },
   })
   .openapi('MultiRecipient')
+
+const NotificationContentSchema = z
+  .object({
+    title: z.string().max(100).openapi({ type: 'string', maxLength: 100 }),
+    body: z.string().max(1000).openapi({ type: 'string', maxLength: 1000 }),
+    imageUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    actionUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+  })
+  .openapi({
+    type: 'object',
+    required: ['title', 'body'],
+    properties: {
+      title: { type: 'string', maxLength: 100 },
+      body: { type: 'string', maxLength: 1000 },
+      imageUrl: { type: 'string', format: 'uri' },
+      actionUrl: { type: 'string', format: 'uri' },
+    },
+  })
+  .openapi('NotificationContent')
 
 const NotificationSchema = z
   .object({
@@ -382,23 +382,41 @@ const PointSchema = z
   })
   .openapi('Point')
 
-const PolygonSchema = z
+const CircleSchema = z
   .object({
-    type: z.literal('polygon').openapi({ type: 'string' }),
-    vertices: z
-      .array(PointSchema)
-      .min(3)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 }),
+    type: z.literal('circle').openapi({ type: 'string' }),
+    radius: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
+    center: PointSchema.optional(),
   })
   .openapi({
     type: 'object',
-    required: ['type', 'vertices'],
+    required: ['type', 'radius'],
     properties: {
-      type: { type: 'string', const: 'polygon' },
-      vertices: { type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 },
+      type: { type: 'string', const: 'circle' },
+      radius: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
+      center: { $ref: '#/components/schemas/Point' },
     },
   })
-  .openapi('Polygon')
+  .openapi('Circle')
+
+const RectangleSchema = z
+  .object({
+    type: z.literal('rectangle').openapi({ type: 'string' }),
+    width: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
+    height: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
+    topLeft: PointSchema.optional(),
+  })
+  .openapi({
+    type: 'object',
+    required: ['type', 'width', 'height'],
+    properties: {
+      type: { type: 'string', const: 'rectangle' },
+      width: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
+      height: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
+      topLeft: { $ref: '#/components/schemas/Point' },
+    },
+  })
+  .openapi('Rectangle')
 
 const TriangleSchema = z
   .object({
@@ -428,41 +446,23 @@ const TriangleSchema = z
   })
   .openapi('Triangle')
 
-const RectangleSchema = z
+const PolygonSchema = z
   .object({
-    type: z.literal('rectangle').openapi({ type: 'string' }),
-    width: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    height: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    topLeft: PointSchema,
+    type: z.literal('polygon').openapi({ type: 'string' }),
+    vertices: z
+      .array(PointSchema)
+      .min(3)
+      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 }),
   })
   .openapi({
     type: 'object',
-    required: ['type', 'width', 'height'],
+    required: ['type', 'vertices'],
     properties: {
-      type: { type: 'string', const: 'rectangle' },
-      width: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      height: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      topLeft: { $ref: '#/components/schemas/Point' },
+      type: { type: 'string', const: 'polygon' },
+      vertices: { type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 },
     },
   })
-  .openapi('Rectangle')
-
-const CircleSchema = z
-  .object({
-    type: z.literal('circle').openapi({ type: 'string' }),
-    radius: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    center: PointSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'radius'],
-    properties: {
-      type: { type: 'string', const: 'circle' },
-      radius: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      center: { $ref: '#/components/schemas/Point' },
-    },
-  })
-  .openapi('Circle')
+  .openapi('Polygon')
 
 const ShapeSchema = z
   .union([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
@@ -477,26 +477,22 @@ const ShapeSchema = z
   })
   .openapi('Shape')
 
-const TaggableSchema = z
+const BaseDocumentSchema = z
   .object({
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
-    categories: z
-      .array(z.string().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    title: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    description: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
+    required: ['id', 'title'],
     properties: {
-      tags: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-      categories: { type: 'array', items: { type: 'string' } },
+      id: { type: 'string', format: 'uuid' },
+      title: { type: 'string', minLength: 1, maxLength: 200 },
+      description: { type: 'string' },
     },
   })
-  .openapi('Taggable')
+  .openapi('BaseDocument')
 
 const AuditableSchema = z
   .object({
@@ -519,22 +515,26 @@ const AuditableSchema = z
   })
   .openapi('Auditable')
 
-const BaseDocumentSchema = z
+const TaggableSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    tags: z
+      .array(z.string().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
+    categories: z
+      .array(z.string().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' } }),
   })
+  .partial()
   .openapi({
     type: 'object',
-    required: ['id', 'title'],
     properties: {
-      id: { type: 'string', format: 'uuid' },
-      title: { type: 'string', minLength: 1, maxLength: 200 },
-      description: { type: 'string' },
+      tags: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+      categories: { type: 'array', items: { type: 'string' } },
     },
   })
-  .openapi('BaseDocument')
+  .openapi('Taggable')
 
 type DocumentType = z.infer<typeof BaseDocumentSchema> &
   z.infer<typeof AuditableSchema> &
@@ -599,7 +599,7 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
               .optional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
             z
-              .record(z.string(), MixedContentSchema)
+              .record(z.string(), MixedContentSchema.optional())
               .openapi({
                 type: 'object',
                 additionalProperties: { $ref: '#/components/schemas/MixedContent' },
@@ -697,7 +697,7 @@ export const postEventsRoute = createRoute({
   method: 'post',
   path: '/events',
   operationId: 'createEvent',
-  request: { body: { content: { 'application/json': { schema: EventSchema } } } },
+  request: { body: { content: { 'application/json': { schema: EventSchema.optional() } } } },
   responses: { 201: { description: 'Event created' } },
 })
 
@@ -705,7 +705,7 @@ export const postNotificationsRoute = createRoute({
   method: 'post',
   path: '/notifications',
   operationId: 'sendNotification',
-  request: { body: { content: { 'application/json': { schema: NotificationSchema } } } },
+  request: { body: { content: { 'application/json': { schema: NotificationSchema.optional() } } } },
   responses: { 200: { description: 'Notification sent' } },
 })
 
@@ -713,7 +713,7 @@ export const postShapesRoute = createRoute({
   method: 'post',
   path: '/shapes',
   operationId: 'createShape',
-  request: { body: { content: { 'application/json': { schema: ShapeSchema } } } },
+  request: { body: { content: { 'application/json': { schema: ShapeSchema.optional() } } } },
   responses: { 201: { description: 'Shape created' } },
 })
 
@@ -721,7 +721,7 @@ export const postDocumentsRoute = createRoute({
   method: 'post',
   path: '/documents',
   operationId: 'createDocument',
-  request: { body: { content: { 'application/json': { schema: DocumentSchema } } } },
+  request: { body: { content: { 'application/json': { schema: DocumentSchema.optional() } } } },
   responses: { 201: { description: 'Document created' } },
 })
 
@@ -729,6 +729,6 @@ export const postMixedRoute = createRoute({
   method: 'post',
   path: '/mixed',
   operationId: 'processMixed',
-  request: { body: { content: { 'application/json': { schema: MixedContentSchema } } } },
+  request: { body: { content: { 'application/json': { schema: MixedContentSchema.optional() } } } },
   responses: { 200: { description: 'Processed' } },
 })

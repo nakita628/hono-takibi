@@ -308,7 +308,7 @@ const BadRequestResponse = {
   description: 'リクエストが不正です',
   content: {
     'application/json': {
-      schema: ErrorSchema,
+      schema: ErrorSchema.optional(),
       example: { code: 'BAD_REQUEST', message: 'リクエストパラメータが不正です' },
     },
   },
@@ -318,7 +318,7 @@ const UnauthorizedResponse = {
   description: '認証が必要です',
   content: {
     'application/json': {
-      schema: ErrorSchema,
+      schema: ErrorSchema.optional(),
       example: { code: 'UNAUTHORIZED', message: '認証が必要です' },
     },
   },
@@ -328,7 +328,7 @@ const ForbiddenResponse = {
   description: 'アクセス権限がありません',
   content: {
     'application/json': {
-      schema: ErrorSchema,
+      schema: ErrorSchema.optional(),
       example: { code: 'FORBIDDEN', message: 'このリソースへのアクセス権限がありません' },
     },
   },
@@ -338,7 +338,7 @@ const NotFoundResponse = {
   description: 'リソースが見つかりません',
   content: {
     'application/json': {
-      schema: ErrorSchema,
+      schema: ErrorSchema.optional(),
       example: { code: 'NOT_FOUND', message: '指定されたリソースが見つかりません' },
     },
   },
@@ -355,7 +355,7 @@ export const postAuthRegisterRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: RegisterRequestSchema,
+          schema: RegisterRequestSchema.optional(),
           example: { email: 'user@example.com', password: 'SecurePass123!', name: '山田太郎' },
         },
       },
@@ -365,12 +365,12 @@ export const postAuthRegisterRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: AuthResponseSchema } },
+      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
     },
     400: BadRequestResponse,
     409: {
       description: 'メールアドレスが既に使用されています',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
   },
 })
@@ -383,14 +383,20 @@ export const postAuthLoginRoute = createRoute({
   description: 'メールアドレスとパスワードで認証し、JWTトークンを取得します',
   operationId: 'loginUser',
   request: {
-    body: { content: { 'application/json': { schema: LoginRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: LoginRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
     200: {
       description: 'ログイン成功',
-      content: { 'application/json': { schema: AuthResponseSchema } },
+      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
     },
-    401: { description: '認証失敗', content: { 'application/json': { schema: ErrorSchema } } },
+    401: {
+      description: '認証失敗',
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
+    },
   },
 })
 
@@ -420,7 +426,7 @@ export const postAuthRefreshRoute = createRoute({
   responses: {
     200: {
       description: 'トークン更新成功',
-      content: { 'application/json': { schema: AuthResponseSchema } },
+      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -559,7 +565,7 @@ export const getUsersRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema } },
+      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -575,7 +581,10 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: { params: z.object({ userId: UserIdParamParamsSchema }) },
   responses: {
-    200: { description: 'ユーザー詳細', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: 'ユーザー詳細',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -600,10 +609,16 @@ export const patchUsersUserIdRoute = createRoute({
   summary: 'ユーザー情報更新',
   operationId: 'updateUser',
   request: {
-    body: { content: { 'application/json': { schema: UpdateUserRequestSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: UpdateUserRequestSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -619,7 +634,7 @@ export const getUsersMeRoute = createRoute({
   responses: {
     200: {
       description: '現在のユーザー情報',
-      content: { 'application/json': { schema: UserSchema } },
+      content: { 'application/json': { schema: UserSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -634,12 +649,15 @@ export const patchUsersMeRoute = createRoute({
   operationId: 'updateCurrentUser',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProfileRequestSchema } },
+      content: { 'application/json': { schema: UpdateProfileRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
+    200: {
+      description: '更新成功',
+      content: { 'application/json': { schema: UserSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

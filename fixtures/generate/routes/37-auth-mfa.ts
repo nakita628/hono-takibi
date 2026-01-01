@@ -732,7 +732,7 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getMfaStatusRoute = createRoute({
@@ -744,7 +744,7 @@ export const getMfaStatusRoute = createRoute({
   responses: {
     200: {
       description: 'MFA設定状況',
-      content: { 'application/json': { schema: MfaStatusSchema } },
+      content: { 'application/json': { schema: MfaStatusSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -816,7 +816,10 @@ export const putMfaPreferredRoute = createRoute({
     },
   },
   responses: {
-    200: { description: '設定成功', content: { 'application/json': { schema: MfaStatusSchema } } },
+    200: {
+      description: '設定成功',
+      content: { 'application/json': { schema: MfaStatusSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     404: { description: '指定された方式が登録されていません' },
   },
@@ -863,7 +866,7 @@ export const postMfaTotpSetupRoute = createRoute({
   responses: {
     200: {
       description: 'TOTP設定情報',
-      content: { 'application/json': { schema: TotpSetupResponseSchema } },
+      content: { 'application/json': { schema: TotpSetupResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
     409: { description: 'TOTPは既に設定されています' },
@@ -908,11 +911,11 @@ export const postMfaTotpVerifyRoute = createRoute({
   responses: {
     200: {
       description: '設定完了',
-      content: { 'application/json': { schema: MfaMethodEnabledSchema } },
+      content: { 'application/json': { schema: MfaMethodEnabledSchema.optional() } },
     },
     400: {
       description: 'コードが不正です',
-      content: { 'application/json': { schema: MfaErrorSchema } },
+      content: { 'application/json': { schema: MfaErrorSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1062,7 +1065,7 @@ export const postMfaSmsVerifyRoute = createRoute({
   responses: {
     200: {
       description: '設定完了',
-      content: { 'application/json': { schema: MfaMethodEnabledSchema } },
+      content: { 'application/json': { schema: MfaMethodEnabledSchema.optional() } },
     },
     400: { description: 'コードが不正または期限切れ' },
     401: UnauthorizedResponse,
@@ -1200,7 +1203,7 @@ export const postMfaEmailVerifyRoute = createRoute({
   responses: {
     200: {
       description: '設定完了',
-      content: { 'application/json': { schema: MfaMethodEnabledSchema } },
+      content: { 'application/json': { schema: MfaMethodEnabledSchema.optional() } },
     },
     400: { description: 'コードが不正または期限切れ' },
     401: UnauthorizedResponse,
@@ -1263,7 +1266,7 @@ export const postMfaWebauthnRegisterOptionsRoute = createRoute({
   responses: {
     200: {
       description: '登録オプション',
-      content: { 'application/json': { schema: WebAuthnRegistrationOptionsSchema } },
+      content: { 'application/json': { schema: WebAuthnRegistrationOptionsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1278,14 +1281,14 @@ export const postMfaWebauthnRegisterVerifyRoute = createRoute({
   operationId: 'verifyWebAuthnRegistration',
   request: {
     body: {
-      content: { 'application/json': { schema: WebAuthnRegistrationResponseSchema } },
+      content: { 'application/json': { schema: WebAuthnRegistrationResponseSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '登録成功',
-      content: { 'application/json': { schema: WebAuthnCredentialSchema } },
+      content: { 'application/json': { schema: WebAuthnCredentialSchema.optional() } },
     },
     400: { description: '登録失敗' },
     401: UnauthorizedResponse,
@@ -1362,7 +1365,7 @@ export const patchMfaWebauthnCredentialsCredentialIdRoute = createRoute({
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: WebAuthnCredentialSchema } },
+      content: { 'application/json': { schema: WebAuthnCredentialSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1409,7 +1412,7 @@ export const postMfaBackupCodesGenerateRoute = createRoute({
   responses: {
     200: {
       description: 'バックアップコード',
-      content: { 'application/json': { schema: BackupCodesResponseSchema } },
+      content: { 'application/json': { schema: BackupCodesResponseSchema.optional() } },
     },
     400: { description: '認証コードが不正' },
     401: UnauthorizedResponse,
@@ -1426,7 +1429,7 @@ export const getMfaBackupCodesStatusRoute = createRoute({
   responses: {
     200: {
       description: 'バックアップコード状況',
-      content: { 'application/json': { schema: BackupCodesStatusSchema } },
+      content: { 'application/json': { schema: BackupCodesStatusSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1478,7 +1481,7 @@ export const postMfaChallengeRoute = createRoute({
   responses: {
     200: {
       description: 'チャレンジ情報',
-      content: { 'application/json': { schema: MfaChallengeSchema } },
+      content: { 'application/json': { schema: MfaChallengeSchema.optional() } },
     },
     400: { description: '不正なMFAトークン' },
   },
@@ -1569,9 +1572,12 @@ export const postMfaVerifyRoute = createRoute({
   responses: {
     200: {
       description: '認証成功',
-      content: { 'application/json': { schema: MfaVerificationResultSchema } },
+      content: { 'application/json': { schema: MfaVerificationResultSchema.optional() } },
     },
-    400: { description: '認証失敗', content: { 'application/json': { schema: MfaErrorSchema } } },
+    400: {
+      description: '認証失敗',
+      content: { 'application/json': { schema: MfaErrorSchema.optional() } },
+    },
   },
 })
 
@@ -1600,7 +1606,7 @@ export const postMfaWebauthnAuthenticateOptionsRoute = createRoute({
   responses: {
     200: {
       description: '認証オプション',
-      content: { 'application/json': { schema: WebAuthnAuthenticationOptionsSchema } },
+      content: { 'application/json': { schema: WebAuthnAuthenticationOptionsSchema.optional() } },
     },
     400: { description: '不正なチャレンジ' },
   },

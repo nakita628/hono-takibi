@@ -1,5 +1,6 @@
+import { constCode } from '../../../../helper/const.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ensureSuffix, ref, toIdentifierPascalCase } from '../../../../utils/index.js'
+import { ref } from '../../../../utils/index.js'
 
 export function links(components: Components, exportLinks: boolean) {
   const { links } = components
@@ -19,7 +20,7 @@ export function links(components: Components, exportLinks: boolean) {
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${exportLinks ? 'export const' : 'const'} ${toIdentifierPascalCase(ensureSuffix(k, 'Link'))}={${props}}`
+      return `${constCode(exportLinks, k, 'Link')}{${props}}`
     })
     .join('\n\n')
 }

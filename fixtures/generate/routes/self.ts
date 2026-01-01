@@ -8,7 +8,7 @@ const CategorySchema: z.ZodType<CategoryType> = z
       .object({
         id: z.string().openapi({ type: 'string' }),
         name: z.string().openapi({ type: 'string' }),
-        parent: CategorySchema,
+        parent: CategorySchema.optional(),
       })
       .openapi({
         type: 'object',
@@ -26,6 +26,9 @@ export const getCategoriesRoute = createRoute({
   method: 'get',
   path: '/categories',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: CategorySchema } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: CategorySchema.optional() } },
+    },
   },
 })

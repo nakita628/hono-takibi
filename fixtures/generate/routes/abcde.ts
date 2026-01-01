@@ -29,5 +29,7 @@ export const getExampleRoute = createRoute({
   method: 'get',
   path: '/example',
   summary: 'Get example data',
-  responses: { 200: { description: 'OK', content: { 'application/json': { schema: ASchema } } } },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ASchema.optional() } } },
+  },
 })

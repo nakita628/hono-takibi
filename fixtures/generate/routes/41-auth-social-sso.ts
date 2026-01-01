@@ -362,35 +362,6 @@ const LinkedAccountSchema = z
   })
   .openapi('LinkedAccount')
 
-const OIDCConfigSchema = z
-  .object({
-    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    authorizationEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    tokenEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
-      .optional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      issuer: { type: 'string', format: 'uri' },
-      clientId: { type: 'string' },
-      authorizationEndpoint: { type: 'string', format: 'uri' },
-      tokenEndpoint: { type: 'string', format: 'uri' },
-      userInfoEndpoint: { type: 'string', format: 'uri' },
-      jwksUri: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: { type: 'object' },
-    },
-  })
-  .openapi('OIDCConfig')
-
 const SAMLConfigSchema = z
   .object({
     entityId: z.string().optional().openapi({ type: 'string', description: 'IdP Entity ID' }),
@@ -461,6 +432,35 @@ const SAMLConfigSchema = z
   })
   .openapi('SAMLConfig')
 
+const OIDCConfigSchema = z
+  .object({
+    issuer: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    clientId: z.string().optional().openapi({ type: 'string' }),
+    authorizationEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    tokenEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    scopes: z
+      .array(z.string().optional().openapi({ type: 'string' }))
+      .optional()
+      .openapi({ type: 'array', items: { type: 'string' } }),
+    attributeMapping: z.object({}).openapi({ type: 'object' }),
+  })
+  .openapi({
+    type: 'object',
+    properties: {
+      issuer: { type: 'string', format: 'uri' },
+      clientId: { type: 'string' },
+      authorizationEndpoint: { type: 'string', format: 'uri' },
+      tokenEndpoint: { type: 'string', format: 'uri' },
+      userInfoEndpoint: { type: 'string', format: 'uri' },
+      jwksUri: { type: 'string', format: 'uri' },
+      scopes: { type: 'array', items: { type: 'string' } },
+      attributeMapping: { type: 'object' },
+    },
+  })
+  .openapi('OIDCConfig')
+
 const EnterpriseSSOConfigSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
@@ -475,8 +475,8 @@ const EnterpriseSSOConfigSchema = z
         description: '関連付けられたメールドメイン',
       }),
     enabled: z.boolean().openapi({ type: 'boolean' }),
-    samlConfig: SAMLConfigSchema,
-    oidcConfig: OIDCConfigSchema,
+    samlConfig: SAMLConfigSchema.optional(),
+    oidcConfig: OIDCConfigSchema.optional(),
     userProvisioning: z
       .object({
         autoCreate: z.boolean().openapi({ type: 'boolean' }),
@@ -533,8 +533,8 @@ const CreateEnterpriseSSORequestSchema = z
       .min(1)
       .optional()
       .openapi({ type: 'array', minItems: 1, items: { type: 'string' } }),
-    samlConfig: SAMLConfigSchema,
-    oidcConfig: OIDCConfigSchema,
+    samlConfig: SAMLConfigSchema.optional(),
+    oidcConfig: OIDCConfigSchema.optional(),
     userProvisioning: z.object({}).openapi({ type: 'object' }),
   })
   .openapi({
@@ -559,8 +559,8 @@ const UpdateEnterpriseSSORequestSchema = z
       .array(z.string().optional().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    samlConfig: SAMLConfigSchema,
-    oidcConfig: OIDCConfigSchema,
+    samlConfig: SAMLConfigSchema.optional(),
+    oidcConfig: OIDCConfigSchema.optional(),
     userProvisioning: z.object({}).openapi({ type: 'object' }),
   })
   .openapi({
@@ -642,17 +642,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getSocialAuthorizeProviderRoute = createRoute({
@@ -726,7 +726,7 @@ export const getSocialAuthorizeProviderRoute = createRoute({
     302: { description: 'プロバイダーの認証画面にリダイレクト' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
   },
 })
@@ -785,7 +785,7 @@ export const getSocialCallbackProviderRoute = createRoute({
     302: { description: 'アプリケーションにリダイレクト' },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
     },
   },
 })
@@ -829,11 +829,11 @@ export const postSocialTokenRoute = createRoute({
   responses: {
     200: {
       description: '認証成功',
-      content: { 'application/json': { schema: SocialAuthResultSchema } },
+      content: { 'application/json': { schema: SocialAuthResultSchema.optional() } },
     },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
     },
   },
 })
@@ -886,11 +886,11 @@ export const postSocialTokenNativeRoute = createRoute({
   responses: {
     200: {
       description: '検証成功',
-      content: { 'application/json': { schema: SocialAuthResultSchema } },
+      content: { 'application/json': { schema: SocialAuthResultSchema.optional() } },
     },
     400: {
       description: '検証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
     },
   },
 })
@@ -947,14 +947,14 @@ export const postProvidersAdminRoute = createRoute({
   operationId: 'createProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateProviderRequestSchema } },
+      content: { 'application/json': { schema: CreateProviderRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ProviderConfigSchema } },
+      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -987,7 +987,7 @@ export const getProvidersProviderIdRoute = createRoute({
   responses: {
     200: {
       description: 'プロバイダー詳細',
-      content: { 'application/json': { schema: ProviderConfigSchema } },
+      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1003,14 +1003,14 @@ export const putProvidersProviderIdRoute = createRoute({
   operationId: 'updateProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProviderRequestSchema } },
+      content: { 'application/json': { schema: UpdateProviderRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ProviderConfigSchema } },
+      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1147,13 +1147,16 @@ export const postAccountLinkProviderRoute = createRoute({
   responses: {
     200: {
       description: '連携成功',
-      content: { 'application/json': { schema: LinkedAccountSchema } },
+      content: { 'application/json': { schema: LinkedAccountSchema.optional() } },
     },
-    400: { description: '連携失敗', content: { 'application/json': { schema: ErrorSchema } } },
+    400: {
+      description: '連携失敗',
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
+    },
     401: UnauthorizedResponse,
     409: {
       description: '既に他のアカウントに連携済み',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
   },
   security: [{ bearerAuth: [] }],
@@ -1170,7 +1173,7 @@ export const deleteAccountLinkProviderRoute = createRoute({
     204: { description: '解除成功' },
     400: {
       description: '解除できません（最後の認証方法など）',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: { 'application/json': { schema: ErrorSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1211,14 +1214,14 @@ export const postEnterpriseSsoRoute = createRoute({
   operationId: 'createEnterpriseSSOConfig',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateEnterpriseSSORequestSchema } },
+      content: { 'application/json': { schema: CreateEnterpriseSSORequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1251,7 +1254,7 @@ export const getEnterpriseSsoConfigIdRoute = createRoute({
   responses: {
     200: {
       description: 'SSO設定詳細',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1267,14 +1270,14 @@ export const putEnterpriseSsoConfigIdRoute = createRoute({
   operationId: 'updateEnterpriseSSOConfig',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema } },
+      content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1332,7 +1335,7 @@ export const getEnterpriseSsoDomainLookupRoute = createRoute({
   responses: {
     200: {
       description: 'SSO設定',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
     },
     404: { description: 'SSO設定が見つかりません' },
   },

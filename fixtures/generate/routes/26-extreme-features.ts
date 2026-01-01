@@ -165,7 +165,7 @@ const ItemUpdatedEventSchema = z
   .object({
     event: z.literal('item.updated'),
     data: ItemSchema,
-    previousData: ItemSchema,
+    previousData: ItemSchema.optional(),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     changedFields: z
       .array(z.string().optional().openapi({ type: 'string' }))
@@ -261,22 +261,22 @@ const PetSchema = z
   })
   .openapi('Pet')
 
-const BirdSchema = z
+const DogSchema = z
   .intersection(
     PetSchema,
     z
       .object({
-        petType: z.literal('bird'),
-        species: z.string().openapi({ type: 'string' }),
-        canFly: z.boolean().openapi({ type: 'boolean' }),
+        petType: z.literal('dog'),
+        breed: z.string().openapi({ type: 'string' }),
+        barkVolume: z.int().openapi({ type: 'integer' }),
       })
       .partial()
       .openapi({
         type: 'object',
         properties: {
-          petType: { const: 'bird' },
-          species: { type: 'string' },
-          canFly: { type: 'boolean' },
+          petType: { const: 'dog' },
+          breed: { type: 'string' },
+          barkVolume: { type: 'integer' },
         },
       }),
   )
@@ -287,14 +287,14 @@ const BirdSchema = z
       {
         type: 'object',
         properties: {
-          petType: { const: 'bird' },
-          species: { type: 'string' },
-          canFly: { type: 'boolean' },
+          petType: { const: 'dog' },
+          breed: { type: 'string' },
+          barkVolume: { type: 'integer' },
         },
       },
     ],
   })
-  .openapi('Bird')
+  .openapi('Dog')
 
 const CatSchema = z
   .intersection(
@@ -331,22 +331,22 @@ const CatSchema = z
   })
   .openapi('Cat')
 
-const DogSchema = z
+const BirdSchema = z
   .intersection(
     PetSchema,
     z
       .object({
-        petType: z.literal('dog'),
-        breed: z.string().openapi({ type: 'string' }),
-        barkVolume: z.int().openapi({ type: 'integer' }),
+        petType: z.literal('bird'),
+        species: z.string().openapi({ type: 'string' }),
+        canFly: z.boolean().openapi({ type: 'boolean' }),
       })
       .partial()
       .openapi({
         type: 'object',
         properties: {
-          petType: { const: 'dog' },
-          breed: { type: 'string' },
-          barkVolume: { type: 'integer' },
+          petType: { const: 'bird' },
+          species: { type: 'string' },
+          canFly: { type: 'boolean' },
         },
       }),
   )
@@ -357,14 +357,14 @@ const DogSchema = z
       {
         type: 'object',
         properties: {
-          petType: { const: 'dog' },
-          breed: { type: 'string' },
-          barkVolume: { type: 'integer' },
+          petType: { const: 'bird' },
+          species: { type: 'string' },
+          canFly: { type: 'boolean' },
         },
       },
     ],
   })
-  .openapi('Dog')
+  .openapi('Bird')
 
 const DiscriminatedUnionSchema = z
   .union([DogSchema, CatSchema, BirdSchema])
@@ -435,12 +435,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const NotFoundResponse = {
   description: 'Resource not found',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const ServerErrorResponse = {
   description: 'Internal server error',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getStreamRoute = createRoute({

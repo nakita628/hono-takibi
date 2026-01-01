@@ -910,11 +910,12 @@ const FollowerAnalyticsSchema = z
 
 const PostWithAnalyticsSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    text: z.string().optional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    text: z.string().openapi({ type: 'string' }),
+    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     analytics: PostAnalyticsSchema,
   })
+  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1005,12 +1006,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema } },
+  content: { 'application/json': { schema: ErrorSchema.optional() } },
 }
 
 export const getSettingsAccountRoute = createRoute({
@@ -1022,7 +1023,7 @@ export const getSettingsAccountRoute = createRoute({
   responses: {
     200: {
       description: 'アカウント設定',
-      content: { 'application/json': { schema: AccountSettingsSchema } },
+      content: { 'application/json': { schema: AccountSettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1037,14 +1038,14 @@ export const putSettingsAccountRoute = createRoute({
   operationId: 'updateAccountSettings',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateAccountSettingsRequestSchema } },
+      content: { 'application/json': { schema: UpdateAccountSettingsRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: AccountSettingsSchema } },
+      content: { 'application/json': { schema: AccountSettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1097,7 +1098,7 @@ export const getSettingsPrivacyRoute = createRoute({
   responses: {
     200: {
       description: 'プライバシー設定',
-      content: { 'application/json': { schema: PrivacySettingsSchema } },
+      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1111,12 +1112,15 @@ export const putSettingsPrivacyRoute = createRoute({
   summary: 'プライバシー設定更新',
   operationId: 'updatePrivacySettings',
   request: {
-    body: { content: { 'application/json': { schema: PrivacySettingsSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: PrivacySettingsSchema } },
+      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1132,7 +1136,7 @@ export const getSettingsContentPreferencesRoute = createRoute({
   responses: {
     200: {
       description: 'コンテンツ設定',
-      content: { 'application/json': { schema: ContentPreferencesSchema } },
+      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1146,12 +1150,15 @@ export const putSettingsContentPreferencesRoute = createRoute({
   summary: 'コンテンツ設定更新',
   operationId: 'updateContentPreferences',
   request: {
-    body: { content: { 'application/json': { schema: ContentPreferencesSchema } }, required: true },
+    body: {
+      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
+      required: true,
+    },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ContentPreferencesSchema } },
+      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1189,12 +1196,15 @@ export const postSettingsMutedWordsRoute = createRoute({
   operationId: 'addMutedWord',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateMutedWordRequestSchema } },
+      content: { 'application/json': { schema: CreateMutedWordRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '追加成功', content: { 'application/json': { schema: MutedWordSchema } } },
+    201: {
+      description: '追加成功',
+      content: { 'application/json': { schema: MutedWordSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1447,12 +1457,15 @@ export const postReportsRoute = createRoute({
   operationId: 'createReport',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateReportRequestSchema } },
+      content: { 'application/json': { schema: CreateReportRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
-    201: { description: '通報成功', content: { 'application/json': { schema: ReportSchema } } },
+    201: {
+      description: '通報成功',
+      content: { 'application/json': { schema: ReportSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1481,7 +1494,10 @@ export const getReportsReportIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: '通報詳細', content: { 'application/json': { schema: ReportSchema } } },
+    200: {
+      description: '通報詳細',
+      content: { 'application/json': { schema: ReportSchema.optional() } },
+    },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1527,7 +1543,7 @@ export const getModerationQueueRoute = createRoute({
   responses: {
     200: {
       description: 'キュー一覧',
-      content: { 'application/json': { schema: ModerationQueueResponseSchema } },
+      content: { 'application/json': { schema: ModerationQueueResponseSchema.optional() } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1560,7 +1576,7 @@ export const getModerationItemsItemIdRoute = createRoute({
   responses: {
     200: {
       description: 'アイテム詳細',
-      content: { 'application/json': { schema: ModerationItemSchema } },
+      content: { 'application/json': { schema: ModerationItemSchema.optional() } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1576,14 +1592,14 @@ export const postModerationItemsItemIdActionRoute = createRoute({
   operationId: 'takeModerationAction',
   request: {
     body: {
-      content: { 'application/json': { schema: ModerationActionRequestSchema } },
+      content: { 'application/json': { schema: ModerationActionRequestSchema.optional() } },
       required: true,
     },
   },
   responses: {
     200: {
       description: 'アクション成功',
-      content: { 'application/json': { schema: ModerationItemSchema } },
+      content: { 'application/json': { schema: ModerationItemSchema.optional() } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1723,7 +1739,7 @@ export const getAnalyticsPostsPostIdRoute = createRoute({
   responses: {
     200: {
       description: '投稿分析',
-      content: { 'application/json': { schema: PostAnalyticsSchema } },
+      content: { 'application/json': { schema: PostAnalyticsSchema.optional() } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1758,7 +1774,7 @@ export const getAnalyticsAccountRoute = createRoute({
   responses: {
     200: {
       description: 'アカウント分析',
-      content: { 'application/json': { schema: AccountAnalyticsSchema } },
+      content: { 'application/json': { schema: AccountAnalyticsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },
@@ -1792,7 +1808,7 @@ export const getAnalyticsFollowersRoute = createRoute({
   responses: {
     200: {
       description: 'フォロワー分析',
-      content: { 'application/json': { schema: FollowerAnalyticsSchema } },
+      content: { 'application/json': { schema: FollowerAnalyticsSchema.optional() } },
     },
     401: UnauthorizedResponse,
   },

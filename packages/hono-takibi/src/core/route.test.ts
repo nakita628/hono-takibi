@@ -120,7 +120,7 @@ export const getHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoSchema } },
+      content: { 'application/json': { schema: HonoSchema.optional() } },
     },
   },
 })
@@ -133,7 +133,7 @@ export const getHonoxRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoXSchema } },
+      content: { 'application/json': { schema: HonoXSchema.optional() } },
     },
   },
 })
@@ -146,11 +146,12 @@ export const getZodOpenapiHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: ZodOpenAPIHonoSchema } },
+      content: { 'application/json': { schema: ZodOpenAPIHonoSchema.optional() } },
     },
   },
 })
 `
+
       expect(index).toBe(expected)
       expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
     } finally {
@@ -185,7 +186,6 @@ export * from './getZodOpenapiHono'
       const getHono = fs.readFileSync(path.join(outDir, 'getHono.ts'), 'utf-8')
       const getHonox = fs.readFileSync(path.join(outDir, 'getHonox.ts'), 'utf-8')
       const getZod = fs.readFileSync(path.join(outDir, 'getZodOpenapiHono.ts'), 'utf-8')
-
       const getHonoExpected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoSchema } from '@packages/schemas'
 
@@ -197,11 +197,12 @@ export const getHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoSchema } },
+      content: { 'application/json': { schema: HonoSchema.optional() } },
     },
   },
 })
 `
+
       const getHonoxExpected = `import { createRoute } from '@hono/zod-openapi'
 import { HonoXSchema } from '@packages/schemas'
 
@@ -213,11 +214,12 @@ export const getHonoxRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoXSchema } },
+      content: { 'application/json': { schema: HonoXSchema.optional() } },
     },
   },
 })
 `
+
       const getZodExpected = `import { createRoute } from '@hono/zod-openapi'
 import { ZodOpenAPIHonoSchema } from '@packages/schemas'
 
@@ -229,7 +231,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: ZodOpenAPIHonoSchema } },
+      content: { 'application/json': { schema: ZodOpenAPIHonoSchema.optional() } },
     },
   },
 })
