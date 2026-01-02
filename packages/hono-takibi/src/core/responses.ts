@@ -1,37 +1,19 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
-import { examplesPropExpr } from '../helper/examples.js'
-import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { Components, Content, Responses, Schema } from '../openapi/index.js'
 import {
+  buildExamples,
   ensureSuffix,
   findSchema,
   isRecord,
   lowerFirst,
+  ref,
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
 
 const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-
-const resolveComponentKey = ($ref: string, prefix: string): string | undefined => {
-  if (!$ref.startsWith(prefix)) return undefined
-  const key = $ref.slice(prefix.length)
-  return key ? key : undefined
-}
-
-type OutputTarget = {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-  readonly import?: string
-}
-type Imports = {
-  readonly schemas?: OutputTarget
-  readonly headers?: OutputTarget
-  readonly examples?: OutputTarget
-  readonly links?: OutputTarget
-}
 
 const headerSchemaExpr = (header: unknown): string => {
   if (!isRecord(header)) return 'z.any()'
@@ -50,19 +32,14 @@ const headerSchemaExpr = (header: unknown): string => {
 const headersPropExpr = (
   headers: Responses['headers'] | undefined,
   components: Components,
-  usedHeaderKeys: Set<string>,
-  imports: Imports | undefined,
 ): string | undefined => {
   if (!headers) return undefined
   const entries = Object.entries(headers).map(([name, header]) => {
     if (isRef(header) && header.$ref.startsWith('#/components/headers/')) {
-      const key = resolveComponentKey(header.$ref, '#/components/headers/')
-      const resolved = key ? components.headers?.[key] : undefined
-      if (key && resolved && imports?.headers) {
-        usedHeaderKeys.add(key)
-        const base = toIdentifierPascalCase(ensureSuffix(key, 'Header'))
-        return `${JSON.stringify(name)}:${base}`
-      }
+      const resolved = (() => {
+        const key = header.$ref.slice('#/components/headers/'.length)
+        return key ? components.headers?.[key] : undefined
+      })()
       const base = headerSchemaExpr(resolved ?? header)
       return `${JSON.stringify(name)}:${base}`
     }
@@ -73,33 +50,24 @@ const headersPropExpr = (
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
 }
 
-const mediaTypeExpr = (
-  media: Content[string],
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
+const mediaTypeExpr = (media: Content[string]): string => {
   const schema = zodToOpenAPI(media.schema)
-  const examples = examplesPropExpr(media.examples, components, usedExampleKeys, imports)
-  return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
+  const examples = buildExamples(media.examples)
+  const examplesProp = examples ? `examples:${examples}` : undefined
+  return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
 }
 
 const linksPropExpr = (
   links: Responses['links'] | undefined,
   components: Components,
-  usedLinkKeys: Set<string>,
-  imports: Imports | undefined,
 ): string | undefined => {
   if (!links) return undefined
   const entries = Object.entries(links).map(([name, link]) => {
     if (isRef(link) && link.$ref.startsWith('#/components/links/')) {
-      const key = resolveComponentKey(link.$ref, '#/components/links/')
+      const key = link.$ref.slice('#/components/links/'.length)
       const resolved = key ? components.links?.[key] : undefined
-      if (key && resolved && imports?.links) {
-        usedLinkKeys.add(key)
-        return `${JSON.stringify(name)}:${toIdentifierPascalCase(ensureSuffix(key, 'Link'))}`
-      }
-      if (key && resolved) return `${JSON.stringify(name)}:${JSON.stringify(resolved)}`
+      if (resolved)
+        return `${JSON.stringify(name)}:${ref(link.$ref as `#/components/${string}/${string}`)}`
       return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
     }
     return `${JSON.stringify(name)}:${JSON.stringify(link)}`
@@ -107,22 +75,15 @@ const linksPropExpr = (
   return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
 }
 
-const responseDefinitionExpr = (
-  res: Responses,
-  components: Components,
-  usedHeaderKeys: Set<string>,
-  usedExampleKeys: Set<string>,
-  usedLinkKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
+const responseDefinitionExpr = (res: Responses, components: Components): string => {
   if (typeof res.$ref === 'string') return `{$ref:${JSON.stringify(res.$ref)}}`
   const description = `description:${JSON.stringify(res.description ?? '')}`
-  const headers = headersPropExpr(res.headers, components, usedHeaderKeys, imports)
-  const links = linksPropExpr(res.links, components, usedLinkKeys, imports)
+  const headers = headersPropExpr(res.headers, components)
+  const links = linksPropExpr(res.links, components)
   const content = (() => {
     if (!res.content) return undefined
     const contentEntries = Object.entries(res.content).map(([contentType, media]) => {
-      return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components, usedExampleKeys, imports)}`
+      return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
     })
     return contentEntries.length > 0 ? `content:{${contentEntries.join(',')}}` : undefined
   })()
@@ -130,62 +91,8 @@ const responseDefinitionExpr = (
   return `{${[description, headers, links, content].filter(Boolean).join(',')}}`
 }
 
-const buildImportSchemas = (
-  fromFile: string,
-  code: string,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.schemas
-  if (!target) return ''
-  const tokens = findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
-  if (tokens.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(tokens, spec)
-}
-
-const buildImportHeaders = (
-  fromFile: string,
-  usedHeaderKeys: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.headers
-  if (!target) return ''
-  const names = Array.from(usedHeaderKeys)
-    .sort()
-    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Header')))
-  if (names.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(names, spec)
-}
-
-const buildImportExamples = (
-  fromFile: string,
-  usedExampleKeys: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.examples
-  if (!target) return ''
-  const names = Array.from(usedExampleKeys)
-    .sort()
-    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Example')))
-  if (names.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(names, spec)
-}
-
-const buildImportLinks = (
-  fromFile: string,
-  usedLinkKeys: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.links
-  if (!target) return ''
-  const names = Array.from(usedLinkKeys)
-    .sort()
-    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Link')))
-  if (names.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(names, spec)
+const buildImportSchemas = (code: string): readonly string[] => {
+  return findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
 }
 
 /**
@@ -195,44 +102,17 @@ export async function responses(
   components: Components,
   output: string | `${string}.ts`,
   split?: boolean,
-  imports?: Imports,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const { responses } = components
   if (!responses) return { ok: false, error: 'No responses found' }
 
-  const makeOne = (
-    key: string,
-  ): {
-    name: string
-    usedHeaderKeys: Set<string>
-    usedExampleKeys: Set<string>
-    usedLinkKeys: Set<string>
-    code: string
-  } => {
-    const usedHeaderKeys = new Set<string>()
-    const usedExampleKeys = new Set<string>()
-    const usedLinkKeys = new Set<string>()
+  const makeOne = (key: string): { name: string; code: string } => {
     const res = responses[key]
-    const expr = res
-      ? responseDefinitionExpr(
-          res,
-          components,
-          usedHeaderKeys,
-          usedExampleKeys,
-          usedLinkKeys,
-          imports,
-        )
-      : '{}'
+    const expr = res ? responseDefinitionExpr(res, components) : '{}'
     const name = toIdentifierPascalCase(ensureSuffix(key, 'Response'))
-    return {
-      name,
-      usedHeaderKeys,
-      usedExampleKeys,
-      usedLinkKeys,
-      code: `export const ${name} = ${expr}`,
-    }
+    return { name, code: `export const ${name} = ${expr}` }
   }
 
   if (split) {
@@ -242,22 +122,10 @@ export async function responses(
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-      const importSchemas = buildImportSchemas(filePath, one.code, imports)
-      const importHeaders = buildImportHeaders(filePath, one.usedHeaderKeys, imports)
-      const importExamples = buildImportExamples(filePath, one.usedExampleKeys, imports)
-      const importLinks = buildImportLinks(filePath, one.usedLinkKeys, imports)
-      const fileCode = [
-        importZ,
-        importSchemas,
-        importHeaders,
-        importExamples,
-        importLinks,
-        '\n',
-        one.code,
-        '',
-      ]
-        .filter(Boolean)
-        .join('\n')
+      const schemaTokens = buildImportSchemas(one.code)
+      const importSchemas =
+        schemaTokens.length > 0 ? renderNamedImport(schemaTokens, '../schemas') : ''
+      const fileCode = [importZ, importSchemas, '\n', one.code, ''].filter(Boolean).join('\n')
 
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -283,44 +151,19 @@ export async function responses(
     }
   }
 
-  const usedHeaderKeys = new Set<string>()
-  const usedExampleKeys = new Set<string>()
-  const usedLinkKeys = new Set<string>()
   const defs = Object.keys(responses)
     .map((key) => {
       const res = responses[key]
-      const expr = res
-        ? responseDefinitionExpr(
-            res,
-            components,
-            usedHeaderKeys,
-            usedExampleKeys,
-            usedLinkKeys,
-            imports,
-          )
-        : '{}'
+      const expr = res ? responseDefinitionExpr(res, components) : '{}'
       return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'Response'))} = ${expr}`
     })
     .join('\n\n')
 
   const outFile = String(output)
   const importZ = defs.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-  const importSchemas = buildImportSchemas(outFile, defs, imports)
-  const importHeaders = buildImportHeaders(outFile, usedHeaderKeys, imports)
-  const importExamples = buildImportExamples(outFile, usedExampleKeys, imports)
-  const importLinks = buildImportLinks(outFile, usedLinkKeys, imports)
-  const fileCode = [
-    importZ,
-    importSchemas,
-    importHeaders,
-    importExamples,
-    importLinks,
-    '\n',
-    defs,
-    '',
-  ]
-    .filter(Boolean)
-    .join('\n')
+  const schemaTokens = buildImportSchemas(defs)
+  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, './schemas') : ''
+  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
 
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

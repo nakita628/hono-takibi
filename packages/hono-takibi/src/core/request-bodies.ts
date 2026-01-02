@@ -1,10 +1,9 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { core } from '../helper/core.js'
-import { examplesPropExpr } from '../helper/examples.js'
-import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { Components, Content, OpenAPI, RequestBody } from '../openapi/index.js'
+import type { Content, OpenAPI, RequestBody } from '../openapi/index.js'
 import {
+  buildExamples,
   ensureSuffix,
   findSchema,
   isRecord,
@@ -19,37 +18,15 @@ const isMedia = (v: unknown): v is Content[string] =>
 const coerceDateIfNeeded = (schemaExpr: string): string =>
   schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
 
-type Imports = {
-  readonly schemas?: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  }
-  readonly examples?: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-    readonly import?: string
-  }
-}
-
-const mediaTypeExpr = (
-  media: unknown,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
+const mediaTypeExpr = (media: unknown): string => {
   if (!isMedia(media)) return '{schema:z.any()}'
   const schema = coerceDateIfNeeded(zodToOpenAPI(media.schema))
-  const examples = examplesPropExpr(media.examples, components, usedExampleKeys, imports)
-  return `{${[`schema:${schema}`, examples].filter(Boolean).join(',')}}`
+  const examples = buildExamples(media.examples)
+  const examplesProp = examples ? `examples:${examples}` : undefined
+  return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
 }
 
-const requestBodyExpr = (
-  body: RequestBody,
-  components: Components,
-  usedExampleKeys: Set<string>,
-  imports: Imports | undefined,
-): string => {
+const requestBodyExpr = (body: RequestBody): string => {
   const required = body.required ?? false
   const description =
     body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
@@ -59,39 +36,14 @@ const requestBodyExpr = (
   }
 
   const contentEntries = Object.entries(content).map(([contentType, media]) => {
-    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media, components, usedExampleKeys, imports)}`
+    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
   })
   const contentExpr = `content:{${contentEntries.join(',')}}`
   return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
 }
 
-const buildImportSchemas = (
-  fromFile: string,
-  code: string,
-  locals: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.schemas
-  if (!target) return ''
-  const tokens = findSchema(code).filter((t) => !locals.has(t))
-  if (tokens.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(tokens, spec)
-}
-
-const buildImportExamples = (
-  fromFile: string,
-  usedExampleKeys: ReadonlySet<string>,
-  imports: Imports | undefined,
-): string => {
-  const target = imports?.examples
-  if (!target) return ''
-  const names = Array.from(usedExampleKeys)
-    .sort()
-    .map((k) => toIdentifierPascalCase(ensureSuffix(k, 'Example')))
-  if (names.length === 0) return ''
-  const spec = target.import ?? moduleSpecFrom(fromFile, target)
-  return renderNamedImport(names, spec)
+const buildImportSchemas = (code: string): readonly string[] => {
+  return findSchema(code)
 }
 
 /**
@@ -101,7 +53,6 @@ export async function requestBodies(
   openAPI: OpenAPI,
   output: string | `${string}.ts`,
   split?: boolean,
-  imports?: Imports,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -109,14 +60,11 @@ export async function requestBodies(
   if (!bodies || Object.keys(bodies).length === 0)
     return { ok: false, error: 'No requestBodies found' }
 
-  const components = openAPI.components ?? {}
-
-  const makeOne = (key: string): { name: string; code: string; usedExampleKeys: Set<string> } => {
-    const usedExampleKeys = new Set<string>()
+  const makeOne = (key: string): { name: string; code: string } => {
     const body = bodies[key]
-    const expr = body ? requestBodyExpr(body, components, usedExampleKeys, imports) : '{}'
+    const expr = body ? requestBodyExpr(body) : '{}'
     const name = toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))
-    return { name, usedExampleKeys, code: `export const ${name} = ${expr}` }
+    return { name, code: `export const ${name} = ${expr}` }
   }
 
   if (split) {
@@ -126,11 +74,10 @@ export async function requestBodies(
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-      const importSchemas = buildImportSchemas(filePath, one.code, new Set(), imports)
-      const importExamples = buildImportExamples(filePath, one.usedExampleKeys, imports)
-      const fileCode = [importZ, importSchemas, importExamples, '\n', one.code, '']
-        .filter(Boolean)
-        .join('\n')
+      const schemaTokens = buildImportSchemas(one.code)
+      const importSchemas =
+        schemaTokens.length > 0 ? renderNamedImport(schemaTokens, '../schemas') : ''
+      const fileCode = [importZ, importSchemas, '\n', one.code, ''].filter(Boolean).join('\n')
 
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -156,22 +103,19 @@ export async function requestBodies(
     }
   }
 
-  const usedExampleKeys = new Set<string>()
   const defs = Object.keys(bodies)
     .map((key) => {
       const body = bodies[key]
-      const expr = body ? requestBodyExpr(body, components, usedExampleKeys, imports) : '{}'
+      const expr = body ? requestBodyExpr(body) : '{}'
       return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))} = ${expr}`
     })
     .join('\n\n')
 
   const outFile = String(output)
   const importZ = defs.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-  const importSchemas = buildImportSchemas(outFile, defs, new Set(), imports)
-  const importExamples = buildImportExamples(outFile, usedExampleKeys, imports)
-  const fileCode = [importZ, importSchemas, importExamples, '\n', defs, '']
-    .filter(Boolean)
-    .join('\n')
+  const schemaTokens = buildImportSchemas(defs)
+  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, './schemas') : ''
+  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
 
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
