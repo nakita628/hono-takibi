@@ -57,7 +57,8 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     routes: {
-      output: 'src/routes/index.ts',
+      output: 'src/routes',
+      split: true,
     },
     components: {
       schemas: {

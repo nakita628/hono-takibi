@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
 import type { Content, OpenAPI, RequestBody } from '../openapi/index.js'
 import {
@@ -72,7 +73,7 @@ export async function requestBodies(
 
     for (const key of Object.keys(bodies)) {
       const one = makeOne(key)
-      const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
+      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
       const schemaTokens = buildImportSchemas(one.code)
       const importSchemas =
@@ -83,15 +84,8 @@ export async function requestBodies(
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
-    const indexBody = `${Object.keys(bodies)
-      .map(
-        (n) =>
-          `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'RequestBody')))}'`,
-      )
-      .join('\n')}\n`
-
     const coreResult = await core(
-      indexBody,
+      barell(bodies),
       path.dirname(path.join(outDir, 'index.ts')),
       path.join(outDir, 'index.ts'),
     )

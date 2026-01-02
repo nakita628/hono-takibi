@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
 import type { Components, Content, Responses, Schema } from '../openapi/index.js'
 import {
@@ -111,7 +112,7 @@ export async function responses(
   const makeOne = (key: string): { name: string; code: string } => {
     const res = responses[key]
     const expr = res ? responseDefinitionExpr(res, components) : '{}'
-    const name = toIdentifierPascalCase(ensureSuffix(key, 'Response'))
+    const name = key
     return { name, code: `export const ${name} = ${expr}` }
   }
 
@@ -120,7 +121,7 @@ export async function responses(
 
     for (const key of Object.keys(responses)) {
       const one = makeOne(key)
-      const filePath = path.join(outDir, `${lowerFirst(one.name)}.ts`)
+      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
       const schemaTokens = buildImportSchemas(one.code)
       const importSchemas =
@@ -131,15 +132,8 @@ export async function responses(
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
-    const indexBody = `${Object.keys(responses)
-      .map(
-        (n) =>
-          `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'Response')))}'`,
-      )
-      .join('\n')}\n`
-
     const coreResult = await core(
-      indexBody,
+      barell(responses),
       path.dirname(path.join(outDir, 'index.ts')),
       path.join(outDir, 'index.ts'),
     )
