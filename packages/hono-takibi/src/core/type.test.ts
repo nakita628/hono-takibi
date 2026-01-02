@@ -70,8 +70,6 @@ describe('type', () => {
     }
   },`)
 
-
-      // console.log(result)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

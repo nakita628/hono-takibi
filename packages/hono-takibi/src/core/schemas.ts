@@ -86,10 +86,6 @@ export async function schemas(
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
 
-    // index.ts
-    // const index = `${Object.keys(schemas)
-    //   .map((n) => `export * from './${lowerFirst(n)}'`)
-    //   .join('\n')}\n`
     const coreResult = await core(
       barell(schemas),
       path.dirname(`${outDir}/index.ts`),
