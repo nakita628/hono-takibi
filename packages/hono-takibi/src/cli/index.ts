@@ -129,9 +129,6 @@ export async function honoTakibi(): Promise<
   const components = zo?.components
 
   const schemaTarget = components?.schemas
-  const examplesTarget = components?.examples
-  const headersTarget = components?.headers
-  const linksTarget = components?.links
 
   /** takibi */
   const takibiResult = zo?.output
@@ -241,14 +238,7 @@ export async function honoTakibi(): Promise<
 
   /** requestBodies */
   const requestBodiesResult = components?.requestBodies
-    ? await requestBodies(
-        openAPI,
-        components.requestBodies.output,
-        components.requestBodies.split ?? false,
-        schemaTarget || examplesTarget
-          ? { schemas: schemaTarget, examples: examplesTarget }
-          : undefined,
-      )
+    ? await requestBodies(openAPI, components.requestBodies.output, components.requestBodies.split)
     : undefined
   if (requestBodiesResult && !requestBodiesResult.ok)
     return { ok: false, error: requestBodiesResult.error }
@@ -258,15 +248,7 @@ export async function honoTakibi(): Promise<
     ? await responses(
         openAPI.components ?? {},
         components.responses.output,
-        components.responses.split ?? false,
-        schemaTarget || headersTarget || examplesTarget || linksTarget
-          ? {
-              schemas: schemaTarget,
-              headers: headersTarget,
-              examples: examplesTarget,
-              links: linksTarget,
-            }
-          : undefined,
+        components.responses.split,
       )
     : undefined
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }

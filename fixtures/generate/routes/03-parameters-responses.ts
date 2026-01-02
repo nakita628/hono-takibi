@@ -7,7 +7,7 @@ const ItemSchema = z
     description: z.string().optional().openapi({ type: 'string' }),
     price: z.float64().min(0).optional().openapi({ type: 'number', format: 'float64', minimum: 0 }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
@@ -49,7 +49,7 @@ const ErrorSchema = z
   .object({
     code: z.string().openapi({ type: 'string' }),
     message: z.string().openapi({ type: 'string' }),
-    details: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+    details: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
   })
   .openapi({
     type: 'object',
@@ -148,27 +148,27 @@ const IfMatchHeaderParamsSchema = z
 
 const BadRequestResponse = {
   description: 'Invalid request parameters',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: 'Authentication required',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'Resource not found',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const PreconditionFailedResponse = {
   description: 'ETag mismatch',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const InternalErrorResponse = {
   description: 'Internal server error',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getItemsRoute = createRoute({
@@ -185,7 +185,7 @@ export const getItemsRoute = createRoute({
   responses: {
     200: {
       description: 'Paginated list of items',
-      content: { 'application/json': { schema: ItemListSchema.optional() } },
+      content: { 'application/json': { schema: ItemListSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -199,10 +199,7 @@ export const getItemsItemIdRoute = createRoute({
   operationId: 'getItem',
   request: { params: z.object({ itemId: ItemIdPathParamsSchema }) },
   responses: {
-    200: {
-      description: 'Item details',
-      content: { 'application/json': { schema: ItemSchema.optional() } },
-    },
+    200: { description: 'Item details', content: { 'application/json': { schema: ItemSchema } } },
     404: NotFoundResponse,
   },
 })

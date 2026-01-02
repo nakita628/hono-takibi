@@ -15,15 +15,18 @@ const CatSchema = z
     AnimalSchema,
     z
       .object({
-        livesLeft: z.int().min(0).max(9).openapi({ type: 'integer', minimum: 0, maximum: 9 }),
+        livesLeft: z
+          .int()
+          .min(0)
+          .max(9)
+          .optional()
+          .openapi({ type: 'integer', minimum: 0, maximum: 9 }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Animal' },
@@ -39,15 +42,14 @@ const DogSchema = z
       .object({
         barkLevel: z
           .enum(['quiet', 'normal', 'loud'])
+          .optional()
           .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Animal' },
@@ -63,8 +65,9 @@ const BaseSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     metadata: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
       .nullable()
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
   .openapi({
@@ -87,7 +90,6 @@ export const postPolymorphicRoute = createRoute({
         'application/json': {
           schema: z
             .union([CatSchema, DogSchema])
-            .optional()
             .openapi({
               oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
               discriminator: {
@@ -194,15 +196,18 @@ export const putMultiStepRoute = createRoute({
               BaseSchema,
               z
                 .object({
-                  step: z.int().min(1).max(3).openapi({ type: 'integer', minimum: 1, maximum: 3 }),
+                  step: z
+                    .int()
+                    .min(1)
+                    .max(3)
+                    .optional()
+                    .openapi({ type: 'integer', minimum: 1, maximum: 3 }),
                 })
-                .partial()
                 .openapi({
                   type: 'object',
                   properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },
                 }),
             )
-            .optional()
             .openapi({
               allOf: [
                 { $ref: '#/components/schemas/Base' },

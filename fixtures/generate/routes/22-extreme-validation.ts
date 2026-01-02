@@ -59,32 +59,33 @@ const ExtremeStringsSchema = z
       .openapi({ type: 'string', pattern: '^(?!.*)$' }),
     allFormats: z
       .object({
-        dateTime: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-        date: z.iso.date().openapi({ type: 'string', format: 'date' }),
-        time: z.iso.time().openapi({ type: 'string', format: 'time' }),
-        duration: z.iso.duration().openapi({ type: 'string', format: 'duration' }),
-        email: z.email().openapi({ type: 'string', format: 'email' }),
-        idnEmail: z.string().openapi({ type: 'string', format: 'idn-email' }),
-        hostname: z.string().openapi({ type: 'string', format: 'hostname' }),
-        idnHostname: z.string().openapi({ type: 'string', format: 'idn-hostname' }),
-        ipv4: z.ipv4().openapi({ type: 'string', format: 'ipv4' }),
-        ipv6: z.ipv6().openapi({ type: 'string', format: 'ipv6' }),
-        uri: z.url().openapi({ type: 'string', format: 'uri' }),
-        uriReference: z.string().openapi({ type: 'string', format: 'uri-reference' }),
-        iri: z.string().openapi({ type: 'string', format: 'iri' }),
-        iriReference: z.string().openapi({ type: 'string', format: 'iri-reference' }),
-        uriTemplate: z.string().openapi({ type: 'string', format: 'uri-template' }),
-        jsonPointer: z.string().openapi({ type: 'string', format: 'json-pointer' }),
+        dateTime: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+        time: z.iso.time().optional().openapi({ type: 'string', format: 'time' }),
+        duration: z.iso.duration().optional().openapi({ type: 'string', format: 'duration' }),
+        email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+        idnEmail: z.string().optional().openapi({ type: 'string', format: 'idn-email' }),
+        hostname: z.string().optional().openapi({ type: 'string', format: 'hostname' }),
+        idnHostname: z.string().optional().openapi({ type: 'string', format: 'idn-hostname' }),
+        ipv4: z.ipv4().optional().openapi({ type: 'string', format: 'ipv4' }),
+        ipv6: z.ipv6().optional().openapi({ type: 'string', format: 'ipv6' }),
+        uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+        uriReference: z.string().optional().openapi({ type: 'string', format: 'uri-reference' }),
+        iri: z.string().optional().openapi({ type: 'string', format: 'iri' }),
+        iriReference: z.string().optional().openapi({ type: 'string', format: 'iri-reference' }),
+        uriTemplate: z.string().optional().openapi({ type: 'string', format: 'uri-template' }),
+        jsonPointer: z.string().optional().openapi({ type: 'string', format: 'json-pointer' }),
         relativeJsonPointer: z
           .string()
+          .optional()
           .openapi({ type: 'string', format: 'relative-json-pointer' }),
-        regex: z.string().openapi({ type: 'string', format: 'regex' }),
-        uuid: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        byte: z.string().openapi({ type: 'string', format: 'byte' }),
-        binary: z.file().openapi({ type: 'string', format: 'binary' }),
-        password: z.string().openapi({ type: 'string', format: 'password' }),
+        regex: z.string().optional().openapi({ type: 'string', format: 'regex' }),
+        uuid: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        byte: z.string().optional().openapi({ type: 'string', format: 'byte' }),
+        binary: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+        password: z.string().optional().openapi({ type: 'string', format: 'password' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -167,27 +168,48 @@ const ExtremeStringsSchema = z
 
 const ExtremeNumbersSchema = z
   .object({
-    zeroOnly: z.number().min(0).max(0).openapi({ type: 'number', minimum: 0, maximum: 0 }),
-    negativeZero: z.number().min(0).max(0).openapi({ type: 'number', minimum: 0, maximum: 0 }),
+    zeroOnly: z
+      .number()
+      .min(0)
+      .max(0)
+      .optional()
+      .openapi({ type: 'number', minimum: 0, maximum: 0 }),
+    negativeZero: z
+      .number()
+      .min(0)
+      .max(0)
+      .optional()
+      .openapi({ type: 'number', minimum: 0, maximum: 0 }),
     tinyRange: z
       .number()
       .min(1e-7)
       .max(2e-7)
+      .optional()
       .openapi({ type: 'number', minimum: 1e-7, maximum: 2e-7 }),
-    hugePositive: z.number().min(1e308).openapi({ type: 'number', minimum: 1e308 }),
-    hugeNegative: z.number().max(-1e308).openapi({ type: 'number', maximum: -1e308 }),
-    preciseMultiple: z.number().multipleOf(1e-10).openapi({ type: 'number', multipleOf: 1e-10 }),
+    hugePositive: z.number().min(1e308).optional().openapi({ type: 'number', minimum: 1e308 }),
+    hugeNegative: z.number().max(-1e308).optional().openapi({ type: 'number', maximum: -1e308 }),
+    preciseMultiple: z
+      .number()
+      .multipleOf(1e-10)
+      .optional()
+      .openapi({ type: 'number', multipleOf: 1e-10 }),
     conflictingMultiple: z
       .number()
       .min(1)
       .max(10)
       .multipleOf(7)
+      .optional()
       .openapi({ type: 'number', minimum: 1, maximum: 10, multipleOf: 7 }),
-    integerDecimalMultiple: z.int().multipleOf(0.5).openapi({ type: 'integer', multipleOf: 0.5 }),
+    integerDecimalMultiple: z
+      .int()
+      .multipleOf(0.5)
+      .optional()
+      .openapi({ type: 'integer', multipleOf: 0.5 }),
     exclusiveEdge: z
       .number()
       .min(0)
       .max(100)
+      .optional()
       .openapi({
         type: 'number',
         minimum: 0,
@@ -199,16 +221,19 @@ const ExtremeNumbersSchema = z
       .number()
       .gt(0)
       .lt(1)
+      .optional()
       .openapi({ type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 1 }),
     int32Bounded: z
       .int32()
       .min(-2147483648)
       .max(2147483647)
+      .optional()
       .openapi({ type: 'integer', format: 'int32', minimum: -2147483648, maximum: 2147483647 }),
     int64Bounded: z
       .int64()
       .min(-9223372036854776000n)
       .max(9223372036854776000n)
+      .optional()
       .openapi({
         type: 'integer',
         format: 'int64',
@@ -219,6 +244,7 @@ const ExtremeNumbersSchema = z
       .float32()
       .min(1.17549435e-38)
       .max(3.40282347e38)
+      .optional()
       .openapi({
         type: 'number',
         format: 'float',
@@ -229,6 +255,7 @@ const ExtremeNumbersSchema = z
       .number()
       .min(2.2250738585072014e-308)
       .max(1.7976931348623157e308)
+      .optional()
       .openapi({
         type: 'number',
         format: 'double',
@@ -236,7 +263,6 @@ const ExtremeNumbersSchema = z
         maximum: 1.7976931348623157e308,
       }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -329,7 +355,6 @@ const ExtremeArraysSchema = z
                   )
                   .min(4)
                   .max(6)
-                  .optional()
                   .openapi({
                     type: 'array',
                     minItems: 4,
@@ -339,7 +364,6 @@ const ExtremeArraysSchema = z
               )
               .min(3)
               .max(5)
-              .optional()
               .openapi({
                 type: 'array',
                 minItems: 3,
@@ -354,7 +378,6 @@ const ExtremeArraysSchema = z
           )
           .min(2)
           .max(4)
-          .optional()
           .openapi({
             type: 'array',
             minItems: 2,
@@ -400,7 +423,6 @@ const ExtremeArraysSchema = z
       .array(
         z
           .array(z.int().openapi({ type: 'integer' }))
-          .optional()
           .openapi({ type: 'array', uniqueItems: true, items: { type: 'integer' } }),
       )
       .optional()
@@ -412,6 +434,7 @@ const ExtremeArraysSchema = z
     largeTuple: z
       .array(z.any())
       .length(10)
+      .optional()
       .openapi({
         type: 'array',
         prefixItems: [
@@ -443,6 +466,7 @@ const ExtremeArraysSchema = z
     containsConstraint: z
       .array(z.any())
       .min(10)
+      .optional()
       .openapi({
         type: 'array',
         contains: {
@@ -455,7 +479,6 @@ const ExtremeArraysSchema = z
         minItems: 10,
       }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -544,7 +567,7 @@ const ExtremeObjectsSchema = z
   .object({
     emptyOnly: z
       .strictObject({})
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {},
@@ -553,7 +576,8 @@ const ExtremeObjectsSchema = z
         maxProperties: 0,
       }),
     singleProperty: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({
         type: 'object',
         minProperties: 1,
@@ -583,6 +607,7 @@ const ExtremeObjectsSchema = z
         prop19: z.string().openapi({ type: 'string' }),
         prop20: z.string().openapi({ type: 'string' }),
       })
+      .optional()
       .openapi({
         type: 'object',
         required: [
@@ -632,6 +657,7 @@ const ExtremeObjectsSchema = z
       }),
     patternProperties: z
       .strictObject({})
+      .optional()
       .openapi({
         type: 'object',
         patternProperties: {
@@ -644,11 +670,11 @@ const ExtremeObjectsSchema = z
       }),
     dependentRequired: z
       .object({
-        billing_address: z.string().openapi({ type: 'string' }),
-        shipping_address: z.string().openapi({ type: 'string' }),
-        use_same_address: z.boolean().openapi({ type: 'boolean' }),
+        billing_address: z.string().optional().openapi({ type: 'string' }),
+        shipping_address: z.string().optional().openapi({ type: 'string' }),
+        use_same_address: z.boolean().optional().openapi({ type: 'boolean' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -663,10 +689,10 @@ const ExtremeObjectsSchema = z
       }),
     dependentSchemas: z
       .object({
-        credit_card: z.string().openapi({ type: 'string' }),
-        billing_address: z.string().openapi({ type: 'string' }),
+        credit_card: z.string().optional().openapi({ type: 'string' }),
+        billing_address: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { credit_card: { type: 'string' }, billing_address: { type: 'string' } },
@@ -678,15 +704,16 @@ const ExtremeObjectsSchema = z
         },
       }),
     propertyNames: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({
         type: 'object',
         propertyNames: { pattern: '^[a-z][a-zA-Z0-9]*$', minLength: 2, maxLength: 20 },
         additionalProperties: { type: 'string' },
       }),
     unevaluatedProps: z
-      .object({ known: z.string().openapi({ type: 'string' }) })
-      .partial()
+      .object({ known: z.string().optional().openapi({ type: 'string' }) })
+      .optional()
       .openapi({
         type: 'object',
         properties: { known: { type: 'string' } },
@@ -806,24 +833,23 @@ const ExtremeCompositionsSchema = z
   .object({
     manyOneOf: z
       .union([
-        z.literal('type1').optional().openapi({ type: 'string' }),
-        z.literal('type2').optional().openapi({ type: 'string' }),
-        z.literal('type3').optional().openapi({ type: 'string' }),
-        z.literal('type4').optional().openapi({ type: 'string' }),
-        z.literal('type5').optional().openapi({ type: 'string' }),
-        z.literal('type6').optional().openapi({ type: 'string' }),
-        z.literal('type7').optional().openapi({ type: 'string' }),
-        z.literal('type8').optional().openapi({ type: 'string' }),
-        z.literal('type9').optional().openapi({ type: 'string' }),
-        z.literal('type10').optional().openapi({ type: 'string' }),
-        z.number().optional().openapi({ type: 'number' }),
-        z.boolean().optional().openapi({ type: 'boolean' }),
+        z.literal('type1').openapi({ type: 'string' }),
+        z.literal('type2').openapi({ type: 'string' }),
+        z.literal('type3').openapi({ type: 'string' }),
+        z.literal('type4').openapi({ type: 'string' }),
+        z.literal('type5').openapi({ type: 'string' }),
+        z.literal('type6').openapi({ type: 'string' }),
+        z.literal('type7').openapi({ type: 'string' }),
+        z.literal('type8').openapi({ type: 'string' }),
+        z.literal('type9').openapi({ type: 'string' }),
+        z.literal('type10').openapi({ type: 'string' }),
+        z.number().openapi({ type: 'number' }),
+        z.boolean().openapi({ type: 'boolean' }),
         z
-          .array(z.string().optional().openapi({ type: 'string' }))
-          .optional()
+          .array(z.string().openapi({ type: 'string' }))
           .openapi({ type: 'array', items: { type: 'string' } }),
         z.object({}).openapi({ type: 'object' }),
-        z.null().nullable().optional().openapi({ type: 'null' }),
+        z.null().nullable().openapi({ type: 'null' }),
       ])
       .optional()
       .openapi({
@@ -854,15 +880,12 @@ const ExtremeCompositionsSchema = z
                 z
                   .intersection(
                     z
-                      .object({ a: z.string().openapi({ type: 'string' }) })
-                      .partial()
+                      .object({ a: z.string().optional().openapi({ type: 'string' }) })
                       .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
                     z
-                      .object({ b: z.number().openapi({ type: 'number' }) })
-                      .partial()
+                      .object({ b: z.number().optional().openapi({ type: 'number' }) })
                       .openapi({ type: 'object', properties: { b: { type: 'number' } } }),
                   )
-                  .optional()
                   .openapi({
                     allOf: [
                       { type: 'object', properties: { a: { type: 'string' } } },
@@ -870,11 +893,9 @@ const ExtremeCompositionsSchema = z
                     ],
                   }),
                 z
-                  .object({ c: z.boolean().openapi({ type: 'boolean' }) })
-                  .partial()
+                  .object({ c: z.boolean().optional().openapi({ type: 'boolean' }) })
                   .openapi({ type: 'object', properties: { c: { type: 'boolean' } } }),
               ])
-              .optional()
               .openapi({
                 anyOf: [
                   {
@@ -887,11 +908,9 @@ const ExtremeCompositionsSchema = z
                 ],
               }),
             z
-              .object({ d: z.int().openapi({ type: 'integer' }) })
-              .partial()
+              .object({ d: z.int().optional().openapi({ type: 'integer' }) })
               .openapi({ type: 'object', properties: { d: { type: 'integer' } } }),
           ])
-          .optional()
           .openapi({
             oneOf: [
               {
@@ -909,8 +928,7 @@ const ExtremeCompositionsSchema = z
             ],
           }),
         z
-          .object({ e: z.string().openapi({ type: 'string' }) })
-          .partial()
+          .object({ e: z.string().optional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { e: { type: 'string' } } }),
       )
       .optional()
@@ -938,21 +956,17 @@ const ExtremeCompositionsSchema = z
     complexNot: z
       .intersection(
         z
-          .object({ value: z.string().openapi({ type: 'string' }) })
-          .partial()
+          .object({ value: z.string().optional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
-        z
-          .any()
-          .optional()
-          .openapi({
-            not: {
-              anyOf: [
-                { type: 'object', properties: { value: { const: 'forbidden1' } } },
-                { type: 'object', properties: { value: { const: 'forbidden2' } } },
-                { type: 'object', properties: { value: { pattern: '^bad' } } },
-              ],
-            },
-          }),
+        z.any().openapi({
+          not: {
+            anyOf: [
+              { type: 'object', properties: { value: { const: 'forbidden1' } } },
+              { type: 'object', properties: { value: { const: 'forbidden2' } } },
+              { type: 'object', properties: { value: { pattern: '^bad' } } },
+            ],
+          },
+        }),
       )
       .optional()
       .openapi({
@@ -971,6 +985,7 @@ const ExtremeCompositionsSchema = z
       }),
     conditionalChain: z
       .object({})
+      .optional()
       .openapi({
         type: 'object',
         if: { properties: { type: { const: 'A' } } },
@@ -986,13 +1001,13 @@ const ExtremeCompositionsSchema = z
         },
       }),
     conflictingAllOf: z
-      .object({ shared: z.string().min(5).openapi({ type: 'string', minLength: 5 }) })
-      .partial()
+      .object({ shared: z.string().min(5).optional().openapi({ type: 'string', minLength: 5 }) })
       .openapi({ type: 'object', properties: { shared: { type: 'string', minLength: 5 } } })
       .and(
         z
-          .object({ shared: z.string().max(10).openapi({ type: 'string', maxLength: 10 }) })
-          .partial()
+          .object({
+            shared: z.string().max(10).optional().openapi({ type: 'string', maxLength: 10 }),
+          })
           .openapi({ type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } }),
       )
       .and(
@@ -1001,9 +1016,9 @@ const ExtremeCompositionsSchema = z
             shared: z
               .string()
               .regex(/^[a-z]+$/)
+              .optional()
               .openapi({ type: 'string', pattern: '^[a-z]+$' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { shared: { type: 'string', pattern: '^[a-z]+$' } },
@@ -1019,10 +1034,11 @@ const ExtremeCompositionsSchema = z
       }),
     recursiveConstrained: z
       .object({
-        value: z.string().min(1).openapi({ type: 'string', minLength: 1 }),
+        value: z.string().min(1).optional().openapi({ type: 'string', minLength: 1 }),
         children: z
           .array(RecursiveConstrainedSchema)
           .max(5)
+          .optional()
           .openapi({
             type: 'array',
             maxItems: 5,
@@ -1031,7 +1047,7 @@ const ExtremeCompositionsSchema = z
             },
           }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -1143,13 +1159,12 @@ const ExtremeCompositionsSchema = z
 
 const ExtremeValidationSchema = z
   .object({
-    extremeStrings: ExtremeStringsSchema,
-    extremeNumbers: ExtremeNumbersSchema,
-    extremeArrays: ExtremeArraysSchema,
-    extremeObjects: ExtremeObjectsSchema,
-    extremeCompositions: ExtremeCompositionsSchema,
+    extremeStrings: ExtremeStringsSchema.optional(),
+    extremeNumbers: ExtremeNumbersSchema.optional(),
+    extremeArrays: ExtremeArraysSchema.optional(),
+    extremeObjects: ExtremeObjectsSchema.optional(),
+    extremeCompositions: ExtremeCompositionsSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1164,7 +1179,10 @@ const ExtremeValidationSchema = z
 
 const EnumEdgeCasesSchema = z
   .object({
-    singleEnum: z.literal('only_value').openapi({ type: 'string', enum: ['only_value'] }),
+    singleEnum: z
+      .literal('only_value')
+      .optional()
+      .openapi({ type: 'string', enum: ['only_value'] }),
     largeEnum: z
       .enum([
         'value001',
@@ -1218,6 +1236,7 @@ const EnumEdgeCasesSchema = z
         'value049',
         'value050',
       ])
+      .optional()
       .openapi({
         type: 'string',
         enum: [
@@ -1294,6 +1313,7 @@ const EnumEdgeCasesSchema = z
         z.literal([1, 2, 3]),
         z.literal({ key: 'value' }),
       ])
+      .optional()
       .openapi({
         enum: [
           '',
@@ -1316,10 +1336,9 @@ const EnumEdgeCasesSchema = z
           { key: 'value' },
         ],
       }),
-    constNull: z.literal(null),
-    constComplex: z.literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] }),
+    constNull: z.literal(null).optional(),
+    constComplex: z.literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] }).optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -1411,8 +1430,6 @@ export const postValidateRoute = createRoute({
   method: 'post',
   path: '/validate',
   operationId: 'validateExtreme',
-  request: {
-    body: { content: { 'application/json': { schema: ExtremeValidationSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: ExtremeValidationSchema } } } },
   responses: { 200: { description: 'OK' } },
 })

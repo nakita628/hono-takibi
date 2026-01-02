@@ -9,7 +9,7 @@ const NotificationSchema = z
       .enum(['info', 'success', 'warning', 'error', 'system'])
       .openapi({ type: 'string', enum: ['info', 'success', 'warning', 'error', 'system'] }),
     read: z.boolean().openapi({ type: 'boolean' }),
-    data: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+    data: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
     actionUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     imageUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
@@ -44,12 +44,10 @@ const SendMessageRequestSchema = z
           .string()
           .openapi({ type: 'string', description: 'メールアドレス、電話番号、またはユーザーID' }),
         z
-          .array(z.string().optional().openapi({ type: 'string' }))
+          .array(z.string().openapi({ type: 'string' }))
           .max(100)
-          .optional()
           .openapi({ type: 'array', items: { type: 'string' }, maxItems: 100 }),
       ])
-      .optional()
       .openapi({
         oneOf: [
           { type: 'string', description: 'メールアドレス、電話番号、またはユーザーID' },
@@ -64,7 +62,8 @@ const SendMessageRequestSchema = z
       .openapi({ type: 'string', description: 'テンプレートを使わない場合の本文' }),
     html: z.string().optional().openapi({ type: 'string', description: 'メールのHTML本文' }),
     variables: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({
         type: 'object',
         additionalProperties: { type: 'string' },
@@ -72,6 +71,7 @@ const SendMessageRequestSchema = z
       }),
     data: z
       .looseObject({})
+      .optional()
       .openapi({
         type: 'object',
         additionalProperties: true,
@@ -143,10 +143,9 @@ const BatchMessageResultSchema = z
       .array(
         z
           .object({
-            index: z.int().openapi({ type: 'integer' }),
-            error: z.string().openapi({ type: 'string' }),
+            index: z.int().optional().openapi({ type: 'integer' }),
+            error: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { index: { type: 'integer' }, error: { type: 'string' } },
@@ -234,11 +233,10 @@ const TemplateSchema = z
       .array(
         z
           .object({
-            name: z.string().openapi({ type: 'string' }),
-            required: z.boolean().openapi({ type: 'boolean' }),
-            default: z.string().openapi({ type: 'string' }),
+            name: z.string().optional().openapi({ type: 'string' }),
+            required: z.boolean().optional().openapi({ type: 'boolean' }),
+            default: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -367,17 +365,22 @@ const CreateTemplateRequestSchema = z
 
 const UpdateTemplateRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().openapi({ type: 'string' }),
-    subject: z.string().openapi({ type: 'string' }),
-    body: z.string().openapi({ type: 'string' }),
-    html: z.string().openapi({ type: 'string' }),
+    name: z
+      .string()
+      .min(1)
+      .max(200)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    subject: z.string().optional().openapi({ type: 'string' }),
+    body: z.string().optional().openapi({ type: 'string' }),
+    html: z.string().optional().openapi({ type: 'string' }),
     variables: z
       .array(
         z
           .object({
             name: z.string().openapi({ type: 'string' }),
-            required: z.boolean().openapi({ type: 'boolean' }),
+            required: z.boolean().optional().openapi({ type: 'boolean' }),
             default: z.string().optional().openapi({ type: 'string' }),
           })
           .openapi({
@@ -403,9 +406,8 @@ const UpdateTemplateRequestSchema = z
           },
         },
       }),
-    active: z.boolean().openapi({ type: 'boolean' }),
+    active: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -435,7 +437,8 @@ const ChannelSettingSchema = z
   .object({
     enabled: z.boolean().optional().openapi({ type: 'boolean' }),
     categories: z
-      .record(z.string(), z.boolean().optional().openapi({ type: 'boolean' }))
+      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
+      .optional()
       .openapi({
         type: 'object',
         additionalProperties: { type: 'boolean' },
@@ -443,10 +446,11 @@ const ChannelSettingSchema = z
       }),
     quietHours: z
       .object({
-        enabled: z.boolean().openapi({ type: 'boolean' }),
+        enabled: z.boolean().optional().openapi({ type: 'boolean' }),
         start: z
           .string()
           .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .optional()
           .openapi({
             type: 'string',
             pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$',
@@ -455,14 +459,15 @@ const ChannelSettingSchema = z
         end: z
           .string()
           .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .optional()
           .openapi({
             type: 'string',
             pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$',
             description: '終了時刻（HH:MM）',
           }),
-        timezone: z.string().openapi({ type: 'string' }),
+        timezone: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -513,12 +518,11 @@ const ChannelSettingSchema = z
 
 const ChannelPreferencesSchema = z
   .object({
-    email: ChannelSettingSchema,
-    sms: ChannelSettingSchema,
-    push: ChannelSettingSchema,
-    inApp: ChannelSettingSchema,
+    email: ChannelSettingSchema.optional(),
+    sms: ChannelSettingSchema.optional(),
+    push: ChannelSettingSchema.optional(),
+    inApp: ChannelSettingSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -532,12 +536,11 @@ const ChannelPreferencesSchema = z
 
 const UpdateChannelPreferencesRequestSchema = z
   .object({
-    email: ChannelSettingSchema,
-    sms: ChannelSettingSchema,
-    push: ChannelSettingSchema,
-    inApp: ChannelSettingSchema,
+    email: ChannelSettingSchema.optional(),
+    sms: ChannelSettingSchema.optional(),
+    push: ChannelSettingSchema.optional(),
+    inApp: ChannelSettingSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -633,7 +636,6 @@ const WebhookSchema = z
             ],
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -654,7 +656,8 @@ const WebhookSchema = z
       .openapi({ type: 'string', description: '署名検証用シークレット' }),
     active: z.boolean().openapi({ type: 'boolean' }),
     headers: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
@@ -717,7 +720,6 @@ const CreateWebhookRequestSchema = z
           }),
       )
       .min(1)
-      .optional()
       .openapi({
         type: 'array',
         minItems: 1,
@@ -734,7 +736,8 @@ const CreateWebhookRequestSchema = z
         },
       }),
     headers: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
   .openapi({
@@ -765,8 +768,8 @@ const CreateWebhookRequestSchema = z
 
 const UpdateWebhookRequestSchema = z
   .object({
-    name: z.string().max(200).openapi({ type: 'string', maxLength: 200 }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
+    name: z.string().max(200).optional().openapi({ type: 'string', maxLength: 200 }),
+    url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     events: z
       .array(
         z
@@ -807,12 +810,12 @@ const UpdateWebhookRequestSchema = z
           ],
         },
       }),
-    active: z.boolean().openapi({ type: 'boolean' }),
+    active: z.boolean().optional().openapi({ type: 'boolean' }),
     headers: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -923,17 +926,17 @@ const ApiKeySecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getNotificationsRoute = createRoute({
@@ -976,7 +979,7 @@ export const getNotificationsRoute = createRoute({
   responses: {
     200: {
       description: '通知一覧',
-      content: { 'application/json': { schema: NotificationListResponseSchema.optional() } },
+      content: { 'application/json': { schema: NotificationListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1008,7 +1011,7 @@ export const getNotificationsNotificationIdRoute = createRoute({
   responses: {
     200: {
       description: '通知詳細',
-      content: { 'application/json': { schema: NotificationSchema.optional() } },
+      content: { 'application/json': { schema: NotificationSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1065,10 +1068,7 @@ export const postNotificationsNotificationIdReadRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '成功',
-      content: { 'application/json': { schema: NotificationSchema.optional() } },
-    },
+    200: { description: '成功', content: { 'application/json': { schema: NotificationSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1086,8 +1086,7 @@ export const postNotificationsReadAllRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ updatedCount: z.int().openapi({ type: 'integer' }) })
-            .partial()
+            .object({ updatedCount: z.int().optional().openapi({ type: 'integer' }) })
             .openapi({ type: 'object', properties: { updatedCount: { type: 'integer' } } }),
         },
       },
@@ -1109,8 +1108,7 @@ export const getNotificationsUnreadCountRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ count: z.int().openapi({ type: 'integer' }) })
-            .partial()
+            .object({ count: z.int().optional().openapi({ type: 'integer' }) })
             .openapi({ type: 'object', properties: { count: { type: 'integer' } } }),
         },
       },
@@ -1128,15 +1126,12 @@ export const postMessagesSendRoute = createRoute({
   description: '指定したチャンネルでメッセージを送信します',
   operationId: 'sendMessage',
   request: {
-    body: {
-      content: { 'application/json': { schema: SendMessageRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: SendMessageRequestSchema } }, required: true },
   },
   responses: {
     202: {
       description: '送信受付',
-      content: { 'application/json': { schema: MessageResultSchema.optional() } },
+      content: { 'application/json': { schema: MessageResultSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1184,7 +1179,7 @@ export const postMessagesSendBatchRoute = createRoute({
   responses: {
     202: {
       description: '送信受付',
-      content: { 'application/json': { schema: BatchMessageResultSchema.optional() } },
+      content: { 'application/json': { schema: BatchMessageResultSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1217,7 +1212,7 @@ export const getMessagesMessageIdRoute = createRoute({
   responses: {
     200: {
       description: '送信状況',
-      content: { 'application/json': { schema: MessageStatusSchema.optional() } },
+      content: { 'application/json': { schema: MessageStatusSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1261,7 +1256,6 @@ export const getTemplatesRoute = createRoute({
         'application/json': {
           schema: z
             .array(TemplateSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Template' } }),
         },
       },
@@ -1279,15 +1273,12 @@ export const postTemplatesRoute = createRoute({
   operationId: 'createTemplate',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateTemplateRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateTemplateRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: TemplateSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: TemplateSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -1319,7 +1310,7 @@ export const getTemplatesTemplateIdRoute = createRoute({
   responses: {
     200: {
       description: 'テンプレート詳細',
-      content: { 'application/json': { schema: TemplateSchema.optional() } },
+      content: { 'application/json': { schema: TemplateSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1335,15 +1326,12 @@ export const putTemplatesTemplateIdRoute = createRoute({
   operationId: 'updateTemplate',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateTemplateRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateTemplateRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: TemplateSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: TemplateSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1389,9 +1377,9 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
             .object({
               variables: z
                 .record(z.string(), z.string().openapi({ type: 'string' }))
+                .optional()
                 .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1410,11 +1398,10 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              subject: z.string().openapi({ type: 'string' }),
-              body: z.string().openapi({ type: 'string' }),
-              html: z.string().openapi({ type: 'string' }),
+              subject: z.string().optional().openapi({ type: 'string' }),
+              body: z.string().optional().openapi({ type: 'string' }),
+              html: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1440,7 +1427,7 @@ export const getChannelsPreferencesRoute = createRoute({
   responses: {
     200: {
       description: 'チャンネル設定',
-      content: { 'application/json': { schema: ChannelPreferencesSchema.optional() } },
+      content: { 'application/json': { schema: ChannelPreferencesSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1455,14 +1442,14 @@ export const putChannelsPreferencesRoute = createRoute({
   operationId: 'updateChannelPreferences',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateChannelPreferencesRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateChannelPreferencesRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ChannelPreferencesSchema.optional() } },
+      content: { 'application/json': { schema: ChannelPreferencesSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1482,7 +1469,6 @@ export const getChannelsDevicesRoute = createRoute({
         'application/json': {
           schema: z
             .array(DeviceSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Device' } }),
         },
       },
@@ -1500,15 +1486,12 @@ export const postChannelsDevicesRoute = createRoute({
   operationId: 'registerDevice',
   request: {
     body: {
-      content: { 'application/json': { schema: RegisterDeviceRequestSchema.optional() } },
+      content: { 'application/json': { schema: RegisterDeviceRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '登録成功',
-      content: { 'application/json': { schema: DeviceSchema.optional() } },
-    },
+    201: { description: '登録成功', content: { 'application/json': { schema: DeviceSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1547,7 +1530,6 @@ export const getWebhooksRoute = createRoute({
         'application/json': {
           schema: z
             .array(WebhookSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Webhook' } }),
         },
       },
@@ -1565,15 +1547,12 @@ export const postWebhooksRoute = createRoute({
   operationId: 'createWebhook',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateWebhookRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateWebhookRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: WebhookSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: WebhookSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1602,10 +1581,7 @@ export const getWebhooksWebhookIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'Webhook詳細',
-      content: { 'application/json': { schema: WebhookSchema.optional() } },
-    },
+    200: { description: 'Webhook詳細', content: { 'application/json': { schema: WebhookSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1620,15 +1596,12 @@ export const putWebhooksWebhookIdRoute = createRoute({
   operationId: 'updateWebhook',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateWebhookRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateWebhookRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: WebhookSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: WebhookSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1689,14 +1662,14 @@ export const postWebhooksWebhookIdTestRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              success: z.boolean().openapi({ type: 'boolean' }),
-              statusCode: z.int().openapi({ type: 'integer' }),
+              success: z.boolean().optional().openapi({ type: 'boolean' }),
+              statusCode: z.int().optional().openapi({ type: 'integer' }),
               responseTime: z
                 .int()
+                .optional()
                 .openapi({ type: 'integer', description: 'レスポンス時間（ミリ秒）' }),
-              error: z.string().openapi({ type: 'string' }),
+              error: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {

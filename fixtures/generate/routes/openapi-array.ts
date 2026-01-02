@@ -14,38 +14,31 @@ export const getArrayRoute = createRoute({
             .object({
               string_array: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               equivalent: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               string_optional_array: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               string_array_optional: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               nonempty: z
                 .array(z.string().openapi({ type: 'string' }))
                 .min(1)
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 1 }),
               min5: z
                 .array(z.string().openapi({ type: 'string' }))
                 .min(5)
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 5 }),
               max5: z
                 .array(z.string().openapi({ type: 'string' }))
                 .max(5)
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' }, maxItems: 5 }),
               length5: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .openapi({

@@ -732,9 +732,9 @@ export function methodPath(method: string, path: string): string {
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
-export const requestParamsArray = (
-  parameters: Record<string, Record<string, string>>,
-): readonly string[] =>
+export const requestParamsArray = (parameters: {
+  readonly [k: string]: { readonly [k: string]: string }
+}): readonly string[] =>
   Object.entries(parameters)
     .filter(([, obj]) => obj && Object.keys(obj).length)
     .map(([section, obj]) => {

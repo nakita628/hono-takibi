@@ -183,7 +183,7 @@ const TaskSchema = z
     estimatedHours: z.number().optional().openapi({ type: 'number' }),
     actualHours: z.number().optional().openapi({ type: 'number' }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     attachments: z
@@ -346,19 +346,25 @@ const CreateProjectRequestSchema = z
 
 const UpdateProjectRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().openapi({ type: 'string' }),
+    name: z
+      .string()
+      .min(1)
+      .max(200)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['active', 'on_hold', 'completed', 'archived'])
+      .optional()
       .openapi({ type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] }),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
+      .optional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
-    startDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    endDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
+    startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -395,7 +401,7 @@ const CreateTaskRequestSchema = z
     dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     estimatedHours: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     subtasks: z
@@ -441,24 +447,30 @@ const CreateTaskRequestSchema = z
 
 const UpdateTaskRequestSchema = z
   .object({
-    title: z.string().min(1).max(500).openapi({ type: 'string', minLength: 1, maxLength: 500 }),
-    description: z.string().openapi({ type: 'string' }),
+    title: z
+      .string()
+      .min(1)
+      .max(500)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 500 }),
+    description: z.string().optional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
+      .optional()
       .openapi({ type: 'string', enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'] }),
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
+      .optional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    assigneeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    milestoneId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    dueDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    estimatedHours: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
+    assigneeId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    milestoneId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    estimatedHours: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -531,7 +543,7 @@ const CreateTeamRequestSchema = z
     name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     description: z.string().optional().openapi({ type: 'string' }),
     memberIds: z
-      .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+      .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
   })
@@ -671,17 +683,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getProjectsRoute = createRoute({
@@ -718,7 +730,7 @@ export const getProjectsRoute = createRoute({
   responses: {
     200: {
       description: 'プロジェクト一覧',
-      content: { 'application/json': { schema: ProjectListResponseSchema.optional() } },
+      content: { 'application/json': { schema: ProjectListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -733,15 +745,12 @@ export const postProjectsRoute = createRoute({
   operationId: 'createProject',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateProjectRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateProjectRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: ProjectSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: ProjectSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -758,7 +767,7 @@ export const getProjectsProjectIdRoute = createRoute({
   responses: {
     200: {
       description: 'プロジェクト詳細',
-      content: { 'application/json': { schema: ProjectSchema.optional() } },
+      content: { 'application/json': { schema: ProjectSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -774,15 +783,12 @@ export const putProjectsProjectIdRoute = createRoute({
   operationId: 'updateProject',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProjectRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateProjectRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: ProjectSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: ProjectSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -814,7 +820,6 @@ export const getProjectsProjectIdMembersRoute = createRoute({
         'application/json': {
           schema: z
             .array(ProjectMemberSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProjectMember' } }),
         },
       },
@@ -831,15 +836,12 @@ export const postProjectsProjectIdMembersRoute = createRoute({
   summary: 'メンバー追加',
   operationId: 'addProjectMember',
   request: {
-    body: {
-      content: { 'application/json': { schema: AddMemberRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: AddMemberRequestSchema } }, required: true },
   },
   responses: {
     201: {
       description: '追加成功',
-      content: { 'application/json': { schema: ProjectMemberSchema.optional() } },
+      content: { 'application/json': { schema: ProjectMemberSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -897,7 +899,7 @@ export const getProjectsProjectIdTasksRoute = createRoute({
   responses: {
     200: {
       description: 'タスク一覧',
-      content: { 'application/json': { schema: TaskListResponseSchema.optional() } },
+      content: { 'application/json': { schema: TaskListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -911,16 +913,10 @@ export const postProjectsProjectIdTasksRoute = createRoute({
   summary: 'タスク作成',
   operationId: 'createTask',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateTaskRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateTaskRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: TaskSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: TaskSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -934,10 +930,7 @@ export const getTasksTaskIdRoute = createRoute({
   operationId: 'getTask',
   request: { params: z.object({ taskId: TaskIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'タスク詳細',
-      content: { 'application/json': { schema: TaskSchema.optional() } },
-    },
+    200: { description: 'タスク詳細', content: { 'application/json': { schema: TaskSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -951,16 +944,10 @@ export const putTasksTaskIdRoute = createRoute({
   summary: 'タスク更新',
   operationId: 'updateTask',
   request: {
-    body: {
-      content: { 'application/json': { schema: UpdateTaskRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: UpdateTaskRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: TaskSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: TaskSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1012,10 +999,7 @@ export const patchTasksTaskIdStatusRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: TaskSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: TaskSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1035,7 +1019,6 @@ export const getTasksTaskIdCommentsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TaskCommentSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/TaskComment' } }),
         },
       },
@@ -1070,7 +1053,7 @@ export const postTasksTaskIdCommentsRoute = createRoute({
   responses: {
     201: {
       description: '追加成功',
-      content: { 'application/json': { schema: TaskCommentSchema.optional() } },
+      content: { 'application/json': { schema: TaskCommentSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1091,7 +1074,6 @@ export const getTasksTaskIdTimeEntriesRoute = createRoute({
         'application/json': {
           schema: z
             .array(TimeEntrySchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/TimeEntry' } }),
         },
       },
@@ -1109,15 +1091,12 @@ export const postTasksTaskIdTimeEntriesRoute = createRoute({
   operationId: 'createTimeEntry',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateTimeEntryRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateTimeEntryRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: TimeEntrySchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: TimeEntrySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1137,7 +1116,6 @@ export const getProjectsProjectIdMilestonesRoute = createRoute({
         'application/json': {
           schema: z
             .array(MilestoneSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Milestone' } }),
         },
       },
@@ -1155,15 +1133,12 @@ export const postProjectsProjectIdMilestonesRoute = createRoute({
   operationId: 'createMilestone',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateMilestoneRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateMilestoneRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: MilestoneSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: MilestoneSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1182,7 +1157,6 @@ export const getTeamsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TeamSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Team' } }),
         },
       },
@@ -1199,16 +1173,10 @@ export const postTeamsRoute = createRoute({
   summary: 'チーム作成',
   operationId: 'createTeam',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateTeamRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateTeamRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: TeamSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: TeamSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

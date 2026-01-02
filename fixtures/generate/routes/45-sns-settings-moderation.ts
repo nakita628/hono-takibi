@@ -2,17 +2,16 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const AccountSettingsSchema = z
   .object({
-    username: z.string().openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    phone: z.string().openapi({ type: 'string' }),
-    language: z.string().openapi({ type: 'string' }),
-    timezone: z.string().openapi({ type: 'string' }),
-    country: z.string().openapi({ type: 'string' }),
-    twoFactorEnabled: z.boolean().openapi({ type: 'boolean' }),
-    emailVerified: z.boolean().openapi({ type: 'boolean' }),
-    phoneVerified: z.boolean().openapi({ type: 'boolean' }),
+    username: z.string().optional().openapi({ type: 'string' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    phone: z.string().optional().openapi({ type: 'string' }),
+    language: z.string().optional().openapi({ type: 'string' }),
+    timezone: z.string().optional().openapi({ type: 'string' }),
+    country: z.string().optional().openapi({ type: 'string' }),
+    twoFactorEnabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    emailVerified: z.boolean().optional().openapi({ type: 'boolean' }),
+    phoneVerified: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -31,11 +30,10 @@ const AccountSettingsSchema = z
 
 const UpdateAccountSettingsRequestSchema = z
   .object({
-    language: z.string().openapi({ type: 'string' }),
-    timezone: z.string().openapi({ type: 'string' }),
-    country: z.string().openapi({ type: 'string' }),
+    language: z.string().optional().openapi({ type: 'string' }),
+    timezone: z.string().optional().openapi({ type: 'string' }),
+    country: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -48,20 +46,24 @@ const UpdateAccountSettingsRequestSchema = z
 
 const PrivacySettingsSchema = z
   .object({
-    protectedPosts: z.boolean().openapi({ type: 'boolean', description: '非公開アカウント' }),
+    protectedPosts: z
+      .boolean()
+      .optional()
+      .openapi({ type: 'boolean', description: '非公開アカウント' }),
     allowTagging: z
       .enum(['everyone', 'followers', 'none'])
+      .optional()
       .openapi({ type: 'string', enum: ['everyone', 'followers', 'none'] }),
     allowMentions: z
       .enum(['everyone', 'followers', 'none'])
+      .optional()
       .openapi({ type: 'string', enum: ['everyone', 'followers', 'none'] }),
-    discoverableByEmail: z.boolean().openapi({ type: 'boolean' }),
-    discoverableByPhone: z.boolean().openapi({ type: 'boolean' }),
-    showLocation: z.boolean().openapi({ type: 'boolean' }),
-    personalizeAds: z.boolean().openapi({ type: 'boolean' }),
-    allowDataSharing: z.boolean().openapi({ type: 'boolean' }),
+    discoverableByEmail: z.boolean().optional().openapi({ type: 'boolean' }),
+    discoverableByPhone: z.boolean().optional().openapi({ type: 'boolean' }),
+    showLocation: z.boolean().optional().openapi({ type: 'boolean' }),
+    personalizeAds: z.boolean().optional().openapi({ type: 'boolean' }),
+    allowDataSharing: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -81,20 +83,23 @@ const ContentPreferencesSchema = z
   .object({
     sensitiveContentFilter: z
       .enum(['hide', 'warn', 'show'])
+      .optional()
       .openapi({ type: 'string', enum: ['hide', 'warn', 'show'] }),
     autoplayVideos: z
       .enum(['always', 'wifi', 'never'])
+      .optional()
       .openapi({ type: 'string', enum: ['always', 'wifi', 'never'] }),
     dataUsage: z
       .enum(['default', 'reduced'])
+      .optional()
       .openapi({ type: 'string', enum: ['default', 'reduced'] }),
     qualityFilter: z
       .boolean()
+      .optional()
       .openapi({ type: 'boolean', description: '低品質コンテンツのフィルタ' }),
-    hideViewCounts: z.boolean().openapi({ type: 'boolean' }),
-    hideLikeCounts: z.boolean().openapi({ type: 'boolean' }),
+    hideViewCounts: z.boolean().optional().openapi({ type: 'boolean' }),
+    hideLikeCounts: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -170,12 +175,11 @@ const SessionSchema = z
     isCurrent: z.boolean().optional().openapi({ type: 'boolean' }),
     device: z
       .object({
-        type: z.string().openapi({ type: 'string' }),
-        os: z.string().openapi({ type: 'string' }),
-        browser: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
+        type: z.string().optional().openapi({ type: 'string' }),
+        os: z.string().optional().openapi({ type: 'string' }),
+        browser: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -187,11 +191,11 @@ const SessionSchema = z
       }),
     location: z
       .object({
-        country: z.string().openapi({ type: 'string' }),
-        city: z.string().openapi({ type: 'string' }),
-        ip: z.string().openapi({ type: 'string' }),
+        country: z.string().optional().openapi({ type: 'string' }),
+        city: z.string().optional().openapi({ type: 'string' }),
+        ip: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -240,7 +244,6 @@ const ConnectedAppSchema = z
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     permissions: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     authorizedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
@@ -370,7 +373,7 @@ const CreateReportRequestSchema = z
       }),
     description: z.string().max(1000).optional().openapi({ type: 'string', maxLength: 1000 }),
     relatedPostIds: z
-      .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+      .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
   })
@@ -420,13 +423,16 @@ const ModerationItemSchema = z
       .enum(['low', 'medium', 'high', 'urgent'])
       .optional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    content: z.object({}).openapi({ type: 'object', description: '対象コンテンツの詳細' }),
+    content: z
+      .object({})
+      .optional()
+      .openapi({ type: 'object', description: '対象コンテンツの詳細' }),
     userHistory: z
       .object({
-        previousViolations: z.int().openapi({ type: 'integer' }),
-        accountAge: z.string().openapi({ type: 'string' }),
+        previousViolations: z.int().optional().openapi({ type: 'integer' }),
+        accountAge: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { previousViolations: { type: 'integer' }, accountAge: { type: 'string' } },
@@ -564,16 +570,15 @@ const AccountAnalyticsSchema = z
     period: z.string().optional().openapi({ type: 'string' }),
     impressions: z
       .object({
-        total: z.int().openapi({ type: 'integer' }),
-        change: z.number().openapi({ type: 'number' }),
+        total: z.int().optional().openapi({ type: 'integer' }),
+        change: z.number().optional().openapi({ type: 'number' }),
         daily: z
           .array(
             z
               .object({
-                date: z.iso.date().openapi({ type: 'string', format: 'date' }),
-                count: z.int().openapi({ type: 'integer' }),
+                date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+                count: z.int().optional().openapi({ type: 'integer' }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: {
@@ -582,6 +587,7 @@ const AccountAnalyticsSchema = z
                 },
               }),
           )
+          .optional()
           .openapi({
             type: 'array',
             items: {
@@ -590,7 +596,7 @@ const AccountAnalyticsSchema = z
             },
           }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -607,40 +613,40 @@ const AccountAnalyticsSchema = z
       }),
     engagements: z
       .object({
-        total: z.int().openapi({ type: 'integer' }),
-        change: z.number().openapi({ type: 'number' }),
+        total: z.int().optional().openapi({ type: 'integer' }),
+        change: z.number().optional().openapi({ type: 'number' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { total: { type: 'integer' }, change: { type: 'number' } },
       }),
     profileVisits: z
       .object({
-        total: z.int().openapi({ type: 'integer' }),
-        change: z.number().openapi({ type: 'number' }),
+        total: z.int().optional().openapi({ type: 'integer' }),
+        change: z.number().optional().openapi({ type: 'number' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { total: { type: 'integer' }, change: { type: 'number' } },
       }),
     mentions: z
       .object({
-        total: z.int().openapi({ type: 'integer' }),
-        change: z.number().openapi({ type: 'number' }),
+        total: z.int().optional().openapi({ type: 'integer' }),
+        change: z.number().optional().openapi({ type: 'number' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { total: { type: 'integer' }, change: { type: 'number' } },
       }),
     newFollowers: z
       .object({
-        total: z.int().openapi({ type: 'integer' }),
-        change: z.number().openapi({ type: 'number' }),
+        total: z.int().optional().openapi({ type: 'integer' }),
+        change: z.number().optional().openapi({ type: 'number' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { total: { type: 'integer' }, change: { type: 'number' } },
@@ -686,17 +692,16 @@ const AccountAnalyticsSchema = z
 
 const FollowerAnalyticsSchema = z
   .object({
-    totalFollowers: z.int().openapi({ type: 'integer' }),
+    totalFollowers: z.int().optional().openapi({ type: 'integer' }),
     followerGrowth: z
       .array(
         z
           .object({
-            date: z.iso.date().openapi({ type: 'string', format: 'date' }),
-            gained: z.int().openapi({ type: 'integer' }),
-            lost: z.int().openapi({ type: 'integer' }),
-            net: z.int().openapi({ type: 'integer' }),
+            date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+            gained: z.int().optional().openapi({ type: 'integer' }),
+            lost: z.int().optional().openapi({ type: 'integer' }),
+            net: z.int().optional().openapi({ type: 'integer' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -707,6 +712,7 @@ const FollowerAnalyticsSchema = z
             },
           }),
       )
+      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -725,15 +731,15 @@ const FollowerAnalyticsSchema = z
           .array(
             z
               .object({
-                country: z.string().openapi({ type: 'string' }),
-                percentage: z.number().openapi({ type: 'number' }),
+                country: z.string().optional().openapi({ type: 'string' }),
+                percentage: z.number().optional().openapi({ type: 'number' }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: { country: { type: 'string' }, percentage: { type: 'number' } },
               }),
           )
+          .optional()
           .openapi({
             type: 'array',
             items: {
@@ -743,11 +749,11 @@ const FollowerAnalyticsSchema = z
           }),
         genderDistribution: z
           .object({
-            male: z.number().openapi({ type: 'number' }),
-            female: z.number().openapi({ type: 'number' }),
-            other: z.number().openapi({ type: 'number' }),
+            male: z.number().optional().openapi({ type: 'number' }),
+            female: z.number().optional().openapi({ type: 'number' }),
+            other: z.number().optional().openapi({ type: 'number' }),
           })
-          .partial()
+          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -760,10 +766,9 @@ const FollowerAnalyticsSchema = z
           .array(
             z
               .object({
-                ageRange: z.string().openapi({ type: 'string' }),
-                percentage: z.number().openapi({ type: 'number' }),
+                ageRange: z.string().optional().openapi({ type: 'string' }),
+                percentage: z.number().optional().openapi({ type: 'number' }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: { ageRange: { type: 'string' }, percentage: { type: 'number' } },
@@ -778,6 +783,7 @@ const FollowerAnalyticsSchema = z
             },
           }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -809,15 +815,15 @@ const FollowerAnalyticsSchema = z
       .array(
         z
           .object({
-            interest: z.string().openapi({ type: 'string' }),
-            percentage: z.number().openapi({ type: 'number' }),
+            interest: z.string().optional().openapi({ type: 'string' }),
+            percentage: z.number().optional().openapi({ type: 'number' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { interest: { type: 'string' }, percentage: { type: 'number' } },
           }),
       )
+      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -829,15 +835,15 @@ const FollowerAnalyticsSchema = z
       .array(
         z
           .object({
-            hour: z.int().openapi({ type: 'integer' }),
-            activityScore: z.number().openapi({ type: 'number' }),
+            hour: z.int().optional().openapi({ type: 'integer' }),
+            activityScore: z.number().optional().openapi({ type: 'number' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { hour: { type: 'integer' }, activityScore: { type: 'number' } },
           }),
       )
+      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -846,7 +852,6 @@ const FollowerAnalyticsSchema = z
         },
       }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -910,12 +915,11 @@ const FollowerAnalyticsSchema = z
 
 const PostWithAnalyticsSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    text: z.string().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    analytics: PostAnalyticsSchema,
+    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    text: z.string().optional().openapi({ type: 'string' }),
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    analytics: PostAnalyticsSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -935,11 +939,11 @@ const ModerationQueueResponseSchema = z
     nextCursor: z.string().optional().openapi({ type: 'string' }),
     stats: z
       .object({
-        pending: z.int().openapi({ type: 'integer' }),
-        inReview: z.int().openapi({ type: 'integer' }),
-        resolvedToday: z.int().openapi({ type: 'integer' }),
+        pending: z.int().optional().openapi({ type: 'integer' }),
+        inReview: z.int().optional().openapi({ type: 'integer' }),
+        resolvedToday: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -1006,12 +1010,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getSettingsAccountRoute = createRoute({
@@ -1023,7 +1027,7 @@ export const getSettingsAccountRoute = createRoute({
   responses: {
     200: {
       description: 'アカウント設定',
-      content: { 'application/json': { schema: AccountSettingsSchema.optional() } },
+      content: { 'application/json': { schema: AccountSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1038,14 +1042,14 @@ export const putSettingsAccountRoute = createRoute({
   operationId: 'updateAccountSettings',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateAccountSettingsRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateAccountSettingsRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: AccountSettingsSchema.optional() } },
+      content: { 'application/json': { schema: AccountSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1075,10 +1079,9 @@ export const getSettingsUsernameCheckRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              available: z.boolean().openapi({ type: 'boolean' }),
-              reason: z.string().openapi({ type: 'string' }),
+              available: z.boolean().optional().openapi({ type: 'boolean' }),
+              reason: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { available: { type: 'boolean' }, reason: { type: 'string' } },
@@ -1098,7 +1101,7 @@ export const getSettingsPrivacyRoute = createRoute({
   responses: {
     200: {
       description: 'プライバシー設定',
-      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
+      content: { 'application/json': { schema: PrivacySettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1112,15 +1115,12 @@ export const putSettingsPrivacyRoute = createRoute({
   summary: 'プライバシー設定更新',
   operationId: 'updatePrivacySettings',
   request: {
-    body: {
-      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: PrivacySettingsSchema } }, required: true },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: PrivacySettingsSchema.optional() } },
+      content: { 'application/json': { schema: PrivacySettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1136,7 +1136,7 @@ export const getSettingsContentPreferencesRoute = createRoute({
   responses: {
     200: {
       description: 'コンテンツ設定',
-      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
+      content: { 'application/json': { schema: ContentPreferencesSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1150,15 +1150,12 @@ export const putSettingsContentPreferencesRoute = createRoute({
   summary: 'コンテンツ設定更新',
   operationId: 'updateContentPreferences',
   request: {
-    body: {
-      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: ContentPreferencesSchema } }, required: true },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ContentPreferencesSchema.optional() } },
+      content: { 'application/json': { schema: ContentPreferencesSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1178,7 +1175,6 @@ export const getSettingsMutedWordsRoute = createRoute({
         'application/json': {
           schema: z
             .array(MutedWordSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/MutedWord' } }),
         },
       },
@@ -1196,15 +1192,12 @@ export const postSettingsMutedWordsRoute = createRoute({
   operationId: 'addMutedWord',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateMutedWordRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateMutedWordRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '追加成功',
-      content: { 'application/json': { schema: MutedWordSchema.optional() } },
-    },
+    201: { description: '追加成功', content: { 'application/json': { schema: MutedWordSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1249,7 +1242,6 @@ export const getSettingsSessionsRoute = createRoute({
         'application/json': {
           schema: z
             .array(SessionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Session' } }),
         },
       },
@@ -1298,7 +1290,6 @@ export const getSettingsConnectedAppsRoute = createRoute({
         'application/json': {
           schema: z
             .array(ConnectedAppSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ConnectedApp' } }),
         },
       },
@@ -1347,12 +1338,12 @@ export const postSettingsDataExportRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              requestId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+              requestId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
               estimatedCompletionAt: z.iso
                 .datetime()
+                .optional()
                 .openapi({ type: 'string', format: 'date-time' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1399,14 +1390,17 @@ export const getSettingsDataExportRequestIdRoute = createRoute({
             .object({
               status: z
                 .enum(['pending', 'processing', 'completed', 'failed'])
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['pending', 'processing', 'completed', 'failed'],
                 }),
-              downloadUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-              expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+              downloadUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+              expiresAt: z.iso
+                .datetime()
+                .optional()
+                .openapi({ type: 'string', format: 'date-time' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1457,15 +1451,12 @@ export const postReportsRoute = createRoute({
   operationId: 'createReport',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateReportRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateReportRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '通報成功',
-      content: { 'application/json': { schema: ReportSchema.optional() } },
-    },
+    201: { description: '通報成功', content: { 'application/json': { schema: ReportSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1494,10 +1485,7 @@ export const getReportsReportIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '通報詳細',
-      content: { 'application/json': { schema: ReportSchema.optional() } },
-    },
+    200: { description: '通報詳細', content: { 'application/json': { schema: ReportSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1543,7 +1531,7 @@ export const getModerationQueueRoute = createRoute({
   responses: {
     200: {
       description: 'キュー一覧',
-      content: { 'application/json': { schema: ModerationQueueResponseSchema.optional() } },
+      content: { 'application/json': { schema: ModerationQueueResponseSchema } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1576,7 +1564,7 @@ export const getModerationItemsItemIdRoute = createRoute({
   responses: {
     200: {
       description: 'アイテム詳細',
-      content: { 'application/json': { schema: ModerationItemSchema.optional() } },
+      content: { 'application/json': { schema: ModerationItemSchema } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1592,14 +1580,14 @@ export const postModerationItemsItemIdActionRoute = createRoute({
   operationId: 'takeModerationAction',
   request: {
     body: {
-      content: { 'application/json': { schema: ModerationActionRequestSchema.optional() } },
+      content: { 'application/json': { schema: ModerationActionRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: 'アクション成功',
-      content: { 'application/json': { schema: ModerationItemSchema.optional() } },
+      content: { 'application/json': { schema: ModerationItemSchema } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1636,7 +1624,6 @@ export const getModerationUsersUserIdHistoryRoute = createRoute({
         'application/json': {
           schema: z
             .array(ModerationActionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ModerationAction' } }),
         },
       },
@@ -1699,8 +1686,7 @@ export const postModerationUsersUserIdUnsuspendRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ note: z.string().openapi({ type: 'string' }) })
-            .partial()
+            .object({ note: z.string().optional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { note: { type: 'string' } } }),
         },
       },
@@ -1739,7 +1725,7 @@ export const getAnalyticsPostsPostIdRoute = createRoute({
   responses: {
     200: {
       description: '投稿分析',
-      content: { 'application/json': { schema: PostAnalyticsSchema.optional() } },
+      content: { 'application/json': { schema: PostAnalyticsSchema } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -1774,7 +1760,7 @@ export const getAnalyticsAccountRoute = createRoute({
   responses: {
     200: {
       description: 'アカウント分析',
-      content: { 'application/json': { schema: AccountAnalyticsSchema.optional() } },
+      content: { 'application/json': { schema: AccountAnalyticsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1808,7 +1794,7 @@ export const getAnalyticsFollowersRoute = createRoute({
   responses: {
     200: {
       description: 'フォロワー分析',
-      content: { 'application/json': { schema: FollowerAnalyticsSchema.optional() } },
+      content: { 'application/json': { schema: FollowerAnalyticsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1873,7 +1859,6 @@ export const getAnalyticsTopPostsRoute = createRoute({
         'application/json': {
           schema: z
             .array(PostWithAnalyticsSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostWithAnalytics' } }),
         },
       },

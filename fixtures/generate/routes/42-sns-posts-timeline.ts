@@ -69,7 +69,7 @@ const PollSchema = z
             id: z.string().openapi({ type: 'string' }),
             text: z.string().openapi({ type: 'string' }),
             voteCount: z.int().openapi({ type: 'integer' }),
-            percentage: z.number().openapi({ type: 'number' }),
+            percentage: z.number().optional().openapi({ type: 'number' }),
           })
           .openapi({
             type: 'object',
@@ -82,7 +82,6 @@ const PollSchema = z
             },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -224,10 +223,10 @@ const PostSchema: z.ZodType<PostType> = z
         quotedPost: PostSchema.optional().openapi({ description: '引用元投稿' }),
         replyTo: z
           .object({
-            postId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-            author: UserSummarySchema,
+            postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+            author: UserSummarySchema.optional(),
           })
-          .partial()
+          .optional()
           .openapi({
             type: 'object',
             description: '返信先情報',
@@ -238,7 +237,7 @@ const PostSchema: z.ZodType<PostType> = z
           }),
         repostOf: PostSchema.optional().openapi({ description: 'リポスト元（リポストの場合）' }),
         hashtags: z
-          .array(z.string().optional().openapi({ type: 'string' }))
+          .array(z.string().openapi({ type: 'string' }))
           .optional()
           .openapi({ type: 'array', items: { type: 'string' } }),
         mentions: z
@@ -275,7 +274,7 @@ const PostSchema: z.ZodType<PostType> = z
             replyCount: z.int().openapi({ type: 'integer' }),
             quoteCount: z.int().openapi({ type: 'integer' }),
             viewCount: z.int().openapi({ type: 'integer' }),
-            bookmarkCount: z.int().openapi({ type: 'integer' }),
+            bookmarkCount: z.int().optional().openapi({ type: 'integer' }),
           })
           .openapi({
             type: 'object',
@@ -291,11 +290,11 @@ const PostSchema: z.ZodType<PostType> = z
           }),
         viewer: z
           .object({
-            liked: z.boolean().openapi({ type: 'boolean' }),
-            reposted: z.boolean().openapi({ type: 'boolean' }),
-            bookmarked: z.boolean().openapi({ type: 'boolean' }),
+            liked: z.boolean().optional().openapi({ type: 'boolean' }),
+            reposted: z.boolean().optional().openapi({ type: 'boolean' }),
+            bookmarked: z.boolean().optional().openapi({ type: 'boolean' }),
           })
-          .partial()
+          .optional()
           .openapi({
             type: 'object',
             description: '閲覧者のアクション状態',
@@ -316,10 +315,12 @@ const PostSchema: z.ZodType<PostType> = z
           .array(
             z
               .object({
-                text: z.string().openapi({ type: 'string' }),
-                editedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+                text: z.string().optional().openapi({ type: 'string' }),
+                editedAt: z.iso
+                  .datetime()
+                  .optional()
+                  .openapi({ type: 'string', format: 'date-time' }),
               })
-              .partial()
               .openapi({
                 type: 'object',
                 properties: {
@@ -420,7 +421,7 @@ const CreatePostRequestSchema = z
   .object({
     text: z.string().min(1).max(280).openapi({ type: 'string', minLength: 1, maxLength: 280 }),
     mediaIds: z
-      .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+      .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .max(4)
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 }),
@@ -430,7 +431,6 @@ const CreatePostRequestSchema = z
           .array(z.string().max(25).openapi({ type: 'string', maxLength: 25 }))
           .min(2)
           .max(4)
-          .optional()
           .openapi({
             type: 'array',
             minItems: 2,
@@ -443,6 +443,7 @@ const CreatePostRequestSchema = z
           .max(10080)
           .openapi({ type: 'integer', description: '投票期間（分）', minimum: 5, maximum: 10080 }),
       })
+      .optional()
       .openapi({
         type: 'object',
         required: ['options', 'duration'],
@@ -675,22 +676,22 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getPostsRoute = createRoute({
@@ -746,7 +747,7 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: '投稿一覧',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
   },
 })
@@ -758,16 +759,10 @@ export const postPostsRoute = createRoute({
   summary: '投稿作成',
   operationId: 'createPost',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreatePostRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '投稿成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    201: { description: '投稿成功', content: { 'application/json': { schema: PostSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -782,10 +777,7 @@ export const getPostsPostIdRoute = createRoute({
   operationId: 'getPost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '投稿詳細',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '投稿詳細', content: { 'application/json': { schema: PostSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -814,10 +806,7 @@ export const getPostsPostIdThreadRoute = createRoute({
   operationId: 'getPostThread',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'スレッド',
-      content: { 'application/json': { schema: PostThreadSchema.optional() } },
-    },
+    200: { description: 'スレッド', content: { 'application/json': { schema: PostThreadSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -839,21 +828,22 @@ export const getPostsPostIdContextRoute = createRoute({
             .object({
               ancestors: z
                 .array(PostSchema)
+                .optional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
                   description: '親投稿のチェーン',
                 }),
-              post: PostSchema,
+              post: PostSchema.optional(),
               descendants: z
                 .array(PostSchema)
+                .optional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
                   description: '返信',
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -920,7 +910,7 @@ export const getTimelineHomeRoute = createRoute({
   responses: {
     200: {
       description: 'タイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
+      content: { 'application/json': { schema: TimelineResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -938,7 +928,7 @@ export const getTimelineForYouRoute = createRoute({
   responses: {
     200: {
       description: 'おすすめタイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
+      content: { 'application/json': { schema: TimelineResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1009,7 +999,7 @@ export const getTimelineUserUserIdRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザータイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
+      content: { 'application/json': { schema: TimelineResponseSchema } },
     },
     404: NotFoundResponse,
   },
@@ -1035,7 +1025,7 @@ export const getTimelineHashtagHashtagRoute = createRoute({
   responses: {
     200: {
       description: 'ハッシュタグタイムライン',
-      content: { 'application/json': { schema: TimelineResponseSchema.optional() } },
+      content: { 'application/json': { schema: TimelineResponseSchema } },
     },
   },
 })
@@ -1048,10 +1038,7 @@ export const postPostsPostIdLikeRoute = createRoute({
   operationId: 'likePost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'いいね成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: 'いいね成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1065,10 +1052,7 @@ export const deletePostsPostIdLikeRoute = createRoute({
   operationId: 'unlikePost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '解除成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '解除成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1082,10 +1066,7 @@ export const postPostsPostIdRepostRoute = createRoute({
   operationId: 'repost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'リポスト成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: 'リポスト成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1099,10 +1080,7 @@ export const deletePostsPostIdRepostRoute = createRoute({
   operationId: 'unrepost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '解除成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '解除成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1126,7 +1104,7 @@ export const postPostsPostIdQuoteRoute = createRoute({
                 .max(280)
                 .openapi({ type: 'string', minLength: 1, maxLength: 280 }),
               mediaIds: z
-                .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+                .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
                 .max(4)
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 }),
@@ -1145,10 +1123,7 @@ export const postPostsPostIdQuoteRoute = createRoute({
     },
   },
   responses: {
-    201: {
-      description: '引用投稿成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    201: { description: '引用投稿成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1186,7 +1161,7 @@ export const getBookmarksRoute = createRoute({
   responses: {
     200: {
       description: 'ブックマーク一覧',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1206,7 +1181,7 @@ export const getPostsPostIdLikesRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
   },
 })
@@ -1224,7 +1199,7 @@ export const getPostsPostIdRepostsRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
   },
 })
@@ -1242,7 +1217,7 @@ export const getPostsPostIdQuotesRoute = createRoute({
   responses: {
     200: {
       description: '引用投稿一覧',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
   },
 })
@@ -1281,7 +1256,7 @@ export const getPostsPostIdRepliesRoute = createRoute({
   responses: {
     200: {
       description: '返信一覧',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
   },
 })
@@ -1293,16 +1268,10 @@ export const postPostsPostIdRepliesRoute = createRoute({
   summary: '返信投稿',
   operationId: 'replyToPost',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreatePostRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '返信成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    201: { description: '返信成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1343,11 +1312,11 @@ export const postMediaUploadRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
+      content: { 'application/json': { schema: MediaSchema } },
     },
     400: {
       description: 'ファイル形式エラー',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     401: UnauthorizedResponse,
     413: { description: 'ファイルサイズ超過' },
@@ -1378,10 +1347,7 @@ export const getMediaMediaIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'メディア情報',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
-    },
+    200: { description: 'メディア情報', content: { 'application/json': { schema: MediaSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -1397,8 +1363,9 @@ export const patchMediaMediaIdRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ alt: z.string().max(1000).openapi({ type: 'string', maxLength: 1000 }) })
-            .partial()
+            .object({
+              alt: z.string().max(1000).optional().openapi({ type: 'string', maxLength: 1000 }),
+            })
             .openapi({ type: 'object', properties: { alt: { type: 'string', maxLength: 1000 } } }),
         },
       },
@@ -1406,10 +1373,7 @@ export const patchMediaMediaIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: MediaSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

@@ -19,11 +19,11 @@ const MediaSchema = z
     caption: z.string().optional().openapi({ type: 'string' }),
     thumbnails: z
       .object({
-        small: z.url().openapi({ type: 'string', format: 'uri' }),
-        medium: z.url().openapi({ type: 'string', format: 'uri' }),
-        large: z.url().openapi({ type: 'string', format: 'uri' }),
+        small: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+        medium: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+        large: z.url().optional().openapi({ type: 'string', format: 'uri' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -72,12 +72,12 @@ const AuthorSchema = z
     website: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     socialLinks: z
       .object({
-        twitter: z.string().openapi({ type: 'string' }),
-        facebook: z.string().openapi({ type: 'string' }),
-        instagram: z.string().openapi({ type: 'string' }),
-        linkedin: z.string().openapi({ type: 'string' }),
+        twitter: z.string().optional().openapi({ type: 'string' }),
+        facebook: z.string().optional().openapi({ type: 'string' }),
+        instagram: z.string().optional().openapi({ type: 'string' }),
+        linkedin: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -160,15 +160,14 @@ const TagSchema = z
 
 const SEOSchema = z
   .object({
-    metaTitle: z.string().max(60).openapi({ type: 'string', maxLength: 60 }),
-    metaDescription: z.string().max(160).openapi({ type: 'string', maxLength: 160 }),
-    ogTitle: z.string().openapi({ type: 'string' }),
-    ogDescription: z.string().openapi({ type: 'string' }),
-    ogImage: z.url().openapi({ type: 'string', format: 'uri' }),
-    canonicalUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-    noIndex: z.boolean().default(false).openapi({ type: 'boolean', default: false }),
+    metaTitle: z.string().max(60).optional().openapi({ type: 'string', maxLength: 60 }),
+    metaDescription: z.string().max(160).optional().openapi({ type: 'string', maxLength: 160 }),
+    ogTitle: z.string().optional().openapi({ type: 'string' }),
+    ogDescription: z.string().optional().openapi({ type: 'string' }),
+    ogImage: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    canonicalUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    noIndex: z.boolean().default(false).optional().openapi({ type: 'boolean', default: false }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -304,7 +303,7 @@ const CreatePostRequestSchema = z
     featuredImageId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     categoryId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     tagIds: z
-      .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+      .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
     seo: SEOSchema.optional(),
@@ -334,23 +333,28 @@ const CreatePostRequestSchema = z
 
 const UpdatePostRequestSchema = z
   .object({
-    title: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    title: z
+      .string()
+      .min(1)
+      .max(200)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     slug: z
       .string()
       .regex(/^[a-z0-9-]+$/)
+      .optional()
       .openapi({ type: 'string', pattern: '^[a-z0-9-]+$' }),
-    excerpt: z.string().max(300).openapi({ type: 'string', maxLength: 300 }),
-    content: z.string().openapi({ type: 'string' }),
-    contentMarkdown: z.string().openapi({ type: 'string' }),
-    featuredImageId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    categoryId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    excerpt: z.string().max(300).optional().openapi({ type: 'string', maxLength: 300 }),
+    content: z.string().optional().openapi({ type: 'string' }),
+    contentMarkdown: z.string().optional().openapi({ type: 'string' }),
+    featuredImageId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    categoryId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     tagIds: z
       .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
-    seo: SEOSchema,
+    seo: SEOSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -417,15 +421,20 @@ const CreateCategoryRequestSchema = z
 
 const UpdateCategoryRequestSchema = z
   .object({
-    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     slug: z
       .string()
       .regex(/^[a-z0-9-]+$/)
+      .optional()
       .openapi({ type: 'string', pattern: '^[a-z0-9-]+$' }),
-    description: z.string().openapi({ type: 'string' }),
-    parentId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -585,17 +594,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getPostsRoute = createRoute({
@@ -705,7 +714,7 @@ export const getPostsRoute = createRoute({
   responses: {
     200: {
       description: '記事一覧',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
   },
 })
@@ -717,16 +726,10 @@ export const postPostsRoute = createRoute({
   summary: '記事作成',
   operationId: 'createPost',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreatePostRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: PostSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -741,10 +744,7 @@ export const getPostsPostIdRoute = createRoute({
   operationId: 'getPost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '記事詳細',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '記事詳細', content: { 'application/json': { schema: PostSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -756,16 +756,10 @@ export const putPostsPostIdRoute = createRoute({
   summary: '記事更新',
   operationId: 'updatePost',
   request: {
-    body: {
-      content: { 'application/json': { schema: UpdatePostRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: UpdatePostRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -806,10 +800,7 @@ export const getPostsSlugSlugRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '記事詳細',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '記事詳細', content: { 'application/json': { schema: PostSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -828,13 +819,13 @@ export const postPostsPostIdPublishRoute = createRoute({
             .object({
               scheduledAt: z.iso
                 .datetime()
+                .optional()
                 .openapi({
                   type: 'string',
                   format: 'date-time',
                   description: '予約公開日時（指定しない場合は即時公開）',
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -850,10 +841,7 @@ export const postPostsPostIdPublishRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '公開成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '公開成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -867,10 +855,7 @@ export const postPostsPostIdUnpublishRoute = createRoute({
   operationId: 'unpublishPost',
   request: { params: z.object({ postId: PostIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '非公開化成功',
-      content: { 'application/json': { schema: PostSchema.optional() } },
-    },
+    200: { description: '非公開化成功', content: { 'application/json': { schema: PostSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -889,7 +874,7 @@ export const getPostsPostIdCommentsRoute = createRoute({
   responses: {
     200: {
       description: 'コメント一覧',
-      content: { 'application/json': { schema: CommentListResponseSchema.optional() } },
+      content: { 'application/json': { schema: CommentListResponseSchema } },
     },
   },
 })
@@ -902,15 +887,12 @@ export const postPostsPostIdCommentsRoute = createRoute({
   operationId: 'createComment',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateCommentRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateCommentRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '投稿成功',
-      content: { 'application/json': { schema: CommentSchema.optional() } },
-    },
+    201: { description: '投稿成功', content: { 'application/json': { schema: CommentSchema } } },
     400: BadRequestResponse,
   },
 })
@@ -964,10 +946,7 @@ export const postCommentsCommentIdApproveRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '承認成功',
-      content: { 'application/json': { schema: CommentSchema.optional() } },
-    },
+    200: { description: '承認成功', content: { 'application/json': { schema: CommentSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -986,7 +965,6 @@ export const getCategoriesRoute = createRoute({
         'application/json': {
           schema: z
             .array(CategorySchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
         },
       },
@@ -1002,15 +980,12 @@ export const postCategoriesRoute = createRoute({
   operationId: 'createCategory',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateCategoryRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateCategoryRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: CategorySchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: CategorySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1041,7 +1016,7 @@ export const getCategoriesCategoryIdRoute = createRoute({
   responses: {
     200: {
       description: 'カテゴリ詳細',
-      content: { 'application/json': { schema: CategorySchema.optional() } },
+      content: { 'application/json': { schema: CategorySchema } },
     },
     404: NotFoundResponse,
   },
@@ -1055,15 +1030,12 @@ export const putCategoriesCategoryIdRoute = createRoute({
   operationId: 'updateCategory',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateCategoryRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateCategoryRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: CategorySchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: CategorySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1119,7 +1091,6 @@ export const getTagsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TagSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
         },
       },
@@ -1134,16 +1105,10 @@ export const postTagsRoute = createRoute({
   summary: 'タグ作成',
   operationId: 'createTag',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateTagRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateTagRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: TagSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: TagSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1177,7 +1142,7 @@ export const getMediaRoute = createRoute({
   responses: {
     200: {
       description: 'メディア一覧',
-      content: { 'application/json': { schema: MediaListResponseSchema.optional() } },
+      content: { 'application/json': { schema: MediaListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1217,7 +1182,7 @@ export const postMediaRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
+      content: { 'application/json': { schema: MediaSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1248,10 +1213,7 @@ export const getMediaMediaIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'メディア詳細',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
-    },
+    200: { description: 'メディア詳細', content: { 'application/json': { schema: MediaSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1270,10 +1232,9 @@ export const putMediaMediaIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              altText: z.string().openapi({ type: 'string' }),
-              caption: z.string().openapi({ type: 'string' }),
+              altText: z.string().optional().openapi({ type: 'string' }),
+              caption: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { altText: { type: 'string' }, caption: { type: 'string' } },
@@ -1284,10 +1245,7 @@ export const putMediaMediaIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: MediaSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: MediaSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1332,7 +1290,6 @@ export const getAuthorsRoute = createRoute({
         'application/json': {
           schema: z
             .array(AuthorSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Author' } }),
         },
       },
@@ -1363,10 +1320,7 @@ export const getAuthorsAuthorIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '著者詳細',
-      content: { 'application/json': { schema: AuthorSchema.optional() } },
-    },
+    200: { description: '著者詳細', content: { 'application/json': { schema: AuthorSchema } } },
     404: NotFoundResponse,
   },
 })

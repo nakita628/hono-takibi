@@ -51,13 +51,13 @@ const UserSchema = z
     pinnedPostId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     metrics: z
       .object({
-        followersCount: z.int().openapi({ type: 'integer' }),
-        followingCount: z.int().openapi({ type: 'integer' }),
-        postsCount: z.int().openapi({ type: 'integer' }),
-        likesCount: z.int().openapi({ type: 'integer' }),
-        listedCount: z.int().openapi({ type: 'integer' }),
+        followersCount: z.int().optional().openapi({ type: 'integer' }),
+        followingCount: z.int().optional().openapi({ type: 'integer' }),
+        postsCount: z.int().optional().openapi({ type: 'integer' }),
+        likesCount: z.int().optional().openapi({ type: 'integer' }),
+        listedCount: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -108,15 +108,14 @@ const UserSchema = z
 
 const UpdateProfileRequestSchema = z
   .object({
-    displayName: z.string().max(50).openapi({ type: 'string', maxLength: 50 }),
-    bio: z.string().max(160).openapi({ type: 'string', maxLength: 160 }),
-    location: z.string().max(30).openapi({ type: 'string', maxLength: 30 }),
-    website: z.url().openapi({ type: 'string', format: 'uri' }),
-    birthDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    isProtected: z.boolean().openapi({ type: 'boolean' }),
-    pinnedPostId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    displayName: z.string().max(50).optional().openapi({ type: 'string', maxLength: 50 }),
+    bio: z.string().max(160).optional().openapi({ type: 'string', maxLength: 160 }),
+    location: z.string().max(30).optional().openapi({ type: 'string', maxLength: 30 }),
+    website: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    birthDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    isProtected: z.boolean().optional().openapi({ type: 'boolean' }),
+    pinnedPostId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -204,11 +203,15 @@ const CreateListRequestSchema = z
 
 const UpdateListRequestSchema = z
   .object({
-    name: z.string().min(1).max(25).openapi({ type: 'string', minLength: 1, maxLength: 25 }),
-    description: z.string().max(100).openapi({ type: 'string', maxLength: 100 }),
-    isPrivate: z.boolean().openapi({ type: 'boolean' }),
+    name: z
+      .string()
+      .min(1)
+      .max(25)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 25 }),
+    description: z.string().max(100).optional().openapi({ type: 'string', maxLength: 100 }),
+    isPrivate: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -220,8 +223,7 @@ const UpdateListRequestSchema = z
   .openapi('UpdateListRequest')
 
 const PostSchema = z
-  .object({ id: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
-  .partial()
+  .object({ id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }) })
   .openapi({
     type: 'object',
     description: '投稿（別APIファイルで定義）',
@@ -328,22 +330,22 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const ForbiddenResponse = {
   description: 'アクセス権限がありません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getUsersUserIdRoute = createRoute({
@@ -354,10 +356,7 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: { params: z.object({ userId: UserIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'ユーザー情報',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -379,10 +378,7 @@ export const getUsersByUsernameUsernameRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'ユーザー情報',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -414,7 +410,7 @@ export const getUsersSearchRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
   },
 })
@@ -460,7 +456,6 @@ export const getUsersLookupRoute = createRoute({
         'application/json': {
           schema: z
             .array(UserSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
         },
       },
@@ -475,10 +470,7 @@ export const getMeRoute = createRoute({
   summary: '現在のユーザー情報取得',
   operationId: 'getCurrentUser',
   responses: {
-    200: {
-      description: 'ユーザー情報',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'ユーザー情報', content: { 'application/json': { schema: UserSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -492,15 +484,12 @@ export const patchMeRoute = createRoute({
   operationId: 'updateProfile',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProfileRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateProfileRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -535,8 +524,7 @@ export const postMeAvatarRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ avatarUrl: z.url().openapi({ type: 'string', format: 'uri' }) })
-            .partial()
+            .object({ avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }) })
             .openapi({
               type: 'object',
               properties: { avatarUrl: { type: 'string', format: 'uri' } },
@@ -587,8 +575,7 @@ export const postMeBannerRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ bannerUrl: z.url().openapi({ type: 'string', format: 'uri' }) })
-            .partial()
+            .object({ bannerUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }) })
             .openapi({
               type: 'object',
               properties: { bannerUrl: { type: 'string', format: 'uri' } },
@@ -621,7 +608,7 @@ export const postUsersUserIdFollowRoute = createRoute({
   responses: {
     200: {
       description: 'フォロー成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -638,7 +625,7 @@ export const deleteUsersUserIdFollowRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -658,7 +645,7 @@ export const getUsersUserIdFollowersRoute = createRoute({
   responses: {
     200: {
       description: 'フォロワー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     404: NotFoundResponse,
   },
@@ -677,7 +664,7 @@ export const getUsersUserIdFollowingRoute = createRoute({
   responses: {
     200: {
       description: 'フォロー中一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     404: NotFoundResponse,
   },
@@ -724,7 +711,6 @@ export const getRelationshipsRoute = createRoute({
         'application/json': {
           schema: z
             .array(RelationshipSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Relationship' } }),
         },
       },
@@ -745,7 +731,7 @@ export const getFollowRequestsRoute = createRoute({
   responses: {
     200: {
       description: 'リクエスト一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -784,7 +770,7 @@ export const postUsersUserIdBlockRoute = createRoute({
   responses: {
     200: {
       description: 'ブロック成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -801,7 +787,7 @@ export const deleteUsersUserIdBlockRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -822,13 +808,14 @@ export const postUsersUserIdMuteRoute = createRoute({
             .object({
               duration: z
                 .int()
+                .optional()
                 .openapi({ type: 'integer', description: 'ミュート期間（秒）。省略で無期限' }),
               notifications: z
                 .boolean()
                 .default(true)
+                .optional()
                 .openapi({ type: 'boolean', default: true, description: '通知もミュートするか' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -847,7 +834,7 @@ export const postUsersUserIdMuteRoute = createRoute({
   responses: {
     200: {
       description: 'ミュート成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -864,7 +851,7 @@ export const deleteUsersUserIdMuteRoute = createRoute({
   responses: {
     200: {
       description: '解除成功',
-      content: { 'application/json': { schema: RelationshipSchema.optional() } },
+      content: { 'application/json': { schema: RelationshipSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -881,7 +868,7 @@ export const getBlocksRoute = createRoute({
   responses: {
     200: {
       description: 'ブロック一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -898,7 +885,7 @@ export const getMutesRoute = createRoute({
   responses: {
     200: {
       description: 'ミュート一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -918,7 +905,6 @@ export const getListsRoute = createRoute({
         'application/json': {
           schema: z
             .array(ListSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/List' } }),
         },
       },
@@ -935,16 +921,10 @@ export const postListsRoute = createRoute({
   summary: 'リスト作成',
   operationId: 'createList',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateListRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateListRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: ListSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: ListSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -958,10 +938,7 @@ export const getListsListIdRoute = createRoute({
   operationId: 'getList',
   request: { params: z.object({ listId: ListIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'リスト詳細',
-      content: { 'application/json': { schema: ListSchema.optional() } },
-    },
+    200: { description: 'リスト詳細', content: { 'application/json': { schema: ListSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -973,16 +950,10 @@ export const putListsListIdRoute = createRoute({
   summary: 'リスト更新',
   operationId: 'updateList',
   request: {
-    body: {
-      content: { 'application/json': { schema: UpdateListRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: UpdateListRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: ListSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: ListSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1012,7 +983,7 @@ export const getListsListIdMembersRoute = createRoute({
   responses: {
     200: {
       description: 'メンバー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
   },
 })
@@ -1069,7 +1040,7 @@ export const getListsListIdTimelineRoute = createRoute({
   responses: {
     200: {
       description: 'タイムライン',
-      content: { 'application/json': { schema: PostListResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1093,7 +1064,6 @@ export const getUsersUserIdListsRoute = createRoute({
         'application/json': {
           schema: z
             .array(ListSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/List' } }),
         },
       },

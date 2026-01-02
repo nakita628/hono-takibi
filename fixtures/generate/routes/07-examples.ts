@@ -10,10 +10,10 @@ const ProductSchema = z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    metadata: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+    metadata: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -41,7 +41,7 @@ const CreateProductInputSchema = z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
@@ -66,11 +66,10 @@ const ValidationErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().openapi({ type: 'string' }),
-            message: z.string().openapi({ type: 'string' }),
-            code: z.string().openapi({ type: 'string' }),
+            field: z.string().optional().openapi({ type: 'string' }),
+            message: z.string().optional().openapi({ type: 'string' }),
+            code: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -233,7 +232,6 @@ export const getProductsRoute = createRoute({
         'application/json': {
           schema: z
             .array(ProductSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
           examples: {
             electronics: { $ref: '#/components/examples/ElectronicProducts' },
@@ -254,7 +252,7 @@ export const postProductsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: CreateProductInputSchema.optional(),
+          schema: CreateProductInputSchema,
           examples: { laptop: CreateLaptopExample, tshirt: CreateTShirtExample },
         },
       },
@@ -265,7 +263,7 @@ export const postProductsRoute = createRoute({
       description: 'Product created',
       content: {
         'application/json': {
-          schema: ProductSchema.optional(),
+          schema: ProductSchema,
           examples: { laptop: { $ref: '#/components/examples/LaptopProduct' } },
         },
       },
@@ -274,7 +272,7 @@ export const postProductsRoute = createRoute({
       description: 'Validation error',
       content: {
         'application/json': {
-          schema: ValidationErrorSchema.optional(),
+          schema: ValidationErrorSchema,
           examples: {
             missingName: { $ref: '#/components/examples/MissingNameError' },
             invalidPrice: { $ref: '#/components/examples/InvalidPriceError' },
@@ -313,7 +311,7 @@ export const getProductsProductIdRoute = createRoute({
       description: 'Product details',
       content: {
         'application/json': {
-          schema: ProductSchema.optional(),
+          schema: ProductSchema,
           examples: {
             laptop: { $ref: '#/components/examples/LaptopProduct' },
             tshirt: { $ref: '#/components/examples/TShirtProduct' },

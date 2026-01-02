@@ -1,158 +1,132 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const ASchema = z
-  .object({ name: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ name: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
   .openapi('A')
 
 const BSchema = z
-  .object({ id: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ id: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { id: { type: 'string' } } })
   .openapi('B')
 
 const CSchema = z
-  .object({ value: z.number().openapi({ type: 'number' }) })
-  .partial()
+  .object({ value: z.number().optional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('C')
 
 const DSchema = z
-  .object({ description: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ description: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { description: { type: 'string' } } })
   .openapi('D')
 
 const ESchema = z
-  .object({ flag: z.boolean().openapi({ type: 'boolean' }) })
-  .partial()
+  .object({ flag: z.boolean().optional().openapi({ type: 'boolean' }) })
   .openapi({ type: 'object', properties: { flag: { type: 'boolean' } } })
   .openapi('E')
 
 const FSchema = z
-  .object({ title: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ title: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { title: { type: 'string' } } })
   .openapi('F')
 
 const GSchema = z
-  .object({ summary: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ summary: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { summary: { type: 'string' } } })
   .openapi('G')
 
 const HSchema = z
-  .object({ info: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ info: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { info: { type: 'string' } } })
   .openapi('H')
 
 const ISchema = z
-  .object({ data: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ data: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { data: { type: 'string' } } })
   .openapi('I')
 
 const JSchema = z
-  .object({ code: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ code: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { code: { type: 'string' } } })
   .openapi('J')
 
 const KSchema = z
-  .object({ key: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ key: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { key: { type: 'string' } } })
   .openapi('K')
 
 const LSchema = z
-  .object({ label: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ label: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { label: { type: 'string' } } })
   .openapi('L')
 
 const MSchema = z
-  .object({ meta: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ meta: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { meta: { type: 'string' } } })
   .openapi('M')
 
 const NSchema = z
-  .object({ number: z.int().openapi({ type: 'integer' }) })
-  .partial()
+  .object({ number: z.int().optional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { number: { type: 'integer' } } })
   .openapi('N')
 
 const OSchema = z
-  .object({ option: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ option: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { option: { type: 'string' } } })
   .openapi('O')
 
 const PSchema = z
-  .object({ price: z.number().openapi({ type: 'number' }) })
-  .partial()
+  .object({ price: z.number().optional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { price: { type: 'number' } } })
   .openapi('P')
 
 const QSchema = z
-  .object({ quantity: z.int().openapi({ type: 'integer' }) })
-  .partial()
+  .object({ quantity: z.int().optional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { quantity: { type: 'integer' } } })
   .openapi('Q')
 
 const RSchema = z
-  .object({ rating: z.number().openapi({ type: 'number' }) })
-  .partial()
+  .object({ rating: z.number().optional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { rating: { type: 'number' } } })
   .openapi('R')
 
 const SSchema = z
-  .object({ status: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ status: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { status: { type: 'string' } } })
   .openapi('S')
 
 const TSchema = z
-  .object({ time: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ time: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { time: { type: 'string' } } })
   .openapi('T')
 
 const USchema = z
-  .object({ unit: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ unit: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { unit: { type: 'string' } } })
   .openapi('U')
 
 const VSchema = z
-  .object({ volume: z.number().openapi({ type: 'number' }) })
-  .partial()
+  .object({ volume: z.number().optional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { volume: { type: 'number' } } })
   .openapi('V')
 
 const WSchema = z
-  .object({ weight: z.number().openapi({ type: 'number' }) })
-  .partial()
+  .object({ weight: z.number().optional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { weight: { type: 'number' } } })
   .openapi('W')
 
 const XSchema = z
-  .object({ xFactor: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ xFactor: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { xFactor: { type: 'string' } } })
   .openapi('X')
 
 const YSchema = z
-  .object({ yield: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ yield: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { yield: { type: 'string' } } })
   .openapi('Y')
 
 const ZSchema = z
-  .object({ zone: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ zone: z.string().optional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { zone: { type: 'string' } } })
   .openapi('Z')
 
@@ -160,34 +134,34 @@ const RootSchema = z
   .object({
     flatRefs: z
       .object({
-        A: ASchema,
-        B: BSchema,
-        C: CSchema,
-        D: DSchema,
-        E: ESchema,
-        F: FSchema,
-        G: GSchema,
-        H: HSchema,
-        I: ISchema,
-        J: JSchema,
-        K: KSchema,
-        L: LSchema,
-        M: MSchema,
-        N: NSchema,
-        O: OSchema,
-        P: PSchema,
-        Q: QSchema,
-        R: RSchema,
-        S: SSchema,
-        T: TSchema,
-        U: USchema,
-        V: VSchema,
-        W: WSchema,
-        X: XSchema,
-        Y: YSchema,
-        Z: ZSchema,
+        A: ASchema.optional(),
+        B: BSchema.optional(),
+        C: CSchema.optional(),
+        D: DSchema.optional(),
+        E: ESchema.optional(),
+        F: FSchema.optional(),
+        G: GSchema.optional(),
+        H: HSchema.optional(),
+        I: ISchema.optional(),
+        J: JSchema.optional(),
+        K: KSchema.optional(),
+        L: LSchema.optional(),
+        M: MSchema.optional(),
+        N: NSchema.optional(),
+        O: OSchema.optional(),
+        P: PSchema.optional(),
+        Q: QSchema.optional(),
+        R: RSchema.optional(),
+        S: SSchema.optional(),
+        T: TSchema.optional(),
+        U: USchema.optional(),
+        V: VSchema.optional(),
+        W: WSchema.optional(),
+        X: XSchema.optional(),
+        Y: YSchema.optional(),
+        Z: ZSchema.optional(),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -222,8 +196,8 @@ const RootSchema = z
     nestedRefs: z
       .object({
         group1: z
-          .object({ A: ASchema, M: MSchema, Z: ZSchema })
-          .partial()
+          .object({ A: ASchema.optional(), M: MSchema.optional(), Z: ZSchema.optional() })
+          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -233,8 +207,8 @@ const RootSchema = z
             },
           }),
         group2: z
-          .object({ B: BSchema, N: NSchema, Y: YSchema })
-          .partial()
+          .object({ B: BSchema.optional(), N: NSchema.optional(), Y: YSchema.optional() })
+          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -244,6 +218,7 @@ const RootSchema = z
             },
           }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -407,10 +382,9 @@ const RootSchema = z
                                                                                                                                                                                                                                         z
                                                                                                                                                                                                                                           .object(
                                                                                                                                                                                                                                             {
-                                                                                                                                                                                                                                              Z: ZSchema,
+                                                                                                                                                                                                                                              Z: ZSchema.optional(),
                                                                                                                                                                                                                                             },
                                                                                                                                                                                                                                           )
-                                                                                                                                                                                                                                          .partial()
                                                                                                                                                                                                                                           .openapi(
                                                                                                                                                                                                                                             {
                                                                                                                                                                                                                                               type: 'object',
@@ -423,6 +397,7 @@ const RootSchema = z
                                                                                                                                                                                                                                             },
                                                                                                                                                                                                                                           ),
                                                                                                                                                                                                                                       )
+                                                                                                                                                                                                                                      .optional()
                                                                                                                                                                                                                                       .openapi(
                                                                                                                                                                                                                                         {
                                                                                                                                                                                                                                           type: 'object',
@@ -472,6 +447,7 @@ const RootSchema = z
                                                                                                                                                                                                                                   },
                                                                                                                                                                                                                                 ),
                                                                                                                                                                                                                             )
+                                                                                                                                                                                                                            .optional()
                                                                                                                                                                                                                             .openapi(
                                                                                                                                                                                                                               {
                                                                                                                                                                                                                                 type: 'object',
@@ -551,6 +527,7 @@ const RootSchema = z
                                                                                                                                                                                                                         },
                                                                                                                                                                                                                       ),
                                                                                                                                                                                                                   )
+                                                                                                                                                                                                                  .optional()
                                                                                                                                                                                                                   .openapi(
                                                                                                                                                                                                                     {
                                                                                                                                                                                                                       type: 'object',
@@ -660,6 +637,7 @@ const RootSchema = z
                                                                                                                                                                                                               },
                                                                                                                                                                                                             ),
                                                                                                                                                                                                         )
+                                                                                                                                                                                                        .optional()
                                                                                                                                                                                                         .openapi(
                                                                                                                                                                                                           {
                                                                                                                                                                                                             type: 'object',
@@ -799,6 +777,7 @@ const RootSchema = z
                                                                                                                                                                                                     },
                                                                                                                                                                                                   ),
                                                                                                                                                                                               )
+                                                                                                                                                                                              .optional()
                                                                                                                                                                                               .openapi(
                                                                                                                                                                                                 {
                                                                                                                                                                                                   type: 'object',
@@ -968,6 +947,7 @@ const RootSchema = z
                                                                                                                                                                                           },
                                                                                                                                                                                         ),
                                                                                                                                                                                     )
+                                                                                                                                                                                    .optional()
                                                                                                                                                                                     .openapi(
                                                                                                                                                                                       {
                                                                                                                                                                                         type: 'object',
@@ -1167,6 +1147,7 @@ const RootSchema = z
                                                                                                                                                                                 },
                                                                                                                                                                               ),
                                                                                                                                                                           )
+                                                                                                                                                                          .optional()
                                                                                                                                                                           .openapi(
                                                                                                                                                                             {
                                                                                                                                                                               type: 'object',
@@ -1396,6 +1377,7 @@ const RootSchema = z
                                                                                                                                                                       },
                                                                                                                                                                     ),
                                                                                                                                                                 )
+                                                                                                                                                                .optional()
                                                                                                                                                                 .openapi(
                                                                                                                                                                   {
                                                                                                                                                                     type: 'object',
@@ -1655,6 +1637,7 @@ const RootSchema = z
                                                                                                                                                             },
                                                                                                                                                           ),
                                                                                                                                                       )
+                                                                                                                                                      .optional()
                                                                                                                                                       .openapi(
                                                                                                                                                         {
                                                                                                                                                           type: 'object',
@@ -1944,6 +1927,7 @@ const RootSchema = z
                                                                                                                                                   },
                                                                                                                                                 ),
                                                                                                                                             )
+                                                                                                                                            .optional()
                                                                                                                                             .openapi(
                                                                                                                                               {
                                                                                                                                                 type: 'object',
@@ -2263,6 +2247,7 @@ const RootSchema = z
                                                                                                                                         },
                                                                                                                                       ),
                                                                                                                                   )
+                                                                                                                                  .optional()
                                                                                                                                   .openapi(
                                                                                                                                     {
                                                                                                                                       type: 'object',
@@ -2612,6 +2597,7 @@ const RootSchema = z
                                                                                                                               },
                                                                                                                             ),
                                                                                                                         )
+                                                                                                                        .optional()
                                                                                                                         .openapi(
                                                                                                                           {
                                                                                                                             type: 'object',
@@ -2991,6 +2977,7 @@ const RootSchema = z
                                                                                                                     },
                                                                                                                   ),
                                                                                                               )
+                                                                                                              .optional()
                                                                                                               .openapi(
                                                                                                                 {
                                                                                                                   type: 'object',
@@ -3400,6 +3387,7 @@ const RootSchema = z
                                                                                                           },
                                                                                                         ),
                                                                                                     )
+                                                                                                    .optional()
                                                                                                     .openapi(
                                                                                                       {
                                                                                                         type: 'object',
@@ -3839,6 +3827,7 @@ const RootSchema = z
                                                                                                 },
                                                                                               ),
                                                                                           )
+                                                                                          .optional()
                                                                                           .openapi({
                                                                                             type: 'object',
                                                                                             allOf: [
@@ -4302,6 +4291,7 @@ const RootSchema = z
                                                                                           },
                                                                                       }),
                                                                                   )
+                                                                                  .optional()
                                                                                   .openapi({
                                                                                     type: 'object',
                                                                                     allOf: [
@@ -4793,6 +4783,7 @@ const RootSchema = z
                                                                                 },
                                                                               }),
                                                                           )
+                                                                          .optional()
                                                                           .openapi({
                                                                             type: 'object',
                                                                             allOf: [
@@ -5310,6 +5301,7 @@ const RootSchema = z
                                                                         },
                                                                       }),
                                                                   )
+                                                                  .optional()
                                                                   .openapi({
                                                                     type: 'object',
                                                                     allOf: [
@@ -5853,6 +5845,7 @@ const RootSchema = z
                                                                 },
                                                               }),
                                                           )
+                                                          .optional()
                                                           .openapi({
                                                             type: 'object',
                                                             allOf: [
@@ -6418,6 +6411,7 @@ const RootSchema = z
                                                         },
                                                       }),
                                                   )
+                                                  .optional()
                                                   .openapi({
                                                     type: 'object',
                                                     allOf: [
@@ -7005,6 +6999,7 @@ const RootSchema = z
                                                 },
                                               }),
                                           )
+                                          .optional()
                                           .openapi({
                                             type: 'object',
                                             allOf: [
@@ -7614,6 +7609,7 @@ const RootSchema = z
                                         },
                                       }),
                                   )
+                                  .optional()
                                   .openapi({
                                     type: 'object',
                                     allOf: [
@@ -8245,6 +8241,7 @@ const RootSchema = z
                                 },
                               }),
                           )
+                          .optional()
                           .openapi({
                             type: 'object',
                             allOf: [
@@ -8898,6 +8895,7 @@ const RootSchema = z
                         },
                       }),
                   )
+                  .optional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -9573,6 +9571,7 @@ const RootSchema = z
                 },
               }),
           )
+          .optional()
           .openapi({
             type: 'object',
             allOf: [
@@ -9919,6 +9918,7 @@ const RootSchema = z
             ],
           }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -10273,8 +10273,7 @@ const RootSchema = z
       .union([
         CSchema,
         z
-          .object({ D: DSchema })
-          .partial()
+          .object({ D: DSchema.optional() })
           .openapi({ type: 'object', properties: { D: { $ref: '#/components/schemas/D' } } }),
       ])
       .optional()
@@ -10288,8 +10287,7 @@ const RootSchema = z
       .union([
         ESchema,
         z
-          .object({ A: ASchema })
-          .partial()
+          .object({ A: ASchema.optional() })
           .openapi({ type: 'object', properties: { A: { $ref: '#/components/schemas/A' } } }),
       ])
       .optional()
@@ -10303,8 +10301,7 @@ const RootSchema = z
       .intersection(
         ASchema,
         z
-          .object({ B: BSchema })
-          .partial()
+          .object({ B: BSchema.optional() })
           .openapi({ type: 'object', properties: { B: { $ref: '#/components/schemas/B' } } }),
       )
       .optional()
@@ -10339,13 +10336,13 @@ const RootSchema = z
                                   .intersection(
                                     YSchema,
                                     z
-                                      .object({ Z: ZSchema })
-                                      .partial()
+                                      .object({ Z: ZSchema.optional() })
                                       .openapi({
                                         type: 'object',
                                         properties: { Z: { $ref: '#/components/schemas/Z' } },
                                       }),
                                   )
+                                  .optional()
                                   .openapi({
                                     type: 'object',
                                     allOf: [
@@ -10373,6 +10370,7 @@ const RootSchema = z
                                 },
                               }),
                           )
+                          .optional()
                           .openapi({
                             type: 'object',
                             allOf: [
@@ -10422,6 +10420,7 @@ const RootSchema = z
                         },
                       }),
                   )
+                  .optional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -10493,6 +10492,7 @@ const RootSchema = z
                 },
               }),
           )
+          .optional()
           .openapi({
             type: 'object',
             allOf: [
@@ -10537,6 +10537,7 @@ const RootSchema = z
             ],
           }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -10593,8 +10594,7 @@ const RootSchema = z
               .union([
                 MSchema,
                 z
-                  .object({ N: NSchema })
-                  .partial()
+                  .object({ N: NSchema.optional() })
                   .openapi({
                     type: 'object',
                     properties: { N: { $ref: '#/components/schemas/N' } },
@@ -10618,7 +10618,7 @@ const RootSchema = z
             },
           }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -11131,7 +11131,7 @@ export const getTestRoute = createRoute({
   responses: {
     200: {
       description: 'A complex response containing various schema references',
-      content: { 'application/json': { schema: RootSchema.optional() } },
+      content: { 'application/json': { schema: RootSchema } },
     },
   },
 })

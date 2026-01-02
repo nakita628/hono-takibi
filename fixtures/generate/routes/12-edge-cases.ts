@@ -8,8 +8,7 @@ const FreeFormObjectSchema = z
   .openapi('FreeFormObject')
 
 const StrictObjectSchema = z
-  .strictObject({ known: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .strictObject({ known: z.string().optional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
     properties: { known: { type: 'string' } },
@@ -18,7 +17,7 @@ const StrictObjectSchema = z
   .openapi('StrictObject')
 
 const TypedAdditionalPropsSchema = z
-  .record(z.string(), z.int().optional().openapi({ type: 'integer' }))
+  .record(z.string(), z.int().openapi({ type: 'integer' }))
   .openapi({
     type: 'object',
     properties: { id: { type: 'string' } },
@@ -31,10 +30,9 @@ const ComplexAdditionalPropsSchema = z
     z.string(),
     z
       .object({
-        value: z.string().openapi({ type: 'string' }),
-        count: z.int().openapi({ type: 'integer' }),
+        value: z.string().optional().openapi({ type: 'string' }),
+        count: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { value: { type: 'string' }, count: { type: 'integer' } },
@@ -51,13 +49,12 @@ const ComplexAdditionalPropsSchema = z
 
 const AllPrimitivesSchema = z
   .object({
-    stringProp: z.string().openapi({ type: 'string' }),
-    numberProp: z.number().openapi({ type: 'number' }),
-    integerProp: z.int().openapi({ type: 'integer' }),
-    booleanProp: z.boolean().openapi({ type: 'boolean' }),
-    nullProp: z.null().nullable().openapi({ type: 'null' }),
+    stringProp: z.string().optional().openapi({ type: 'string' }),
+    numberProp: z.number().optional().openapi({ type: 'number' }),
+    integerProp: z.int().optional().openapi({ type: 'integer' }),
+    booleanProp: z.boolean().optional().openapi({ type: 'boolean' }),
+    nullProp: z.null().nullable().optional().openapi({ type: 'null' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -72,20 +69,19 @@ const AllPrimitivesSchema = z
 
 const AllStringFormatsSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    uuid: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    uri: z.url().openapi({ type: 'string', format: 'uri' }),
-    date: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    time: z.iso.time().openapi({ type: 'string', format: 'time' }),
-    dateTime: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    duration: z.iso.duration().openapi({ type: 'string', format: 'duration' }),
-    binary: z.file().openapi({ type: 'string', format: 'binary' }),
-    base64: z.base64().openapi({ type: 'string', format: 'base64' }),
-    ipv4: z.ipv4().openapi({ type: 'string', format: 'ipv4' }),
-    ipv6: z.ipv6().openapi({ type: 'string', format: 'ipv6' }),
-    jwt: z.jwt().openapi({ type: 'string', format: 'jwt' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    uuid: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    time: z.iso.time().optional().openapi({ type: 'string', format: 'time' }),
+    dateTime: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    duration: z.iso.duration().optional().openapi({ type: 'string', format: 'duration' }),
+    binary: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+    base64: z.base64().optional().openapi({ type: 'string', format: 'base64' }),
+    ipv4: z.ipv4().optional().openapi({ type: 'string', format: 'ipv4' }),
+    ipv6: z.ipv6().optional().openapi({ type: 'string', format: 'ipv6' }),
+    jwt: z.jwt().optional().openapi({ type: 'string', format: 'jwt' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -107,14 +103,13 @@ const AllStringFormatsSchema = z
 
 const AllNumberFormatsSchema = z
   .object({
-    int32: z.int32().openapi({ type: 'integer', format: 'int32' }),
-    int64: z.int64().openapi({ type: 'integer', format: 'int64' }),
-    float: z.float32().openapi({ type: 'number', format: 'float' }),
-    double: z.number().openapi({ type: 'number', format: 'double' }),
-    float32: z.float32().openapi({ type: 'number', format: 'float32' }),
-    float64: z.float64().openapi({ type: 'number', format: 'float64' }),
+    int32: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
+    int64: z.int64().optional().openapi({ type: 'integer', format: 'int64' }),
+    float: z.float32().optional().openapi({ type: 'number', format: 'float' }),
+    double: z.number().optional().openapi({ type: 'number', format: 'double' }),
+    float32: z.float32().optional().openapi({ type: 'number', format: 'float32' }),
+    float64: z.float64().optional().openapi({ type: 'number', format: 'float64' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -134,18 +129,26 @@ const AllValidationsSchema = z
       .string()
       .min(1)
       .max(100)
+      .optional()
       .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     patternString: z
       .string()
       .regex(/^[a-z]+$/)
+      .optional()
       .openapi({ type: 'string', pattern: '^[a-z]+$' }),
-    minMaxNumber: z.number().min(0).max(100).openapi({ type: 'number', minimum: 0, maximum: 100 }),
+    minMaxNumber: z
+      .number()
+      .min(0)
+      .max(100)
+      .optional()
+      .openapi({ type: 'number', minimum: 0, maximum: 100 }),
     exclusiveMinMax: z
       .number()
       .gt(0)
       .lt(100)
+      .optional()
       .openapi({ type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 }),
-    multipleOf: z.number().multipleOf(0.5).openapi({ type: 'number', multipleOf: 0.5 }),
+    multipleOf: z.number().multipleOf(0.5).optional().openapi({ type: 'number', multipleOf: 0.5 }),
     minMaxItems: z
       .array(z.string().openapi({ type: 'string' }))
       .min(1)
@@ -157,7 +160,6 @@ const AllValidationsSchema = z
       .optional()
       .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -174,28 +176,24 @@ const AllValidationsSchema = z
 
 const StringEnumSchema = z
   .enum(['value1', 'value2', 'value3'])
-  .optional()
   .openapi({ type: 'string', enum: ['value1', 'value2', 'value3'] })
   .openapi('StringEnum')
 
 const IntegerEnumSchema = z
   .union([z.literal(1), z.literal(2), z.literal(3)])
-  .optional()
   .openapi({ type: 'integer', enum: [1, 2, 3] })
   .openapi('IntegerEnum')
 
 const MixedEnumSchema = z
   .union([z.literal('string_value'), z.literal(123), z.literal(true), z.literal(null)])
-  .optional()
   .openapi({ enum: ['string_value', 123, true, null] })
   .openapi('MixedEnum')
 
 const ConstValueSchema = z
   .object({
-    type: z.literal('fixed_type').openapi({ type: 'string' }),
-    version: z.literal(1).openapi({ type: 'integer' }),
+    type: z.literal('fixed_type').optional().openapi({ type: 'string' }),
+    version: z.literal(1).optional().openapi({ type: 'integer' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -208,30 +206,26 @@ const ConstValueSchema = z
 const NullableStringSchema = z
   .string()
   .nullable()
-  .optional()
   .openapi({ type: ['string', 'null'] })
   .openapi('NullableString')
 
 const NullableObjectSchema = z
-  .object({ name: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ name: z.string().optional().openapi({ type: 'string' }) })
   .nullable()
-  .optional()
   .openapi({ type: ['object', 'null'], properties: { name: { type: 'string' } } })
   .openapi('NullableObject')
 
 const WithDefaultsSchema = z
   .object({
-    status: z.string().default('active').openapi({ type: 'string', default: 'active' }),
-    count: z.int().default(0).openapi({ type: 'integer', default: 0 }),
-    enabled: z.boolean().default(true).openapi({ type: 'boolean', default: true }),
+    status: z.string().default('active').optional().openapi({ type: 'string', default: 'active' }),
+    count: z.int().default(0).optional().openapi({ type: 'integer', default: 0 }),
+    enabled: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
       .default([])
       .optional()
       .openapi({ type: 'array', items: { type: 'string' }, default: [] }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -245,11 +239,10 @@ const WithDefaultsSchema = z
 
 const ReadWriteOnlySchema = z
   .object({
-    id: z.string().openapi({ type: 'string', readOnly: true }),
-    password: z.string().openapi({ type: 'string', writeOnly: true }),
-    name: z.string().openapi({ type: 'string' }),
+    id: z.string().optional().openapi({ type: 'string', readOnly: true }),
+    password: z.string().optional().openapi({ type: 'string', writeOnly: true }),
+    name: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -266,13 +259,13 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().openapi({ type: 'string' }),
+        value: z.string().optional().openapi({ type: 'string' }),
         children: z
           .array(TreeNodeSchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
-        parent: TreeNodeSchema,
+        parent: TreeNodeSchema.optional(),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -288,12 +281,12 @@ const CompanySchema: z.ZodType<CompanyType> = z
   .lazy(() =>
     z
       .object({
-        name: z.string().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
         employees: z
           .array(PersonSchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -309,8 +302,10 @@ type PersonType = { name?: string; company?: z.infer<typeof CompanySchema> }
 const PersonSchema: z.ZodType<PersonType> = z
   .lazy(() =>
     z
-      .object({ name: z.string().openapi({ type: 'string' }), company: CompanySchema })
-      .partial()
+      .object({
+        name: z.string().optional().openapi({ type: 'string' }),
+        company: CompanySchema.optional(),
+      })
       .openapi({
         type: 'object',
         properties: { name: { type: 'string' }, company: { $ref: '#/components/schemas/Company' } },
@@ -331,10 +326,11 @@ const DeepNestedSchema = z
                 level4: z
                   .object({
                     level5: z
-                      .object({ value: z.string().openapi({ type: 'string' }) })
-                      .partial()
+                      .object({ value: z.string().optional().openapi({ type: 'string' }) })
+                      .optional()
                       .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
                   })
+                  .optional()
                   .openapi({
                     type: 'object',
                     properties: {
@@ -342,6 +338,7 @@ const DeepNestedSchema = z
                     },
                   }),
               })
+              .optional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -354,6 +351,7 @@ const DeepNestedSchema = z
                 },
               }),
           })
+          .optional()
           .openapi({
             type: 'object',
             properties: {
@@ -371,6 +369,7 @@ const DeepNestedSchema = z
             },
           }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -426,14 +425,11 @@ const MatrixDataSchema = z
     z
       .array(
         z
-          .array(z.number().optional().openapi({ type: 'number' }))
-          .optional()
+          .array(z.number().openapi({ type: 'number' }))
           .openapi({ type: 'array', items: { type: 'number' } }),
       )
-      .optional()
       .openapi({ type: 'array', items: { type: 'array', items: { type: 'number' } } }),
   )
-  .optional()
   .openapi({
     type: 'array',
     items: { type: 'array', items: { type: 'array', items: { type: 'number' } } },
@@ -441,9 +437,8 @@ const MatrixDataSchema = z
   .openapi('MatrixData')
 
 const CoordinateSchema = z
-  .array(z.number().optional().openapi({ type: 'number' }))
+  .array(z.number().openapi({ type: 'number' }))
   .length(3)
-  .optional()
   .openapi({
     type: 'array',
     items: [{ type: 'number' }, { type: 'number' }, { type: 'number' }],
@@ -454,18 +449,15 @@ const CoordinateSchema = z
 
 const ComplexUnionSchema = z
   .union([
-    z.string().optional().openapi({ type: 'string' }),
-    z.number().optional().openapi({ type: 'number' }),
+    z.string().openapi({ type: 'string' }),
+    z.number().openapi({ type: 'number' }),
     z
-      .array(z.string().optional().openapi({ type: 'string' }))
-      .optional()
+      .array(z.string().openapi({ type: 'string' }))
       .openapi({ type: 'array', items: { type: 'string' } }),
     z
-      .object({ key: z.string().openapi({ type: 'string' }) })
-      .partial()
+      .object({ key: z.string().optional().openapi({ type: 'string' }) })
       .openapi({ type: 'object', properties: { key: { type: 'string' } } }),
   ])
-  .optional()
   .openapi({
     oneOf: [
       { type: 'string' },
@@ -480,20 +472,18 @@ const MergedSchema = z
   .intersection(
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
+        id: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
       }),
     z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -502,7 +492,6 @@ const MergedSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } },
@@ -519,18 +508,16 @@ const MergedSchema = z
 
 const SingleValueEnumSchema = z
   .literal('only_value')
-  .optional()
   .openapi({ type: 'string', enum: ['only_value'] })
   .openapi('SingleValueEnum')
 
 const DataJsonSchema = z
-  .object({ data: z.object({}).openapi({ type: 'object' }) })
+  .object({ data: z.object({}).optional().openapi({ type: 'object' }) })
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
   .openapi('DataJson')
 
 const DataXmlSchema = z
-  .object({ data: z.string().openapi({ type: 'string' }) })
-  .partial()
+  .object({ data: z.string().optional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
     properties: { data: { type: 'string' } },
@@ -540,13 +527,12 @@ const DataXmlSchema = z
 
 const SpecialPropertyNamesSchema = z
   .object({
-    normal_name: z.string().openapi({ type: 'string' }),
-    'kebab-case': z.string().openapi({ type: 'string' }),
-    'with.dots': z.string().openapi({ type: 'string' }),
-    '@special': z.string().openapi({ type: 'string' }),
-    $dollar: z.string().openapi({ type: 'string' }),
+    normal_name: z.string().optional().openapi({ type: 'string' }),
+    'kebab-case': z.string().optional().openapi({ type: 'string' }),
+    'with.dots': z.string().optional().openapi({ type: 'string' }),
+    '@special': z.string().optional().openapi({ type: 'string' }),
+    $dollar: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -561,11 +547,10 @@ const SpecialPropertyNamesSchema = z
 
 const UnicodePropertiesSchema = z
   .object({
-    名前: z.string().openapi({ type: 'string' }),
-    prénom: z.string().openapi({ type: 'string' }),
-    имя: z.string().openapi({ type: 'string' }),
+    名前: z.string().optional().openapi({ type: 'string' }),
+    prénom: z.string().optional().openapi({ type: 'string' }),
+    имя: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: { 名前: { type: 'string' }, prénom: { type: 'string' }, имя: { type: 'string' } },
@@ -853,14 +838,13 @@ export const postMultiContentRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: DataJsonSchema.optional() },
+        'application/json': { schema: DataJsonSchema },
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().openapi({ type: 'string', format: 'binary' }),
-              metadata: z.string().openapi({ type: 'string' }),
+              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              metadata: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -872,10 +856,9 @@ export const postMultiContentRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              field1: z.string().openapi({ type: 'string' }),
-              field2: z.string().openapi({ type: 'string' }),
+              field1: z.string().optional().openapi({ type: 'string' }),
+              field2: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { field1: { type: 'string' }, field2: { type: 'string' } },
@@ -951,7 +934,7 @@ export const getCircularRoute = createRoute({
   responses: {
     200: {
       description: 'Circular reference',
-      content: { 'application/json': { schema: TreeNodeSchema.optional() } },
+      content: { 'application/json': { schema: TreeNodeSchema } },
     },
   },
 })
@@ -963,7 +946,7 @@ export const getDeepNestingRoute = createRoute({
   responses: {
     200: {
       description: 'Deeply nested structure',
-      content: { 'application/json': { schema: DeepNestedSchema.optional() } },
+      content: { 'application/json': { schema: DeepNestedSchema } },
     },
   },
 })
@@ -1099,11 +1082,11 @@ export const getObjectParamRoute = createRoute({
     query: z.object({
       filter: z
         .object({
-          name: z.string().openapi({ type: 'string' }),
-          minPrice: z.number().openapi({ type: 'number' }),
-          maxPrice: z.number().openapi({ type: 'number' }),
+          name: z.string().optional().openapi({ type: 'string' }),
+          minPrice: z.number().optional().openapi({ type: 'number' }),
+          maxPrice: z.number().optional().openapi({ type: 'number' }),
         })
-        .partial()
+        .optional()
         .openapi({
           param: {
             name: 'filter',

@@ -127,13 +127,21 @@ const AuthResponseSchema = z
 
 const UpdateUserRequestSchema = z
   .object({
-    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     status: z
       .enum(['active', 'inactive', 'suspended'])
+      .optional()
       .openapi({ type: 'string', enum: ['active', 'inactive', 'suspended'] }),
-    role: z.enum(['user', 'admin']).openapi({ type: 'string', enum: ['user', 'admin'] }),
+    role: z
+      .enum(['user', 'admin'])
+      .optional()
+      .openapi({ type: 'string', enum: ['user', 'admin'] }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -146,9 +154,13 @@ const UpdateUserRequestSchema = z
 
 const UpdateProfileRequestSchema = z
   .object({
-    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string', minLength: 1, maxLength: 100 } },
@@ -199,10 +211,9 @@ const ErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().openapi({ type: 'string' }),
-            message: z.string().openapi({ type: 'string' }),
+            field: z.string().optional().openapi({ type: 'string' }),
+            message: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { field: { type: 'string' }, message: { type: 'string' } },
@@ -308,7 +319,7 @@ const BadRequestResponse = {
   description: 'リクエストが不正です',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'BAD_REQUEST', message: 'リクエストパラメータが不正です' },
     },
   },
@@ -318,7 +329,7 @@ const UnauthorizedResponse = {
   description: '認証が必要です',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'UNAUTHORIZED', message: '認証が必要です' },
     },
   },
@@ -328,7 +339,7 @@ const ForbiddenResponse = {
   description: 'アクセス権限がありません',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'FORBIDDEN', message: 'このリソースへのアクセス権限がありません' },
     },
   },
@@ -338,7 +349,7 @@ const NotFoundResponse = {
   description: 'リソースが見つかりません',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'NOT_FOUND', message: '指定されたリソースが見つかりません' },
     },
   },
@@ -355,7 +366,7 @@ export const postAuthRegisterRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: RegisterRequestSchema.optional(),
+          schema: RegisterRequestSchema,
           example: { email: 'user@example.com', password: 'SecurePass123!', name: '山田太郎' },
         },
       },
@@ -365,12 +376,12 @@ export const postAuthRegisterRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
+      content: { 'application/json': { schema: AuthResponseSchema } },
     },
     400: BadRequestResponse,
     409: {
       description: 'メールアドレスが既に使用されています',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -383,20 +394,14 @@ export const postAuthLoginRoute = createRoute({
   description: 'メールアドレスとパスワードで認証し、JWTトークンを取得します',
   operationId: 'loginUser',
   request: {
-    body: {
-      content: { 'application/json': { schema: LoginRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: LoginRequestSchema } }, required: true },
   },
   responses: {
     200: {
       description: 'ログイン成功',
-      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
+      content: { 'application/json': { schema: AuthResponseSchema } },
     },
-    401: {
-      description: '認証失敗',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
-    },
+    401: { description: '認証失敗', content: { 'application/json': { schema: ErrorSchema } } },
   },
 })
 
@@ -426,7 +431,7 @@ export const postAuthRefreshRoute = createRoute({
   responses: {
     200: {
       description: 'トークン更新成功',
-      content: { 'application/json': { schema: AuthResponseSchema.optional() } },
+      content: { 'application/json': { schema: AuthResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -474,9 +479,9 @@ export const postAuthPasswordForgotRoute = createRoute({
             .object({
               message: z
                 .string()
+                .optional()
                 .openapi({ type: 'string', example: 'パスワードリセット用のメールを送信しました' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -565,7 +570,7 @@ export const getUsersRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: { 'application/json': { schema: UserListResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserListResponseSchema } },
     },
     401: UnauthorizedResponse,
     403: ForbiddenResponse,
@@ -581,10 +586,7 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: { params: z.object({ userId: UserIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'ユーザー詳細',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'ユーザー詳細', content: { 'application/json': { schema: UserSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -609,16 +611,10 @@ export const patchUsersUserIdRoute = createRoute({
   summary: 'ユーザー情報更新',
   operationId: 'updateUser',
   request: {
-    body: {
-      content: { 'application/json': { schema: UpdateUserRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: UpdateUserRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -634,7 +630,7 @@ export const getUsersMeRoute = createRoute({
   responses: {
     200: {
       description: '現在のユーザー情報',
-      content: { 'application/json': { schema: UserSchema.optional() } },
+      content: { 'application/json': { schema: UserSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -649,15 +645,12 @@ export const patchUsersMeRoute = createRoute({
   operationId: 'updateCurrentUser',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProfileRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateProfileRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: UserSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -744,8 +737,7 @@ export const putUsersMeAvatarRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ avatarUrl: z.url().openapi({ type: 'string', format: 'uri' }) })
-            .partial()
+            .object({ avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }) })
             .openapi({
               type: 'object',
               properties: { avatarUrl: { type: 'string', format: 'uri' } },

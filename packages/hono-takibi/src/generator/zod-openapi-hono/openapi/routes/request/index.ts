@@ -1,5 +1,5 @@
 import type { Content, Parameter, RequestBody } from '../../../../../openapi/index.js'
-import { isRecord, requestParamsArray, toIdentifierPascalCase } from '../../../../../utils/index.js'
+import { ensureSuffix, isRecord, requestParamsArray, toIdentifierPascalCase } from '../../../../../utils/index.js'
 import { requestBody } from '../request/body/index.js'
 import { params } from '../params/index.js'
 
@@ -10,13 +10,6 @@ const isRef = (v: unknown): v is { $ref: string } =>
 const isMedia = (v: unknown): v is Content[string] =>
   isRecord(v) && 'schema' in v && isRecord(v.schema)
 
-// Helper functions
-const requestBodyConstName = (key: string): string =>
-  toIdentifierPascalCase(
-    key.endsWith('Body')
-      ? `${key.slice(0, -'Body'.length)}RequestBody`
-      : `${key}RequestBody`,
-  )
 
 // Builder functions
 const buildRequestParams = (parameters: readonly Parameter[]): string => {
@@ -48,7 +41,7 @@ export function request(
     const key = body.$ref.split('/').pop()
     if (key) {
       const requestParams = parameters ? buildRequestParams(parameters) : ''
-      const bodyCode = `body:${requestBodyConstName(key)},`
+      const bodyCode = `body:${toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))},`
       return mergeRequestCode(requestParams, bodyCode)
     }
   }

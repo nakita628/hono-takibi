@@ -289,14 +289,14 @@ const UserInfoSchema = z
     phone_number_verified: z.boolean().optional().openapi({ type: 'boolean' }),
     address: z
       .object({
-        formatted: z.string().openapi({ type: 'string' }),
-        street_address: z.string().openapi({ type: 'string' }),
-        locality: z.string().openapi({ type: 'string' }),
-        region: z.string().openapi({ type: 'string' }),
-        postal_code: z.string().openapi({ type: 'string' }),
-        country: z.string().openapi({ type: 'string' }),
+        formatted: z.string().optional().openapi({ type: 'string' }),
+        street_address: z.string().optional().openapi({ type: 'string' }),
+        locality: z.string().optional().openapi({ type: 'string' }),
+        region: z.string().optional().openapi({ type: 'string' }),
+        postal_code: z.string().optional().openapi({ type: 'string' }),
+        country: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -357,39 +357,36 @@ const OpenIDConfigurationSchema = z
     jwks_uri: z.url().openapi({ type: 'string', format: 'uri' }),
     registration_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     response_types_supported: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     response_modes_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     grant_types_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     subject_types_supported: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     id_token_signing_alg_values_supported: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     token_endpoint_auth_methods_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     claims_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     code_challenge_methods_supported: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     introspection_endpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
@@ -484,7 +481,7 @@ const OAuthClientSchema = z
       .enum(['public', 'confidential'])
       .openapi({ type: 'string', enum: ['public', 'confidential'] }),
     redirectUris: z
-      .array(z.url().optional().openapi({ type: 'string', format: 'uri' }))
+      .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' } }),
     grantTypes: z
@@ -497,7 +494,6 @@ const OAuthClientSchema = z
             'password',
             'urn:ietf:params:oauth:grant-type:device_code',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -524,12 +520,7 @@ const OAuthClientSchema = z
         },
       }),
     responseTypes: z
-      .array(
-        z
-          .enum(['code', 'token'])
-          .optional()
-          .openapi({ type: 'string', enum: ['code', 'token'] }),
-      )
+      .array(z.enum(['code', 'token']).openapi({ type: 'string', enum: ['code', 'token'] }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', enum: ['code', 'token'] } }),
     scope: z.string().optional().openapi({ type: 'string' }),
@@ -538,7 +529,7 @@ const OAuthClientSchema = z
     policyUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     tosUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     contacts: z
-      .array(z.email().optional().openapi({ type: 'string', format: 'email' }))
+      .array(z.email().openapi({ type: 'string', format: 'email' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
     tokenEndpointAuthMethod: z
@@ -606,7 +597,6 @@ const OAuthClientWithSecretSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/OAuthClient' },
@@ -639,7 +629,6 @@ const CreateClientRequestSchema = z
     redirectUris: z
       .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .min(1)
-      .optional()
       .openapi({ type: 'array', minItems: 1, items: { type: 'string', format: 'uri' } }),
     grantTypes: z
       .array(
@@ -651,7 +640,6 @@ const CreateClientRequestSchema = z
             'password',
             'urn:ietf:params:oauth:grant-type:device_code',
           ])
-          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -678,12 +666,7 @@ const CreateClientRequestSchema = z
         },
       }),
     responseTypes: z
-      .array(
-        z
-          .enum(['code', 'token'])
-          .optional()
-          .openapi({ type: 'string', enum: ['code', 'token'] }),
-      )
+      .array(z.enum(['code', 'token']).openapi({ type: 'string', enum: ['code', 'token'] }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', enum: ['code', 'token'] } }),
     scope: z.string().optional().openapi({ type: 'string' }),
@@ -692,7 +675,7 @@ const CreateClientRequestSchema = z
     policyUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     tosUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     contacts: z
-      .array(z.email().optional().openapi({ type: 'string', format: 'email' }))
+      .array(z.email().openapi({ type: 'string', format: 'email' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
     tokenEndpointAuthMethod: z
@@ -741,6 +724,7 @@ const UpdateClientRequestSchema = z
       .string()
       .min(1)
       .max(200)
+      .optional()
       .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
     redirectUris: z
       .array(z.url().openapi({ type: 'string', format: 'uri' }))
@@ -755,17 +739,16 @@ const UpdateClientRequestSchema = z
       .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    scope: z.string().openapi({ type: 'string' }),
-    logoUri: z.url().openapi({ type: 'string', format: 'uri' }),
-    clientUri: z.url().openapi({ type: 'string', format: 'uri' }),
-    policyUri: z.url().openapi({ type: 'string', format: 'uri' }),
-    tosUri: z.url().openapi({ type: 'string', format: 'uri' }),
+    scope: z.string().optional().openapi({ type: 'string' }),
+    logoUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    clientUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    policyUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    tosUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     contacts: z
       .array(z.email().openapi({ type: 'string', format: 'email' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -824,17 +807,17 @@ const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getOauthAuthorizeRoute = createRoute({
@@ -993,7 +976,7 @@ export const getOauthAuthorizeRoute = createRoute({
     302: { description: 'ログイン画面またはコールバックURLへリダイレクト' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: OAuthErrorSchema } },
     },
   },
 })
@@ -1018,7 +1001,6 @@ export const postOauthTokenRoute = createRoute({
               DeviceCodeTokenRequestSchema,
               PasswordTokenRequestSchema,
             ])
-            .optional()
             .openapi({
               oneOf: [
                 { $ref: '#/components/schemas/AuthorizationCodeTokenRequest' },
@@ -1065,15 +1047,15 @@ export const postOauthTokenRoute = createRoute({
   responses: {
     200: {
       description: 'トークン発行成功',
-      content: { 'application/json': { schema: TokenResponseSchema.optional() } },
+      content: { 'application/json': { schema: TokenResponseSchema } },
     },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: OAuthErrorSchema } },
     },
     401: {
       description: 'クライアント認証失敗',
-      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: OAuthErrorSchema } },
     },
   },
 })
@@ -1126,7 +1108,7 @@ export const postOauthRevokeRoute = createRoute({
     200: { description: '無効化成功（トークンが存在しない場合も成功）' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: OAuthErrorSchema } },
     },
   },
 })
@@ -1166,7 +1148,7 @@ export const postOauthIntrospectRoute = createRoute({
   responses: {
     200: {
       description: 'トークン情報',
-      content: { 'application/json': { schema: IntrospectionResponseSchema.optional() } },
+      content: { 'application/json': { schema: IntrospectionResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1202,11 +1184,11 @@ export const postOauthDeviceCodeRoute = createRoute({
   responses: {
     200: {
       description: 'デバイス認可レスポンス',
-      content: { 'application/json': { schema: DeviceAuthorizationResponseSchema.optional() } },
+      content: { 'application/json': { schema: DeviceAuthorizationResponseSchema } },
     },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: OAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: OAuthErrorSchema } },
     },
   },
 })
@@ -1221,7 +1203,7 @@ export const getOauthUserinfoRoute = createRoute({
   responses: {
     200: {
       description: 'ユーザー情報',
-      content: { 'application/json': { schema: UserInfoSchema.optional() } },
+      content: { 'application/json': { schema: UserInfoSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1238,7 +1220,7 @@ export const getWellKnownOpenidConfigurationRoute = createRoute({
   responses: {
     200: {
       description: 'OpenID Connect 設定',
-      content: { 'application/json': { schema: OpenIDConfigurationSchema.optional() } },
+      content: { 'application/json': { schema: OpenIDConfigurationSchema } },
     },
   },
 })
@@ -1251,10 +1233,7 @@ export const getWellKnownJwksJsonRoute = createRoute({
   description: 'JWTの検証に使用する公開鍵セット',
   operationId: 'getJWKS',
   responses: {
-    200: {
-      description: 'JWKS',
-      content: { 'application/json': { schema: JWKSSchema.optional() } },
-    },
+    200: { description: 'JWKS', content: { 'application/json': { schema: JWKSSchema } } },
   },
 })
 
@@ -1271,7 +1250,6 @@ export const getOauthClientsRoute = createRoute({
         'application/json': {
           schema: z
             .array(OAuthClientSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/OAuthClient' } }),
         },
       },
@@ -1289,14 +1267,14 @@ export const postOauthClientsRoute = createRoute({
   operationId: 'createClient',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateClientRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateClientRequestSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: OAuthClientWithSecretSchema.optional() } },
+      content: { 'application/json': { schema: OAuthClientWithSecretSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1323,7 +1301,7 @@ export const getOauthClientsClientIdRoute = createRoute({
   responses: {
     200: {
       description: 'クライアント詳細',
-      content: { 'application/json': { schema: OAuthClientSchema.optional() } },
+      content: { 'application/json': { schema: OAuthClientSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1339,14 +1317,14 @@ export const putOauthClientsClientIdRoute = createRoute({
   operationId: 'updateClient',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateClientRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateClientRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: OAuthClientSchema.optional() } },
+      content: { 'application/json': { schema: OAuthClientSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1395,8 +1373,7 @@ export const postOauthClientsClientIdSecretRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ clientSecret: z.string().openapi({ type: 'string' }) })
-            .partial()
+            .object({ clientSecret: z.string().optional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { clientSecret: { type: 'string' } } }),
         },
       },
@@ -1420,7 +1397,6 @@ export const getOauthConsentsRoute = createRoute({
         'application/json': {
           schema: z
             .array(ConsentSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Consent' } }),
         },
       },

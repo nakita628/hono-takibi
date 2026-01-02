@@ -120,7 +120,7 @@ export const getHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoSchema.optional() } },
+      content: { 'application/json': { schema: HonoSchema } },
     },
   },
 })
@@ -133,7 +133,7 @@ export const getHonoxRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoXSchema.optional() } },
+      content: { 'application/json': { schema: HonoXSchema } },
     },
   },
 })
@@ -146,7 +146,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: ZodOpenAPIHonoSchema.optional() } },
+      content: { 'application/json': { schema: ZodOpenAPIHonoSchema } },
     },
   },
 })
@@ -197,7 +197,7 @@ export const getHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoSchema.optional() } },
+      content: { 'application/json': { schema: HonoSchema } },
     },
   },
 })
@@ -214,7 +214,7 @@ export const getHonoxRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: HonoXSchema.optional() } },
+      content: { 'application/json': { schema: HonoXSchema } },
     },
   },
 })
@@ -231,7 +231,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   responses: {
     200: {
       description: 'The request has succeeded.',
-      content: { 'application/json': { schema: ZodOpenAPIHonoSchema.optional() } },
+      content: { 'application/json': { schema: ZodOpenAPIHonoSchema } },
     },
   },
 })

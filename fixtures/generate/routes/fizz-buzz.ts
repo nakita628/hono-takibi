@@ -49,8 +49,7 @@ export const getFizzbuzzRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ error: z.string().openapi({ type: 'string' }) })
-            .partial()
+            .object({ error: z.string().optional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { error: { type: 'string' } } }),
         },
       },

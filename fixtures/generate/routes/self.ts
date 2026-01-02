@@ -26,9 +26,6 @@ export const getCategoriesRoute = createRoute({
   method: 'get',
   path: '/categories',
   responses: {
-    200: {
-      description: 'OK',
-      content: { 'application/json': { schema: CategorySchema.optional() } },
-    },
+    200: { description: 'OK', content: { 'application/json': { schema: CategorySchema } } },
   },
 })

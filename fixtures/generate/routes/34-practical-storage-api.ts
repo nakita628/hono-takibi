@@ -153,13 +153,13 @@ const CollaboratorSchema = z
 
 const ShareSettingsSchema = z
   .object({
-    isPublic: z.boolean().openapi({ type: 'boolean' }),
-    publicLink: ShareLinkSchema,
+    isPublic: z.boolean().optional().openapi({ type: 'boolean' }),
+    publicLink: ShareLinkSchema.optional(),
     collaborators: z
       .array(CollaboratorSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Collaborator' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -190,6 +190,7 @@ const ShareRequestSchema = z
             },
           }),
       )
+      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -201,10 +202,9 @@ const ShareRequestSchema = z
           },
         },
       }),
-    message: z.string().openapi({ type: 'string', description: '招待メッセージ' }),
-    notifyByEmail: z.boolean().default(true).openapi({ type: 'boolean', default: true }),
+    message: z.string().optional().openapi({ type: 'string', description: '招待メッセージ' }),
+    notifyByEmail: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -274,15 +274,15 @@ const StorageUsageSchema = z
     percentage: z.number().optional().openapi({ type: 'number', description: '使用率（%）' }),
     breakdown: z
       .object({
-        documents: z.int().openapi({ type: 'integer' }),
-        images: z.int().openapi({ type: 'integer' }),
-        videos: z.int().openapi({ type: 'integer' }),
-        audio: z.int().openapi({ type: 'integer' }),
-        archives: z.int().openapi({ type: 'integer' }),
-        other: z.int().openapi({ type: 'integer' }),
-        trash: z.int().openapi({ type: 'integer' }),
+        documents: z.int().optional().openapi({ type: 'integer' }),
+        images: z.int().optional().openapi({ type: 'integer' }),
+        videos: z.int().optional().openapi({ type: 'integer' }),
+        audio: z.int().optional().openapi({ type: 'integer' }),
+        archives: z.int().optional().openapi({ type: 'integer' }),
+        other: z.int().optional().openapi({ type: 'integer' }),
+        trash: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -348,7 +348,6 @@ const FileListResponseSchema = z
             oneOf: [{ $ref: '#/components/schemas/File' }, { $ref: '#/components/schemas/Folder' }],
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -444,17 +443,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getFilesRoute = createRoute({
@@ -545,7 +544,7 @@ export const getFilesRoute = createRoute({
   responses: {
     200: {
       description: 'ファイル一覧',
-      content: { 'application/json': { schema: FileListResponseSchema.optional() } },
+      content: { 'application/json': { schema: FileListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -605,17 +604,17 @@ export const postFilesUploadRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
+      content: { 'application/json': { schema: FileSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
     409: {
       description: '同名ファイルが存在します',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     413: {
       description: 'ファイルサイズが上限を超えています',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
   security: [{ bearerAuth: [] }],
@@ -661,11 +660,16 @@ export const postFilesUploadMultipartInitRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              uploadId: z.string().openapi({ type: 'string' }),
-              partSize: z.int().openapi({ type: 'integer', description: '推奨パートサイズ' }),
-              partCount: z.int().openapi({ type: 'integer', description: '必要なパート数' }),
+              uploadId: z.string().optional().openapi({ type: 'string' }),
+              partSize: z
+                .int()
+                .optional()
+                .openapi({ type: 'integer', description: '推奨パートサイズ' }),
+              partCount: z
+                .int()
+                .optional()
+                .openapi({ type: 'integer', description: '必要なパート数' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -692,7 +696,7 @@ export const postFilesUploadMultipartUploadIdPartRoute = createRoute({
     body: {
       content: {
         'application/octet-stream': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
         },
       },
       required: true,
@@ -705,10 +709,9 @@ export const postFilesUploadMultipartUploadIdPartRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              partNumber: z.int().openapi({ type: 'integer' }),
-              etag: z.string().openapi({ type: 'string' }),
+              partNumber: z.int().optional().openapi({ type: 'integer' }),
+              etag: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { partNumber: { type: 'integer' }, etag: { type: 'string' } },
@@ -777,7 +780,7 @@ export const postFilesUploadMultipartUploadIdCompleteRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード完了',
-      content: { 'application/json': { schema: FileSchema.optional() } },
+      content: { 'application/json': { schema: FileSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -792,10 +795,7 @@ export const getFilesFileIdRoute = createRoute({
   operationId: 'getFile',
   request: { params: z.object({ fileId: FileIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'ファイル情報',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    200: { description: 'ファイル情報', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -825,10 +825,9 @@ export const patchFilesFileIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().openapi({ type: 'string' }),
-              description: z.string().openapi({ type: 'string' }),
+              name: z.string().optional().openapi({ type: 'string' }),
+              description: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { name: { type: 'string' }, description: { type: 'string' } },
@@ -839,10 +838,7 @@ export const patchFilesFileIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -860,7 +856,7 @@ export const getFilesFileIdDownloadRoute = createRoute({
       description: 'ファイルコンテンツ',
       content: {
         'application/octet-stream': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
         },
       },
     },
@@ -906,10 +902,12 @@ export const getFilesFileIdDownloadUrlRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              url: z.url().openapi({ type: 'string', format: 'uri' }),
-              expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+              url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+              expiresAt: z.iso
+                .datetime()
+                .optional()
+                .openapi({ type: 'string', format: 'date-time' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -957,10 +955,7 @@ export const postFilesFileIdCopyRoute = createRoute({
     },
   },
   responses: {
-    201: {
-      description: 'コピー成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    201: { description: 'コピー成功', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -989,10 +984,7 @@ export const postFilesFileIdMoveRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '移動成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    200: { description: '移動成功', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1027,8 +1019,8 @@ export const getFilesFileIdThumbnailRoute = createRoute({
     200: {
       description: 'サムネイル画像',
       content: {
-        'image/jpeg': { schema: z.file().optional().openapi({ type: 'string', format: 'binary' }) },
-        'image/png': { schema: z.file().optional().openapi({ type: 'string', format: 'binary' }) },
+        'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
       },
     },
     401: UnauthorizedResponse,
@@ -1045,15 +1037,12 @@ export const postFoldersRoute = createRoute({
   operationId: 'createFolder',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateFolderRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateFolderRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: FolderSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: FolderSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1067,10 +1056,7 @@ export const getFoldersFolderIdRoute = createRoute({
   operationId: 'getFolder',
   request: { params: z.object({ folderId: FolderIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'フォルダ情報',
-      content: { 'application/json': { schema: FolderSchema.optional() } },
-    },
+    200: { description: 'フォルダ情報', content: { 'application/json': { schema: FolderSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1100,13 +1086,13 @@ export const patchFoldersFolderIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().openapi({ type: 'string' }),
+              name: z.string().optional().openapi({ type: 'string' }),
               color: z
                 .string()
                 .regex(/^#[0-9A-Fa-f]{6}$/)
+                .optional()
                 .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1120,10 +1106,7 @@ export const patchFoldersFolderIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: FolderSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: FolderSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1139,7 +1122,7 @@ export const getFilesFileIdShareRoute = createRoute({
   responses: {
     200: {
       description: '共有設定',
-      content: { 'application/json': { schema: ShareSettingsSchema.optional() } },
+      content: { 'application/json': { schema: ShareSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1153,15 +1136,12 @@ export const postFilesFileIdShareRoute = createRoute({
   summary: 'ファイル共有',
   operationId: 'shareFile',
   request: {
-    body: {
-      content: { 'application/json': { schema: ShareRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: ShareRequestSchema } }, required: true },
   },
   responses: {
     200: {
       description: '共有成功',
-      content: { 'application/json': { schema: ShareSettingsSchema.optional() } },
+      content: { 'application/json': { schema: ShareSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1191,13 +1171,20 @@ export const postFilesFileIdShareLinkRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              password: z.string().openapi({ type: 'string', description: 'パスワード保護' }),
+              password: z
+                .string()
+                .optional()
+                .openapi({ type: 'string', description: 'パスワード保護' }),
               expiresAt: z.iso
                 .datetime()
+                .optional()
                 .openapi({ type: 'string', format: 'date-time', description: '有効期限' }),
-              allowDownload: z.boolean().default(true).openapi({ type: 'boolean', default: true }),
+              allowDownload: z
+                .boolean()
+                .default(true)
+                .optional()
+                .openapi({ type: 'boolean', default: true }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1213,7 +1200,7 @@ export const postFilesFileIdShareLinkRoute = createRoute({
   responses: {
     201: {
       description: 'リンク作成成功',
-      content: { 'application/json': { schema: ShareLinkSchema.optional() } },
+      content: { 'application/json': { schema: ShareLinkSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1234,7 +1221,6 @@ export const getFilesFileIdVersionsRoute = createRoute({
         'application/json': {
           schema: z
             .array(FileVersionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/FileVersion' } }),
         },
       },
@@ -1268,10 +1254,7 @@ export const postFilesFileIdVersionsVersionIdRestoreRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '復元成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    200: { description: '復元成功', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1287,7 +1270,7 @@ export const getTrashRoute = createRoute({
   responses: {
     200: {
       description: 'ゴミ箱一覧',
-      content: { 'application/json': { schema: FileListResponseSchema.optional() } },
+      content: { 'application/json': { schema: FileListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1312,10 +1295,7 @@ export const postTrashFileIdRestoreRoute = createRoute({
   operationId: 'restoreFromTrash',
   request: { params: z.object({ fileId: FileIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '復元成功',
-      content: { 'application/json': { schema: FileSchema.optional() } },
-    },
+    200: { description: '復元成功', content: { 'application/json': { schema: FileSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1330,7 +1310,7 @@ export const getStorageUsageRoute = createRoute({
   responses: {
     200: {
       description: 'ストレージ使用量',
-      content: { 'application/json': { schema: StorageUsageSchema.optional() } },
+      content: { 'application/json': { schema: StorageUsageSchema } },
     },
     401: UnauthorizedResponse,
   },

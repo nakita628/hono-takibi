@@ -3,7 +3,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 const JsonSchema2020FeaturesSchema = z
   .object({
     prefixItems: z
-      .array(z.null().nullable().optional().openapi({ type: 'null' }))
+      .array(z.null().nullable().openapi({ type: 'null' }))
       .optional()
       .openapi({
         type: 'array',
@@ -15,8 +15,8 @@ const JsonSchema2020FeaturesSchema = z
       .optional()
       .openapi({ type: 'array', prefixItems: [{ type: 'string' }], unevaluatedItems: false }),
     unevaluatedProperties: z
-      .object({ known: z.string().openapi({ type: 'string' }) })
-      .partial()
+      .object({ known: z.string().optional().openapi({ type: 'string' }) })
+      .optional()
       .openapi({
         type: 'object',
         properties: { known: { type: 'string' } },
@@ -24,18 +24,18 @@ const JsonSchema2020FeaturesSchema = z
       }),
     dependentRequired: z
       .object({
-        a: z.string().openapi({ type: 'string' }),
-        b: z.string().openapi({ type: 'string' }),
+        a: z.string().optional().openapi({ type: 'string' }),
+        b: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { a: { type: 'string' }, b: { type: 'string' } },
         dependentRequired: { a: ['b'] },
       }),
     dependentSchemas: z
-      .object({ creditCard: z.string().openapi({ type: 'string' }) })
-      .partial()
+      .object({ creditCard: z.string().optional().openapi({ type: 'string' }) })
+      .optional()
       .openapi({
         type: 'object',
         properties: { creditCard: { type: 'string' } },
@@ -46,7 +46,10 @@ const JsonSchema2020FeaturesSchema = z
           },
         },
       }),
-    propertyNames: z.object({}).openapi({ type: 'object', propertyNames: { pattern: '^[a-z]+$' } }),
+    propertyNames: z
+      .object({})
+      .optional()
+      .openapi({ type: 'object', propertyNames: { pattern: '^[a-z]+$' } }),
     minContains: z
       .array(z.any())
       .optional()
@@ -123,7 +126,7 @@ const ItemSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
     description: z.string().optional().openapi({ type: 'string' }),
-    metadata: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+    metadata: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
   })
   .openapi({
     type: 'object',
@@ -147,7 +150,7 @@ const ItemCreatedEventSchema = z
     event: z.literal('item.created'),
     data: ItemSchema,
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    metadata: z.object({}).openapi({ type: 'object' }),
+    metadata: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -168,7 +171,7 @@ const ItemUpdatedEventSchema = z
     previousData: ItemSchema.optional(),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     changedFields: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
@@ -209,12 +212,7 @@ const XmlFeaturesSchema = z
       .optional()
       .openapi({ type: 'string', xml: { attribute: true, name: 'attr' } }),
     wrapped: z
-      .array(
-        z
-          .string()
-          .optional()
-          .openapi({ type: 'string', xml: { name: 'item' } }),
-      )
+      .array(z.string().openapi({ type: 'string', xml: { name: 'item' } }))
       .optional()
       .openapi({
         type: 'array',
@@ -222,8 +220,8 @@ const XmlFeaturesSchema = z
         items: { type: 'string', xml: { name: 'item' } },
       }),
     namespacedChild: z
-      .object({ value: z.string().openapi({ type: 'string' }) })
-      .partial()
+      .object({ value: z.string().optional().openapi({ type: 'string' }) })
+      .optional()
       .openapi({
         type: 'object',
         xml: { namespace: 'http://example.com/child', prefix: 'ch' },
@@ -266,11 +264,10 @@ const DogSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('dog'),
-        breed: z.string().openapi({ type: 'string' }),
-        barkVolume: z.int().openapi({ type: 'integer' }),
+        petType: z.literal('dog').optional(),
+        breed: z.string().optional().openapi({ type: 'string' }),
+        barkVolume: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -280,7 +277,6 @@ const DogSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -301,11 +297,10 @@ const CatSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('cat'),
-        breed: z.string().openapi({ type: 'string' }),
-        meowPitch: z.int().openapi({ type: 'integer' }),
+        petType: z.literal('cat').optional(),
+        breed: z.string().optional().openapi({ type: 'string' }),
+        meowPitch: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -315,7 +310,6 @@ const CatSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -336,11 +330,10 @@ const BirdSchema = z
     PetSchema,
     z
       .object({
-        petType: z.literal('bird'),
-        species: z.string().openapi({ type: 'string' }),
-        canFly: z.boolean().openapi({ type: 'boolean' }),
+        petType: z.literal('bird').optional(),
+        species: z.string().optional().openapi({ type: 'string' }),
+        canFly: z.boolean().optional().openapi({ type: 'boolean' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -350,7 +343,6 @@ const BirdSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -368,7 +360,6 @@ const BirdSchema = z
 
 const DiscriminatedUnionSchema = z
   .union([DogSchema, CatSchema, BirdSchema])
-  .optional()
   .openapi({
     oneOf: [
       { $ref: '#/components/schemas/Dog' },
@@ -435,12 +426,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const NotFoundResponse = {
   description: 'Resource not found',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const ServerErrorResponse = {
   description: 'Internal server error',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getStreamRoute = createRoute({
@@ -452,9 +443,7 @@ export const getStreamRoute = createRoute({
   responses: {
     200: {
       description: 'Event stream',
-      content: {
-        'text/event-stream': { schema: z.string().optional().openapi({ type: 'string' }) },
-      },
+      content: { 'text/event-stream': { schema: z.string().openapi({ type: 'string' }) } },
     },
   },
 })
@@ -468,12 +457,12 @@ export const postGraphqlRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/graphql': { schema: z.string().optional().openapi({ type: 'string' }) },
+        'application/graphql': { schema: z.string().openapi({ type: 'string' }) },
         'application/json': {
           schema: z
             .object({
               query: z.string().optional().openapi({ type: 'string' }),
-              variables: z.object({}).openapi({ type: 'object' }),
+              variables: z.object({}).optional().openapi({ type: 'object' }),
               operationName: z.string().optional().openapi({ type: 'string' }),
             })
             .openapi({
@@ -495,7 +484,7 @@ export const postGraphqlRoute = createRoute({
         'application/graphql+json': {
           schema: z
             .object({
-              data: z.object({}).openapi({ type: 'object' }),
+              data: z.object({}).optional().openapi({ type: 'object' }),
               errors: z
                 .array(z.object({}).openapi({ type: 'object' }))
                 .optional()
@@ -523,11 +512,9 @@ export const postGrpcGatewayRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/grpc': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-        },
+        'application/grpc': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
         'application/grpc+proto': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
         },
       },
     },
@@ -536,9 +523,7 @@ export const postGrpcGatewayRoute = createRoute({
     200: {
       description: 'gRPC response',
       content: {
-        'application/grpc': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-        },
+        'application/grpc': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
       },
     },
   },

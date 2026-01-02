@@ -65,13 +65,13 @@ const UpdateUserInputSchema = z
 
 const PatchUserInputSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().openapi({ type: 'string' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    name: z.string().optional().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
+      .optional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -84,21 +84,21 @@ const PatchUserInputSchema = z
 
 const CreateUserRequestBody = {
   description: 'User creation request',
-  content: { 'application/json': { schema: CreateUserInputSchema.optional() } },
+  content: { 'application/json': { schema: CreateUserInputSchema } },
   required: true,
 }
 
 const UpdateUserRequestBody = {
   description: 'Full user update request',
-  content: { 'application/json': { schema: UpdateUserInputSchema.optional() } },
+  content: { 'application/json': { schema: UpdateUserInputSchema } },
   required: true,
 }
 
 const PatchUserRequestBody = {
   description: 'Partial user update request',
   content: {
-    'application/json': { schema: PatchUserInputSchema.optional() },
-    'application/merge-patch+json': { schema: PatchUserInputSchema.optional() },
+    'application/json': { schema: PatchUserInputSchema },
+    'application/merge-patch+json': { schema: PatchUserInputSchema },
   },
 }
 
@@ -120,8 +120,8 @@ const FileUploadRequestBody = {
           },
         }),
     },
-    'image/png': { schema: z.file().optional().openapi({ type: 'string', format: 'binary' }) },
-    'image/jpeg': { schema: z.file().optional().openapi({ type: 'string', format: 'binary' }) },
+    'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+    'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
   },
   required: true,
 }
@@ -134,7 +134,6 @@ const BulkCreateUsersRequestBody = {
         .array(CreateUserInputSchema)
         .min(1)
         .max(100)
-        .optional()
         .openapi({
           type: 'array',
           minItems: 1,
@@ -142,7 +141,7 @@ const BulkCreateUsersRequestBody = {
           items: { $ref: '#/components/schemas/CreateUserInput' },
         }),
     },
-    'application/x-ndjson': { schema: CreateUserInputSchema.optional() },
+    'application/x-ndjson': { schema: CreateUserInputSchema },
   },
   required: true,
 }

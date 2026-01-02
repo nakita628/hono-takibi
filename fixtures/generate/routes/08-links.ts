@@ -189,14 +189,9 @@ export const postOrdersRoute = createRoute({
   method: 'post',
   path: '/orders',
   operationId: 'createOrder',
-  request: {
-    body: { content: { 'application/json': { schema: CreateOrderInputSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: CreateOrderInputSchema } } } },
   responses: {
-    201: {
-      description: 'Order created',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
-    },
+    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
   },
 })
 
@@ -221,10 +216,7 @@ export const getOrdersOrderIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'Order details',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
-    },
+    200: { description: 'Order details', content: { 'application/json': { schema: OrderSchema } } },
   },
 })
 
@@ -278,7 +270,6 @@ export const getOrdersOrderIdItemsRoute = createRoute({
         'application/json': {
           schema: z
             .array(OrderItemSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
         },
       },
@@ -309,7 +300,7 @@ export const getCustomersCustomerIdRoute = createRoute({
   responses: {
     200: {
       description: 'Customer details',
-      content: { 'application/json': { schema: CustomerSchema.optional() } },
+      content: { 'application/json': { schema: CustomerSchema } },
     },
   },
 })
@@ -341,7 +332,6 @@ export const getCustomersCustomerIdOrdersRoute = createRoute({
         'application/json': {
           schema: z
             .array(OrderSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
         },
       },
@@ -372,7 +362,7 @@ export const getPaymentsPaymentIdRoute = createRoute({
   responses: {
     200: {
       description: 'Payment details',
-      content: { 'application/json': { schema: PaymentSchema.optional() } },
+      content: { 'application/json': { schema: PaymentSchema } },
     },
   },
 })

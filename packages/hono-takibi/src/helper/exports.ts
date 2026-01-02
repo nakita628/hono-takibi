@@ -26,7 +26,7 @@ export async function exports(
     const v = value[key]
     const name = toIdentifierPascalCase(ensureSuffix(key, suffix))
     const body = `export const ${name} = ${JSON.stringify(v ?? {})}\n`
-    const filePath = path.join(outDir, `${lowerFirst(name)}.ts`)
+    const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
     const result = await core(body, path.dirname(filePath), filePath)
     if (!result.ok) return { ok: false, error: result.error }
   }
@@ -34,7 +34,7 @@ export async function exports(
   // sort abc
   const code = `${keys
     .sort()
-    .map((v) => `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(v, suffix)))}'`)
+    .map((v) => `export * from './${lowerFirst(v)}.ts'`)
     .join('\n')}\n`
   const coreResult = await core(
     code,

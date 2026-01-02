@@ -5,7 +5,6 @@ const Int32Schema = z
   .min(-2147483648)
   .max(2147483647)
   .default(2147483647)
-  .optional()
   .openapi({
     type: 'integer',
     format: 'int32',
@@ -21,7 +20,6 @@ const Int64Schema = z
   .min(-9223372036854776000n)
   .max(9223372036854776000n)
   .default(9223372036854776000n)
-  .optional()
   .openapi({
     type: 'integer',
     format: 'int64',
@@ -37,7 +35,6 @@ const BigIntSchema = z
   .min(BigInt(-1e38))
   .max(BigInt(1e38))
   .default(BigInt(1.2345678901234568e29))
-  .optional()
   .openapi({
     type: 'integer',
     format: 'bigint',
@@ -53,7 +50,6 @@ const Float32Schema = z
   .min(-3.4e38)
   .max(3.4e38)
   .default(3.1415927)
-  .optional()
   .openapi({
     type: 'number',
     format: 'float32',
@@ -69,7 +65,6 @@ const Float64Schema = z
   .min(-1.7e308)
   .max(1.7e308)
   .default(3.141592653589793)
-  .optional()
   .openapi({
     type: 'number',
     format: 'float64',
@@ -85,7 +80,6 @@ const DecimalSchema = z
   .min(-9999999999.9999)
   .max(9999999999.9999)
   .default(9999999999.9999)
-  .optional()
   .openapi({
     type: 'number',
     format: 'decimal',
@@ -102,7 +96,6 @@ const NullableInt32Schema = z
   .max(2147483647)
   .default(2147483647)
   .nullable()
-  .optional()
   .openapi({
     type: ['integer', 'null'],
     format: 'int32',
@@ -117,7 +110,6 @@ const JwtTokenSchema = z
   .jwt()
   .min(20)
   .max(4096)
-  .optional()
   .openapi({
     type: 'string',
     format: 'jwt',
@@ -131,7 +123,6 @@ const JwtTokenSchema = z
 const UuidV7Schema = z
   .uuidv7()
   .length(36)
-  .optional()
   .openapi({
     type: 'string',
     format: 'uuidv7',
@@ -145,7 +136,6 @@ const Base64UrlSchema = z
   .base64url()
   .min(4)
   .max(8192)
-  .optional()
   .openapi({
     type: 'string',
     format: 'base64url',
@@ -159,7 +149,6 @@ const IsoDurationSchema = z.iso
   .duration()
   .min(3)
   .max(64)
-  .optional()
   .openapi({
     type: 'string',
     format: 'duration',
@@ -173,7 +162,6 @@ const ShortCodeSchema = z
   .string()
   .min(3)
   .max(8)
-  .optional()
   .openapi({ type: 'string', minLength: 3, maxLength: 8, example: 'aB3x5' })
   .openapi('ShortCode')
 
@@ -182,7 +170,6 @@ const NullableShortCodeSchema = z
   .min(3)
   .max(8)
   .nullable()
-  .optional()
   .openapi({ type: ['string', 'null'], minLength: 3, maxLength: 8, example: null })
   .openapi('NullableShortCode')
 
@@ -237,7 +224,7 @@ export const getSampleRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: CustomFormatModelSchema.optional() } },
+      content: { 'application/json': { schema: CustomFormatModelSchema } },
     },
   },
 })

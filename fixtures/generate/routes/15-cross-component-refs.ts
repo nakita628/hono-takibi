@@ -2,13 +2,11 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const EntityIdSchema = z
   .uuid()
-  .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Unique entity identifier' })
   .openapi('EntityId')
 
 const EntityTypeSchema = z
   .enum(['user', 'organization', 'project', 'resource'])
-  .optional()
   .openapi({
     type: 'string',
     enum: ['user', 'organization', 'project', 'resource'],
@@ -18,7 +16,6 @@ const EntityTypeSchema = z
 
 const EntityStatusSchema = z
   .enum(['active', 'inactive', 'pending', 'archived'])
-  .optional()
   .openapi({ type: 'string', enum: ['active', 'inactive', 'pending', 'archived'] })
   .openapi('EntityStatus')
 
@@ -41,16 +38,14 @@ const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
   .lazy(() =>
     z
       .union([
-        z.string().optional().openapi({ type: 'string' }),
-        z.number().optional().openapi({ type: 'number' }),
-        z.boolean().optional().openapi({ type: 'boolean' }),
+        z.string().openapi({ type: 'string' }),
+        z.number().openapi({ type: 'number' }),
+        z.boolean().openapi({ type: 'boolean' }),
         z
-          .array(z.string().optional().openapi({ type: 'string' }))
-          .optional()
+          .array(z.string().openapi({ type: 'string' }))
           .openapi({ type: 'array', items: { type: 'string' } }),
         NestedCustomFieldSchema,
       ])
-      .optional()
       .openapi({
         oneOf: [
           { type: 'string' },
@@ -65,20 +60,21 @@ const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
 
 const EntityAttributesSchema = z
   .looseObject({
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().openapi({ type: 'string' }),
-    status: EntityStatusSchema,
+    name: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    status: EntityStatusSchema.optional(),
     tags: z
       .array(TagSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
     customFields: z
       .record(z.string(), CustomFieldValueSchema)
+      .optional()
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
       }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -109,10 +105,9 @@ const ResourceIdentifierSchema = z
 
 const RelationshipLinkUrlsSchema = z
   .object({
-    self: z.url().openapi({ type: 'string', format: 'uri' }),
-    related: z.url().openapi({ type: 'string', format: 'uri' }),
+    self: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    related: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -124,10 +119,9 @@ const RelationshipLinkUrlsSchema = z
 
 const RelationshipMetaSchema = z
   .object({
-    count: z.int().openapi({ type: 'integer' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    count: z.int().optional().openapi({ type: 'integer' }),
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: { count: { type: 'integer' }, createdAt: { type: 'string', format: 'date-time' } },
@@ -136,11 +130,10 @@ const RelationshipMetaSchema = z
 
 const RelationshipLinkSchema = z
   .object({
-    data: ResourceIdentifierSchema,
-    links: RelationshipLinkUrlsSchema,
-    meta: RelationshipMetaSchema,
+    data: ResourceIdentifierSchema.optional(),
+    links: RelationshipLinkUrlsSchema.optional(),
+    meta: RelationshipMetaSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -155,11 +148,11 @@ const RelationshipLinksSchema = z
   .object({
     data: z
       .array(ResourceIdentifierSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ResourceIdentifier' } }),
-    links: RelationshipLinkUrlsSchema,
-    meta: RelationshipMetaSchema,
+    links: RelationshipLinkUrlsSchema.optional(),
+    meta: RelationshipMetaSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -172,12 +165,11 @@ const RelationshipLinksSchema = z
 
 const EntityRelationshipsSchema = z
   .object({
-    parent: RelationshipLinkSchema,
-    children: RelationshipLinksSchema,
-    owner: RelationshipLinkSchema,
-    members: RelationshipLinksSchema,
+    parent: RelationshipLinkSchema.optional(),
+    children: RelationshipLinksSchema.optional(),
+    owner: RelationshipLinkSchema.optional(),
+    members: RelationshipLinksSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -191,12 +183,11 @@ const EntityRelationshipsSchema = z
 
 const PermissionsSchema = z
   .object({
-    canRead: z.boolean().openapi({ type: 'boolean' }),
-    canWrite: z.boolean().openapi({ type: 'boolean' }),
-    canDelete: z.boolean().openapi({ type: 'boolean' }),
-    canShare: z.boolean().openapi({ type: 'boolean' }),
+    canRead: z.boolean().optional().openapi({ type: 'boolean' }),
+    canWrite: z.boolean().optional().openapi({ type: 'boolean' }),
+    canDelete: z.boolean().optional().openapi({ type: 'boolean' }),
+    canShare: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -210,13 +201,12 @@ const PermissionsSchema = z
 
 const EntityMetaSchema = z
   .object({
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    version: z.int().openapi({ type: 'integer' }),
-    etag: z.string().openapi({ type: 'string' }),
-    permissions: PermissionsSchema,
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    version: z.int().optional().openapi({ type: 'integer' }),
+    etag: z.string().optional().openapi({ type: 'string' }),
+    permissions: PermissionsSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -231,13 +221,13 @@ const EntityMetaSchema = z
 
 const EntityLinksSchema = z
   .object({
-    self: z.url().openapi({ type: 'string', format: 'uri' }),
-    collection: z.url().openapi({ type: 'string', format: 'uri' }),
+    self: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    collection: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     related: z
       .record(z.string(), z.url().openapi({ type: 'string', format: 'uri' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string', format: 'uri' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -274,7 +264,7 @@ const EntitySchema = z
 const NestedCustomFieldSchema: z.ZodType<NestedCustomFieldType> = z
   .lazy(() =>
     z
-      .record(z.string(), CustomFieldValueSchema.optional())
+      .record(z.string(), CustomFieldValueSchema)
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/CustomFieldValue' },
@@ -293,12 +283,11 @@ type NestedCustomFieldType = Record<string, z.infer<typeof CustomFieldValueSchem
 
 const ListMetaSchema = z
   .object({
-    total: z.int().openapi({ type: 'integer' }),
-    page: z.int().openapi({ type: 'integer' }),
-    perPage: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().openapi({ type: 'integer' }),
+    total: z.int().optional().openapi({ type: 'integer' }),
+    page: z.int().optional().openapi({ type: 'integer' }),
+    perPage: z.int().optional().openapi({ type: 'integer' }),
+    totalPages: z.int().optional().openapi({ type: 'integer' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -312,13 +301,12 @@ const ListMetaSchema = z
 
 const PaginationLinksSchema = z
   .object({
-    self: z.url().openapi({ type: 'string', format: 'uri' }),
-    first: z.url().openapi({ type: 'string', format: 'uri' }),
-    last: z.url().openapi({ type: 'string', format: 'uri' }),
-    prev: z.url().openapi({ type: 'string', format: 'uri' }),
-    next: z.url().openapi({ type: 'string', format: 'uri' }),
+    self: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    first: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    last: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    prev: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    next: z.url().optional().openapi({ type: 'string', format: 'uri' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -357,10 +345,9 @@ const EntityListWrapperSchema = z
 
 const ResponseMetaSchema = z
   .object({
-    requestId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    processingTime: z.number().openapi({ type: 'number' }),
+    requestId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    processingTime: z.number().optional().openapi({ type: 'number' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -408,8 +395,10 @@ const CreateEntityInputSchema = z
   .openapi('CreateEntityInput')
 
 const UpdateEntityInputSchema = z
-  .object({ attributes: EntityAttributesSchema, relationships: EntityRelationshipsSchema })
-  .partial()
+  .object({
+    attributes: EntityAttributesSchema.optional(),
+    relationships: EntityRelationshipsSchema.optional(),
+  })
   .openapi({
     type: 'object',
     properties: {
@@ -438,11 +427,10 @@ const CreateRelationshipInputSchema = z
 
 const ErrorSourceSchema = z
   .object({
-    pointer: z.string().openapi({ type: 'string' }),
-    parameter: z.string().openapi({ type: 'string' }),
-    header: z.string().openapi({ type: 'string' }),
+    pointer: z.string().optional().openapi({ type: 'string' }),
+    parameter: z.string().optional().openapi({ type: 'string' }),
+    header: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -508,7 +496,8 @@ const BatchOperationSchema = z
       .openapi({ type: 'string', enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }),
     path: z.string().openapi({ type: 'string' }),
     headers: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     body: z
       .union([CreateEntityInputSchema, UpdateEntityInputSchema])
@@ -543,7 +532,8 @@ const BatchResponseItemSchema = z
     id: z.string().openapi({ type: 'string' }),
     status: z.int().openapi({ type: 'integer' }),
     headers: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     body: z
       .union([EntityWrapperSchema, ErrorListSchema])
@@ -591,16 +581,14 @@ const BatchResultSchema = z
 
 const WebhookEventSchema = z
   .enum(['entity.created', 'entity.updated', 'entity.deleted'])
-  .optional()
   .openapi({ type: 'string', enum: ['entity.created', 'entity.updated', 'entity.deleted'] })
   .openapi('WebhookEvent')
 
 const WebhookMetaSchema = z
   .object({
-    triggeredBy: ResourceIdentifierSchema,
-    correlationId: z.string().openapi({ type: 'string' }),
+    triggeredBy: ResourceIdentifierSchema.optional(),
+    correlationId: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -656,7 +644,7 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
   .lazy(() =>
     z
       .object({
-        field: z.string().openapi({ type: 'string' }),
+        field: z.string().optional().openapi({ type: 'string' }),
         operator: z
           .enum([
             'eq',
@@ -671,6 +659,7 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
             'startsWith',
             'endsWith',
           ])
+          .optional()
           .openapi({
             type: 'string',
             enum: [
@@ -690,11 +679,10 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
         value: z
           .union([
             z.string().openapi({ type: 'string' }),
-            z.number().optional().openapi({ type: 'number' }),
-            z.boolean().optional().openapi({ type: 'boolean' }),
+            z.number().openapi({ type: 'number' }),
+            z.boolean().openapi({ type: 'boolean' }),
             z
-              .array(z.string().optional().openapi({ type: 'string' }))
-              .optional()
+              .array(z.string().openapi({ type: 'string' }))
               .openapi({ type: 'array', items: { type: 'string' } }),
           ])
           .optional()
@@ -708,12 +696,13 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
           }),
         and: z
           .array(FilterExpressionSchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
         or: z
           .array(FilterExpressionSchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/FilterExpression' } }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -751,16 +740,16 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
 
 const PaginationInputSchema = z
   .object({
-    page: z.int().min(1).default(1).openapi({ type: 'integer', minimum: 1, default: 1 }),
+    page: z.int().min(1).default(1).optional().openapi({ type: 'integer', minimum: 1, default: 1 }),
     perPage: z
       .int()
       .min(1)
       .max(100)
       .default(20)
+      .optional()
       .openapi({ type: 'integer', minimum: 1, maximum: 100, default: 20 }),
-    cursor: z.string().openapi({ type: 'string' }),
+    cursor: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -773,13 +762,13 @@ const PaginationInputSchema = z
 
 const SortExpressionSchema = z
   .object({
-    field: z.string().openapi({ type: 'string' }),
+    field: z.string().optional().openapi({ type: 'string' }),
     direction: z
       .enum(['asc', 'desc'])
       .default('asc')
+      .optional()
       .openapi({ type: 'string', enum: ['asc', 'desc'], default: 'asc' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -934,19 +923,19 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const CreateEntityBodyRequestBody = {
   description: 'Create entity request',
-  content: { 'application/json': { schema: CreateEntityInputSchema.optional() } },
+  content: { 'application/json': { schema: CreateEntityInputSchema } },
   required: true,
 }
 
 const UpdateEntityBodyRequestBody = {
   description: 'Update entity request',
-  content: { 'application/json': { schema: UpdateEntityInputSchema.optional() } },
+  content: { 'application/json': { schema: UpdateEntityInputSchema } },
   required: true,
 }
 
 const CreateRelationshipBodyRequestBody = {
   description: 'Create relationship request',
-  content: { 'application/json': { schema: CreateRelationshipInputSchema.optional() } },
+  content: { 'application/json': { schema: CreateRelationshipInputSchema } },
   required: true,
 }
 
@@ -1002,7 +991,7 @@ const EntityListResponse = {
   description: 'List of entities',
   content: {
     'application/json': {
-      schema: EntityListWrapperSchema.optional(),
+      schema: EntityListWrapperSchema,
       examples: { entityList: EntityListExample },
     },
   },
@@ -1026,10 +1015,7 @@ const EntityExample = {
 const EntityResponse = {
   description: 'Single entity',
   content: {
-    'application/json': {
-      schema: EntityWrapperSchema.optional(),
-      examples: { entity: EntityExample },
-    },
+    'application/json': { schema: EntityWrapperSchema, examples: { entity: EntityExample } },
   },
 }
 
@@ -1048,7 +1034,7 @@ const EntityCreatedResponse = {
   description: 'Entity created',
   content: {
     'application/json': {
-      schema: EntityWrapperSchema.optional(),
+      schema: EntityWrapperSchema,
       examples: { createdEntity: CreatedEntityExample },
     },
   },
@@ -1056,22 +1042,22 @@ const EntityCreatedResponse = {
 
 const RelationshipListResponse = {
   description: 'List of relationships',
-  content: { 'application/json': { schema: RelationshipLinksSchema.optional() } },
+  content: { 'application/json': { schema: RelationshipLinksSchema } },
 }
 
 const RelationshipResponse = {
   description: 'Single relationship',
-  content: { 'application/json': { schema: RelationshipLinkSchema.optional() } },
+  content: { 'application/json': { schema: RelationshipLinkSchema } },
 }
 
 const BatchResultResponse = {
   description: 'Batch operation result (all succeeded)',
-  content: { 'application/json': { schema: BatchResultSchema.optional() } },
+  content: { 'application/json': { schema: BatchResultSchema } },
 }
 
 const MultiStatusResponse = {
   description: 'Batch operation result (partial success)',
-  content: { 'application/json': { schema: BatchResultSchema.optional() } },
+  content: { 'application/json': { schema: BatchResultSchema } },
 }
 
 const NoContentResponse = { description: 'No content' }
@@ -1097,7 +1083,7 @@ const ValidationErrorResponse = {
   description: 'Validation error',
   content: {
     'application/json': {
-      schema: ErrorListSchema.optional(),
+      schema: ErrorListSchema,
       examples: { validationError: ValidationErrorExample },
     },
   },
@@ -1105,7 +1091,7 @@ const ValidationErrorResponse = {
 
 const UnauthorizedResponse = {
   description: 'Unauthorized',
-  content: { 'application/json': { schema: ErrorListSchema.optional() } },
+  content: { 'application/json': { schema: ErrorListSchema } },
 }
 
 const NotFoundErrorExample = {
@@ -1125,21 +1111,18 @@ const NotFoundErrorExample = {
 const NotFoundResponse = {
   description: 'Not found',
   content: {
-    'application/json': {
-      schema: ErrorListSchema.optional(),
-      examples: { notFound: NotFoundErrorExample },
-    },
+    'application/json': { schema: ErrorListSchema, examples: { notFound: NotFoundErrorExample } },
   },
 }
 
 const ConflictResponse = {
   description: 'Conflict',
-  content: { 'application/json': { schema: ErrorListSchema.optional() } },
+  content: { 'application/json': { schema: ErrorListSchema } },
 }
 
 const PreconditionFailedResponse = {
   description: 'Precondition failed',
-  content: { 'application/json': { schema: ErrorListSchema.optional() } },
+  content: { 'application/json': { schema: ErrorListSchema } },
 }
 
 const XRequestIdHeader = z
@@ -1256,7 +1239,7 @@ const EntityWebhookCallback = {
     post: {
       operationId: 'entityWebhookCallback',
       requestBody: {
-        content: { 'application/json': { schema: WebhookPayloadSchema.optional() } },
+        content: { 'application/json': { schema: WebhookPayloadSchema } },
         required: true,
       },
       responses: {

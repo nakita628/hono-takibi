@@ -1,5 +1,5 @@
-import { propertiesSchema } from '../../../helper/properties-schema.js'
 import type { Schema } from '../../../openapi/index.js'
+import { getToSafeIdentifier } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 /**
@@ -9,6 +9,34 @@ import { zodToOpenAPI } from '../index.js'
  * @returns The Zod object schema string.
  */
 export function object(schema: Schema): string {
+  const propertiesSchema = (
+    properties: { readonly [k: string]: Schema },
+    required: readonly string[],
+  ) => {
+    const objectProperties = Object.entries(properties).map(([key, schema]) => {
+      const isRequired = required.includes(key)
+      const z = zodToOpenAPI(schema)
+      const safeKey = getToSafeIdentifier(key)
+      if (isRequired) {
+        return `${safeKey}:${z}`
+      }
+      const openapiIndex = z.lastIndexOf('.openapi(')
+      const optionalZ =
+        openapiIndex === -1
+          ? `${z}.optional()`
+          : `${z.slice(0, openapiIndex)}.optional()${z.slice(openapiIndex)}`
+      return `${safeKey}:${optionalZ}`
+    })
+
+    // const allOptional = objectProperties.every((v) => v.includes('.optional()'))
+    // // If all properties are optional and no required properties, return partial schema
+    // if (required.length === 0 && allOptional) {
+    //   const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
+    //   return `z.object({${cleanProperties}}).partial()`
+    // }
+    return `z.object({${objectProperties}})`
+  }
+
   // allOf, oneOf, anyOf, not
   if (schema.oneOf) return zodToOpenAPI(schema)
   if (schema.anyOf) return zodToOpenAPI(schema)

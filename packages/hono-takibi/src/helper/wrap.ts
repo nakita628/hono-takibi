@@ -1,13 +1,11 @@
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { buildExamples } from '../utils/index.js'
 
-type ParameterMeta = Pick<Parameter, 'name' | 'in' | 'required'>
-
 export function wrap(
   zod: string,
   schema: Schema,
   meta?: {
-    parameters?: ParameterMeta
+    parameters?: Parameter
     headers?: Header
   },
 ): string {
@@ -88,22 +86,15 @@ export function wrap(
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
 
-  // required true
-  if (
-    schema.type === 'object' ||
-    (schema.required !== undefined &&
-      typeof schema.required === 'boolean' &&
-      schema.required === true) ||
-    (meta?.parameters !== undefined &&
-      typeof meta.parameters.required === 'boolean' &&
-      meta.parameters.required === true) ||
-    (meta?.headers !== undefined &&
-      typeof meta.headers.required === 'boolean' &&
-      meta.headers.required === true)
-  ) {
-    return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  // https://github.com/OAI/OpenAPI-Specification/issues/2385
+  if (meta?.parameters || meta?.headers) {
+    if (meta?.parameters?.required === true || meta?.headers?.required === true) {
+      return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+    }
+    return openapiProps.length === 0
+      ? `${z}.optional()`
+      : `${z}.optional().openapi({${openapiProps.join(',')}})`
   }
-  return openapiProps.length === 0
-    ? `${z}.optional()`
-    : `${z}.optional().openapi({${openapiProps.join(',')}})`
+  // propertiesSchema() check
+  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }

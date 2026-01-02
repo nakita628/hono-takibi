@@ -20,10 +20,9 @@ const BSchema = z
 
 const CSchema = z
   .object({
-    count: z.int().openapi({ type: 'integer', description: 'Count value' }),
-    flag: z.boolean().openapi({ type: 'boolean', description: 'A boolean flag' }),
+    count: z.int().optional().openapi({ type: 'integer', description: 'Count value' }),
+    flag: z.boolean().optional().openapi({ type: 'boolean', description: 'A boolean flag' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -49,7 +48,7 @@ export const getExampleRoute = createRoute({
   responses: {
     200: {
       description: 'Successful response',
-      content: { 'application/json': { schema: ASchema.optional() } },
+      content: { 'application/json': { schema: ASchema } },
     },
   },
 })

@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { barell } from '../helper/barell.js'
 import type { Header, OpenAPI, Reference } from '../openapi/index.js'
 import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
 
@@ -64,8 +65,7 @@ export async function headers(
       if (!header) continue
 
       const code = buildHeaderSchema(key, header, true, exportType)
-      const fileName = lowerFirst(toIdentifierPascalCase(ensureSuffix(key, 'Header')))
-      const filePath = path.join(outDir, `${fileName}.ts`)
+      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       const fileCode = [importZ, '\n', code, ''].filter(Boolean).join('\n')
 
       const fmtResult = await fmt(fileCode)
@@ -76,14 +76,7 @@ export async function headers(
       if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
 
-    const indexBody = `${Object.keys(headers)
-      .sort()
-      .map(
-        (n) => `export * from './${lowerFirst(toIdentifierPascalCase(ensureSuffix(n, 'Header')))}'`,
-      )
-      .join('\n')}\n`
-
-    const fmtResult = await fmt(indexBody)
+    const fmtResult = await fmt(barell(headers))
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }

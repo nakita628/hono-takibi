@@ -29,10 +29,10 @@ const UserProfileSchema = z
       .openapi({ type: 'string', example: 'Software engineer with 10 years of experience.' }),
     social: z
       .strictObject({
-        twitter: z.string().openapi({ type: 'string', example: '@johndoe' }),
-        linkedin: z.string().openapi({ type: 'string', example: 'john-doe' }),
+        twitter: z.string().optional().openapi({ type: 'string', example: '@johndoe' }),
+        linkedin: z.string().optional().openapi({ type: 'string', example: 'john-doe' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -101,12 +101,11 @@ const NewUserSchema = z
 
 const UpdateUserSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    address: AddressSchema,
-    profile: UserProfileSchema,
+    name: z.string().optional().openapi({ type: 'string' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    address: AddressSchema.optional(),
+    profile: UserProfileSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -180,7 +179,6 @@ const PaypalPaymentSchema = z
 
 const PaymentMethodSchema = z
   .union([CreditCardPaymentSchema, PaypalPaymentSchema])
-  .optional()
   .openapi({
     description: 'A polymorphic payment method',
     oneOf: [
@@ -336,7 +334,6 @@ export const getUsersRoute = createRoute({
         'application/json': {
           schema: z
             .array(UserSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
         },
       },
@@ -351,14 +348,14 @@ export const postUsersRoute = createRoute({
   request: {
     body: {
       description: 'User to add',
-      content: { 'application/json': { schema: NewUserSchema.optional() } },
+      content: { 'application/json': { schema: NewUserSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'User created successfully',
-      content: { 'application/json': { schema: UserSchema.optional() } },
+      content: { 'application/json': { schema: UserSchema } },
     },
   },
 })
@@ -378,10 +375,7 @@ export const getUsersUserIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'User details',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'User details', content: { 'application/json': { schema: UserSchema } } },
     404: { description: 'User not found' },
   },
 })
@@ -393,14 +387,14 @@ export const putUsersUserIdRoute = createRoute({
   request: {
     body: {
       description: 'Updated user information',
-      content: { 'application/json': { schema: UpdateUserSchema.optional() } },
+      content: { 'application/json': { schema: UpdateUserSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: 'User updated successfully',
-      content: { 'application/json': { schema: UserSchema.optional() } },
+      content: { 'application/json': { schema: UserSchema } },
     },
     404: { description: 'User not found' },
   },
@@ -437,7 +431,6 @@ export const getOrdersRoute = createRoute({
         'application/json': {
           schema: z
             .array(OrderSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
         },
       },
@@ -452,14 +445,14 @@ export const postOrdersRoute = createRoute({
   request: {
     body: {
       description: 'Order to create',
-      content: { 'application/json': { schema: NewOrderSchema.optional() } },
+      content: { 'application/json': { schema: NewOrderSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'Order created successfully',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
+      content: { 'application/json': { schema: OrderSchema } },
     },
   },
 })
