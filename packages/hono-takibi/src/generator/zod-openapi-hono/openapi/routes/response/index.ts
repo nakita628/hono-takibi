@@ -1,5 +1,11 @@
 import type { Responses } from '../../../../../openapi/index.js'
-import { ensureSuffix, escapeStringLiteral, isUniqueContentSchema, toIdentifierPascalCase } from '../../../../../utils/index.js'
+import {
+  buildExamples,
+  ensureSuffix,
+  escapeStringLiteral,
+  isUniqueContentSchema,
+  toIdentifierPascalCase,
+} from '../../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
@@ -9,25 +15,6 @@ import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
  * @returns A string of TypeScript code representing the response schema.
  */
 export function response(responses: { [k: string]: Responses }): string {
-  const buildExamplesCode = (examples: NonNullable<Responses['content']>[string]['examples']): string => {
-    if (!examples || Object.keys(examples).length === 0) return ''
-    const entries = Object.entries(examples)
-      .map(([key, example]) => {
-        if ('$ref' in example && example.$ref) {
-          return `${JSON.stringify(key)}:{$ref:${JSON.stringify(example.$ref)}}`
-        }
-        if ('value' in example) {
-          const parts = []
-          if (example.summary) parts.push(`summary:${JSON.stringify(example.summary)}`)
-          if (example.value !== undefined) parts.push(`value:${JSON.stringify(example.value)}`)
-          return `${JSON.stringify(key)}:{${parts.join(',')}}`
-        }
-        return `${JSON.stringify(key)}:${JSON.stringify(example)}`
-      })
-      .join(',')
-    return `,examples:{${entries}}`
-  }
-
   const buildContentCode = (content: NonNullable<Responses['content']>): string => {
     const contentTypes = Object.keys(content)
     if (!isUniqueContentSchema(contentTypes, content)) return ''
@@ -35,7 +22,8 @@ export function response(responses: { [k: string]: Responses }): string {
     const contentParts = contentTypes.map((contentType) => {
       const media = content[contentType]
       const zodSchema = zodToOpenAPI(media.schema)
-      const examplesCode = buildExamplesCode(media.examples)
+      const examples = buildExamples(media.examples)
+      const examplesCode = examples ? `,examples:${examples}` : ''
       return `'${contentType}':{schema:${zodSchema}${examplesCode}}`
     })
     return `content:{${contentParts.join(',')}}`

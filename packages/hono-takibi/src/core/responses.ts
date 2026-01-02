@@ -2,7 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
-import type { Components, Content, Responses, Schema } from '../openapi/index.js'
+import type { Components, Content, Header, Reference, Responses } from '../openapi/index.js'
 import {
   buildExamples,
   ensureSuffix,
@@ -14,20 +14,21 @@ import {
   toIdentifierPascalCase,
 } from '../utils/index.js'
 
-const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
+const isRef = (v: unknown): v is Reference & { $ref: string } =>
+  isRecord(v) && typeof v.$ref === 'string'
 
-const headerSchemaExpr = (header: unknown): string => {
-  if (!isRecord(header)) return 'z.any()'
-  const rawSchema = header.schema
-  const schema = isRecord(rawSchema) ? (rawSchema as Schema) : {}
-  const description = typeof header.description === 'string' ? header.description : undefined
-  const example = 'example' in header ? header.example : undefined
-  const merged: Schema = {
-    ...schema,
-    ...(description !== undefined && schema.description === undefined ? { description } : {}),
-    ...(example !== undefined && schema.example === undefined ? { example } : {}),
-  }
-  return zodToOpenAPI(merged)
+const isHeader = (v: unknown): v is Header => isRecord(v) && !('$ref' in v)
+
+const headerSchemaExpr = (header: Header | Reference): string => {
+  if (!isHeader(header)) return 'z.any()'
+  return zodToOpenAPI(header.schema ?? {}, { headers: header })
+}
+
+const resolveHeader = (header: Header | Reference, components: Components): Header | Reference => {
+  if (!(isRef(header) && header.$ref.startsWith('#/components/headers/'))) return header
+  const key = header.$ref.slice('#/components/headers/'.length)
+  if (!key) return header
+  return components.headers?.[key] ?? header
 }
 
 const headersPropExpr = (
@@ -36,18 +37,9 @@ const headersPropExpr = (
 ): string | undefined => {
   if (!headers) return undefined
   const entries = Object.entries(headers).map(([name, header]) => {
-    if (isRef(header) && header.$ref.startsWith('#/components/headers/')) {
-      const resolved = (() => {
-        const key = header.$ref.slice('#/components/headers/'.length)
-        return key ? components.headers?.[key] : undefined
-      })()
-      const base = headerSchemaExpr(resolved ?? header)
-      return `${JSON.stringify(name)}:${base}`
-    }
-    const base = headerSchemaExpr(header)
-    return `${JSON.stringify(name)}:${base}`
+    const resolved = resolveHeader(header, components)
+    return `${JSON.stringify(name)}:${headerSchemaExpr(resolved)}`
   })
-
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
 }
 
@@ -58,38 +50,48 @@ const mediaTypeExpr = (media: Content[string]): string => {
   return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
 }
 
+const linkEntryExpr = (
+  name: string,
+  link: Responses['links'] extends Record<string, infer V> | undefined ? V : never,
+  components: Components,
+): string => {
+  const key = JSON.stringify(name)
+  if (!(isRef(link) && link.$ref.startsWith('#/components/links/'))) {
+    return `${key}:${JSON.stringify(link)}`
+  }
+  const refKey = link.$ref.slice('#/components/links/'.length)
+  const resolved = refKey ? components.links?.[refKey] : undefined
+  return resolved
+    ? `${key}:${ref(link.$ref as `#/components/${string}/${string}`)}`
+    : `${key}:{$ref:${JSON.stringify(link.$ref)}}`
+}
+
 const linksPropExpr = (
   links: Responses['links'] | undefined,
   components: Components,
 ): string | undefined => {
   if (!links) return undefined
-  const entries = Object.entries(links).map(([name, link]) => {
-    if (isRef(link) && link.$ref.startsWith('#/components/links/')) {
-      const key = link.$ref.slice('#/components/links/'.length)
-      const resolved = key ? components.links?.[key] : undefined
-      if (resolved)
-        return `${JSON.stringify(name)}:${ref(link.$ref as `#/components/${string}/${string}`)}`
-      return `${JSON.stringify(name)}:{$ref:${JSON.stringify(link.$ref)}}`
-    }
-    return `${JSON.stringify(name)}:${JSON.stringify(link)}`
-  })
+  const entries = Object.entries(links).map(([name, link]) => linkEntryExpr(name, link, components))
   return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
+}
+
+const contentPropExpr = (content: Responses['content'] | undefined): string | undefined => {
+  if (!content) return undefined
+  const entries = Object.entries(content).map(
+    ([contentType, media]) => `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`,
+  )
+  return entries.length > 0 ? `content:{${entries.join(',')}}` : undefined
 }
 
 const responseDefinitionExpr = (res: Responses, components: Components): string => {
   if (typeof res.$ref === 'string') return `{$ref:${JSON.stringify(res.$ref)}}`
-  const description = `description:${JSON.stringify(res.description ?? '')}`
-  const headers = headersPropExpr(res.headers, components)
-  const links = linksPropExpr(res.links, components)
-  const content = (() => {
-    if (!res.content) return undefined
-    const contentEntries = Object.entries(res.content).map(([contentType, media]) => {
-      return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
-    })
-    return contentEntries.length > 0 ? `content:{${contentEntries.join(',')}}` : undefined
-  })()
-
-  return `{${[description, headers, links, content].filter(Boolean).join(',')}}`
+  const props = [
+    `description:${JSON.stringify(res.description ?? '')}`,
+    headersPropExpr(res.headers, components),
+    linksPropExpr(res.links, components),
+    contentPropExpr(res.content),
+  ].filter(Boolean)
+  return `{${props.join(',')}}`
 }
 
 const buildImportSchemas = (code: string): readonly string[] => {
