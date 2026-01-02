@@ -202,7 +202,7 @@ describe('zodToOpenAPI', () => {
               },
             ],
           },
-          `z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable().openapi({"type":"object"}),id:z.union([z.number().openapi({"type":"number"}),z.string().openapi({"type":"string"})]).optional().openapi({"oneOf":[{"type":"number"},{"type":"string"}]})}).openapi({"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}}]})`,
+          `z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable().openapi({"type":"object"}),id:z.union([z.number().openapi({"type":"number"}),z.string().openapi({"type":"string"})]).exactOptional().openapi({"oneOf":[{"type":"number"},{"type":"string"}]})}).openapi({"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}}]})`,
         ],
         [
           {
@@ -1160,18 +1160,18 @@ describe('zodToOpenAPI', () => {
       // Todo fix date type
       // describe('date', () => {
       //   it.concurrent.each<[Schemas, string]>([
-      //     [{ type: 'date' }, 'z.date().optional().openapi({"type":"date"})'],
+      //     [{ type: 'date' }, 'z.date().exactOptional().openapi({"type":"date"})'],
       //     [
       //       { type: 'date', nullable: true },
-      //       'z.date().nullable().optional().openapi({"type":"date"})',
+      //       'z.date().nullable().exactOptional().openapi({"type":"date"})',
       //     ],
       //     [
       //       { type: ['date', 'null'] },
-      //       'z.date().nullable().optional().openapi({"type":["date","null"]})',
+      //       'z.date().nullable().exactOptional().openapi({"type":["date","null"]})',
       //     ],
       //     [
       //       { type: 'date', default: '2023-01-01' },
-      //       'z.date().default(new Date("2023-01-01")).optional().openapi({"type":"date","default":"2023-01-01"})',
+      //       'z.date().default(new Date("2023-01-01")).exactOptional().openapi({"type":"date","default":"2023-01-01"})',
       //     ],
       //   ])('zodToOpenAPI(%o) → %s', (input, expected) => {
       //     expect(zodToOpenAPI(input)).toBe(expected)
@@ -1185,11 +1185,11 @@ describe('zodToOpenAPI', () => {
           [{ type: 'null', nullable: true }, 'z.null().nullable().openapi({"type":"null"})'],
           [{ type: ['null'] }, 'z.null().nullable().openapi({"type":["null"]})'],
           // Todo fix
-          // [{ type: 'null', default: 'test' }, 'z.null().default("test").nullable().optional().openapi({"type":"null","default":"test"})'],
-          // [{ type: ['null'], default: 'test' }, 'z.null().default("test").nullable().optional().openapi({"type":"null","default":"test"})'],
+          // [{ type: 'null', default: 'test' }, 'z.null().default("test").nullable().exactOptional().openapi({"type":"null","default":"test"})'],
+          // [{ type: ['null'], default: 'test' }, 'z.null().default("test").nullable().exactOptional().openapi({"type":"null","default":"test"})'],
           // [
           //   { type: 'null', nullable: true, default: 'test' },
-          //   'z.null().default("test").nullable().optional().openapi({"type":"null","default":"test"})',
+          //   'z.null().default("test").nullable().exactOptional().openapi({"type":"null","default":"test"})',
           // ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)

@@ -212,7 +212,7 @@ describe('wrap', () => {
       },
     )
     const expected =
-      'z.string().optional().openapi({param:{"name":"id","in":"path"},"type":"string","example":"uuid-example","description":"UUID parameter"})'
+      'z.string().exactOptional().openapi({param:{"name":"id","in":"path"},"type":"string","example":"uuid-example","description":"UUID parameter"})'
     expect(result).toBe(expected)
   })
 
@@ -232,7 +232,7 @@ describe('wrap', () => {
         } as any,
       },
     )
-    const expected = `z.string().optional().openapi({param:{"name":"q","in":"query"},"type":"string","example":"query-value","description":"Optional query parameter"})`
+    const expected = `z.string().exactOptional().openapi({param:{"name":"q","in":"query"},"type":"string","example":"query-value","description":"Optional query parameter"})`
     expect(result).toBe(expected)
   })
 
@@ -264,7 +264,7 @@ describe('wrap', () => {
       // biome-ignore lint: test
       { parameters: { name: 'x', in: 'header' } as any },
     )
-    const expected = `z.string().optional().openapi({param:{"name":"x","in":"header"},"type":"string"})`
+    const expected = `z.string().exactOptional().openapi({param:{"name":"x","in":"header"},"type":"string"})`
     expect(result).toBe(expected)
   })
 
