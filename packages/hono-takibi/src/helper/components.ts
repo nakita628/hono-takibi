@@ -26,7 +26,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
   const buildResponsesCode = (responses: Operation['responses']): string => {
     const entries = Object.entries(responses)
       .map(([statusCode, response]) => {
-        if (response.$ref && isComponentsRef(response.$ref)) {
+        if (response.$ref) {
           return `${JSON.stringify(statusCode)}:${ref(response.$ref)}`
         }
         return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
@@ -94,7 +94,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
               return undefined
             const contentEntries = Object.entries(operation.requestBody.content)
               .map(([mediaType, mediaOrReference]) => {
-                if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
+                if ('$ref' in mediaOrReference && mediaOrReference.$ref) {
                   return `${JSON.stringify(mediaType)}:{schema:${ref(mediaOrReference.$ref)}}`
                 }
                 if ('schema' in mediaOrReference) {

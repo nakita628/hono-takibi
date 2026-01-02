@@ -969,21 +969,6 @@ export function buildExamples(
 }
 
 /**
- * Generates a string of export const statements for the given value.
- * @param value - The value to export.
- * @param suffix - The suffix to add to the key.
- * @returns A string of export const statements.
- */
-export function exportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
-  return Object.keys(value)
-    .map(
-      (key) =>
-        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key] ?? {})}`,
-    )
-    .join('\n\n')
-}
-
-/**
  * Generates a Zod schema constant and optional inferred type alias.
  *
  * @param schemaName - The base name of the schema (used for variable and type names)
