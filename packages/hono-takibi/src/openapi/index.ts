@@ -437,7 +437,7 @@ export type Schema = {
   readonly properties?: {
     readonly [k: string]: Schema
   }
-  readonly required?: readonly string[] | boolean
+  readonly required?: readonly string[]
   readonly items?: readonly Schema[]
   readonly enum?: readonly (
     | string

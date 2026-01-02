@@ -18,12 +18,7 @@ export function zodToOpenAPI(
   if (schema === undefined) throw new Error('Schema is undefined')
   /** ref */
   if (schema.$ref !== undefined) {
-    if (schema.$ref) {
-      // if (Object.keys(schema).length === 1) {
-      //   return wrap(ref(schema.$ref), schema, meta)
-      // }
-      return wrap(ref(schema.$ref), schema, meta)
-    }
+    return wrap(ref(schema.$ref), schema, meta)
   }
   /* combinators */
   /** allOf */

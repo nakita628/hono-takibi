@@ -14,7 +14,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        `z.string().default("test").nullable().optional().openapi({"type":"string","default":"test"})`,
+        `z.string().default("test").nullable().openapi({"type":"string","default":"test"})`,
       )
     })
 
@@ -25,7 +25,7 @@ describe('wrap', () => {
           default: 'test',
         }),
       ).toBe(
-        `z.string().default("test").nullable().optional().openapi({"type":["string","null"],"default":"test"})`,
+        `z.string().default("test").nullable().openapi({"type":["string","null"],"default":"test"})`,
       )
     })
   })
@@ -38,7 +38,7 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.number().default(0).nullable().optional().openapi({"type":"number","default":0})')
+      ).toBe('z.number().default(0).nullable().openapi({"type":"number","default":0})')
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -48,7 +48,7 @@ describe('wrap', () => {
           default: 0,
         }),
       ).toBe(
-        'z.number().default(0).nullable().optional().openapi({"type":["number","null"],"default":0})',
+        'z.number().default(0).nullable().openapi({"type":["number","null"],"default":0})',
       )
     })
   })
@@ -63,7 +63,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.int32().default(0).nullable().optional().openapi({"type":"integer","format":"int32","default":0})',
+        'z.int32().default(0).nullable().openapi({"type":"integer","format":"int32","default":0})',
       )
     })
 
@@ -75,7 +75,7 @@ describe('wrap', () => {
           default: 0,
         }),
       ).toBe(
-        'z.int32().default(0).nullable().optional().openapi({"type":["integer","null"],"format":"int32","default":0})',
+        'z.int32().default(0).nullable().openapi({"type":["integer","null"],"format":"int32","default":0})',
       )
     })
   })
@@ -90,7 +90,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.int64().default(0n).nullable().optional().openapi({"type":"integer","format":"int64","default":0})',
+        'z.int64().default(0n).nullable().openapi({"type":"integer","format":"int64","default":0})',
       )
     })
 
@@ -102,7 +102,7 @@ describe('wrap', () => {
           default: 0,
         }),
       ).toBe(
-        'z.int64().default(0n).nullable().optional().openapi({"type":["integer","null"],"format":"int64","default":0})',
+        'z.int64().default(0n).nullable().openapi({"type":["integer","null"],"format":"int64","default":0})',
       )
     })
 
@@ -115,7 +115,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.int64().default(0n).nullable().optional().openapi({"type":"integer","format":"int64","default":0})',
+        'z.int64().default(0n).nullable().openapi({"type":"integer","format":"int64","default":0})',
       )
     })
 
@@ -127,7 +127,7 @@ describe('wrap', () => {
           default: 0,
         }),
       ).toBe(
-        'z.int64().default(0n).nullable().optional().openapi({"type":["integer","null"],"format":"int64","default":0})',
+        'z.int64().default(0n).nullable().openapi({"type":["integer","null"],"format":"int64","default":0})',
       )
     })
   })
@@ -142,7 +142,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.bigint().default(BigInt(0)).nullable().optional().openapi({"type":"integer","format":"bigint","default":0})',
+        'z.bigint().default(BigInt(0)).nullable().openapi({"type":"integer","format":"bigint","default":0})',
       )
     })
 
@@ -154,7 +154,7 @@ describe('wrap', () => {
           default: 0,
         }),
       ).toBe(
-        'z.bigint().default(BigInt(0)).nullable().optional().openapi({"type":["integer","null"],"format":"bigint","default":0})',
+        'z.bigint().default(BigInt(0)).nullable().openapi({"type":["integer","null"],"format":"bigint","default":0})',
       )
     })
   })
@@ -168,7 +168,7 @@ describe('wrap', () => {
           nullable: true,
         }),
       ).toBe(
-        'z.boolean().default(true).nullable().optional().openapi({"type":"boolean","default":true})',
+        'z.boolean().default(true).nullable().openapi({"type":"boolean","default":true})',
       )
     })
 
@@ -179,14 +179,14 @@ describe('wrap', () => {
           default: true,
         }),
       ).toBe(
-        'z.boolean().default(true).nullable().optional().openapi({"type":["boolean","null"],"default":true})',
+        'z.boolean().default(true).nullable().openapi({"type":["boolean","null"],"default":true})',
       )
     })
   })
 
   it('zodToOpenAPI not exists openapi()', () => {
     const result = wrap('z.string()', { type: 'string' })
-    const expected = 'z.string().optional().openapi({"type":"string"})'
+    const expected = 'z.string().openapi({"type":"string"})'
     expect(result).toBe(expected)
   })
 
@@ -197,7 +197,7 @@ describe('wrap', () => {
       description: 'Example string',
     })
     const expected =
-      'z.string().optional().openapi({"type":"string","example":"hello","description":"Example string"})'
+      'z.string().openapi({"type":"string","example":"hello","description":"Example string"})'
     expect(result).toBe(expected)
   })
 
@@ -213,7 +213,7 @@ describe('wrap', () => {
         parameters: {
           name: 'id',
           in: 'path',
-        },
+        } as any,
       },
     )
     const expected =
@@ -228,33 +228,52 @@ describe('wrap', () => {
         type: 'string',
         example: 'query-value',
         description: 'Optional query parameter',
-        required: false,
       },
       {
         parameters: {
           name: 'q',
           in: 'query',
-        },
+        } as any,
       },
     )
     const expected = `z.string().optional().openapi({param:{"name":"q","in":"query"},"type":"string","example":"query-value","description":"Optional query parameter"})`
     expect(result).toBe(expected)
   })
 
+  it('should handle non-required query param correctly when required is true', () => {
+    const result = wrap(
+      'z.string()',
+      {
+        type: 'string',
+        example: 'query-value',
+        description: 'Optional query parameter',
+      },
+      {
+        parameters: {
+          name: 'q',
+          in: 'query',
+          required: true,
+        } as any,
+      },
+    )
+    const expected = `z.string().openapi({param:{"name":"q","in":"query","required":true},"type":"string","example":"query-value","description":"Optional query parameter"})`
+    expect(result).toBe(expected)
+  })
+
   it('should insert only param if no example or description is given', () => {
     const result = wrap(
       'z.string()',
-      { type: 'string', required: true },
-      { parameters: { name: 'x', in: 'header' } },
+      { type: 'string'},
+      { parameters: { name: 'x', in: 'header' }  as any},
     )
-    const expected = `z.string().openapi({param:{"name":"x","in":"header"},"type":"string"})`
+    const expected = `z.string().optional().openapi({param:{"name":"x","in":"header"},"type":"string"})`
     expect(result).toBe(expected)
   })
 
   it('should return examples', () => {
-    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] })
+    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
     const expected =
-      'z.string().optional().openapi({"type":"string","examples":["example1","example2"]})'
+      'z.string().openapi({"type":"string","examples":["example1","example2"]})'
     expect(result).toBe(expected)
   })
 })
