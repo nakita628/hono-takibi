@@ -1,5 +1,12 @@
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
+export function constCode(exportVariable: boolean, text: string, suffix: string): string {
+  if (exportVariable) {
+    return `export const ${toIdentifierPascalCase(ensureSuffix(text, suffix))} = `
+  }
+  return `const ${toIdentifierPascalCase(ensureSuffix(text, suffix))} = `
+}
+
 /**
  * Generates a string of export const statements for the given value.
  * @param value - The value to export.

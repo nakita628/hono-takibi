@@ -69,7 +69,6 @@ describe('type', () => {
       $post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }
     }
   },`)
-
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

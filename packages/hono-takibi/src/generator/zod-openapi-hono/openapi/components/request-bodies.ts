@@ -1,4 +1,4 @@
-import { constCode } from '../../../../helper/const.js'
+import { constCode } from '../../../../helper/code.js'
 import type { Components } from '../../../../openapi/index.js'
 import { ref } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'

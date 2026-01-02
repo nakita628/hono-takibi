@@ -1,5 +1,5 @@
+import { constCode } from '../../../../helper/code.js'
 import { makeCallbacks } from '../../../../helper/components.js'
-import { constCode } from '../../../../helper/const.js'
 import type { Callbacks, Components } from '../../../../openapi/index.js'
 
 export function callbacks(components: Components, exportCallbacks: boolean): string {

@@ -1,5 +1,5 @@
+import { constCode } from '../../../../helper/code.js'
 import { makeContent } from '../../../../helper/components.js'
-import { constCode } from '../../../../helper/const.js'
 import type { Components } from '../../../../openapi/index.js'
 
 export function responses(components: Components, exportResponses: boolean): string {

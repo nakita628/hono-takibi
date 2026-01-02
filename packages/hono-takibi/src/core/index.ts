@@ -1,6 +1,6 @@
 import path from 'node:path'
+import { exportConst } from '../helper/code.js'
 import { core } from '../helper/core.js'
-import { exportConst } from '../helper/exportConst.js'
 import { exports } from '../helper/exports.js'
 import type { Components } from '../openapi/index.js'
 
