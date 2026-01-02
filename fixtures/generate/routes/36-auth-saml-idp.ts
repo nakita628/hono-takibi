@@ -232,24 +232,25 @@ const CreateServiceProviderRequestSchema = z
 
 const UpdateServiceProviderRequestSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().openapi({ type: 'string' }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
+    name: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
     assertionConsumerServices: z
       .array(AssertionConsumerServiceSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/AssertionConsumerService' } }),
     singleLogoutServices: z
       .array(SingleLogoutServiceSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SingleLogoutService' } }),
-    nameIdFormat: z.string().openapi({ type: 'string' }),
-    signAssertions: z.boolean().openapi({ type: 'boolean' }),
-    signResponses: z.boolean().openapi({ type: 'boolean' }),
-    encryptAssertions: z.boolean().openapi({ type: 'boolean' }),
-    wantAuthnRequestsSigned: z.boolean().openapi({ type: 'boolean' }),
-    defaultRelayState: z.string().openapi({ type: 'string' }),
-    sessionDuration: z.int().openapi({ type: 'integer' }),
+    nameIdFormat: z.string().optional().openapi({ type: 'string' }),
+    signAssertions: z.boolean().optional().openapi({ type: 'boolean' }),
+    signResponses: z.boolean().optional().openapi({ type: 'boolean' }),
+    encryptAssertions: z.boolean().optional().openapi({ type: 'boolean' }),
+    wantAuthnRequestsSigned: z.boolean().optional().openapi({ type: 'boolean' }),
+    defaultRelayState: z.string().optional().openapi({ type: 'string' }),
+    sessionDuration: z.int().optional().openapi({ type: 'integer' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -396,12 +397,14 @@ const SamlSessionSchema = z
       .array(
         z
           .object({
-            spId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-            spName: z.string().openapi({ type: 'string' }),
-            sessionIndex: z.string().openapi({ type: 'string' }),
-            authenticatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+            spId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+            spName: z.string().optional().openapi({ type: 'string' }),
+            sessionIndex: z.string().optional().openapi({ type: 'string' }),
+            authenticatedAt: z.iso
+              .datetime()
+              .optional()
+              .openapi({ type: 'string', format: 'date-time' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -494,7 +497,7 @@ const AuditLogSchema = z
     spName: z.string().optional().openapi({ type: 'string' }),
     ipAddress: z.string().optional().openapi({ type: 'string' }),
     userAgent: z.string().optional().openapi({ type: 'string' }),
-    details: z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+    details: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
     errorMessage: z.string().optional().openapi({ type: 'string' }),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
@@ -661,17 +664,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: '不正なリクエスト',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getSamlSsoRoute = createRoute({
@@ -737,7 +740,7 @@ export const getSamlSsoRoute = createRoute({
     302: { description: '認証フォームまたはSPへリダイレクト' },
     400: {
       description: '不正なSAMLリクエスト',
-      content: { 'application/json': { schema: SamlErrorSchema.optional() } },
+      content: { 'application/json': { schema: SamlErrorSchema } },
     },
   },
 })
@@ -782,12 +785,12 @@ export const postSamlSsoRoute = createRoute({
   responses: {
     200: {
       description: '認証フォーム表示',
-      content: { 'text/html': { schema: z.string().optional().openapi({ type: 'string' }) } },
+      content: { 'text/html': { schema: z.string().openapi({ type: 'string' }) } },
     },
     302: { description: 'SPへリダイレクト' },
     400: {
       description: '不正なSAMLリクエスト',
-      content: { 'application/json': { schema: SamlErrorSchema.optional() } },
+      content: { 'application/json': { schema: SamlErrorSchema } },
     },
   },
 })
@@ -864,11 +867,10 @@ export const postSamlSloRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              SAMLRequest: z.string().openapi({ type: 'string' }),
-              SAMLResponse: z.string().openapi({ type: 'string' }),
-              RelayState: z.string().openapi({ type: 'string' }),
+              SAMLRequest: z.string().optional().openapi({ type: 'string' }),
+              SAMLResponse: z.string().optional().openapi({ type: 'string' }),
+              RelayState: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -885,7 +887,7 @@ export const postSamlSloRoute = createRoute({
   responses: {
     200: {
       description: 'ログアウトフォーム',
-      content: { 'text/html': { schema: z.string().optional().openapi({ type: 'string' }) } },
+      content: { 'text/html': { schema: z.string().openapi({ type: 'string' }) } },
     },
   },
 })
@@ -933,10 +935,8 @@ export const getSamlMetadataRoute = createRoute({
     200: {
       description: 'IdPメタデータ',
       content: {
-        'application/samlmetadata+xml': {
-          schema: z.string().optional().openapi({ type: 'string' }),
-        },
-        'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) },
+        'application/samlmetadata+xml': { schema: z.string().openapi({ type: 'string' }) },
+        'application/xml': { schema: z.string().openapi({ type: 'string' }) },
       },
     },
   },
@@ -973,7 +973,6 @@ export const getServiceProvidersRoute = createRoute({
         'application/json': {
           schema: z
             .array(ServiceProviderSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ServiceProvider' } }),
         },
       },
@@ -992,9 +991,9 @@ export const postServiceProvidersRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: CreateServiceProviderRequestSchema.optional() },
+        'application/json': { schema: CreateServiceProviderRequestSchema },
         'application/xml': {
-          schema: z.string().optional().openapi({ type: 'string', description: 'SPメタデータXML' }),
+          schema: z.string().openapi({ type: 'string', description: 'SPメタデータXML' }),
         },
       },
       required: true,
@@ -1003,7 +1002,7 @@ export const postServiceProvidersRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
+      content: { 'application/json': { schema: ServiceProviderSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1036,7 +1035,7 @@ export const getServiceProvidersSpIdRoute = createRoute({
   responses: {
     200: {
       description: 'SP詳細',
-      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
+      content: { 'application/json': { schema: ServiceProviderSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1052,14 +1051,14 @@ export const putServiceProvidersSpIdRoute = createRoute({
   operationId: 'updateServiceProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateServiceProviderRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateServiceProviderRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
+      content: { 'application/json': { schema: ServiceProviderSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1117,7 +1116,7 @@ export const getServiceProvidersSpIdMetadataRoute = createRoute({
   responses: {
     200: {
       description: 'SPメタデータ',
-      content: { 'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) } },
+      content: { 'application/xml': { schema: z.string().openapi({ type: 'string' }) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1133,11 +1132,10 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) },
+        'application/xml': { schema: z.string().openapi({ type: 'string' }) },
         'multipart/form-data': {
           schema: z
-            .object({ file: z.file().openapi({ type: 'string', format: 'binary' }) })
-            .partial()
+            .object({ file: z.file().optional().openapi({ type: 'string', format: 'binary' }) })
             .openapi({
               type: 'object',
               properties: { file: { type: 'string', format: 'binary' } },
@@ -1150,7 +1148,7 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ServiceProviderSchema.optional() } },
+      content: { 'application/json': { schema: ServiceProviderSchema } },
     },
     400: { description: '不正なメタデータ' },
     401: UnauthorizedResponse,
@@ -1187,7 +1185,6 @@ export const getServiceProvidersSpIdAttributesRoute = createRoute({
         'application/json': {
           schema: z
             .array(AttributeMappingSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/AttributeMapping' } }),
         },
       },
@@ -1209,7 +1206,6 @@ export const putServiceProvidersSpIdAttributesRoute = createRoute({
         'application/json': {
           schema: z
             .array(AttributeMappingSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/AttributeMapping' } }),
         },
       },
@@ -1223,7 +1219,6 @@ export const putServiceProvidersSpIdAttributesRoute = createRoute({
         'application/json': {
           schema: z
             .array(AttributeMappingSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/AttributeMapping' } }),
         },
       },
@@ -1246,7 +1241,6 @@ export const getAttributesRoute = createRoute({
         'application/json': {
           schema: z
             .array(AvailableAttributeSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/AvailableAttribute' } }),
         },
       },
@@ -1269,7 +1263,6 @@ export const getCertificatesRoute = createRoute({
         'application/json': {
           schema: z
             .array(CertificateSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Certificate' } }),
         },
       },
@@ -1317,7 +1310,7 @@ export const postCertificatesRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: CertificateSchema.optional() } },
+      content: { 'application/json': { schema: CertificateSchema } },
     },
     400: { description: '不正な証明書' },
     401: UnauthorizedResponse,
@@ -1380,7 +1373,7 @@ export const postCertificatesCertIdActivateRoute = createRoute({
   responses: {
     200: {
       description: '有効化成功',
-      content: { 'application/json': { schema: CertificateSchema.optional() } },
+      content: { 'application/json': { schema: CertificateSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1412,7 +1405,6 @@ export const getSessionsRoute = createRoute({
         'application/json': {
           schema: z
             .array(SamlSessionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/SamlSession' } }),
         },
       },
@@ -1504,7 +1496,7 @@ export const getAuditLogsRoute = createRoute({
   responses: {
     200: {
       description: '監査ログ',
-      content: { 'application/json': { schema: AuditLogListResponseSchema.optional() } },
+      content: { 'application/json': { schema: AuditLogListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },

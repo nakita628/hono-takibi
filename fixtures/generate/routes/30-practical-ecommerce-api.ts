@@ -92,10 +92,11 @@ const ProductSchema = z
       .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
     inventory: InventorySchema.optional(),
     attributes: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
@@ -299,10 +300,11 @@ const CreateProductRequestSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['draft', 'active'], default: 'draft' }),
     attributes: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
@@ -326,25 +328,31 @@ const CreateProductRequestSchema = z
 
 const UpdateProductRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().openapi({ type: 'string' }),
-    price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
-    compareAtPrice: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
-    sku: z.string().openapi({ type: 'string' }),
-    barcode: z.string().openapi({ type: 'string' }),
-    categoryId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    name: z
+      .string()
+      .min(1)
+      .max(200)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    description: z.string().optional().openapi({ type: 'string' }),
+    price: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
+    compareAtPrice: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
+    sku: z.string().optional().openapi({ type: 'string' }),
+    barcode: z.string().optional().openapi({ type: 'string' }),
+    categoryId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['draft', 'active', 'archived'])
+      .optional()
       .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
     attributes: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -427,11 +435,10 @@ const CreateOrderRequestSchema = z
 
 const UpdateInventoryRequestSchema = z
   .object({
-    quantity: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
-    lowStockThreshold: z.int().openapi({ type: 'integer' }),
-    trackInventory: z.boolean().openapi({ type: 'boolean' }),
+    quantity: z.int().min(0).optional().openapi({ type: 'integer', minimum: 0 }),
+    lowStockThreshold: z.int().optional().openapi({ type: 'integer' }),
+    trackInventory: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -503,10 +510,9 @@ const ErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().openapi({ type: 'string' }),
-            message: z.string().openapi({ type: 'string' }),
+            field: z.string().optional().openapi({ type: 'string' }),
+            message: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { field: { type: 'string' }, message: { type: 'string' } },
@@ -598,17 +604,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getProductsRoute = createRoute({
@@ -727,7 +733,7 @@ export const getProductsRoute = createRoute({
   responses: {
     200: {
       description: '商品一覧',
-      content: { 'application/json': { schema: ProductListResponseSchema.optional() } },
+      content: { 'application/json': { schema: ProductListResponseSchema } },
     },
   },
 })
@@ -740,15 +746,12 @@ export const postProductsRoute = createRoute({
   operationId: 'createProduct',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateProductRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateProductRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: ProductSchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: ProductSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -763,10 +766,7 @@ export const getProductsProductIdRoute = createRoute({
   operationId: 'getProduct',
   request: { params: z.object({ productId: ProductIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '商品詳細',
-      content: { 'application/json': { schema: ProductSchema.optional() } },
-    },
+    200: { description: '商品詳細', content: { 'application/json': { schema: ProductSchema } } },
     404: NotFoundResponse,
   },
 })
@@ -779,15 +779,12 @@ export const putProductsProductIdRoute = createRoute({
   operationId: 'updateProduct',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProductRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateProductRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: ProductSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: ProductSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -840,7 +837,7 @@ export const postProductsProductIdImagesRoute = createRoute({
   responses: {
     201: {
       description: 'アップロード成功',
-      content: { 'application/json': { schema: ProductImageSchema.optional() } },
+      content: { 'application/json': { schema: ProductImageSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -860,7 +857,6 @@ export const getCategoriesRoute = createRoute({
         'application/json': {
           schema: z
             .array(CategorySchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
         },
       },
@@ -876,15 +872,12 @@ export const postCategoriesRoute = createRoute({
   operationId: 'createCategory',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateCategoryRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateCategoryRequestSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '作成成功',
-      content: { 'application/json': { schema: CategorySchema.optional() } },
-    },
+    201: { description: '作成成功', content: { 'application/json': { schema: CategorySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -897,10 +890,7 @@ export const getCartRoute = createRoute({
   summary: 'カート取得',
   operationId: 'getCart',
   responses: {
-    200: {
-      description: 'カート内容',
-      content: { 'application/json': { schema: CartSchema.optional() } },
-    },
+    200: { description: 'カート内容', content: { 'application/json': { schema: CartSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -923,16 +913,10 @@ export const postCartItemsRoute = createRoute({
   summary: 'カートに商品追加',
   operationId: 'addToCart',
   request: {
-    body: {
-      content: { 'application/json': { schema: AddToCartRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: AddToCartRequestSchema } }, required: true },
   },
   responses: {
-    200: {
-      description: '追加成功',
-      content: { 'application/json': { schema: CartSchema.optional() } },
-    },
+    200: { description: '追加成功', content: { 'application/json': { schema: CartSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -962,10 +946,7 @@ export const putCartItemsItemIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: CartSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: CartSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -988,10 +969,7 @@ export const deleteCartItemsItemIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: '削除成功',
-      content: { 'application/json': { schema: CartSchema.optional() } },
-    },
+    200: { description: '削除成功', content: { 'application/json': { schema: CartSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1028,7 +1006,7 @@ export const getOrdersRoute = createRoute({
   responses: {
     200: {
       description: '注文一覧',
-      content: { 'application/json': { schema: OrderListResponseSchema.optional() } },
+      content: { 'application/json': { schema: OrderListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1043,16 +1021,10 @@ export const postOrdersRoute = createRoute({
   description: 'カートの内容から注文を作成します',
   operationId: 'createOrder',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateOrderRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateOrderRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '注文作成成功',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
-    },
+    201: { description: '注文作成成功', content: { 'application/json': { schema: OrderSchema } } },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
   },
@@ -1067,10 +1039,7 @@ export const getOrdersOrderIdRoute = createRoute({
   operationId: 'getOrder',
   request: { params: z.object({ orderId: OrderIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '注文詳細',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
-    },
+    200: { description: '注文詳細', content: { 'application/json': { schema: OrderSchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1089,9 +1058,11 @@ export const postOrdersOrderIdCancelRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              reason: z.string().openapi({ type: 'string', description: 'キャンセル理由' }),
+              reason: z
+                .string()
+                .optional()
+                .openapi({ type: 'string', description: 'キャンセル理由' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { reason: { type: 'string', description: 'キャンセル理由' } },
@@ -1103,11 +1074,11 @@ export const postOrdersOrderIdCancelRoute = createRoute({
   responses: {
     200: {
       description: 'キャンセル成功',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
+      content: { 'application/json': { schema: OrderSchema } },
     },
     400: {
       description: 'キャンセルできない状態',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1122,10 +1093,7 @@ export const getInventoryProductIdRoute = createRoute({
   operationId: 'getInventory',
   request: { params: z.object({ productId: ProductIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: '在庫情報',
-      content: { 'application/json': { schema: InventorySchema.optional() } },
-    },
+    200: { description: '在庫情報', content: { 'application/json': { schema: InventorySchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -1140,15 +1108,12 @@ export const putInventoryProductIdRoute = createRoute({
   operationId: 'updateInventory',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateInventoryRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateInventoryRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: InventorySchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: InventorySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],

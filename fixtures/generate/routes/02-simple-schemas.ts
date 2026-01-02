@@ -42,7 +42,6 @@ export const getUsersRoute = createRoute({
         'application/json': {
           schema: z
             .array(UserSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
         },
       },
@@ -55,16 +54,10 @@ export const postUsersRoute = createRoute({
   path: '/users',
   operationId: 'createUser',
   request: {
-    body: {
-      content: { 'application/json': { schema: CreateUserRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: CreateUserRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: 'User created',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    201: { description: 'User created', content: { 'application/json': { schema: UserSchema } } },
   },
 })
 
@@ -89,10 +82,7 @@ export const getUsersUserIdRoute = createRoute({
     }),
   },
   responses: {
-    200: {
-      description: 'User details',
-      content: { 'application/json': { schema: UserSchema.optional() } },
-    },
+    200: { description: 'User details', content: { 'application/json': { schema: UserSchema } } },
     404: { description: 'User not found' },
   },
 })

@@ -48,17 +48,17 @@ const ProviderConfigSchema = z
     tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     userInfoUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     attributeMapping: z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        email: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
-        picture: z.string().openapi({ type: 'string' }),
+        id: z.string().optional().openapi({ type: 'string' }),
+        email: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
+        picture: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -69,7 +69,7 @@ const ProviderConfigSchema = z
         },
       }),
     allowedDomains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' }, description: '許可するメールドメイン' }),
     autoCreateUser: z
@@ -142,12 +142,12 @@ const CreateProviderRequestSchema = z
     tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     userInfoUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).openapi({ type: 'object' }),
+    attributeMapping: z.object({}).optional().openapi({ type: 'object' }),
     allowedDomains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     autoCreateUser: z
@@ -195,12 +195,12 @@ const UpdateProviderRequestSchema = z
     tokenUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     userInfoUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).openapi({ type: 'object' }),
+    attributeMapping: z.object({}).optional().openapi({ type: 'object' }),
     allowedDomains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     autoCreateUser: z.boolean().optional().openapi({ type: 'boolean' }),
@@ -229,12 +229,11 @@ const SocialAuthResultSchema = z
   .object({
     user: z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        email: z.email().openapi({ type: 'string', format: 'email' }),
-        name: z.string().openapi({ type: 'string' }),
-        picture: z.url().openapi({ type: 'string', format: 'uri' }),
+        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+        name: z.string().optional().openapi({ type: 'string' }),
+        picture: z.url().optional().openapi({ type: 'string', format: 'uri' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -389,13 +388,13 @@ const SAMLConfigSchema = z
     nameIdFormat: z.string().optional().openapi({ type: 'string' }),
     attributeMapping: z
       .object({
-        email: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
-        firstName: z.string().openapi({ type: 'string' }),
-        lastName: z.string().openapi({ type: 'string' }),
-        groups: z.string().openapi({ type: 'string' }),
+        email: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
+        firstName: z.string().optional().openapi({ type: 'string' }),
+        lastName: z.string().optional().openapi({ type: 'string' }),
+        groups: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -441,10 +440,10 @@ const OIDCConfigSchema = z
     userInfoEndpoint: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     jwksUri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).openapi({ type: 'object' }),
+    attributeMapping: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -468,7 +467,6 @@ const EnterpriseSSOConfigSchema = z
     type: z.enum(['saml', 'oidc']).openapi({ type: 'string', enum: ['saml', 'oidc'] }),
     domains: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
       .openapi({
         type: 'array',
         items: { type: 'string' },
@@ -479,11 +477,11 @@ const EnterpriseSSOConfigSchema = z
     oidcConfig: OIDCConfigSchema.optional(),
     userProvisioning: z
       .object({
-        autoCreate: z.boolean().openapi({ type: 'boolean' }),
-        autoUpdate: z.boolean().openapi({ type: 'boolean' }),
-        defaultRole: z.string().openapi({ type: 'string' }),
+        autoCreate: z.boolean().optional().openapi({ type: 'boolean' }),
+        autoUpdate: z.boolean().optional().openapi({ type: 'boolean' }),
+        defaultRole: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -531,11 +529,10 @@ const CreateEnterpriseSSORequestSchema = z
     domains: z
       .array(z.string().openapi({ type: 'string' }))
       .min(1)
-      .optional()
       .openapi({ type: 'array', minItems: 1, items: { type: 'string' } }),
     samlConfig: SAMLConfigSchema.optional(),
     oidcConfig: OIDCConfigSchema.optional(),
-    userProvisioning: z.object({}).openapi({ type: 'object' }),
+    userProvisioning: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -556,12 +553,12 @@ const UpdateEnterpriseSSORequestSchema = z
     name: z.string().optional().openapi({ type: 'string' }),
     enabled: z.boolean().optional().openapi({ type: 'boolean' }),
     domains: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     samlConfig: SAMLConfigSchema.optional(),
     oidcConfig: OIDCConfigSchema.optional(),
-    userProvisioning: z.object({}).openapi({ type: 'object' }),
+    userProvisioning: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -642,17 +639,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getSocialAuthorizeProviderRoute = createRoute({
@@ -726,7 +723,7 @@ export const getSocialAuthorizeProviderRoute = createRoute({
     302: { description: 'プロバイダーの認証画面にリダイレクト' },
     400: {
       description: '不正なリクエスト',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -785,7 +782,7 @@ export const getSocialCallbackProviderRoute = createRoute({
     302: { description: 'アプリケーションにリダイレクト' },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema } },
     },
   },
 })
@@ -829,11 +826,11 @@ export const postSocialTokenRoute = createRoute({
   responses: {
     200: {
       description: '認証成功',
-      content: { 'application/json': { schema: SocialAuthResultSchema.optional() } },
+      content: { 'application/json': { schema: SocialAuthResultSchema } },
     },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema } },
     },
   },
 })
@@ -886,11 +883,11 @@ export const postSocialTokenNativeRoute = createRoute({
   responses: {
     200: {
       description: '検証成功',
-      content: { 'application/json': { schema: SocialAuthResultSchema.optional() } },
+      content: { 'application/json': { schema: SocialAuthResultSchema } },
     },
     400: {
       description: '検証失敗',
-      content: { 'application/json': { schema: SocialAuthErrorSchema.optional() } },
+      content: { 'application/json': { schema: SocialAuthErrorSchema } },
     },
   },
 })
@@ -908,7 +905,6 @@ export const getProvidersRoute = createRoute({
         'application/json': {
           schema: z
             .array(ProviderInfoSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProviderInfo' } }),
         },
       },
@@ -929,7 +925,6 @@ export const getProvidersAdminRoute = createRoute({
         'application/json': {
           schema: z
             .array(ProviderConfigSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProviderConfig' } }),
         },
       },
@@ -947,14 +942,14 @@ export const postProvidersAdminRoute = createRoute({
   operationId: 'createProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateProviderRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateProviderRequestSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
+      content: { 'application/json': { schema: ProviderConfigSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -987,7 +982,7 @@ export const getProvidersProviderIdRoute = createRoute({
   responses: {
     200: {
       description: 'プロバイダー詳細',
-      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
+      content: { 'application/json': { schema: ProviderConfigSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1003,14 +998,14 @@ export const putProvidersProviderIdRoute = createRoute({
   operationId: 'updateProvider',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateProviderRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateProviderRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: ProviderConfigSchema.optional() } },
+      content: { 'application/json': { schema: ProviderConfigSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1074,7 +1069,7 @@ export const postProvidersProviderIdTestRoute = createRoute({
             .object({
               success: z.boolean().optional().openapi({ type: 'boolean' }),
               message: z.string().optional().openapi({ type: 'string' }),
-              details: z.object({}).openapi({ type: 'object' }),
+              details: z.object({}).optional().openapi({ type: 'object' }),
             })
             .openapi({
               type: 'object',
@@ -1105,7 +1100,6 @@ export const getAccountLinkedRoute = createRoute({
         'application/json': {
           schema: z
             .array(LinkedAccountSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinkedAccount' } }),
         },
       },
@@ -1147,16 +1141,13 @@ export const postAccountLinkProviderRoute = createRoute({
   responses: {
     200: {
       description: '連携成功',
-      content: { 'application/json': { schema: LinkedAccountSchema.optional() } },
+      content: { 'application/json': { schema: LinkedAccountSchema } },
     },
-    400: {
-      description: '連携失敗',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
-    },
+    400: { description: '連携失敗', content: { 'application/json': { schema: ErrorSchema } } },
     401: UnauthorizedResponse,
     409: {
       description: '既に他のアカウントに連携済み',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
   security: [{ bearerAuth: [] }],
@@ -1173,7 +1164,7 @@ export const deleteAccountLinkProviderRoute = createRoute({
     204: { description: '解除成功' },
     400: {
       description: '解除できません（最後の認証方法など）',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1193,7 +1184,6 @@ export const getEnterpriseSsoRoute = createRoute({
         'application/json': {
           schema: z
             .array(EnterpriseSSOConfigSchema)
-            .optional()
             .openapi({
               type: 'array',
               items: { $ref: '#/components/schemas/EnterpriseSSOConfig' },
@@ -1214,14 +1204,14 @@ export const postEnterpriseSsoRoute = createRoute({
   operationId: 'createEnterpriseSSOConfig',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateEnterpriseSSORequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateEnterpriseSSORequestSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -1254,7 +1244,7 @@ export const getEnterpriseSsoConfigIdRoute = createRoute({
   responses: {
     200: {
       description: 'SSO設定詳細',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1270,14 +1260,14 @@ export const putEnterpriseSsoConfigIdRoute = createRoute({
   operationId: 'updateEnterpriseSSOConfig',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1335,7 +1325,7 @@ export const getEnterpriseSsoDomainLookupRoute = createRoute({
   responses: {
     200: {
       description: 'SSO設定',
-      content: { 'application/json': { schema: EnterpriseSSOConfigSchema.optional() } },
+      content: { 'application/json': { schema: EnterpriseSSOConfigSchema } },
     },
     404: { description: 'SSO設定が見つかりません' },
   },
@@ -1367,7 +1357,7 @@ export const getEnterpriseSsoConfigIdMetadataRoute = createRoute({
   responses: {
     200: {
       description: 'SPメタデータ',
-      content: { 'application/xml': { schema: z.string().optional().openapi({ type: 'string' }) } },
+      content: { 'application/xml': { schema: z.string().openapi({ type: 'string' }) } },
     },
   },
 })

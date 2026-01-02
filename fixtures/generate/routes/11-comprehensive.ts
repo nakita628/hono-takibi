@@ -2,7 +2,6 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ProductCategorySchema = z
   .enum(['electronics', 'clothing', 'books', 'home', 'sports', 'toys'])
-  .optional()
   .openapi({
     type: 'string',
     enum: ['electronics', 'clothing', 'books', 'home', 'sports', 'toys'],
@@ -66,7 +65,7 @@ const ProductSchema = z
     price: MoneySchema,
     category: ProductCategorySchema,
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .max(10)
       .optional()
       .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true, maxItems: 10 }),
@@ -76,12 +75,13 @@ const ProductSchema = z
       .optional()
       .openapi({ type: 'integer', format: 'int32', minimum: 0 }),
     images: z
-      .array(z.url().optional().openapi({ type: 'string', format: 'uri' }))
+      .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .max(10)
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' }, maxItems: 10 }),
     metadata: z
-      .record(z.string(), z.string().optional().openapi({ type: 'string' }))
+      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .optional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     status: z
       .enum(['draft', 'active', 'archived'])
@@ -181,7 +181,7 @@ const CreateProductInputSchema = z
     price: MoneySchema,
     category: ProductCategorySchema,
     tags: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     inventory: z
@@ -191,7 +191,7 @@ const CreateProductInputSchema = z
       .optional()
       .openapi({ type: 'integer', minimum: 0, default: 0 }),
     images: z
-      .array(z.url().optional().openapi({ type: 'string', format: 'uri' }))
+      .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' } }),
   })
@@ -218,15 +218,14 @@ const UpdateProductInputSchema = z
       .object({
         status: z
           .enum(['draft', 'active', 'archived'])
+          .optional()
           .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { status: { type: 'string', enum: ['draft', 'active', 'archived'] } },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/CreateProductInput' },
@@ -387,7 +386,6 @@ const WebhookSchema = z
             ],
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -459,11 +457,10 @@ const WebhookPayloadSchema = z
 
 const ErrorDetailSchema = z
   .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-    target: z.string().openapi({ type: 'string' }),
+    code: z.string().optional().openapi({ type: 'string' }),
+    message: z.string().optional().openapi({ type: 'string' }),
+    target: z.string().optional().openapi({ type: 'string' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -653,19 +650,19 @@ const Oauth2SecurityScheme = {
 
 const CreateProductRequestBody = {
   description: 'Product creation request',
-  content: { 'application/json': { schema: CreateProductInputSchema.optional() } },
+  content: { 'application/json': { schema: CreateProductInputSchema } },
   required: true,
 }
 
 const UpdateProductRequestBody = {
   description: 'Product update request',
-  content: { 'application/json': { schema: UpdateProductInputSchema.optional() } },
+  content: { 'application/json': { schema: UpdateProductInputSchema } },
   required: true,
 }
 
 const CreateOrderRequestBody = {
   description: 'Order creation request',
-  content: { 'application/json': { schema: CreateOrderInputSchema.optional() } },
+  content: { 'application/json': { schema: CreateOrderInputSchema } },
   required: true,
 }
 
@@ -678,7 +675,6 @@ const CreateWebhookRequestBody = {
           url: z.url().openapi({ type: 'string', format: 'uri' }),
           events: z
             .array(z.string().openapi({ type: 'string' }))
-            .optional()
             .openapi({ type: 'array', items: { type: 'string' } }),
           secret: z.string().optional().openapi({ type: 'string' }),
         })
@@ -712,7 +708,7 @@ const BadRequestResponse = {
   description: 'Bad request - invalid parameters',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       examples: { validationError: ValidationErrorExample },
     },
   },
@@ -722,7 +718,7 @@ const UnauthorizedResponse = {
   description: 'Authentication required',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'UNAUTHORIZED', message: 'Authentication required' },
     },
   },
@@ -732,7 +728,7 @@ const ForbiddenResponse = {
   description: 'Insufficient permissions',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
     },
   },
@@ -742,7 +738,7 @@ const NotFoundResponse = {
   description: 'Resource not found',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'NOT_FOUND', message: 'Resource not found' },
     },
   },
@@ -752,7 +748,7 @@ const ConflictResponse = {
   description: 'Resource conflict',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'CONFLICT', message: 'Resource already exists' },
     },
   },
@@ -762,7 +758,7 @@ const PreconditionFailedResponse = {
   description: 'Precondition failed (ETag mismatch)',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'PRECONDITION_FAILED', message: 'ETag mismatch' },
     },
   },
@@ -772,7 +768,7 @@ const TooManyRequestsResponse = {
   description: 'Rate limit exceeded',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'RATE_LIMITED', message: 'Too many requests' },
     },
   },
@@ -782,7 +778,7 @@ const InternalErrorResponse = {
   description: 'Internal server error',
   content: {
     'application/json': {
-      schema: ErrorSchema.optional(),
+      schema: ErrorSchema,
       example: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' },
     },
   },
@@ -1021,7 +1017,7 @@ const GenericWebhookCallback = {
     post: {
       summary: 'Webhook event delivery',
       operationId: 'onWebhookEvent',
-      requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema.optional() } } },
+      requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema } } },
       responses: {
         '200': { description: 'Webhook received' },
         '401': { description: 'Invalid signature' },
@@ -1058,7 +1054,7 @@ export const getProductsRoute = createRoute({
       description: 'Product list retrieved successfully',
       content: {
         'application/json': {
-          schema: ProductListSchema.optional(),
+          schema: ProductListSchema,
           examples: {
             multipleProducts: { $ref: '#/components/examples/ProductListExample' },
             emptyList: { $ref: '#/components/examples/EmptyProductList' },
@@ -1085,7 +1081,7 @@ export const postProductsRoute = createRoute({
       description: 'Product created successfully',
       content: {
         'application/json': {
-          schema: ProductSchema.optional(),
+          schema: ProductSchema,
           examples: { createdProduct: { $ref: '#/components/examples/ProductExample' } },
         },
       },
@@ -1113,7 +1109,7 @@ export const getProductsProductIdRoute = createRoute({
       description: 'Product details',
       content: {
         'application/json': {
-          schema: ProductSchema.optional(),
+          schema: ProductSchema,
           examples: { product: { $ref: '#/components/examples/ProductExample' } },
         },
       },
@@ -1137,7 +1133,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
-      content: { 'application/json': { schema: ProductSchema.optional() } },
+      content: { 'application/json': { schema: ProductSchema } },
     },
     404: NotFoundResponse,
     409: ConflictResponse,
@@ -1170,10 +1166,7 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: CreateOrderRequestBody },
   responses: {
-    201: {
-      description: 'Order created',
-      content: { 'application/json': { schema: OrderSchema.optional() } },
-    },
+    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
   },
   callbacks: { orderStatusUpdate: OrderStatusCallback, paymentConfirmation: PaymentCallback },
 })
@@ -1188,7 +1181,7 @@ export const postWebhooksRoute = createRoute({
   responses: {
     201: {
       description: 'Webhook registered',
-      content: { 'application/json': { schema: WebhookSchema.optional() } },
+      content: { 'application/json': { schema: WebhookSchema } },
     },
   },
   callbacks: { webhookEvent: GenericWebhookCallback },

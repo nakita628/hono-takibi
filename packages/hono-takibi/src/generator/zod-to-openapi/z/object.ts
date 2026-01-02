@@ -28,12 +28,12 @@ export function object(schema: Schema): string {
       return `${safeKey}:${optionalZ}`
     })
 
-    const allOptional = objectProperties.every((v) => v.includes('.optional()'))
-    // If all properties are optional and no required properties, return partial schema
-    if (required.length === 0 && allOptional) {
-      const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
-      return `z.object({${cleanProperties}}).partial()`
-    }
+    // const allOptional = objectProperties.every((v) => v.includes('.optional()'))
+    // // If all properties are optional and no required properties, return partial schema
+    // if (required.length === 0 && allOptional) {
+    //   const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
+    //   return `z.object({${cleanProperties}}).partial()`
+    // }
     return `z.object({${objectProperties}})`
   }
 

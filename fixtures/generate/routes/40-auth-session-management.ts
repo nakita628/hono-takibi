@@ -2,19 +2,19 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const DeviceInfoSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    fingerprint: z.string().openapi({ type: 'string' }),
+    id: z.string().optional().openapi({ type: 'string' }),
+    fingerprint: z.string().optional().openapi({ type: 'string' }),
     type: z
       .enum(['desktop', 'mobile', 'tablet', 'unknown'])
+      .optional()
       .openapi({ type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] }),
-    os: z.string().openapi({ type: 'string' }),
-    osVersion: z.string().openapi({ type: 'string' }),
-    browser: z.string().openapi({ type: 'string' }),
-    browserVersion: z.string().openapi({ type: 'string' }),
-    userAgent: z.string().openapi({ type: 'string' }),
-    isTrusted: z.boolean().openapi({ type: 'boolean' }),
+    os: z.string().optional().openapi({ type: 'string' }),
+    osVersion: z.string().optional().openapi({ type: 'string' }),
+    browser: z.string().optional().openapi({ type: 'string' }),
+    browserVersion: z.string().optional().openapi({ type: 'string' }),
+    userAgent: z.string().optional().openapi({ type: 'string' }),
+    isTrusted: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -33,20 +33,19 @@ const DeviceInfoSchema = z
 
 const LocationInfoSchema = z
   .object({
-    ipAddress: z.string().openapi({ type: 'string' }),
-    country: z.string().openapi({ type: 'string' }),
-    countryCode: z.string().openapi({ type: 'string' }),
-    region: z.string().openapi({ type: 'string' }),
-    city: z.string().openapi({ type: 'string' }),
-    latitude: z.number().openapi({ type: 'number' }),
-    longitude: z.number().openapi({ type: 'number' }),
-    timezone: z.string().openapi({ type: 'string' }),
-    isp: z.string().openapi({ type: 'string' }),
-    isVpn: z.boolean().openapi({ type: 'boolean' }),
-    isTor: z.boolean().openapi({ type: 'boolean' }),
-    isProxy: z.boolean().openapi({ type: 'boolean' }),
+    ipAddress: z.string().optional().openapi({ type: 'string' }),
+    country: z.string().optional().openapi({ type: 'string' }),
+    countryCode: z.string().optional().openapi({ type: 'string' }),
+    region: z.string().optional().openapi({ type: 'string' }),
+    city: z.string().optional().openapi({ type: 'string' }),
+    latitude: z.number().optional().openapi({ type: 'number' }),
+    longitude: z.number().optional().openapi({ type: 'number' }),
+    timezone: z.string().optional().openapi({ type: 'string' }),
+    isp: z.string().optional().openapi({ type: 'string' }),
+    isVpn: z.boolean().optional().openapi({ type: 'boolean' }),
+    isTor: z.boolean().optional().openapi({ type: 'boolean' }),
+    isProxy: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -169,7 +168,6 @@ const SessionWithTokensSchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Session' },
@@ -204,7 +202,10 @@ const CreateSessionRequestSchema = z
     mfaToken: z.string().optional().openapi({ type: 'string', description: 'mfa_token grant用' }),
     mfaCode: z.string().optional().openapi({ type: 'string', description: 'mfa_token grant用' }),
     ssoToken: z.string().optional().openapi({ type: 'string', description: 'sso_token grant用' }),
-    passkeyResponse: z.object({}).openapi({ type: 'object', description: 'passkey grant用' }),
+    passkeyResponse: z
+      .object({})
+      .optional()
+      .openapi({ type: 'object', description: 'passkey grant用' }),
     magicLinkToken: z
       .string()
       .optional()
@@ -392,33 +393,46 @@ const SecurityEventSchema = z
 
 const SessionPolicySchema = z
   .object({
-    sessionDuration: z.int().openapi({ type: 'integer', description: 'セッション有効期間（秒）' }),
-    idleTimeout: z.int().openapi({ type: 'integer', description: 'アイドルタイムアウト（秒）' }),
+    sessionDuration: z
+      .int()
+      .optional()
+      .openapi({ type: 'integer', description: 'セッション有効期間（秒）' }),
+    idleTimeout: z
+      .int()
+      .optional()
+      .openapi({ type: 'integer', description: 'アイドルタイムアウト（秒）' }),
     maxConcurrentSessions: z
       .int()
+      .optional()
       .openapi({ type: 'integer', description: '最大同時セッション数' }),
     concurrentSessionAction: z
       .enum(['allow', 'deny', 'revoke_oldest'])
+      .optional()
       .openapi({
         type: 'string',
         enum: ['allow', 'deny', 'revoke_oldest'],
         description: '同時セッション超過時のアクション',
       }),
-    requireMfaForNewDevice: z.boolean().openapi({ type: 'boolean' }),
-    requireMfaForNewLocation: z.boolean().openapi({ type: 'boolean' }),
-    allowRememberMe: z.boolean().openapi({ type: 'boolean' }),
+    requireMfaForNewDevice: z.boolean().optional().openapi({ type: 'boolean' }),
+    requireMfaForNewLocation: z.boolean().optional().openapi({ type: 'boolean' }),
+    allowRememberMe: z.boolean().optional().openapi({ type: 'boolean' }),
     rememberMeDuration: z
       .int()
+      .optional()
       .openapi({ type: 'integer', description: 'Remember Me の期間（秒）' }),
     refreshTokenRotation: z
       .boolean()
+      .optional()
       .openapi({ type: 'boolean', description: 'リフレッシュトークンのローテーション' }),
-    absoluteTimeout: z.int().openapi({ type: 'integer', description: '絶対タイムアウト（秒）' }),
+    absoluteTimeout: z
+      .int()
+      .optional()
+      .openapi({ type: 'integer', description: '絶対タイムアウト（秒）' }),
     ipBindingEnabled: z
       .boolean()
+      .optional()
       .openapi({ type: 'boolean', description: 'IPアドレスバインディング' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -450,27 +464,30 @@ const UpdateSessionPolicyRequestSchema = z
       .int()
       .min(300)
       .max(604800)
+      .optional()
       .openapi({ type: 'integer', minimum: 300, maximum: 604800 }),
     idleTimeout: z
       .int()
       .min(60)
       .max(86400)
+      .optional()
       .openapi({ type: 'integer', minimum: 60, maximum: 86400 }),
     maxConcurrentSessions: z
       .int()
       .min(1)
       .max(100)
+      .optional()
       .openapi({ type: 'integer', minimum: 1, maximum: 100 }),
     concurrentSessionAction: z
       .enum(['allow', 'deny', 'revoke_oldest'])
+      .optional()
       .openapi({ type: 'string', enum: ['allow', 'deny', 'revoke_oldest'] }),
-    requireMfaForNewDevice: z.boolean().openapi({ type: 'boolean' }),
-    requireMfaForNewLocation: z.boolean().openapi({ type: 'boolean' }),
-    allowRememberMe: z.boolean().openapi({ type: 'boolean' }),
-    rememberMeDuration: z.int().openapi({ type: 'integer' }),
-    refreshTokenRotation: z.boolean().openapi({ type: 'boolean' }),
+    requireMfaForNewDevice: z.boolean().optional().openapi({ type: 'boolean' }),
+    requireMfaForNewLocation: z.boolean().optional().openapi({ type: 'boolean' }),
+    allowRememberMe: z.boolean().optional().openapi({ type: 'boolean' }),
+    rememberMeDuration: z.int().optional().openapi({ type: 'integer' }),
+    refreshTokenRotation: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -624,17 +641,17 @@ const CookieAuthSecurityScheme = { type: 'apiKey', in: 'cookie', name: 'session_
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getSessionsRoute = createRoute({
@@ -669,7 +686,6 @@ export const getSessionsRoute = createRoute({
         'application/json': {
           schema: z
             .array(SessionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Session' } }),
         },
       },
@@ -688,20 +704,17 @@ export const postSessionsRoute = createRoute({
   operationId: 'createSession',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateSessionRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateSessionRequestSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: 'セッション作成成功',
-      content: { 'application/json': { schema: SessionWithTokensSchema.optional() } },
+      content: { 'application/json': { schema: SessionWithTokensSchema } },
     },
     400: BadRequestResponse,
-    401: {
-      description: '認証失敗',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
-    },
+    401: { description: '認証失敗', content: { 'application/json': { schema: ErrorSchema } } },
   },
 })
 
@@ -714,7 +727,7 @@ export const getSessionsCurrentRoute = createRoute({
   responses: {
     200: {
       description: '現在のセッション',
-      content: { 'application/json': { schema: SessionSchema.optional() } },
+      content: { 'application/json': { schema: SessionSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -757,11 +770,11 @@ export const postSessionsCurrentRefreshRoute = createRoute({
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: SessionWithTokensSchema.optional() } },
+      content: { 'application/json': { schema: SessionWithTokensSchema } },
     },
     401: {
       description: 'リフレッシュトークンが無効',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
   },
 })
@@ -783,6 +796,7 @@ export const postSessionsCurrentExtendRoute = createRoute({
                 .int()
                 .min(60)
                 .max(86400)
+                .optional()
                 .openapi({
                   type: 'integer',
                   description: '延長時間（秒）',
@@ -790,7 +804,6 @@ export const postSessionsCurrentExtendRoute = createRoute({
                   maximum: 86400,
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -807,10 +820,7 @@ export const postSessionsCurrentExtendRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '延長成功',
-      content: { 'application/json': { schema: SessionSchema.optional() } },
-    },
+    200: { description: '延長成功', content: { 'application/json': { schema: SessionSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }, { cookieAuth: [] }],
@@ -830,10 +840,15 @@ export const postSessionsCurrentActivityRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              lastActivityAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-              idleTimeoutAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+              lastActivityAt: z.iso
+                .datetime()
+                .optional()
+                .openapi({ type: 'string', format: 'date-time' }),
+              idleTimeoutAt: z.iso
+                .datetime()
+                .optional()
+                .openapi({ type: 'string', format: 'date-time' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -859,7 +874,7 @@ export const getSessionsSessionIdRoute = createRoute({
   responses: {
     200: {
       description: 'セッション詳細',
-      content: { 'application/json': { schema: SessionSchema.optional() } },
+      content: { 'application/json': { schema: SessionSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -899,13 +914,13 @@ export const postSessionsRevokeAllRoute = createRoute({
               includeCurrent: z
                 .boolean()
                 .default(false)
+                .optional()
                 .openapi({
                   type: 'boolean',
                   default: false,
                   description: '現在のセッションも含めるか',
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -926,8 +941,7 @@ export const postSessionsRevokeAllRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ revokedCount: z.int().openapi({ type: 'integer' }) })
-            .partial()
+            .object({ revokedCount: z.int().optional().openapi({ type: 'integer' }) })
             .openapi({ type: 'object', properties: { revokedCount: { type: 'integer' } } }),
         },
       },
@@ -950,10 +964,9 @@ export const postSessionsValidateRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              accessToken: z.string().openapi({ type: 'string' }),
-              sessionId: z.string().openapi({ type: 'string' }),
+              accessToken: z.string().optional().openapi({ type: 'string' }),
+              sessionId: z.string().optional().openapi({ type: 'string' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { accessToken: { type: 'string' }, sessionId: { type: 'string' } },
@@ -966,7 +979,7 @@ export const postSessionsValidateRoute = createRoute({
   responses: {
     200: {
       description: '検証結果',
-      content: { 'application/json': { schema: SessionValidationResultSchema.optional() } },
+      content: { 'application/json': { schema: SessionValidationResultSchema } },
     },
     400: BadRequestResponse,
   },
@@ -1003,7 +1016,7 @@ export const getSessionsHistoryRoute = createRoute({
   responses: {
     200: {
       description: 'セッション履歴',
-      content: { 'application/json': { schema: SessionHistoryResponseSchema.optional() } },
+      content: { 'application/json': { schema: SessionHistoryResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1038,7 +1051,7 @@ export const getSessionsSecurityEventsRoute = createRoute({
   responses: {
     200: {
       description: 'セキュリティイベント',
-      content: { 'application/json': { schema: SecurityEventListResponseSchema.optional() } },
+      content: { 'application/json': { schema: SecurityEventListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1054,7 +1067,7 @@ export const getSessionsPoliciesRoute = createRoute({
   responses: {
     200: {
       description: 'セッションポリシー',
-      content: { 'application/json': { schema: SessionPolicySchema.optional() } },
+      content: { 'application/json': { schema: SessionPolicySchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1069,14 +1082,14 @@ export const putSessionsPoliciesRoute = createRoute({
   operationId: 'updateSessionPolicies',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateSessionPolicyRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateSessionPolicyRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: SessionPolicySchema.optional() } },
+      content: { 'application/json': { schema: SessionPolicySchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1096,7 +1109,6 @@ export const getSessionsTrustedDevicesRoute = createRoute({
         'application/json': {
           schema: z
             .array(TrustedDeviceSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/TrustedDevice' } }),
         },
       },
@@ -1118,11 +1130,12 @@ export const postSessionsTrustedDevicesRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().openapi({ type: 'string', description: 'デバイス名' }),
+              name: z.string().optional().openapi({ type: 'string', description: 'デバイス名' }),
               trustDuration: z
                 .int()
                 .min(1)
                 .max(365)
+                .optional()
                 .openapi({
                   type: 'integer',
                   description: '信頼期間（日）',
@@ -1130,7 +1143,6 @@ export const postSessionsTrustedDevicesRoute = createRoute({
                   maximum: 365,
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1150,7 +1162,7 @@ export const postSessionsTrustedDevicesRoute = createRoute({
   responses: {
     201: {
       description: '登録成功',
-      content: { 'application/json': { schema: TrustedDeviceSchema.optional() } },
+      content: { 'application/json': { schema: TrustedDeviceSchema } },
     },
     401: UnauthorizedResponse,
   },

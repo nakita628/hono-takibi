@@ -134,12 +134,13 @@ const NotificationSettingsSchema = z
     directMessages: z.boolean().optional().openapi({ type: 'boolean' }),
     emailNotifications: z
       .object({
-        enabled: z.boolean().openapi({ type: 'boolean' }),
+        enabled: z.boolean().optional().openapi({ type: 'boolean' }),
         digest: z
           .enum(['daily', 'weekly', 'never'])
+          .optional()
           .openapi({ type: 'string', enum: ['daily', 'weekly', 'never'] }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -220,12 +221,12 @@ const MessageSchema = z
       .array(
         z
           .object({
-            emoji: z.string().openapi({ type: 'string' }),
+            emoji: z.string().optional().openapi({ type: 'string' }),
             users: z
               .array(UserSummarySchema)
+              .optional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -246,7 +247,7 @@ const MessageSchema = z
         },
       }),
     readBy: z
-      .array(z.uuid().optional().openapi({ type: 'string', format: 'uuid' }))
+      .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
@@ -312,14 +313,13 @@ const ConversationSchema = z
 
 const SendMessageRequestSchema = z
   .object({
-    text: z.string().max(10000).openapi({ type: 'string', maxLength: 10000 }),
+    text: z.string().max(10000).optional().openapi({ type: 'string', maxLength: 10000 }),
     mediaIds: z
       .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
-    sharedPostId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    sharedPostId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -336,10 +336,10 @@ const HashtagSchema = z
     postCount: z.int().openapi({ type: 'integer' }),
     trend: z
       .object({
-        rank: z.int().openapi({ type: 'integer' }),
-        trendingIn: z.string().openapi({ type: 'string' }),
+        rank: z.int().optional().openapi({ type: 'integer' }),
+        trendingIn: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { rank: { type: 'integer' }, trendingIn: { type: 'string' } },
@@ -600,12 +600,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getNotificationsRoute = createRoute({
@@ -650,7 +650,7 @@ export const getNotificationsRoute = createRoute({
   responses: {
     200: {
       description: '通知一覧',
-      content: { 'application/json': { schema: NotificationListResponseSchema.optional() } },
+      content: { 'application/json': { schema: NotificationListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -670,10 +670,9 @@ export const getNotificationsUnreadCountRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              count: z.int().openapi({ type: 'integer' }),
-              mentionsCount: z.int().openapi({ type: 'integer' }),
+              count: z.int().optional().openapi({ type: 'integer' }),
+              mentionsCount: z.int().optional().openapi({ type: 'integer' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { count: { type: 'integer' }, mentionsCount: { type: 'integer' } },
@@ -706,9 +705,11 @@ export const postNotificationsMarkReadRoute = createRoute({
                   items: { type: 'string', format: 'uuid' },
                   description: '指定しない場合は全て既読',
                 }),
-              maxId: z.string().openapi({ type: 'string', description: 'このID以前を既読' }),
+              maxId: z
+                .string()
+                .optional()
+                .openapi({ type: 'string', description: 'このID以前を既読' }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -737,7 +738,7 @@ export const getNotificationsSettingsRoute = createRoute({
   responses: {
     200: {
       description: '通知設定',
-      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
+      content: { 'application/json': { schema: NotificationSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -752,14 +753,14 @@ export const putNotificationsSettingsRoute = createRoute({
   operationId: 'updateNotificationSettings',
   request: {
     body: {
-      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
+      content: { 'application/json': { schema: NotificationSettingsSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: NotificationSettingsSchema.optional() } },
+      content: { 'application/json': { schema: NotificationSettingsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -776,7 +777,7 @@ export const getDmConversationsRoute = createRoute({
   responses: {
     200: {
       description: '会話一覧',
-      content: { 'application/json': { schema: ConversationListResponseSchema.optional() } },
+      content: { 'application/json': { schema: ConversationListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -799,7 +800,6 @@ export const postDmConversationsRoute = createRoute({
                 .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
                 .min(1)
                 .max(50)
-                .optional()
                 .openapi({
                   type: 'array',
                   items: { type: 'string', format: 'uuid' },
@@ -835,7 +835,7 @@ export const postDmConversationsRoute = createRoute({
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ConversationSchema.optional() } },
+      content: { 'application/json': { schema: ConversationSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -852,7 +852,7 @@ export const getDmConversationsConversationIdRoute = createRoute({
   responses: {
     200: {
       description: '会話詳細',
-      content: { 'application/json': { schema: ConversationSchema.optional() } },
+      content: { 'application/json': { schema: ConversationSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -884,7 +884,7 @@ export const getDmConversationsConversationIdMessagesRoute = createRoute({
   responses: {
     200: {
       description: 'メッセージ一覧',
-      content: { 'application/json': { schema: MessageListResponseSchema.optional() } },
+      content: { 'application/json': { schema: MessageListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -898,16 +898,10 @@ export const postDmConversationsConversationIdMessagesRoute = createRoute({
   summary: 'メッセージ送信',
   operationId: 'sendMessage',
   request: {
-    body: {
-      content: { 'application/json': { schema: SendMessageRequestSchema.optional() } },
-      required: true,
-    },
+    body: { content: { 'application/json': { schema: SendMessageRequestSchema } }, required: true },
   },
   responses: {
-    201: {
-      description: '送信成功',
-      content: { 'application/json': { schema: MessageSchema.optional() } },
-    },
+    201: { description: '送信成功', content: { 'application/json': { schema: MessageSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -924,8 +918,9 @@ export const postDmConversationsConversationIdReadRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ lastReadMessageId: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
-            .partial()
+            .object({
+              lastReadMessageId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+            })
             .openapi({
               type: 'object',
               properties: { lastReadMessageId: { type: 'string', format: 'uuid' } },
@@ -1048,12 +1043,12 @@ export const getDmUnreadCountRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              count: z.int().openapi({ type: 'integer' }),
+              count: z.int().optional().openapi({ type: 'integer' }),
               conversationCounts: z
                 .record(z.string(), z.int().openapi({ type: 'integer' }))
+                .optional()
                 .openapi({ type: 'object', additionalProperties: { type: 'integer' } }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1172,7 +1167,7 @@ export const getSearchPostsRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: PostSearchResponseSchema.optional() } },
+      content: { 'application/json': { schema: PostSearchResponseSchema } },
     },
   },
 })
@@ -1198,7 +1193,7 @@ export const getSearchUsersRoute = createRoute({
   responses: {
     200: {
       description: '検索結果',
-      content: { 'application/json': { schema: UserSearchResponseSchema.optional() } },
+      content: { 'application/json': { schema: UserSearchResponseSchema } },
     },
   },
 })
@@ -1227,7 +1222,6 @@ export const getSearchHashtagsRoute = createRoute({
         'application/json': {
           schema: z
             .array(HashtagSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Hashtag' } }),
         },
       },
@@ -1250,10 +1244,12 @@ export const getSearchRecentRoute = createRoute({
             .array(
               z
                 .object({
-                  query: z.string().openapi({ type: 'string' }),
-                  searchedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+                  query: z.string().optional().openapi({ type: 'string' }),
+                  searchedAt: z.iso
+                    .datetime()
+                    .optional()
+                    .openapi({ type: 'string', format: 'date-time' }),
                 })
-                .partial()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -1262,7 +1258,6 @@ export const getSearchRecentRoute = createRoute({
                   },
                 }),
             )
-            .optional()
             .openapi({
               type: 'array',
               items: {
@@ -1335,7 +1330,6 @@ export const getTrendsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TrendSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Trend' } }),
         },
       },
@@ -1356,7 +1350,6 @@ export const getTrendsLocationsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TrendLocationSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/TrendLocation' } }),
         },
       },
@@ -1390,7 +1383,6 @@ export const getSuggestionsUsersRoute = createRoute({
         'application/json': {
           schema: z
             .array(UserSuggestionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSuggestion' } }),
         },
       },
@@ -1439,7 +1431,6 @@ export const getSuggestionsTopicsRoute = createRoute({
         'application/json': {
           schema: z
             .array(TopicSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Topic' } }),
         },
       },

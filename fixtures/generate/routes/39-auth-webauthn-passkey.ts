@@ -8,7 +8,6 @@ const PublicKeyCredentialDescriptorSchema = z
       .array(
         z
           .enum(['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'])
-          .optional()
           .openapi({
             type: 'string',
             enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
@@ -111,16 +110,19 @@ const RegistrationOptionsSchema = z
       .object({
         authenticatorAttachment: z
           .enum(['platform', 'cross-platform'])
+          .optional()
           .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
         residentKey: z
           .enum(['discouraged', 'preferred', 'required'])
+          .optional()
           .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
-        requireResidentKey: z.boolean().openapi({ type: 'boolean', deprecated: true }),
+        requireResidentKey: z.boolean().optional().openapi({ type: 'boolean', deprecated: true }),
         userVerification: z
           .enum(['discouraged', 'preferred', 'required'])
+          .optional()
           .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -135,8 +137,8 @@ const RegistrationOptionsSchema = z
       .optional()
       .openapi({ type: 'string', enum: ['none', 'indirect', 'direct', 'enterprise'] }),
     extensions: z
-      .object({ credProps: z.boolean().openapi({ type: 'boolean' }) })
-      .partial()
+      .object({ credProps: z.boolean().optional().openapi({ type: 'boolean' }) })
+      .optional()
       .openapi({ type: 'object', properties: { credProps: { type: 'boolean' } } }),
   })
   .openapi({
@@ -247,10 +249,11 @@ const RegistrationResponseSchema = z
     clientExtensionResults: z
       .object({
         credProps: z
-          .object({ rk: z.boolean().openapi({ type: 'boolean' }) })
-          .partial()
+          .object({ rk: z.boolean().optional().openapi({ type: 'boolean' }) })
+          .optional()
           .openapi({ type: 'object', properties: { rk: { type: 'boolean' } } }),
       })
+      .optional()
       .openapi({
         type: 'object',
         properties: { credProps: { type: 'object', properties: { rk: { type: 'boolean' } } } },
@@ -316,7 +319,7 @@ const AuthenticationOptionsSchema = z
       .enum(['discouraged', 'preferred', 'required'])
       .optional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
-    extensions: z.object({}).openapi({ type: 'object' }),
+    extensions: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -349,6 +352,7 @@ const AuthenticationResponseSchema = z
         signature: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
         userHandle: z
           .string()
+          .optional()
           .openapi({ type: 'string', description: 'Base64URL encoded user handle' }),
       })
       .openapi({
@@ -362,7 +366,7 @@ const AuthenticationResponseSchema = z
         },
       }),
     type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
-    clientExtensionResults: z.object({}).openapi({ type: 'object' }),
+    clientExtensionResults: z.object({}).optional().openapi({ type: 'object' }),
     authenticatorAttachment: z
       .enum(['platform', 'cross-platform'])
       .optional()
@@ -397,11 +401,10 @@ const AuthenticationResultSchema = z
     verified: z.boolean().openapi({ type: 'boolean' }),
     user: z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        username: z.string().openapi({ type: 'string' }),
-        email: z.email().openapi({ type: 'string', format: 'email' }),
+        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+        username: z.string().optional().openapi({ type: 'string' }),
+        email: z.email().optional().openapi({ type: 'string', format: 'email' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -412,10 +415,10 @@ const AuthenticationResultSchema = z
       }),
     credential: z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
+        id: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
@@ -472,7 +475,6 @@ const CredentialSchema = z
       .array(
         z
           .enum(['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'])
-          .optional()
           .openapi({
             type: 'string',
             enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
@@ -502,11 +504,11 @@ const CredentialSchema = z
       .openapi({ type: 'boolean', description: 'バックアップされているか' }),
     deviceInfo: z
       .object({
-        os: z.string().openapi({ type: 'string' }),
-        browser: z.string().openapi({ type: 'string' }),
-        deviceType: z.string().openapi({ type: 'string' }),
+        os: z.string().optional().openapi({ type: 'string' }),
+        browser: z.string().optional().openapi({ type: 'string' }),
+        deviceType: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -556,22 +558,22 @@ const CredentialSchema = z
 
 const WebAuthnSettingsSchema = z
   .object({
-    rpId: z.string().openapi({ type: 'string', description: 'リライングパーティID' }),
-    rpName: z.string().openapi({ type: 'string', description: 'リライングパーティ名' }),
-    origin: z.url().openapi({ type: 'string', format: 'uri' }),
+    rpId: z.string().optional().openapi({ type: 'string', description: 'リライングパーティID' }),
+    rpName: z.string().optional().openapi({ type: 'string', description: 'リライングパーティ名' }),
+    origin: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     supportedAlgorithms: z
       .array(
         z
           .object({
-            alg: z.int().openapi({ type: 'integer' }),
-            name: z.string().openapi({ type: 'string' }),
+            alg: z.int().optional().openapi({ type: 'integer' }),
+            name: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { alg: { type: 'integer' }, name: { type: 'string' } },
           }),
       )
+      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -579,18 +581,20 @@ const WebAuthnSettingsSchema = z
           properties: { alg: { type: 'integer' }, name: { type: 'string' } },
         },
       }),
-    timeout: z.int().openapi({ type: 'integer' }),
+    timeout: z.int().optional().openapi({ type: 'integer' }),
     userVerification: z
       .enum(['discouraged', 'preferred', 'required'])
+      .optional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
     attestation: z
       .enum(['none', 'indirect', 'direct', 'enterprise'])
+      .optional()
       .openapi({ type: 'string', enum: ['none', 'indirect', 'direct', 'enterprise'] }),
     residentKeyRequirement: z
       .enum(['discouraged', 'preferred', 'required'])
+      .optional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -633,9 +637,13 @@ const RelyingPartySchema = z
 
 const UpdateRelyingPartyRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
+    name: z
+      .string()
+      .min(1)
+      .max(200)
+      .optional()
+      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: { name: { type: 'string', minLength: 1, maxLength: 200 } },
@@ -648,7 +656,7 @@ const AuthenticatorInfoSchema = z
     name: z.string().openapi({ type: 'string', description: '認証器名' }),
     icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     supportedTransports: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     isAllowed: z
@@ -706,7 +714,7 @@ const WebAuthnErrorSchema = z
         ],
       }),
     message: z.string().openapi({ type: 'string' }),
-    details: z.object({}).openapi({ type: 'object' }),
+    details: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -752,12 +760,12 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const postWebauthnRegisterOptionsRoute = createRoute({
@@ -775,6 +783,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
             .object({
               authenticatorAttachment: z
                 .enum(['platform', 'cross-platform'])
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['platform', 'cross-platform'],
@@ -784,6 +793,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               residentKey: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -793,6 +803,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               userVerification: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -801,13 +812,13 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               attestation: z
                 .enum(['none', 'indirect', 'direct', 'enterprise'])
                 .default('none')
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['none', 'indirect', 'direct', 'enterprise'],
                   default: 'none',
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -842,7 +853,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
   responses: {
     200: {
       description: '登録オプション',
-      content: { 'application/json': { schema: RegistrationOptionsSchema.optional() } },
+      content: { 'application/json': { schema: RegistrationOptionsSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -858,18 +869,15 @@ export const postWebauthnRegisterVerifyRoute = createRoute({
   operationId: 'verifyRegistration',
   request: {
     body: {
-      content: { 'application/json': { schema: RegistrationResponseSchema.optional() } },
+      content: { 'application/json': { schema: RegistrationResponseSchema } },
       required: true,
     },
   },
   responses: {
-    201: {
-      description: '登録成功',
-      content: { 'application/json': { schema: CredentialSchema.optional() } },
-    },
+    201: { description: '登録成功', content: { 'application/json': { schema: CredentialSchema } } },
     400: {
       description: '検証失敗',
-      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -891,6 +899,7 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
             .object({
               username: z
                 .string()
+                .optional()
                 .openapi({
                   type: 'string',
                   description: 'ユーザー名（Discoverable Credentialの場合は省略可）',
@@ -898,13 +907,13 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
               userVerification: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
+                .optional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
                   default: 'preferred',
                 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -926,7 +935,7 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
   responses: {
     200: {
       description: '認証オプション',
-      content: { 'application/json': { schema: AuthenticationOptionsSchema.optional() } },
+      content: { 'application/json': { schema: AuthenticationOptionsSchema } },
     },
   },
 })
@@ -940,22 +949,22 @@ export const postWebauthnAuthenticateVerifyRoute = createRoute({
   operationId: 'verifyAuthentication',
   request: {
     body: {
-      content: { 'application/json': { schema: AuthenticationResponseSchema.optional() } },
+      content: { 'application/json': { schema: AuthenticationResponseSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '認証成功',
-      content: { 'application/json': { schema: AuthenticationResultSchema.optional() } },
+      content: { 'application/json': { schema: AuthenticationResultSchema } },
     },
     400: {
       description: '認証失敗',
-      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema } },
     },
     401: {
       description: '認証情報が無効',
-      content: { 'application/json': { schema: WebAuthnErrorSchema.optional() } },
+      content: { 'application/json': { schema: WebAuthnErrorSchema } },
     },
   },
 })
@@ -974,7 +983,6 @@ export const getWebauthnCredentialsRoute = createRoute({
         'application/json': {
           schema: z
             .array(CredentialSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Credential' } }),
         },
       },
@@ -1003,7 +1011,7 @@ export const getWebauthnCredentialsCredentialIdRoute = createRoute({
   responses: {
     200: {
       description: '認証情報詳細',
-      content: { 'application/json': { schema: CredentialSchema.optional() } },
+      content: { 'application/json': { schema: CredentialSchema } },
     },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
@@ -1032,7 +1040,7 @@ export const deleteWebauthnCredentialsCredentialIdRoute = createRoute({
     204: { description: '削除成功' },
     400: {
       description: '削除できません（最後の認証情報など）',
-      content: { 'application/json': { schema: ErrorSchema.optional() } },
+      content: { 'application/json': { schema: ErrorSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1056,9 +1064,9 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
                 .string()
                 .min(1)
                 .max(100)
+                .optional()
                 .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: { name: { type: 'string', minLength: 1, maxLength: 100 } },
@@ -1069,10 +1077,7 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: CredentialSchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: CredentialSchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -1088,7 +1093,7 @@ export const getWebauthnSettingsRoute = createRoute({
   responses: {
     200: {
       description: 'WebAuthn設定',
-      content: { 'application/json': { schema: WebAuthnSettingsSchema.optional() } },
+      content: { 'application/json': { schema: WebAuthnSettingsSchema } },
     },
   },
 })
@@ -1102,7 +1107,7 @@ export const getWebauthnSettingsRpRoute = createRoute({
   responses: {
     200: {
       description: 'リライングパーティ情報',
-      content: { 'application/json': { schema: RelyingPartySchema.optional() } },
+      content: { 'application/json': { schema: RelyingPartySchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1117,14 +1122,14 @@ export const putWebauthnSettingsRpRoute = createRoute({
   operationId: 'updateRelyingPartyInfo',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateRelyingPartyRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateRelyingPartyRequestSchema } },
       required: true,
     },
   },
   responses: {
     200: {
       description: '更新成功',
-      content: { 'application/json': { schema: RelyingPartySchema.optional() } },
+      content: { 'application/json': { schema: RelyingPartySchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -1145,7 +1150,6 @@ export const getWebauthnAuthenticatorsRoute = createRoute({
         'application/json': {
           schema: z
             .array(AuthenticatorInfoSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/AuthenticatorInfo' } }),
         },
       },

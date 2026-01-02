@@ -4,7 +4,7 @@ const ResourceSchema = z
   .object({
     id: z.string().optional().openapi({ type: 'string' }),
     name: z.string().optional().openapi({ type: 'string' }),
-    data: z.object({}).openapi({ type: 'object' }),
+    data: z.object({}).optional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -124,7 +124,6 @@ export const getResourcesRoute = createRoute({
         'application/json': {
           schema: z
             .array(ResourceSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Resource' } }),
         },
       },
@@ -163,7 +162,7 @@ export const getResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource details',
-      content: { 'application/json': { schema: ResourceSchema.optional() } },
+      content: { 'application/json': { schema: ResourceSchema } },
     },
     304: { description: 'Not modified' },
   },
@@ -173,11 +172,11 @@ export const putResourcesIdRoute = createRoute({
   method: 'put',
   path: '/resources/{id}',
   operationId: 'updateResource',
-  request: { body: { content: { 'application/json': { schema: ResourceSchema.optional() } } } },
+  request: { body: { content: { 'application/json': { schema: ResourceSchema } } } },
   responses: {
     200: {
       description: 'Resource updated',
-      content: { 'application/json': { schema: ResourceSchema.optional() } },
+      content: { 'application/json': { schema: ResourceSchema } },
     },
     412: { description: 'Precondition failed' },
   },
@@ -202,7 +201,7 @@ export const getDownloadIdRoute = createRoute({
       description: 'File download',
       content: {
         'application/octet-stream': {
-          schema: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
         },
       },
     },

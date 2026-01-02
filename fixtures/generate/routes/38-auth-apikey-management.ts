@@ -14,7 +14,7 @@ const ApiKeySchema = z
       .enum(['production', 'staging', 'development', 'test'])
       .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
@@ -53,7 +53,6 @@ const ApiKeyWithSecretSchema = z
         properties: { secretKey: { type: 'string', example: 'sk_live_1234567890abcdef' } },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/ApiKey' },
@@ -74,7 +73,7 @@ const CreateApiKeyRequestSchema = z
       .enum(['production', 'staging', 'development', 'test'])
       .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
@@ -94,14 +93,13 @@ const CreateApiKeyRequestSchema = z
 
 const UpdateApiKeyRequestSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().openapi({ type: 'string' }),
+    name: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().optional().openapi({ type: 'string' }),
     scopes: z
       .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -135,12 +133,11 @@ const UsageDataSchema = z
       .array(
         z
           .object({
-            timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-            requests: z.int().openapi({ type: 'integer' }),
-            successCount: z.int().openapi({ type: 'integer' }),
-            errorCount: z.int().openapi({ type: 'integer' }),
+            timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+            requests: z.int().optional().openapi({ type: 'integer' }),
+            successCount: z.int().optional().openapi({ type: 'integer' }),
+            errorCount: z.int().optional().openapi({ type: 'integer' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -165,10 +162,9 @@ const UsageDataSchema = z
       }),
     summary: z
       .object({
-        totalRequests: z.int().openapi({ type: 'integer' }),
-        successRate: z.number().openapi({ type: 'number' }),
+        totalRequests: z.int().optional().openapi({ type: 'integer' }),
+        successRate: z.number().optional().openapi({ type: 'number' }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: { totalRequests: { type: 'integer' }, successRate: { type: 'number' } },
@@ -225,11 +221,11 @@ const ApiKeyVerificationResultSchema = z
     keyId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
     environment: z.string().optional().openapi({ type: 'string' }),
     scopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     missingScopes: z
-      .array(z.string().optional().openapi({ type: 'string' }))
+      .array(z.string().openapi({ type: 'string' }))
       .optional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     reason: z.string().optional().openapi({ type: 'string' }),
@@ -360,17 +356,17 @@ const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat:
 
 const BadRequestResponse = {
   description: 'リクエストが不正です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const UnauthorizedResponse = {
   description: '認証が必要です',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 const NotFoundResponse = {
   description: 'リソースが見つかりません',
-  content: { 'application/json': { schema: ErrorSchema.optional() } },
+  content: { 'application/json': { schema: ErrorSchema } },
 }
 
 export const getApiKeysRoute = createRoute({
@@ -412,7 +408,7 @@ export const getApiKeysRoute = createRoute({
   responses: {
     200: {
       description: 'APIキー一覧',
-      content: { 'application/json': { schema: ApiKeyListResponseSchema.optional() } },
+      content: { 'application/json': { schema: ApiKeyListResponseSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -427,14 +423,14 @@ export const postApiKeysRoute = createRoute({
   operationId: 'createApiKey',
   request: {
     body: {
-      content: { 'application/json': { schema: CreateApiKeyRequestSchema.optional() } },
+      content: { 'application/json': { schema: CreateApiKeyRequestSchema } },
       required: true,
     },
   },
   responses: {
     201: {
       description: '作成成功',
-      content: { 'application/json': { schema: ApiKeyWithSecretSchema.optional() } },
+      content: { 'application/json': { schema: ApiKeyWithSecretSchema } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,
@@ -450,10 +446,7 @@ export const getApiKeysKeyIdRoute = createRoute({
   operationId: 'getApiKey',
   request: { params: z.object({ keyId: ApiKeyIdParamParamsSchema }) },
   responses: {
-    200: {
-      description: 'APIキー詳細',
-      content: { 'application/json': { schema: ApiKeySchema.optional() } },
-    },
+    200: { description: 'APIキー詳細', content: { 'application/json': { schema: ApiKeySchema } } },
     401: UnauthorizedResponse,
     404: NotFoundResponse,
   },
@@ -479,15 +472,12 @@ export const patchApiKeysKeyIdRoute = createRoute({
   operationId: 'updateApiKey',
   request: {
     body: {
-      content: { 'application/json': { schema: UpdateApiKeyRequestSchema.optional() } },
+      content: { 'application/json': { schema: UpdateApiKeyRequestSchema } },
       required: true,
     },
   },
   responses: {
-    200: {
-      description: '更新成功',
-      content: { 'application/json': { schema: ApiKeySchema.optional() } },
-    },
+    200: { description: '更新成功', content: { 'application/json': { schema: ApiKeySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -504,18 +494,14 @@ export const postApiKeysKeyIdRevokeRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ reason: z.string().openapi({ type: 'string' }) })
-            .partial()
+            .object({ reason: z.string().optional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { reason: { type: 'string' } } }),
         },
       },
     },
   },
   responses: {
-    200: {
-      description: '無効化成功',
-      content: { 'application/json': { schema: ApiKeySchema.optional() } },
-    },
+    200: { description: '無効化成功', content: { 'application/json': { schema: ApiKeySchema } } },
     401: UnauthorizedResponse,
   },
   security: [{ bearerAuth: [] }],
@@ -538,9 +524,9 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
                 .min(0)
                 .max(168)
                 .default(24)
+                .optional()
                 .openapi({ type: 'integer', minimum: 0, maximum: 168, default: 24 }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -554,7 +540,7 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
   responses: {
     200: {
       description: 'ローテーション成功',
-      content: { 'application/json': { schema: ApiKeyRotationResultSchema.optional() } },
+      content: { 'application/json': { schema: ApiKeyRotationResultSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -613,7 +599,7 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
   responses: {
     200: {
       description: '使用量データ',
-      content: { 'application/json': { schema: UsageDataSchema.optional() } },
+      content: { 'application/json': { schema: UsageDataSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -630,7 +616,7 @@ export const getApiKeysKeyIdRateLimitCurrentRoute = createRoute({
   responses: {
     200: {
       description: 'レート制限状況',
-      content: { 'application/json': { schema: RateLimitStatusSchema.optional() } },
+      content: { 'application/json': { schema: RateLimitStatusSchema } },
     },
     401: UnauthorizedResponse,
   },
@@ -651,7 +637,7 @@ export const postApiKeysVerifyRoute = createRoute({
             .object({
               apiKey: z.string().openapi({ type: 'string' }),
               requiredScopes: z
-                .array(z.string().optional().openapi({ type: 'string' }))
+                .array(z.string().openapi({ type: 'string' }))
                 .optional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
@@ -671,7 +657,7 @@ export const postApiKeysVerifyRoute = createRoute({
   responses: {
     200: {
       description: '検証結果',
-      content: { 'application/json': { schema: ApiKeyVerificationResultSchema.optional() } },
+      content: { 'application/json': { schema: ApiKeyVerificationResultSchema } },
     },
     400: BadRequestResponse,
   },
@@ -690,7 +676,6 @@ export const getScopesRoute = createRoute({
         'application/json': {
           schema: z
             .array(ScopeDefinitionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/ScopeDefinition' } }),
         },
       },

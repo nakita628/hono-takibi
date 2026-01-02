@@ -9,9 +9,7 @@ export const getNullableRoute = createRoute({
     200: {
       description: 'zod nullable',
       content: {
-        'application/json': {
-          schema: z.string().nullable().optional().openapi({ type: 'string' }),
-        },
+        'application/json': { schema: z.string().nullable().openapi({ type: 'string' }) },
       },
     },
   },

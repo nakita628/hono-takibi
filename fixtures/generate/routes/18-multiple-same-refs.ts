@@ -2,25 +2,21 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserIdSchema = z
   .uuid()
-  .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'User identifier' })
   .openapi('UserId')
 
 const DocumentIdSchema = z
   .uuid()
-  .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Document identifier' })
   .openapi('DocumentId')
 
 const VersionIdSchema = z
   .uuid()
-  .optional()
   .openapi({ type: 'string', format: 'uuid', description: 'Version identifier' })
   .openapi('VersionId')
 
 const TimestampSchema = z.iso
   .datetime()
-  .optional()
   .openapi({ type: 'string', format: 'date-time', description: 'ISO 8601 timestamp' })
   .openapi('Timestamp')
 
@@ -45,12 +41,11 @@ const UserReferenceSchema = z
 
 const MetadataSchema = z
   .object({
-    createdAt: TimestampSchema,
-    updatedAt: TimestampSchema,
-    createdBy: UserReferenceSchema,
-    updatedBy: UserReferenceSchema,
+    createdAt: TimestampSchema.optional(),
+    updatedAt: TimestampSchema.optional(),
+    createdBy: UserReferenceSchema.optional(),
+    updatedBy: UserReferenceSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -83,7 +78,6 @@ const TagSchema = z
 
 const PermissionSchema = z
   .enum(['view', 'comment', 'edit', 'admin'])
-  .optional()
   .openapi({ type: 'string', enum: ['view', 'comment', 'edit', 'admin'] })
   .openapi('Permission')
 
@@ -116,13 +110,14 @@ const DocumentContentSchema = z
   .object({
     format: z
       .enum(['markdown', 'html', 'plain', 'rich'])
+      .optional()
       .openapi({ type: 'string', enum: ['markdown', 'html', 'plain', 'rich'] }),
-    body: z.string().openapi({ type: 'string' }),
+    body: z.string().optional().openapi({ type: 'string' }),
     attachments: z
       .array(AttachmentSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Attachment' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -135,7 +130,6 @@ const DocumentContentSchema = z
 
 const DocumentStatusSchema = z
   .enum(['draft', 'in_review', 'approved', 'published', 'archived'])
-  .optional()
   .openapi({ type: 'string', enum: ['draft', 'in_review', 'approved', 'published', 'archived'] })
   .openapi('DocumentStatus')
 
@@ -171,12 +165,11 @@ const DocumentSchema = z
       .array(
         z
           .object({
-            user: UserReferenceSchema,
-            permission: PermissionSchema,
-            addedAt: TimestampSchema,
-            addedBy: UserReferenceSchema,
+            user: UserReferenceSchema.optional(),
+            permission: PermissionSchema.optional(),
+            addedAt: TimestampSchema.optional(),
+            addedBy: UserReferenceSchema.optional(),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -285,12 +278,12 @@ const ActivityEntrySchema = z
     timestamp: TimestampSchema,
     details: z
       .object({
-        previousStatus: DocumentStatusSchema,
-        newStatus: DocumentStatusSchema,
-        versionId: VersionIdSchema,
-        comment: z.string().openapi({ type: 'string' }),
+        previousStatus: DocumentStatusSchema.optional(),
+        newStatus: DocumentStatusSchema.optional(),
+        versionId: VersionIdSchema.optional(),
+        comment: z.string().optional().openapi({ type: 'string' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -332,12 +325,13 @@ const DocumentWithHistorySchema = z
       .object({
         versions: z
           .array(DocumentVersionSchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } }),
         activityLog: z
           .array(ActivityEntrySchema)
+          .optional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } }),
       })
-      .partial()
       .openapi({
         type: 'object',
         properties: {
@@ -346,7 +340,6 @@ const DocumentWithHistorySchema = z
         },
       }),
   )
-  .optional()
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Document' },
@@ -392,18 +385,19 @@ const CreateDocumentInputSchema = z
 
 const UpdateDocumentInputSchema = z
   .object({
-    title: z.string().openapi({ type: 'string' }),
-    content: DocumentContentSchema,
+    title: z.string().optional().openapi({ type: 'string' }),
+    content: DocumentContentSchema.optional(),
     reviewers: z
       .array(UserIdSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserId' } }),
-    approver: UserIdSchema,
+    approver: UserIdSchema.optional(),
     tags: z
       .array(TagSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    status: DocumentStatusSchema,
+    status: DocumentStatusSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -425,7 +419,7 @@ const ShareRequestSchema = z
           .object({
             userId: UserIdSchema,
             permission: PermissionSchema,
-            expiresAt: TimestampSchema,
+            expiresAt: TimestampSchema.optional(),
             notifyUser: z
               .boolean()
               .default(true)
@@ -443,7 +437,6 @@ const ShareRequestSchema = z
             },
           }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: {
@@ -488,13 +481,12 @@ const ShareResultSchema = z
       .array(
         z
           .object({
-            user: UserReferenceSchema,
-            permission: PermissionSchema,
-            sharedAt: TimestampSchema,
-            sharedBy: UserReferenceSchema,
-            expiresAt: TimestampSchema,
+            user: UserReferenceSchema.optional(),
+            permission: PermissionSchema.optional(),
+            sharedAt: TimestampSchema.optional(),
+            sharedBy: UserReferenceSchema.optional(),
+            expiresAt: TimestampSchema.optional(),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -544,11 +536,10 @@ const ShareResultSchema = z
 
 const CompareOptionsSchema = z
   .object({
-    ignoreWhitespace: z.boolean().openapi({ type: 'boolean' }),
-    ignoreCase: z.boolean().openapi({ type: 'boolean' }),
-    showLineNumbers: z.boolean().openapi({ type: 'boolean' }),
+    ignoreWhitespace: z.boolean().optional().openapi({ type: 'boolean' }),
+    ignoreCase: z.boolean().optional().openapi({ type: 'boolean' }),
+    showLineNumbers: z.boolean().optional().openapi({ type: 'boolean' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -589,11 +580,11 @@ const CompareResultSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Difference' } }),
     summary: z
       .object({
-        additions: z.int().openapi({ type: 'integer' }),
-        deletions: z.int().openapi({ type: 'integer' }),
-        modifications: z.int().openapi({ type: 'integer' }),
+        additions: z.int().optional().openapi({ type: 'integer' }),
+        deletions: z.int().optional().openapi({ type: 'integer' }),
+        modifications: z.int().optional().openapi({ type: 'integer' }),
       })
-      .partial()
+      .optional()
       .openapi({
         type: 'object',
         properties: {
@@ -733,10 +724,9 @@ const WorkflowStepSchema = z
       .array(
         z
           .object({
-            condition: z.string().openapi({ type: 'string' }),
-            stepName: z.string().openapi({ type: 'string' }),
+            condition: z.string().optional().openapi({ type: 'string' }),
+            stepName: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: { condition: { type: 'string' }, stepName: { type: 'string' } },
@@ -782,7 +772,8 @@ const WorkflowDefinitionSchema = z
       .array(WorkflowStepSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowStep' } }),
     defaultAssignees: z
-      .record(z.string(), UserIdSchema.optional())
+      .record(z.string(), UserIdSchema)
+      .optional()
       .openapi({ type: 'object', additionalProperties: { $ref: '#/components/schemas/UserId' } }),
   })
   .openapi({
@@ -813,13 +804,12 @@ const WorkflowSchema = z
       .array(
         z
           .object({
-            step: WorkflowStepSchema,
-            completedBy: UserReferenceSchema,
-            completedAt: TimestampSchema,
-            action: z.string().openapi({ type: 'string' }),
-            comment: z.string().openapi({ type: 'string' }),
+            step: WorkflowStepSchema.optional(),
+            completedBy: UserReferenceSchema.optional(),
+            completedAt: TimestampSchema.optional(),
+            action: z.string().optional().openapi({ type: 'string' }),
+            comment: z.string().optional().openapi({ type: 'string' }),
           })
-          .partial()
           .openapi({
             type: 'object',
             properties: {
@@ -898,7 +888,6 @@ export const getDocumentsRoute = createRoute({
         'application/json': {
           schema: z
             .array(DocumentSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
         },
       },
@@ -910,14 +899,9 @@ export const postDocumentsRoute = createRoute({
   method: 'post',
   path: '/documents',
   operationId: 'createDocument',
-  request: {
-    body: { content: { 'application/json': { schema: CreateDocumentInputSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: CreateDocumentInputSchema } } } },
   responses: {
-    201: {
-      description: 'Created',
-      content: { 'application/json': { schema: DocumentSchema.optional() } },
-    },
+    201: { description: 'Created', content: { 'application/json': { schema: DocumentSchema } } },
   },
 })
 
@@ -940,7 +924,7 @@ export const getDocumentsDocumentIdRoute = createRoute({
   responses: {
     200: {
       description: 'Document details',
-      content: { 'application/json': { schema: DocumentWithHistorySchema.optional() } },
+      content: { 'application/json': { schema: DocumentWithHistorySchema } },
     },
   },
 })
@@ -949,14 +933,9 @@ export const putDocumentsDocumentIdRoute = createRoute({
   method: 'put',
   path: '/documents/{documentId}',
   operationId: 'updateDocument',
-  request: {
-    body: { content: { 'application/json': { schema: UpdateDocumentInputSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: UpdateDocumentInputSchema } } } },
   responses: {
-    200: {
-      description: 'Updated',
-      content: { 'application/json': { schema: DocumentSchema.optional() } },
-    },
+    200: { description: 'Updated', content: { 'application/json': { schema: DocumentSchema } } },
   },
 })
 
@@ -983,7 +962,6 @@ export const getDocumentsDocumentIdVersionsRoute = createRoute({
         'application/json': {
           schema: z
             .array(DocumentVersionSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } }),
         },
       },
@@ -995,12 +973,9 @@ export const postDocumentsDocumentIdShareRoute = createRoute({
   method: 'post',
   path: '/documents/{documentId}/share',
   operationId: 'shareDocument',
-  request: { body: { content: { 'application/json': { schema: ShareRequestSchema.optional() } } } },
+  request: { body: { content: { 'application/json': { schema: ShareRequestSchema } } } },
   responses: {
-    200: {
-      description: 'Shared',
-      content: { 'application/json': { schema: ShareResultSchema.optional() } },
-    },
+    200: { description: 'Shared', content: { 'application/json': { schema: ShareResultSchema } } },
   },
 })
 
@@ -1029,15 +1004,17 @@ export const getUsersUserIdDocumentsRoute = createRoute({
             .object({
               authored: z
                 .array(DocumentSchema)
+                .optional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
               reviewing: z
                 .array(DocumentSchema)
+                .optional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
               shared: z
                 .array(DocumentSchema)
+                .optional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
             })
-            .partial()
             .openapi({
               type: 'object',
               properties: {
@@ -1082,7 +1059,7 @@ export const postCompareRoute = createRoute({
   responses: {
     200: {
       description: 'Comparison result',
-      content: { 'application/json': { schema: CompareResultSchema.optional() } },
+      content: { 'application/json': { schema: CompareResultSchema } },
     },
   },
 })
@@ -1098,7 +1075,6 @@ export const getTemplatesRoute = createRoute({
         'application/json': {
           schema: z
             .array(DocumentTemplateSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentTemplate' } }),
         },
       },
@@ -1110,13 +1086,11 @@ export const postTemplatesRoute = createRoute({
   method: 'post',
   path: '/templates',
   operationId: 'createTemplate',
-  request: {
-    body: { content: { 'application/json': { schema: CreateTemplateInputSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: CreateTemplateInputSchema } } } },
   responses: {
     201: {
       description: 'Created',
-      content: { 'application/json': { schema: DocumentTemplateSchema.optional() } },
+      content: { 'application/json': { schema: DocumentTemplateSchema } },
     },
   },
 })
@@ -1125,13 +1099,8 @@ export const postWorkflowsRoute = createRoute({
   method: 'post',
   path: '/workflows',
   operationId: 'createWorkflow',
-  request: {
-    body: { content: { 'application/json': { schema: WorkflowDefinitionSchema.optional() } } },
-  },
+  request: { body: { content: { 'application/json': { schema: WorkflowDefinitionSchema } } } },
   responses: {
-    201: {
-      description: 'Created',
-      content: { 'application/json': { schema: WorkflowSchema.optional() } },
-    },
+    201: { description: 'Created', content: { 'application/json': { schema: WorkflowSchema } } },
   },
 })

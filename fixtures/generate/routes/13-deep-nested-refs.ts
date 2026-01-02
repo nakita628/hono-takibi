@@ -2,11 +2,10 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const AuditUserSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
+    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string().optional().openapi({ type: 'string' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -31,16 +30,16 @@ const TagSchema = z
 
 const EntityMetadataSchema = z
   .object({
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    createdBy: AuditUserSchema,
-    updatedBy: AuditUserSchema,
-    version: z.int().openapi({ type: 'integer' }),
+    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdBy: AuditUserSchema.optional(),
+    updatedBy: AuditUserSchema.optional(),
+    version: z.int().optional().openapi({ type: 'integer' }),
     tags: z
       .array(TagSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -114,14 +113,13 @@ const GeoCoordinatesSchema = z
 
 const AddressSchema = z
   .object({
-    street: z.string().openapi({ type: 'string' }),
-    city: z.string().openapi({ type: 'string' }),
-    state: z.string().openapi({ type: 'string' }),
-    postalCode: z.string().openapi({ type: 'string' }),
-    country: CountrySchema,
-    coordinates: GeoCoordinatesSchema,
+    street: z.string().optional().openapi({ type: 'string' }),
+    city: z.string().optional().openapi({ type: 'string' }),
+    state: z.string().optional().openapi({ type: 'string' }),
+    postalCode: z.string().optional().openapi({ type: 'string' }),
+    country: CountrySchema.optional(),
+    coordinates: GeoCoordinatesSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -179,7 +177,6 @@ const PersonalInfoSchema = z
 
 const EmploymentStatusSchema = z
   .enum(['active', 'on_leave', 'terminated', 'retired'])
-  .optional()
   .openapi({ type: 'string', enum: ['active', 'on_leave', 'terminated', 'retired'] })
   .openapi('EmploymentStatus')
 
@@ -266,13 +263,13 @@ const DurationSchema = z
 
 const VestingScheduleSchema = z
   .object({
-    cliff: DurationSchema,
-    totalPeriod: DurationSchema,
+    cliff: DurationSchema.optional(),
+    totalPeriod: DurationSchema.optional(),
     frequency: z
       .enum(['monthly', 'quarterly', 'annually'])
+      .optional()
       .openapi({ type: 'string', enum: ['monthly', 'quarterly', 'annually'] }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -285,11 +282,10 @@ const VestingScheduleSchema = z
 
 const EquityGrantSchema = z
   .object({
-    shares: z.int().openapi({ type: 'integer' }),
-    vestingSchedule: VestingScheduleSchema,
-    grantDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
+    shares: z.int().optional().openapi({ type: 'integer' }),
+    vestingSchedule: VestingScheduleSchema.optional(),
+    grantDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -319,14 +315,14 @@ const SocialMediaLinkSchema = z
 
 const ContactInfoSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    phone: PhoneNumberSchema,
-    website: z.url().openapi({ type: 'string', format: 'uri' }),
+    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+    phone: PhoneNumberSchema.optional(),
+    website: z.url().optional().openapi({ type: 'string', format: 'uri' }),
     socialMedia: z
       .array(SocialMediaLinkSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialMediaLink' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -351,11 +347,11 @@ const CoverageSchema = z
   .object({
     level: z
       .enum(['individual', 'family'])
+      .optional()
       .openapi({ type: 'string', enum: ['individual', 'family'] }),
-    deductible: MoneySchema,
-    maxBenefit: MoneySchema,
+    deductible: MoneySchema.optional(),
+    maxBenefit: MoneySchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -387,14 +383,14 @@ const BenefitSchema = z
 
 const CompensationSchema = z
   .object({
-    salary: MoneySchema,
-    bonus: MoneySchema,
-    equity: EquityGrantSchema,
+    salary: MoneySchema.optional(),
+    bonus: MoneySchema.optional(),
+    equity: EquityGrantSchema.optional(),
     benefits: z
       .array(BenefitSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Benefit' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -429,7 +425,6 @@ const EmploymentInfoSchema = z
 
 const ProficiencyLevelSchema = z
   .enum(['beginner', 'intermediate', 'advanced', 'expert'])
-  .optional()
   .openapi({ type: 'string', enum: ['beginner', 'intermediate', 'advanced', 'expert'] })
   .openapi('ProficiencyLevel')
 
@@ -519,7 +514,6 @@ const PermissionSchema = z
           .enum(['read', 'write', 'delete', 'admin'])
           .openapi({ type: 'string', enum: ['read', 'write', 'delete', 'admin'] }),
       )
-      .optional()
       .openapi({
         type: 'array',
         items: { type: 'string', enum: ['read', 'write', 'delete', 'admin'] },
@@ -593,7 +587,6 @@ const TeamMemberSchema = z
 
 const ProjectStatusSchema = z
   .enum(['planning', 'in_progress', 'on_hold', 'completed', 'cancelled'])
-  .optional()
   .openapi({
     type: 'string',
     enum: ['planning', 'in_progress', 'on_hold', 'completed', 'cancelled'],
@@ -601,8 +594,11 @@ const ProjectStatusSchema = z
   .openapi('ProjectStatus')
 
 const BudgetSchema = z
-  .object({ allocated: MoneySchema, spent: MoneySchema, remaining: MoneySchema })
-  .partial()
+  .object({
+    allocated: MoneySchema.optional(),
+    spent: MoneySchema.optional(),
+    remaining: MoneySchema.optional(),
+  })
   .openapi({
     type: 'object',
     properties: {
@@ -635,13 +631,13 @@ const MilestoneSchema = z
 
 const TimelineSchema = z
   .object({
-    startDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    endDate: z.iso.date().openapi({ type: 'string', format: 'date' }),
+    startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
     milestones: z
       .array(MilestoneSchema)
+      .optional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Milestone' } }),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -775,13 +771,12 @@ const OrganizationSchema = z
 
 const OrganizationStatisticsSchema = z
   .object({
-    totalEmployees: z.int().openapi({ type: 'integer' }),
-    totalDepartments: z.int().openapi({ type: 'integer' }),
-    totalTeams: z.int().openapi({ type: 'integer' }),
-    totalProjects: z.int().openapi({ type: 'integer' }),
-    budgetSummary: BudgetSchema,
+    totalEmployees: z.int().optional().openapi({ type: 'integer' }),
+    totalDepartments: z.int().optional().openapi({ type: 'integer' }),
+    totalTeams: z.int().optional().openapi({ type: 'integer' }),
+    totalProjects: z.int().optional().openapi({ type: 'integer' }),
+    budgetSummary: BudgetSchema.optional(),
   })
-  .partial()
   .openapi({
     type: 'object',
     properties: {
@@ -874,10 +869,9 @@ const NotFoundResponse = {
     'application/json': {
       schema: z
         .object({
-          error: z.string().openapi({ type: 'string' }),
-          path: z.string().openapi({ type: 'string' }),
+          error: z.string().optional().openapi({ type: 'string' }),
+          path: z.string().optional().openapi({ type: 'string' }),
         })
-        .partial()
         .openapi({
           type: 'object',
           properties: { error: { type: 'string' }, path: { type: 'string' } },
@@ -904,7 +898,6 @@ export const getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersRoute = cre
         'application/json': {
           schema: z
             .array(TeamMemberSchema)
-            .optional()
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/TeamMember' } }),
         },
       },
@@ -928,7 +921,7 @@ export const postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersRoute = cr
   responses: {
     201: {
       description: 'Member added',
-      content: { 'application/json': { schema: TeamMemberSchema.optional() } },
+      content: { 'application/json': { schema: TeamMemberSchema } },
     },
   },
 })
@@ -940,7 +933,7 @@ export const getReportsOrganizationSummaryRoute = createRoute({
   responses: {
     200: {
       description: 'Full organization summary with deep nesting',
-      content: { 'application/json': { schema: OrganizationSummarySchema.optional() } },
+      content: { 'application/json': { schema: OrganizationSummarySchema } },
     },
   },
 })
