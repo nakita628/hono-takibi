@@ -22,7 +22,7 @@ export const getFizzbuzzRoute = createRoute({
         }),
       details: z
         .stringbool()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { schema: { type: 'boolean' }, required: false, name: 'details', in: 'query' },
           type: 'boolean',
@@ -49,7 +49,7 @@ export const getFizzbuzzRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ error: z.string().optional().openapi({ type: 'string' }) })
+            .object({ error: z.string().exactOptional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { error: { type: 'string' } } }),
         },
       },

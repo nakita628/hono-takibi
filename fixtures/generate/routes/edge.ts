@@ -19,7 +19,7 @@ const CatSchema = z
           .int()
           .min(0)
           .max(9)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'integer', minimum: 0, maximum: 9 }),
       })
       .openapi({
@@ -42,7 +42,7 @@ const DogSchema = z
       .object({
         barkLevel: z
           .enum(['quiet', 'normal', 'loud'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
       })
       .openapi({
@@ -67,7 +67,7 @@ const BaseSchema = z
     metadata: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
       .nullable()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
   })
   .openapi({
@@ -121,7 +121,7 @@ export const getSearchRoute = createRoute({
         .union([
           z
             .string()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'filter',
@@ -136,7 +136,7 @@ export const getSearchRoute = createRoute({
             .array(
               z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   param: {
                     name: 'filter',
@@ -148,7 +148,7 @@ export const getSearchRoute = createRoute({
                   type: 'string',
                 }),
             )
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'filter',
@@ -161,7 +161,7 @@ export const getSearchRoute = createRoute({
               items: { type: 'string' },
             }),
         ])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'filter',
@@ -173,7 +173,7 @@ export const getSearchRoute = createRoute({
       exclude: z
         .any()
         .refine((v) => typeof v !== 'number')
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'exclude', in: 'query', schema: { not: { type: 'number' } } },
           not: { type: 'number' },
@@ -200,7 +200,7 @@ export const putMultiStepRoute = createRoute({
                     .int()
                     .min(1)
                     .max(3)
-                    .optional()
+                    .exactOptional()
                     .openapi({ type: 'integer', minimum: 1, maximum: 3 }),
                 })
                 .openapi({

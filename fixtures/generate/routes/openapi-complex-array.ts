@@ -51,7 +51,7 @@ export const getArrayRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string' }, minItems: 1 }),
               optional_array: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               optional_elements_array: z
                 .array(z.string().openapi({ type: 'string' }))
@@ -99,7 +99,7 @@ export const getArrayRoute = createRoute({
                         .positive()
                         .openapi({ type: 'integer', minimum: 0, exclusiveMinimum: true }),
                       name: z.string().openapi({ type: 'string' }),
-                      active: z.boolean().optional().openapi({ type: 'boolean' }),
+                      active: z.boolean().exactOptional().openapi({ type: 'boolean' }),
                     })
                     .openapi({
                       type: 'object',

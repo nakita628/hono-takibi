@@ -8,7 +8,8 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "declaration": true
+    "declaration": true,
+    "exactOptionalPropertyTypes": true
   },
   "include": ["**/src/**/*.ts"],
   "exclude": ["**/src/**/*.test.ts"]

@@ -92,8 +92,8 @@ export function wrap(
       return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
     }
     return openapiProps.length === 0
-      ? `${z}.optional()`
-      : `${z}.optional().openapi({${openapiProps.join(',')}})`
+      ? `${z}.exactOptional()`
+      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
   }
   // propertiesSchema() check
   return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`

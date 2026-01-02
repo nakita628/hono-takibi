@@ -103,8 +103,8 @@ export const getExtremeResponsesRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              code: z.int().optional().openapi({ type: 'integer' }),
-              message: z.string().optional().openapi({ type: 'string' }),
+              code: z.int().exactOptional().openapi({ type: 'integer' }),
+              message: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -126,8 +126,8 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              metadata: z.string().optional().openapi({ type: 'string' }),
+              file: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              metadata: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -146,7 +146,7 @@ export const postMultipartVariationsRoute = createRoute({
             .object({
               parts: z
                 .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .openapi({
@@ -157,10 +157,10 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/related': {
           schema: z
             .object({
-              root: z.string().optional().openapi({ type: 'string' }),
+              root: z.string().exactOptional().openapi({ type: 'string' }),
               attachments: z
                 .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .openapi({
@@ -174,8 +174,8 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/alternative': {
           schema: z
             .object({
-              text: z.string().optional().openapi({ type: 'string' }),
-              html: z.string().optional().openapi({ type: 'string' }),
+              text: z.string().exactOptional().openapi({ type: 'string' }),
+              html: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -188,10 +188,10 @@ export const postMultipartVariationsRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              field1: z.string().optional().openapi({ type: 'string' }),
+              field1: z.string().exactOptional().openapi({ type: 'string' }),
               field2: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .openapi({

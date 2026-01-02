@@ -35,7 +35,7 @@ const GeoJsonObjectSchema = z
       }),
     bbox: z
       .array(z.number().openapi({ type: 'number' }))
-      .optional()
+      .exactOptional()
       .openapi({
         description:
           'A GeoJSON object MAY have a member named "bbox" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n',
@@ -363,7 +363,7 @@ const ProjectSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid', description: 'Project ID' }),
     polygon: z
       .union([MultiPolygonSchema, PolygonSchema])
-      .optional()
+      .exactOptional()
       .openapi({
         anyOf: [
           { $ref: '#/components/schemas/MultiPolygon' },
@@ -371,7 +371,7 @@ const ProjectSchema = z
         ],
         description: 'Site polygon',
       }),
-    centre: PointSchema.optional().openapi({ description: 'Site center coordinates' }),
+    centre: PointSchema.exactOptional().openapi({ description: 'Site center coordinates' }),
     createdAt: z.iso
       .datetime()
       .openapi({ type: 'string', format: 'date-time', description: 'Site creation date and time' }),
@@ -419,7 +419,7 @@ const FeatureSchema = z
         properties: z.object({}).nullable().openapi({ type: 'object' }),
         id: z
           .union([z.number().openapi({ type: 'number' }), z.string().openapi({ type: 'string' })])
-          .optional()
+          .exactOptional()
           .openapi({ oneOf: [{ type: 'number' }, { type: 'string' }] }),
       })
       .openapi({

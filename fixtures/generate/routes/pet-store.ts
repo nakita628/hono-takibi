@@ -2,20 +2,20 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    petId: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 198772 }),
-    quantity: z.int32().optional().openapi({ type: 'integer', format: 'int32', example: 7 }),
-    shipDate: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    petId: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 198772 }),
+    quantity: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32', example: 7 }),
+    shipDate: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
     status: z
       .enum(['placed', 'approved', 'delivered'])
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         description: 'Order Status',
         example: 'approved',
         enum: ['placed', 'approved', 'delivered'],
       }),
-    complete: z.boolean().optional().openapi({ type: 'boolean' }),
+    complete: z.boolean().exactOptional().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
@@ -38,10 +38,10 @@ const OrderSchema = z
 
 const AddressSchema = z
   .object({
-    street: z.string().optional().openapi({ type: 'string', example: '437 Lytton' }),
-    city: z.string().optional().openapi({ type: 'string', example: 'Palo Alto' }),
-    state: z.string().optional().openapi({ type: 'string', example: 'CA' }),
-    zip: z.string().optional().openapi({ type: 'string', example: '94301' }),
+    street: z.string().exactOptional().openapi({ type: 'string', example: '437 Lytton' }),
+    city: z.string().exactOptional().openapi({ type: 'string', example: 'Palo Alto' }),
+    state: z.string().exactOptional().openapi({ type: 'string', example: 'CA' }),
+    zip: z.string().exactOptional().openapi({ type: 'string', example: '94301' }),
   })
   .openapi({
     type: 'object',
@@ -57,11 +57,11 @@ const AddressSchema = z
 
 const CustomerSchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 100000 }),
-    username: z.string().optional().openapi({ type: 'string', example: 'fehguy' }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 100000 }),
+    username: z.string().exactOptional().openapi({ type: 'string', example: 'fehguy' }),
     address: z
       .array(AddressSchema)
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         xml: { name: 'addresses', wrapped: true },
@@ -85,8 +85,8 @@ const CustomerSchema = z
 
 const CategorySchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 1 }),
-    name: z.string().optional().openapi({ type: 'string', example: 'Dogs' }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 1 }),
+    name: z.string().exactOptional().openapi({ type: 'string', example: 'Dogs' }),
   })
   .openapi({
     type: 'object',
@@ -100,16 +100,16 @@ const CategorySchema = z
 
 const UserSchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    username: z.string().optional().openapi({ type: 'string', example: 'theUser' }),
-    firstName: z.string().optional().openapi({ type: 'string', example: 'John' }),
-    lastName: z.string().optional().openapi({ type: 'string', example: 'James' }),
-    email: z.string().optional().openapi({ type: 'string', example: 'john@email.com' }),
-    password: z.string().optional().openapi({ type: 'string', example: '12345' }),
-    phone: z.string().optional().openapi({ type: 'string', example: '12345' }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    username: z.string().exactOptional().openapi({ type: 'string', example: 'theUser' }),
+    firstName: z.string().exactOptional().openapi({ type: 'string', example: 'John' }),
+    lastName: z.string().exactOptional().openapi({ type: 'string', example: 'James' }),
+    email: z.string().exactOptional().openapi({ type: 'string', example: 'john@email.com' }),
+    password: z.string().exactOptional().openapi({ type: 'string', example: '12345' }),
+    phone: z.string().exactOptional().openapi({ type: 'string', example: '12345' }),
     userStatus: z
       .int32()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'User Status', format: 'int32', example: 1 }),
   })
   .openapi({
@@ -130,8 +130,8 @@ const UserSchema = z
 
 const TagSchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -142,9 +142,9 @@ const TagSchema = z
 
 const PetSchema = z
   .object({
-    id: z.int64().optional().openapi({ type: 'integer', format: 'int64', example: 10 }),
+    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
     name: z.string().openapi({ type: 'string', example: 'doggie' }),
-    category: CategorySchema.optional(),
+    category: CategorySchema.exactOptional(),
     photoUrls: z
       .array(z.string().openapi({ type: 'string', xml: { name: 'photoUrl' } }))
       .openapi({
@@ -154,7 +154,7 @@ const PetSchema = z
       }),
     tags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         xml: { wrapped: true },
@@ -162,7 +162,7 @@ const PetSchema = z
       }),
     status: z
       .enum(['available', 'pending', 'sold'])
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         description: 'pet status in the store',
@@ -194,9 +194,9 @@ const PetSchema = z
 
 const ApiResponseSchema = z
   .object({
-    code: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
-    type: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    code: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32' }),
+    type: z.string().exactOptional().openapi({ type: 'string' }),
+    message: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -314,7 +314,7 @@ export const getPetFindByStatusRoute = createRoute({
       status: z
         .enum(['available', 'pending', 'sold'])
         .default('available')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -369,7 +369,7 @@ export const getPetFindByTagsRoute = createRoute({
         .array(
           z
             .string()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'tags',
@@ -382,7 +382,7 @@ export const getPetFindByTagsRoute = createRoute({
               type: 'string',
             }),
         )
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'tags',
@@ -481,7 +481,7 @@ export const postPetPetIdRoute = createRoute({
     query: z.object({
       name: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'name',
@@ -493,7 +493,7 @@ export const postPetPetIdRoute = createRoute({
         }),
       status: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -520,7 +520,7 @@ export const deletePetPetIdRoute = createRoute({
     headers: z.object({
       api_key: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'api_key',
@@ -764,7 +764,7 @@ export const getUserLoginRoute = createRoute({
     query: z.object({
       username: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'username',
@@ -777,7 +777,7 @@ export const getUserLoginRoute = createRoute({
         }),
       password: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'password',

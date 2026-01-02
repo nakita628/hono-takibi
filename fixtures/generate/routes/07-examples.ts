@@ -4,17 +4,20 @@ const ProductSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     price: z.float64().min(0).openapi({ type: 'number', format: 'float64', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    metadata: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    metadata: z
+      .looseObject({})
+      .exactOptional()
+      .openapi({ type: 'object', additionalProperties: true }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -35,14 +38,14 @@ const ProductSchema = z
 const CreateProductInputSchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -66,9 +69,9 @@ const ValidationErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().optional().openapi({ type: 'string' }),
-            message: z.string().optional().openapi({ type: 'string' }),
-            code: z.string().optional().openapi({ type: 'string' }),
+            field: z.string().exactOptional().openapi({ type: 'string' }),
+            message: z.string().exactOptional().openapi({ type: 'string' }),
+            code: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',

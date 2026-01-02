@@ -23,8 +23,8 @@ export function object(schema: Schema): string {
       const openapiIndex = z.lastIndexOf('.openapi(')
       const optionalZ =
         openapiIndex === -1
-          ? `${z}.optional()`
-          : `${z.slice(0, openapiIndex)}.optional()${z.slice(openapiIndex)}`
+          ? `${z}.exactOptional()`
+          : `${z.slice(0, openapiIndex)}.exactOptional()${z.slice(openapiIndex)}`
       return `${safeKey}:${optionalZ}`
     })
 

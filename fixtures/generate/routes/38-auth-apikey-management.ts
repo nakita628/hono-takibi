@@ -4,9 +4,9 @@ const ApiKeySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     prefix: z.string().openapi({ type: 'string', example: 'sk_live_' }),
-    maskedKey: z.string().optional().openapi({ type: 'string', example: 'sk_live_****abcd' }),
+    maskedKey: z.string().exactOptional().openapi({ type: 'string', example: 'sk_live_****abcd' }),
     status: z
       .enum(['active', 'revoked', 'expired'])
       .openapi({ type: 'string', enum: ['active', 'revoked', 'expired'] }),
@@ -15,10 +15,10 @@ const ApiKeySchema = z
       .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
     scopes: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -68,15 +68,15 @@ const ApiKeyWithSecretSchema = z
 const CreateApiKeyRequestSchema = z
   .object({
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     environment: z
       .enum(['production', 'staging', 'development', 'test'])
       .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
     scopes: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -93,11 +93,11 @@ const CreateApiKeyRequestSchema = z
 
 const UpdateApiKeyRequestSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     scopes: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -133,10 +133,13 @@ const UsageDataSchema = z
       .array(
         z
           .object({
-            timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-            requests: z.int().optional().openapi({ type: 'integer' }),
-            successCount: z.int().optional().openapi({ type: 'integer' }),
-            errorCount: z.int().optional().openapi({ type: 'integer' }),
+            timestamp: z.iso
+              .datetime()
+              .exactOptional()
+              .openapi({ type: 'string', format: 'date-time' }),
+            requests: z.int().exactOptional().openapi({ type: 'integer' }),
+            successCount: z.int().exactOptional().openapi({ type: 'integer' }),
+            errorCount: z.int().exactOptional().openapi({ type: 'integer' }),
           })
           .openapi({
             type: 'object',
@@ -162,8 +165,8 @@ const UsageDataSchema = z
       }),
     summary: z
       .object({
-        totalRequests: z.int().optional().openapi({ type: 'integer' }),
-        successRate: z.number().optional().openapi({ type: 'number' }),
+        totalRequests: z.int().exactOptional().openapi({ type: 'integer' }),
+        successRate: z.number().exactOptional().openapi({ type: 'number' }),
       })
       .openapi({
         type: 'object',
@@ -201,7 +204,7 @@ const RateLimitStatusSchema = z
     limit: z.int().openapi({ type: 'integer' }),
     remaining: z.int().openapi({ type: 'integer' }),
     resetAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    currentUsage: z.int().optional().openapi({ type: 'integer' }),
+    currentUsage: z.int().exactOptional().openapi({ type: 'integer' }),
   })
   .openapi({
     type: 'object',
@@ -218,17 +221,17 @@ const RateLimitStatusSchema = z
 const ApiKeyVerificationResultSchema = z
   .object({
     valid: z.boolean().openapi({ type: 'boolean' }),
-    keyId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    environment: z.string().optional().openapi({ type: 'string' }),
+    keyId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    environment: z.string().exactOptional().openapi({ type: 'string' }),
     scopes: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     missingScopes: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    reason: z.string().optional().openapi({ type: 'string' }),
+    reason: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -248,7 +251,7 @@ const ScopeDefinitionSchema = z
   .object({
     name: z.string().openapi({ type: 'string', example: 'users:read' }),
     description: z.string().openapi({ type: 'string' }),
-    category: z.string().optional().openapi({ type: 'string' }),
+    category: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -326,7 +329,7 @@ const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
     type: 'integer',
@@ -339,7 +342,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -381,7 +384,7 @@ export const getApiKeysRoute = createRoute({
       limit: LimitParamParamsSchema,
       status: z
         .enum(['active', 'revoked', 'expired'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -393,7 +396,7 @@ export const getApiKeysRoute = createRoute({
         }),
       environment: z
         .enum(['production', 'staging', 'development', 'test'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'environment',
@@ -494,7 +497,7 @@ export const postApiKeysKeyIdRevokeRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ reason: z.string().optional().openapi({ type: 'string' }) })
+            .object({ reason: z.string().exactOptional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { reason: { type: 'string' } } }),
         },
       },
@@ -524,7 +527,7 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
                 .min(0)
                 .max(168)
                 .default(24)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', minimum: 0, maximum: 168, default: 24 }),
             })
             .openapi({
@@ -583,7 +586,7 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
       granularity: z
         .enum(['hour', 'day', 'week', 'month'])
         .default('day')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'granularity',
@@ -638,7 +641,7 @@ export const postApiKeysVerifyRoute = createRoute({
               apiKey: z.string().openapi({ type: 'string' }),
               requiredScopes: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .openapi({

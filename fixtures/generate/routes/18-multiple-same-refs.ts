@@ -23,9 +23,9 @@ const TimestampSchema = z.iso
 const UserReferenceSchema = z
   .object({
     id: UserIdSchema,
-    name: z.string().optional().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    avatar: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    avatar: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
     type: 'object',
@@ -41,10 +41,10 @@ const UserReferenceSchema = z
 
 const MetadataSchema = z
   .object({
-    createdAt: TimestampSchema.optional(),
-    updatedAt: TimestampSchema.optional(),
-    createdBy: UserReferenceSchema.optional(),
-    updatedBy: UserReferenceSchema.optional(),
+    createdAt: TimestampSchema.exactOptional(),
+    updatedAt: TimestampSchema.exactOptional(),
+    createdBy: UserReferenceSchema.exactOptional(),
+    updatedBy: UserReferenceSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -63,7 +63,7 @@ const TagSchema = z
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
   })
   .openapi({
@@ -86,10 +86,10 @@ const AttachmentSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
     url: z.url().openapi({ type: 'string', format: 'uri' }),
-    mimeType: z.string().optional().openapi({ type: 'string' }),
-    size: z.int().optional().openapi({ type: 'integer' }),
-    uploadedBy: UserReferenceSchema.optional(),
-    uploadedAt: TimestampSchema.optional(),
+    mimeType: z.string().exactOptional().openapi({ type: 'string' }),
+    size: z.int().exactOptional().openapi({ type: 'integer' }),
+    uploadedBy: UserReferenceSchema.exactOptional(),
+    uploadedAt: TimestampSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -110,12 +110,12 @@ const DocumentContentSchema = z
   .object({
     format: z
       .enum(['markdown', 'html', 'plain', 'rich'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['markdown', 'html', 'plain', 'rich'] }),
-    body: z.string().optional().openapi({ type: 'string' }),
+    body: z.string().exactOptional().openapi({ type: 'string' }),
     attachments: z
       .array(AttachmentSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Attachment' } }),
   })
   .openapi({
@@ -137,7 +137,7 @@ const DocumentReferenceSchema = z
   .object({
     id: DocumentIdSchema,
     title: z.string().openapi({ type: 'string' }),
-    status: DocumentStatusSchema.optional(),
+    status: DocumentStatusSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -158,17 +158,17 @@ const DocumentSchema = z
     author: UserReferenceSchema,
     reviewers: z
       .array(UserReferenceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserReference' } }),
-    approver: UserReferenceSchema.optional(),
+    approver: UserReferenceSchema.exactOptional(),
     collaborators: z
       .array(
         z
           .object({
-            user: UserReferenceSchema.optional(),
-            permission: PermissionSchema.optional(),
-            addedAt: TimestampSchema.optional(),
-            addedBy: UserReferenceSchema.optional(),
+            user: UserReferenceSchema.exactOptional(),
+            permission: PermissionSchema.exactOptional(),
+            addedAt: TimestampSchema.exactOptional(),
+            addedBy: UserReferenceSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -180,7 +180,7 @@ const DocumentSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -195,16 +195,16 @@ const DocumentSchema = z
       }),
     tags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    metadata: MetadataSchema.optional(),
-    status: DocumentStatusSchema.optional(),
-    currentVersion: VersionIdSchema.optional(),
+    metadata: MetadataSchema.exactOptional(),
+    status: DocumentStatusSchema.exactOptional(),
+    currentVersion: VersionIdSchema.exactOptional(),
     linkedDocuments: z
       .array(DocumentReferenceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentReference' } }),
-    parentDocument: DocumentReferenceSchema.optional(),
+    parentDocument: DocumentReferenceSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -244,10 +244,10 @@ const DocumentVersionSchema = z
     documentId: DocumentIdSchema,
     versionNumber: z.int().openapi({ type: 'integer' }),
     content: DocumentContentSchema,
-    author: UserReferenceSchema.optional(),
-    createdAt: TimestampSchema.optional(),
-    changeDescription: z.string().optional().openapi({ type: 'string' }),
-    previousVersion: VersionIdSchema.optional(),
+    author: UserReferenceSchema.exactOptional(),
+    createdAt: TimestampSchema.exactOptional(),
+    changeDescription: z.string().exactOptional().openapi({ type: 'string' }),
+    previousVersion: VersionIdSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -278,12 +278,12 @@ const ActivityEntrySchema = z
     timestamp: TimestampSchema,
     details: z
       .object({
-        previousStatus: DocumentStatusSchema.optional(),
-        newStatus: DocumentStatusSchema.optional(),
-        versionId: VersionIdSchema.optional(),
-        comment: z.string().optional().openapi({ type: 'string' }),
+        previousStatus: DocumentStatusSchema.exactOptional(),
+        newStatus: DocumentStatusSchema.exactOptional(),
+        versionId: VersionIdSchema.exactOptional(),
+        comment: z.string().exactOptional().openapi({ type: 'string' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -325,11 +325,11 @@ const DocumentWithHistorySchema = z
       .object({
         versions: z
           .array(DocumentVersionSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } }),
         activityLog: z
           .array(ActivityEntrySchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } }),
       })
       .openapi({
@@ -360,14 +360,14 @@ const CreateDocumentInputSchema = z
     content: DocumentContentSchema,
     reviewers: z
       .array(UserIdSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserId' } }),
     tags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    parentDocument: DocumentIdSchema.optional(),
-    templateId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    parentDocument: DocumentIdSchema.exactOptional(),
+    templateId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
   })
   .openapi({
     type: 'object',
@@ -385,18 +385,18 @@ const CreateDocumentInputSchema = z
 
 const UpdateDocumentInputSchema = z
   .object({
-    title: z.string().optional().openapi({ type: 'string' }),
-    content: DocumentContentSchema.optional(),
+    title: z.string().exactOptional().openapi({ type: 'string' }),
+    content: DocumentContentSchema.exactOptional(),
     reviewers: z
       .array(UserIdSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserId' } }),
-    approver: UserIdSchema.optional(),
+    approver: UserIdSchema.exactOptional(),
     tags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    status: DocumentStatusSchema.optional(),
+    status: DocumentStatusSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -419,11 +419,11 @@ const ShareRequestSchema = z
           .object({
             userId: UserIdSchema,
             permission: PermissionSchema,
-            expiresAt: TimestampSchema.optional(),
+            expiresAt: TimestampSchema.exactOptional(),
             notifyUser: z
               .boolean()
               .default(true)
-              .optional()
+              .exactOptional()
               .openapi({ type: 'boolean', default: true }),
           })
           .openapi({
@@ -450,7 +450,7 @@ const ShareRequestSchema = z
           },
         },
       }),
-    message: z.string().optional().openapi({ type: 'string' }),
+    message: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -481,11 +481,11 @@ const ShareResultSchema = z
       .array(
         z
           .object({
-            user: UserReferenceSchema.optional(),
-            permission: PermissionSchema.optional(),
-            sharedAt: TimestampSchema.optional(),
-            sharedBy: UserReferenceSchema.optional(),
-            expiresAt: TimestampSchema.optional(),
+            user: UserReferenceSchema.exactOptional(),
+            permission: PermissionSchema.exactOptional(),
+            sharedAt: TimestampSchema.exactOptional(),
+            sharedBy: UserReferenceSchema.exactOptional(),
+            expiresAt: TimestampSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -536,9 +536,9 @@ const ShareResultSchema = z
 
 const CompareOptionsSchema = z
   .object({
-    ignoreWhitespace: z.boolean().optional().openapi({ type: 'boolean' }),
-    ignoreCase: z.boolean().optional().openapi({ type: 'boolean' }),
-    showLineNumbers: z.boolean().optional().openapi({ type: 'boolean' }),
+    ignoreWhitespace: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    ignoreCase: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    showLineNumbers: z.boolean().exactOptional().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
@@ -556,8 +556,8 @@ const DifferenceSchema = z
       .enum(['added', 'removed', 'modified'])
       .openapi({ type: 'string', enum: ['added', 'removed', 'modified'] }),
     path: z.string().openapi({ type: 'string' }),
-    sourceValue: z.string().optional().openapi({ type: 'string' }),
-    targetValue: z.string().optional().openapi({ type: 'string' }),
+    sourceValue: z.string().exactOptional().openapi({ type: 'string' }),
+    targetValue: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -580,11 +580,11 @@ const CompareResultSchema = z
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Difference' } }),
     summary: z
       .object({
-        additions: z.int().optional().openapi({ type: 'integer' }),
-        deletions: z.int().optional().openapi({ type: 'integer' }),
-        modifications: z.int().optional().openapi({ type: 'integer' }),
+        additions: z.int().exactOptional().openapi({ type: 'integer' }),
+        deletions: z.int().exactOptional().openapi({ type: 'integer' }),
+        modifications: z.int().exactOptional().openapi({ type: 'integer' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -619,9 +619,9 @@ const TemplateVariableSchema = z
     type: z
       .enum(['text', 'number', 'date', 'user', 'document'])
       .openapi({ type: 'string', enum: ['text', 'number', 'date', 'user', 'document'] }),
-    required: z.boolean().optional().openapi({ type: 'boolean' }),
-    defaultValue: z.string().optional().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    required: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    defaultValue: z.string().exactOptional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -640,22 +640,22 @@ const DocumentTemplateSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     content: DocumentContentSchema,
     defaultReviewers: z
       .array(UserReferenceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserReference' } }),
-    defaultApprover: UserReferenceSchema.optional(),
+    defaultApprover: UserReferenceSchema.exactOptional(),
     defaultTags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    metadata: MetadataSchema.optional(),
-    category: z.string().optional().openapi({ type: 'string' }),
+    metadata: MetadataSchema.exactOptional(),
+    category: z.string().exactOptional().openapi({ type: 'string' }),
     variables: z
       .array(TemplateVariableSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TemplateVariable' } }),
   })
   .openapi({
@@ -679,21 +679,21 @@ const DocumentTemplateSchema = z
 const CreateTemplateInputSchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     content: DocumentContentSchema,
     defaultReviewers: z
       .array(UserIdSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserId' } }),
-    defaultApprover: UserIdSchema.optional(),
+    defaultApprover: UserIdSchema.exactOptional(),
     defaultTags: z
       .array(TagSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Tag' } }),
-    category: z.string().optional().openapi({ type: 'string' }),
+    category: z.string().exactOptional().openapi({ type: 'string' }),
     variables: z
       .array(TemplateVariableSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TemplateVariable' } }),
   })
   .openapi({
@@ -718,21 +718,21 @@ const WorkflowStepSchema = z
     type: z
       .enum(['review', 'approval', 'notification', 'custom'])
       .openapi({ type: 'string', enum: ['review', 'approval', 'notification', 'custom'] }),
-    assignee: UserReferenceSchema.optional(),
-    requiredPermission: PermissionSchema.optional(),
+    assignee: UserReferenceSchema.exactOptional(),
+    requiredPermission: PermissionSchema.exactOptional(),
     nextSteps: z
       .array(
         z
           .object({
-            condition: z.string().optional().openapi({ type: 'string' }),
-            stepName: z.string().optional().openapi({ type: 'string' }),
+            condition: z.string().exactOptional().openapi({ type: 'string' }),
+            stepName: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
             properties: { condition: { type: 'string' }, stepName: { type: 'string' } },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -740,8 +740,8 @@ const WorkflowStepSchema = z
           properties: { condition: { type: 'string' }, stepName: { type: 'string' } },
         },
       }),
-    timeout: z.int().optional().openapi({ type: 'integer' }),
-    escalateTo: UserReferenceSchema.optional(),
+    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
+    escalateTo: UserReferenceSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -767,13 +767,13 @@ const WorkflowStepSchema = z
 const WorkflowDefinitionSchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     steps: z
       .array(WorkflowStepSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowStep' } }),
     defaultAssignees: z
       .record(z.string(), UserIdSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'object', additionalProperties: { $ref: '#/components/schemas/UserId' } }),
   })
   .openapi({
@@ -799,16 +799,16 @@ const WorkflowSchema = z
     status: z
       .enum(['active', 'completed', 'cancelled', 'failed'])
       .openapi({ type: 'string', enum: ['active', 'completed', 'cancelled', 'failed'] }),
-    currentStep: WorkflowStepSchema.optional(),
+    currentStep: WorkflowStepSchema.exactOptional(),
     history: z
       .array(
         z
           .object({
-            step: WorkflowStepSchema.optional(),
-            completedBy: UserReferenceSchema.optional(),
-            completedAt: TimestampSchema.optional(),
-            action: z.string().optional().openapi({ type: 'string' }),
-            comment: z.string().optional().openapi({ type: 'string' }),
+            step: WorkflowStepSchema.exactOptional(),
+            completedBy: UserReferenceSchema.exactOptional(),
+            completedAt: TimestampSchema.exactOptional(),
+            action: z.string().exactOptional().openapi({ type: 'string' }),
+            comment: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
@@ -821,7 +821,7 @@ const WorkflowSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -835,7 +835,7 @@ const WorkflowSchema = z
           },
         },
       }),
-    metadata: MetadataSchema.optional(),
+    metadata: MetadataSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -870,13 +870,13 @@ export const getDocumentsRoute = createRoute({
   operationId: 'listDocuments',
   request: {
     query: z.object({
-      author: UserIdSchema.optional().openapi({
+      author: UserIdSchema.exactOptional().openapi({
         param: { name: 'author', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
       }),
-      reviewer: UserIdSchema.optional().openapi({
+      reviewer: UserIdSchema.exactOptional().openapi({
         param: { name: 'reviewer', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
       }),
-      approver: UserIdSchema.optional().openapi({
+      approver: UserIdSchema.exactOptional().openapi({
         param: { name: 'approver', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
       }),
     }),
@@ -1004,15 +1004,15 @@ export const getUsersUserIdDocumentsRoute = createRoute({
             .object({
               authored: z
                 .array(DocumentSchema)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
               reviewing: z
                 .array(DocumentSchema)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
               shared: z
                 .array(DocumentSchema)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { $ref: '#/components/schemas/Document' } }),
             })
             .openapi({
@@ -1041,7 +1041,7 @@ export const postCompareRoute = createRoute({
             .object({
               source: DocumentSchema,
               target: DocumentSchema,
-              options: CompareOptionsSchema.optional(),
+              options: CompareOptionsSchema.exactOptional(),
             })
             .openapi({
               type: 'object',

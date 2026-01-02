@@ -5,7 +5,7 @@ const BSchema = z
     id: z.string().openapi({ type: 'string', description: 'Identifier for schema B' }),
     message: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'Message from schema B' }),
   })
   .openapi({
@@ -20,8 +20,8 @@ const BSchema = z
 
 const CSchema = z
   .object({
-    count: z.int().optional().openapi({ type: 'integer', description: 'Count value' }),
-    flag: z.boolean().optional().openapi({ type: 'boolean', description: 'A boolean flag' }),
+    count: z.int().exactOptional().openapi({ type: 'integer', description: 'Count value' }),
+    flag: z.boolean().exactOptional().openapi({ type: 'boolean', description: 'A boolean flag' }),
   })
   .openapi({
     type: 'object',

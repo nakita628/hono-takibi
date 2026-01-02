@@ -13,7 +13,7 @@ const PublicKeyCredentialDescriptorSchema = z
             enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: { type: 'string', enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'] },
@@ -96,11 +96,11 @@ const RegistrationOptionsSchema = z
     timeout: z
       .int()
       .default(60000)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'タイムアウト（ミリ秒）', default: 60000 }),
     excludeCredentials: z
       .array(PublicKeyCredentialDescriptorSchema)
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: { $ref: '#/components/schemas/PublicKeyCredentialDescriptor' },
@@ -110,19 +110,22 @@ const RegistrationOptionsSchema = z
       .object({
         authenticatorAttachment: z
           .enum(['platform', 'cross-platform'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
         residentKey: z
           .enum(['discouraged', 'preferred', 'required'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
-        requireResidentKey: z.boolean().optional().openapi({ type: 'boolean', deprecated: true }),
+        requireResidentKey: z
+          .boolean()
+          .exactOptional()
+          .openapi({ type: 'boolean', deprecated: true }),
         userVerification: z
           .enum(['discouraged', 'preferred', 'required'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -134,11 +137,11 @@ const RegistrationOptionsSchema = z
       }),
     attestation: z
       .enum(['none', 'indirect', 'direct', 'enterprise'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['none', 'indirect', 'direct', 'enterprise'] }),
     extensions: z
-      .object({ credProps: z.boolean().optional().openapi({ type: 'boolean' }) })
-      .optional()
+      .object({ credProps: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
+      .exactOptional()
       .openapi({ type: 'object', properties: { credProps: { type: 'boolean' } } }),
   })
   .openapi({
@@ -215,7 +218,7 @@ const RegistrationResponseSchema = z
                 enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
               }),
           )
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'array',
             items: {
@@ -223,9 +226,9 @@ const RegistrationResponseSchema = z
               enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
             },
           }),
-        publicKeyAlgorithm: z.int().optional().openapi({ type: 'integer' }),
-        publicKey: z.string().optional().openapi({ type: 'string' }),
-        authenticatorData: z.string().optional().openapi({ type: 'string' }),
+        publicKeyAlgorithm: z.int().exactOptional().openapi({ type: 'integer' }),
+        publicKey: z.string().exactOptional().openapi({ type: 'string' }),
+        authenticatorData: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -249,22 +252,22 @@ const RegistrationResponseSchema = z
     clientExtensionResults: z
       .object({
         credProps: z
-          .object({ rk: z.boolean().optional().openapi({ type: 'boolean' }) })
-          .optional()
+          .object({ rk: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
+          .exactOptional()
           .openapi({ type: 'object', properties: { rk: { type: 'boolean' } } }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: { credProps: { type: 'object', properties: { rk: { type: 'boolean' } } } },
       }),
     authenticatorAttachment: z
       .enum(['platform', 'cross-platform'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
     name: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'ユーザーが設定するパスキー名' }),
   })
   .openapi({
@@ -306,20 +309,20 @@ const RegistrationResponseSchema = z
 const AuthenticationOptionsSchema = z
   .object({
     challenge: z.string().openapi({ type: 'string', description: 'Base64URL encoded challenge' }),
-    timeout: z.int().default(60000).optional().openapi({ type: 'integer', default: 60000 }),
+    timeout: z.int().default(60000).exactOptional().openapi({ type: 'integer', default: 60000 }),
     rpId: z.string().openapi({ type: 'string', description: 'リライングパーティID' }),
     allowCredentials: z
       .array(PublicKeyCredentialDescriptorSchema)
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: { $ref: '#/components/schemas/PublicKeyCredentialDescriptor' },
       }),
     userVerification: z
       .enum(['discouraged', 'preferred', 'required'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
-    extensions: z.object({}).optional().openapi({ type: 'object' }),
+    extensions: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -352,7 +355,7 @@ const AuthenticationResponseSchema = z
         signature: z.string().openapi({ type: 'string', description: 'Base64URL encoded' }),
         userHandle: z
           .string()
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', description: 'Base64URL encoded user handle' }),
       })
       .openapi({
@@ -366,10 +369,10 @@ const AuthenticationResponseSchema = z
         },
       }),
     type: z.literal('public-key').openapi({ type: 'string', enum: ['public-key'] }),
-    clientExtensionResults: z.object({}).optional().openapi({ type: 'object' }),
+    clientExtensionResults: z.object({}).exactOptional().openapi({ type: 'object' }),
     authenticatorAttachment: z
       .enum(['platform', 'cross-platform'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
   })
   .openapi({
@@ -401,9 +404,9 @@ const AuthenticationResultSchema = z
     verified: z.boolean().openapi({ type: 'boolean' }),
     user: z
       .object({
-        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-        username: z.string().optional().openapi({ type: 'string' }),
-        email: z.email().optional().openapi({ type: 'string', format: 'email' }),
+        id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+        username: z.string().exactOptional().openapi({ type: 'string' }),
+        email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
       })
       .openapi({
         type: 'object',
@@ -415,20 +418,23 @@ const AuthenticationResultSchema = z
       }),
     credential: z
       .object({
-        id: z.string().optional().openapi({ type: 'string' }),
-        name: z.string().optional().openapi({ type: 'string' }),
+        id: z.string().exactOptional().openapi({ type: 'string' }),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: { id: { type: 'string' }, name: { type: 'string' } },
       }),
-    accessToken: z.string().optional().openapi({ type: 'string', description: 'JWT access token' }),
-    refreshToken: z.string().optional().openapi({ type: 'string' }),
-    expiresIn: z.int().optional().openapi({ type: 'integer' }),
+    accessToken: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'JWT access token' }),
+    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
+    expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
     newSignCount: z
       .int()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: '更新された署名カウンター' }),
   })
   .openapi({
@@ -462,13 +468,16 @@ const CredentialSchema = z
     credentialId: z
       .string()
       .openapi({ type: 'string', description: 'Base64URL encoded credential ID' }),
-    name: z.string().optional().openapi({ type: 'string', description: 'ユーザーが設定した名前' }),
+    name: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'ユーザーが設定した名前' }),
     publicKey: z
       .string()
       .openapi({ type: 'string', description: 'Base64URL encoded public key (COSE format)' }),
     publicKeyAlgorithm: z
       .int()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'COSE algorithm identifier' }),
     signCount: z.int().openapi({ type: 'integer', description: '署名カウンター' }),
     transports: z
@@ -480,35 +489,35 @@ const CredentialSchema = z
             enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'],
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: { type: 'string', enum: ['usb', 'nfc', 'ble', 'smart-card', 'hybrid', 'internal'] },
       }),
     authenticatorAttachment: z
       .enum(['platform', 'cross-platform'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
-    aaguid: z.string().optional().openapi({ type: 'string', description: '認証器のAAGUID' }),
+    aaguid: z.string().exactOptional().openapi({ type: 'string', description: '認証器のAAGUID' }),
     authenticatorName: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: '認証器名（AAGUIDから取得）' }),
     isBackupEligible: z
       .boolean()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', description: 'バックアップ可能か（マルチデバイス対応）' }),
     isBackedUp: z
       .boolean()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', description: 'バックアップされているか' }),
     deviceInfo: z
       .object({
-        os: z.string().optional().openapi({ type: 'string' }),
-        browser: z.string().optional().openapi({ type: 'string' }),
-        deviceType: z.string().optional().openapi({ type: 'string' }),
+        os: z.string().exactOptional().openapi({ type: 'string' }),
+        browser: z.string().exactOptional().openapi({ type: 'string' }),
+        deviceType: z.string().exactOptional().openapi({ type: 'string' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -517,7 +526,7 @@ const CredentialSchema = z
           deviceType: { type: 'string' },
         },
       }),
-    lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -558,22 +567,28 @@ const CredentialSchema = z
 
 const WebAuthnSettingsSchema = z
   .object({
-    rpId: z.string().optional().openapi({ type: 'string', description: 'リライングパーティID' }),
-    rpName: z.string().optional().openapi({ type: 'string', description: 'リライングパーティ名' }),
-    origin: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    rpId: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'リライングパーティID' }),
+    rpName: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'リライングパーティ名' }),
+    origin: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
     supportedAlgorithms: z
       .array(
         z
           .object({
-            alg: z.int().optional().openapi({ type: 'integer' }),
-            name: z.string().optional().openapi({ type: 'string' }),
+            alg: z.int().exactOptional().openapi({ type: 'integer' }),
+            name: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
             properties: { alg: { type: 'integer' }, name: { type: 'string' } },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -581,18 +596,18 @@ const WebAuthnSettingsSchema = z
           properties: { alg: { type: 'integer' }, name: { type: 'string' } },
         },
       }),
-    timeout: z.int().optional().openapi({ type: 'integer' }),
+    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
     userVerification: z
       .enum(['discouraged', 'preferred', 'required'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
     attestation: z
       .enum(['none', 'indirect', 'direct', 'enterprise'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['none', 'indirect', 'direct', 'enterprise'] }),
     residentKeyRequirement: z
       .enum(['discouraged', 'preferred', 'required'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['discouraged', 'preferred', 'required'] }),
   })
   .openapi({
@@ -621,7 +636,7 @@ const RelyingPartySchema = z
     id: z.string().openapi({ type: 'string', description: 'RPのID（ドメイン）' }),
     name: z.string().openapi({ type: 'string', description: 'RP名' }),
     origin: z.url().openapi({ type: 'string', format: 'uri' }),
-    icon: z.url().optional().openapi({ type: 'string', format: 'uri', deprecated: true }),
+    icon: z.url().exactOptional().openapi({ type: 'string', format: 'uri', deprecated: true }),
   })
   .openapi({
     type: 'object',
@@ -641,7 +656,7 @@ const UpdateRelyingPartyRequestSchema = z
       .string()
       .min(1)
       .max(200)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
   })
   .openapi({
@@ -654,14 +669,14 @@ const AuthenticatorInfoSchema = z
   .object({
     aaguid: z.string().openapi({ type: 'string', description: 'Authenticator Attestation GUID' }),
     name: z.string().openapi({ type: 'string', description: '認証器名' }),
-    icon: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    icon: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
     supportedTransports: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     isAllowed: z
       .boolean()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', description: '使用が許可されているか' }),
   })
   .openapi({
@@ -714,7 +729,7 @@ const WebAuthnErrorSchema = z
         ],
       }),
     message: z.string().openapi({ type: 'string' }),
-    details: z.object({}).optional().openapi({ type: 'object' }),
+    details: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -783,7 +798,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
             .object({
               authenticatorAttachment: z
                 .enum(['platform', 'cross-platform'])
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['platform', 'cross-platform'],
@@ -793,7 +808,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               residentKey: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -803,7 +818,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               userVerification: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -812,7 +827,7 @@ export const postWebauthnRegisterOptionsRoute = createRoute({
               attestation: z
                 .enum(['none', 'indirect', 'direct', 'enterprise'])
                 .default('none')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['none', 'indirect', 'direct', 'enterprise'],
@@ -899,7 +914,7 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
             .object({
               username: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   description: 'ユーザー名（Discoverable Credentialの場合は省略可）',
@@ -907,7 +922,7 @@ export const postWebauthnAuthenticateOptionsRoute = createRoute({
               userVerification: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -1064,7 +1079,7 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
                 .string()
                 .min(1)
                 .max(100)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
             })
             .openapi({

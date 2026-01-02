@@ -23,7 +23,7 @@ export const getArrayRoute = createRoute({
                 .openapi({ type: 'array', items: { type: 'string' } }),
               string_array_optional: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               nonempty: z
                 .array(z.string().openapi({ type: 'string' }))

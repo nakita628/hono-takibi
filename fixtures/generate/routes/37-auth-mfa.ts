@@ -7,12 +7,15 @@ const MfaMethodSchema = z
       .enum(['totp', 'sms', 'email', 'webauthn'])
       .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
     enabled: z.boolean().openapi({ type: 'boolean' }),
-    name: z.string().optional().openapi({ type: 'string', description: 'ユーザーが付けた名前' }),
+    name: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'ユーザーが付けた名前' }),
     maskedValue: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'マスクされた電話番号/メール' }),
-    lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -35,16 +38,16 @@ const MfaStatusSchema = z
     enabled: z.boolean().openapi({ type: 'boolean' }),
     enforced: z
       .boolean()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', description: '組織ポリシーでMFAが強制されているか' }),
     preferredMethod: z
       .enum(['totp', 'sms', 'email', 'webauthn'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
     methods: z
       .array(MfaMethodSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/MfaMethod' } }),
-    backupCodesRemaining: z.int().optional().openapi({ type: 'integer' }),
+    backupCodesRemaining: z.int().exactOptional().openapi({ type: 'integer' }),
   })
   .openapi({
     type: 'object',
@@ -112,8 +115,8 @@ const WebAuthnRegistrationOptionsSchema = z
       .openapi({ type: 'string', description: 'Base64URLエンコードされたチャレンジ' }),
     rp: z
       .object({
-        id: z.string().optional().openapi({ type: 'string' }),
-        name: z.string().optional().openapi({ type: 'string' }),
+        id: z.string().exactOptional().openapi({ type: 'string' }),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -121,9 +124,9 @@ const WebAuthnRegistrationOptionsSchema = z
       }),
     user: z
       .object({
-        id: z.string().optional().openapi({ type: 'string' }),
-        name: z.string().optional().openapi({ type: 'string' }),
-        displayName: z.string().optional().openapi({ type: 'string' }),
+        id: z.string().exactOptional().openapi({ type: 'string' }),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
+        displayName: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -137,8 +140,8 @@ const WebAuthnRegistrationOptionsSchema = z
       .array(
         z
           .object({
-            type: z.string().optional().openapi({ type: 'string' }),
-            alg: z.int().optional().openapi({ type: 'integer' }),
+            type: z.string().exactOptional().openapi({ type: 'string' }),
+            alg: z.int().exactOptional().openapi({ type: 'integer' }),
           })
           .openapi({
             type: 'object',
@@ -152,16 +155,16 @@ const WebAuthnRegistrationOptionsSchema = z
           properties: { type: { type: 'string' }, alg: { type: 'integer' } },
         },
       }),
-    timeout: z.int().optional().openapi({ type: 'integer' }),
+    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
     excludeCredentials: z
       .array(
         z
           .object({
-            type: z.string().optional().openapi({ type: 'string' }),
-            id: z.string().optional().openapi({ type: 'string' }),
+            type: z.string().exactOptional().openapi({ type: 'string' }),
+            id: z.string().exactOptional().openapi({ type: 'string' }),
             transports: z
               .array(z.string().openapi({ type: 'string' }))
-              .optional()
+              .exactOptional()
               .openapi({ type: 'array', items: { type: 'string' } }),
           })
           .openapi({
@@ -173,7 +176,7 @@ const WebAuthnRegistrationOptionsSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -187,11 +190,11 @@ const WebAuthnRegistrationOptionsSchema = z
       }),
     authenticatorSelection: z
       .object({
-        authenticatorAttachment: z.string().optional().openapi({ type: 'string' }),
-        residentKey: z.string().optional().openapi({ type: 'string' }),
-        userVerification: z.string().optional().openapi({ type: 'string' }),
+        authenticatorAttachment: z.string().exactOptional().openapi({ type: 'string' }),
+        residentKey: z.string().exactOptional().openapi({ type: 'string' }),
+        userVerification: z.string().exactOptional().openapi({ type: 'string' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -200,7 +203,7 @@ const WebAuthnRegistrationOptionsSchema = z
           userVerification: { type: 'string' },
         },
       }),
-    attestation: z.string().optional().openapi({ type: 'string' }),
+    attestation: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -254,11 +257,11 @@ const WebAuthnRegistrationResponseSchema = z
     rawId: z.string().openapi({ type: 'string' }),
     response: z
       .object({
-        clientDataJSON: z.string().optional().openapi({ type: 'string' }),
-        attestationObject: z.string().optional().openapi({ type: 'string' }),
+        clientDataJSON: z.string().exactOptional().openapi({ type: 'string' }),
+        attestationObject: z.string().exactOptional().openapi({ type: 'string' }),
         transports: z
           .array(z.string().openapi({ type: 'string' }))
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { type: 'string' } }),
       })
       .openapi({
@@ -270,7 +273,7 @@ const WebAuthnRegistrationResponseSchema = z
         },
       }),
     type: z.string().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string', description: '認証器の名前' }),
+    name: z.string().exactOptional().openapi({ type: 'string', description: '認証器の名前' }),
   })
   .openapi({
     type: 'object',
@@ -296,18 +299,18 @@ const WebAuthnCredentialSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     credentialId: z.string().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    aaguid: z.string().optional().openapi({ type: 'string', description: '認証器のAAGUID' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    aaguid: z.string().exactOptional().openapi({ type: 'string', description: '認証器のAAGUID' }),
     deviceType: z
       .enum(['platform', 'cross-platform'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
     transports: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    signCount: z.int().optional().openapi({ type: 'integer' }),
-    lastUsedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    signCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -330,17 +333,17 @@ const WebAuthnCredentialSchema = z
 const WebAuthnAuthenticationOptionsSchema = z
   .object({
     challenge: z.string().openapi({ type: 'string' }),
-    timeout: z.int().optional().openapi({ type: 'integer' }),
-    rpId: z.string().optional().openapi({ type: 'string' }),
+    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
+    rpId: z.string().exactOptional().openapi({ type: 'string' }),
     allowCredentials: z
       .array(
         z
           .object({
-            type: z.string().optional().openapi({ type: 'string' }),
-            id: z.string().optional().openapi({ type: 'string' }),
+            type: z.string().exactOptional().openapi({ type: 'string' }),
+            id: z.string().exactOptional().openapi({ type: 'string' }),
             transports: z
               .array(z.string().openapi({ type: 'string' }))
-              .optional()
+              .exactOptional()
               .openapi({ type: 'array', items: { type: 'string' } }),
           })
           .openapi({
@@ -363,7 +366,7 @@ const WebAuthnAuthenticationOptionsSchema = z
           },
         },
       }),
-    userVerification: z.string().optional().openapi({ type: 'string' }),
+    userVerification: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -396,7 +399,7 @@ const BackupCodesResponseSchema = z
     generatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     warning: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: '安全に保管するよう警告' }),
   })
   .openapi({
@@ -418,8 +421,11 @@ const BackupCodesStatusSchema = z
       .array(
         z
           .object({
-            usedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-            ipAddress: z.string().optional().openapi({ type: 'string' }),
+            usedAt: z.iso
+              .datetime()
+              .exactOptional()
+              .openapi({ type: 'string', format: 'date-time' }),
+            ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
@@ -429,7 +435,7 @@ const BackupCodesStatusSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -440,7 +446,7 @@ const BackupCodesStatusSchema = z
           },
         },
       }),
-    generatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    generatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -472,11 +478,11 @@ const MfaChallengeSchema = z
     expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     maskedDestination: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'SMSまたはメールの場合、マスクされた送信先' }),
     availableMethods: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' }, description: '利用可能な他のMFA方式' }),
   })
   .openapi({
@@ -549,10 +555,10 @@ const WebAuthnVerificationSchema = z
         rawId: z.string().openapi({ type: 'string' }),
         response: z
           .object({
-            clientDataJSON: z.string().optional().openapi({ type: 'string' }),
-            authenticatorData: z.string().optional().openapi({ type: 'string' }),
-            signature: z.string().optional().openapi({ type: 'string' }),
-            userHandle: z.string().optional().openapi({ type: 'string' }),
+            clientDataJSON: z.string().exactOptional().openapi({ type: 'string' }),
+            authenticatorData: z.string().exactOptional().openapi({ type: 'string' }),
+            signature: z.string().exactOptional().openapi({ type: 'string' }),
+            userHandle: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
@@ -637,13 +643,13 @@ const MfaVerificationResultSchema = z
     verified: z.boolean().openapi({ type: 'boolean' }),
     accessToken: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: '認証成功時のアクセストークン' }),
-    refreshToken: z.string().optional().openapi({ type: 'string' }),
-    expiresIn: z.int().optional().openapi({ type: 'integer' }),
+    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
+    expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
     backupCodesRemaining: z
       .int()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'バックアップコード使用時の残数' }),
   })
   .openapi({
@@ -682,8 +688,8 @@ const MfaErrorSchema = z
         ],
       }),
     message: z.string().openapi({ type: 'string' }),
-    attemptsRemaining: z.int().optional().openapi({ type: 'integer' }),
-    retryAfter: z.int().optional().openapi({ type: 'integer', description: '秒数' }),
+    attemptsRemaining: z.int().exactOptional().openapi({ type: 'integer' }),
+    retryAfter: z.int().exactOptional().openapi({ type: 'integer', description: '秒数' }),
   })
   .openapi({
     type: 'object',
@@ -781,7 +787,7 @@ export const putMfaPreferredRoute = createRoute({
                 .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
               methodId: z
                 .uuid()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   format: 'uuid',
@@ -829,7 +835,7 @@ export const postMfaTotpSetupRoute = createRoute({
               issuer: z
                 .string()
                 .default('MyApp')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   description: '発行者名（アプリに表示される）',
@@ -993,14 +999,14 @@ export const postMfaSmsSetupRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              challengeId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+              challengeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
               expiresIn: z
                 .int()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', description: '有効期限（秒）' }),
               maskedPhone: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: 'マスクされた電話番号' }),
             })
             .openapi({
@@ -1109,7 +1115,7 @@ export const postMfaEmailSetupRoute = createRoute({
             .object({
               email: z
                 .email()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   format: 'email',
@@ -1137,9 +1143,9 @@ export const postMfaEmailSetupRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              challengeId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-              expiresIn: z.int().optional().openapi({ type: 'integer' }),
-              maskedEmail: z.string().optional().openapi({ type: 'string' }),
+              challengeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+              expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
+              maskedEmail: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -1216,7 +1222,7 @@ export const postMfaWebauthnRegisterOptionsRoute = createRoute({
               authenticatorType: z
                 .enum(['platform', 'cross-platform', 'any'])
                 .default('any')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['platform', 'cross-platform', 'any'],
@@ -1226,7 +1232,7 @@ export const postMfaWebauthnRegisterOptionsRoute = createRoute({
               residentKey: z
                 .enum(['discouraged', 'preferred', 'required'])
                 .default('preferred')
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['discouraged', 'preferred', 'required'],
@@ -1344,7 +1350,7 @@ export const patchMfaWebauthnCredentialsCredentialIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().max(100).optional().openapi({ type: 'string', maxLength: 100 }),
+              name: z.string().max(100).exactOptional().openapi({ type: 'string', maxLength: 100 }),
             })
             .openapi({ type: 'object', properties: { name: { type: 'string', maxLength: 100 } } }),
         },
@@ -1383,7 +1389,7 @@ export const postMfaBackupCodesGenerateRoute = createRoute({
                 .min(6)
                 .max(16)
                 .default(10)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', minimum: 6, maximum: 16, default: 10 }),
             })
             .openapi({
@@ -1444,7 +1450,7 @@ export const postMfaChallengeRoute = createRoute({
                 .openapi({ type: 'string', description: 'ログイン時に受け取ったMFAトークン' }),
               method: z
                 .enum(['totp', 'sms', 'email', 'webauthn', 'backup_code'])
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   enum: ['totp', 'sms', 'email', 'webauthn', 'backup_code'],
@@ -1507,11 +1513,11 @@ export const postMfaChallengeSendRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              sent: z.boolean().optional().openapi({ type: 'boolean' }),
-              maskedDestination: z.string().optional().openapi({ type: 'string' }),
+              sent: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+              maskedDestination: z.string().exactOptional().openapi({ type: 'string' }),
               retryAfter: z
                 .int()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', description: '再送信可能までの秒数' }),
             })
             .openapi({
@@ -1629,7 +1635,7 @@ export const postMfaRecoveryRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ message: z.string().optional().openapi({ type: 'string' }) })
+            .object({ message: z.string().exactOptional().openapi({ type: 'string' }) })
             .openapi({ type: 'object', properties: { message: { type: 'string' } } }),
         },
       },
@@ -1655,11 +1661,14 @@ export const postMfaRecoveryVerifyRoute = createRoute({
                 .openapi({ type: 'string', description: 'リカバリーメールのトークン' }),
               identityVerification: z
                 .object({
-                  dateOfBirth: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+                  dateOfBirth: z.iso
+                    .date()
+                    .exactOptional()
+                    .openapi({ type: 'string', format: 'date' }),
                   lastFourDigits: z
                     .string()
                     .regex(/^\d{4}$/)
-                    .optional()
+                    .exactOptional()
                     .openapi({
                       type: 'string',
                       pattern: '^\\d{4}$',
@@ -1712,9 +1721,9 @@ export const postMfaRecoveryVerifyRoute = createRoute({
             .object({
               temporaryToken: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: 'MFA再設定用の一時トークン' }),
-              expiresIn: z.int().optional().openapi({ type: 'integer' }),
+              expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
             })
             .openapi({
               type: 'object',

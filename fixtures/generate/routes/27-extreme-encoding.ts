@@ -2,8 +2,8 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ResponseSchema = z
   .object({
-    data: z.object({}).optional().openapi({ type: 'object' }),
-    meta: z.object({}).optional().openapi({ type: 'object' }),
+    data: z.object({}).exactOptional().openapi({ type: 'object' }),
+    meta: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({ type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } })
   .openapi('Response')
@@ -17,17 +17,17 @@ const JsonApiResponseSchema = z
           .array(z.object({}).openapi({ type: 'object' }))
           .openapi({ type: 'array', items: { type: 'object' } }),
       ])
-      .optional()
+      .exactOptional()
       .openapi({ oneOf: [{ type: 'object' }, { type: 'array', items: { type: 'object' } }] }),
     included: z
       .array(z.object({}).openapi({ type: 'object' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'object' } }),
-    meta: z.object({}).optional().openapi({ type: 'object' }),
-    links: z.object({}).optional().openapi({ type: 'object' }),
+    meta: z.object({}).exactOptional().openapi({ type: 'object' }),
+    links: z.object({}).exactOptional().openapi({ type: 'object' }),
     jsonapi: z
-      .object({ version: z.string().optional().openapi({ type: 'string' }) })
-      .optional()
+      .object({ version: z.string().exactOptional().openapi({ type: 'string' }) })
+      .exactOptional()
       .openapi({ type: 'object', properties: { version: { type: 'string' } } }),
   })
   .openapi({
@@ -47,16 +47,16 @@ const HalResponseSchema = z
     _links: z
       .object({
         self: z
-          .object({ href: z.string().optional().openapi({ type: 'string' }) })
-          .optional()
+          .object({ href: z.string().exactOptional().openapi({ type: 'string' }) })
+          .exactOptional()
           .openapi({ type: 'object', properties: { href: { type: 'string' } } }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: { self: { type: 'object', properties: { href: { type: 'string' } } } },
       }),
-    _embedded: z.object({}).optional().openapi({ type: 'object' }),
+    _embedded: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -72,11 +72,11 @@ const HalResponseSchema = z
 
 const ProblemResponseSchema = z
   .object({
-    type: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    title: z.string().optional().openapi({ type: 'string' }),
-    status: z.int().optional().openapi({ type: 'integer' }),
-    detail: z.string().optional().openapi({ type: 'string' }),
-    instance: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    type: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    title: z.string().exactOptional().openapi({ type: 'string' }),
+    status: z.int().exactOptional().openapi({ type: 'integer' }),
+    detail: z.string().exactOptional().openapi({ type: 'string' }),
+    instance: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
     type: 'object',
@@ -92,9 +92,9 @@ const ProblemResponseSchema = z
 
 const StreamItemSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.string().exactOptional().openapi({ type: 'string' }),
+    data: z.object({}).exactOptional().openapi({ type: 'object' }),
+    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -108,32 +108,32 @@ const StreamItemSchema = z
 
 const EncodedContentSchema = z
   .object({
-    plainText: z.string().optional().openapi({ type: 'string' }),
-    base64: z.string().optional().openapi({ type: 'string', contentEncoding: 'base64' }),
+    plainText: z.string().exactOptional().openapi({ type: 'string' }),
+    base64: z.string().exactOptional().openapi({ type: 'string', contentEncoding: 'base64' }),
     quotedPrintable: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'Quoted-printable encoded' }),
     hexEncoded: z
       .string()
       .regex(/^[0-9a-fA-F]+$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^[0-9a-fA-F]+$' }),
     urlEncoded: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'URL encoded string' }),
     htmlEncoded: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'HTML entity encoded' }),
     jsonEscaped: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'JSON escaped string' }),
     unicodeEscaped: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'Unicode escaped (\\uXXXX)' }),
   })
   .openapi({
@@ -161,21 +161,21 @@ export const postEncodingTestRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              simpleString: z.string().optional().openapi({ type: 'string' }),
+              simpleString: z.string().exactOptional().openapi({ type: 'string' }),
               arrayExplode: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               arrayNoExplode: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               objectForm: z
                 .object({
-                  key1: z.string().optional().openapi({ type: 'string' }),
-                  key2: z.int().optional().openapi({ type: 'integer' }),
+                  key1: z.string().exactOptional().openapi({ type: 'string' }),
+                  key2: z.int().exactOptional().openapi({ type: 'integer' }),
                 })
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'object',
                   properties: { key1: { type: 'string' }, key2: { type: 'integer' } },
@@ -183,27 +183,27 @@ export const postEncodingTestRoute = createRoute({
               objectDeepObject: z
                 .object({
                   nested: z
-                    .object({ deep: z.string().optional().openapi({ type: 'string' }) })
-                    .optional()
+                    .object({ deep: z.string().exactOptional().openapi({ type: 'string' }) })
+                    .exactOptional()
                     .openapi({ type: 'object', properties: { deep: { type: 'string' } } }),
                 })
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'object',
                   properties: {
                     nested: { type: 'object', properties: { deep: { type: 'string' } } },
                   },
                 }),
-              imageFile: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              documentFile: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              imageFile: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              documentFile: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
               jsonString: z
-                .object({ data: z.string().optional().openapi({ type: 'string' }) })
-                .optional()
+                .object({ data: z.string().exactOptional().openapi({ type: 'string' }) })
+                .exactOptional()
                 .openapi({ type: 'object', properties: { data: { type: 'string' } } }),
-              base64Data: z.string().optional().openapi({ type: 'string', format: 'byte' }),
+              base64Data: z.string().exactOptional().openapi({ type: 'string', format: 'byte' }),
               multipleFiles: z
                 .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
               complexNested: z
                 .object({
@@ -211,13 +211,13 @@ export const postEncodingTestRoute = createRoute({
                     .object({
                       level2: z
                         .object({
-                          value: z.string().optional().openapi({ type: 'string' }),
+                          value: z.string().exactOptional().openapi({ type: 'string' }),
                           array: z
                             .array(z.int().openapi({ type: 'integer' }))
-                            .optional()
+                            .exactOptional()
                             .openapi({ type: 'array', items: { type: 'integer' } }),
                         })
-                        .optional()
+                        .exactOptional()
                         .openapi({
                           type: 'object',
                           properties: {
@@ -226,7 +226,7 @@ export const postEncodingTestRoute = createRoute({
                           },
                         }),
                     })
-                    .optional()
+                    .exactOptional()
                     .openapi({
                       type: 'object',
                       properties: {
@@ -240,7 +240,7 @@ export const postEncodingTestRoute = createRoute({
                       },
                     }),
                 })
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -262,15 +262,15 @@ export const postEncodingTestRoute = createRoute({
                 .array(
                   z
                     .object({
-                      id: z.int().optional().openapi({ type: 'integer' }),
-                      name: z.string().optional().openapi({ type: 'string' }),
+                      id: z.int().exactOptional().openapi({ type: 'integer' }),
+                      name: z.string().exactOptional().openapi({ type: 'string' }),
                     })
                     .openapi({
                       type: 'object',
                       properties: { id: { type: 'integer' }, name: { type: 'string' } },
                     }),
                 )
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'array',
                   items: {
@@ -278,7 +278,7 @@ export const postEncodingTestRoute = createRoute({
                     properties: { id: { type: 'integer' }, name: { type: 'string' } },
                   },
                 }),
-              partWithHeaders: z.string().optional().openapi({ type: 'string' }),
+              partWithHeaders: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -365,7 +365,7 @@ export const getContentNegotiationRoute = createRoute({
       Accept: z
         .string()
         .default('application/json')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'Accept',
@@ -378,21 +378,21 @@ export const getContentNegotiationRoute = createRoute({
         }),
       'Accept-Language': z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } },
           type: 'string',
         }),
       'Accept-Encoding': z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } },
           type: 'string',
         }),
       'Accept-Charset': z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'Accept-Charset', in: 'header', schema: { type: 'string' } },
           type: 'string',
@@ -417,14 +417,14 @@ export const postBinaryVariationsRoute = createRoute({
             .object({
               data: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   format: 'byte',
                   description: 'Base64 encoded binary data',
                 }),
-              filename: z.string().optional().openapi({ type: 'string' }),
-              mimeType: z.string().optional().openapi({ type: 'string' }),
+              filename: z.string().exactOptional().openapi({ type: 'string' }),
+              mimeType: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -438,9 +438,9 @@ export const postBinaryVariationsRoute = createRoute({
         'multipart/mixed': {
           schema: z
             .object({
-              part1: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              part2: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              part3: z.file().optional().openapi({ type: 'string', format: 'binary' }),
+              part1: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              part2: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              part3: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
             })
             .openapi({
               type: 'object',
@@ -507,26 +507,26 @@ export const postUrlEncodedComplexRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              string: z.string().optional().openapi({ type: 'string' }),
-              number: z.number().optional().openapi({ type: 'number' }),
-              boolean: z.boolean().optional().openapi({ type: 'boolean' }),
+              string: z.string().exactOptional().openapi({ type: 'string' }),
+              number: z.number().exactOptional().openapi({ type: 'number' }),
+              boolean: z.boolean().exactOptional().openapi({ type: 'boolean' }),
               arrayDefault: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
               arrayExplode: z
                 .array(z.int().openapi({ type: 'integer' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'integer' } }),
               nested: z
                 .object({
-                  key1: z.string().optional().openapi({ type: 'string' }),
+                  key1: z.string().exactOptional().openapi({ type: 'string' }),
                   key2: z
-                    .object({ subkey: z.string().optional().openapi({ type: 'string' }) })
-                    .optional()
+                    .object({ subkey: z.string().exactOptional().openapi({ type: 'string' }) })
+                    .exactOptional()
                     .openapi({ type: 'object', properties: { subkey: { type: 'string' } } }),
                 })
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'object',
                   properties: {
@@ -536,13 +536,13 @@ export const postUrlEncodedComplexRoute = createRoute({
                 }),
               specialChars: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: 'Should handle & = ? % + space etc.' }),
-              unicode: z.string().optional().openapi({ type: 'string' }),
-              emptyString: z.string().optional().openapi({ type: 'string' }),
+              unicode: z.string().exactOptional().openapi({ type: 'string' }),
+              emptyString: z.string().exactOptional().openapi({ type: 'string' }),
               multiValue: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .openapi({
@@ -598,23 +598,23 @@ export const postSchemaEncodingRoute = createRoute({
             .object({
               base64Field: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', contentEncoding: 'base64' }),
               base64urlField: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', contentEncoding: 'base64url' }),
               jsonString: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', contentMediaType: 'application/json' }),
               xmlString: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', contentMediaType: 'application/xml' }),
               embeddedJson: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   contentMediaType: 'application/json',
@@ -625,7 +625,7 @@ export const postSchemaEncodingRoute = createRoute({
                 }),
               binaryData: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   contentEncoding: 'base64',
@@ -633,7 +633,7 @@ export const postSchemaEncodingRoute = createRoute({
                 }),
               imageData: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'string',
                   contentEncoding: 'base64',

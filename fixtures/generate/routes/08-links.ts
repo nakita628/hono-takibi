@@ -4,7 +4,7 @@ const OrderSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     customerId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    paymentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    paymentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
       .openapi({
@@ -12,7 +12,7 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
       }),
     total: z.float64().openapi({ type: 'number', format: 'float64' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -35,7 +35,7 @@ const OrderItemSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productName: z.string().optional().openapi({ type: 'string' }),
+    productName: z.string().exactOptional().openapi({ type: 'string' }),
     quantity: z.int32().openapi({ type: 'integer', format: 'int32' }),
     price: z.float64().openapi({ type: 'number', format: 'float64' }),
   })
@@ -56,7 +56,7 @@ const CustomerSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -79,7 +79,7 @@ const PaymentSchema = z
       .openapi({ type: 'string', enum: ['pending', 'completed', 'failed', 'refunded'] }),
     method: z
       .enum(['credit_card', 'debit_card', 'paypal', 'bank_transfer'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'] }),
   })
   .openapi({

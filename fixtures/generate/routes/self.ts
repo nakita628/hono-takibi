@@ -8,7 +8,7 @@ const CategorySchema: z.ZodType<CategoryType> = z
       .object({
         id: z.string().openapi({ type: 'string' }),
         name: z.string().openapi({ type: 'string' }),
-        parent: CategorySchema.optional(),
+        parent: CategorySchema.exactOptional(),
       })
       .openapi({
         type: 'object',

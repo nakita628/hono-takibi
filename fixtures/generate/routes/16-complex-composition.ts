@@ -11,8 +11,8 @@ const IdentifiableSchema = z
 
 const TimestampedSchema = z
   .object({
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -28,8 +28,8 @@ const AuditableSchema = z
     TimestampedSchema,
     z
       .object({
-        createdBy: z.string().optional().openapi({ type: 'string' }),
-        updatedBy: z.string().optional().openapi({ type: 'string' }),
+        createdBy: z.string().exactOptional().openapi({ type: 'string' }),
+        updatedBy: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -49,8 +49,8 @@ const AuditableSchema = z
 
 const VersionableSchema = z
   .object({
-    version: z.int().optional().openapi({ type: 'integer' }),
-    etag: z.string().optional().openapi({ type: 'string' }),
+    version: z.int().exactOptional().openapi({ type: 'integer' }),
+    etag: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -75,10 +75,10 @@ const ExtendedEntitySchema = z
     z
       .object({
         name: z.string().openapi({ type: 'string' }),
-        description: z.string().optional().openapi({ type: 'string' }),
+        description: z.string().exactOptional().openapi({ type: 'string' }),
         tags: z
           .array(z.string().openapi({ type: 'string' }))
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { type: 'string' } }),
       })
       .openapi({
@@ -114,9 +114,9 @@ const TextMessageSchema: z.ZodType<TextMessageType> = z
         BaseMessageSchema,
         z
           .object({
-            type: z.literal('text').optional().openapi({ type: 'string' }),
+            type: z.literal('text').exactOptional().openapi({ type: 'string' }),
             content: z.string().openapi({ type: 'string' }),
-            formatting: TextFormattingSchema.optional(),
+            formatting: TextFormattingSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -151,9 +151,9 @@ const ImageMessageSchema: z.ZodType<ImageMessageType> = z
       .and(
         z
           .object({
-            type: z.literal('image').optional().openapi({ type: 'string' }),
-            dimensions: DimensionsSchema.optional(),
-            alt: z.string().optional().openapi({ type: 'string' }),
+            type: z.literal('image').exactOptional().openapi({ type: 'string' }),
+            dimensions: DimensionsSchema.exactOptional(),
+            alt: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
@@ -187,9 +187,9 @@ const VideoMessageSchema: z.ZodType<VideoMessageType> = z
       .and(
         z
           .object({
-            type: z.literal('video').optional().openapi({ type: 'string' }),
-            duration: z.int().optional().openapi({ type: 'integer' }),
-            thumbnail: ImageMessageSchema.optional(),
+            type: z.literal('video').exactOptional().openapi({ type: 'string' }),
+            duration: z.int().exactOptional().openapi({ type: 'integer' }),
+            thumbnail: ImageMessageSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -223,9 +223,9 @@ const DocumentMessageSchema: z.ZodType<DocumentMessageType> = z
       .and(
         z
           .object({
-            type: z.literal('document').optional().openapi({ type: 'string' }),
-            pageCount: z.int().optional().openapi({ type: 'integer' }),
-            preview: ImageMessageSchema.optional(),
+            type: z.literal('document').exactOptional().openapi({ type: 'string' }),
+            pageCount: z.int().exactOptional().openapi({ type: 'integer' }),
+            preview: ImageMessageSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -260,7 +260,7 @@ const CompositeMessageSchema: z.ZodType<CompositeMessageType> = z
         BaseMessageSchema,
         z
           .object({
-            type: z.literal('composite').optional().openapi({ type: 'string' }),
+            type: z.literal('composite').exactOptional().openapi({ type: 'string' }),
             parts: z
               .array(MessageSchema)
               .min(2)
@@ -348,7 +348,7 @@ const ParticipantSchema = z
     z
       .object({
         name: z.string().openapi({ type: 'string' }),
-        avatar: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+        avatar: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
       })
       .openapi({
         type: 'object',
@@ -374,10 +374,13 @@ const MessageMetadataSchema: z.ZodType<MessageMetadataType> = z
       .object({
         priority: z
           .enum(['low', 'normal', 'high', 'urgent'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['low', 'normal', 'high', 'urgent'] }),
-        expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-        replyTo: MessageSchema.optional(),
+        expiresAt: z.iso
+          .datetime()
+          .exactOptional()
+          .openapi({ type: 'string', format: 'date-time' }),
+        replyTo: MessageSchema.exactOptional(),
       })
       .openapi({
         type: 'object',
@@ -407,7 +410,7 @@ const BaseMessageSchema: z.ZodType<BaseMessageType> = z
             type: z.string().openapi({ type: 'string' }),
             sender: ParticipantSchema,
             recipient: ParticipantSchema,
-            metadata: MessageMetadataSchema.optional(),
+            metadata: MessageMetadataSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -479,15 +482,15 @@ const TextFormattingSchema = z
   .object({
     bold: z
       .array(TextRangeSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TextRange' } }),
     italic: z
       .array(TextRangeSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TextRange' } }),
     links: z
       .array(LinkRangeSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinkRange' } }),
   })
   .openapi({
@@ -511,7 +514,7 @@ const MediaContentSchema = z
     url: z.url().openapi({ type: 'string', format: 'uri' }),
     mimeType: z.string().openapi({ type: 'string' }),
     size: z.int().openapi({ type: 'integer' }),
-    checksum: z.string().optional().openapi({ type: 'string' }),
+    checksum: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -565,16 +568,19 @@ type CompositeMessageType = z.infer<typeof BaseMessageSchema> & {
 
 const DeliveryStatusSchema = z
   .object({
-    sent: z.boolean().optional().openapi({ type: 'boolean' }),
-    delivered: z.boolean().optional().openapi({ type: 'boolean' }),
-    read: z.boolean().optional().openapi({ type: 'boolean' }),
+    sent: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    delivered: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    read: z.boolean().exactOptional().openapi({ type: 'boolean' }),
     timestamps: z
       .object({
-        sentAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-        deliveredAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-        readAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        sentAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+        deliveredAt: z.iso
+          .datetime()
+          .exactOptional()
+          .openapi({ type: 'string', format: 'date-time' }),
+        readAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -606,7 +612,7 @@ const MessageResponseSchema = z
   .intersection(
     MessageSchema,
     z
-      .object({ deliveryStatus: DeliveryStatusSchema.optional() })
+      .object({ deliveryStatus: DeliveryStatusSchema.exactOptional() })
       .openapi({
         type: 'object',
         properties: { deliveryStatus: { $ref: '#/components/schemas/DeliveryStatus' } },
@@ -645,9 +651,9 @@ const EventPayloadSchema: z.ZodType<EventPayloadType> = z
 
 const WebContextSchema = z
   .object({
-    userAgent: z.string().optional().openapi({ type: 'string' }),
-    referrer: z.string().optional().openapi({ type: 'string' }),
-    sessionId: z.string().optional().openapi({ type: 'string' }),
+    userAgent: z.string().exactOptional().openapi({ type: 'string' }),
+    referrer: z.string().exactOptional().openapi({ type: 'string' }),
+    sessionId: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -661,12 +667,12 @@ const WebContextSchema = z
 
 const MobileContextSchema = z
   .object({
-    deviceId: z.string().optional().openapi({ type: 'string' }),
+    deviceId: z.string().exactOptional().openapi({ type: 'string' }),
     platform: z
       .enum(['ios', 'android'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['ios', 'android'] }),
-    appVersion: z.string().optional().openapi({ type: 'string' }),
+    appVersion: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -680,9 +686,9 @@ const MobileContextSchema = z
 
 const ApiContextSchema = z
   .object({
-    apiKey: z.string().optional().openapi({ type: 'string' }),
-    clientId: z.string().optional().openapi({ type: 'string' }),
-    ipAddress: z.string().optional().openapi({ type: 'string' }),
+    apiKey: z.string().exactOptional().openapi({ type: 'string' }),
+    clientId: z.string().exactOptional().openapi({ type: 'string' }),
+    ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -709,7 +715,7 @@ const EventSchema = z
   .object({
     eventType: z.string().openapi({ type: 'string' }),
     payload: EventPayloadSchema,
-    context: EventContextSchema.optional(),
+    context: EventContextSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -724,9 +730,9 @@ const EventSchema = z
 
 const BaseEventPayloadSchema = z
   .object({
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    source: z.string().optional().openapi({ type: 'string' }),
-    correlationId: z.string().optional().openapi({ type: 'string' }),
+    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    source: z.string().exactOptional().openapi({ type: 'string' }),
+    correlationId: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -740,12 +746,12 @@ const BaseEventPayloadSchema = z
 
 const UserStateSchema = z
   .object({
-    status: z.string().optional().openapi({ type: 'string' }),
+    status: z.string().exactOptional().openapi({ type: 'string' }),
     roles: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    preferences: z.object({}).optional().openapi({ type: 'object' }),
+    preferences: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -765,10 +771,10 @@ const UserEventPayloadSchema = z
         userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
         userAction: z
           .enum(['login', 'logout', 'register', 'update', 'delete'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['login', 'logout', 'register', 'update', 'delete'] }),
-        previousState: UserStateSchema.optional(),
-        newState: UserStateSchema.optional(),
+        previousState: UserStateSchema.exactOptional(),
+        newState: UserStateSchema.exactOptional(),
       })
       .openapi({
         type: 'object',
@@ -802,7 +808,7 @@ const OrderItemSchema = z
   .object({
     productId: z.string().openapi({ type: 'string' }),
     quantity: z.int().openapi({ type: 'integer' }),
-    price: z.number().optional().openapi({ type: 'number' }),
+    price: z.number().exactOptional().openapi({ type: 'number' }),
   })
   .openapi({
     type: 'object',
@@ -823,11 +829,11 @@ const OrderEventPayloadSchema = z
         orderId: z.string().openapi({ type: 'string' }),
         orderAction: z
           .enum(['created', 'updated', 'cancelled', 'completed'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['created', 'updated', 'cancelled', 'completed'] }),
         items: z
           .array(OrderItemSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
       })
       .openapi({
@@ -867,7 +873,7 @@ const SystemEventPayloadSchema = z
           .openapi({ type: 'string', enum: ['info', 'warning', 'error', 'critical'] }),
         metrics: z
           .record(z.string(), z.number().openapi({ type: 'number' }))
-          .optional()
+          .exactOptional()
           .openapi({ type: 'object', additionalProperties: { type: 'number' } }),
       })
       .openapi({
@@ -901,8 +907,11 @@ const CustomEventPayloadSchema = z
     BaseEventPayloadSchema,
     z
       .object({
-        customType: z.string().optional().openapi({ type: 'string' }),
-        data: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
+        customType: z.string().exactOptional().openapi({ type: 'string' }),
+        data: z
+          .looseObject({})
+          .exactOptional()
+          .openapi({ type: 'object', additionalProperties: true }),
       })
       .openapi({
         type: 'object',
@@ -934,8 +943,8 @@ type EventPayloadType =
 
 const ConfigSectionSchema = z
   .object({
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    enabled: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -993,7 +1002,7 @@ const ConfigurationSchema = z
         settings: ConfigSettingsSchema,
         overrides: z
           .record(z.string(), ConfigValueSchema)
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
@@ -1034,9 +1043,9 @@ const GeneralSettingsSchema = z
     ConfigSectionSchema,
     z
       .object({
-        environment: z.string().optional().openapi({ type: 'string' }),
-        debug: z.boolean().optional().openapi({ type: 'boolean' }),
-        logLevel: z.string().optional().openapi({ type: 'string' }),
+        environment: z.string().exactOptional().openapi({ type: 'string' }),
+        debug: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+        logLevel: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -1110,8 +1119,8 @@ const UserConditionSchema = z
 const TimeConditionSchema = z
   .object({
     type: z.literal('time').openapi({ type: 'string' }),
-    startTime: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    endTime: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    startTime: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    endTime: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -1157,13 +1166,13 @@ const ConditionalFeatureFlagSchema = z
     enabled: z.boolean().openapi({ type: 'boolean' }),
     conditions: z
       .array(FeatureConditionSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/FeatureCondition' } }),
     rolloutPercentage: z
       .int()
       .min(0)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
   })
   .openapi({
@@ -1183,7 +1192,7 @@ const RateLimitSchema = z
   .object({
     limit: z.int().openapi({ type: 'integer' }),
     window: z.int().openapi({ type: 'integer' }),
-    burstLimit: z.int().optional().openapi({ type: 'integer' }),
+    burstLimit: z.int().exactOptional().openapi({ type: 'integer' }),
   })
   .openapi({
     type: 'object',
@@ -1225,10 +1234,10 @@ const ConfigurationUpdateSchema = z
   .intersection(
     z
       .object({
-        settings: ConfigSettingsSchema.optional(),
+        settings: ConfigSettingsSchema.exactOptional(),
         overrides: z
           .record(z.string(), ConfigValueSchema)
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
@@ -1270,12 +1279,12 @@ const ComputeResourceSchema: z.ZodType<ComputeResourceType> = z
         BaseResourceSchema,
         z
           .object({
-            resourceType: z.literal('compute').optional().openapi({ type: 'string' }),
+            resourceType: z.literal('compute').exactOptional().openapi({ type: 'string' }),
             cpu: CpuSpecSchema,
             memory: MemorySpecSchema,
             storage: z
               .array(StorageResourceSchema)
-              .optional()
+              .exactOptional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/StorageResource' } }),
           })
           .openapi({
@@ -1314,13 +1323,13 @@ const StorageResourceSchema: z.ZodType<StorageResourceType> = z
         BaseResourceSchema,
         z
           .object({
-            resourceType: z.literal('storage').optional().openapi({ type: 'string' }),
+            resourceType: z.literal('storage').exactOptional().openapi({ type: 'string' }),
             size: z.int().openapi({ type: 'integer' }),
             storageType: z
               .enum(['ssd', 'hdd', 'nvme'])
               .openapi({ type: 'string', enum: ['ssd', 'hdd', 'nvme'] }),
-            iops: z.int().optional().openapi({ type: 'integer' }),
-            attachedTo: ComputeResourceSchema.optional(),
+            iops: z.int().exactOptional().openapi({ type: 'integer' }),
+            attachedTo: ComputeResourceSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -1360,13 +1369,13 @@ const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
         BaseResourceSchema,
         z
           .object({
-            resourceType: z.literal('network').optional().openapi({ type: 'string' }),
+            resourceType: z.literal('network').exactOptional().openapi({ type: 'string' }),
             cidr: z.string().openapi({ type: 'string' }),
             subnets: z
               .array(NetworkResourceSchema)
-              .optional()
+              .exactOptional()
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/NetworkResource' } }),
-            parentNetwork: NetworkResourceSchema.optional(),
+            parentNetwork: NetworkResourceSchema.exactOptional(),
             connectedResources: z
               .array(
                 z
@@ -1378,7 +1387,7 @@ const NetworkResourceSchema: z.ZodType<NetworkResourceType> = z
                     ],
                   }),
               )
-              .optional()
+              .exactOptional()
               .openapi({
                 type: 'array',
                 items: {
@@ -1443,11 +1452,11 @@ const CompositeResourceSchema: z.ZodType<CompositeResourceType> = z
         BaseResourceSchema,
         z
           .object({
-            resourceType: z.literal('composite').optional().openapi({ type: 'string' }),
+            resourceType: z.literal('composite').exactOptional().openapi({ type: 'string' }),
             components: z
               .array(ResourceSchema)
               .openapi({ type: 'array', items: { $ref: '#/components/schemas/Resource' } }),
-            template: ResourceTemplateSchema.optional(),
+            template: ResourceTemplateSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -1521,9 +1530,9 @@ const ResourceStatusSchema = z
       }),
     health: z
       .enum(['healthy', 'degraded', 'unhealthy', 'unknown'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['healthy', 'degraded', 'unhealthy', 'unknown'] }),
-    lastChecked: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    lastChecked: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -1545,7 +1554,7 @@ const ResourceDependencySchema: z.ZodType<ResourceDependencyType> = z
       .object({
         resourceId: z.string().openapi({ type: 'string' }),
         type: z.enum(['hard', 'soft']).openapi({ type: 'string', enum: ['hard', 'soft'] }),
-        resource: ResourceSchema.optional(),
+        resource: ResourceSchema.exactOptional(),
       })
       .openapi({
         type: 'object',
@@ -1561,9 +1570,9 @@ const ResourceDependencySchema: z.ZodType<ResourceDependencyType> = z
 
 const ResourceCostSchema = z
   .object({
-    hourly: z.number().optional().openapi({ type: 'number' }),
-    monthly: z.number().optional().openapi({ type: 'number' }),
-    currency: z.string().optional().openapi({ type: 'string' }),
+    hourly: z.number().exactOptional().openapi({ type: 'number' }),
+    monthly: z.number().exactOptional().openapi({ type: 'number' }),
+    currency: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -1593,12 +1602,12 @@ const BaseResourceSchema: z.ZodType<BaseResourceType> = z
             status: ResourceStatusSchema,
             dependencies: z
               .array(ResourceDependencySchema)
-              .optional()
+              .exactOptional()
               .openapi({
                 type: 'array',
                 items: { $ref: '#/components/schemas/ResourceDependency' },
               }),
-            cost: ResourceCostSchema.optional(),
+            cost: ResourceCostSchema.exactOptional(),
           })
           .openapi({
             type: 'object',
@@ -1644,7 +1653,7 @@ type ResourceDependencyType = {
 const CpuSpecSchema = z
   .object({
     cores: z.int().openapi({ type: 'integer' }),
-    architecture: z.string().optional().openapi({ type: 'string' }),
+    architecture: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -1658,7 +1667,7 @@ const MemorySpecSchema = z
     size: z.int().openapi({ type: 'integer' }),
     unit: z
       .enum(['MB', 'GB', 'TB'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['MB', 'GB', 'TB'] }),
   })
   .openapi({
@@ -1693,11 +1702,11 @@ type NetworkResourceType = z.infer<typeof BaseResourceSchema> & {
 
 const ResourceTemplateSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    version: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    version: z.string().exactOptional().openapi({ type: 'string' }),
     parameters: z
       .record(z.string(), ConfigValueSchema)
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         additionalProperties: { $ref: '#/components/schemas/ConfigValue' },
@@ -1742,7 +1751,7 @@ const ValidationRuleSchema: z.ZodType<ValidationRuleType> = z
             ruleType: z.string().openapi({ type: 'string' }),
             severity: z
               .enum(['error', 'warning', 'info'])
-              .optional()
+              .exactOptional()
               .openapi({ type: 'string', enum: ['error', 'warning', 'info'] }),
           })
           .openapi({
@@ -1808,7 +1817,7 @@ const ValidationRequestSchema = z
 
 const SchemaValidationRuleSchema = z
   .object({
-    ruleType: z.literal('schema').optional().openapi({ type: 'string' }),
+    ruleType: z.literal('schema').exactOptional().openapi({ type: 'string' }),
     schema: z.object({}).openapi({ type: 'object' }),
   })
   .openapi({
@@ -1820,9 +1829,9 @@ const SchemaValidationRuleSchema = z
 
 const BusinessValidationRuleSchema = z
   .object({
-    ruleType: z.literal('business').optional().openapi({ type: 'string' }),
+    ruleType: z.literal('business').exactOptional().openapi({ type: 'string' }),
     expression: z.string().openapi({ type: 'string' }),
-    parameters: z.object({}).optional().openapi({ type: 'object' }),
+    parameters: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -1837,9 +1846,9 @@ const BusinessValidationRuleSchema = z
 
 const CustomValidationRuleSchema = z
   .object({
-    ruleType: z.literal('custom').optional().openapi({ type: 'string' }),
+    ruleType: z.literal('custom').exactOptional().openapi({ type: 'string' }),
     handler: z.string().openapi({ type: 'string' }),
-    config: z.object({}).optional().openapi({ type: 'object' }),
+    config: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -1860,9 +1869,9 @@ type ValidationRuleType = { ruleType: string; severity?: 'error' | 'warning' | '
 
 const SchemaIssueSchema = z
   .object({
-    keyword: z.string().optional().openapi({ type: 'string' }),
-    expected: z.object({}).optional().openapi({ type: 'object' }),
-    actual: z.object({}).optional().openapi({ type: 'object' }),
+    keyword: z.string().exactOptional().openapi({ type: 'string' }),
+    expected: z.object({}).exactOptional().openapi({ type: 'object' }),
+    actual: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -1876,8 +1885,8 @@ const SchemaIssueSchema = z
 
 const BusinessIssueSchema = z
   .object({
-    rule: z.string().optional().openapi({ type: 'string' }),
-    context: z.object({}).optional().openapi({ type: 'object' }),
+    rule: z.string().exactOptional().openapi({ type: 'string' }),
+    context: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -1894,7 +1903,7 @@ const ValidationIssueSchema = z
         severity: z
           .enum(['error', 'warning', 'info'])
           .openapi({ type: 'string', enum: ['error', 'warning', 'info'] }),
-        code: z.string().optional().openapi({ type: 'string' }),
+        code: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -1943,7 +1952,7 @@ const ValidationResultSchema = z
     issues: z
       .array(ValidationIssueSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ValidationIssue' } }),
-    metadata: z.object({}).optional().openapi({ type: 'object' }),
+    metadata: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',

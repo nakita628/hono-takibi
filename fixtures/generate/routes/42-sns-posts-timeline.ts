@@ -5,10 +5,10 @@ const UserSummarySchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     username: z.string().openapi({ type: 'string' }),
     displayName: z.string().openapi({ type: 'string' }),
-    avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    isVerified: z.boolean().optional().openapi({ type: 'boolean' }),
-    isFollowing: z.boolean().optional().openapi({ type: 'boolean' }),
-    isFollowedBy: z.boolean().optional().openapi({ type: 'boolean' }),
+    avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    isVerified: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    isFollowing: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    isFollowedBy: z.boolean().exactOptional().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
@@ -32,14 +32,17 @@ const MediaSchema = z
       .enum(['image', 'gif', 'video'])
       .openapi({ type: 'string', enum: ['image', 'gif', 'video'] }),
     url: z.url().openapi({ type: 'string', format: 'uri' }),
-    previewUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    alt: z.string().optional().openapi({ type: 'string' }),
-    width: z.int().optional().openapi({ type: 'integer' }),
-    height: z.int().optional().openapi({ type: 'integer' }),
-    duration: z.number().optional().openapi({ type: 'number', description: '動画の長さ（秒）' }),
+    previewUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    alt: z.string().exactOptional().openapi({ type: 'string' }),
+    width: z.int().exactOptional().openapi({ type: 'integer' }),
+    height: z.int().exactOptional().openapi({ type: 'integer' }),
+    duration: z
+      .number()
+      .exactOptional()
+      .openapi({ type: 'number', description: '動画の長さ（秒）' }),
     blurhash: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'プレースホルダー用ハッシュ' }),
   })
   .openapi({
@@ -69,7 +72,7 @@ const PollSchema = z
             id: z.string().openapi({ type: 'string' }),
             text: z.string().openapi({ type: 'string' }),
             voteCount: z.int().openapi({ type: 'integer' }),
-            percentage: z.number().optional().openapi({ type: 'number' }),
+            percentage: z.number().exactOptional().openapi({ type: 'number' }),
           })
           .openapi({
             type: 'object',
@@ -97,10 +100,10 @@ const PollSchema = z
       }),
     totalVotes: z.int().openapi({ type: 'integer' }),
     expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    isExpired: z.boolean().optional().openapi({ type: 'boolean' }),
+    isExpired: z.boolean().exactOptional().openapi({ type: 'boolean' }),
     viewerVote: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: '閲覧者が投票したオプションID' }),
   })
   .openapi({
@@ -134,8 +137,11 @@ const UrlEntitySchema = z
     url: z.url().openapi({ type: 'string', format: 'uri', description: '短縮URL' }),
     expandedUrl: z.url().openapi({ type: 'string', format: 'uri', description: '展開URL' }),
     displayUrl: z.string().openapi({ type: 'string', description: '表示用URL' }),
-    start: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
-    end: z.int().optional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
+    start: z
+      .int()
+      .exactOptional()
+      .openapi({ type: 'integer', description: 'テキスト内の開始位置' }),
+    end: z.int().exactOptional().openapi({ type: 'integer', description: 'テキスト内の終了位置' }),
   })
   .openapi({
     type: 'object',
@@ -154,12 +160,12 @@ const LinkCardSchema = z
   .object({
     url: z.url().openapi({ type: 'string', format: 'uri' }),
     title: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    image: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    siteName: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
+    image: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    siteName: z.string().exactOptional().openapi({ type: 'string' }),
     type: z
       .enum(['link', 'photo', 'video', 'rich'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['link', 'photo', 'video', 'rich'] }),
   })
   .openapi({
@@ -217,16 +223,16 @@ const PostSchema: z.ZodType<PostType> = z
         media: z
           .array(MediaSchema)
           .max(4)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Media' }, maxItems: 4 }),
-        poll: PollSchema.optional(),
-        quotedPost: PostSchema.optional().openapi({ description: '引用元投稿' }),
+        poll: PollSchema.exactOptional(),
+        quotedPost: PostSchema.exactOptional().openapi({ description: '引用元投稿' }),
         replyTo: z
           .object({
-            postId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-            author: UserSummarySchema.optional(),
+            postId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+            author: UserSummarySchema.exactOptional(),
           })
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             description: '返信先情報',
@@ -235,24 +241,26 @@ const PostSchema: z.ZodType<PostType> = z
               author: { $ref: '#/components/schemas/UserSummary' },
             },
           }),
-        repostOf: PostSchema.optional().openapi({ description: 'リポスト元（リポストの場合）' }),
+        repostOf: PostSchema.exactOptional().openapi({
+          description: 'リポスト元（リポストの場合）',
+        }),
         hashtags: z
           .array(z.string().openapi({ type: 'string' }))
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { type: 'string' } }),
         mentions: z
           .array(UserSummarySchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
         urls: z
           .array(UrlEntitySchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/UrlEntity' } }),
-        card: LinkCardSchema.optional().openapi({ description: 'リンクカード' }),
+        card: LinkCardSchema.exactOptional().openapi({ description: 'リンクカード' }),
         visibility: z
           .enum(['public', 'followers', 'mentioned'])
           .default('public')
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'string',
             enum: ['public', 'followers', 'mentioned'],
@@ -261,7 +269,7 @@ const PostSchema: z.ZodType<PostType> = z
         replySettings: z
           .enum(['everyone', 'followers', 'mentioned'])
           .default('everyone')
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'string',
             enum: ['everyone', 'followers', 'mentioned'],
@@ -274,7 +282,7 @@ const PostSchema: z.ZodType<PostType> = z
             replyCount: z.int().openapi({ type: 'integer' }),
             quoteCount: z.int().openapi({ type: 'integer' }),
             viewCount: z.int().openapi({ type: 'integer' }),
-            bookmarkCount: z.int().optional().openapi({ type: 'integer' }),
+            bookmarkCount: z.int().exactOptional().openapi({ type: 'integer' }),
           })
           .openapi({
             type: 'object',
@@ -290,11 +298,11 @@ const PostSchema: z.ZodType<PostType> = z
           }),
         viewer: z
           .object({
-            liked: z.boolean().optional().openapi({ type: 'boolean' }),
-            reposted: z.boolean().optional().openapi({ type: 'boolean' }),
-            bookmarked: z.boolean().optional().openapi({ type: 'boolean' }),
+            liked: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+            reposted: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+            bookmarked: z.boolean().exactOptional().openapi({ type: 'boolean' }),
           })
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             description: '閲覧者のアクション状態',
@@ -304,21 +312,21 @@ const PostSchema: z.ZodType<PostType> = z
               bookmarked: { type: 'boolean' },
             },
           }),
-        language: z.string().optional().openapi({ type: 'string', description: '言語コード' }),
+        language: z.string().exactOptional().openapi({ type: 'string', description: '言語コード' }),
         source: z
           .string()
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', description: '投稿元クライアント' }),
         createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-        editedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        editedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
         editHistory: z
           .array(
             z
               .object({
-                text: z.string().optional().openapi({ type: 'string' }),
+                text: z.string().exactOptional().openapi({ type: 'string' }),
                 editedAt: z.iso
                   .datetime()
-                  .optional()
+                  .exactOptional()
                   .openapi({ type: 'string', format: 'date-time' }),
               })
               .openapi({
@@ -329,7 +337,7 @@ const PostSchema: z.ZodType<PostType> = z
                 },
               }),
           )
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'array',
             items: {
@@ -423,7 +431,7 @@ const CreatePostRequestSchema = z
     mediaIds: z
       .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
       .max(4)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 }),
     poll: z
       .object({
@@ -443,7 +451,7 @@ const CreatePostRequestSchema = z
           .max(10080)
           .openapi({ type: 'integer', description: '投票期間（分）', minimum: 5, maximum: 10080 }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         required: ['options', 'duration'],
@@ -460,18 +468,18 @@ const CreatePostRequestSchema = z
     visibility: z
       .enum(['public', 'followers', 'mentioned'])
       .default('public')
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['public', 'followers', 'mentioned'], default: 'public' }),
     replySettings: z
       .enum(['everyone', 'followers', 'mentioned'])
       .default('everyone')
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         enum: ['everyone', 'followers', 'mentioned'],
         default: 'everyone',
       }),
-    quotedPostId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    quotedPostId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
   })
   .openapi({
     type: 'object',
@@ -516,11 +524,11 @@ const PostThreadSchema: z.ZodType<PostThreadType> = z
         post: PostSchema,
         ancestors: z
           .array(PostSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
         replies: z
           .array(PostThreadSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/PostThread' } }),
       })
       .openapi({
@@ -540,8 +548,8 @@ const PostListResponseSchema = z
     data: z
       .array(PostSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-    nextCursor: z.string().optional().openapi({ type: 'string' }),
-    previousCursor: z.string().optional().openapi({ type: 'string' }),
+    nextCursor: z.string().exactOptional().openapi({ type: 'string' }),
+    previousCursor: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -560,10 +568,13 @@ const TimelineItemSchema = z
       .enum(['post', 'repost', 'reply', 'quote', 'promoted'])
       .openapi({ type: 'string', enum: ['post', 'repost', 'reply', 'quote', 'promoted'] }),
     post: PostSchema,
-    repostedBy: UserSummarySchema.optional().openapi({
+    repostedBy: UserSummarySchema.exactOptional().openapi({
       description: 'リポストの場合、リポストしたユーザー',
     }),
-    reason: z.string().optional().openapi({ type: 'string', description: 'おすすめの理由など' }),
+    reason: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'おすすめの理由など' }),
   })
   .openapi({
     type: 'object',
@@ -585,8 +596,8 @@ const TimelineResponseSchema = z
     data: z
       .array(TimelineItemSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/TimelineItem' } }),
-    nextCursor: z.string().optional().openapi({ type: 'string' }),
-    previousCursor: z.string().optional().openapi({ type: 'string' }),
+    nextCursor: z.string().exactOptional().openapi({ type: 'string' }),
+    previousCursor: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -604,7 +615,7 @@ const UserListResponseSchema = z
     data: z
       .array(UserSummarySchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/UserSummary' } }),
-    nextCursor: z.string().optional().openapi({ type: 'string' }),
+    nextCursor: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -643,7 +654,7 @@ const PostIdParamParamsSchema = z
 
 const CursorParamParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'cursor',
@@ -659,7 +670,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -707,7 +718,7 @@ export const getPostsRoute = createRoute({
       limit: LimitParamParamsSchema,
       userId: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'userId',
@@ -720,7 +731,7 @@ export const getPostsRoute = createRoute({
         }),
       hashtag: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'hashtag',
@@ -732,7 +743,7 @@ export const getPostsRoute = createRoute({
         }),
       mediaOnly: z
         .stringbool()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'mediaOnly',
@@ -828,16 +839,16 @@ export const getPostsPostIdContextRoute = createRoute({
             .object({
               ancestors: z
                 .array(PostSchema)
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
                   description: '親投稿のチェーン',
                 }),
-              post: PostSchema.optional(),
+              post: PostSchema.exactOptional(),
               descendants: z
                 .array(PostSchema)
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'array',
                   items: { $ref: '#/components/schemas/Post' },
@@ -880,7 +891,7 @@ export const getTimelineHomeRoute = createRoute({
       includeReplies: z
         .stringbool()
         .default(false)
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'includeReplies',
@@ -894,7 +905,7 @@ export const getTimelineHomeRoute = createRoute({
       includeReposts: z
         .stringbool()
         .default(true)
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'includeReposts',
@@ -962,7 +973,7 @@ export const getTimelineUserUserIdRoute = createRoute({
       includeReplies: z
         .stringbool()
         .default(false)
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'includeReplies',
@@ -975,7 +986,7 @@ export const getTimelineUserUserIdRoute = createRoute({
       includeReposts: z
         .stringbool()
         .default(true)
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'includeReposts',
@@ -988,7 +999,7 @@ export const getTimelineUserUserIdRoute = createRoute({
       mediaOnly: z
         .stringbool()
         .default(false)
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'mediaOnly', in: 'query', schema: { type: 'boolean', default: false } },
           type: 'boolean',
@@ -1106,7 +1117,7 @@ export const postPostsPostIdQuoteRoute = createRoute({
               mediaIds: z
                 .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
                 .max(4)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'uuid' }, maxItems: 4 }),
             })
             .openapi({
@@ -1236,7 +1247,7 @@ export const getPostsPostIdRepliesRoute = createRoute({
       sort: z
         .enum(['recent', 'popular', 'relevant'])
         .default('relevant')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'sort',
@@ -1293,7 +1304,7 @@ export const postMediaUploadRoute = createRoute({
               alt: z
                 .string()
                 .max(1000)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', maxLength: 1000, description: '代替テキスト' }),
             })
             .openapi({
@@ -1364,7 +1375,11 @@ export const patchMediaMediaIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              alt: z.string().max(1000).optional().openapi({ type: 'string', maxLength: 1000 }),
+              alt: z
+                .string()
+                .max(1000)
+                .exactOptional()
+                .openapi({ type: 'string', maxLength: 1000 }),
             })
             .openapi({ type: 'object', properties: { alt: { type: 'string', maxLength: 1000 } } }),
         },
