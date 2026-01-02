@@ -13,9 +13,7 @@ describe('wrap', () => {
           default: 'test',
           nullable: true,
         }),
-      ).toBe(
-        `z.string().default("test").nullable().openapi({"type":"string","default":"test"})`,
-      )
+      ).toBe(`z.string().default("test").nullable().openapi({"type":"string","default":"test"})`)
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -47,9 +45,7 @@ describe('wrap', () => {
           type: ['number', 'null'],
           default: 0,
         }),
-      ).toBe(
-        'z.number().default(0).nullable().openapi({"type":["number","null"],"default":0})',
-      )
+      ).toBe('z.number().default(0).nullable().openapi({"type":["number","null"],"default":0})')
     })
   })
 
@@ -167,9 +163,7 @@ describe('wrap', () => {
           default: true,
           nullable: true,
         }),
-      ).toBe(
-        'z.boolean().default(true).nullable().openapi({"type":"boolean","default":true})',
-      )
+      ).toBe('z.boolean().default(true).nullable().openapi({"type":"boolean","default":true})')
     })
 
     it.concurrent('marks schema as nullable and adds default when type includes null', () => {
@@ -263,8 +257,8 @@ describe('wrap', () => {
   it('should insert only param if no example or description is given', () => {
     const result = wrap(
       'z.string()',
-      { type: 'string'},
-      { parameters: { name: 'x', in: 'header' }  as any},
+      { type: 'string' },
+      { parameters: { name: 'x', in: 'header' } as any },
     )
     const expected = `z.string().optional().openapi({param:{"name":"x","in":"header"},"type":"string"})`
     expect(result).toBe(expected)
@@ -272,8 +266,7 @@ describe('wrap', () => {
 
   it('should return examples', () => {
     const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
-    const expected =
-      'z.string().openapi({"type":"string","examples":["example1","example2"]})'
+    const expected = 'z.string().openapi({"type":"string","examples":["example1","example2"]})'
     expect(result).toBe(expected)
   })
 })
