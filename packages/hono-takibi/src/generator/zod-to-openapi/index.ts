@@ -26,7 +26,6 @@ export function zodToOpenAPI(
     if (!schema.allOf || schema.allOf.length === 0) {
       return wrap('z.any()', schema, meta)
     }
-
     const { allOfSchemas, nullable, onlyRefSchemas } = schema.allOf.reduce<{
       allOfSchemas: string[]
       nullable: boolean
@@ -87,7 +86,6 @@ export function zodToOpenAPI(
         : allOfSchemas.slice(1).reduce((acc, s) => `${acc}.and(${s})`, allOfSchemas[0])
     return wrap(z, schema, meta)
   }
-
   /* anyOf */
   if (schema.anyOf !== undefined) {
     if (!schema.anyOf || schema.anyOf.length === 0) {
@@ -104,7 +102,6 @@ export function zodToOpenAPI(
     const z = `z.union([${anyOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
   }
-
   /* oneOf */
   if (schema.oneOf !== undefined) {
     if (!schema.oneOf || schema.oneOf.length === 0) {
@@ -128,7 +125,6 @@ export function zodToOpenAPI(
     const z = `z.union([${oneOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
   }
-
   /* not */
   if (schema.not !== undefined) {
     if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
@@ -144,13 +140,11 @@ export function zodToOpenAPI(
     }
     return wrap('z.any()', schema, meta)
   }
-
   /* const */
   if (schema.const !== undefined) {
     const z = `z.literal(${JSON.stringify(schema.const)})`
     return wrap(z, schema, meta)
   }
-
   /* enum */
   if (schema.enum !== undefined) return wrap(_enum(schema), schema, meta)
   /* properties */
@@ -179,22 +173,15 @@ export function zodToOpenAPI(
         ? zodToOpenAPI(itemSchema, meta)
         : 'z.any()'
     const z = `z.array(${item})`
-
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
-      // return schemas.minItems === schemas.maxItems
-      //   ? `${z}.length(${schemas.minItems})`
-      //   : `${z}.min(${schemas.minItems}).max(${schemas.maxItems})`
       return schema.minItems === schema.maxItems
         ? wrap(`${z}.length(${schema.minItems})`, schema, meta)
         : wrap(`${z}.min(${schema.minItems}).max(${schema.maxItems})`, schema, meta)
     }
-    // if (typeof schemas.minItems === 'number') return `${z}.min(${schemas.minItems})`
-    // if (typeof schemas.maxItems === 'number') return `${z}.max(${schemas.maxItems})`
     if (typeof schema.minItems === 'number')
       return wrap(`${z}.min(${schema.minItems})`, schema, meta)
     if (typeof schema.maxItems === 'number')
       return wrap(`${z}.max(${schema.maxItems})`, schema, meta)
-
     return wrap(z, schema, meta)
   }
   /* object */

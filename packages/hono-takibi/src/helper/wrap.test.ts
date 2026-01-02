@@ -207,6 +207,7 @@ describe('wrap', () => {
         parameters: {
           name: 'id',
           in: 'path',
+          // biome-ignore lint: test
         } as any,
       },
     )
@@ -227,6 +228,7 @@ describe('wrap', () => {
         parameters: {
           name: 'q',
           in: 'query',
+          // biome-ignore lint: test
         } as any,
       },
     )
@@ -247,6 +249,7 @@ describe('wrap', () => {
           name: 'q',
           in: 'query',
           required: true,
+          // biome-ignore lint: test
         } as any,
       },
     )
@@ -258,6 +261,7 @@ describe('wrap', () => {
     const result = wrap(
       'z.string()',
       { type: 'string' },
+      // biome-ignore lint: test
       { parameters: { name: 'x', in: 'header' } as any },
     )
     const expected = `z.string().optional().openapi({param:{"name":"x","in":"header"},"type":"string"})`
@@ -265,6 +269,7 @@ describe('wrap', () => {
   })
 
   it('should return examples', () => {
+    // biome-ignore lint: test
     const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
     const expected = 'z.string().openapi({"type":"string","examples":["example1","example2"]})'
     expect(result).toBe(expected)
