@@ -274,7 +274,7 @@ export type Header = {
   content?: Content
 }
 
-type Link = {
+export type Link = {
   readonly operationRef?: string
   readonly operationId?: string
   readonly parameters?: {

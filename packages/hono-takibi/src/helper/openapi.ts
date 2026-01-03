@@ -1,47 +1,48 @@
 import { request } from '../generator/zod-openapi-hono/openapi/routes/request/index.js'
-import { response } from '../generator/zod-openapi-hono/openapi/routes/response/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
   Content,
   Encoding,
+  Header,
+  Link,
   Media,
   Operation,
   Parameter,
   PathItem,
   Reference,
+  Responses,
 } from '../openapi/index.js'
-import { escapeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
-
-export function makeOperation(operation: Operation) {
-  const requestParams = request(operation.parameters, operation.requestBody)
-
-  return {
-    tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : undefined,
-    summary: operation.summary ? `summary:'${escapeStringLiteral(operation.summary)},'` : undefined,
-    description: operation.description
-      ? `description:'${escapeStringLiteral(operation.description)},'`
-      : undefined,
-    externalDocs: operation.externalDocs
-      ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
-      : undefined,
-    operationId: operation.operationId ? `operationId:'${operation.operationId}',` : undefined,
-    request: requestParams ? `${requestParams}` : undefined,
-    responses: operation.responses ? `responses:{${response(operation.responses)}},` : '',
-    callbacks: operation.callbacks
-      ? `callbacks:{${makeCallbacks(operation.callbacks)}},`
-      : undefined,
-    deprecated: operation.deprecated ? `deprecated:${operation.deprecated},` : undefined,
-    security: operation.security ? `security:${JSON.stringify(operation.security)},` : undefined,
-    servers: operation.servers ? `servers:${JSON.stringify(operation.servers)},` : undefined,
-  }
-}
+import { toIdentifierPascalCase } from '../utils/index.js'
 
 /**
- * generates examples
- * @param examples
+ * generates a reference to the given $ref string.
+ * @param $ref
  * @returns
  */
+export function makeRef($ref: string): string {
+  const rawRef = $ref.split('/').at(-1)
+  if (!rawRef) return 'Schema'
+  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  const suffixMap: { readonly [k: string]: string } = {
+    '#/components/schemas/': 'Schema',
+    '#/components/parameters/': 'ParamsSchema',
+    '#/components/headers/': 'HeaderSchema',
+    '#/components/securitySchemes/': 'SecurityScheme',
+    '#/components/requestBodies/': 'RequestBody',
+    '#/components/responses/': 'Response',
+    '#/components/examples/': 'Example',
+    '#/components/links/': 'Link',
+    '#/components/callbacks/': 'Callback',
+  }
+  for (const [prefix, suffix] of Object.entries(suffixMap)) {
+    if ($ref.startsWith(prefix)) {
+      return refName.endsWith(suffix) ? refName : `${refName}${suffix}`
+    }
+  }
+  return `${refName}Schema`
+}
+
 export function makeExamples(examples: {
   readonly [k: string]:
     | {
@@ -53,16 +54,25 @@ export function makeExamples(examples: {
         readonly value?: unknown
       }
     | {
-        readonly $ref?: string
+        readonly $ref?:
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/securitySchemes/${string}`
+          | `#/components/requestBodies/${string}`
+          | `#/components/responses/${string}`
+          | `#/components/headers/${string}`
+          | `#/components/examples/${string}`
+          | `#/components/links/${string}`
+          | `#/components/callbacks/${string}`
         readonly summary?: string
         readonly description?: string
       }
 }) {
-  return Object.entries(examples)
-    .map(([k, example]) => {
+  const result = Object.entries(examples)
+    .map(([key, example]) => {
       // Reference
       if ('$ref' in example && example.$ref) {
-        return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
+        return `${JSON.stringify(key)}:${makeRef(example.$ref)}`
       }
       // Example object
       const props = [
@@ -85,39 +95,112 @@ export function makeExamples(examples: {
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${JSON.stringify(k)}:{${props}}`
+      return `${JSON.stringify(key)}:{${props}}`
     })
     .join(',')
+  return `{${result}}`
+}
+
+export function makeOperation(operation: Operation) {
+  const requestParams = request(operation.parameters, operation.requestBody)
+  return {
+    tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : '',
+    summary: operation.summary ? `summary:${JSON.stringify(operation.summary)},` : '',
+    description: operation.description
+      ? `description:${JSON.stringify(operation.description)},`
+      : '',
+    externalDocs: operation.externalDocs
+      ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
+      : '',
+    operationId: operation.operationId
+      ? `operationId:${JSON.stringify(operation.operationId)},`
+      : '',
+    request: requestParams ? `${requestParams}` : '',
+    responses: operation.responses ? `responses:{${makeResponses(operation.responses)}},` : '',
+    callbacks: operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}},` : '',
+    deprecated: operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)},` : '',
+    security: operation.security ? `security:${JSON.stringify(operation.security)},` : '',
+    servers: operation.servers ? `servers:${JSON.stringify(operation.servers)},` : '',
+  }
 }
 
 /**
- * Generates a reference to the given $ref string.
- * @param $ref - The $ref string to make a reference to.
+ * generates a response code from the given responses object.
+ * @param responses
  * @returns
  */
-export function makeRef($ref: string): string {
-  const ref = $ref.split('/').at(-1)
-  if (!ref) return 'Schema'
-
-  const refName = toIdentifierPascalCase(decodeURIComponent(ref))
-
-  const components: { readonly [k: string]: string } = {
-    '#/components/schemas/': 'Schema',
-    '#/components/parameters/': 'ParamsSchema',
-    '#/components/headers/': 'HeaderSchema',
-    '#/components/securitySchemes/': 'SecurityScheme',
-    '#/components/requestBodies/': 'RequestBody',
-    '#/components/responses/': 'Response',
-    '#/components/examples/': 'Example',
-    '#/components/links/': 'Link',
-    '#/components/callbacks/': 'Callback',
+export function makeResponses(responses: Responses) {
+  if (responses.$ref) {
+    return makeRef(responses.$ref)
   }
-  for (const [k, v] of Object.entries(components)) {
-    if ($ref.startsWith(k)) {
-      return refName.endsWith(v) ? refName : `${refName}${v}`
-    }
-  }
-  return `${refName}Schema`
+
+  const props = [
+    responses.summary ? `summary:${JSON.stringify(responses.summary)},` : undefined,
+    responses.description ? `description:${JSON.stringify(responses.description)},` : undefined,
+    responses.headers ? `headers:{${makeHeaders(responses.headers)}}` : undefined,
+    responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
+    responses.headers ? `headers:{${makeHeaders(responses.headers)}}` : undefined,
+    responses.links ? `links:{${makeLinkOrReference(responses.links)}}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${props}}`
+}
+
+/**
+ *
+ * generates a header code from the given headers object.
+ * @returns
+ */
+export function makeHeaders(headers: Header) {
+  const props = [
+    headers.description ? `description:${JSON.stringify(headers.description)},` : undefined,
+    headers.required ? `required:${JSON.stringify(headers.required)},` : undefined,
+    headers.deprecated ? `deprecated:${JSON.stringify(headers.deprecated)},` : undefined,
+    headers.example ? `example:${JSON.stringify(headers.example)},` : undefined,
+    headers.examples ? `examples:${makeExamples(headers.examples)},` : undefined,
+    headers.style ? `style:${JSON.stringify(headers.style)},` : undefined,
+    headers.explode ? `explode:${JSON.stringify(headers.explode)},` : undefined,
+    headers.schema ? `schema:${zodToOpenAPI(headers.schema)},` : undefined,
+    headers.content ? `content:${makeContent(headers.content)},` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${props}}`
+}
+
+/**
+ *
+ * @param linkOrReference
+ * @returns
+ */
+export function makeLinkOrReference(linkOrReference: Link | Reference) {
+  const props = [
+    'operationRef' in linkOrReference
+      ? `operationRef:${JSON.stringify(linkOrReference.operationRef)}`
+      : undefined,
+    'operationId' in linkOrReference
+      ? `operationId:${JSON.stringify(linkOrReference.operationId)}`
+      : undefined,
+    // parameters is an object with string keys and unknown values
+    'parameters' in linkOrReference
+      ? `parameters:${JSON.stringify(linkOrReference.parameters)}`
+      : undefined,
+    'requestBody' in linkOrReference
+      ? `requestBody:${JSON.stringify(linkOrReference.requestBody)}`
+      : undefined,
+    'description' in linkOrReference
+      ? `description:${JSON.stringify(linkOrReference.description)}`
+      : undefined,
+    'server' in linkOrReference ? `server:${JSON.stringify(linkOrReference.server)}` : undefined,
+    '$ref' in linkOrReference && linkOrReference.$ref
+      ? `$ref:${makeRef(linkOrReference.$ref)}`
+      : undefined,
+    'summary' in linkOrReference ? `summary:${JSON.stringify(linkOrReference.summary)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${props}}`
 }
 
 /**
@@ -145,15 +228,24 @@ export function makeCallbacks(
   const buildResponsesCode = (responses: Operation['responses']): string => {
     const entries = Object.entries(responses)
       .map(([statusCode, response]) => {
-        if (response.$ref) {
-          return `${JSON.stringify(statusCode)}:${makeRef(response.$ref)}`
-        }
-        return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
+        return `${JSON.stringify(statusCode)}:${makeResponses(response)}`
       })
       .join(',')
-
     return `{${entries}}`
   }
+
+  // const buildResponsesCode = (responses: Operation['responses']): string => {
+  //   const entries = Object.entries(responses)
+  //     .map(([statusCode, response]) => {
+  //       if (response.$ref) {
+  //         return `${JSON.stringify(statusCode)}:${makeRef(response.$ref)}`
+  //       }
+  //       return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
+  //     })
+  //     .join(',')
+
+  //   return `{${entries}}`
+  // }
 
   const buildOperationCallbacksCode = (
     operationCallbacks: Operation['callbacks'],

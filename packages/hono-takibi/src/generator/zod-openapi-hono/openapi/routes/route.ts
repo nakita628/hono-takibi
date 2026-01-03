@@ -4,7 +4,6 @@ import {
   methodPath,
 } from '../../../../utils/index.js'
 
-
 export function route(path: string, method: string, operation: Operation): string {
   const properties = [
     `method:'${method}',`,
