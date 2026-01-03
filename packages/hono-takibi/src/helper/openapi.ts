@@ -442,3 +442,12 @@ export function makeRequestBody(body: RequestBody) {
     .join(',')
   return `{${props}}`
 }
+
+export function makeMedia(media: Media) {
+  const props = [
+    media.schema ? `schema:${zodToOpenAPI(media.schema)}` : undefined,
+    media.itemSchema ? `itemSchema:${zodToOpenAPI(media.itemSchema)}` : undefined,
+    media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
+    media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
+  ]
+}
