@@ -1,3 +1,5 @@
+import { request } from '../generator/zod-openapi-hono/openapi/routes/request/index.js'
+import { response } from '../generator/zod-openapi-hono/openapi/routes/response/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
@@ -9,15 +11,97 @@ import type {
   PathItem,
   Reference,
 } from '../openapi/index.js'
-import { buildExamples, toIdentifierPascalCase } from '../utils/index.js'
+import { escapeStringLiteral, toIdentifierPascalCase } from '../utils/index.js'
 
+export function makeOperation(operation: Operation) {
+  const requestParams = request(operation.parameters, operation.requestBody)
+
+  return {
+    tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : undefined,
+    summary: operation.summary ? `summary:'${escapeStringLiteral(operation.summary)},'` : undefined,
+    description: operation.description
+      ? `description:'${escapeStringLiteral(operation.description)},'`
+      : undefined,
+    externalDocs: operation.externalDocs
+      ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
+      : undefined,
+    operationId: operation.operationId ? `operationId:'${operation.operationId}',` : undefined,
+    request: requestParams ? `${requestParams}` : undefined,
+    responses: operation.responses ? `responses:{${response(operation.responses)}},` : '',
+    callbacks: operation.callbacks
+      ? `callbacks:{${makeCallbacks(operation.callbacks)}},`
+      : undefined,
+    deprecated: operation.deprecated ? `deprecated:${operation.deprecated},` : undefined,
+    security: operation.security ? `security:${JSON.stringify(operation.security)},` : undefined,
+    servers: operation.servers ? `servers:${JSON.stringify(operation.servers)},` : undefined,
+  }
+}
+
+/**
+ * generates examples
+ * @param examples
+ * @returns
+ */
+export function makeExamples(examples: {
+  readonly [k: string]:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly defaultValue?: unknown
+        readonly serializedValue?: string
+        readonly externalValue?: string
+        readonly value?: unknown
+      }
+    | {
+        readonly $ref?: string
+        readonly summary?: string
+        readonly description?: string
+      }
+}) {
+  return Object.entries(examples)
+    .map(([k, example]) => {
+      // Reference
+      if ('$ref' in example && example.$ref) {
+        return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
+      }
+      // Example object
+      const props = [
+        example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
+        example.description !== undefined
+          ? `description:${JSON.stringify(example.description)}`
+          : undefined,
+        'defaultValue' in example && example.defaultValue !== undefined
+          ? `defaultValue:${JSON.stringify(example.defaultValue)}`
+          : undefined,
+        'serializedValue' in example && example.serializedValue !== undefined
+          ? `serializedValue:${JSON.stringify(example.serializedValue)}`
+          : undefined,
+        'externalValue' in example && example.externalValue !== undefined
+          ? `externalValue:${JSON.stringify(example.externalValue)}`
+          : undefined,
+        'value' in example && example.value !== undefined
+          ? `value:${JSON.stringify(example.value)}`
+          : undefined,
+      ]
+        .filter((v) => v !== undefined)
+        .join(',')
+      return `${JSON.stringify(k)}:{${props}}`
+    })
+    .join(',')
+}
+
+/**
+ * Generates a reference to the given $ref string.
+ * @param $ref - The $ref string to make a reference to.
+ * @returns
+ */
 export function makeRef($ref: string): string {
-  const rawRef = $ref.split('/').at(-1)
-  if (!rawRef) return 'Schema'
+  const ref = $ref.split('/').at(-1)
+  if (!ref) return 'Schema'
 
-  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  const refName = toIdentifierPascalCase(decodeURIComponent(ref))
 
-  const suffixMap: { readonly [k: string]: string } = {
+  const components: { readonly [k: string]: string } = {
     '#/components/schemas/': 'Schema',
     '#/components/parameters/': 'ParamsSchema',
     '#/components/headers/': 'HeaderSchema',
@@ -28,15 +112,12 @@ export function makeRef($ref: string): string {
     '#/components/links/': 'Link',
     '#/components/callbacks/': 'Callback',
   }
-
-  const prefix = $ref.substring(0, $ref.lastIndexOf('/') + 1)
-  const suffix = suffixMap[prefix] ?? 'Schema'
-
-  if (refName.endsWith(suffix)) return refName
-  if (suffix === 'ParamsSchema' && refName.endsWith('Params')) {
-    return `${refName}Schema`
+  for (const [k, v] of Object.entries(components)) {
+    if ($ref.startsWith(k)) {
+      return refName.endsWith(v) ? refName : `${refName}${v}`
+    }
   }
-  return `${refName}${suffix}`
+  return `${refName}Schema`
 }
 
 /**
@@ -44,7 +125,17 @@ export function makeRef($ref: string): string {
  * @param callbacks
  * @returns
  */
-export function makeCallbacks(callbacks: Callbacks): string {
+export function makeCallbacks(
+  callbacks:
+    | Callbacks
+    | {
+        readonly [k: string]: {
+          readonly $ref?: string
+          readonly summary?: string
+          readonly description?: string
+        }
+      },
+): string {
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
@@ -215,7 +306,7 @@ export function makeContent(
                 ? `example:${JSON.stringify(header.example)}`
                 : undefined,
               'examples' in header && header.examples
-                ? `examples:${buildExamples(header.examples)}`
+                ? `examples:${makeExamples(header.examples)}`
                 : undefined,
             ]
               .filter((v): v is string => v !== undefined)
@@ -262,7 +353,7 @@ export function makeContent(
       `schema:${zSchema}`,
       zItemSchema ? `itemSchema:${zItemSchema}` : undefined,
       media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
-      media.examples ? `examples:${buildExamples(media.examples)}` : undefined,
+      media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
       encoding ? `encoding:{${encoding}}` : undefined,
       media.prefixEncoding
         ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', media.prefixEncoding)}}`

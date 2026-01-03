@@ -1,85 +1,16 @@
+import { makeOperation } from '../../../../helper/openapi.js'
 import type { Operation } from '../../../../openapi/index.js'
 import {
-  ensureSuffix,
-  escapeStringLiteral,
   methodPath,
-  toIdentifierPascalCase,
 } from '../../../../utils/index.js'
-import { request } from './request/index.js'
-import { response } from './response/index.js'
 
-/**
- * Generates TypeScript code for a Hono route from OpenAPI operation details.
- *
- * @param path - The route path (e.g., `/users/{id}`).
- * @param method - The HTTP method (e.g., `get`, `post`).
- * @param operation - The OpenAPI Operation object.
- * @returns A TypeScript code string defining the route via `createRoute`.
- *
- * @remarks
- * - Combines tags, method, path, operationId, summary, description, security, request, and response.
- * - Escapes all string literals.
- * - Produces a complete `.openapi()` route definition with validation.
- */
+
 export function route(path: string, method: string, operation: Operation): string {
-  const {
-    tags,
-    summary,
-    description,
-    externalDocs,
-    operationId,
-    parameters,
-    requestBody,
-    responses,
-    callbacks,
-    deprecated,
-    security,
-    servers,
-  } = operation
-
-  const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-  const isRef = (v: unknown): v is { $ref: string } => isRecord(v) && typeof v.$ref === 'string'
-
-  const callbacksCode = (() => {
-    if (!(callbacks && isRecord(callbacks))) return ''
-
-    const entries = Object.entries(callbacks).map(([callbackName, value]) => {
-      if (isRef(value) && value.$ref.startsWith('#/components/callbacks/')) {
-        const key = value.$ref.split('/').pop()
-        if (key) return `${JSON.stringify(callbackName)}:${toIdentifierPascalCase(ensureSuffix(key, 'Callback'))}`
-        return `${JSON.stringify(callbackName)}:{$ref:${JSON.stringify(value.$ref)}}`
-      }
-      return `${JSON.stringify(callbackName)}:${JSON.stringify(value)}`
-    })
-    return entries.length > 0 ? `callbacks:{${entries.join(',')}},` : ''
-  })()
-
-  const tagList = tags ? JSON.stringify(tags) : '[]'
-
-  const requestParams = request(parameters, requestBody)
-
-  const routeName = `${methodPath(method, path)}Route`
-  const methodName = `method:'${method}',`
-  const pathName = `path:'${path}',`
-  const args = {
-    tags: tags ? `tags:${tagList},` : '',
-    summary: summary ? `summary:'${escapeStringLiteral(summary)}',` : '',
-    description: description ? `description:'${escapeStringLiteral(description)}',` : '',
-    externalDocs: externalDocs ? `externalDocs:${JSON.stringify(externalDocs)},` : '',
-    operationId: operationId ? `operationId:'${operationId}',` : '',
-    request: requestParams ? `${requestParams}` : '',
-    responses: responses ? `responses:{${response(responses)}},` : '',
-    callbacks: callbacksCode,
-    deprecated: deprecated ? `deprecated:${deprecated},` : '',
-    security: security ? `security:${JSON.stringify(security)},` : '',
-    servers: servers ? `servers:${JSON.stringify(servers)},` : '',
-  }
-
   const properties = [
-    methodName,
-    pathName,
-    ...Object.values(args)
+    `method:'${method}',`,
+    `path:'${path}',`,
+    ...Object.values(makeOperation(operation))
   ].join('')
 
-  return `export const ${routeName}=createRoute({${properties}})`
+  return `export const ${methodPath(method, path)}Route=createRoute({${properties}})`
 }

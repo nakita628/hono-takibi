@@ -3,9 +3,9 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
 import { makeRef } from '../helper/index.js'
+import { makeExamples } from '../helper/openapi.js'
 import type { Components, Content, Header, Reference, Responses } from '../openapi/index.js'
 import {
-  buildExamples,
   ensureSuffix,
   findSchema,
   isRecord,
@@ -45,7 +45,7 @@ const headersPropExpr = (
 
 const mediaTypeExpr = (media: Content[string]): string => {
   const schema = zodToOpenAPI(media.schema)
-  const examples = buildExamples(media.examples)
+  const examples = media.examples ? makeExamples(media.examples) : undefined
   const examplesProp = examples ? `examples:${examples}` : undefined
   return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
 }

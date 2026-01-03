@@ -1,5 +1,5 @@
 import type { Header, Parameter, Schema } from '../openapi/index.js'
-import { buildExamples } from '../utils/index.js'
+import { makeExamples } from './openapi.js'
 
 export function wrap(
   zod: string,
@@ -65,7 +65,7 @@ export function wrap(
           ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
           : undefined,
         meta.headers.example ? `example:${JSON.stringify(meta.headers.example)}` : undefined,
-        meta.headers.examples ? `examples:${buildExamples(meta.headers.examples)}` : undefined,
+        meta.headers.examples ? `examples:${makeExamples(meta.headers.examples)}` : undefined,
         meta.headers.style ? `style:${JSON.stringify(meta.headers.style)}` : undefined,
         meta.headers.explode ? `explode:${JSON.stringify(meta.headers.explode)}` : undefined,
         // meta.headers.schema
