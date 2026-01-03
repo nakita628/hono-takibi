@@ -1,4 +1,4 @@
-import { makeContent } from '../../../../helper/components.js'
+import { makeContent } from '../../../../helper/index.js'
 import type { Components, Header, Reference } from '../../../../openapi/index.js'
 import {
   ensureSuffix,

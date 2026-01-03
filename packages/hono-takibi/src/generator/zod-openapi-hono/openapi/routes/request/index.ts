@@ -1,7 +1,7 @@
 import type { Content, Parameter, RequestBody } from '../../../../../openapi/index.js'
 import { ensureSuffix, isRecord, requestParamsArray, toIdentifierPascalCase } from '../../../../../utils/index.js'
 import { params } from '../params/index.js'
-import { makeContent } from '../../../../../helper/components.js'
+import { makeContent } from '../../../../../helper/openapi.js'
 
 /**
  * Generates a `request:{ ... }` string for Hono route validation from OpenAPI parameters and request body.

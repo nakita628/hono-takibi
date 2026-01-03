@@ -2,6 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
+import { makeRef } from '../helper/index.js'
 import type { Components, Content, Header, Reference, Responses } from '../openapi/index.js'
 import {
   buildExamples,
@@ -9,7 +10,6 @@ import {
   findSchema,
   isRecord,
   lowerFirst,
-  ref,
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
@@ -62,7 +62,7 @@ const linkEntryExpr = (
   const refKey = link.$ref.slice('#/components/links/'.length)
   const resolved = refKey ? components.links?.[refKey] : undefined
   return resolved
-    ? `${key}:${ref(link.$ref as `#/components/${string}/${string}`)}`
+    ? `${key}:${makeRef(link.$ref as `#/components/${string}/${string}`)}`
     : `${key}:{$ref:${JSON.stringify(link.$ref)}}`
 }
 

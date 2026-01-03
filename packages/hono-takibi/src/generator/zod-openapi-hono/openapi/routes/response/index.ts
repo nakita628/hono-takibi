@@ -1,3 +1,4 @@
+import { makeContent } from '../../../../../helper/openapi.js'
 import type { Responses } from '../../../../../openapi/index.js'
 import {
   buildExamples,
@@ -46,6 +47,12 @@ export function response(responses: { [k: string]: Responses }): string {
     }
 
     const descriptionCode = `description:'${escapeStringLiteral(res.description ?? '')}'`
+
+    const props = [
+      res.summary ? `summary:${JSON.stringify(res.summary)}` : undefined,
+      res.description ? `description:${JSON.stringify(res.description)}` : undefined,
+      res.content ? `content:{${makeContent(res.content)}}` : undefined,
+    ].filter((v) => v !== undefined).join(',')
 
     if (!res.content) {
       return `${quotedCode}:{${descriptionCode},},`

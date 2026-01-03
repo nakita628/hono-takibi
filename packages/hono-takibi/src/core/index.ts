@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { exportConst } from '../helper/code.js'
+import { makeExportConst } from '../helper/code.js'
 import { core } from '../helper/core.js'
 import { exports } from '../helper/exports.js'
 import type { Components } from '../openapi/index.js'
@@ -27,7 +27,7 @@ export async function componentsCore(
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
     return { ok: true, value: exportsResult.value }
   }
-  const code = exportConst(components, suffix)
+  const code = makeExportConst(components, suffix)
   const coreResult = await core(code, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated components code written to ${output}` }

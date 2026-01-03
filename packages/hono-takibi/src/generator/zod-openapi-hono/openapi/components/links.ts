@@ -1,6 +1,6 @@
-import { constCode } from '../../../../helper/code.js'
+import { makeConst } from '../../../../helper/code.js'
+import { makeRef } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ref } from '../../../../utils/index.js'
 
 export function links(components: Components, exportLinks: boolean) {
   const { links } = components
@@ -15,12 +15,12 @@ export function links(components: Components, exportLinks: boolean) {
         'requestBody' in link ? `requestBody:${JSON.stringify(link.requestBody)}` : undefined,
         'description' in link ? `description:${JSON.stringify(link.description)}` : undefined,
         'server' in link ? `server:${JSON.stringify(link.server)}` : undefined,
-        '$ref' in link && link.$ref ? `$ref:${ref(link.$ref)}` : undefined,
+        '$ref' in link && link.$ref ? `$ref:${makeRef(link.$ref)}` : undefined,
         'summary' in link ? `summary:${JSON.stringify(link.summary)}` : undefined,
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${constCode(exportLinks, k, 'Link')}{${props}}`
+      return `${makeConst(exportLinks, k, 'Link')}{${props}}`
     })
     .join('\n\n')
 }

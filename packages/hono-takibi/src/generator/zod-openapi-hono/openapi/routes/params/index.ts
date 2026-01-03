@@ -1,5 +1,6 @@
 import type { Content, Parameter, Schema } from '../../../../../openapi/index.js'
-import { getToSafeIdentifier, ref } from '../../../../../utils/index.js'
+import { getToSafeIdentifier } from '../../../../../utils/index.js'
+import { makeRef } from '../../../../../helper/index.js'
 import { zodToOpenAPI } from '../../../../zod-to-openapi/index.js'
 
 /**
@@ -38,7 +39,7 @@ export function params(parameters: readonly Parameter[]): {
       if (param.$ref !== undefined) {
         if (!acc[param.in]) acc[param.in] = {}
         if (param.$ref) {
-          acc[param.in][getToSafeIdentifier(param.name)] = ref(param.$ref)
+          acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
         }
         return acc
       }

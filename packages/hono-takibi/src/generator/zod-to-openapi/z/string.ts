@@ -1,7 +1,7 @@
 import type { Schema } from '../../../openapi/index.js'
 import { regex } from '../../../utils/index.js'
 
-const FORMAT_STRING: Record<string, string> = {
+const FORMAT_STRING: { readonly [k: string]: string } = {
   email: 'email()',
   uuid: 'uuid()',
   uuidv4: 'uuidv4()',

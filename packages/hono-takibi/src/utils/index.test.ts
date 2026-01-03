@@ -13,7 +13,6 @@ import {
   normalizeTypes,
   parseCli,
   parseConfig,
-  ref,
   regex,
   registerComponent,
   requestParamsArray,
@@ -543,18 +542,6 @@ describe('utils', () => {
         'application/xml': { schema: { $ref: '#/components/schemas/Example' } },
       })
       expect(result).toBe(false)
-    })
-  })
-  // refName
-  describe('ref', () => {
-    it.concurrent(`ref('#/components/schemas/Test') -> 'TestSchema'`, () => {
-      expect(ref('#/components/schemas/Test')).toBe('TestSchema')
-    })
-    it.concurrent(`ref('#/components/parameters/Test') -> 'TestParamsSchema'`, () => {
-      expect(ref('#/components/parameters/Test')).toBe('TestParamsSchema')
-    })
-    it.concurrent(`ref('#/components/headers/Test') -> 'TestHeaderSchema'`, () => {
-      expect(ref('#/components/headers/Test')).toBe('TestHeaderSchema')
     })
   })
   // methodPath

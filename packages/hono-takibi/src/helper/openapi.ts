@@ -9,7 +9,35 @@ import type {
   PathItem,
   Reference,
 } from '../openapi/index.js'
-import { buildExamples, ref } from '../utils/index.js'
+import { buildExamples, toIdentifierPascalCase } from '../utils/index.js'
+
+export function makeRef($ref: string): string {
+  const rawRef = $ref.split('/').at(-1)
+  if (!rawRef) return 'Schema'
+
+  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+
+  const suffixMap: { readonly [k: string]: string } = {
+    '#/components/schemas/': 'Schema',
+    '#/components/parameters/': 'ParamsSchema',
+    '#/components/headers/': 'HeaderSchema',
+    '#/components/securitySchemes/': 'SecurityScheme',
+    '#/components/requestBodies/': 'RequestBody',
+    '#/components/responses/': 'Response',
+    '#/components/examples/': 'Example',
+    '#/components/links/': 'Link',
+    '#/components/callbacks/': 'Callback',
+  }
+
+  const prefix = $ref.substring(0, $ref.lastIndexOf('/') + 1)
+  const suffix = suffixMap[prefix] ?? 'Schema'
+
+  if (refName.endsWith(suffix)) return refName
+  if (suffix === 'ParamsSchema' && refName.endsWith('Params')) {
+    return `${refName}Schema`
+  }
+  return `${refName}${suffix}`
+}
 
 /**
  * generates callbacks
@@ -27,7 +55,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
     const entries = Object.entries(responses)
       .map(([statusCode, response]) => {
         if (response.$ref) {
-          return `${JSON.stringify(statusCode)}:${ref(response.$ref)}`
+          return `${JSON.stringify(statusCode)}:${makeRef(response.$ref)}`
         }
         return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
       })
@@ -44,7 +72,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
     const entries = Object.entries(operationCallbacks)
       .map(([callbackName, callbackRef]) => {
         if (callbackRef.$ref && isComponentsRef(callbackRef.$ref)) {
-          return `${JSON.stringify(callbackName)}:${ref(callbackRef.$ref)}`
+          return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
         }
         const props = [
           callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
@@ -76,7 +104,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
                   .filter(isParameter)
                   .map((param) =>
                     param.$ref
-                      ? ref(param.$ref)
+                      ? makeRef(param.$ref)
                       : zodToOpenAPI(param.schema, { parameters: { ...param } }),
                   )
                   .filter(Boolean)
@@ -87,7 +115,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
             if (!operation.requestBody) return undefined
             // Handle $ref to requestBodies component
             if ('$ref' in operation.requestBody && isComponentsRef(operation.requestBody.$ref)) {
-              return ref(operation.requestBody.$ref)
+              return makeRef(operation.requestBody.$ref)
             }
             // Handle inline requestBody with content
             if (!('content' in operation.requestBody && operation.requestBody.content))
@@ -95,7 +123,7 @@ export function makeCallbacks(callbacks: Callbacks): string {
             const contentEntries = Object.entries(operation.requestBody.content)
               .map(([mediaType, mediaOrReference]) => {
                 if ('$ref' in mediaOrReference && mediaOrReference.$ref) {
-                  return `${JSON.stringify(mediaType)}:{schema:${ref(mediaOrReference.$ref)}}`
+                  return `${JSON.stringify(mediaType)}:{schema:${makeRef(mediaOrReference.$ref)}}`
                 }
                 if ('schema' in mediaOrReference) {
                   return `${JSON.stringify(mediaType)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
@@ -173,7 +201,7 @@ export function makeContent(
       ? Object.entries(encoding.headers)
           .map(([headerKey, header]) => {
             if ('$ref' in header && header.$ref) {
-              return `${JSON.stringify(headerKey)}:${ref(header.$ref)}`
+              return `${JSON.stringify(headerKey)}:${makeRef(header.$ref)}`
             }
             const props = [
               header.description ? `description:${JSON.stringify(header.description)}` : undefined,
@@ -253,7 +281,7 @@ export function makeContent(
     .map(([contentType, mediaOrRef]) => {
       // Reference
       if (isReference(mediaOrRef) && mediaOrRef.$ref) {
-        return `${JSON.stringify(contentType)}:${ref(mediaOrRef.$ref)}`
+        return `${JSON.stringify(contentType)}:${makeRef(mediaOrRef.$ref)}`
       }
       // Media
       if (isMedia(mediaOrRef)) {

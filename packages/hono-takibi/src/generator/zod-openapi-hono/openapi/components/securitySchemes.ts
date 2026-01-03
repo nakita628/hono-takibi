@@ -1,4 +1,4 @@
-import { constCode } from '../../../../helper/code.js'
+import { makeConst } from '../../../../helper/code.js'
 import type { Components } from '../../../../openapi/index.js'
 
 export function securitySchemes(components: Components, exportSecuritySchemes: boolean): string {
@@ -7,7 +7,7 @@ export function securitySchemes(components: Components, exportSecuritySchemes: b
 
   return Object.keys(securitySchemes)
     .map((k) => {
-      return `${constCode(exportSecuritySchemes, k, 'SecurityScheme')}${JSON.stringify(securitySchemes[k])}`
+      return `${makeConst(exportSecuritySchemes, k, 'SecurityScheme')}${JSON.stringify(securitySchemes[k])}`
     })
     .join('\n\n')
 }

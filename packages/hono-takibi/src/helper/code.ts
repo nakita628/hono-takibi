@@ -1,6 +1,6 @@
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
-export function constCode(exportVariable: boolean, text: string, suffix: string): string {
+export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
   if (exportVariable) {
     return `export const ${toIdentifierPascalCase(ensureSuffix(text, suffix))} = `
   }
@@ -13,7 +13,7 @@ export function constCode(exportVariable: boolean, text: string, suffix: string)
  * @param suffix - The suffix to add to the key.
  * @returns A string of export const statements.
  */
-export function exportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
+export function makeExportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
   return Object.keys(value)
     .map(
       (key) =>

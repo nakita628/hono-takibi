@@ -1,14 +1,11 @@
-import { constCode } from '../../../../helper/code.js'
+import { makeConst } from '../../../../helper/code.js'
+import { makeRef } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
-import { ref } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''
-
-  const isComponentsRef = (refValue: unknown): refValue is `#/components/${string}/${string}` =>
-    typeof refValue === 'string' && refValue.startsWith('#/components/')
 
   return Object.entries(requestBodies)
     .map(([k, body]) => {
@@ -18,8 +15,8 @@ export function requestBodies(components: Components, exportRequestBodies: boole
             if ('schema' in mediaOrReference) {
               return `${JSON.stringify(contentKey)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
             }
-            if ('$ref' in mediaOrReference && isComponentsRef(mediaOrReference.$ref)) {
-              return `${JSON.stringify(contentKey)}:${ref(mediaOrReference.$ref)}`
+            if ('$ref' in mediaOrReference) {
+              return `${JSON.stringify(contentKey)}:${makeRef(mediaOrReference.$ref)}`
             }
             return undefined
           })
@@ -34,7 +31,7 @@ export function requestBodies(components: Components, exportRequestBodies: boole
           .filter((v) => v !== undefined)
           .join(',')
 
-        return `${constCode(exportRequestBodies, k, 'RequestBody')}{${props}}`
+        return `${makeConst(exportRequestBodies, k, 'RequestBody')}{${props}}`
       }
       return undefined
     })
