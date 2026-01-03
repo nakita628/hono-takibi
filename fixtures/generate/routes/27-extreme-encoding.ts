@@ -399,7 +399,23 @@ export const getContentNegotiationRoute = createRoute({
         }),
     }),
   },
-  responses: { 200: { description: 'Content based on Accept header' } },
+  responses: {
+    200: {
+      description: 'Content based on Accept header',
+      content: {
+        'application/json': { schema: ResponseSchema },
+        'application/xml': { schema: ResponseSchema },
+        'application/yaml': { schema: ResponseSchema },
+        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
+        'text/html': { schema: z.string().openapi({ type: 'string' }) },
+        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
+        'application/pdf': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/vnd.api+json': { schema: JsonApiResponseSchema },
+        'application/hal+json': { schema: HalResponseSchema },
+        'application/problem+json': { schema: ProblemResponseSchema },
+      },
+    },
+  },
 })
 
 export const postBinaryVariationsRoute = createRoute({
@@ -477,7 +493,31 @@ export const getStreamingRoute = createRoute({
   method: 'get',
   path: '/streaming',
   operationId: 'getStreaming',
-  responses: { 200: { description: 'Streaming response' } },
+  responses: {
+    200: {
+      description: 'Streaming response',
+      content: {
+        'text/event-stream': {
+          schema: z
+            .string()
+            .openapi({
+              type: 'string',
+              description: 'SSE format:\nevent: message\ndata: {"key": "value"}\n',
+            }),
+        },
+        'application/x-ndjson': {
+          schema: z
+            .string()
+            .openapi({ type: 'string', description: 'Newline-delimited JSON objects' }),
+        },
+        'application/json': {
+          schema: z
+            .array(StreamItemSchema)
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/StreamItem' } }),
+        },
+      },
+    },
+  },
 })
 
 export const postStreamingRoute = createRoute({
@@ -581,6 +621,18 @@ export const getResponseEncodingRoute = createRoute({
   responses: {
     200: {
       description: 'Response with various encodings',
+      headers: {
+        'Content-Encoding': {
+          schema: z
+            .enum(['gzip', 'deflate', 'br', 'identity'])
+            .openapi({ type: 'string', enum: ['gzip', 'deflate', 'br', 'identity'] }),
+        },
+        'Content-Type': { schema: z.string().openapi({ type: 'string' }) },
+        'Content-Language': { schema: z.string().openapi({ type: 'string' }) },
+        'Content-Disposition': { schema: z.string().openapi({ type: 'string' }) },
+        'Transfer-Encoding': { schema: z.string().openapi({ type: 'string' }) },
+        Vary: { schema: z.string().openapi({ type: 'string' }) },
+      },
       content: { 'application/json': { schema: ResponseSchema } },
     },
   },

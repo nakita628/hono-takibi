@@ -884,7 +884,15 @@ export const getEmptyRefsRoute = createRoute({
   method: 'get',
   path: '/empty-refs',
   operationId: 'getEmptyRefs',
-  responses: { 200: { description: 'OK' } },
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: EmptyObjectSchema },
+        'application/xml': { schema: MinimalObjectSchema },
+      },
+    },
+  },
 })
 
 export const getUnicodeRefsRoute = createRoute({

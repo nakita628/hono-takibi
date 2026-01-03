@@ -43,6 +43,11 @@ export function makeRef($ref: string): string {
   return `${refName}Schema`
 }
 
+/**
+ * generates a examples code from the given examples object.
+ * @param examples Examples object
+ * @returns 
+ */
 export function makeExamples(examples: {
   readonly [k: string]:
     | {
@@ -101,29 +106,15 @@ export function makeExamples(examples: {
   return `{${result}}`
 }
 
-export function makeOperation(operation: Operation) {
-  const requestParams = request(operation.parameters, operation.requestBody)
-  return {
-    tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : '',
-    summary: operation.summary ? `summary:'${JSON.stringify(operation.summary)}',` : '',
-    description: operation.description
-      ? `description:'${JSON.stringify(operation.description)}',`
-      : '',
-    externalDocs: operation.externalDocs
-      ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
-      : '',
-    operationId: operation.operationId ? `operationId:'${operation.operationId}',` : '',
-    request: requestParams ? `${requestParams}` : '',
-    responses: operation.responses
-      ? `responses:{${Object.entries(operation.responses)
-          .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
-          .join('')}},`
-      : '',
-    callbacks: operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}},` : '',
-    deprecated: operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)},` : '',
-    security: operation.security ? `security:${JSON.stringify(operation.security)},` : '',
-    servers: operation.servers ? `servers:${JSON.stringify(operation.servers)},` : '',
-  }
+/**
+ * generates a responses code from the given responses object.
+ * @param responses
+ * @returns
+ */
+export function makeOperationResponses(responses: Operation['responses']) {
+  return Object.entries(responses)
+    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
+    .join('')
 }
 
 /**
@@ -138,10 +129,26 @@ export function makeResponses(responses: Responses) {
 
   const props = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
-    responses.description ? `description:'${responses.description}'` : undefined,
-    responses.headers ? `headers:{${makeHeaders(responses.headers)}}` : undefined,
+    responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
+    responses.headers
+      ? `headers:{${Object.entries(responses.headers)
+          .map(([key, header]) =>
+            '$ref' in header && header.$ref
+              ? `${JSON.stringify(key)}:${makeRef(header.$ref)}`
+              : `${JSON.stringify(key)}:${makeHeaders(header)}`,
+          )
+          .join(',')}}`
+      : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
-    responses.links ? `links:{${makeLinkOrReference(responses.links)}}` : undefined,
+    responses.links
+      ? `links:{${Object.entries(responses.links)
+          .map(([key, link]) =>
+            '$ref' in link && link.$ref
+              ? `${JSON.stringify(key)}:${makeRef(link.$ref)}`
+              : `${JSON.stringify(key)}:${makeLinkOrReference(link)}`,
+          )
+          .join(',')}}`
+      : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -149,21 +156,21 @@ export function makeResponses(responses: Responses) {
 }
 
 /**
- *
  * generates a header code from the given headers object.
+ * @param headers Headers object
  * @returns
  */
 export function makeHeaders(headers: Header) {
   const props = [
-    headers.description ? `description:${JSON.stringify(headers.description)},` : undefined,
-    headers.required ? `required:${JSON.stringify(headers.required)},` : undefined,
-    headers.deprecated ? `deprecated:${JSON.stringify(headers.deprecated)},` : undefined,
-    headers.example ? `example:${JSON.stringify(headers.example)},` : undefined,
-    headers.examples ? `examples:${makeExamples(headers.examples)},` : undefined,
-    headers.style ? `style:${JSON.stringify(headers.style)},` : undefined,
-    headers.explode ? `explode:${JSON.stringify(headers.explode)},` : undefined,
-    headers.schema ? `schema:${zodToOpenAPI(headers.schema)},` : undefined,
-    headers.content ? `content:${makeContent(headers.content)},` : undefined,
+    headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
+    headers.required ? `required:${JSON.stringify(headers.required)}` : undefined,
+    headers.deprecated ? `deprecated:${JSON.stringify(headers.deprecated)}` : undefined,
+    headers.example ? `example:${JSON.stringify(headers.example)}` : undefined,
+    headers.examples ? `examples:${makeExamples(headers.examples)}` : undefined,
+    headers.style ? `style:${JSON.stringify(headers.style)}` : undefined,
+    headers.explode ? `explode:${JSON.stringify(headers.explode)}` : undefined,
+    headers.schema ? `schema:${zodToOpenAPI(headers.schema)}` : undefined,
+    headers.content ? `content:${makeContent(headers.content)}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -171,7 +178,7 @@ export function makeHeaders(headers: Header) {
 }
 
 /**
- *
+ * generates a link or reference code from the given link or reference object.
  * @param linkOrReference
  * @returns
  */
@@ -234,19 +241,6 @@ export function makeCallbacks(
       .join(',')
     return `{${entries}}`
   }
-
-  // const buildResponsesCode = (responses: Operation['responses']): string => {
-  //   const entries = Object.entries(responses)
-  //     .map(([statusCode, response]) => {
-  //       if (response.$ref) {
-  //         return `${JSON.stringify(statusCode)}:${makeRef(response.$ref)}`
-  //       }
-  //       return `${JSON.stringify(statusCode)}:${JSON.stringify(response)}`
-  //     })
-  //     .join(',')
-
-  //   return `{${entries}}`
-  // }
 
   const buildOperationCallbacksCode = (
     operationCallbacks: Operation['callbacks'],

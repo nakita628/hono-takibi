@@ -838,7 +838,7 @@ export const getOauthAuthorizeRoute = createRoute({
   tags: ['OAuth'],
   summary: '認可エンドポイント',
   description:
-    'Authorization Code フローの認可リクエスト。 ユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。',
+    'Authorization Code フローの認可リクエスト。\nユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。\n',
   operationId: 'authorize',
   request: {
     query: z.object({
@@ -985,7 +985,10 @@ export const getOauthAuthorizeRoute = createRoute({
     }),
   },
   responses: {
-    302: { description: 'ログイン画面またはコールバックURLへリダイレクト' },
+    302: {
+      description: 'ログイン画面またはコールバックURLへリダイレクト',
+      headers: { Location: { schema: z.url().openapi({ type: 'string', format: 'uri' }) } },
+    },
     400: {
       description: '不正なリクエスト',
       content: { 'application/json': { schema: OAuthErrorSchema } },
@@ -999,7 +1002,7 @@ export const postOauthTokenRoute = createRoute({
   tags: ['OAuth'],
   summary: 'トークンエンドポイント',
   description:
-    'アクセストークンを発行します。 Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。',
+    'アクセストークンを発行します。\nAuthorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。\n',
   operationId: 'token',
   request: {
     body: {

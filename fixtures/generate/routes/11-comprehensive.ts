@@ -1052,13 +1052,17 @@ export const getProductsRoute = createRoute({
   responses: {
     200: {
       description: 'Product list retrieved successfully',
+      headers: {
+        'X-Request-ID': XRequestIDHeaderSchema,
+        'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
+        'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
+        'X-Total-Count': XTotalCountHeaderSchema,
+        Link: LinkHeaderSchema,
+      },
       content: {
         'application/json': {
           schema: ProductListSchema,
-          examples: {
-            multipleProducts: { $ref: '#/components/examples/ProductListExample' },
-            emptyList: { $ref: '#/components/examples/EmptyProductList' },
-          },
+          examples: { multipleProducts: ProductListExample, emptyList: EmptyProductListExample },
         },
       },
     },
@@ -1079,11 +1083,14 @@ export const postProductsRoute = createRoute({
   responses: {
     201: {
       description: 'Product created successfully',
+      headers: { Location: LocationHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema },
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { createdProduct: { $ref: '#/components/examples/ProductExample' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { createdProduct: ProductExample } },
+      },
+      links: {
+        GetProduct: GetProductByIdLink,
+        UpdateProduct: UpdateProductByIdLink,
+        DeleteProduct: DeleteProductByIdLink,
       },
     },
     400: BadRequestResponse,
@@ -1107,14 +1114,21 @@ export const getProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product details',
+      headers: {
+        ETag: ETagHeaderSchema,
+        'Cache-Control': CacheControlHeaderSchema,
+        'X-Request-ID': XRequestIDHeaderSchema,
+      },
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { product: { $ref: '#/components/examples/ProductExample' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { product: ProductExample } },
+      },
+      links: {
+        UpdateProduct: UpdateProductByIdLink,
+        DeleteProduct: DeleteProductByIdLink,
+        GetProductReviews: GetProductReviewsLink,
       },
     },
-    304: { description: 'Not modified' },
+    304: { description: 'Not modified', headers: { ETag: ETagHeaderSchema } },
     404: NotFoundResponse,
   },
 })
@@ -1133,6 +1147,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
+      headers: { ETag: ETagHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema },
       content: { 'application/json': { schema: ProductSchema } },
     },
     404: NotFoundResponse,
@@ -1152,7 +1167,7 @@ export const deleteProductsProductIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: {
-    204: { description: 'Product deleted' },
+    204: { description: 'Product deleted', headers: { 'X-Request-ID': XRequestIDHeaderSchema } },
     404: NotFoundResponse,
     412: PreconditionFailedResponse,
   },
@@ -1166,9 +1181,13 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: CreateOrderRequestBody },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: { GetOrder: GetOrderByIdLink, CancelOrder: CancelOrderByIdLink },
+    },
   },
-  callbacks: { orderStatusUpdate: OrderStatusCallback, paymentConfirmation: PaymentCallback },
+  callbacks: {},
 })
 
 export const postWebhooksRoute = createRoute({
@@ -1184,5 +1203,5 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: { webhookEvent: GenericWebhookCallback },
+  callbacks: {},
 })

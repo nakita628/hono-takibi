@@ -237,9 +237,9 @@ export const getProductsRoute = createRoute({
             .array(ProductSchema)
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
           examples: {
-            electronics: { $ref: '#/components/examples/ElectronicProducts' },
-            clothing: { $ref: '#/components/examples/ClothingProducts' },
-            empty: { $ref: '#/components/examples/EmptyList' },
+            electronics: ElectronicProductsExample,
+            clothing: ClothingProductsExample,
+            empty: EmptyListExample,
           },
         },
       },
@@ -265,10 +265,7 @@ export const postProductsRoute = createRoute({
     201: {
       description: 'Product created',
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { laptop: { $ref: '#/components/examples/LaptopProduct' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { laptop: LaptopProductExample } },
       },
     },
     400: {
@@ -277,8 +274,8 @@ export const postProductsRoute = createRoute({
         'application/json': {
           schema: ValidationErrorSchema,
           examples: {
-            missingName: { $ref: '#/components/examples/MissingNameError' },
-            invalidPrice: { $ref: '#/components/examples/InvalidPriceError' },
+            missingName: MissingNameErrorExample,
+            invalidPrice: InvalidPriceErrorExample,
           },
         },
       },
@@ -315,10 +312,7 @@ export const getProductsProductIdRoute = createRoute({
       content: {
         'application/json': {
           schema: ProductSchema,
-          examples: {
-            laptop: { $ref: '#/components/examples/LaptopProduct' },
-            tshirt: { $ref: '#/components/examples/TShirtProduct' },
-          },
+          examples: { laptop: LaptopProductExample, tshirt: TShirtProductExample },
         },
       },
     },

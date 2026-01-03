@@ -124,8 +124,8 @@ export const getHonoRoute = createRoute({
   method: 'get',
   path: '/hono',
   tags: ['Hono'],
-  summary: '"Hono"',
-  description: '"Hono"',
+  summary: 'Hono',
+  description: 'Hono',
   responses: {
     200: {
       description: 'OK',
@@ -148,8 +148,8 @@ export const getHonoXRoute = createRoute({
   method: 'get',
   path: '/hono-x',
   tags: ['HonoX'],
-  summary: '"HonoX"',
-  description: '"HonoX"',
+  summary: 'HonoX',
+  description: 'HonoX',
   responses: {
     200: {
       description: 'OK',
@@ -172,8 +172,8 @@ export const getZodOpenapiHonoRoute = createRoute({
   method: 'get',
   path: '/zod-openapi-hono',
   tags: ['ZodOpenAPIHono'],
-  summary: '"ZodOpenAPIHono"',
-  description: '"ZodOpenAPIHono"',
+  summary: 'ZodOpenAPIHono',
+  description: 'ZodOpenAPIHono',
   responses: {
     200: {
       description: 'OK',

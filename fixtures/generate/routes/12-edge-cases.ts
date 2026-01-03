@@ -839,7 +839,21 @@ export const getMultiContentRoute = createRoute({
   method: 'get',
   path: '/multi-content',
   operationId: 'getMultiContent',
-  responses: { 200: { description: 'Multiple content types' } },
+  responses: {
+    200: {
+      description: 'Multiple content types',
+      content: {
+        'application/json': { schema: DataJsonSchema },
+        'application/xml': { schema: DataXmlSchema },
+        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
+        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
+        'application/octet-stream': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+      },
+    },
+  },
 })
 
 export const postMultiContentRoute = createRoute({

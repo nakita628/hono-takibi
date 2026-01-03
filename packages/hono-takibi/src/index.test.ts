@@ -467,7 +467,6 @@ describe('Hono Takibi Normal Test', () => {
       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas-types`,
     )
     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-    console.log(result)
   })
 
   //   // #2: exportSchemas=true

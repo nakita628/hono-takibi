@@ -1250,7 +1250,7 @@ const EntityWebhookCallback = {
       responses: {
         '200': {
           description: 'Webhook received',
-          headers: { 'X-Request-Id': { $ref: '#/components/headers/XRequestId' } },
+          headers: { 'X-Request-Id': XRequestIdHeaderSchema },
         },
         '400': ValidationErrorResponse,
       },
@@ -1281,7 +1281,7 @@ export const postEntitiesRoute = createRoute({
     headers: z.object({ 'Idempotency-Key': IdempotencyKeyHeaderParamsSchema }),
   },
   responses: { 201: EntityCreatedResponse, 400: ValidationErrorResponse, 409: ConflictResponse },
-  callbacks: { onEntityCreated: EntityWebhookCallback },
+  callbacks: {},
 })
 
 export const getEntitiesEntityIdRoute = createRoute({
@@ -1311,7 +1311,7 @@ export const putEntitiesEntityIdRoute = createRoute({
     409: ConflictResponse,
     412: PreconditionFailedResponse,
   },
-  callbacks: { onEntityUpdated: EntityWebhookCallback },
+  callbacks: {},
 })
 
 export const deleteEntitiesEntityIdRoute = createRoute({
@@ -1323,7 +1323,7 @@ export const deleteEntitiesEntityIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: { 204: NoContentResponse, 404: NotFoundResponse },
-  callbacks: { onEntityDeleted: EntityWebhookCallback },
+  callbacks: {},
 })
 
 export const getEntitiesEntityIdRelationshipsRoute = createRoute({

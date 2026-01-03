@@ -438,7 +438,7 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: { onEvent: GenericWebhookCallback },
+  callbacks: {},
 })
 
 export const postSubscriptionsRoute = createRoute({
@@ -458,12 +458,7 @@ export const postSubscriptionsRoute = createRoute({
       content: { 'application/json': { schema: SubscriptionSchema } },
     },
   },
-  callbacks: {
-    paymentSuccess: PaymentSuccessCallback,
-    paymentFailed: PaymentFailedCallback,
-    subscriptionRenewed: SubscriptionRenewedCallback,
-    subscriptionCancelled: SubscriptionCancelledCallback,
-  },
+  callbacks: {},
 })
 
 export const postJobsRoute = createRoute({
@@ -477,11 +472,7 @@ export const postJobsRoute = createRoute({
   responses: {
     202: { description: 'Job accepted', content: { 'application/json': { schema: JobSchema } } },
   },
-  callbacks: {
-    onProgress: JobProgressCallback,
-    onComplete: JobCompleteCallback,
-    onError: JobErrorCallback,
-  },
+  callbacks: {},
 })
 
 export const postIntegrationsIntegrationIdSyncRoute = createRoute({
@@ -506,49 +497,5 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
     }),
   },
   responses: { 202: { description: 'Sync started' } },
-  callbacks: {
-    syncStarted: {
-      '{$request.body#/callbackUrl}/sync/started': {
-        post: {
-          operationId: 'onSyncStarted',
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    syncId: { type: 'string' },
-                    startedAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-            },
-          },
-          responses: { '200': { description: 'Callback acknowledged' } },
-        },
-      },
-    },
-    syncCompleted: {
-      '{$request.body#/callbackUrl}/sync/completed': {
-        post: {
-          operationId: 'onSyncCompleted',
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    syncId: { type: 'string' },
-                    recordsProcessed: { type: 'integer' },
-                    completedAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-            },
-          },
-          responses: { '200': { description: 'Callback acknowledged' } },
-        },
-      },
-    },
-  },
+  callbacks: {},
 })

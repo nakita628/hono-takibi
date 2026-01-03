@@ -31,7 +31,7 @@ export function links(components: Components, exportLinks: boolean) {
 
   return Object.entries(links)
     .map(([k, link]) => {
-      return `${makeConst(exportLinks, k, 'Link')}{${makeLinkOrReference(link)}}`
+      return `${makeConst(exportLinks, k, 'Link')}${makeLinkOrReference(link)}`
     })
     .join('\n\n')
 }

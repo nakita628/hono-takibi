@@ -690,8 +690,18 @@ export const getProjectsRoute = createRoute({
     },
     400: {
       description: 'Invalid request',
-      content: { 'application/json': { schema: ErrorSchema } },
+      content: {
+        'application/json': { schema: ErrorSchema, example: { message: 'Chiban is required' } },
+      },
     },
-    500: { description: 'Server error', content: { 'application/json': { schema: ErrorSchema } } },
+    500: {
+      description: 'Server error',
+      content: {
+        'application/json': {
+          schema: ErrorSchema,
+          example: { message: 'An unexpected error has occurred. Please try again later.' },
+        },
+      },
+    },
   },
 })

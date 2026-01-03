@@ -191,7 +191,15 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: { content: { 'application/json': { schema: CreateOrderInputSchema } } } },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: {
+        GetOrder: GetOrderByIdLink,
+        GetOrderItems: GetOrderItemsLink,
+        CancelOrder: CancelOrderLink,
+      },
+    },
   },
 })
 
@@ -216,7 +224,16 @@ export const getOrdersOrderIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'Order details', content: { 'application/json': { schema: OrderSchema } } },
+    200: {
+      description: 'Order details',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: {
+        GetOrderItems: GetOrderItemsLink,
+        GetCustomer: GetCustomerLink,
+        CancelOrder: CancelOrderLink,
+        GetPayment: GetPaymentLink,
+      },
+    },
   },
 })
 
@@ -240,7 +257,7 @@ export const deleteOrdersOrderIdRoute = createRoute({
         }),
     }),
   },
-  responses: { 200: { description: 'Order cancelled' } },
+  responses: { 200: { description: 'Order cancelled', links: { GetOrder: GetOrderByIdLink } } },
 })
 
 export const getOrdersOrderIdItemsRoute = createRoute({
@@ -273,6 +290,7 @@ export const getOrdersOrderIdItemsRoute = createRoute({
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
         },
       },
+      links: { GetOrder: GetOrderByIdLink },
     },
   },
 })
@@ -301,6 +319,7 @@ export const getCustomersCustomerIdRoute = createRoute({
     200: {
       description: 'Customer details',
       content: { 'application/json': { schema: CustomerSchema } },
+      links: { GetCustomerOrders: GetCustomerOrdersLink },
     },
   },
 })
@@ -363,6 +382,9 @@ export const getPaymentsPaymentIdRoute = createRoute({
     200: {
       description: 'Payment details',
       content: { 'application/json': { schema: PaymentSchema } },
+      links: {
+        GetOrder: { operationId: 'getOrder', parameters: { orderId: '$response.body#/orderId' } },
+      },
     },
   },
 })
