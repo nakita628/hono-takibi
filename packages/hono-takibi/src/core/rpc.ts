@@ -192,7 +192,7 @@ const isOperationLike = (v: unknown): v is OperationLike => isRecord(v) && 'resp
 
 type PathItemLike = {
   parameters?: unknown
-} & { [M in HttpMethod]?: OperationLike }
+} & { [M in HttpMethod]?: OperationLike | undefined }
 
 type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 const HTTP_METHODS: readonly HttpMethod[] = [

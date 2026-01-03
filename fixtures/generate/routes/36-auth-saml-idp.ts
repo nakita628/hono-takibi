@@ -15,8 +15,8 @@ const AssertionConsumerServiceSchema = z
         ],
       }),
     location: z.url().openapi({ type: 'string', format: 'uri' }),
-    index: z.int().optional().openapi({ type: 'integer' }),
-    isDefault: z.boolean().optional().openapi({ type: 'boolean' }),
+    index: z.int().exactOptional().openapi({ type: 'integer' }),
+    isDefault: z.boolean().exactOptional().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
@@ -51,7 +51,7 @@ const SingleLogoutServiceSchema = z
         ],
       }),
     location: z.url().openapi({ type: 'string', format: 'uri' }),
-    responseLocation: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    responseLocation: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
     type: 'object',
@@ -75,15 +75,15 @@ const ServiceProviderSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     entityId: z.url().openapi({ type: 'string', format: 'uri', description: 'SP Entity ID' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     enabled: z.boolean().openapi({ type: 'boolean' }),
     assertionConsumerServices: z
       .array(AssertionConsumerServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/AssertionConsumerService' } }),
     singleLogoutServices: z
       .array(SingleLogoutServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SingleLogoutService' } }),
     nameIdFormat: z
       .enum([
@@ -92,7 +92,7 @@ const ServiceProviderSchema = z
         'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
       ])
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         enum: [
@@ -105,34 +105,38 @@ const ServiceProviderSchema = z
     signAssertions: z
       .boolean()
       .default(true)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', default: true }),
-    signResponses: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
+    signResponses: z
+      .boolean()
+      .default(true)
+      .exactOptional()
+      .openapi({ type: 'boolean', default: true }),
     encryptAssertions: z
       .boolean()
       .default(false)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', default: false }),
     signingCertificate: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'SP署名検証用証明書（PEM）' }),
     encryptionCertificate: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'SP暗号化用証明書（PEM）' }),
     wantAuthnRequestsSigned: z
       .boolean()
       .default(false)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', default: false }),
-    defaultRelayState: z.string().optional().openapi({ type: 'string' }),
+    defaultRelayState: z.string().exactOptional().openapi({ type: 'string' }),
     sessionDuration: z
       .int()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'セッション有効期間（秒）' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -178,32 +182,32 @@ const CreateServiceProviderRequestSchema = z
   .object({
     entityId: z.url().openapi({ type: 'string', format: 'uri' }),
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     metadataUrl: z
       .url()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'uri', description: 'メタデータURL（自動取得）' }),
     assertionConsumerServices: z
       .array(AssertionConsumerServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/AssertionConsumerService' } }),
     singleLogoutServices: z
       .array(SingleLogoutServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SingleLogoutService' } }),
-    nameIdFormat: z.string().optional().openapi({ type: 'string' }),
+    nameIdFormat: z.string().exactOptional().openapi({ type: 'string' }),
     signAssertions: z
       .boolean()
       .default(true)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', default: true }),
     encryptAssertions: z
       .boolean()
       .default(false)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', default: false }),
-    signingCertificate: z.string().optional().openapi({ type: 'string' }),
-    encryptionCertificate: z.string().optional().openapi({ type: 'string' }),
+    signingCertificate: z.string().exactOptional().openapi({ type: 'string' }),
+    encryptionCertificate: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -232,24 +236,24 @@ const CreateServiceProviderRequestSchema = z
 
 const UpdateServiceProviderRequestSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    enabled: z.boolean().optional().openapi({ type: 'boolean' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
+    enabled: z.boolean().exactOptional().openapi({ type: 'boolean' }),
     assertionConsumerServices: z
       .array(AssertionConsumerServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/AssertionConsumerService' } }),
     singleLogoutServices: z
       .array(SingleLogoutServiceSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/SingleLogoutService' } }),
-    nameIdFormat: z.string().optional().openapi({ type: 'string' }),
-    signAssertions: z.boolean().optional().openapi({ type: 'boolean' }),
-    signResponses: z.boolean().optional().openapi({ type: 'boolean' }),
-    encryptAssertions: z.boolean().optional().openapi({ type: 'boolean' }),
-    wantAuthnRequestsSigned: z.boolean().optional().openapi({ type: 'boolean' }),
-    defaultRelayState: z.string().optional().openapi({ type: 'string' }),
-    sessionDuration: z.int().optional().openapi({ type: 'integer' }),
+    nameIdFormat: z.string().exactOptional().openapi({ type: 'string' }),
+    signAssertions: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    signResponses: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    encryptAssertions: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    wantAuthnRequestsSigned: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    defaultRelayState: z.string().exactOptional().openapi({ type: 'string' }),
+    sessionDuration: z.int().exactOptional().openapi({ type: 'integer' }),
   })
   .openapi({
     type: 'object',
@@ -278,7 +282,7 @@ const UpdateServiceProviderRequestSchema = z
 
 const AttributeMappingSchema = z
   .object({
-    id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
     sourceAttribute: z.string().openapi({ type: 'string', description: 'IdP側の属性名' }),
     samlAttribute: z
       .string()
@@ -290,7 +294,7 @@ const AttributeMappingSchema = z
         'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified',
       ])
       .default('urn:oasis:names:tc:SAML:2.0:attrname-format:basic')
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         enum: [
@@ -300,9 +304,16 @@ const AttributeMappingSchema = z
         ],
         default: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic',
       }),
-    friendlyName: z.string().optional().openapi({ type: 'string' }),
-    required: z.boolean().default(false).optional().openapi({ type: 'boolean', default: false }),
-    transform: z.string().optional().openapi({ type: 'string', description: '値変換スクリプト' }),
+    friendlyName: z.string().exactOptional().openapi({ type: 'string' }),
+    required: z
+      .boolean()
+      .default(false)
+      .exactOptional()
+      .openapi({ type: 'boolean', default: false }),
+    transform: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: '値変換スクリプト' }),
   })
   .openapi({
     type: 'object',
@@ -333,10 +344,10 @@ const AvailableAttributeSchema = z
     type: z
       .enum(['string', 'string[]', 'boolean', 'integer', 'datetime'])
       .openapi({ type: 'string', enum: ['string', 'string[]', 'boolean', 'integer', 'datetime'] }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     source: z
       .enum(['user', 'group', 'custom', 'computed'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['user', 'group', 'custom', 'computed'] }),
   })
   .openapi({
@@ -358,15 +369,18 @@ const CertificateSchema = z
       .enum(['signing', 'encryption', 'both'])
       .openapi({ type: 'string', enum: ['signing', 'encryption', 'both'] }),
     isActive: z.boolean().openapi({ type: 'boolean' }),
-    subject: z.string().optional().openapi({ type: 'string' }),
-    issuer: z.string().optional().openapi({ type: 'string' }),
-    serialNumber: z.string().optional().openapi({ type: 'string' }),
+    subject: z.string().exactOptional().openapi({ type: 'string' }),
+    issuer: z.string().exactOptional().openapi({ type: 'string' }),
+    serialNumber: z.string().exactOptional().openapi({ type: 'string' }),
     notBefore: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     notAfter: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    fingerprint: z.string().optional().openapi({ type: 'string' }),
-    fingerprintSha256: z.string().optional().openapi({ type: 'string' }),
-    publicKey: z.string().optional().openapi({ type: 'string', description: 'PEM形式の公開鍵' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    fingerprint: z.string().exactOptional().openapi({ type: 'string' }),
+    fingerprintSha256: z.string().exactOptional().openapi({ type: 'string' }),
+    publicKey: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'PEM形式の公開鍵' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -392,17 +406,17 @@ const SamlSessionSchema = z
   .object({
     sessionId: z.string().openapi({ type: 'string' }),
     userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    userName: z.string().optional().openapi({ type: 'string' }),
+    userName: z.string().exactOptional().openapi({ type: 'string' }),
     serviceProviders: z
       .array(
         z
           .object({
-            spId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-            spName: z.string().optional().openapi({ type: 'string' }),
-            sessionIndex: z.string().optional().openapi({ type: 'string' }),
+            spId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+            spName: z.string().exactOptional().openapi({ type: 'string' }),
+            sessionIndex: z.string().exactOptional().openapi({ type: 'string' }),
             authenticatedAt: z.iso
               .datetime()
-              .optional()
+              .exactOptional()
               .openapi({ type: 'string', format: 'date-time' }),
           })
           .openapi({
@@ -415,7 +429,7 @@ const SamlSessionSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -428,11 +442,14 @@ const SamlSessionSchema = z
           },
         },
       }),
-    ipAddress: z.string().optional().openapi({ type: 'string' }),
-    userAgent: z.string().optional().openapi({ type: 'string' }),
+    ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
+    userAgent: z.string().exactOptional().openapi({ type: 'string' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    lastActivityAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    lastActivityAt: z.iso
+      .datetime()
+      .exactOptional()
+      .openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -491,14 +508,17 @@ const AuditLogSchema = z
           'certificate_activated',
         ],
       }),
-    userId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    userName: z.string().optional().openapi({ type: 'string' }),
-    spId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    spName: z.string().optional().openapi({ type: 'string' }),
-    ipAddress: z.string().optional().openapi({ type: 'string' }),
-    userAgent: z.string().optional().openapi({ type: 'string' }),
-    details: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
-    errorMessage: z.string().optional().openapi({ type: 'string' }),
+    userId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    userName: z.string().exactOptional().openapi({ type: 'string' }),
+    spId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    spName: z.string().exactOptional().openapi({ type: 'string' }),
+    ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
+    userAgent: z.string().exactOptional().openapi({ type: 'string' }),
+    details: z
+      .looseObject({})
+      .exactOptional()
+      .openapi({ type: 'object', additionalProperties: true }),
+    errorMessage: z.string().exactOptional().openapi({ type: 'string' }),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -594,7 +614,10 @@ const SamlErrorSchema = z
         ],
       }),
     message: z.string().openapi({ type: 'string' }),
-    samlStatus: z.string().optional().openapi({ type: 'string', description: 'SAML Status Code' }),
+    samlStatus: z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', description: 'SAML Status Code' }),
   })
   .openapi({
     type: 'object',
@@ -634,7 +657,7 @@ const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
     type: 'integer',
@@ -647,7 +670,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -700,7 +723,7 @@ export const getSamlSsoRoute = createRoute({
         }),
       RelayState: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'RelayState',
@@ -712,7 +735,7 @@ export const getSamlSsoRoute = createRoute({
         }),
       SigAlg: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'SigAlg',
@@ -724,7 +747,7 @@ export const getSamlSsoRoute = createRoute({
         }),
       Signature: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'Signature',
@@ -737,7 +760,7 @@ export const getSamlSsoRoute = createRoute({
     }),
   },
   responses: {
-    302: { description: '認証フォームまたはSPへリダイレクト' },
+    302: { description: '認証フォームまたはSPへリダイレクト', headers: {} },
     400: {
       description: '不正なSAMLリクエスト',
       content: { 'application/json': { schema: SamlErrorSchema } },
@@ -764,7 +787,7 @@ export const postSamlSsoRoute = createRoute({
                   type: 'string',
                   description: 'Base64エンコードされたSAML AuthnRequest',
                 }),
-              RelayState: z.string().optional().openapi({ type: 'string' }),
+              RelayState: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -806,7 +829,7 @@ export const getSamlSloRoute = createRoute({
     query: z.object({
       SAMLRequest: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'SAMLRequest',
@@ -818,7 +841,7 @@ export const getSamlSloRoute = createRoute({
         }),
       SAMLResponse: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'SAMLResponse',
@@ -830,21 +853,21 @@ export const getSamlSloRoute = createRoute({
         }),
       RelayState: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'RelayState', in: 'query', schema: { type: 'string' } },
           type: 'string',
         }),
       SigAlg: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'SigAlg', in: 'query', schema: { type: 'string' } },
           type: 'string',
         }),
       Signature: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'Signature', in: 'query', schema: { type: 'string' } },
           type: 'string',
@@ -867,9 +890,9 @@ export const postSamlSloRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              SAMLRequest: z.string().optional().openapi({ type: 'string' }),
-              SAMLResponse: z.string().optional().openapi({ type: 'string' }),
-              RelayState: z.string().optional().openapi({ type: 'string' }),
+              SAMLRequest: z.string().exactOptional().openapi({ type: 'string' }),
+              SAMLResponse: z.string().exactOptional().openapi({ type: 'string' }),
+              RelayState: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -906,7 +929,7 @@ export const postSamlAcsRoute = createRoute({
           schema: z
             .object({
               SAMLResponse: z.string().openapi({ type: 'string' }),
-              RelayState: z.string().optional().openapi({ type: 'string' }),
+              RelayState: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -952,14 +975,14 @@ export const getServiceProvidersRoute = createRoute({
     query: z.object({
       search: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'search', in: 'query', schema: { type: 'string' } },
           type: 'string',
         }),
       enabled: z
         .stringbool()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'enabled', in: 'query', schema: { type: 'boolean' } },
           type: 'boolean',
@@ -1135,7 +1158,9 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
         'application/xml': { schema: z.string().openapi({ type: 'string' }) },
         'multipart/form-data': {
           schema: z
-            .object({ file: z.file().optional().openapi({ type: 'string', format: 'binary' }) })
+            .object({
+              file: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+            })
             .openapi({
               type: 'object',
               properties: { file: { type: 'string', format: 'binary' } },
@@ -1286,10 +1311,10 @@ export const postCertificatesRoute = createRoute({
             .object({
               certificate: z.file().openapi({ type: 'string', format: 'binary' }),
               privateKey: z.file().openapi({ type: 'string', format: 'binary' }),
-              passphrase: z.string().optional().openapi({ type: 'string' }),
+              passphrase: z.string().exactOptional().openapi({ type: 'string' }),
               purpose: z
                 .enum(['signing', 'encryption', 'both'])
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', enum: ['signing', 'encryption', 'both'] }),
             })
             .openapi({
@@ -1390,7 +1415,7 @@ export const getSessionsRoute = createRoute({
     query: z.object({
       userId: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
           type: 'string',
@@ -1444,7 +1469,7 @@ export const getAuditLogsRoute = createRoute({
     query: z.object({
       from: z.iso
         .datetime()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
           type: 'string',
@@ -1452,7 +1477,7 @@ export const getAuditLogsRoute = createRoute({
         }),
       to: z.iso
         .datetime()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
           type: 'string',
@@ -1460,7 +1485,7 @@ export const getAuditLogsRoute = createRoute({
         }),
       spId: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'spId', in: 'query', schema: { type: 'string', format: 'uuid' } },
           type: 'string',
@@ -1468,7 +1493,7 @@ export const getAuditLogsRoute = createRoute({
         }),
       userId: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
           type: 'string',
@@ -1476,7 +1501,7 @@ export const getAuditLogsRoute = createRoute({
         }),
       eventType: z
         .enum(['sso_success', 'sso_failure', 'slo_success', 'slo_failure'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'eventType',

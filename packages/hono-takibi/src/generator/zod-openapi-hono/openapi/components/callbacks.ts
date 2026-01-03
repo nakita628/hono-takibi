@@ -1,5 +1,5 @@
-import { makeCallbacks } from '../../../../helper/components.js'
-import { constCode } from '../../../../helper/const.js'
+import { makeConst } from '../../../../helper/code.js'
+import { makeCallbacks } from '../../../../helper/index.js'
 import type { Callbacks, Components } from '../../../../openapi/index.js'
 
 export function callbacks(components: Components, exportCallbacks: boolean): string {
@@ -14,7 +14,7 @@ export function callbacks(components: Components, exportCallbacks: boolean): str
       if (!isCallbacks(callbackOrRef)) return undefined
       const callbackCode = makeCallbacks(callbackOrRef)
       return callbackCode
-        ? `${constCode(exportCallbacks, k, 'Callback')}{${callbackCode}}`
+        ? `${makeConst(exportCallbacks, k, 'Callback')}{${callbackCode}}`
         : undefined
     })
     .filter((v) => v !== undefined)

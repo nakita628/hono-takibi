@@ -2,7 +2,7 @@ import path from 'node:path'
 import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
 import { core } from './core.js'
 
-export async function exports(
+export async function makeExports(
   value: { readonly [k: string]: unknown },
   suffix:
     | 'Schema'

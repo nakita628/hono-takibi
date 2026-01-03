@@ -5,7 +5,7 @@ const UserSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
     type: 'object',
@@ -23,12 +23,12 @@ const TeamSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     members: z
       .array(UserSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -47,29 +47,29 @@ const ProjectSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z
       .enum(['active', 'on_hold', 'completed', 'archived'])
       .openapi({ type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] }),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
-    owner: UserSchema.optional(),
-    team: TeamSchema.optional(),
-    startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    taskCount: z.int().optional().openapi({ type: 'integer' }),
-    completedTaskCount: z.int().optional().openapi({ type: 'integer' }),
+    owner: UserSchema.exactOptional(),
+    team: TeamSchema.exactOptional(),
+    startDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    endDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    taskCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    completedTaskCount: z.int().exactOptional().openapi({ type: 'integer' }),
     progress: z
       .number()
       .min(0)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'number', minimum: 0, maximum: 100 }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -97,7 +97,7 @@ const ProjectSummarySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    color: z.string().optional().openapi({ type: 'string' }),
+    color: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -127,10 +127,10 @@ const AttachmentSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     filename: z.string().openapi({ type: 'string' }),
     url: z.url().openapi({ type: 'string', format: 'uri' }),
-    mimeType: z.string().optional().openapi({ type: 'string' }),
-    filesize: z.int().optional().openapi({ type: 'integer' }),
-    uploadedBy: UserSchema.optional(),
-    uploadedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    mimeType: z.string().exactOptional().openapi({ type: 'string' }),
+    filesize: z.int().exactOptional().openapi({ type: 'integer' }),
+    uploadedBy: UserSchema.exactOptional(),
+    uploadedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -168,34 +168,34 @@ const TaskSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     title: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
       .openapi({ type: 'string', enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'] }),
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    project: ProjectSummarySchema.optional(),
-    assignee: UserSchema.optional(),
-    reporter: UserSchema.optional(),
-    milestone: MilestoneSummarySchema.optional(),
-    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    estimatedHours: z.number().optional().openapi({ type: 'number' }),
-    actualHours: z.number().optional().openapi({ type: 'number' }),
+    project: ProjectSummarySchema.exactOptional(),
+    assignee: UserSchema.exactOptional(),
+    reporter: UserSchema.exactOptional(),
+    milestone: MilestoneSummarySchema.exactOptional(),
+    dueDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    estimatedHours: z.number().exactOptional().openapi({ type: 'number' }),
+    actualHours: z.number().exactOptional().openapi({ type: 'number' }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     attachments: z
       .array(AttachmentSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Attachment' } }),
     subtasks: z
       .array(SubtaskSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Subtask' } }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -226,16 +226,16 @@ const MilestoneSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z.enum(['open', 'closed']).openapi({ type: 'string', enum: ['open', 'closed'] }),
-    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    taskCount: z.int().optional().openapi({ type: 'integer' }),
-    completedTaskCount: z.int().optional().openapi({ type: 'integer' }),
+    dueDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    taskCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    completedTaskCount: z.int().exactOptional().openapi({ type: 'integer' }),
     progress: z
       .number()
       .min(0)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'number', minimum: 0, maximum: 100 }),
   })
   .openapi({
@@ -279,7 +279,7 @@ const TaskCommentSchema = z
     content: z.string().openapi({ type: 'string' }),
     author: UserSchema,
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -297,11 +297,11 @@ const TaskCommentSchema = z
 const TimeEntrySchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     duration: z.int().openapi({ type: 'integer', description: '時間（分）' }),
     date: z.iso.date().openapi({ type: 'string', format: 'date' }),
     user: UserSchema,
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -320,15 +320,15 @@ const TimeEntrySchema = z
 const CreateProjectRequestSchema = z
   .object({
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
-    teamId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    teamId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    startDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    endDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
   })
   .openapi({
     type: 'object',
@@ -350,20 +350,20 @@ const UpdateProjectRequestSchema = z
       .string()
       .min(1)
       .max(200)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z
       .enum(['active', 'on_hold', 'completed', 'archived'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] }),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
-    startDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    endDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    startDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    endDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
   })
   .openapi({
     type: 'object',
@@ -381,11 +381,11 @@ const UpdateProjectRequestSchema = z
 const CreateTaskRequestSchema = z
   .object({
     title: z.string().min(1).max(500).openapi({ type: 'string', minLength: 1, maxLength: 500 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done'])
       .default('todo')
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'string',
         enum: ['todo', 'in_progress', 'in_review', 'done'],
@@ -394,15 +394,15 @@ const CreateTaskRequestSchema = z
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
       .default('medium')
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'], default: 'medium' }),
-    assigneeId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    milestoneId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    estimatedHours: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
+    assigneeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    milestoneId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    dueDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    estimatedHours: z.number().min(0).exactOptional().openapi({ type: 'number', minimum: 0 }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     subtasks: z
       .array(
@@ -414,7 +414,7 @@ const CreateTaskRequestSchema = z
             properties: { title: { type: 'string' } },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: { type: 'object', required: ['title'], properties: { title: { type: 'string' } } },
@@ -451,24 +451,24 @@ const UpdateTaskRequestSchema = z
       .string()
       .min(1)
       .max(500)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 500 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     status: z
       .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'] }),
     priority: z
       .enum(['low', 'medium', 'high', 'urgent'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'urgent'] }),
-    assigneeId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    milestoneId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    estimatedHours: z.number().min(0).optional().openapi({ type: 'number', minimum: 0 }),
+    assigneeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    milestoneId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    dueDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    estimatedHours: z.number().min(0).exactOptional().openapi({ type: 'number', minimum: 0 }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -507,8 +507,8 @@ const AddMemberRequestSchema = z
 const CreateMilestoneRequestSchema = z
   .object({
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    dueDate: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
+    dueDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
   })
   .openapi({
     type: 'object',
@@ -523,7 +523,7 @@ const CreateMilestoneRequestSchema = z
 
 const CreateTimeEntryRequestSchema = z
   .object({
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     duration: z.int().min(1).openapi({ type: 'integer', minimum: 1, description: '時間（分）' }),
     date: z.iso.date().openapi({ type: 'string', format: 'date' }),
   })
@@ -541,10 +541,10 @@ const CreateTimeEntryRequestSchema = z
 const CreateTeamRequestSchema = z
   .object({
     name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     memberIds: z
       .array(z.uuid().openapi({ type: 'string', format: 'uuid' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uuid' } }),
   })
   .openapi({
@@ -653,7 +653,7 @@ const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
     type: 'integer',
@@ -666,7 +666,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -708,7 +708,7 @@ export const getProjectsRoute = createRoute({
       limit: LimitParamParamsSchema,
       status: z
         .enum(['active', 'on_hold', 'completed', 'archived'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -720,7 +720,7 @@ export const getProjectsRoute = createRoute({
         }),
       search: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'search', in: 'query', schema: { type: 'string' } },
           type: 'string',
@@ -861,7 +861,7 @@ export const getProjectsProjectIdTasksRoute = createRoute({
       limit: LimitParamParamsSchema,
       status: z
         .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -876,7 +876,7 @@ export const getProjectsProjectIdTasksRoute = createRoute({
         }),
       assignee: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'assignee', in: 'query', schema: { type: 'string', format: 'uuid' } },
           type: 'string',
@@ -884,7 +884,7 @@ export const getProjectsProjectIdTasksRoute = createRoute({
         }),
       priority: z
         .enum(['low', 'medium', 'high', 'urgent'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'priority',

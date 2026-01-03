@@ -83,10 +83,6 @@ export async function parameters(
       if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
 
-    // const indexBody = `${Object.keys(parameters)
-    //   .map((n) => `export * from './${lowerFirst(n)}'`)
-    //   .join('\n')}\n`
-
     const fmtResult = await fmt(barell(parameters))
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))

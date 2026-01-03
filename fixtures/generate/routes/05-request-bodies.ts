@@ -4,10 +4,10 @@ const UserSchema = z
   .object({
     id: z.string().openapi({ type: 'string' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
   .openapi({
@@ -25,11 +25,11 @@ const UserSchema = z
 const CreateUserInputSchema = z
   .object({
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
     password: z
       .file()
       .min(8)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'binary', minLength: 8 }),
   })
   .openapi({
@@ -49,7 +49,7 @@ const UpdateUserInputSchema = z
     name: z.string().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
   .openapi({
@@ -65,11 +65,11 @@ const UpdateUserInputSchema = z
 
 const PatchUserInputSchema = z
   .object({
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
     role: z
       .enum(['admin', 'user', 'guest'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
   })
   .openapi({
@@ -84,7 +84,18 @@ const PatchUserInputSchema = z
 
 const CreateUserRequestBody = {
   description: 'User creation request',
-  content: { 'application/json': { schema: CreateUserInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateUserInputSchema,
+      examples: {
+        basicUser: {
+          summary: 'Basic user creation',
+          value: { email: 'user@example.com', name: 'John Doe', password: 'securePassword123' },
+        },
+        minimalUser: { summary: 'Minimal user creation', value: { email: 'minimal@example.com' } },
+      },
+    },
+  },
   required: true,
 }
 
@@ -109,7 +120,7 @@ const FileUploadRequestBody = {
       schema: z
         .object({
           file: z.file().openapi({ type: 'string', format: 'binary' }),
-          description: z.string().optional().openapi({ type: 'string' }),
+          description: z.string().exactOptional().openapi({ type: 'string' }),
         })
         .openapi({
           type: 'object',

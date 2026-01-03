@@ -7,7 +7,7 @@ const UserSchema = z
     name: z.string().openapi({ type: 'string', description: '表示名' }),
     avatarUrl: z
       .url()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'uri', description: 'アバター画像URL' }),
     status: z
       .enum(['active', 'inactive', 'suspended'])
@@ -19,18 +19,18 @@ const UserSchema = z
     role: z
       .enum(['user', 'admin'])
       .default('user')
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['user', 'admin'], default: 'user', description: 'ロール' }),
     lastLoginAt: z.iso
       .datetime()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'date-time', description: '最終ログイン日時' }),
     createdAt: z.iso
       .datetime()
       .openapi({ type: 'string', format: 'date-time', description: '作成日時' }),
     updatedAt: z.iso
       .datetime()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'date-time', description: '更新日時' }),
   })
   .openapi({
@@ -105,7 +105,7 @@ const AuthResponseSchema = z
     refreshToken: z.string().openapi({ type: 'string', description: 'リフレッシュトークン' }),
     expiresIn: z
       .int()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', description: 'アクセストークンの有効期限（秒）', example: 3600 }),
     user: UserSchema,
   })
@@ -131,15 +131,15 @@ const UpdateUserRequestSchema = z
       .string()
       .min(1)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     status: z
       .enum(['active', 'inactive', 'suspended'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['active', 'inactive', 'suspended'] }),
     role: z
       .enum(['user', 'admin'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['user', 'admin'] }),
   })
   .openapi({
@@ -158,7 +158,7 @@ const UpdateProfileRequestSchema = z
       .string()
       .min(1)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
   })
   .openapi({
@@ -211,15 +211,15 @@ const ErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().optional().openapi({ type: 'string' }),
-            message: z.string().optional().openapi({ type: 'string' }),
+            field: z.string().exactOptional().openapi({ type: 'string' }),
+            message: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
             properties: { field: { type: 'string' }, message: { type: 'string' } },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -263,7 +263,7 @@ const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'page',
@@ -281,7 +281,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -297,7 +297,7 @@ const LimitParamParamsSchema = z
 
 const SortParamParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'sort',
@@ -479,7 +479,7 @@ export const postAuthPasswordForgotRoute = createRoute({
             .object({
               message: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', example: 'パスワードリセット用のメールを送信しました' }),
             })
             .openapi({
@@ -542,7 +542,7 @@ export const getUsersRoute = createRoute({
       sort: SortParamParamsSchema,
       search: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'search',
@@ -554,7 +554,7 @@ export const getUsersRoute = createRoute({
         }),
       status: z
         .enum(['active', 'inactive', 'suspended'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'status',
@@ -737,7 +737,9 @@ export const putUsersMeAvatarRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }) })
+            .object({
+              avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+            })
             .openapi({
               type: 'object',
               properties: { avatarUrl: { type: 'string', format: 'uri' } },

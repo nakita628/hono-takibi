@@ -4,7 +4,7 @@ const UserSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -22,7 +22,7 @@ const UserSchema = z
 const CreateUserRequestSchema = z
   .object({
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',

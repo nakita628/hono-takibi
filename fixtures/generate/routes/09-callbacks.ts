@@ -45,7 +45,7 @@ const WebhookRegistrationSchema = z
       }),
     secret: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'Shared secret for HMAC signature' }),
   })
   .openapi({
@@ -83,7 +83,7 @@ const WebhookSchema = z
     status: z
       .enum(['active', 'inactive', 'failed'])
       .openapi({ type: 'string', enum: ['active', 'inactive', 'failed'] }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -122,7 +122,10 @@ const SubscriptionSchema = z
     status: z
       .enum(['active', 'past_due', 'cancelled', 'expired'])
       .openapi({ type: 'string', enum: ['active', 'past_due', 'cancelled', 'expired'] }),
-    currentPeriodEnd: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    currentPeriodEnd: z.iso
+      .datetime()
+      .exactOptional()
+      .openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -141,7 +144,7 @@ const CreateJobInputSchema = z
     type: z
       .enum(['export', 'import', 'process'])
       .openapi({ type: 'string', enum: ['export', 'import', 'process'] }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
+    data: z.object({}).exactOptional().openapi({ type: 'object' }),
     callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
@@ -166,7 +169,7 @@ const JobSchema = z
       .int()
       .min(0)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
   })
   .openapi({
@@ -189,7 +192,7 @@ const WebhookPayloadSchema = z
     data: z.object({}).openapi({ type: 'object' }),
     signature: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', description: 'HMAC-SHA256 signature' }),
   })
   .openapi({
@@ -209,10 +212,10 @@ const PaymentEventSchema = z
   .object({
     subscriptionId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     amount: z.float64().openapi({ type: 'number', format: 'float64' }),
-    currency: z.string().optional().openapi({ type: 'string' }),
+    currency: z.string().exactOptional().openapi({ type: 'string' }),
     status: z.enum(['success', 'failed']).openapi({ type: 'string', enum: ['success', 'failed'] }),
-    failureReason: z.string().optional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    failureReason: z.string().exactOptional().openapi({ type: 'string' }),
+    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -232,8 +235,8 @@ const JobProgressSchema = z
   .object({
     jobId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     progress: z.int().min(0).max(100).openapi({ type: 'integer', minimum: 0, maximum: 100 }),
-    message: z.string().optional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    message: z.string().exactOptional().openapi({ type: 'string' }),
+    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -253,18 +256,18 @@ const JobResultSchema = z
     status: z
       .enum(['completed', 'failed'])
       .openapi({ type: 'string', enum: ['completed', 'failed'] }),
-    result: z.object({}).optional().openapi({ type: 'object' }),
+    result: z.object({}).exactOptional().openapi({ type: 'object' }),
     error: z
       .object({
-        code: z.string().optional().openapi({ type: 'string' }),
-        message: z.string().optional().openapi({ type: 'string' }),
+        code: z.string().exactOptional().openapi({ type: 'string' }),
+        message: z.string().exactOptional().openapi({ type: 'string' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: { code: { type: 'string' }, message: { type: 'string' } },
       }),
-    completedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    completedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -292,9 +295,9 @@ const GenericWebhookCallback = {
         required: true,
       },
       responses: {
-        '200': { description: 'Webhook received' },
-        '400': { description: 'Invalid payload' },
-        '401': { description: 'Invalid signature' },
+        200: { description: 'Webhook received' },
+        400: { description: 'Invalid payload' },
+        401: { description: 'Invalid signature' },
       },
     },
   },
@@ -305,7 +308,7 @@ const PaymentSuccessCallback = {
     post: {
       operationId: 'onPaymentSuccess',
       requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -315,7 +318,7 @@ const PaymentFailedCallback = {
     post: {
       operationId: 'onPaymentFailed',
       requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -329,10 +332,13 @@ const SubscriptionRenewedCallback = {
           'application/json': {
             schema: z
               .object({
-                subscriptionId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+                subscriptionId: z
+                  .uuid()
+                  .exactOptional()
+                  .openapi({ type: 'string', format: 'uuid' }),
                 newPeriodEnd: z.iso
                   .datetime()
-                  .optional()
+                  .exactOptional()
                   .openapi({ type: 'string', format: 'date-time' }),
               })
               .openapi({
@@ -345,7 +351,7 @@ const SubscriptionRenewedCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -359,12 +365,15 @@ const SubscriptionCancelledCallback = {
           'application/json': {
             schema: z
               .object({
-                subscriptionId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+                subscriptionId: z
+                  .uuid()
+                  .exactOptional()
+                  .openapi({ type: 'string', format: 'uuid' }),
                 cancelledAt: z.iso
                   .datetime()
-                  .optional()
+                  .exactOptional()
                   .openapi({ type: 'string', format: 'date-time' }),
-                reason: z.string().optional().openapi({ type: 'string' }),
+                reason: z.string().exactOptional().openapi({ type: 'string' }),
               })
               .openapi({
                 type: 'object',
@@ -377,7 +386,7 @@ const SubscriptionCancelledCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -387,7 +396,7 @@ const JobProgressCallback = {
     post: {
       operationId: 'onJobProgress',
       requestBody: { content: { 'application/json': { schema: JobProgressSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -397,7 +406,7 @@ const JobCompleteCallback = {
     post: {
       operationId: 'onJobComplete',
       requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -407,7 +416,7 @@ const JobErrorCallback = {
     post: {
       operationId: 'onJobError',
       requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -429,7 +438,7 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: { onEvent: GenericWebhookCallback },
+  callbacks: {},
 })
 
 export const postSubscriptionsRoute = createRoute({
@@ -449,12 +458,7 @@ export const postSubscriptionsRoute = createRoute({
       content: { 'application/json': { schema: SubscriptionSchema } },
     },
   },
-  callbacks: {
-    paymentSuccess: PaymentSuccessCallback,
-    paymentFailed: PaymentFailedCallback,
-    subscriptionRenewed: SubscriptionRenewedCallback,
-    subscriptionCancelled: SubscriptionCancelledCallback,
-  },
+  callbacks: {},
 })
 
 export const postJobsRoute = createRoute({
@@ -468,11 +472,7 @@ export const postJobsRoute = createRoute({
   responses: {
     202: { description: 'Job accepted', content: { 'application/json': { schema: JobSchema } } },
   },
-  callbacks: {
-    onProgress: JobProgressCallback,
-    onComplete: JobCompleteCallback,
-    onError: JobErrorCallback,
-  },
+  callbacks: {},
 })
 
 export const postIntegrationsIntegrationIdSyncRoute = createRoute({
@@ -497,49 +497,5 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
     }),
   },
   responses: { 202: { description: 'Sync started' } },
-  callbacks: {
-    syncStarted: {
-      '{$request.body#/callbackUrl}/sync/started': {
-        post: {
-          operationId: 'onSyncStarted',
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    syncId: { type: 'string' },
-                    startedAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-            },
-          },
-          responses: { '200': { description: 'Callback acknowledged' } },
-        },
-      },
-    },
-    syncCompleted: {
-      '{$request.body#/callbackUrl}/sync/completed': {
-        post: {
-          operationId: 'onSyncCompleted',
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    syncId: { type: 'string' },
-                    recordsProcessed: { type: 'integer' },
-                    completedAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-            },
-          },
-          responses: { '200': { description: 'Callback acknowledged' } },
-        },
-      },
-    },
-  },
+  callbacks: {},
 })

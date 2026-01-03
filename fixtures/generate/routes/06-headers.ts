@@ -2,9 +2,9 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ResourceSchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string' }),
-    name: z.string().optional().openapi({ type: 'string' }),
-    data: z.object({}).optional().openapi({ type: 'object' }),
+    id: z.string().exactOptional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    data: z.object({}).exactOptional().openapi({ type: 'object' }),
   })
   .openapi({
     type: 'object',
@@ -58,7 +58,7 @@ const ETagHeader = z
 
 const LastModifiedHeader = z.iso
   .datetime()
-  .optional()
+  .exactOptional()
   .openapi({
     description: 'Last modification timestamp',
     example: '2024-01-15T10:30:00Z',
@@ -68,7 +68,7 @@ const LastModifiedHeader = z.iso
 
 const CacheControlHeader = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     description: 'Caching directives',
     example: 'max-age=3600, must-revalidate',
@@ -89,7 +89,7 @@ const ContentLengthHeader = z
 
 const XChecksumSHA256Header = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     description: 'SHA256 checksum of content',
     example: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
@@ -104,7 +104,7 @@ export const getResourcesRoute = createRoute({
     headers: z.object({
       'X-Request-ID': z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'X-Request-ID',
@@ -120,6 +120,7 @@ export const getResourcesRoute = createRoute({
   responses: {
     200: {
       description: 'List of resources',
+      headers: {},
       content: {
         'application/json': {
           schema: z
@@ -147,7 +148,7 @@ export const getResourcesIdRoute = createRoute({
     headers: z.object({
       'If-None-Match': z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'If-None-Match',
@@ -162,9 +163,10 @@ export const getResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource details',
+      headers: {},
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    304: { description: 'Not modified' },
+    304: { description: 'Not modified', headers: {} },
   },
 })
 
@@ -176,9 +178,10 @@ export const putResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource updated',
+      headers: {},
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    412: { description: 'Precondition failed' },
+    412: { description: 'Precondition failed', headers: {} },
   },
 })
 
@@ -199,6 +202,7 @@ export const getDownloadIdRoute = createRoute({
   responses: {
     200: {
       description: 'File download',
+      headers: {},
       content: {
         'application/octet-stream': {
           schema: z.file().openapi({ type: 'string', format: 'binary' }),

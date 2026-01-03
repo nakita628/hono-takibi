@@ -35,8 +35,8 @@ const AddressSchema = z
   .object({
     street: z.string().openapi({ type: 'string' }),
     city: z.string().openapi({ type: 'string' }),
-    state: z.string().optional().openapi({ type: 'string' }),
-    postalCode: z.string().optional().openapi({ type: 'string' }),
+    state: z.string().exactOptional().openapi({ type: 'string' }),
+    postalCode: z.string().exactOptional().openapi({ type: 'string' }),
     country: z.string().length(2).openapi({ type: 'string', minLength: 2, maxLength: 2 }),
   })
   .openapi({
@@ -58,43 +58,43 @@ const ProductSchema = z
     sku: z
       .string()
       .regex(/^[A-Z]{2}-[0-9]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' }),
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().max(5000).optional().openapi({ type: 'string', maxLength: 5000 }),
+    description: z.string().max(5000).exactOptional().openapi({ type: 'string', maxLength: 5000 }),
     price: MoneySchema,
     category: ProductCategorySchema,
     tags: z
       .array(z.string().openapi({ type: 'string' }))
       .max(10)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true, maxItems: 10 }),
     inventory: z
       .int32()
       .min(0)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', format: 'int32', minimum: 0 }),
     images: z
       .array(z.url().openapi({ type: 'string', format: 'uri' }))
       .max(10)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' }, maxItems: 10 }),
     metadata: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     status: z
       .enum(['draft', 'active', 'archived'])
       .default('draft')
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['draft', 'active', 'archived'], default: 'draft' }),
     createdAt: z.iso
       .datetime()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'date-time', readOnly: true }),
     updatedAt: z.iso
       .datetime()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'date-time', readOnly: true }),
   })
   .openapi({
@@ -135,8 +135,8 @@ const PaginationSchema = z
       .openapi({ type: 'integer', format: 'int32', minimum: 1, maximum: 100 }),
     total: z.int64().openapi({ type: 'integer', format: 'int64' }),
     totalPages: z.int32().openapi({ type: 'integer', format: 'int32' }),
-    hasNext: z.boolean().optional().openapi({ type: 'boolean' }),
-    hasPrevious: z.boolean().optional().openapi({ type: 'boolean' }),
+    hasNext: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    hasPrevious: z.boolean().exactOptional().openapi({ type: 'boolean' }),
   })
   .openapi({
     type: 'object',
@@ -174,25 +174,25 @@ const CreateProductInputSchema = z
     sku: z
       .string()
       .regex(/^[A-Z]{2}-[0-9]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^[A-Z]{2}-[0-9]{6}$' }),
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     price: MoneySchema,
     category: ProductCategorySchema,
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
     inventory: z
       .int()
       .min(0)
       .default(0)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'integer', minimum: 0, default: 0 }),
     images: z
       .array(z.url().openapi({ type: 'string', format: 'uri' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string', format: 'uri' } }),
   })
   .openapi({
@@ -218,7 +218,7 @@ const UpdateProductInputSchema = z
       .object({
         status: z
           .enum(['draft', 'active', 'archived'])
-          .optional()
+          .exactOptional()
           .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
       })
       .openapi({
@@ -240,7 +240,7 @@ const UpdateProductInputSchema = z
 const OrderItemSchema = z
   .object({
     productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productName: z.string().optional().openapi({ type: 'string' }),
+    productName: z.string().exactOptional().openapi({ type: 'string' }),
     quantity: z.int32().min(1).openapi({ type: 'integer', format: 'int32', minimum: 1 }),
     price: MoneySchema,
   })
@@ -271,10 +271,10 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
       }),
     total: MoneySchema,
-    shippingAddress: AddressSchema.optional(),
-    billingAddress: AddressSchema.optional(),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    shippingAddress: AddressSchema.exactOptional(),
+    billingAddress: AddressSchema.exactOptional(),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -328,10 +328,10 @@ const CreateOrderInputSchema = z
         },
       }),
     shippingAddress: AddressSchema,
-    billingAddress: AddressSchema.optional(),
+    billingAddress: AddressSchema.exactOptional(),
     callbackUrl: z
       .url()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', format: 'uri', description: 'URL for order status webhooks' }),
   })
   .openapi({
@@ -401,10 +401,10 @@ const WebhookSchema = z
           ],
         },
       }),
-    secret: z.string().optional().openapi({ type: 'string', writeOnly: true }),
+    secret: z.string().exactOptional().openapi({ type: 'string', writeOnly: true }),
     status: z
       .enum(['active', 'inactive'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['active', 'inactive'] }),
   })
   .openapi({
@@ -440,7 +440,7 @@ const WebhookPayloadSchema = z
     event: z.string().openapi({ type: 'string' }),
     timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
     data: z.object({}).openapi({ type: 'object' }),
-    signature: z.string().optional().openapi({ type: 'string' }),
+    signature: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -457,9 +457,9 @@ const WebhookPayloadSchema = z
 
 const ErrorDetailSchema = z
   .object({
-    code: z.string().optional().openapi({ type: 'string' }),
-    message: z.string().optional().openapi({ type: 'string' }),
-    target: z.string().optional().openapi({ type: 'string' }),
+    code: z.string().exactOptional().openapi({ type: 'string' }),
+    message: z.string().exactOptional().openapi({ type: 'string' }),
+    target: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -475,12 +475,12 @@ const ErrorSchema = z
   .object({
     code: z.string().openapi({ type: 'string' }),
     message: z.string().openapi({ type: 'string' }),
-    target: z.string().optional().openapi({ type: 'string' }),
+    target: z.string().exactOptional().openapi({ type: 'string' }),
     details: z
       .array(ErrorDetailSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/ErrorDetail' } }),
-    traceId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    traceId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
   })
   .openapi({
     type: 'object',
@@ -514,7 +514,7 @@ const PageParamParamsSchema = z
   .int32()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'page',
@@ -533,7 +533,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -552,7 +552,7 @@ const SearchParamParamsSchema = z
   .string()
   .min(1)
   .max(200)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'q',
@@ -568,7 +568,7 @@ const SearchParamParamsSchema = z
 const AcceptLanguageHeaderParamsSchema = z
   .string()
   .default('en-US')
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'Accept-Language',
@@ -582,7 +582,7 @@ const AcceptLanguageHeaderParamsSchema = z
 
 const IfMatchHeaderParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'If-Match',
@@ -596,7 +596,7 @@ const IfMatchHeaderParamsSchema = z
 
 const IfNoneMatchHeaderParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'If-None-Match',
@@ -650,7 +650,25 @@ const Oauth2SecurityScheme = {
 
 const CreateProductRequestBody = {
   description: 'Product creation request',
-  content: { 'application/json': { schema: CreateProductInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateProductInputSchema,
+      examples: {
+        electronics: {
+          summary: 'Electronics product',
+          value: {
+            sku: 'EL-789012',
+            name: 'Smart Watch',
+            description: 'Fitness tracking smartwatch',
+            price: { amount: 299.99, currency: 'USD' },
+            category: 'electronics',
+            tags: ['wearable', 'fitness'],
+            inventory: 50,
+          },
+        },
+      },
+    },
+  },
   required: true,
 }
 
@@ -662,7 +680,26 @@ const UpdateProductRequestBody = {
 
 const CreateOrderRequestBody = {
   description: 'Order creation request',
-  content: { 'application/json': { schema: CreateOrderInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateOrderInputSchema,
+      examples: {
+        simpleOrder: {
+          summary: 'Simple order',
+          value: {
+            items: [{ productId: '550e8400-e29b-41d4-a716-446655440000', quantity: 2 }],
+            shippingAddress: {
+              street: '123 Main St',
+              city: 'New York',
+              state: 'NY',
+              postalCode: '10001',
+              country: 'US',
+            },
+          },
+        },
+      },
+    },
+  },
   required: true,
 }
 
@@ -676,7 +713,7 @@ const CreateWebhookRequestBody = {
           events: z
             .array(z.string().openapi({ type: 'string' }))
             .openapi({ type: 'array', items: { type: 'string' } }),
-          secret: z.string().optional().openapi({ type: 'string' }),
+          secret: z.string().exactOptional().openapi({ type: 'string' }),
         })
         .openapi({
           type: 'object',
@@ -790,32 +827,32 @@ const XRequestIDHeader = z
 
 const XRateLimitLimitHeader = z
   .int32()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
 
 const XRateLimitRemainingHeader = z
   .int32()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
 
 const XRateLimitResetHeader = z
   .int64()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
 
 const XTotalCountHeader = z
   .int64()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'Total number of items', type: 'integer', format: 'int64' })
 
 const ETagHeader = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'Entity tag for caching', type: 'string' })
 
 const CacheControlHeader = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     description: 'Caching directives',
     type: 'string',
@@ -824,12 +861,12 @@ const CacheControlHeader = z
 
 const LocationHeader = z
   .url()
-  .optional()
+  .exactOptional()
   .openapi({ description: 'URL of created resource', type: 'string', format: 'uri' })
 
 const LinkHeader = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     description: 'Pagination links (RFC 5988)',
     type: 'string',
@@ -942,9 +979,9 @@ const OrderStatusCallback = {
                     type: 'string',
                     enum: ['confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
                   }),
-                previousStatus: z.string().optional().openapi({ type: 'string' }),
+                previousStatus: z.string().exactOptional().openapi({ type: 'string' }),
                 timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-                trackingNumber: z.string().optional().openapi({ type: 'string' }),
+                trackingNumber: z.string().exactOptional().openapi({ type: 'string' }),
               })
               .openapi({
                 type: 'object',
@@ -964,8 +1001,8 @@ const OrderStatusCallback = {
         },
       },
       responses: {
-        '200': { description: 'Callback acknowledged' },
-        '410': { description: 'Callback URL no longer valid' },
+        200: { description: 'Callback acknowledged' },
+        410: { description: 'Callback URL no longer valid' },
       },
     },
   },
@@ -988,8 +1025,8 @@ const PaymentCallback = {
                     type: 'string',
                     enum: ['pending', 'completed', 'failed', 'refunded'],
                   }),
-                amount: MoneySchema.optional(),
-                transactionId: z.string().optional().openapi({ type: 'string' }),
+                amount: MoneySchema.exactOptional(),
+                transactionId: z.string().exactOptional().openapi({ type: 'string' }),
               })
               .openapi({
                 type: 'object',
@@ -1007,7 +1044,7 @@ const PaymentCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Callback acknowledged' } },
+      responses: { 200: { description: 'Callback acknowledged' } },
     },
   },
 }
@@ -1019,9 +1056,9 @@ const GenericWebhookCallback = {
       operationId: 'onWebhookEvent',
       requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema } } },
       responses: {
-        '200': { description: 'Webhook received' },
-        '401': { description: 'Invalid signature' },
-        '410': { description: 'Webhook URL no longer valid' },
+        200: { description: 'Webhook received' },
+        401: { description: 'Invalid signature' },
+        410: { description: 'Webhook URL no longer valid' },
       },
     },
   },
@@ -1039,7 +1076,7 @@ export const getProductsRoute = createRoute({
       page: PageParamParamsSchema,
       limit: LimitParamParamsSchema,
       q: SearchParamParamsSchema,
-      category: ProductCategorySchema.optional().openapi({
+      category: ProductCategorySchema.exactOptional().openapi({
         param: {
           name: 'category',
           in: 'query',
@@ -1052,13 +1089,11 @@ export const getProductsRoute = createRoute({
   responses: {
     200: {
       description: 'Product list retrieved successfully',
+      headers: {},
       content: {
         'application/json': {
           schema: ProductListSchema,
-          examples: {
-            multipleProducts: { $ref: '#/components/examples/ProductListExample' },
-            emptyList: { $ref: '#/components/examples/EmptyProductList' },
-          },
+          examples: { multipleProducts: ProductListExample, emptyList: EmptyProductListExample },
         },
       },
     },
@@ -1079,11 +1114,14 @@ export const postProductsRoute = createRoute({
   responses: {
     201: {
       description: 'Product created successfully',
+      headers: {},
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { createdProduct: { $ref: '#/components/examples/ProductExample' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { createdProduct: ProductExample } },
+      },
+      links: {
+        GetProduct: GetProductByIdLink,
+        UpdateProduct: UpdateProductByIdLink,
+        DeleteProduct: DeleteProductByIdLink,
       },
     },
     400: BadRequestResponse,
@@ -1107,14 +1145,17 @@ export const getProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product details',
+      headers: {},
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { product: { $ref: '#/components/examples/ProductExample' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { product: ProductExample } },
+      },
+      links: {
+        UpdateProduct: UpdateProductByIdLink,
+        DeleteProduct: DeleteProductByIdLink,
+        GetProductReviews: GetProductReviewsLink,
       },
     },
-    304: { description: 'Not modified' },
+    304: { description: 'Not modified', headers: {} },
     404: NotFoundResponse,
   },
 })
@@ -1133,6 +1174,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
+      headers: {},
       content: { 'application/json': { schema: ProductSchema } },
     },
     404: NotFoundResponse,
@@ -1152,7 +1194,7 @@ export const deleteProductsProductIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: {
-    204: { description: 'Product deleted' },
+    204: { description: 'Product deleted', headers: {} },
     404: NotFoundResponse,
     412: PreconditionFailedResponse,
   },
@@ -1166,9 +1208,13 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: CreateOrderRequestBody },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: { GetOrder: GetOrderByIdLink, CancelOrder: CancelOrderByIdLink },
+    },
   },
-  callbacks: { orderStatusUpdate: OrderStatusCallback, paymentConfirmation: PaymentCallback },
+  callbacks: {},
 })
 
 export const postWebhooksRoute = createRoute({
@@ -1184,5 +1230,5 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: { webhookEvent: GenericWebhookCallback },
+  callbacks: {},
 })

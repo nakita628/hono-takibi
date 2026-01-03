@@ -4,11 +4,15 @@ const ItemSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
-    price: z.float64().min(0).optional().openapi({ type: 'number', format: 'float64', minimum: 0 }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
+    price: z
+      .float64()
+      .min(0)
+      .exactOptional()
+      .openapi({ type: 'number', format: 'float64', minimum: 0 }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -49,7 +53,10 @@ const ErrorSchema = z
   .object({
     code: z.string().openapi({ type: 'string' }),
     message: z.string().openapi({ type: 'string' }),
-    details: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
+    details: z
+      .looseObject({})
+      .exactOptional()
+      .openapi({ type: 'object', additionalProperties: true }),
   })
   .openapi({
     type: 'object',
@@ -66,7 +73,7 @@ const PageParamParamsSchema = z
   .int32()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'page',
@@ -86,7 +93,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(20)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -105,7 +112,7 @@ const LimitParamParamsSchema = z
 const SortParamParamsSchema = z
   .string()
   .regex(/^[a-zA-Z_]+:(asc|desc)$/)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'sort',
@@ -134,7 +141,7 @@ const ItemIdPathParamsSchema = z
 
 const IfMatchHeaderParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'If-Match',

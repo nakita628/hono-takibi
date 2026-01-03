@@ -274,7 +274,7 @@ export type Header = {
   content?: Content
 }
 
-type Link = {
+export type Link = {
   readonly operationRef?: string
   readonly operationId?: string
   readonly parameters?: {
@@ -340,7 +340,7 @@ export type Operation = {
   }
   readonly operationId?: string
   readonly parameters?: readonly Parameter[]
-  readonly requestBody?: RequestBody
+  readonly requestBody?: RequestBody | Reference
   readonly responses: {
     readonly [k: string]: Responses
   }

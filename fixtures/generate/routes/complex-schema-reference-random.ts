@@ -1,132 +1,132 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const ASchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }) })
+  .object({ name: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
   .openapi('A')
 
 const BSchema = z
-  .object({ id: z.string().optional().openapi({ type: 'string' }) })
+  .object({ id: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { id: { type: 'string' } } })
   .openapi('B')
 
 const CSchema = z
-  .object({ value: z.number().optional().openapi({ type: 'number' }) })
+  .object({ value: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('C')
 
 const DSchema = z
-  .object({ description: z.string().optional().openapi({ type: 'string' }) })
+  .object({ description: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { description: { type: 'string' } } })
   .openapi('D')
 
 const ESchema = z
-  .object({ flag: z.boolean().optional().openapi({ type: 'boolean' }) })
+  .object({ flag: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
   .openapi({ type: 'object', properties: { flag: { type: 'boolean' } } })
   .openapi('E')
 
 const FSchema = z
-  .object({ title: z.string().optional().openapi({ type: 'string' }) })
+  .object({ title: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { title: { type: 'string' } } })
   .openapi('F')
 
 const GSchema = z
-  .object({ summary: z.string().optional().openapi({ type: 'string' }) })
+  .object({ summary: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { summary: { type: 'string' } } })
   .openapi('G')
 
 const HSchema = z
-  .object({ info: z.string().optional().openapi({ type: 'string' }) })
+  .object({ info: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { info: { type: 'string' } } })
   .openapi('H')
 
 const ISchema = z
-  .object({ data: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { data: { type: 'string' } } })
   .openapi('I')
 
 const JSchema = z
-  .object({ code: z.string().optional().openapi({ type: 'string' }) })
+  .object({ code: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { code: { type: 'string' } } })
   .openapi('J')
 
 const KSchema = z
-  .object({ key: z.string().optional().openapi({ type: 'string' }) })
+  .object({ key: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { key: { type: 'string' } } })
   .openapi('K')
 
 const LSchema = z
-  .object({ label: z.string().optional().openapi({ type: 'string' }) })
+  .object({ label: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { label: { type: 'string' } } })
   .openapi('L')
 
 const MSchema = z
-  .object({ meta: z.string().optional().openapi({ type: 'string' }) })
+  .object({ meta: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { meta: { type: 'string' } } })
   .openapi('M')
 
 const NSchema = z
-  .object({ number: z.int().optional().openapi({ type: 'integer' }) })
+  .object({ number: z.int().exactOptional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { number: { type: 'integer' } } })
   .openapi('N')
 
 const OSchema = z
-  .object({ option: z.string().optional().openapi({ type: 'string' }) })
+  .object({ option: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { option: { type: 'string' } } })
   .openapi('O')
 
 const PSchema = z
-  .object({ price: z.number().optional().openapi({ type: 'number' }) })
+  .object({ price: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { price: { type: 'number' } } })
   .openapi('P')
 
 const QSchema = z
-  .object({ quantity: z.int().optional().openapi({ type: 'integer' }) })
+  .object({ quantity: z.int().exactOptional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { quantity: { type: 'integer' } } })
   .openapi('Q')
 
 const RSchema = z
-  .object({ rating: z.number().optional().openapi({ type: 'number' }) })
+  .object({ rating: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { rating: { type: 'number' } } })
   .openapi('R')
 
 const SSchema = z
-  .object({ status: z.string().optional().openapi({ type: 'string' }) })
+  .object({ status: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { status: { type: 'string' } } })
   .openapi('S')
 
 const TSchema = z
-  .object({ time: z.string().optional().openapi({ type: 'string' }) })
+  .object({ time: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { time: { type: 'string' } } })
   .openapi('T')
 
 const USchema = z
-  .object({ unit: z.string().optional().openapi({ type: 'string' }) })
+  .object({ unit: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { unit: { type: 'string' } } })
   .openapi('U')
 
 const VSchema = z
-  .object({ volume: z.number().optional().openapi({ type: 'number' }) })
+  .object({ volume: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { volume: { type: 'number' } } })
   .openapi('V')
 
 const WSchema = z
-  .object({ weight: z.number().optional().openapi({ type: 'number' }) })
+  .object({ weight: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { weight: { type: 'number' } } })
   .openapi('W')
 
 const XSchema = z
-  .object({ xFactor: z.string().optional().openapi({ type: 'string' }) })
+  .object({ xFactor: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { xFactor: { type: 'string' } } })
   .openapi('X')
 
 const YSchema = z
-  .object({ yield: z.string().optional().openapi({ type: 'string' }) })
+  .object({ yield: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { yield: { type: 'string' } } })
   .openapi('Y')
 
 const ZSchema = z
-  .object({ zone: z.string().optional().openapi({ type: 'string' }) })
+  .object({ zone: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { zone: { type: 'string' } } })
   .openapi('Z')
 
@@ -134,34 +134,34 @@ const RootSchema = z
   .object({
     flatRefs: z
       .object({
-        A: ASchema.optional(),
-        B: BSchema.optional(),
-        C: CSchema.optional(),
-        D: DSchema.optional(),
-        E: ESchema.optional(),
-        F: FSchema.optional(),
-        G: GSchema.optional(),
-        H: HSchema.optional(),
-        I: ISchema.optional(),
-        J: JSchema.optional(),
-        K: KSchema.optional(),
-        L: LSchema.optional(),
-        M: MSchema.optional(),
-        N: NSchema.optional(),
-        O: OSchema.optional(),
-        P: PSchema.optional(),
-        Q: QSchema.optional(),
-        R: RSchema.optional(),
-        S: SSchema.optional(),
-        T: TSchema.optional(),
-        U: USchema.optional(),
-        V: VSchema.optional(),
-        W: WSchema.optional(),
-        X: XSchema.optional(),
-        Y: YSchema.optional(),
-        Z: ZSchema.optional(),
+        A: ASchema.exactOptional(),
+        B: BSchema.exactOptional(),
+        C: CSchema.exactOptional(),
+        D: DSchema.exactOptional(),
+        E: ESchema.exactOptional(),
+        F: FSchema.exactOptional(),
+        G: GSchema.exactOptional(),
+        H: HSchema.exactOptional(),
+        I: ISchema.exactOptional(),
+        J: JSchema.exactOptional(),
+        K: KSchema.exactOptional(),
+        L: LSchema.exactOptional(),
+        M: MSchema.exactOptional(),
+        N: NSchema.exactOptional(),
+        O: OSchema.exactOptional(),
+        P: PSchema.exactOptional(),
+        Q: QSchema.exactOptional(),
+        R: RSchema.exactOptional(),
+        S: SSchema.exactOptional(),
+        T: TSchema.exactOptional(),
+        U: USchema.exactOptional(),
+        V: VSchema.exactOptional(),
+        W: WSchema.exactOptional(),
+        X: XSchema.exactOptional(),
+        Y: YSchema.exactOptional(),
+        Z: ZSchema.exactOptional(),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -196,8 +196,12 @@ const RootSchema = z
     nestedRefs: z
       .object({
         group1: z
-          .object({ A: ASchema.optional(), M: MSchema.optional(), Z: ZSchema.optional() })
-          .optional()
+          .object({
+            A: ASchema.exactOptional(),
+            M: MSchema.exactOptional(),
+            Z: ZSchema.exactOptional(),
+          })
+          .exactOptional()
           .openapi({
             type: 'object',
             properties: {
@@ -207,8 +211,12 @@ const RootSchema = z
             },
           }),
         group2: z
-          .object({ B: BSchema.optional(), N: NSchema.optional(), Y: YSchema.optional() })
-          .optional()
+          .object({
+            B: BSchema.exactOptional(),
+            N: NSchema.exactOptional(),
+            Y: YSchema.exactOptional(),
+          })
+          .exactOptional()
           .openapi({
             type: 'object',
             properties: {
@@ -218,7 +226,7 @@ const RootSchema = z
             },
           }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -382,7 +390,7 @@ const RootSchema = z
                                                                                                                                                                                                                                         z
                                                                                                                                                                                                                                           .object(
                                                                                                                                                                                                                                             {
-                                                                                                                                                                                                                                              Z: ZSchema.optional(),
+                                                                                                                                                                                                                                              Z: ZSchema.exactOptional(),
                                                                                                                                                                                                                                             },
                                                                                                                                                                                                                                           )
                                                                                                                                                                                                                                           .openapi(
@@ -397,7 +405,7 @@ const RootSchema = z
                                                                                                                                                                                                                                             },
                                                                                                                                                                                                                                           ),
                                                                                                                                                                                                                                       )
-                                                                                                                                                                                                                                      .optional()
+                                                                                                                                                                                                                                      .exactOptional()
                                                                                                                                                                                                                                       .openapi(
                                                                                                                                                                                                                                         {
                                                                                                                                                                                                                                           type: 'object',
@@ -447,7 +455,7 @@ const RootSchema = z
                                                                                                                                                                                                                                   },
                                                                                                                                                                                                                                 ),
                                                                                                                                                                                                                             )
-                                                                                                                                                                                                                            .optional()
+                                                                                                                                                                                                                            .exactOptional()
                                                                                                                                                                                                                             .openapi(
                                                                                                                                                                                                                               {
                                                                                                                                                                                                                                 type: 'object',
@@ -527,7 +535,7 @@ const RootSchema = z
                                                                                                                                                                                                                         },
                                                                                                                                                                                                                       ),
                                                                                                                                                                                                                   )
-                                                                                                                                                                                                                  .optional()
+                                                                                                                                                                                                                  .exactOptional()
                                                                                                                                                                                                                   .openapi(
                                                                                                                                                                                                                     {
                                                                                                                                                                                                                       type: 'object',
@@ -637,7 +645,7 @@ const RootSchema = z
                                                                                                                                                                                                               },
                                                                                                                                                                                                             ),
                                                                                                                                                                                                         )
-                                                                                                                                                                                                        .optional()
+                                                                                                                                                                                                        .exactOptional()
                                                                                                                                                                                                         .openapi(
                                                                                                                                                                                                           {
                                                                                                                                                                                                             type: 'object',
@@ -777,7 +785,7 @@ const RootSchema = z
                                                                                                                                                                                                     },
                                                                                                                                                                                                   ),
                                                                                                                                                                                               )
-                                                                                                                                                                                              .optional()
+                                                                                                                                                                                              .exactOptional()
                                                                                                                                                                                               .openapi(
                                                                                                                                                                                                 {
                                                                                                                                                                                                   type: 'object',
@@ -947,7 +955,7 @@ const RootSchema = z
                                                                                                                                                                                           },
                                                                                                                                                                                         ),
                                                                                                                                                                                     )
-                                                                                                                                                                                    .optional()
+                                                                                                                                                                                    .exactOptional()
                                                                                                                                                                                     .openapi(
                                                                                                                                                                                       {
                                                                                                                                                                                         type: 'object',
@@ -1147,7 +1155,7 @@ const RootSchema = z
                                                                                                                                                                                 },
                                                                                                                                                                               ),
                                                                                                                                                                           )
-                                                                                                                                                                          .optional()
+                                                                                                                                                                          .exactOptional()
                                                                                                                                                                           .openapi(
                                                                                                                                                                             {
                                                                                                                                                                               type: 'object',
@@ -1377,7 +1385,7 @@ const RootSchema = z
                                                                                                                                                                       },
                                                                                                                                                                     ),
                                                                                                                                                                 )
-                                                                                                                                                                .optional()
+                                                                                                                                                                .exactOptional()
                                                                                                                                                                 .openapi(
                                                                                                                                                                   {
                                                                                                                                                                     type: 'object',
@@ -1637,7 +1645,7 @@ const RootSchema = z
                                                                                                                                                             },
                                                                                                                                                           ),
                                                                                                                                                       )
-                                                                                                                                                      .optional()
+                                                                                                                                                      .exactOptional()
                                                                                                                                                       .openapi(
                                                                                                                                                         {
                                                                                                                                                           type: 'object',
@@ -1927,7 +1935,7 @@ const RootSchema = z
                                                                                                                                                   },
                                                                                                                                                 ),
                                                                                                                                             )
-                                                                                                                                            .optional()
+                                                                                                                                            .exactOptional()
                                                                                                                                             .openapi(
                                                                                                                                               {
                                                                                                                                                 type: 'object',
@@ -2247,7 +2255,7 @@ const RootSchema = z
                                                                                                                                         },
                                                                                                                                       ),
                                                                                                                                   )
-                                                                                                                                  .optional()
+                                                                                                                                  .exactOptional()
                                                                                                                                   .openapi(
                                                                                                                                     {
                                                                                                                                       type: 'object',
@@ -2597,7 +2605,7 @@ const RootSchema = z
                                                                                                                               },
                                                                                                                             ),
                                                                                                                         )
-                                                                                                                        .optional()
+                                                                                                                        .exactOptional()
                                                                                                                         .openapi(
                                                                                                                           {
                                                                                                                             type: 'object',
@@ -2977,7 +2985,7 @@ const RootSchema = z
                                                                                                                     },
                                                                                                                   ),
                                                                                                               )
-                                                                                                              .optional()
+                                                                                                              .exactOptional()
                                                                                                               .openapi(
                                                                                                                 {
                                                                                                                   type: 'object',
@@ -3387,7 +3395,7 @@ const RootSchema = z
                                                                                                           },
                                                                                                         ),
                                                                                                     )
-                                                                                                    .optional()
+                                                                                                    .exactOptional()
                                                                                                     .openapi(
                                                                                                       {
                                                                                                         type: 'object',
@@ -3827,7 +3835,7 @@ const RootSchema = z
                                                                                                 },
                                                                                               ),
                                                                                           )
-                                                                                          .optional()
+                                                                                          .exactOptional()
                                                                                           .openapi({
                                                                                             type: 'object',
                                                                                             allOf: [
@@ -4291,7 +4299,7 @@ const RootSchema = z
                                                                                           },
                                                                                       }),
                                                                                   )
-                                                                                  .optional()
+                                                                                  .exactOptional()
                                                                                   .openapi({
                                                                                     type: 'object',
                                                                                     allOf: [
@@ -4783,7 +4791,7 @@ const RootSchema = z
                                                                                 },
                                                                               }),
                                                                           )
-                                                                          .optional()
+                                                                          .exactOptional()
                                                                           .openapi({
                                                                             type: 'object',
                                                                             allOf: [
@@ -5301,7 +5309,7 @@ const RootSchema = z
                                                                         },
                                                                       }),
                                                                   )
-                                                                  .optional()
+                                                                  .exactOptional()
                                                                   .openapi({
                                                                     type: 'object',
                                                                     allOf: [
@@ -5845,7 +5853,7 @@ const RootSchema = z
                                                                 },
                                                               }),
                                                           )
-                                                          .optional()
+                                                          .exactOptional()
                                                           .openapi({
                                                             type: 'object',
                                                             allOf: [
@@ -6411,7 +6419,7 @@ const RootSchema = z
                                                         },
                                                       }),
                                                   )
-                                                  .optional()
+                                                  .exactOptional()
                                                   .openapi({
                                                     type: 'object',
                                                     allOf: [
@@ -6999,7 +7007,7 @@ const RootSchema = z
                                                 },
                                               }),
                                           )
-                                          .optional()
+                                          .exactOptional()
                                           .openapi({
                                             type: 'object',
                                             allOf: [
@@ -7609,7 +7617,7 @@ const RootSchema = z
                                         },
                                       }),
                                   )
-                                  .optional()
+                                  .exactOptional()
                                   .openapi({
                                     type: 'object',
                                     allOf: [
@@ -8241,7 +8249,7 @@ const RootSchema = z
                                 },
                               }),
                           )
-                          .optional()
+                          .exactOptional()
                           .openapi({
                             type: 'object',
                             allOf: [
@@ -8895,7 +8903,7 @@ const RootSchema = z
                         },
                       }),
                   )
-                  .optional()
+                  .exactOptional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -9571,7 +9579,7 @@ const RootSchema = z
                 },
               }),
           )
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             allOf: [
@@ -9918,7 +9926,7 @@ const RootSchema = z
             ],
           }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -10273,10 +10281,10 @@ const RootSchema = z
       .union([
         CSchema,
         z
-          .object({ D: DSchema.optional() })
+          .object({ D: DSchema.exactOptional() })
           .openapi({ type: 'object', properties: { D: { $ref: '#/components/schemas/D' } } }),
       ])
-      .optional()
+      .exactOptional()
       .openapi({
         oneOf: [
           { $ref: '#/components/schemas/C' },
@@ -10287,10 +10295,10 @@ const RootSchema = z
       .union([
         ESchema,
         z
-          .object({ A: ASchema.optional() })
+          .object({ A: ASchema.exactOptional() })
           .openapi({ type: 'object', properties: { A: { $ref: '#/components/schemas/A' } } }),
       ])
-      .optional()
+      .exactOptional()
       .openapi({
         anyOf: [
           { $ref: '#/components/schemas/E' },
@@ -10301,10 +10309,10 @@ const RootSchema = z
       .intersection(
         ASchema,
         z
-          .object({ B: BSchema.optional() })
+          .object({ B: BSchema.exactOptional() })
           .openapi({ type: 'object', properties: { B: { $ref: '#/components/schemas/B' } } }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         allOf: [
           { $ref: '#/components/schemas/A' },
@@ -10313,7 +10321,7 @@ const RootSchema = z
       }),
     arrayRefs: z
       .array(USchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/U' } }),
     chainRefsExtended: z
       .object({
@@ -10336,13 +10344,13 @@ const RootSchema = z
                                   .intersection(
                                     YSchema,
                                     z
-                                      .object({ Z: ZSchema.optional() })
+                                      .object({ Z: ZSchema.exactOptional() })
                                       .openapi({
                                         type: 'object',
                                         properties: { Z: { $ref: '#/components/schemas/Z' } },
                                       }),
                                   )
-                                  .optional()
+                                  .exactOptional()
                                   .openapi({
                                     type: 'object',
                                     allOf: [
@@ -10370,7 +10378,7 @@ const RootSchema = z
                                 },
                               }),
                           )
-                          .optional()
+                          .exactOptional()
                           .openapi({
                             type: 'object',
                             allOf: [
@@ -10420,7 +10428,7 @@ const RootSchema = z
                         },
                       }),
                   )
-                  .optional()
+                  .exactOptional()
                   .openapi({
                     type: 'object',
                     allOf: [
@@ -10492,7 +10500,7 @@ const RootSchema = z
                 },
               }),
           )
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             allOf: [
@@ -10537,7 +10545,7 @@ const RootSchema = z
             ],
           }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -10594,7 +10602,7 @@ const RootSchema = z
               .union([
                 MSchema,
                 z
-                  .object({ N: NSchema.optional() })
+                  .object({ N: NSchema.exactOptional() })
                   .openapi({
                     type: 'object',
                     properties: { N: { $ref: '#/components/schemas/N' } },
@@ -10607,7 +10615,7 @@ const RootSchema = z
                 ],
               }),
           )
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'array',
             items: {
@@ -10618,7 +10626,7 @@ const RootSchema = z
             },
           }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {

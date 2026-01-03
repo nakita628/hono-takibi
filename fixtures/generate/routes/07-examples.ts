@@ -4,17 +4,20 @@ const ProductSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     price: z.float64().min(0).openapi({ type: 'number', format: 'float64', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
-    metadata: z.looseObject({}).optional().openapi({ type: 'object', additionalProperties: true }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    metadata: z
+      .looseObject({})
+      .exactOptional()
+      .openapi({ type: 'object', additionalProperties: true }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -35,14 +38,14 @@ const ProductSchema = z
 const CreateProductInputSchema = z
   .object({
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
     category: z
       .enum(['electronics', 'clothing', 'books', 'home'])
       .openapi({ type: 'string', enum: ['electronics', 'clothing', 'books', 'home'] }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -66,9 +69,9 @@ const ValidationErrorSchema = z
       .array(
         z
           .object({
-            field: z.string().optional().openapi({ type: 'string' }),
-            message: z.string().optional().openapi({ type: 'string' }),
-            code: z.string().optional().openapi({ type: 'string' }),
+            field: z.string().exactOptional().openapi({ type: 'string' }),
+            message: z.string().exactOptional().openapi({ type: 'string' }),
+            code: z.string().exactOptional().openapi({ type: 'string' }),
           })
           .openapi({
             type: 'object',
@@ -234,9 +237,9 @@ export const getProductsRoute = createRoute({
             .array(ProductSchema)
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
           examples: {
-            electronics: { $ref: '#/components/examples/ElectronicProducts' },
-            clothing: { $ref: '#/components/examples/ClothingProducts' },
-            empty: { $ref: '#/components/examples/EmptyList' },
+            electronics: ElectronicProductsExample,
+            clothing: ClothingProductsExample,
+            empty: EmptyListExample,
           },
         },
       },
@@ -262,10 +265,7 @@ export const postProductsRoute = createRoute({
     201: {
       description: 'Product created',
       content: {
-        'application/json': {
-          schema: ProductSchema,
-          examples: { laptop: { $ref: '#/components/examples/LaptopProduct' } },
-        },
+        'application/json': { schema: ProductSchema, examples: { laptop: LaptopProductExample } },
       },
     },
     400: {
@@ -274,8 +274,8 @@ export const postProductsRoute = createRoute({
         'application/json': {
           schema: ValidationErrorSchema,
           examples: {
-            missingName: { $ref: '#/components/examples/MissingNameError' },
-            invalidPrice: { $ref: '#/components/examples/InvalidPriceError' },
+            missingName: MissingNameErrorExample,
+            invalidPrice: InvalidPriceErrorExample,
           },
         },
       },
@@ -312,10 +312,7 @@ export const getProductsProductIdRoute = createRoute({
       content: {
         'application/json': {
           schema: ProductSchema,
-          examples: {
-            laptop: { $ref: '#/components/examples/LaptopProduct' },
-            tshirt: { $ref: '#/components/examples/TShirtProduct' },
-          },
+          examples: { laptop: LaptopProductExample, tshirt: TShirtProductExample },
         },
       },
     },

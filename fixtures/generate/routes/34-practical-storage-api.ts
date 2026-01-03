@@ -4,8 +4,8 @@ const UserSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    avatarUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
   })
   .openapi({
     type: 'object',
@@ -23,7 +23,7 @@ const FileSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    description: z.string().optional().openapi({ type: 'string' }),
+    description: z.string().exactOptional().openapi({ type: 'string' }),
     type: z
       .enum(['document', 'image', 'video', 'audio', 'archive', 'other'])
       .openapi({
@@ -32,18 +32,18 @@ const FileSchema = z
       }),
     size: z.int().openapi({ type: 'integer', description: 'ファイルサイズ（バイト）' }),
     mimeType: z.string().openapi({ type: 'string' }),
-    extension: z.string().optional().openapi({ type: 'string' }),
-    folderId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    path: z.string().optional().openapi({ type: 'string', description: 'フルパス' }),
-    thumbnailUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    downloadUrl: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    isShared: z.boolean().optional().openapi({ type: 'boolean' }),
-    isFavorite: z.boolean().optional().openapi({ type: 'boolean' }),
-    version: z.int().optional().openapi({ type: 'integer' }),
-    owner: UserSchema.optional(),
+    extension: z.string().exactOptional().openapi({ type: 'string' }),
+    folderId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    path: z.string().exactOptional().openapi({ type: 'string', description: 'フルパス' }),
+    thumbnailUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    downloadUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    isShared: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    isFavorite: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    version: z.int().exactOptional().openapi({ type: 'integer' }),
+    owner: UserSchema.exactOptional(),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    deletedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    deletedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -75,16 +75,16 @@ const FolderSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     name: z.string().openapi({ type: 'string' }),
-    color: z.string().optional().openapi({ type: 'string' }),
-    parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    path: z.string().optional().openapi({ type: 'string' }),
-    fileCount: z.int().optional().openapi({ type: 'integer' }),
-    folderCount: z.int().optional().openapi({ type: 'integer' }),
-    size: z.int().optional().openapi({ type: 'integer', description: '総サイズ（バイト）' }),
-    isShared: z.boolean().optional().openapi({ type: 'boolean' }),
-    owner: UserSchema.optional(),
+    color: z.string().exactOptional().openapi({ type: 'string' }),
+    parentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    path: z.string().exactOptional().openapi({ type: 'string' }),
+    fileCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    folderCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    size: z.int().exactOptional().openapi({ type: 'integer', description: '総サイズ（バイト）' }),
+    isShared: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    owner: UserSchema.exactOptional(),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -111,11 +111,11 @@ const ShareLinkSchema = z
     url: z.url().openapi({ type: 'string', format: 'uri' }),
     password: z
       .boolean()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'boolean', description: 'パスワード保護されているか' }),
-    expiresAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    allowDownload: z.boolean().optional().openapi({ type: 'boolean' }),
-    viewCount: z.int().optional().openapi({ type: 'integer' }),
+    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    allowDownload: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    viewCount: z.int().exactOptional().openapi({ type: 'integer' }),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -138,7 +138,7 @@ const CollaboratorSchema = z
     permission: z
       .enum(['viewer', 'editor', 'owner'])
       .openapi({ type: 'string', enum: ['viewer', 'editor', 'owner'] }),
-    addedAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    addedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -153,11 +153,11 @@ const CollaboratorSchema = z
 
 const ShareSettingsSchema = z
   .object({
-    isPublic: z.boolean().optional().openapi({ type: 'boolean' }),
-    publicLink: ShareLinkSchema.optional(),
+    isPublic: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    publicLink: ShareLinkSchema.exactOptional(),
     collaborators: z
       .array(CollaboratorSchema)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/Collaborator' } }),
   })
   .openapi({
@@ -190,7 +190,7 @@ const ShareRequestSchema = z
             },
           }),
       )
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'array',
         items: {
@@ -202,8 +202,12 @@ const ShareRequestSchema = z
           },
         },
       }),
-    message: z.string().optional().openapi({ type: 'string', description: '招待メッセージ' }),
-    notifyByEmail: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
+    message: z.string().exactOptional().openapi({ type: 'string', description: '招待メッセージ' }),
+    notifyByEmail: z
+      .boolean()
+      .default(true)
+      .exactOptional()
+      .openapi({ type: 'boolean', default: true }),
   })
   .openapi({
     type: 'object',
@@ -230,7 +234,7 @@ const FileVersionSchema = z
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     version: z.int().openapi({ type: 'integer' }),
     size: z.int().openapi({ type: 'integer' }),
-    modifiedBy: UserSchema.optional(),
+    modifiedBy: UserSchema.exactOptional(),
     createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
@@ -249,11 +253,11 @@ const FileVersionSchema = z
 const CreateFolderRequestSchema = z
   .object({
     name: z.string().min(1).max(255).openapi({ type: 'string', minLength: 1, maxLength: 255 }),
-    parentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    parentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
   })
   .openapi({
@@ -271,18 +275,18 @@ const StorageUsageSchema = z
   .object({
     used: z.int().openapi({ type: 'integer', description: '使用量（バイト）' }),
     total: z.int().openapi({ type: 'integer', description: '上限（バイト）' }),
-    percentage: z.number().optional().openapi({ type: 'number', description: '使用率（%）' }),
+    percentage: z.number().exactOptional().openapi({ type: 'number', description: '使用率（%）' }),
     breakdown: z
       .object({
-        documents: z.int().optional().openapi({ type: 'integer' }),
-        images: z.int().optional().openapi({ type: 'integer' }),
-        videos: z.int().optional().openapi({ type: 'integer' }),
-        audio: z.int().optional().openapi({ type: 'integer' }),
-        archives: z.int().optional().openapi({ type: 'integer' }),
-        other: z.int().optional().openapi({ type: 'integer' }),
-        trash: z.int().optional().openapi({ type: 'integer' }),
+        documents: z.int().exactOptional().openapi({ type: 'integer' }),
+        images: z.int().exactOptional().openapi({ type: 'integer' }),
+        videos: z.int().exactOptional().openapi({ type: 'integer' }),
+        audio: z.int().exactOptional().openapi({ type: 'integer' }),
+        archives: z.int().exactOptional().openapi({ type: 'integer' }),
+        other: z.int().exactOptional().openapi({ type: 'integer' }),
+        trash: z.int().exactOptional().openapi({ type: 'integer' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -413,7 +417,7 @@ const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
     type: 'integer',
@@ -426,7 +430,7 @@ const LimitParamParamsSchema = z
   .min(1)
   .max(100)
   .default(50)
-  .optional()
+  .exactOptional()
   .openapi({
     param: {
       name: 'limit',
@@ -466,7 +470,7 @@ export const getFilesRoute = createRoute({
     query: z.object({
       folderId: z
         .uuid()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'folderId',
@@ -479,7 +483,7 @@ export const getFilesRoute = createRoute({
         }),
       search: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'search',
@@ -491,7 +495,7 @@ export const getFilesRoute = createRoute({
         }),
       type: z
         .enum(['document', 'image', 'video', 'audio', 'archive', 'other'])
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'type',
@@ -508,7 +512,7 @@ export const getFilesRoute = createRoute({
       sort: z
         .enum(['name:asc', 'name:desc', 'size:asc', 'size:desc', 'updatedAt:desc', 'updatedAt:asc'])
         .default('name:asc')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'sort',
@@ -566,16 +570,16 @@ export const postFilesUploadRoute = createRoute({
               file: z.file().openapi({ type: 'string', format: 'binary' }),
               folderId: z
                 .uuid()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', format: 'uuid', description: 'アップロード先フォルダ' }),
               name: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: 'ファイル名（省略時は元のファイル名）' }),
               overwrite: z
                 .boolean()
                 .default(false)
-                .optional()
+                .exactOptional()
                 .openapi({
                   type: 'boolean',
                   default: false,
@@ -635,8 +639,8 @@ export const postFilesUploadMultipartInitRoute = createRoute({
             .object({
               filename: z.string().openapi({ type: 'string' }),
               size: z.int().openapi({ type: 'integer', description: 'ファイルサイズ（バイト）' }),
-              folderId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-              contentType: z.string().optional().openapi({ type: 'string' }),
+              folderId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+              contentType: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -660,14 +664,14 @@ export const postFilesUploadMultipartInitRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              uploadId: z.string().optional().openapi({ type: 'string' }),
+              uploadId: z.string().exactOptional().openapi({ type: 'string' }),
               partSize: z
                 .int()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', description: '推奨パートサイズ' }),
               partCount: z
                 .int()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'integer', description: '必要なパート数' }),
             })
             .openapi({
@@ -709,8 +713,8 @@ export const postFilesUploadMultipartUploadIdPartRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              partNumber: z.int().optional().openapi({ type: 'integer' }),
-              etag: z.string().optional().openapi({ type: 'string' }),
+              partNumber: z.int().exactOptional().openapi({ type: 'integer' }),
+              etag: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -825,8 +829,8 @@ export const patchFilesFileIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().optional().openapi({ type: 'string' }),
-              description: z.string().optional().openapi({ type: 'string' }),
+              name: z.string().exactOptional().openapi({ type: 'string' }),
+              description: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -854,6 +858,7 @@ export const getFilesFileIdDownloadRoute = createRoute({
   responses: {
     200: {
       description: 'ファイルコンテンツ',
+      headers: {},
       content: {
         'application/octet-stream': {
           schema: z.file().openapi({ type: 'string', format: 'binary' }),
@@ -880,7 +885,7 @@ export const getFilesFileIdDownloadUrlRoute = createRoute({
         .min(60)
         .max(86400)
         .default(3600)
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'expiresIn',
@@ -902,10 +907,10 @@ export const getFilesFileIdDownloadUrlRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              url: z.url().optional().openapi({ type: 'string', format: 'uri' }),
+              url: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
               expiresAt: z.iso
                 .datetime()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', format: 'date-time' }),
             })
             .openapi({
@@ -938,7 +943,7 @@ export const postFilesFileIdCopyRoute = createRoute({
               destinationFolderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
               name: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: '新しいファイル名' }),
             })
             .openapi({
@@ -1002,7 +1007,7 @@ export const getFilesFileIdThumbnailRoute = createRoute({
       size: z
         .enum(['small', 'medium', 'large'])
         .default('medium')
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'size',
@@ -1086,11 +1091,11 @@ export const patchFoldersFolderIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              name: z.string().optional().openapi({ type: 'string' }),
+              name: z.string().exactOptional().openapi({ type: 'string' }),
               color: z
                 .string()
                 .regex(/^#[0-9A-Fa-f]{6}$/)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
             })
             .openapi({
@@ -1173,16 +1178,16 @@ export const postFilesFileIdShareLinkRoute = createRoute({
             .object({
               password: z
                 .string()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', description: 'パスワード保護' }),
               expiresAt: z.iso
                 .datetime()
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'string', format: 'date-time', description: '有効期限' }),
               allowDownload: z
                 .boolean()
                 .default(true)
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'boolean', default: true }),
             })
             .openapi({

@@ -2,11 +2,11 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ClassSchema = z
   .object({
-    class: z.string().optional().openapi({ type: 'string' }),
-    extends: z.string().optional().openapi({ type: 'string' }),
+    class: z.string().exactOptional().openapi({ type: 'string' }),
+    extends: z.string().exactOptional().openapi({ type: 'string' }),
     implements: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({
@@ -20,19 +20,19 @@ const ClassSchema = z
   .openapi('Class')
 
 const InterfaceSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }) })
+  .object({ name: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { name: { type: 'string' } } })
   .openapi('Interface')
 
 const TypeSchema = z
-  .object({ type: z.string().optional().openapi({ type: 'string' }) })
+  .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { type: { type: 'string' } } })
   .openapi('Type')
 
 const FunctionSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    return: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    return: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({ type: 'object', properties: { name: { type: 'string' }, return: { type: 'string' } } })
   .openapi('Function')
@@ -41,24 +41,24 @@ const EnumSchema = z
   .object({
     values: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({ type: 'object', properties: { values: { type: 'array', items: { type: 'string' } } } })
   .openapi('Enum')
 
 const ConstSchema = z
-  .object({ value: z.string().optional().openapi({ type: 'string' }) })
+  .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('Const')
 
 const NullSchema = z
-  .object({ isNull: z.boolean().optional().openapi({ type: 'boolean' }) })
+  .object({ isNull: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
   .openapi({ type: 'object', properties: { isNull: { type: 'boolean' } } })
   .openapi('Null')
 
 const ObjectSchema = z
-  .object({ data: z.object({}).optional().openapi({ type: 'object' }) })
+  .object({ data: z.object({}).exactOptional().openapi({ type: 'object' }) })
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
   .openapi('Object')
 
@@ -66,41 +66,41 @@ const ArraySchema = z
   .object({
     items: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' } }),
   })
   .openapi({ type: 'object', properties: { items: { type: 'array', items: { type: 'string' } } } })
   .openapi('Array')
 
 const StringSchema = z
-  .object({ value: z.string().optional().openapi({ type: 'string' }) })
+  .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { value: { type: 'string' } } })
   .openapi('String')
 
 const NumberSchema = z
-  .object({ value: z.number().optional().openapi({ type: 'number' }) })
+  .object({ value: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('Number')
 
 const BooleanSchema = z
-  .object({ value: z.boolean().optional().openapi({ type: 'boolean' }) })
+  .object({ value: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
   .openapi({ type: 'object', properties: { value: { type: 'boolean' } } })
   .openapi('Boolean')
 
 const DateSchema = z
   .object({
-    timestamp: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({ type: 'object', properties: { timestamp: { type: 'string', format: 'date-time' } } })
   .openapi('Date')
 
 const ErrorSchema = z
-  .object({ message: z.string().optional().openapi({ type: 'string' }) })
+  .object({ message: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { message: { type: 'string' } } })
   .openapi('Error')
 
 const PromiseSchema = z
-  .object({ status: z.string().optional().openapi({ type: 'string' }) })
+  .object({ status: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({ type: 'object', properties: { status: { type: 'string' } } })
   .openapi('Promise')
 
@@ -113,7 +113,7 @@ const SetSchema = z
   .object({
     values: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', uniqueItems: true, items: { type: 'string' } }),
   })
   .openapi({
@@ -123,27 +123,27 @@ const SetSchema = z
   .openapi('Set')
 
 const UserSchema = z
-  .object({ id: z.int().optional().openapi({ type: 'integer' }) })
+  .object({ id: z.int().exactOptional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
   .openapi('User')
 
 const USERSchema = z
-  .object({ id: z.number().optional().openapi({ type: 'number' }) })
+  .object({ id: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { id: { type: 'number' } } })
   .openapi('USER')
 
 const MyModelSchema = z
-  .object({ value: z.int().optional().openapi({ type: 'integer' }) })
+  .object({ value: z.int().exactOptional().openapi({ type: 'integer' }) })
   .openapi({ type: 'object', properties: { value: { type: 'integer' } } })
   .openapi('MyModel')
 
 const MYMODELSchema = z
-  .object({ value: z.boolean().optional().openapi({ type: 'boolean' }) })
+  .object({ value: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
   .openapi({ type: 'object', properties: { value: { type: 'boolean' } } })
   .openapi('MYMODEL')
 
 const MymodelSchema = z
-  .object({ value: z.number().optional().openapi({ type: 'number' }) })
+  .object({ value: z.number().exactOptional().openapi({ type: 'number' }) })
   .openapi({ type: 'object', properties: { value: { type: 'number' } } })
   .openapi('Mymodel')
 
@@ -152,78 +152,78 @@ const ReservedPropertiesSchema = z
     class: z.string().openapi({ type: 'string' }),
     type: z.string().openapi({ type: 'string' }),
     default: z.string().openapi({ type: 'string' }),
-    null: z.string().optional().openapi({ type: 'string' }),
-    true: z.string().optional().openapi({ type: 'string' }),
-    false: z.string().optional().openapi({ type: 'string' }),
-    if: z.string().optional().openapi({ type: 'string' }),
-    else: z.string().optional().openapi({ type: 'string' }),
-    for: z.string().optional().openapi({ type: 'string' }),
-    while: z.string().optional().openapi({ type: 'string' }),
-    do: z.string().optional().openapi({ type: 'string' }),
-    switch: z.string().optional().openapi({ type: 'string' }),
-    case: z.string().optional().openapi({ type: 'string' }),
-    break: z.string().optional().openapi({ type: 'string' }),
-    continue: z.string().optional().openapi({ type: 'string' }),
-    return: z.string().optional().openapi({ type: 'string' }),
-    function: z.string().optional().openapi({ type: 'string' }),
-    var: z.string().optional().openapi({ type: 'string' }),
-    let: z.string().optional().openapi({ type: 'string' }),
-    const: z.string().optional().openapi({ type: 'string' }),
-    new: z.string().optional().openapi({ type: 'string' }),
-    delete: z.string().optional().openapi({ type: 'string' }),
-    typeof: z.string().optional().openapi({ type: 'string' }),
-    instanceof: z.string().optional().openapi({ type: 'string' }),
-    void: z.string().optional().openapi({ type: 'string' }),
-    this: z.string().optional().openapi({ type: 'string' }),
-    super: z.string().optional().openapi({ type: 'string' }),
-    import: z.string().optional().openapi({ type: 'string' }),
-    export: z.string().optional().openapi({ type: 'string' }),
-    from: z.string().optional().openapi({ type: 'string' }),
-    as: z.string().optional().openapi({ type: 'string' }),
-    async: z.string().optional().openapi({ type: 'string' }),
-    await: z.string().optional().openapi({ type: 'string' }),
-    yield: z.string().optional().openapi({ type: 'string' }),
-    try: z.string().optional().openapi({ type: 'string' }),
-    catch: z.string().optional().openapi({ type: 'string' }),
-    finally: z.string().optional().openapi({ type: 'string' }),
-    throw: z.string().optional().openapi({ type: 'string' }),
-    extends: z.string().optional().openapi({ type: 'string' }),
-    implements: z.string().optional().openapi({ type: 'string' }),
-    interface: z.string().optional().openapi({ type: 'string' }),
-    package: z.string().optional().openapi({ type: 'string' }),
-    private: z.string().optional().openapi({ type: 'string' }),
-    protected: z.string().optional().openapi({ type: 'string' }),
-    public: z.string().optional().openapi({ type: 'string' }),
-    static: z.string().optional().openapi({ type: 'string' }),
-    enum: z.string().optional().openapi({ type: 'string' }),
-    abstract: z.string().optional().openapi({ type: 'string' }),
-    final: z.string().optional().openapi({ type: 'string' }),
-    native: z.string().optional().openapi({ type: 'string' }),
-    synchronized: z.string().optional().openapi({ type: 'string' }),
-    transient: z.string().optional().openapi({ type: 'string' }),
-    volatile: z.string().optional().openapi({ type: 'string' }),
-    goto: z.string().optional().openapi({ type: 'string' }),
-    debugger: z.string().optional().openapi({ type: 'string' }),
-    with: z.string().optional().openapi({ type: 'string' }),
-    in: z.string().optional().openapi({ type: 'string' }),
-    of: z.string().optional().openapi({ type: 'string' }),
-    get: z.string().optional().openapi({ type: 'string' }),
-    set: z.string().optional().openapi({ type: 'string' }),
-    arguments: z.string().optional().openapi({ type: 'string' }),
-    eval: z.string().optional().openapi({ type: 'string' }),
-    constructor: z.string().optional().openapi({ type: 'string' }),
-    prototype: z.string().optional().openapi({ type: 'string' }),
-    __proto__: z.string().optional().openapi({ type: 'string' }),
-    __defineGetter__: z.string().optional().openapi({ type: 'string' }),
-    __defineSetter__: z.string().optional().openapi({ type: 'string' }),
-    __lookupGetter__: z.string().optional().openapi({ type: 'string' }),
-    __lookupSetter__: z.string().optional().openapi({ type: 'string' }),
-    hasOwnProperty: z.string().optional().openapi({ type: 'string' }),
-    isPrototypeOf: z.string().optional().openapi({ type: 'string' }),
-    propertyIsEnumerable: z.string().optional().openapi({ type: 'string' }),
-    toLocaleString: z.string().optional().openapi({ type: 'string' }),
-    toString: z.string().optional().openapi({ type: 'string' }),
-    valueOf: z.string().optional().openapi({ type: 'string' }),
+    null: z.string().exactOptional().openapi({ type: 'string' }),
+    true: z.string().exactOptional().openapi({ type: 'string' }),
+    false: z.string().exactOptional().openapi({ type: 'string' }),
+    if: z.string().exactOptional().openapi({ type: 'string' }),
+    else: z.string().exactOptional().openapi({ type: 'string' }),
+    for: z.string().exactOptional().openapi({ type: 'string' }),
+    while: z.string().exactOptional().openapi({ type: 'string' }),
+    do: z.string().exactOptional().openapi({ type: 'string' }),
+    switch: z.string().exactOptional().openapi({ type: 'string' }),
+    case: z.string().exactOptional().openapi({ type: 'string' }),
+    break: z.string().exactOptional().openapi({ type: 'string' }),
+    continue: z.string().exactOptional().openapi({ type: 'string' }),
+    return: z.string().exactOptional().openapi({ type: 'string' }),
+    function: z.string().exactOptional().openapi({ type: 'string' }),
+    var: z.string().exactOptional().openapi({ type: 'string' }),
+    let: z.string().exactOptional().openapi({ type: 'string' }),
+    const: z.string().exactOptional().openapi({ type: 'string' }),
+    new: z.string().exactOptional().openapi({ type: 'string' }),
+    delete: z.string().exactOptional().openapi({ type: 'string' }),
+    typeof: z.string().exactOptional().openapi({ type: 'string' }),
+    instanceof: z.string().exactOptional().openapi({ type: 'string' }),
+    void: z.string().exactOptional().openapi({ type: 'string' }),
+    this: z.string().exactOptional().openapi({ type: 'string' }),
+    super: z.string().exactOptional().openapi({ type: 'string' }),
+    import: z.string().exactOptional().openapi({ type: 'string' }),
+    export: z.string().exactOptional().openapi({ type: 'string' }),
+    from: z.string().exactOptional().openapi({ type: 'string' }),
+    as: z.string().exactOptional().openapi({ type: 'string' }),
+    async: z.string().exactOptional().openapi({ type: 'string' }),
+    await: z.string().exactOptional().openapi({ type: 'string' }),
+    yield: z.string().exactOptional().openapi({ type: 'string' }),
+    try: z.string().exactOptional().openapi({ type: 'string' }),
+    catch: z.string().exactOptional().openapi({ type: 'string' }),
+    finally: z.string().exactOptional().openapi({ type: 'string' }),
+    throw: z.string().exactOptional().openapi({ type: 'string' }),
+    extends: z.string().exactOptional().openapi({ type: 'string' }),
+    implements: z.string().exactOptional().openapi({ type: 'string' }),
+    interface: z.string().exactOptional().openapi({ type: 'string' }),
+    package: z.string().exactOptional().openapi({ type: 'string' }),
+    private: z.string().exactOptional().openapi({ type: 'string' }),
+    protected: z.string().exactOptional().openapi({ type: 'string' }),
+    public: z.string().exactOptional().openapi({ type: 'string' }),
+    static: z.string().exactOptional().openapi({ type: 'string' }),
+    enum: z.string().exactOptional().openapi({ type: 'string' }),
+    abstract: z.string().exactOptional().openapi({ type: 'string' }),
+    final: z.string().exactOptional().openapi({ type: 'string' }),
+    native: z.string().exactOptional().openapi({ type: 'string' }),
+    synchronized: z.string().exactOptional().openapi({ type: 'string' }),
+    transient: z.string().exactOptional().openapi({ type: 'string' }),
+    volatile: z.string().exactOptional().openapi({ type: 'string' }),
+    goto: z.string().exactOptional().openapi({ type: 'string' }),
+    debugger: z.string().exactOptional().openapi({ type: 'string' }),
+    with: z.string().exactOptional().openapi({ type: 'string' }),
+    in: z.string().exactOptional().openapi({ type: 'string' }),
+    of: z.string().exactOptional().openapi({ type: 'string' }),
+    get: z.string().exactOptional().openapi({ type: 'string' }),
+    set: z.string().exactOptional().openapi({ type: 'string' }),
+    arguments: z.string().exactOptional().openapi({ type: 'string' }),
+    eval: z.string().exactOptional().openapi({ type: 'string' }),
+    constructor: z.string().exactOptional().openapi({ type: 'string' }),
+    prototype: z.string().exactOptional().openapi({ type: 'string' }),
+    __proto__: z.string().exactOptional().openapi({ type: 'string' }),
+    __defineGetter__: z.string().exactOptional().openapi({ type: 'string' }),
+    __defineSetter__: z.string().exactOptional().openapi({ type: 'string' }),
+    __lookupGetter__: z.string().exactOptional().openapi({ type: 'string' }),
+    __lookupSetter__: z.string().exactOptional().openapi({ type: 'string' }),
+    hasOwnProperty: z.string().exactOptional().openapi({ type: 'string' }),
+    isPrototypeOf: z.string().exactOptional().openapi({ type: 'string' }),
+    propertyIsEnumerable: z.string().exactOptional().openapi({ type: 'string' }),
+    toLocaleString: z.string().exactOptional().openapi({ type: 'string' }),
+    toString: z.string().exactOptional().openapi({ type: 'string' }),
+    valueOf: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -310,43 +310,43 @@ const ReservedPropertiesSchema = z
 
 const PythonReservedSchema = z
   .object({
-    and: z.string().optional().openapi({ type: 'string' }),
-    as: z.string().optional().openapi({ type: 'string' }),
-    assert: z.string().optional().openapi({ type: 'string' }),
-    break: z.string().optional().openapi({ type: 'string' }),
-    class: z.string().optional().openapi({ type: 'string' }),
-    continue: z.string().optional().openapi({ type: 'string' }),
-    def: z.string().optional().openapi({ type: 'string' }),
-    del: z.string().optional().openapi({ type: 'string' }),
-    elif: z.string().optional().openapi({ type: 'string' }),
-    else: z.string().optional().openapi({ type: 'string' }),
-    except: z.string().optional().openapi({ type: 'string' }),
-    exec: z.string().optional().openapi({ type: 'string' }),
-    finally: z.string().optional().openapi({ type: 'string' }),
-    for: z.string().optional().openapi({ type: 'string' }),
-    from: z.string().optional().openapi({ type: 'string' }),
-    global: z.string().optional().openapi({ type: 'string' }),
-    if: z.string().optional().openapi({ type: 'string' }),
-    import: z.string().optional().openapi({ type: 'string' }),
-    in: z.string().optional().openapi({ type: 'string' }),
-    is: z.string().optional().openapi({ type: 'string' }),
-    lambda: z.string().optional().openapi({ type: 'string' }),
-    not: z.string().optional().openapi({ type: 'string' }),
-    or: z.string().optional().openapi({ type: 'string' }),
-    pass: z.string().optional().openapi({ type: 'string' }),
-    print: z.string().optional().openapi({ type: 'string' }),
-    raise: z.string().optional().openapi({ type: 'string' }),
-    return: z.string().optional().openapi({ type: 'string' }),
-    try: z.string().optional().openapi({ type: 'string' }),
-    while: z.string().optional().openapi({ type: 'string' }),
-    with: z.string().optional().openapi({ type: 'string' }),
-    yield: z.string().optional().openapi({ type: 'string' }),
-    None: z.string().optional().openapi({ type: 'string' }),
-    true: z.string().optional().openapi({ type: 'string' }),
-    false: z.string().optional().openapi({ type: 'string' }),
-    nonlocal: z.string().optional().openapi({ type: 'string' }),
-    async: z.string().optional().openapi({ type: 'string' }),
-    await: z.string().optional().openapi({ type: 'string' }),
+    and: z.string().exactOptional().openapi({ type: 'string' }),
+    as: z.string().exactOptional().openapi({ type: 'string' }),
+    assert: z.string().exactOptional().openapi({ type: 'string' }),
+    break: z.string().exactOptional().openapi({ type: 'string' }),
+    class: z.string().exactOptional().openapi({ type: 'string' }),
+    continue: z.string().exactOptional().openapi({ type: 'string' }),
+    def: z.string().exactOptional().openapi({ type: 'string' }),
+    del: z.string().exactOptional().openapi({ type: 'string' }),
+    elif: z.string().exactOptional().openapi({ type: 'string' }),
+    else: z.string().exactOptional().openapi({ type: 'string' }),
+    except: z.string().exactOptional().openapi({ type: 'string' }),
+    exec: z.string().exactOptional().openapi({ type: 'string' }),
+    finally: z.string().exactOptional().openapi({ type: 'string' }),
+    for: z.string().exactOptional().openapi({ type: 'string' }),
+    from: z.string().exactOptional().openapi({ type: 'string' }),
+    global: z.string().exactOptional().openapi({ type: 'string' }),
+    if: z.string().exactOptional().openapi({ type: 'string' }),
+    import: z.string().exactOptional().openapi({ type: 'string' }),
+    in: z.string().exactOptional().openapi({ type: 'string' }),
+    is: z.string().exactOptional().openapi({ type: 'string' }),
+    lambda: z.string().exactOptional().openapi({ type: 'string' }),
+    not: z.string().exactOptional().openapi({ type: 'string' }),
+    or: z.string().exactOptional().openapi({ type: 'string' }),
+    pass: z.string().exactOptional().openapi({ type: 'string' }),
+    print: z.string().exactOptional().openapi({ type: 'string' }),
+    raise: z.string().exactOptional().openapi({ type: 'string' }),
+    return: z.string().exactOptional().openapi({ type: 'string' }),
+    try: z.string().exactOptional().openapi({ type: 'string' }),
+    while: z.string().exactOptional().openapi({ type: 'string' }),
+    with: z.string().exactOptional().openapi({ type: 'string' }),
+    yield: z.string().exactOptional().openapi({ type: 'string' }),
+    None: z.string().exactOptional().openapi({ type: 'string' }),
+    true: z.string().exactOptional().openapi({ type: 'string' }),
+    false: z.string().exactOptional().openapi({ type: 'string' }),
+    nonlocal: z.string().exactOptional().openapi({ type: 'string' }),
+    async: z.string().exactOptional().openapi({ type: 'string' }),
+    await: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -394,31 +394,31 @@ const PythonReservedSchema = z
 
 const GoReservedSchema = z
   .object({
-    break: z.string().optional().openapi({ type: 'string' }),
-    case: z.string().optional().openapi({ type: 'string' }),
-    chan: z.string().optional().openapi({ type: 'string' }),
-    const: z.string().optional().openapi({ type: 'string' }),
-    continue: z.string().optional().openapi({ type: 'string' }),
-    default: z.string().optional().openapi({ type: 'string' }),
-    defer: z.string().optional().openapi({ type: 'string' }),
-    else: z.string().optional().openapi({ type: 'string' }),
-    fallthrough: z.string().optional().openapi({ type: 'string' }),
-    for: z.string().optional().openapi({ type: 'string' }),
-    func: z.string().optional().openapi({ type: 'string' }),
-    go: z.string().optional().openapi({ type: 'string' }),
-    goto: z.string().optional().openapi({ type: 'string' }),
-    if: z.string().optional().openapi({ type: 'string' }),
-    import: z.string().optional().openapi({ type: 'string' }),
-    interface: z.string().optional().openapi({ type: 'string' }),
-    map: z.string().optional().openapi({ type: 'string' }),
-    package: z.string().optional().openapi({ type: 'string' }),
-    range: z.string().optional().openapi({ type: 'string' }),
-    return: z.string().optional().openapi({ type: 'string' }),
-    select: z.string().optional().openapi({ type: 'string' }),
-    struct: z.string().optional().openapi({ type: 'string' }),
-    switch: z.string().optional().openapi({ type: 'string' }),
-    type: z.string().optional().openapi({ type: 'string' }),
-    var: z.string().optional().openapi({ type: 'string' }),
+    break: z.string().exactOptional().openapi({ type: 'string' }),
+    case: z.string().exactOptional().openapi({ type: 'string' }),
+    chan: z.string().exactOptional().openapi({ type: 'string' }),
+    const: z.string().exactOptional().openapi({ type: 'string' }),
+    continue: z.string().exactOptional().openapi({ type: 'string' }),
+    default: z.string().exactOptional().openapi({ type: 'string' }),
+    defer: z.string().exactOptional().openapi({ type: 'string' }),
+    else: z.string().exactOptional().openapi({ type: 'string' }),
+    fallthrough: z.string().exactOptional().openapi({ type: 'string' }),
+    for: z.string().exactOptional().openapi({ type: 'string' }),
+    func: z.string().exactOptional().openapi({ type: 'string' }),
+    go: z.string().exactOptional().openapi({ type: 'string' }),
+    goto: z.string().exactOptional().openapi({ type: 'string' }),
+    if: z.string().exactOptional().openapi({ type: 'string' }),
+    import: z.string().exactOptional().openapi({ type: 'string' }),
+    interface: z.string().exactOptional().openapi({ type: 'string' }),
+    map: z.string().exactOptional().openapi({ type: 'string' }),
+    package: z.string().exactOptional().openapi({ type: 'string' }),
+    range: z.string().exactOptional().openapi({ type: 'string' }),
+    return: z.string().exactOptional().openapi({ type: 'string' }),
+    select: z.string().exactOptional().openapi({ type: 'string' }),
+    struct: z.string().exactOptional().openapi({ type: 'string' }),
+    switch: z.string().exactOptional().openapi({ type: 'string' }),
+    type: z.string().exactOptional().openapi({ type: 'string' }),
+    var: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -454,44 +454,44 @@ const GoReservedSchema = z
 
 const RustReservedSchema = z
   .object({
-    as: z.string().optional().openapi({ type: 'string' }),
-    async: z.string().optional().openapi({ type: 'string' }),
-    await: z.string().optional().openapi({ type: 'string' }),
-    break: z.string().optional().openapi({ type: 'string' }),
-    const: z.string().optional().openapi({ type: 'string' }),
-    continue: z.string().optional().openapi({ type: 'string' }),
-    crate: z.string().optional().openapi({ type: 'string' }),
-    dyn: z.string().optional().openapi({ type: 'string' }),
-    else: z.string().optional().openapi({ type: 'string' }),
-    enum: z.string().optional().openapi({ type: 'string' }),
-    extern: z.string().optional().openapi({ type: 'string' }),
-    false: z.string().optional().openapi({ type: 'string' }),
-    fn: z.string().optional().openapi({ type: 'string' }),
-    for: z.string().optional().openapi({ type: 'string' }),
-    if: z.string().optional().openapi({ type: 'string' }),
-    impl: z.string().optional().openapi({ type: 'string' }),
-    in: z.string().optional().openapi({ type: 'string' }),
-    let: z.string().optional().openapi({ type: 'string' }),
-    loop: z.string().optional().openapi({ type: 'string' }),
-    match: z.string().optional().openapi({ type: 'string' }),
-    mod: z.string().optional().openapi({ type: 'string' }),
-    move: z.string().optional().openapi({ type: 'string' }),
-    mut: z.string().optional().openapi({ type: 'string' }),
-    pub: z.string().optional().openapi({ type: 'string' }),
-    ref: z.string().optional().openapi({ type: 'string' }),
-    return: z.string().optional().openapi({ type: 'string' }),
-    self: z.string().optional().openapi({ type: 'string' }),
-    Self: z.string().optional().openapi({ type: 'string' }),
-    static: z.string().optional().openapi({ type: 'string' }),
-    struct: z.string().optional().openapi({ type: 'string' }),
-    super: z.string().optional().openapi({ type: 'string' }),
-    trait: z.string().optional().openapi({ type: 'string' }),
-    true: z.string().optional().openapi({ type: 'string' }),
-    type: z.string().optional().openapi({ type: 'string' }),
-    unsafe: z.string().optional().openapi({ type: 'string' }),
-    use: z.string().optional().openapi({ type: 'string' }),
-    where: z.string().optional().openapi({ type: 'string' }),
-    while: z.string().optional().openapi({ type: 'string' }),
+    as: z.string().exactOptional().openapi({ type: 'string' }),
+    async: z.string().exactOptional().openapi({ type: 'string' }),
+    await: z.string().exactOptional().openapi({ type: 'string' }),
+    break: z.string().exactOptional().openapi({ type: 'string' }),
+    const: z.string().exactOptional().openapi({ type: 'string' }),
+    continue: z.string().exactOptional().openapi({ type: 'string' }),
+    crate: z.string().exactOptional().openapi({ type: 'string' }),
+    dyn: z.string().exactOptional().openapi({ type: 'string' }),
+    else: z.string().exactOptional().openapi({ type: 'string' }),
+    enum: z.string().exactOptional().openapi({ type: 'string' }),
+    extern: z.string().exactOptional().openapi({ type: 'string' }),
+    false: z.string().exactOptional().openapi({ type: 'string' }),
+    fn: z.string().exactOptional().openapi({ type: 'string' }),
+    for: z.string().exactOptional().openapi({ type: 'string' }),
+    if: z.string().exactOptional().openapi({ type: 'string' }),
+    impl: z.string().exactOptional().openapi({ type: 'string' }),
+    in: z.string().exactOptional().openapi({ type: 'string' }),
+    let: z.string().exactOptional().openapi({ type: 'string' }),
+    loop: z.string().exactOptional().openapi({ type: 'string' }),
+    match: z.string().exactOptional().openapi({ type: 'string' }),
+    mod: z.string().exactOptional().openapi({ type: 'string' }),
+    move: z.string().exactOptional().openapi({ type: 'string' }),
+    mut: z.string().exactOptional().openapi({ type: 'string' }),
+    pub: z.string().exactOptional().openapi({ type: 'string' }),
+    ref: z.string().exactOptional().openapi({ type: 'string' }),
+    return: z.string().exactOptional().openapi({ type: 'string' }),
+    self: z.string().exactOptional().openapi({ type: 'string' }),
+    Self: z.string().exactOptional().openapi({ type: 'string' }),
+    static: z.string().exactOptional().openapi({ type: 'string' }),
+    struct: z.string().exactOptional().openapi({ type: 'string' }),
+    super: z.string().exactOptional().openapi({ type: 'string' }),
+    trait: z.string().exactOptional().openapi({ type: 'string' }),
+    true: z.string().exactOptional().openapi({ type: 'string' }),
+    type: z.string().exactOptional().openapi({ type: 'string' }),
+    unsafe: z.string().exactOptional().openapi({ type: 'string' }),
+    use: z.string().exactOptional().openapi({ type: 'string' }),
+    where: z.string().exactOptional().openapi({ type: 'string' }),
+    while: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -540,32 +540,32 @@ const RustReservedSchema = z
 
 const ClassParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'class', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 const TypeParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'type', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 const DefaultParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'default', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 const NullParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'null', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 const TrueParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'true', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 const FalseParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({ param: { name: 'false', in: 'query', schema: { type: 'string' } }, type: 'string' })
 
 export const getClassRoute = createRoute({
@@ -929,12 +929,12 @@ export const getNameCollisionsRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              User: z.string().optional().openapi({ type: 'string' }),
-              user: z.string().optional().openapi({ type: 'string' }),
-              USER: z.string().optional().openapi({ type: 'string' }),
-              id: z.string().optional().openapi({ type: 'string' }),
-              ID: z.string().optional().openapi({ type: 'string' }),
-              Id: z.string().optional().openapi({ type: 'string' }),
+              User: z.string().exactOptional().openapi({ type: 'string' }),
+              user: z.string().exactOptional().openapi({ type: 'string' }),
+              USER: z.string().exactOptional().openapi({ type: 'string' }),
+              id: z.string().exactOptional().openapi({ type: 'string' }),
+              ID: z.string().exactOptional().openapi({ type: 'string' }),
+              Id: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',

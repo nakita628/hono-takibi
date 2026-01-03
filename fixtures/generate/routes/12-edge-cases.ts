@@ -8,7 +8,7 @@ const FreeFormObjectSchema = z
   .openapi('FreeFormObject')
 
 const StrictObjectSchema = z
-  .strictObject({ known: z.string().optional().openapi({ type: 'string' }) })
+  .strictObject({ known: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
     properties: { known: { type: 'string' } },
@@ -30,8 +30,8 @@ const ComplexAdditionalPropsSchema = z
     z.string(),
     z
       .object({
-        value: z.string().optional().openapi({ type: 'string' }),
-        count: z.int().optional().openapi({ type: 'integer' }),
+        value: z.string().exactOptional().openapi({ type: 'string' }),
+        count: z.int().exactOptional().openapi({ type: 'integer' }),
       })
       .openapi({
         type: 'object',
@@ -49,11 +49,11 @@ const ComplexAdditionalPropsSchema = z
 
 const AllPrimitivesSchema = z
   .object({
-    stringProp: z.string().optional().openapi({ type: 'string' }),
-    numberProp: z.number().optional().openapi({ type: 'number' }),
-    integerProp: z.int().optional().openapi({ type: 'integer' }),
-    booleanProp: z.boolean().optional().openapi({ type: 'boolean' }),
-    nullProp: z.null().nullable().optional().openapi({ type: 'null' }),
+    stringProp: z.string().exactOptional().openapi({ type: 'string' }),
+    numberProp: z.number().exactOptional().openapi({ type: 'number' }),
+    integerProp: z.int().exactOptional().openapi({ type: 'integer' }),
+    booleanProp: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    nullProp: z.null().nullable().exactOptional().openapi({ type: 'null' }),
   })
   .openapi({
     type: 'object',
@@ -69,18 +69,18 @@ const AllPrimitivesSchema = z
 
 const AllStringFormatsSchema = z
   .object({
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    uuid: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-    uri: z.url().optional().openapi({ type: 'string', format: 'uri' }),
-    date: z.iso.date().optional().openapi({ type: 'string', format: 'date' }),
-    time: z.iso.time().optional().openapi({ type: 'string', format: 'time' }),
-    dateTime: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
-    duration: z.iso.duration().optional().openapi({ type: 'string', format: 'duration' }),
-    binary: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-    base64: z.base64().optional().openapi({ type: 'string', format: 'base64' }),
-    ipv4: z.ipv4().optional().openapi({ type: 'string', format: 'ipv4' }),
-    ipv6: z.ipv6().optional().openapi({ type: 'string', format: 'ipv6' }),
-    jwt: z.jwt().optional().openapi({ type: 'string', format: 'jwt' }),
+    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    uuid: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    uri: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    date: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
+    time: z.iso.time().exactOptional().openapi({ type: 'string', format: 'time' }),
+    dateTime: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    duration: z.iso.duration().exactOptional().openapi({ type: 'string', format: 'duration' }),
+    binary: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+    base64: z.base64().exactOptional().openapi({ type: 'string', format: 'base64' }),
+    ipv4: z.ipv4().exactOptional().openapi({ type: 'string', format: 'ipv4' }),
+    ipv6: z.ipv6().exactOptional().openapi({ type: 'string', format: 'ipv6' }),
+    jwt: z.jwt().exactOptional().openapi({ type: 'string', format: 'jwt' }),
   })
   .openapi({
     type: 'object',
@@ -103,12 +103,12 @@ const AllStringFormatsSchema = z
 
 const AllNumberFormatsSchema = z
   .object({
-    int32: z.int32().optional().openapi({ type: 'integer', format: 'int32' }),
-    int64: z.int64().optional().openapi({ type: 'integer', format: 'int64' }),
-    float: z.float32().optional().openapi({ type: 'number', format: 'float' }),
-    double: z.number().optional().openapi({ type: 'number', format: 'double' }),
-    float32: z.float32().optional().openapi({ type: 'number', format: 'float32' }),
-    float64: z.float64().optional().openapi({ type: 'number', format: 'float64' }),
+    int32: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32' }),
+    int64: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64' }),
+    float: z.float32().exactOptional().openapi({ type: 'number', format: 'float' }),
+    double: z.number().exactOptional().openapi({ type: 'number', format: 'double' }),
+    float32: z.float32().exactOptional().openapi({ type: 'number', format: 'float32' }),
+    float64: z.float64().exactOptional().openapi({ type: 'number', format: 'float64' }),
   })
   .openapi({
     type: 'object',
@@ -129,35 +129,39 @@ const AllValidationsSchema = z
       .string()
       .min(1)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
     patternString: z
       .string()
       .regex(/^[a-z]+$/)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', pattern: '^[a-z]+$' }),
     minMaxNumber: z
       .number()
       .min(0)
       .max(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'number', minimum: 0, maximum: 100 }),
     exclusiveMinMax: z
       .number()
       .gt(0)
       .lt(100)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 }),
-    multipleOf: z.number().multipleOf(0.5).optional().openapi({ type: 'number', multipleOf: 0.5 }),
+    multipleOf: z
+      .number()
+      .multipleOf(0.5)
+      .exactOptional()
+      .openapi({ type: 'number', multipleOf: 0.5 }),
     minMaxItems: z
       .array(z.string().openapi({ type: 'string' }))
       .min(1)
       .max(10)
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 }),
     uniqueItems: z
       .array(z.string().openapi({ type: 'string' }))
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
   })
   .openapi({
@@ -191,8 +195,8 @@ const MixedEnumSchema = z
 
 const ConstValueSchema = z
   .object({
-    type: z.literal('fixed_type').optional().openapi({ type: 'string' }),
-    version: z.literal(1).optional().openapi({ type: 'integer' }),
+    type: z.literal('fixed_type').exactOptional().openapi({ type: 'string' }),
+    version: z.literal(1).exactOptional().openapi({ type: 'integer' }),
   })
   .openapi({
     type: 'object',
@@ -210,20 +214,24 @@ const NullableStringSchema = z
   .openapi('NullableString')
 
 const NullableObjectSchema = z
-  .object({ name: z.string().optional().openapi({ type: 'string' }) })
+  .object({ name: z.string().exactOptional().openapi({ type: 'string' }) })
   .nullable()
   .openapi({ type: ['object', 'null'], properties: { name: { type: 'string' } } })
   .openapi('NullableObject')
 
 const WithDefaultsSchema = z
   .object({
-    status: z.string().default('active').optional().openapi({ type: 'string', default: 'active' }),
-    count: z.int().default(0).optional().openapi({ type: 'integer', default: 0 }),
-    enabled: z.boolean().default(true).optional().openapi({ type: 'boolean', default: true }),
+    status: z
+      .string()
+      .default('active')
+      .exactOptional()
+      .openapi({ type: 'string', default: 'active' }),
+    count: z.int().default(0).exactOptional().openapi({ type: 'integer', default: 0 }),
+    enabled: z.boolean().default(true).exactOptional().openapi({ type: 'boolean', default: true }),
     tags: z
       .array(z.string().openapi({ type: 'string' }))
       .default([])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'array', items: { type: 'string' }, default: [] }),
   })
   .openapi({
@@ -239,9 +247,9 @@ const WithDefaultsSchema = z
 
 const ReadWriteOnlySchema = z
   .object({
-    id: z.string().optional().openapi({ type: 'string', readOnly: true }),
-    password: z.string().optional().openapi({ type: 'string', writeOnly: true }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    id: z.string().exactOptional().openapi({ type: 'string', readOnly: true }),
+    password: z.string().exactOptional().openapi({ type: 'string', writeOnly: true }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -259,12 +267,12 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().optional().openapi({ type: 'string' }),
+        value: z.string().exactOptional().openapi({ type: 'string' }),
         children: z
           .array(TreeNodeSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
-        parent: TreeNodeSchema.optional(),
+        parent: TreeNodeSchema.exactOptional(),
       })
       .openapi({
         type: 'object',
@@ -281,10 +289,10 @@ const CompanySchema: z.ZodType<CompanyType> = z
   .lazy(() =>
     z
       .object({
-        name: z.string().optional().openapi({ type: 'string' }),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
         employees: z
           .array(PersonSchema)
-          .optional()
+          .exactOptional()
           .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
       })
       .openapi({
@@ -303,8 +311,8 @@ const PersonSchema: z.ZodType<PersonType> = z
   .lazy(() =>
     z
       .object({
-        name: z.string().optional().openapi({ type: 'string' }),
-        company: CompanySchema.optional(),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
+        company: CompanySchema.exactOptional(),
       })
       .openapi({
         type: 'object',
@@ -326,11 +334,11 @@ const DeepNestedSchema = z
                 level4: z
                   .object({
                     level5: z
-                      .object({ value: z.string().optional().openapi({ type: 'string' }) })
-                      .optional()
+                      .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+                      .exactOptional()
                       .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
                   })
-                  .optional()
+                  .exactOptional()
                   .openapi({
                     type: 'object',
                     properties: {
@@ -338,7 +346,7 @@ const DeepNestedSchema = z
                     },
                   }),
               })
-              .optional()
+              .exactOptional()
               .openapi({
                 type: 'object',
                 properties: {
@@ -351,7 +359,7 @@ const DeepNestedSchema = z
                 },
               }),
           })
-          .optional()
+          .exactOptional()
           .openapi({
             type: 'object',
             properties: {
@@ -369,7 +377,7 @@ const DeepNestedSchema = z
             },
           }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -455,7 +463,7 @@ const ComplexUnionSchema = z
       .array(z.string().openapi({ type: 'string' }))
       .openapi({ type: 'array', items: { type: 'string' } }),
     z
-      .object({ key: z.string().optional().openapi({ type: 'string' }) })
+      .object({ key: z.string().exactOptional().openapi({ type: 'string' }) })
       .openapi({ type: 'object', properties: { key: { type: 'string' } } }),
   ])
   .openapi({
@@ -472,8 +480,8 @@ const MergedSchema = z
   .intersection(
     z
       .object({
-        id: z.string().optional().openapi({ type: 'string' }),
-        name: z.string().optional().openapi({ type: 'string' }),
+        id: z.string().exactOptional().openapi({ type: 'string' }),
+        name: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .openapi({
         type: 'object',
@@ -481,8 +489,11 @@ const MergedSchema = z
       }),
     z
       .object({
-        id: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
-        createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+        id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+        createdAt: z.iso
+          .datetime()
+          .exactOptional()
+          .openapi({ type: 'string', format: 'date-time' }),
       })
       .openapi({
         type: 'object',
@@ -512,12 +523,12 @@ const SingleValueEnumSchema = z
   .openapi('SingleValueEnum')
 
 const DataJsonSchema = z
-  .object({ data: z.object({}).optional().openapi({ type: 'object' }) })
+  .object({ data: z.object({}).exactOptional().openapi({ type: 'object' }) })
   .openapi({ type: 'object', properties: { data: { type: 'object' } } })
   .openapi('DataJson')
 
 const DataXmlSchema = z
-  .object({ data: z.string().optional().openapi({ type: 'string' }) })
+  .object({ data: z.string().exactOptional().openapi({ type: 'string' }) })
   .openapi({
     type: 'object',
     properties: { data: { type: 'string' } },
@@ -527,11 +538,11 @@ const DataXmlSchema = z
 
 const SpecialPropertyNamesSchema = z
   .object({
-    normal_name: z.string().optional().openapi({ type: 'string' }),
-    'kebab-case': z.string().optional().openapi({ type: 'string' }),
-    'with.dots': z.string().optional().openapi({ type: 'string' }),
-    '@special': z.string().optional().openapi({ type: 'string' }),
-    $dollar: z.string().optional().openapi({ type: 'string' }),
+    normal_name: z.string().exactOptional().openapi({ type: 'string' }),
+    'kebab-case': z.string().exactOptional().openapi({ type: 'string' }),
+    'with.dots': z.string().exactOptional().openapi({ type: 'string' }),
+    '@special': z.string().exactOptional().openapi({ type: 'string' }),
+    $dollar: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -547,9 +558,9 @@ const SpecialPropertyNamesSchema = z
 
 const UnicodePropertiesSchema = z
   .object({
-    名前: z.string().optional().openapi({ type: 'string' }),
-    prénom: z.string().optional().openapi({ type: 'string' }),
-    имя: z.string().optional().openapi({ type: 'string' }),
+    名前: z.string().exactOptional().openapi({ type: 'string' }),
+    prénom: z.string().exactOptional().openapi({ type: 'string' }),
+    имя: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -566,7 +577,7 @@ const RequiredParamParamsSchema = z
 
 const OptionalParamParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'optional', in: 'query', required: false, schema: { type: 'string' } },
     type: 'string',
@@ -574,7 +585,7 @@ const OptionalParamParamsSchema = z
 
 const DeprecatedParamParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'deprecated', in: 'query', deprecated: true, schema: { type: 'string' } },
     type: 'string',
@@ -582,7 +593,7 @@ const DeprecatedParamParamsSchema = z
 
 const AllowEmptyParamParamsSchema = z
   .string()
-  .optional()
+  .exactOptional()
   .openapi({
     param: { name: 'allowEmpty', in: 'query', allowEmptyValue: true, schema: { type: 'string' } },
     type: 'string',
@@ -642,15 +653,15 @@ const NoContentResponse = { description: 'No content response' }
 
 const HeadersOnlyResponse = { description: 'Response with headers only' }
 
-const StringHeader = z.string().optional().openapi({ type: 'string' })
+const StringHeader = z.string().exactOptional().openapi({ type: 'string' })
 
-const IntegerHeader = z.int().optional().openapi({ type: 'integer' })
+const IntegerHeader = z.int().exactOptional().openapi({ type: 'integer' })
 
-const BooleanHeader = z.boolean().optional().openapi({ type: 'boolean' })
+const BooleanHeader = z.boolean().exactOptional().openapi({ type: 'boolean' })
 
 const ArrayHeader = z
-  .array(z.string().optional().openapi({ type: 'string' }))
-  .optional()
+  .array(z.string().exactOptional().openapi({ type: 'string' }))
+  .exactOptional()
   .openapi({ type: 'array', items: { type: 'string' } })
 
 const NullExample = { summary: 'Null value example', value: null }
@@ -784,7 +795,7 @@ export const getParamsTestPathParamRoute = createRoute({
     query: z.object({
       queryParam: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'queryParam', in: 'query', required: false, schema: { type: 'string' } },
           type: 'string',
@@ -793,7 +804,7 @@ export const getParamsTestPathParamRoute = createRoute({
     headers: z.object({
       'X-Header-Param': z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'X-Header-Param',
@@ -807,7 +818,7 @@ export const getParamsTestPathParamRoute = createRoute({
     cookies: z.object({
       session_id: z
         .string()
-        .optional()
+        .exactOptional()
         .openapi({
           param: { name: 'session_id', in: 'cookie', required: false, schema: { type: 'string' } },
           type: 'string',
@@ -828,7 +839,21 @@ export const getMultiContentRoute = createRoute({
   method: 'get',
   path: '/multi-content',
   operationId: 'getMultiContent',
-  responses: { 200: { description: 'Multiple content types' } },
+  responses: {
+    200: {
+      description: 'Multiple content types',
+      content: {
+        'application/json': { schema: DataJsonSchema },
+        'application/xml': { schema: DataXmlSchema },
+        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
+        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
+        'application/octet-stream': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+      },
+    },
+  },
 })
 
 export const postMultiContentRoute = createRoute({
@@ -842,8 +867,8 @@ export const postMultiContentRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              metadata: z.string().optional().openapi({ type: 'string' }),
+              file: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              metadata: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -856,8 +881,8 @@ export const postMultiContentRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              field1: z.string().optional().openapi({ type: 'string' }),
-              field2: z.string().optional().openapi({ type: 'string' }),
+              field1: z.string().exactOptional().openapi({ type: 'string' }),
+              field2: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -961,7 +986,7 @@ export const getArrayParamsRoute = createRoute({
         .array(
           z
             .string()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'ids',
@@ -974,7 +999,7 @@ export const getArrayParamsRoute = createRoute({
               type: 'string',
             }),
         )
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'ids',
@@ -991,7 +1016,7 @@ export const getArrayParamsRoute = createRoute({
         .array(
           z
             .string()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'tags',
@@ -1004,7 +1029,7 @@ export const getArrayParamsRoute = createRoute({
               type: 'string',
             }),
         )
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'tags',
@@ -1021,7 +1046,7 @@ export const getArrayParamsRoute = createRoute({
         .array(
           z
             .int()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'values',
@@ -1032,7 +1057,7 @@ export const getArrayParamsRoute = createRoute({
               type: 'integer',
             }),
         )
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'values',
@@ -1047,7 +1072,7 @@ export const getArrayParamsRoute = createRoute({
         .array(
           z
             .number()
-            .optional()
+            .exactOptional()
             .openapi({
               param: {
                 name: 'coords',
@@ -1058,7 +1083,7 @@ export const getArrayParamsRoute = createRoute({
               type: 'number',
             }),
         )
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'coords',
@@ -1082,11 +1107,11 @@ export const getObjectParamRoute = createRoute({
     query: z.object({
       filter: z
         .object({
-          name: z.string().optional().openapi({ type: 'string' }),
-          minPrice: z.number().optional().openapi({ type: 'number' }),
-          maxPrice: z.number().optional().openapi({ type: 'number' }),
+          name: z.string().exactOptional().openapi({ type: 'string' }),
+          minPrice: z.number().exactOptional().openapi({ type: 'number' }),
+          maxPrice: z.number().exactOptional().openapi({ type: 'number' }),
         })
-        .optional()
+        .exactOptional()
         .openapi({
           param: {
             name: 'filter',

@@ -34,30 +34,84 @@ export const getExtremeResponsesRoute = createRoute({
     101: { description: 'Switching Protocols' },
     102: { description: 'Processing (WebDAV)' },
     103: { description: 'Early Hints' },
-    200: { description: 'OK' },
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/xml': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/yaml': { schema: z.object({}).openapi({ type: 'object' }) },
+        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
+        'text/html': { schema: z.string().openapi({ type: 'string' }) },
+        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
+        'text/tab-separated-values': { schema: z.string().openapi({ type: 'string' }) },
+        'application/octet-stream': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'application/pdf': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/gif': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/webp': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/svg+xml': { schema: z.string().openapi({ type: 'string' }) },
+        'audio/mpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'audio/ogg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'video/mp4': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'video/webm': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/zip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/gzip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/x-tar': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/vnd.ms-excel': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'application/vnd.ms-powerpoint': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'application/msword': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/vnd.api+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/hal+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/problem+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/ld+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/geo+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/graphql+json': { schema: z.object({}).openapi({ type: 'object' }) },
+        'application/x-ndjson': { schema: z.string().openapi({ type: 'string' }) },
+        'application/x-msgpack': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/cbor': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/x-protobuf': {
+          schema: z.file().openapi({ type: 'string', format: 'binary' }),
+        },
+        'application/avro': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/x-parquet': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'image/*': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'text/*': { schema: z.string().openapi({ type: 'string' }) },
+        '*/*': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+      },
+    },
     201: { description: 'Created' },
     202: { description: 'Accepted' },
     203: { description: 'Non-Authoritative Information' },
     204: { description: 'No Content' },
     205: { description: 'Reset Content' },
-    206: { description: 'Partial Content' },
+    206: { description: 'Partial Content', headers: {} },
     207: { description: 'Multi-Status (WebDAV)' },
     208: { description: 'Already Reported (WebDAV)' },
     226: { description: 'IM Used' },
     300: { description: 'Multiple Choices' },
-    301: { description: 'Moved Permanently' },
-    302: { description: 'Found' },
-    303: { description: 'See Other' },
-    304: { description: 'Not Modified' },
+    301: { description: 'Moved Permanently', headers: {} },
+    302: { description: 'Found', headers: {} },
+    303: { description: 'See Other', headers: {} },
+    304: { description: 'Not Modified', headers: {} },
     305: { description: 'Use Proxy (Deprecated)' },
-    307: { description: 'Temporary Redirect' },
-    308: { description: 'Permanent Redirect' },
+    307: { description: 'Temporary Redirect', headers: {} },
+    308: { description: 'Permanent Redirect', headers: {} },
     400: { description: 'Bad Request' },
-    401: { description: 'Unauthorized' },
+    401: { description: 'Unauthorized', headers: {} },
     402: { description: 'Payment Required' },
     403: { description: 'Forbidden' },
     404: { description: 'Not Found' },
-    405: { description: 'Method Not Allowed' },
+    405: { description: 'Method Not Allowed', headers: {} },
     406: { description: 'Not Acceptable' },
     407: { description: 'Proxy Authentication Required' },
     408: { description: 'Request Timeout' },
@@ -65,10 +119,10 @@ export const getExtremeResponsesRoute = createRoute({
     410: { description: 'Gone' },
     411: { description: 'Length Required' },
     412: { description: 'Precondition Failed' },
-    413: { description: 'Payload Too Large' },
+    413: { description: 'Payload Too Large', headers: {} },
     414: { description: 'URI Too Long' },
     415: { description: 'Unsupported Media Type' },
-    416: { description: 'Range Not Satisfiable' },
+    416: { description: 'Range Not Satisfiable', headers: {} },
     417: { description: 'Expectation Failed' },
     418: { description: "I'm a teapot (RFC 2324)" },
     421: { description: 'Misdirected Request' },
@@ -76,15 +130,15 @@ export const getExtremeResponsesRoute = createRoute({
     423: { description: 'Locked (WebDAV)' },
     424: { description: 'Failed Dependency (WebDAV)' },
     425: { description: 'Too Early' },
-    426: { description: 'Upgrade Required' },
+    426: { description: 'Upgrade Required', headers: {} },
     428: { description: 'Precondition Required' },
-    429: { description: 'Too Many Requests' },
+    429: { description: 'Too Many Requests', headers: {} },
     431: { description: 'Request Header Fields Too Large' },
     451: { description: 'Unavailable For Legal Reasons' },
     500: { description: 'Internal Server Error' },
     501: { description: 'Not Implemented' },
     502: { description: 'Bad Gateway' },
-    503: { description: 'Service Unavailable' },
+    503: { description: 'Service Unavailable', headers: {} },
     504: { description: 'Gateway Timeout' },
     505: { description: 'HTTP Version Not Supported' },
     506: { description: 'Variant Also Negotiates' },
@@ -103,8 +157,8 @@ export const getExtremeResponsesRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              code: z.int().optional().openapi({ type: 'integer' }),
-              message: z.string().optional().openapi({ type: 'string' }),
+              code: z.int().exactOptional().openapi({ type: 'integer' }),
+              message: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -126,8 +180,8 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z.file().optional().openapi({ type: 'string', format: 'binary' }),
-              metadata: z.string().optional().openapi({ type: 'string' }),
+              file: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
+              metadata: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -146,7 +200,7 @@ export const postMultipartVariationsRoute = createRoute({
             .object({
               parts: z
                 .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .openapi({
@@ -157,10 +211,10 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/related': {
           schema: z
             .object({
-              root: z.string().optional().openapi({ type: 'string' }),
+              root: z.string().exactOptional().openapi({ type: 'string' }),
               attachments: z
                 .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
             })
             .openapi({
@@ -174,8 +228,8 @@ export const postMultipartVariationsRoute = createRoute({
         'multipart/alternative': {
           schema: z
             .object({
-              text: z.string().optional().openapi({ type: 'string' }),
-              html: z.string().optional().openapi({ type: 'string' }),
+              text: z.string().exactOptional().openapi({ type: 'string' }),
+              html: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
@@ -188,10 +242,10 @@ export const postMultipartVariationsRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({
-              field1: z.string().optional().openapi({ type: 'string' }),
+              field1: z.string().exactOptional().openapi({ type: 'string' }),
               field2: z
                 .array(z.string().openapi({ type: 'string' }))
-                .optional()
+                .exactOptional()
                 .openapi({ type: 'array', items: { type: 'string' } }),
             })
             .openapi({

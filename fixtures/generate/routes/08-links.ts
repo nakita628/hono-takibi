@@ -4,7 +4,7 @@ const OrderSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     customerId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    paymentId: z.uuid().optional().openapi({ type: 'string', format: 'uuid' }),
+    paymentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
     status: z
       .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
       .openapi({
@@ -12,7 +12,7 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
       }),
     total: z.float64().openapi({ type: 'number', format: 'float64' }),
-    createdAt: z.iso.datetime().optional().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
   })
   .openapi({
     type: 'object',
@@ -35,7 +35,7 @@ const OrderItemSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productName: z.string().optional().openapi({ type: 'string' }),
+    productName: z.string().exactOptional().openapi({ type: 'string' }),
     quantity: z.int32().openapi({ type: 'integer', format: 'int32' }),
     price: z.float64().openapi({ type: 'number', format: 'float64' }),
   })
@@ -56,7 +56,7 @@ const CustomerSchema = z
   .object({
     id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
     email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().optional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
   })
   .openapi({
     type: 'object',
@@ -79,7 +79,7 @@ const PaymentSchema = z
       .openapi({ type: 'string', enum: ['pending', 'completed', 'failed', 'refunded'] }),
     method: z
       .enum(['credit_card', 'debit_card', 'paypal', 'bank_transfer'])
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'] }),
   })
   .openapi({
@@ -191,7 +191,15 @@ export const postOrdersRoute = createRoute({
   operationId: 'createOrder',
   request: { body: { content: { 'application/json': { schema: CreateOrderInputSchema } } } },
   responses: {
-    201: { description: 'Order created', content: { 'application/json': { schema: OrderSchema } } },
+    201: {
+      description: 'Order created',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: {
+        GetOrder: GetOrderByIdLink,
+        GetOrderItems: GetOrderItemsLink,
+        CancelOrder: CancelOrderLink,
+      },
+    },
   },
 })
 
@@ -216,7 +224,16 @@ export const getOrdersOrderIdRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'Order details', content: { 'application/json': { schema: OrderSchema } } },
+    200: {
+      description: 'Order details',
+      content: { 'application/json': { schema: OrderSchema } },
+      links: {
+        GetOrderItems: GetOrderItemsLink,
+        GetCustomer: GetCustomerLink,
+        CancelOrder: CancelOrderLink,
+        GetPayment: GetPaymentLink,
+      },
+    },
   },
 })
 
@@ -240,7 +257,7 @@ export const deleteOrdersOrderIdRoute = createRoute({
         }),
     }),
   },
-  responses: { 200: { description: 'Order cancelled' } },
+  responses: { 200: { description: 'Order cancelled', links: { GetOrder: GetOrderByIdLink } } },
 })
 
 export const getOrdersOrderIdItemsRoute = createRoute({
@@ -273,6 +290,7 @@ export const getOrdersOrderIdItemsRoute = createRoute({
             .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
         },
       },
+      links: { GetOrder: GetOrderByIdLink },
     },
   },
 })
@@ -301,6 +319,7 @@ export const getCustomersCustomerIdRoute = createRoute({
     200: {
       description: 'Customer details',
       content: { 'application/json': { schema: CustomerSchema } },
+      links: { GetCustomerOrders: GetCustomerOrdersLink },
     },
   },
 })
@@ -363,6 +382,9 @@ export const getPaymentsPaymentIdRoute = createRoute({
     200: {
       description: 'Payment details',
       content: { 'application/json': { schema: PaymentSchema } },
+      links: {
+        GetOrder: { operationId: 'getOrder', parameters: { orderId: '$response.body#/orderId' } },
+      },
     },
   },
 })

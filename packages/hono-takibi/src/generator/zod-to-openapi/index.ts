@@ -1,7 +1,7 @@
+import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-
-import { normalizeTypes, ref } from '../../utils/index.js'
+import { normalizeTypes } from '../../utils/index.js'
 import { _enum } from './z/enum.js'
 import { integer } from './z/integer.js'
 import { number } from './z/number.js'
@@ -18,7 +18,7 @@ export function zodToOpenAPI(
   if (schema === undefined) throw new Error('Schema is undefined')
   /** ref */
   if (schema.$ref !== undefined) {
-    return wrap(ref(schema.$ref), schema, meta)
+    return wrap(makeRef(schema.$ref), schema, meta)
   }
   /* combinators */
   /** allOf */
@@ -46,7 +46,7 @@ export function zodToOpenAPI(
 
         if (s.$ref && Object.keys(s).length === 1 && s.$ref) {
           return {
-            allOfSchemas: [...acc.allOfSchemas, ref(s.$ref)],
+            allOfSchemas: [...acc.allOfSchemas, makeRef(s.$ref)],
             nullable: acc.nullable,
             onlyRefSchemas: acc.onlyRefSchemas,
           }
@@ -94,7 +94,7 @@ export function zodToOpenAPI(
     const anyOfSchemas = schema.anyOf.map((subSchema) => {
       if (subSchema.$ref && Object.keys(subSchema).length === 1) {
         if (subSchema.$ref) {
-          return ref(subSchema.$ref)
+          return makeRef(subSchema.$ref)
         }
       }
       return zodToOpenAPI(subSchema, meta)
@@ -110,7 +110,7 @@ export function zodToOpenAPI(
     const oneOfSchemas = schema.oneOf.map((s) => {
       if (s.$ref && Object.keys(s).length === 1) {
         if (s.$ref) {
-          return ref(s.$ref)
+          return makeRef(s.$ref)
         }
       }
       return zodToOpenAPI(s, meta)
@@ -165,7 +165,7 @@ export function zodToOpenAPI(
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
     const item = itemSchema?.$ref
       ? itemSchema.$ref
-        ? ref(itemSchema.$ref)
+        ? makeRef(itemSchema.$ref)
         : itemSchema
           ? zodToOpenAPI(itemSchema, meta)
           : 'z.any()'

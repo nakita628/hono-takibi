@@ -1,5 +1,5 @@
-import { makeContent } from '../../../../helper/components.js'
-import { constCode } from '../../../../helper/const.js'
+import { makeConst } from '../../../../helper/code.js'
+import { makeContent } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 export function responses(components: Components, exportResponses: boolean): string {
@@ -20,7 +20,7 @@ export function responses(components: Components, exportResponses: boolean): str
         .filter((v) => v !== undefined)
         .join(',')
 
-      return `${constCode(exportResponses, k, 'Response')}{${props}}`
+      return `${makeConst(exportResponses, k, 'Response')}{${props}}`
     })
     .join('\n\n')
 }

@@ -25,14 +25,14 @@ const UserProfileSchema = z
   .strictObject({
     bio: z
       .string()
-      .optional()
+      .exactOptional()
       .openapi({ type: 'string', example: 'Software engineer with 10 years of experience.' }),
     social: z
       .strictObject({
-        twitter: z.string().optional().openapi({ type: 'string', example: '@johndoe' }),
-        linkedin: z.string().optional().openapi({ type: 'string', example: 'john-doe' }),
+        twitter: z.string().exactOptional().openapi({ type: 'string', example: '@johndoe' }),
+        linkedin: z.string().exactOptional().openapi({ type: 'string', example: 'john-doe' }),
       })
-      .optional()
+      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
@@ -64,8 +64,8 @@ const UserSchema = z
     id: z.string().openapi({ type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' }),
     name: z.string().openapi({ type: 'string', example: 'John Doe' }),
     email: z.email().openapi({ type: 'string', format: 'email', example: 'john.doe@example.com' }),
-    address: AddressSchema.optional(),
-    profile: UserProfileSchema.optional(),
+    address: AddressSchema.exactOptional(),
+    profile: UserProfileSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -84,8 +84,8 @@ const NewUserSchema = z
   .object({
     name: z.string().openapi({ type: 'string', example: 'Jane Doe' }),
     email: z.email().openapi({ type: 'string', format: 'email', example: 'jane.doe@example.com' }),
-    address: AddressSchema.optional(),
-    profile: UserProfileSchema.optional(),
+    address: AddressSchema.exactOptional(),
+    profile: UserProfileSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -101,10 +101,10 @@ const NewUserSchema = z
 
 const UpdateUserSchema = z
   .object({
-    name: z.string().optional().openapi({ type: 'string' }),
-    email: z.email().optional().openapi({ type: 'string', format: 'email' }),
-    address: AddressSchema.optional(),
-    profile: UserProfileSchema.optional(),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    address: AddressSchema.exactOptional(),
+    profile: UserProfileSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -204,7 +204,7 @@ const OrderSchema = z
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
         example: 'pending',
       }),
-    paymentMethod: PaymentMethodSchema.optional(),
+    paymentMethod: PaymentMethodSchema.exactOptional(),
   })
   .openapi({
     type: 'object',
@@ -230,7 +230,7 @@ const NewOrderSchema = z
     items: z
       .array(OrderItemSchema)
       .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-    paymentMethod: PaymentMethodSchema.optional(),
+    paymentMethod: PaymentMethodSchema.exactOptional(),
   })
   .openapi({
     type: 'object',

@@ -2,9 +2,9 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { barell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
+import { makeExamples } from '../helper/openapi.js'
 import type { Content, OpenAPI, RequestBody } from '../openapi/index.js'
 import {
-  buildExamples,
   ensureSuffix,
   findSchema,
   isRecord,
@@ -22,7 +22,7 @@ const coerceDateIfNeeded = (schemaExpr: string): string =>
 const mediaTypeExpr = (media: unknown): string => {
   if (!isMedia(media)) return '{schema:z.any()}'
   const schema = coerceDateIfNeeded(zodToOpenAPI(media.schema))
-  const examples = buildExamples(media.examples)
+  const examples = media.examples ? makeExamples(media.examples) : undefined
   const examplesProp = examples ? `examples:${examples}` : undefined
   return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
 }
