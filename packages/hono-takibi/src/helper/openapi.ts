@@ -1,4 +1,3 @@
-import { request } from '../generator/zod-openapi-hono/openapi/routes/request/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
@@ -46,7 +45,7 @@ export function makeRef($ref: string): string {
 /**
  * generates a examples code from the given examples object.
  * @param examples Examples object
- * @returns 
+ * @returns
  */
 export function makeExamples(examples: {
   readonly [k: string]:
@@ -211,6 +210,28 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   return `{${props}}`
 }
 
+export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
+  if (!callbacks) return undefined
+  const result = Object.entries(callbacks)
+    .map(([callbackName, callbackRef]) => {
+      if (callbackRef.$ref) {
+        return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
+      }
+      const props = [
+        callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
+        callbackRef.description
+          ? `description:${JSON.stringify(callbackRef.description)}`
+          : undefined,
+      ]
+        .filter(Boolean)
+        .join(',')
+      return props ? `${JSON.stringify(callbackName)}:{${props}}` : undefined
+    })
+    .filter(Boolean)
+    .join(',')
+  return `{${result}}`
+}
+
 /**
  * generates callbacks
  * @param callbacks
@@ -230,43 +251,6 @@ export function makeCallbacks(
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
-  const isComponentsRef = (ref: unknown): ref is `#/components/${string}/${string}` =>
-    typeof ref === 'string' && ref.startsWith('#/components/')
-
-  const buildResponsesCode = (responses: Operation['responses']): string => {
-    const entries = Object.entries(responses)
-      .map(([statusCode, response]) => {
-        return `${JSON.stringify(statusCode)}:${makeResponses(response)}`
-      })
-      .join(',')
-    return `{${entries}}`
-  }
-
-  const buildOperationCallbacksCode = (
-    operationCallbacks: Operation['callbacks'],
-  ): string | undefined => {
-    if (!operationCallbacks) return undefined
-
-    const entries = Object.entries(operationCallbacks)
-      .map(([callbackName, callbackRef]) => {
-        if (callbackRef.$ref && isComponentsRef(callbackRef.$ref)) {
-          return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
-        }
-        const props = [
-          callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
-          callbackRef.description
-            ? `description:${JSON.stringify(callbackRef.description)}`
-            : undefined,
-        ]
-          .filter(Boolean)
-          .join(',')
-        return props ? `${JSON.stringify(callbackName)}:{${props}}` : undefined
-      })
-      .filter(Boolean)
-      .join(',')
-
-    return entries ? `{${entries}}` : undefined
-  }
 
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
@@ -292,7 +276,7 @@ export function makeCallbacks(
           const requestBodyCode = (() => {
             if (!operation.requestBody) return undefined
             // Handle $ref to requestBodies component
-            if ('$ref' in operation.requestBody && isComponentsRef(operation.requestBody.$ref)) {
+            if ('$ref' in operation.requestBody) {
               return makeRef(operation.requestBody.$ref)
             }
             // Handle inline requestBody with content
@@ -340,10 +324,10 @@ export function makeCallbacks(
             parametersCode ? `parameters:${parametersCode}` : undefined,
             requestBodyCode ? `requestBody:${requestBodyCode}` : undefined,
             operation.responses
-              ? `responses:${buildResponsesCode(operation.responses)}`
+              ? `responses:${makeOperationResponses(operation.responses)}`
               : undefined,
             operation.callbacks
-              ? `callbacks:${buildOperationCallbacksCode(operation.callbacks)}`
+              ? `callbacks:${makeOperationCallbacks(operation.callbacks)}`
               : undefined,
             operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
             operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,

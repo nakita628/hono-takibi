@@ -340,7 +340,7 @@ export type Operation = {
   }
   readonly operationId?: string
   readonly parameters?: readonly Parameter[]
-  readonly requestBody?: RequestBody
+  readonly requestBody?: RequestBody | Reference
   readonly responses: {
     readonly [k: string]: Responses
   }
