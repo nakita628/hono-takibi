@@ -1,16 +1,11 @@
-import { makeContent } from '../../../../helper/index.js'
-import type { Components, Header, Reference } from '../../../../openapi/index.js'
+import { makeContent, makeRef } from '../../../../helper/index.js'
+import type { Components, Header } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
   toIdentifierPascalCase,
   zodToOpenAPISchema,
 } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
-
-const isReference = (v: unknown): v is Reference =>
-  typeof v === 'object' && v !== null && '$ref' in v
-
-const isHeader = (v: unknown): v is Header => typeof v === 'object' && v !== null && !('$ref' in v)
 
 export function headers(
   components: Components,
@@ -20,12 +15,15 @@ export function headers(
   const { headers } = components
   if (!headers) return ''
 
+  const isHeader = (v: unknown): v is Header =>
+    typeof v === 'object' && v !== null && !('$ref' in v)
+
   return Object.entries(headers)
     .map(([k, header]) => {
       const schemaName = toIdentifierPascalCase(ensureSuffix(k, 'Header'))
 
-      if (isReference(header) && header.$ref) {
-        const refName = header.$ref.split('/').pop() ?? k
+      if ('$ref' in header) {
+        const refName = makeRef(header.$ref)
         const refSchema = toIdentifierPascalCase(ensureSuffix(refName, 'Header'))
         return zodToOpenAPISchema(schemaName, refSchema, exportHeaders, exportHeadersTypes, true)
       }

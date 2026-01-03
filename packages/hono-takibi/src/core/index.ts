@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { makeExportConst } from '../helper/code.js'
 import { core } from '../helper/core.js'
-import { exports } from '../helper/exports.js'
+import { makeExports } from '../helper/exports.js'
 import type { Components } from '../openapi/index.js'
 
 export async function componentsCore(
@@ -23,7 +23,7 @@ export async function componentsCore(
 > {
   if (!components) return { ok: false, error: 'No components found' }
   if (split) {
-    const exportsResult = await exports(components, suffix, output)
+    const exportsResult = await makeExports(components, suffix, output)
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
     return { ok: true, value: exportsResult.value }
   }

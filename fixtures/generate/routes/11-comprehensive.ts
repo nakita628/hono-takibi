@@ -650,7 +650,25 @@ const Oauth2SecurityScheme = {
 
 const CreateProductRequestBody = {
   description: 'Product creation request',
-  content: { 'application/json': { schema: CreateProductInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateProductInputSchema,
+      examples: {
+        electronics: {
+          summary: 'Electronics product',
+          value: {
+            sku: 'EL-789012',
+            name: 'Smart Watch',
+            description: 'Fitness tracking smartwatch',
+            price: { amount: 299.99, currency: 'USD' },
+            category: 'electronics',
+            tags: ['wearable', 'fitness'],
+            inventory: 50,
+          },
+        },
+      },
+    },
+  },
   required: true,
 }
 
@@ -662,7 +680,26 @@ const UpdateProductRequestBody = {
 
 const CreateOrderRequestBody = {
   description: 'Order creation request',
-  content: { 'application/json': { schema: CreateOrderInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateOrderInputSchema,
+      examples: {
+        simpleOrder: {
+          summary: 'Simple order',
+          value: {
+            items: [{ productId: '550e8400-e29b-41d4-a716-446655440000', quantity: 2 }],
+            shippingAddress: {
+              street: '123 Main St',
+              city: 'New York',
+              state: 'NY',
+              postalCode: '10001',
+              country: 'US',
+            },
+          },
+        },
+      },
+    },
+  },
   required: true,
 }
 

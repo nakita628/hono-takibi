@@ -926,15 +926,43 @@ const IdempotencyKeyHeaderParamsSchema = z
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
+const CreateUserExample = {
+  summary: 'Create user request',
+  value: { type: 'user', attributes: { name: 'John Doe', status: 'active' } },
+}
+
+const CreateProjectExample = {
+  summary: 'Create project request',
+  value: {
+    type: 'project',
+    attributes: { name: 'New Project', description: 'Project description' },
+  },
+}
+
 const CreateEntityBodyRequestBody = {
   description: 'Create entity request',
-  content: { 'application/json': { schema: CreateEntityInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateEntityInputSchema,
+      examples: { createUser: CreateUserExample, createProject: CreateProjectExample },
+    },
+  },
   required: true,
+}
+
+const UpdateEntityExample = {
+  summary: 'Update entity request',
+  value: { attributes: { name: 'Updated Name', status: 'inactive' } },
 }
 
 const UpdateEntityBodyRequestBody = {
   description: 'Update entity request',
-  content: { 'application/json': { schema: UpdateEntityInputSchema } },
+  content: {
+    'application/json': {
+      schema: UpdateEntityInputSchema,
+      examples: { updateEntity: UpdateEntityExample },
+    },
+  },
   required: true,
 }
 
@@ -1211,24 +1239,6 @@ const ComplexFilterExample = {
   },
 }
 
-const CreateUserExample = {
-  summary: 'Create user request',
-  value: { type: 'user', attributes: { name: 'John Doe', status: 'active' } },
-}
-
-const CreateProjectExample = {
-  summary: 'Create project request',
-  value: {
-    type: 'project',
-    attributes: { name: 'New Project', description: 'Project description' },
-  },
-}
-
-const UpdateEntityExample = {
-  summary: 'Update entity request',
-  value: { attributes: { name: 'Updated Name', status: 'inactive' } },
-}
-
 const GetEntityByIdLink = {
   operationId: 'getEntity',
   parameters: { entityId: '$response.body#/data/id' },
@@ -1244,7 +1254,21 @@ const EntityWebhookCallback = {
     post: {
       operationId: 'entityWebhookCallback',
       requestBody: {
-        content: { 'application/json': { schema: WebhookPayloadSchema } },
+        content: {
+          'application/json': {
+            schema: WebhookPayloadSchema,
+            examples: {
+              created: {
+                summary: 'Entity created event',
+                value: {
+                  event: 'entity.created',
+                  data: { id: '550e8400-e29b-41d4-a716-446655440000', type: 'user' },
+                  timestamp: '2024-01-15T10:30:00Z',
+                },
+              },
+            },
+          },
+        },
         required: true,
       },
       responses: {

@@ -131,7 +131,7 @@ export function makeResponses(responses: Responses) {
   const props = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
-    responses.headers ? `headers:${makeHeaders(responses.headers)}` : undefined,
+    responses.headers ? `headers:${makeHeadersAndReferences(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
@@ -153,17 +153,30 @@ export function makeResponses(responses: Responses) {
  * @param headers Headers object
  * @returns
  */
-export function makeHeaders(headers: Header) {
+export function makeHeadersAndReferences(headers: Header | Reference) {
+  if ('$ref' in headers && headers.$ref) {
+    return makeRef(headers.$ref)
+  }
   const props = [
     headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
-    headers.required ? `required:${JSON.stringify(headers.required)}` : undefined,
-    headers.deprecated ? `deprecated:${JSON.stringify(headers.deprecated)}` : undefined,
-    headers.example ? `example:${JSON.stringify(headers.example)}` : undefined,
-    headers.examples ? `examples:${makeExamples(headers.examples)}` : undefined,
-    headers.style ? `style:${JSON.stringify(headers.style)}` : undefined,
-    headers.explode ? `explode:${JSON.stringify(headers.explode)}` : undefined,
-    headers.schema ? `schema:${zodToOpenAPI(headers.schema)}` : undefined,
-    headers.content ? `content:${makeContent(headers.content)}` : undefined,
+    'required' in headers && headers.required
+      ? `required:${JSON.stringify(headers.required)}`
+      : undefined,
+    'deprecated' in headers && headers.deprecated
+      ? `deprecated:${JSON.stringify(headers.deprecated)}`
+      : undefined,
+    'example' in headers && headers.example
+      ? `example:${JSON.stringify(headers.example)}`
+      : undefined,
+    'examples' in headers && headers.examples
+      ? `examples:${makeExamples(headers.examples)}`
+      : undefined,
+    'style' in headers && headers.style ? `style:${JSON.stringify(headers.style)}` : undefined,
+    'explode' in headers && headers.explode
+      ? `explode:${JSON.stringify(headers.explode)}`
+      : undefined,
+    'schema' in headers && headers.schema ? `schema:${zodToOpenAPI(headers.schema)}` : undefined,
+    'content' in headers && headers.content ? `content:${makeContent(headers.content)}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -267,42 +280,6 @@ export function makeCallbacks(
               : undefined
           const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
 
-          const requestBodyCode = (() => {
-            if (!operation.requestBody) return undefined
-            // Handle $ref to requestBodies component
-            if ('$ref' in operation.requestBody) {
-              return makeRef(operation.requestBody.$ref)
-            }
-            // Handle inline requestBody with content
-            if (!('content' in operation.requestBody && operation.requestBody.content))
-              return undefined
-            const contentEntries = Object.entries(operation.requestBody.content)
-              .map(([mediaType, mediaOrReference]) => {
-                if ('$ref' in mediaOrReference && mediaOrReference.$ref) {
-                  return `${JSON.stringify(mediaType)}:{schema:${makeRef(mediaOrReference.$ref)}}`
-                }
-                if ('schema' in mediaOrReference) {
-                  return `${JSON.stringify(mediaType)}:{schema:${zodToOpenAPI(mediaOrReference.schema)}}`
-                }
-                return undefined
-              })
-              .filter(Boolean)
-              .join(',')
-            if (!contentEntries) return undefined
-            const bodyInner = [
-              `content:{${contentEntries}}`,
-              operation.requestBody.required !== undefined
-                ? `required:${JSON.stringify(operation.requestBody.required)}`
-                : undefined,
-              operation.requestBody.description
-                ? `description:${JSON.stringify(operation.requestBody.description)}`
-                : undefined,
-            ]
-              .filter(Boolean)
-              .join(',')
-            return `{${bodyInner}}`
-          })()
-
           const props = [
             operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
             operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
@@ -316,7 +293,9 @@ export function makeCallbacks(
               ? `operationId:${JSON.stringify(operation.operationId)}`
               : undefined,
             parametersCode ? `parameters:${parametersCode}` : undefined,
-            requestBodyCode ? `requestBody:${requestBodyCode}` : undefined,
+            operation.requestBody
+              ? `requestBody:${makeRequestBody(operation.requestBody)}`
+              : undefined,
             operation.responses
               ? `responses:${makeOperationResponses(operation.responses)}`
               : undefined,
@@ -398,7 +377,7 @@ export function makeContent(
         ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', encoding.itemEncoding)}}`
         : undefined,
     ]
-      .filter((v): v is string => v !== undefined)
+      .filter((v) => v !== undefined)
       .join(',')
 
     return `${JSON.stringify(encodingName)}:{${props}}`
@@ -448,6 +427,18 @@ export function makeContent(
     .filter((v) => v !== undefined)
 }
 
-export function makeRequest(parameters: readonly Parameter[], body: RequestBody) {
-
+/**
+ * generates a request body code from the given request body object.
+ * @param body RequestBody object
+ * @returns
+ */
+export function makeRequestBody(body: RequestBody) {
+  const props = [
+    body.description ? `description:${JSON.stringify(body.description)}` : undefined,
+    body.content ? `content:{${makeContent(body.content)}}` : undefined,
+    body.required ? `required:${JSON.stringify(body.required)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${props}}`
 }

@@ -84,7 +84,18 @@ const PatchUserInputSchema = z
 
 const CreateUserRequestBody = {
   description: 'User creation request',
-  content: { 'application/json': { schema: CreateUserInputSchema } },
+  content: {
+    'application/json': {
+      schema: CreateUserInputSchema,
+      examples: {
+        basicUser: {
+          summary: 'Basic user creation',
+          value: { email: 'user@example.com', name: 'John Doe', password: 'securePassword123' },
+        },
+        minimalUser: { summary: 'Minimal user creation', value: { email: 'minimal@example.com' } },
+      },
+    },
+  },
   required: true,
 }
 
