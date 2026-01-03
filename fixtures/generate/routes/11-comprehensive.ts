@@ -964,8 +964,8 @@ const OrderStatusCallback = {
         },
       },
       responses: {
-        '200': { description: 'Callback acknowledged' },
-        '410': { description: 'Callback URL no longer valid' },
+        200: { description: 'Callback acknowledged' },
+        410: { description: 'Callback URL no longer valid' },
       },
     },
   },
@@ -1007,7 +1007,7 @@ const PaymentCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Callback acknowledged' } },
+      responses: { 200: { description: 'Callback acknowledged' } },
     },
   },
 }
@@ -1019,9 +1019,9 @@ const GenericWebhookCallback = {
       operationId: 'onWebhookEvent',
       requestBody: { content: { 'application/json': { schema: WebhookPayloadSchema } } },
       responses: {
-        '200': { description: 'Webhook received' },
-        '401': { description: 'Invalid signature' },
-        '410': { description: 'Webhook URL no longer valid' },
+        200: { description: 'Webhook received' },
+        401: { description: 'Invalid signature' },
+        410: { description: 'Webhook URL no longer valid' },
       },
     },
   },
@@ -1052,13 +1052,7 @@ export const getProductsRoute = createRoute({
   responses: {
     200: {
       description: 'Product list retrieved successfully',
-      headers: {
-        'X-Request-ID': XRequestIDHeaderSchema,
-        'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
-        'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
-        'X-Total-Count': XTotalCountHeaderSchema,
-        Link: LinkHeaderSchema,
-      },
+      headers: {},
       content: {
         'application/json': {
           schema: ProductListSchema,
@@ -1083,7 +1077,7 @@ export const postProductsRoute = createRoute({
   responses: {
     201: {
       description: 'Product created successfully',
-      headers: { Location: LocationHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema },
+      headers: {},
       content: {
         'application/json': { schema: ProductSchema, examples: { createdProduct: ProductExample } },
       },
@@ -1114,11 +1108,7 @@ export const getProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product details',
-      headers: {
-        ETag: ETagHeaderSchema,
-        'Cache-Control': CacheControlHeaderSchema,
-        'X-Request-ID': XRequestIDHeaderSchema,
-      },
+      headers: {},
       content: {
         'application/json': { schema: ProductSchema, examples: { product: ProductExample } },
       },
@@ -1128,7 +1118,7 @@ export const getProductsProductIdRoute = createRoute({
         GetProductReviews: GetProductReviewsLink,
       },
     },
-    304: { description: 'Not modified', headers: { ETag: ETagHeaderSchema } },
+    304: { description: 'Not modified', headers: {} },
     404: NotFoundResponse,
   },
 })
@@ -1147,7 +1137,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
-      headers: { ETag: ETagHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema },
+      headers: {},
       content: { 'application/json': { schema: ProductSchema } },
     },
     404: NotFoundResponse,
@@ -1167,7 +1157,7 @@ export const deleteProductsProductIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: {
-    204: { description: 'Product deleted', headers: { 'X-Request-ID': XRequestIDHeaderSchema } },
+    204: { description: 'Product deleted', headers: {} },
     404: NotFoundResponse,
     412: PreconditionFailedResponse,
   },

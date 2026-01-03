@@ -295,9 +295,9 @@ const GenericWebhookCallback = {
         required: true,
       },
       responses: {
-        '200': { description: 'Webhook received' },
-        '400': { description: 'Invalid payload' },
-        '401': { description: 'Invalid signature' },
+        200: { description: 'Webhook received' },
+        400: { description: 'Invalid payload' },
+        401: { description: 'Invalid signature' },
       },
     },
   },
@@ -308,7 +308,7 @@ const PaymentSuccessCallback = {
     post: {
       operationId: 'onPaymentSuccess',
       requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -318,7 +318,7 @@ const PaymentFailedCallback = {
     post: {
       operationId: 'onPaymentFailed',
       requestBody: { content: { 'application/json': { schema: PaymentEventSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -351,7 +351,7 @@ const SubscriptionRenewedCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -386,7 +386,7 @@ const SubscriptionCancelledCallback = {
           },
         },
       },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -396,7 +396,7 @@ const JobProgressCallback = {
     post: {
       operationId: 'onJobProgress',
       requestBody: { content: { 'application/json': { schema: JobProgressSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -406,7 +406,7 @@ const JobCompleteCallback = {
     post: {
       operationId: 'onJobComplete',
       requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }
@@ -416,7 +416,7 @@ const JobErrorCallback = {
     post: {
       operationId: 'onJobError',
       requestBody: { content: { 'application/json': { schema: JobResultSchema } } },
-      responses: { '200': { description: 'Acknowledged' } },
+      responses: { 200: { description: 'Acknowledged' } },
     },
   },
 }

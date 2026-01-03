@@ -543,21 +543,6 @@ export const getDeprecatedEndpointRoute = createRoute({
   description:
     '**DEPRECATED**: This endpoint will be removed in v3.\n\nPlease use `/new-endpoint` instead.\n',
   operationId: 'deprecatedOperation',
-  responses: {
-    200: {
-      description: 'OK',
-      headers: {
-        Deprecation: {
-          description: 'Deprecation date',
-          schema: z.string().openapi({ type: 'string' }),
-        },
-        Sunset: { description: 'Removal date', schema: z.string().openapi({ type: 'string' }) },
-        Link: {
-          description: 'Link to replacement',
-          schema: z.string().openapi({ type: 'string' }),
-        },
-      },
-    },
-  },
+  responses: { 200: { description: 'OK', headers: {} } },
   deprecated: true,
 })

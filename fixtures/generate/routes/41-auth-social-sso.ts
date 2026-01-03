@@ -720,10 +720,7 @@ export const getSocialAuthorizeProviderRoute = createRoute({
     }),
   },
   responses: {
-    302: {
-      description: 'プロバイダーの認証画面にリダイレクト',
-      headers: { Location: { schema: z.url().openapi({ type: 'string', format: 'uri' }) } },
-    },
+    302: { description: 'プロバイダーの認証画面にリダイレクト', headers: {} },
     400: {
       description: '不正なリクエスト',
       content: { 'application/json': { schema: ErrorSchema } },
@@ -782,10 +779,7 @@ export const getSocialCallbackProviderRoute = createRoute({
     }),
   },
   responses: {
-    302: {
-      description: 'アプリケーションにリダイレクト',
-      headers: { Location: { schema: z.url().openapi({ type: 'string', format: 'uri' }) } },
-    },
+    302: { description: 'アプリケーションにリダイレクト', headers: {} },
     400: {
       description: '認証失敗',
       content: { 'application/json': { schema: SocialAuthErrorSchema } },

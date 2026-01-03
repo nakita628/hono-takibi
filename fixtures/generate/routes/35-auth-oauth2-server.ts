@@ -985,10 +985,7 @@ export const getOauthAuthorizeRoute = createRoute({
     }),
   },
   responses: {
-    302: {
-      description: 'ログイン画面またはコールバックURLへリダイレクト',
-      headers: { Location: { schema: z.url().openapi({ type: 'string', format: 'uri' }) } },
-    },
+    302: { description: 'ログイン画面またはコールバックURLへリダイレクト', headers: {} },
     400: {
       description: '不正なリクエスト',
       content: { 'application/json': { schema: OAuthErrorSchema } },

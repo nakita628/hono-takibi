@@ -10,6 +10,7 @@ import type {
   Parameter,
   PathItem,
   Reference,
+  RequestBody,
   Responses,
 } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
@@ -111,9 +112,10 @@ export function makeExamples(examples: {
  * @returns
  */
 export function makeOperationResponses(responses: Operation['responses']) {
-  return Object.entries(responses)
+  const result = Object.entries(responses)
     .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
     .join('')
+  return `{${result}}`
 }
 
 /**
@@ -129,15 +131,7 @@ export function makeResponses(responses: Responses) {
   const props = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
-    responses.headers
-      ? `headers:{${Object.entries(responses.headers)
-          .map(([key, header]) =>
-            '$ref' in header && header.$ref
-              ? `${JSON.stringify(key)}:${makeRef(header.$ref)}`
-              : `${JSON.stringify(key)}:${makeHeaders(header)}`,
-          )
-          .join(',')}}`
-      : undefined,
+    responses.headers ? `headers:${makeHeaders(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
@@ -452,4 +446,8 @@ export function makeContent(
       return undefined
     })
     .filter((v) => v !== undefined)
+}
+
+export function makeRequest(parameters: readonly Parameter[], body: RequestBody) {
+
 }

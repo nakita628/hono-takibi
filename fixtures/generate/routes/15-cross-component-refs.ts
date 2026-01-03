@@ -1248,11 +1248,8 @@ const EntityWebhookCallback = {
         required: true,
       },
       responses: {
-        '200': {
-          description: 'Webhook received',
-          headers: { 'X-Request-Id': XRequestIdHeaderSchema },
-        },
-        '400': ValidationErrorResponse,
+        200: { description: 'Webhook received', headers: {} },
+        400: ValidationErrorResponse,
       },
     },
   },

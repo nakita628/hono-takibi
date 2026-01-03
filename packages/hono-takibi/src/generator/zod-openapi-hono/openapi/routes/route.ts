@@ -32,7 +32,7 @@ export function route(path: string, method: string, operation: Operation): strin
     operationId: operation.operationId ? `operationId:'${operation.operationId}',` : '',
     request: requestParams ? `${requestParams}` : '',
     responses: operation.responses
-      ? `responses:{${makeOperationResponses(operation.responses)}},`
+      ? `responses:${makeOperationResponses(operation.responses)},`
       : '',
     callbacks: operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}},` : '',
     deprecated: operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)},` : '',

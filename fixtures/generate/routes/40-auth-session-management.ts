@@ -742,12 +742,7 @@ export const postSessionsRoute = createRoute({
   responses: {
     201: {
       description: 'セッション作成成功',
-      headers: {
-        'Set-Cookie': {
-          description: 'セッションCookie',
-          schema: z.string().openapi({ type: 'string' }),
-        },
-      },
+      headers: {},
       content: { 'application/json': { schema: SessionWithTokensSchema } },
     },
     400: BadRequestResponse,
@@ -777,18 +772,7 @@ export const deleteSessionsCurrentRoute = createRoute({
   tags: ['Current Session'],
   summary: '現在のセッション終了（ログアウト）',
   operationId: 'deleteCurrentSession',
-  responses: {
-    204: {
-      description: 'ログアウト成功',
-      headers: {
-        'Set-Cookie': {
-          description: 'セッションCookie削除',
-          schema: z.string().openapi({ type: 'string' }),
-        },
-      },
-    },
-    401: UnauthorizedResponse,
-  },
+  responses: { 204: { description: 'ログアウト成功', headers: {} }, 401: UnauthorizedResponse },
   security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 })
 

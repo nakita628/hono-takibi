@@ -621,18 +621,7 @@ export const getResponseEncodingRoute = createRoute({
   responses: {
     200: {
       description: 'Response with various encodings',
-      headers: {
-        'Content-Encoding': {
-          schema: z
-            .enum(['gzip', 'deflate', 'br', 'identity'])
-            .openapi({ type: 'string', enum: ['gzip', 'deflate', 'br', 'identity'] }),
-        },
-        'Content-Type': { schema: z.string().openapi({ type: 'string' }) },
-        'Content-Language': { schema: z.string().openapi({ type: 'string' }) },
-        'Content-Disposition': { schema: z.string().openapi({ type: 'string' }) },
-        'Transfer-Encoding': { schema: z.string().openapi({ type: 'string' }) },
-        Vary: { schema: z.string().openapi({ type: 'string' }) },
-      },
+      headers: {},
       content: { 'application/json': { schema: ResponseSchema } },
     },
   },

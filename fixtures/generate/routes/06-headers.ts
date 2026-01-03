@@ -120,12 +120,7 @@ export const getResourcesRoute = createRoute({
   responses: {
     200: {
       description: 'List of resources',
-      headers: {
-        'X-Request-ID': XRequestIDHeaderSchema,
-        'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
-        'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
-        'X-RateLimit-Reset': XRateLimitResetHeaderSchema,
-      },
+      headers: {},
       content: {
         'application/json': {
           schema: z
@@ -168,14 +163,10 @@ export const getResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource details',
-      headers: {
-        ETag: ETagHeaderSchema,
-        'Last-Modified': LastModifiedHeaderSchema,
-        'Cache-Control': CacheControlHeaderSchema,
-      },
+      headers: {},
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    304: { description: 'Not modified', headers: { ETag: ETagHeaderSchema } },
+    304: { description: 'Not modified', headers: {} },
   },
 })
 
@@ -187,13 +178,10 @@ export const putResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource updated',
-      headers: { ETag: ETagHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema },
+      headers: {},
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    412: {
-      description: 'Precondition failed',
-      headers: { 'X-Request-ID': XRequestIDHeaderSchema },
-    },
+    412: { description: 'Precondition failed', headers: {} },
   },
 })
 
@@ -214,11 +202,7 @@ export const getDownloadIdRoute = createRoute({
   responses: {
     200: {
       description: 'File download',
-      headers: {
-        'Content-Disposition': ContentDispositionHeaderSchema,
-        'Content-Length': ContentLengthHeaderSchema,
-        'X-Checksum-SHA256': XChecksumSHA256HeaderSchema,
-      },
+      headers: {},
       content: {
         'application/octet-stream': {
           schema: z.file().openapi({ type: 'string', format: 'binary' }),
