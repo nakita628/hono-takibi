@@ -105,18 +105,20 @@ export function makeOperation(operation: Operation) {
   const requestParams = request(operation.parameters, operation.requestBody)
   return {
     tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : '',
-    summary: operation.summary ? `summary:${JSON.stringify(operation.summary)},` : '',
+    summary: operation.summary ? `summary:'${JSON.stringify(operation.summary)}',` : '',
     description: operation.description
-      ? `description:${JSON.stringify(operation.description)},`
+      ? `description:'${JSON.stringify(operation.description)}',`
       : '',
     externalDocs: operation.externalDocs
       ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
       : '',
-    operationId: operation.operationId
-      ? `operationId:${JSON.stringify(operation.operationId)},`
-      : '',
+    operationId: operation.operationId ? `operationId:'${operation.operationId}',` : '',
     request: requestParams ? `${requestParams}` : '',
-    responses: operation.responses ? `responses:{${makeResponses(operation.responses)}},` : '',
+    responses: operation.responses
+      ? `responses:{${Object.entries(operation.responses)
+          .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
+          .join('')}},`
+      : '',
     callbacks: operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}},` : '',
     deprecated: operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)},` : '',
     security: operation.security ? `security:${JSON.stringify(operation.security)},` : '',
@@ -135,11 +137,10 @@ export function makeResponses(responses: Responses) {
   }
 
   const props = [
-    responses.summary ? `summary:${JSON.stringify(responses.summary)},` : undefined,
-    responses.description ? `description:${JSON.stringify(responses.description)},` : undefined,
+    responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
+    responses.description ? `description:'${responses.description}'` : undefined,
     responses.headers ? `headers:{${makeHeaders(responses.headers)}}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
-    responses.headers ? `headers:{${makeHeaders(responses.headers)}}` : undefined,
     responses.links ? `links:{${makeLinkOrReference(responses.links)}}` : undefined,
   ]
     .filter((v) => v !== undefined)
@@ -464,11 +465,11 @@ export function makeContent(
     .map(([contentType, mediaOrRef]) => {
       // Reference
       if (isReference(mediaOrRef) && mediaOrRef.$ref) {
-        return `${JSON.stringify(contentType)}:${makeRef(mediaOrRef.$ref)}`
+        return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
       }
       // Media
       if (isMedia(mediaOrRef)) {
-        return `${JSON.stringify(contentType)}:${makeMediaString(contentType, mediaOrRef)}`
+        return `'${contentType}':${makeMediaString(contentType, mediaOrRef)}`
       }
       return undefined
     })
