@@ -347,9 +347,13 @@ export const postEncodingTestRoute = createRoute({
             partWithHeaders: {
               contentType: 'text/plain',
               headers: {
-                'X-Custom-Header': { schema: z.string().openapi({ type: 'string' }) },
-                'Content-Disposition': { schema: z.string().openapi({ type: 'string' }) },
-                'X-Part-Index': { schema: z.int().openapi({ type: 'integer' }) },
+                'X-Custom-Header': {
+                  schema: z.string().exactOptional().openapi({ type: 'string' }),
+                },
+                'Content-Disposition': {
+                  schema: z.string().exactOptional().openapi({ type: 'string' }),
+                },
+                'X-Part-Index': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
               },
             },
           },
@@ -625,7 +629,19 @@ export const getResponseEncodingRoute = createRoute({
   responses: {
     200: {
       description: 'Response with various encodings',
-      headers: {},
+      headers: z.object({
+        'Content-Encoding': {
+          schema: z
+            .enum(['gzip', 'deflate', 'br', 'identity'])
+            .exactOptional()
+            .openapi({ type: 'string', enum: ['gzip', 'deflate', 'br', 'identity'] }),
+        },
+        'Content-Type': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        'Content-Language': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        'Content-Disposition': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        'Transfer-Encoding': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        Vary: { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+      }),
       content: { 'application/json': { schema: ResponseSchema } },
     },
   },

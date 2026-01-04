@@ -13,23 +13,19 @@ export function makeConst(exportVariable: boolean, text: string, suffix: string)
 }
 
 /**
- * Builds the Z import line if the code contains 'z.'
+ * Makes the Z import line if the code contains 'z.'
  */
-export function buildZImport(code: string): string {
+export function makeZImport(code: string): string {
   return code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
 }
 
 /**
- * Builds schema import line from code.
+ * Makes schema import line from code.
  * @param code - The generated code to analyze.
  * @param schemaPath - The import path for schemas (e.g., './schemas' or '../schemas').
  * @param excludeSuffix - Optional suffix to exclude from schema tokens (e.g., 'HeaderSchema').
  */
-export function buildSchemaImport(
-  code: string,
-  schemaPath: string,
-  excludeSuffix?: string,
-): string {
+export function makeSchemaImport(code: string, schemaPath: string, excludeSuffix?: string): string {
   const tokens = excludeSuffix
     ? findSchema(code).filter((t) => !t.endsWith(excludeSuffix))
     : findSchema(code)
@@ -37,11 +33,11 @@ export function buildSchemaImport(
 }
 
 /**
- * Builds complete file code with imports.
+ * Makes complete file code with imports.
  */
-export function buildFileCode(code: string, schemaPath: string, excludeSuffix?: string): string {
-  const importZ = buildZImport(code)
-  const importSchemas = buildSchemaImport(code, schemaPath, excludeSuffix)
+export function makeFileCode(code: string, schemaPath: string, excludeSuffix?: string): string {
+  const importZ = makeZImport(code)
+  const importSchemas = makeSchemaImport(code, schemaPath, excludeSuffix)
   return [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
 }
 

@@ -1,8 +1,10 @@
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
-import type { Operation } from '../../../../openapi/index.js'
 import {
-  methodPath,
-} from '../../../../utils/index.js'
+  makeCallbacks,
+  makeOperationResponses,
+  makeRequest,
+} from '../../../../helper/index.js'
+import type {  Operation } from '../../../../openapi/index.js'
+import { methodPath } from '../../../../utils/index.js'
 
 /**
  * Generates TypeScript code for a Hono route from OpenAPI operation details.
@@ -26,7 +28,9 @@ export function route(path: string, method: string, operation: Operation): strin
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
-    makeRequest(operation.parameters, operation.requestBody) ? `request:${makeRequest(operation.parameters, operation.requestBody)}` : undefined,
+    makeRequest(operation.parameters, operation.requestBody)
+      ? `request:${makeRequest(operation.parameters, operation.requestBody)}`
+      : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
     operation.callbacks ? makeCallbacks(operation.callbacks) : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,

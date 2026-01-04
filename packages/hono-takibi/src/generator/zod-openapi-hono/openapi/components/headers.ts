@@ -20,12 +20,11 @@ export function headers(
 
   return Object.entries(headers)
     .map(([k, header]) => {
-      const schemaName = toIdentifierPascalCase(ensureSuffix(k, 'Header'))
+      const schemaName = toIdentifierPascalCase(ensureSuffix(k, 'HeaderSchema'))
 
       if ('$ref' in header) {
         const refName = makeRef(header.$ref)
-        const refSchema = toIdentifierPascalCase(ensureSuffix(refName, 'Header'))
-        return zodToOpenAPISchema(schemaName, refSchema, exportHeaders, exportHeadersTypes, true)
+        return zodToOpenAPISchema(schemaName, refName, exportHeaders, exportHeadersTypes, true)
       }
       if (isHeader(header)) {
         if (header.schema) {

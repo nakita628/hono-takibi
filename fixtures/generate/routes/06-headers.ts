@@ -12,7 +12,7 @@ const ResourceSchema = z
   })
   .openapi('Resource')
 
-const XRequestIDHeader = z
+const XRequestIDHeaderSchema = z
   .uuid()
   .openapi({
     description: 'Unique request identifier for tracing',
@@ -21,7 +21,7 @@ const XRequestIDHeader = z
     format: 'uuid',
   })
 
-const XRateLimitLimitHeader = z
+const XRateLimitLimitHeaderSchema = z
   .int32()
   .openapi({
     description: 'Maximum requests per time window',
@@ -30,7 +30,7 @@ const XRateLimitLimitHeader = z
     format: 'int32',
   })
 
-const XRateLimitRemainingHeader = z
+const XRateLimitRemainingHeaderSchema = z
   .int32()
   .openapi({
     description: 'Remaining requests in current window',
@@ -39,7 +39,7 @@ const XRateLimitRemainingHeader = z
     format: 'int32',
   })
 
-const XRateLimitResetHeader = z
+const XRateLimitResetHeaderSchema = z
   .int64()
   .openapi({
     description: 'Unix timestamp when rate limit resets',
@@ -48,7 +48,7 @@ const XRateLimitResetHeader = z
     format: 'int64',
   })
 
-const ETagHeader = z
+const ETagHeaderSchema = z
   .string()
   .openapi({
     description: 'Entity tag for cache validation',
@@ -56,7 +56,7 @@ const ETagHeader = z
     type: 'string',
   })
 
-const LastModifiedHeader = z.iso
+const LastModifiedHeaderSchema = z.iso
   .datetime()
   .exactOptional()
   .openapi({
@@ -66,7 +66,7 @@ const LastModifiedHeader = z.iso
     format: 'date-time',
   })
 
-const CacheControlHeader = z
+const CacheControlHeaderSchema = z
   .string()
   .exactOptional()
   .openapi({
@@ -75,7 +75,7 @@ const CacheControlHeader = z
     type: 'string',
   })
 
-const ContentDispositionHeader = z
+const ContentDispositionHeaderSchema = z
   .string()
   .openapi({
     description: 'Content disposition for downloads',
@@ -83,11 +83,11 @@ const ContentDispositionHeader = z
     type: 'string',
   })
 
-const ContentLengthHeader = z
+const ContentLengthHeaderSchema = z
   .int64()
   .openapi({ description: 'Size in bytes', example: 1048576, type: 'integer', format: 'int64' })
 
-const XChecksumSHA256Header = z
+const XChecksumSHA256HeaderSchema = z
   .string()
   .exactOptional()
   .openapi({
@@ -120,7 +120,12 @@ export const getResourcesRoute = createRoute({
   responses: {
     200: {
       description: 'List of resources',
-      headers: {},
+      headers: z.object({
+        'X-Request-ID': XRequestIDHeaderSchema,
+        'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
+        'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
+        'X-RateLimit-Reset': XRateLimitResetHeaderSchema,
+      }),
       content: {
         'application/json': {
           schema: z
@@ -163,10 +168,14 @@ export const getResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource details',
-      headers: {},
+      headers: z.object({
+        ETag: ETagHeaderSchema,
+        'Last-Modified': LastModifiedHeaderSchema,
+        'Cache-Control': CacheControlHeaderSchema,
+      }),
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    304: { description: 'Not modified', headers: {} },
+    304: { description: 'Not modified', headers: z.object({ ETag: ETagHeaderSchema }) },
   },
 })
 
@@ -196,10 +205,13 @@ export const putResourcesIdRoute = createRoute({
   responses: {
     200: {
       description: 'Resource updated',
-      headers: {},
+      headers: z.object({ ETag: ETagHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema }),
       content: { 'application/json': { schema: ResourceSchema } },
     },
-    412: { description: 'Precondition failed', headers: {} },
+    412: {
+      description: 'Precondition failed',
+      headers: z.object({ 'X-Request-ID': XRequestIDHeaderSchema }),
+    },
   },
 })
 
@@ -220,7 +232,11 @@ export const getDownloadIdRoute = createRoute({
   responses: {
     200: {
       description: 'File download',
-      headers: {},
+      headers: z.object({
+        'Content-Disposition': ContentDispositionHeaderSchema,
+        'Content-Length': ContentLengthHeaderSchema,
+        'X-Checksum-SHA256': XChecksumSHA256HeaderSchema,
+      }),
       content: {
         'application/octet-stream': {
           schema: z.file().openapi({ type: 'string', format: 'binary' }),

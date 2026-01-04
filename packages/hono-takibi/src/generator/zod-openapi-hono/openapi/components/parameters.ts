@@ -1,10 +1,20 @@
-import type { Components } from '../../../../openapi/index.js'
+import type { Components, Content, Schema } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
   toIdentifierPascalCase,
   zodToOpenAPISchema,
 } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
+
+/**
+ * Extracts schema from parameter content (for parameters using content instead of schema)
+ */
+const getSchemaFromContent = (content: Content | undefined): Schema | undefined => {
+  if (!content) return undefined
+  const firstKey = Object.keys(content)[0]
+  if (!firstKey) return undefined
+  return content[firstKey]?.schema
+}
 
 /**
  * Generates TypeScript code for OpenAPI component parameters.
@@ -30,7 +40,9 @@ export function parameters(
           ...parameter,
         },
       }
-      const z = zodToOpenAPI(parameter.schema, meta)
+      // Handle parameters with content instead of schema (OpenAPI 3.x)
+      const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
+      const z = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
       return zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
         z,

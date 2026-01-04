@@ -760,7 +760,12 @@ export const getSamlSsoRoute = createRoute({
     }),
   },
   responses: {
-    302: { description: '認証フォームまたはSPへリダイレクト', headers: {} },
+    302: {
+      description: '認証フォームまたはSPへリダイレクト',
+      headers: z.object({
+        Location: { schema: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
     400: {
       description: '不正なSAMLリクエスト',
       content: { 'application/json': { schema: SamlErrorSchema } },

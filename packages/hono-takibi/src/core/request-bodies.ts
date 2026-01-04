@@ -1,10 +1,37 @@
 import path from 'node:path'
 import { makeBarell } from '../helper/barell.js'
-import { buildFileCode } from '../helper/code.js'
+import { makeFileCode } from '../helper/code.js'
 import { core } from '../helper/core.js'
 import { makeRequestBody } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
+
+/**
+ * Finds tokens with a specific suffix pattern in code.
+ */
+const findTokensBySuffix = (code: string, suffix: string): readonly string[] => {
+  const pattern = new RegExp(`\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\b`, 'g')
+  return Array.from(
+    new Set(
+      Array.from(code.matchAll(pattern))
+        .map((m) => m[1] ?? '')
+        .filter(Boolean),
+    ),
+  )
+}
+
+/**
+ * Makes import lines for examples.
+ */
+const makeExamplesImport = (code: string, prefix: string): string => {
+  const examples = findTokensBySuffix(code, 'Example')
+  return examples.length > 0 ? renderNamedImport(examples, `${prefix}/examples`) : ''
+}
 
 const coerceDateIfNeeded = (expr: string): string =>
   expr.includes('z.date()') ? expr.replace(/z\.date\(\)/g, 'z.coerce.date()') : expr
@@ -36,7 +63,11 @@ export async function requestBodies(
     for (const key of Object.keys(bodies)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const fileCode = buildFileCode(one.code, '../schemas')
+      const baseCode = makeFileCode(one.code, '../schemas')
+      const examplesImport = makeExamplesImport(one.code, '..')
+      const fileCode = examplesImport
+        ? `${baseCode.split('\n')[0]}\n${examplesImport}\n${baseCode.split('\n').slice(1).join('\n')}`
+        : baseCode
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -63,7 +94,11 @@ export async function requestBodies(
     .join('\n\n')
 
   const outFile = String(output)
-  const fileCode = buildFileCode(defs, './schemas')
+  const baseCode = makeFileCode(defs, './schemas')
+  const examplesImport = makeExamplesImport(defs, '.')
+  const fileCode = examplesImport
+    ? `${baseCode.split('\n')[0]}\n${examplesImport}\n${baseCode.split('\n').slice(1).join('\n')}`
+    : baseCode
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

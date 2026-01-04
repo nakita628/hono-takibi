@@ -823,7 +823,30 @@ export const getUserLoginRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      headers: {},
+      headers: z.object({
+        'X-Rate-Limit': {
+          description: 'calls per hour allowed by the user',
+          schema: z
+            .int32()
+            .exactOptional()
+            .openapi({
+              description: 'calls per hour allowed by the user',
+              type: 'integer',
+              format: 'int32',
+            }),
+        },
+        'X-Expires-After': {
+          description: 'date in UTC when token expires',
+          schema: z.iso
+            .datetime()
+            .exactOptional()
+            .openapi({
+              description: 'date in UTC when token expires',
+              type: 'string',
+              format: 'date-time',
+            }),
+        },
+      }),
       content: {
         'application/xml': { schema: z.string().openapi({ type: 'string' }) },
         'application/json': { schema: z.string().openapi({ type: 'string' }) },

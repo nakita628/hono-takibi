@@ -4,7 +4,13 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
 import type { Header, OpenAPI, Reference } from '../openapi/index.js'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  findSchema,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
 const isReference = (v: unknown): v is Reference =>
   typeof v === 'object' && v !== null && '$ref' in v
@@ -20,14 +26,14 @@ function buildHeaderSchema(
   exportHeader: boolean,
   exportType: boolean,
 ): string {
-  const constName = toIdentifierPascalCase(ensureSuffix(key, 'Header'))
+  const constName = toIdentifierPascalCase(ensureSuffix(key, 'HeaderSchema'))
   const typeName = toIdentifierPascalCase(key)
   const zInfer = exportType ? `\n\nexport type ${typeName} = z.infer<typeof ${constName}>` : ''
   const exportPrefix = exportHeader ? 'export const' : 'const'
 
   if (isReference(header) && header.$ref) {
     const refName = header.$ref.split('/').pop() ?? key
-    return `${exportPrefix} ${constName} = ${toIdentifierPascalCase(ensureSuffix(refName, 'Header'))}${zInfer}`
+    return `${exportPrefix} ${constName} = ${toIdentifierPascalCase(ensureSuffix(refName, 'HeaderSchema'))}${zInfer}`
   }
 
   if (isHeader(header)) {
@@ -66,7 +72,10 @@ export async function headers(
 
       const code = buildHeaderSchema(key, header, true, exportType)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const fileCode = [importZ, '\n', code, ''].filter(Boolean).join('\n')
+      const schemaTokens = findSchema(code)
+      const importSchemas =
+        schemaTokens.length > 0 ? renderNamedImport(schemaTokens, '../schemas') : ''
+      const fileCode = [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
 
       const fmtResult = await fmt(fileCode)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
@@ -100,7 +109,9 @@ export async function headers(
     .join('\n\n')
 
   const outFile = String(output)
-  const fileCode = [importZ, '\n', defs, ''].filter(Boolean).join('\n')
+  const schemaTokens = findSchema(defs)
+  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, './schemas') : ''
+  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
 
   const fmtResult = await fmt(fileCode)
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }

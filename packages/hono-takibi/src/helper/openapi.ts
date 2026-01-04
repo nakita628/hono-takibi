@@ -130,6 +130,13 @@ export function makeOperationResponses(responses: Operation['responses']) {
   return `{${result}}`
 }
 
+export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
+  const result = Object.entries(headers)
+    .map(([key, header]) => `${JSON.stringify(key)}:${makeHeadersAndReferences(header)}`)
+    .join(',')
+  return `z.object({${result}})`
+}
+
 /**
  * generates a response code from the given responses object.
  * @param responses
@@ -143,7 +150,7 @@ export function makeResponses(responses: Responses) {
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
-    responses.headers ? `headers:${makeHeadersAndReferences(responses.headers)}` : undefined,
+    responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
@@ -187,7 +194,9 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
     'explode' in headers && headers.explode
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
-    'schema' in headers && headers.schema ? `schema:${zodToOpenAPI(headers.schema)}` : undefined,
+    'schema' in headers && headers.schema
+      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers })}`
+      : undefined,
     'content' in headers && headers.content ? `content:${makeContent(headers.content)}` : undefined,
   ]
     .filter((v) => v !== undefined)

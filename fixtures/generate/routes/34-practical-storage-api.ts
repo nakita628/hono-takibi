@@ -890,7 +890,10 @@ export const getFilesFileIdDownloadRoute = createRoute({
   responses: {
     200: {
       description: 'ファイルコンテンツ',
-      headers: {},
+      headers: z.object({
+        'Content-Disposition': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        'Content-Type': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+      }),
       content: {
         'application/octet-stream': {
           schema: z.file().openapi({ type: 'string', format: 'binary' }),

@@ -1,70 +1,99 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
-import { buildFileCode } from '../helper/code.js'
+import { makeFileCode } from '../helper/code.js'
 import { core } from '../helper/core.js'
-import { makeContent, makeRef } from '../helper/index.js'
+import { makeContent, makeLinkOrReference, makeRef } from '../helper/index.js'
 import type { Components, Header, Reference, Responses } from '../openapi/index.js'
-import { ensureSuffix, isRecord, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
-const isRef = (v: unknown): v is Reference & { $ref: string } =>
-  isRecord(v) && typeof v.$ref === 'string'
-
-const isHeader = (v: unknown): v is Header => isRecord(v) && !('$ref' in v)
-
-const headerSchemaExpr = (header: Header | Reference): string => {
-  if (!isHeader(header)) return 'z.any()'
-  return zodToOpenAPI(header.schema ?? {}, { headers: header })
+/**
+ * Finds tokens with a specific suffix pattern in code.
+ */
+const findTokensBySuffix = (code: string, suffix: string): readonly string[] => {
+  const pattern = new RegExp(`\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\b`, 'g')
+  return Array.from(
+    new Set(
+      Array.from(code.matchAll(pattern))
+        .map((m) => m[1] ?? '')
+        .filter(Boolean),
+    ),
+  )
 }
 
-const resolveHeader = (header: Header | Reference, components: Components): Header | Reference => {
-  if (!(isRef(header) && header.$ref.startsWith('#/components/headers/'))) return header
-  const key = header.$ref.slice('#/components/headers/'.length)
-  if (!key) return header
-  return components.headers?.[key] ?? header
+/**
+ * Makes import lines for examples and links.
+ */
+const makeExtraImports = (code: string, prefix: string): string => {
+  const examples = findTokensBySuffix(code, 'Example')
+  const links = findTokensBySuffix(code, 'Link')
+  const importExamples =
+    examples.length > 0 ? renderNamedImport(examples, `${prefix}/examples`) : ''
+  const importLinks = links.length > 0 ? renderNamedImport(links, `${prefix}/links`) : ''
+  return [importExamples, importLinks].filter(Boolean).join('\n')
 }
 
-const headersPropExpr = (
-  headers: Responses['headers'] | undefined,
-  components: Components,
-): string | undefined => {
-  if (!headers) return undefined
-  const entries = Object.entries(headers).map(([name, header]) => {
-    const resolved = resolveHeader(header, components)
-    return `${JSON.stringify(name)}:${headerSchemaExpr(resolved)}`
-  })
-  return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
+/**
+ * Build a single header schema code from Header or Reference.
+ */
+function makeHeaderSchema(header: Header | Reference): string {
+  if ('$ref' in header && header.$ref) {
+    return makeRef(header.$ref)
+  }
+  if ('schema' in header && header.schema) {
+    return zodToOpenAPI(header.schema, { headers: header })
+  }
+  return 'z.any()'
 }
 
-const linksPropExpr = (
-  links: Responses['links'] | undefined,
-  components: Components,
-): string | undefined => {
-  if (!links) return undefined
-  const entries = Object.entries(links).map(([name, link]) => {
-    const key = JSON.stringify(name)
-    if (!(isRef(link) && link.$ref.startsWith('#/components/links/'))) {
-      return `${key}:${JSON.stringify(link)}`
-    }
-    const refKey = link.$ref.slice('#/components/links/'.length)
-    const resolved = refKey ? components.links?.[refKey] : undefined
-    return resolved
-      ? `${key}:${makeRef(link.$ref as `#/components/${string}/${string}`)}`
-      : `${key}:{$ref:${JSON.stringify(link.$ref)}}`
-  })
-  return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
+/**
+ * Build headers as z.object({...}) from multiple headers.
+ */
+function makeResponseHeaders(headers: { readonly [k: string]: Header | Reference }): string {
+  const entries = Object.entries(headers)
+  if (entries.length === 0) return ''
+  const result = entries
+    .map(([key, header]) => `${JSON.stringify(key)}:${makeHeaderSchema(header)}`)
+    .join(',')
+  return `z.object({${result}})`
 }
 
-const responseDefinitionExpr = (res: Responses, components: Components): string => {
-  if (typeof res.$ref === 'string') return `{$ref:${JSON.stringify(res.$ref)}}`
-  const contentExpr = res.content ? `content:{${makeContent(res.content).join(',')}}` : undefined
-  const props = [
-    `description:${JSON.stringify(res.description ?? '')}`,
-    headersPropExpr(res.headers, components),
-    linksPropExpr(res.links, components),
-    contentExpr,
-  ].filter(Boolean)
-  return `{${props.join(',')}}`
+/**
+ * Build a response object code using openapi.ts functions.
+ */
+function buildResponse(res: Responses): string {
+  if (res.$ref) {
+    return makeRef(res.$ref)
+  }
+
+  const headersCode =
+    res.headers && Object.keys(res.headers).length > 0
+      ? `headers:${makeResponseHeaders(res.headers)}`
+      : undefined
+
+  const result = [
+    res.summary ? `summary:${JSON.stringify(res.summary)}` : undefined,
+    res.description ? `description:${JSON.stringify(res.description)}` : undefined,
+    headersCode,
+    res.content ? `content:{${makeContent(res.content)}}` : undefined,
+    res.links
+      ? `links:{${Object.entries(res.links)
+          .map(([key, link]) =>
+            '$ref' in link && link.$ref
+              ? `${JSON.stringify(key)}:${makeRef(link.$ref)}`
+              : `${JSON.stringify(key)}:${makeLinkOrReference(link)}`,
+          )
+          .join(',')}}`
+      : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${result}}`
 }
 
 /**
@@ -82,8 +111,8 @@ export async function responses(
 
   const makeOne = (key: string): { name: string; code: string } => {
     const res = responses[key]
-    const expr = res ? responseDefinitionExpr(res, components) : '{}'
-    const name = key
+    const expr = res ? buildResponse(res) : '{}'
+    const name = toIdentifierPascalCase(ensureSuffix(key, 'Response'))
     return { name, code: `export const ${name} = ${expr}` }
   }
 
@@ -93,7 +122,11 @@ export async function responses(
     for (const key of Object.keys(responses)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const fileCode = buildFileCode(one.code, '../schemas', 'HeaderSchema')
+      const baseCode = makeFileCode(one.code, '../schemas', 'HeaderSchema')
+      const extraImports = makeExtraImports(one.code, '..')
+      const fileCode = extraImports
+        ? `${baseCode.split('\n')[0]}\n${extraImports}\n${baseCode.split('\n').slice(1).join('\n')}`
+        : baseCode
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -114,13 +147,17 @@ export async function responses(
   const defs = Object.keys(responses)
     .map((key) => {
       const res = responses[key]
-      const expr = res ? responseDefinitionExpr(res, components) : '{}'
+      const expr = res ? buildResponse(res) : '{}'
       return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'Response'))} = ${expr}`
     })
     .join('\n\n')
 
   const outFile = String(output)
-  const fileCode = buildFileCode(defs, './schemas', 'HeaderSchema')
+  const baseCode = makeFileCode(defs, './schemas', 'HeaderSchema')
+  const extraImports = makeExtraImports(defs, '.')
+  const fileCode = extraImports
+    ? `${baseCode.split('\n')[0]}\n${extraImports}\n${baseCode.split('\n').slice(1).join('\n')}`
+    : baseCode
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

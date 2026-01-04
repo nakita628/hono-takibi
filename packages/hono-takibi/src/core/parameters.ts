@@ -4,7 +4,7 @@ import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
-import type { OpenAPI, Parameter } from '../openapi/index.js'
+import type { Content, OpenAPI, Parameter, Schema } from '../openapi/index.js'
 import {
   ensureSuffix,
   findSchema,
@@ -13,6 +13,16 @@ import {
   toIdentifierPascalCase,
   zodToOpenAPISchema,
 } from '../utils/index.js'
+
+/**
+ * Extracts schema from parameter content (for parameters using content instead of schema)
+ */
+const getSchemaFromContent = (content: Content | undefined): Schema | undefined => {
+  if (!content) return undefined
+  const firstKey = Object.keys(content)[0]
+  if (!firstKey) return undefined
+  return content[firstKey]?.schema
+}
 
 /**
  * Generates `components.parameters` schemas as Zod definitions.
@@ -62,9 +72,9 @@ export async function parameters(
       if (!p) continue
 
       const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'ParamsSchema'))
-      const z = zodToOpenAPI(p.schema, {
-        parameters: p,
-      })
+      // Handle parameters with content instead of schema (OpenAPI 3.x)
+      const schema = p.schema ?? getSchemaFromContent(p.content)
+      const z = schema ? zodToOpenAPI(schema, { parameters: p }) : 'z.any()'
       const code = zodToOpenAPISchema(schemaName, z, true, exportType, true)
 
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
