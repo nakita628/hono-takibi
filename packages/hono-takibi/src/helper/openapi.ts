@@ -322,11 +322,11 @@ export function makeCallbacks(
             .join(',')
           return `${method}:{${result}}`
         })
-        .filter(Boolean)
+        .filter((v) => v !== undefined)
         .join(',')
       return pathItemCode ? `${JSON.stringify(callbackKey)}:{${pathItemCode}}` : undefined
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join(',')
 }
 
