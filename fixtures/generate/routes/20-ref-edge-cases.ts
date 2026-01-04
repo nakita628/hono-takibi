@@ -860,7 +860,7 @@ const ErrorResponse = {
   },
 }
 
-const RefHeader = ItemSchema.exactOptional()
+const RefHeaderHeaderSchema = ItemSchema.exactOptional()
 
 const ItemExample = { summary: 'Item example', value: { id: '123', name: 'Example', value: 42 } }
 

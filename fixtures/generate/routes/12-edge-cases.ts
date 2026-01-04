@@ -651,15 +651,21 @@ const OpenIdConnectSecurityScheme = {
 
 const NoContentResponse = { description: 'No content response' }
 
-const HeadersOnlyResponse = { description: 'Response with headers only' }
+const HeadersOnlyResponse = {
+  description: 'Response with headers only',
+  headers: z.object({
+    'X-Custom-Header': z.string().exactOptional().openapi({ type: 'string' }),
+    'X-Another-Header': z.int().exactOptional().openapi({ type: 'integer' }),
+  }),
+}
 
-const StringHeader = z.string().exactOptional().openapi({ type: 'string' })
+const StringHeaderHeaderSchema = z.string().exactOptional().openapi({ type: 'string' })
 
-const IntegerHeader = z.int().exactOptional().openapi({ type: 'integer' })
+const IntegerHeaderHeaderSchema = z.int().exactOptional().openapi({ type: 'integer' })
 
-const BooleanHeader = z.boolean().exactOptional().openapi({ type: 'boolean' })
+const BooleanHeaderHeaderSchema = z.boolean().exactOptional().openapi({ type: 'boolean' })
 
-const ArrayHeader = z
+const ArrayHeaderHeaderSchema = z
   .array(z.string().exactOptional().openapi({ type: 'string' }))
   .exactOptional()
   .openapi({ type: 'array', items: { type: 'string' } })

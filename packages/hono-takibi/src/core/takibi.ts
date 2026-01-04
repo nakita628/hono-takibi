@@ -1,8 +1,9 @@
 import path from 'node:path'
 import { fmt } from '../format/index.js'
-import { mkdir, readdir, writeFile } from '../fsp/index.js'
+import { mkdir, writeFile } from '../fsp/index.js'
 import { app } from '../generator/zod-openapi-hono/app/index.js'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
+import { core } from '../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
@@ -75,22 +76,18 @@ export async function takibi(
     }
 > {
   try {
-    const honoResult = await fmt(zodOpenAPIHono(openAPI, componentsOptions))
-    if (!honoResult.ok) return { ok: false, error: honoResult.error }
-    const mkdirResult = await mkdir(path.dirname(output))
-    if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-    const writeResult = await writeFile(output, honoResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
+    const coreResult = await core(
+      zodOpenAPIHono(openAPI, componentsOptions),
+      path.dirname(output),
+      output,
+    )
+    if (!coreResult.ok) return { ok: false, error: coreResult.error }
     /** template */
     if (template && output.includes('/')) {
-      const appResult = await fmt(app(openAPI, output, basePath))
-      if (!appResult.ok) return { ok: false, error: appResult.error }
       const dir = path.dirname(output)
-      const readdirResult = await readdir(dir)
-      if (!readdirResult.ok) return { ok: false, error: readdirResult.error }
       const target = path.join(dir, 'index.ts')
-      const writeResult = await writeFile(target, appResult.value)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
+      const appResult = await core(app(openAPI, output, basePath), dir, target)
+      if (!appResult.ok) return { ok: false, error: appResult.error }
       const zodOpenAPIHonoHandlerResult = await zodOpenAPIHonoHandler(openAPI, output, test)
       if (!zodOpenAPIHonoHandlerResult.ok)
         return { ok: false, error: zodOpenAPIHonoHandlerResult.error }

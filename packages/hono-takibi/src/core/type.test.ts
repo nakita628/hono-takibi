@@ -52,7 +52,7 @@ const openapi: OpenAPI = {
 }
 
 describe('type', () => {
-  it('should return ok when successful', async () => {
+  it('should return ok when successful', { timeout: 5000 }, async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-type-'))
     try {
       const input = path.join(dir, 'openapi.json') as

@@ -13,7 +13,6 @@ import {
   normalizeTypes,
   parseCli,
   parseConfig,
-  regex,
   registerComponent,
   requestParamsArray,
   toIdentifierPascalCase,
@@ -675,26 +674,6 @@ describe('utils', () => {
       ['123startWithNumber', '_123startWithNumber'],
     ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
       expect(toIdentifierPascalCase(input)).toBe(expected)
-    })
-  })
-  // regex
-  describe('regex', () => {
-    it.concurrent.each([
-      ['^[a-z]+$', '.regex(/^[a-z]+$/)'],
-      ['^\\d{4}-\\d{2}-\\d{2}$', '.regex(/^\\d{4}-\\d{2}-\\d{2}$/)'],
-      [
-        '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$',
-        '.regex(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$/)',
-      ],
-      ['^#[0-9a-fA-F]{6}$', '.regex(/^#[0-9a-fA-F]{6}$/)'],
-      [
-        '^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$',
-        '.regex(/^(https?:\\/\\/)?[\\w.-]+\\.[a-zA-Z]{2,}([\\/\\w .-]*)*\\/?$/)',
-      ],
-      ['^\\d{2}/\\d{2}$', '.regex(/^\\d{2}\\/\\d{2}$/)'],
-      ['^/api/users$', '.regex(/^\\/api\\/users$/)'],
-    ])(`regex('%s') -> '%s'`, (input, expected) => {
-      expect(regex(input)).toBe(expected)
     })
   })
   // findSchema

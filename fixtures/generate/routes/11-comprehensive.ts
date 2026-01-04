@@ -729,6 +729,10 @@ const CreateWebhookRequestBody = {
   required: true,
 }
 
+const XRequestIDHeaderSchema = z
+  .uuid()
+  .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
+
 const ValidationErrorExample = {
   summary: 'Validation error',
   value: {
@@ -743,6 +747,7 @@ const ValidationErrorExample = {
 
 const BadRequestResponse = {
   description: 'Bad request - invalid parameters',
+  headers: z.object({ 'X-Request-ID': XRequestIDHeaderSchema }),
   content: {
     'application/json': {
       schema: ErrorSchema,
@@ -753,6 +758,12 @@ const BadRequestResponse = {
 
 const UnauthorizedResponse = {
   description: 'Authentication required',
+  headers: z.object({
+    'WWW-Authenticate': z
+      .string()
+      .exactOptional()
+      .openapi({ type: 'string', example: 'Bearer realm="api"' }),
+  }),
   content: {
     'application/json': {
       schema: ErrorSchema,
@@ -773,6 +784,7 @@ const ForbiddenResponse = {
 
 const NotFoundResponse = {
   description: 'Resource not found',
+  headers: z.object({ 'X-Request-ID': XRequestIDHeaderSchema }),
   content: {
     'application/json': {
       schema: ErrorSchema,
@@ -801,8 +813,32 @@ const PreconditionFailedResponse = {
   },
 }
 
+const XRateLimitLimitHeaderSchema = z
+  .int32()
+  .exactOptional()
+  .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
+
+const XRateLimitRemainingHeaderSchema = z
+  .int32()
+  .exactOptional()
+  .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
+
+const XRateLimitResetHeaderSchema = z
+  .int64()
+  .exactOptional()
+  .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
+
 const TooManyRequestsResponse = {
   description: 'Rate limit exceeded',
+  headers: z.object({
+    'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
+    'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
+    'X-RateLimit-Reset': XRateLimitResetHeaderSchema,
+    'Retry-After': z
+      .int()
+      .exactOptional()
+      .openapi({ type: 'integer', description: 'Seconds until retry' }),
+  }),
   content: {
     'application/json': {
       schema: ErrorSchema,
@@ -813,6 +849,7 @@ const TooManyRequestsResponse = {
 
 const InternalErrorResponse = {
   description: 'Internal server error',
+  headers: z.object({ 'X-Request-ID': XRequestIDHeaderSchema }),
   content: {
     'application/json': {
       schema: ErrorSchema,
@@ -821,36 +858,17 @@ const InternalErrorResponse = {
   },
 }
 
-const XRequestIDHeader = z
-  .uuid()
-  .openapi({ description: 'Unique request identifier for tracing', type: 'string', format: 'uuid' })
-
-const XRateLimitLimitHeader = z
-  .int32()
-  .exactOptional()
-  .openapi({ description: 'Maximum requests per window', type: 'integer', format: 'int32' })
-
-const XRateLimitRemainingHeader = z
-  .int32()
-  .exactOptional()
-  .openapi({ description: 'Remaining requests in window', type: 'integer', format: 'int32' })
-
-const XRateLimitResetHeader = z
-  .int64()
-  .exactOptional()
-  .openapi({ description: 'Unix timestamp when limit resets', type: 'integer', format: 'int64' })
-
-const XTotalCountHeader = z
+const XTotalCountHeaderSchema = z
   .int64()
   .exactOptional()
   .openapi({ description: 'Total number of items', type: 'integer', format: 'int64' })
 
-const ETagHeader = z
+const ETagHeaderSchema = z
   .string()
   .exactOptional()
   .openapi({ description: 'Entity tag for caching', type: 'string' })
 
-const CacheControlHeader = z
+const CacheControlHeaderSchema = z
   .string()
   .exactOptional()
   .openapi({
@@ -859,12 +877,12 @@ const CacheControlHeader = z
     example: 'max-age=3600, must-revalidate',
   })
 
-const LocationHeader = z
+const LocationHeaderSchema = z
   .url()
   .exactOptional()
   .openapi({ description: 'URL of created resource', type: 'string', format: 'uri' })
 
-const LinkHeader = z
+const LinkHeaderSchema = z
   .string()
   .exactOptional()
   .openapi({
@@ -1089,7 +1107,13 @@ export const getProductsRoute = createRoute({
   responses: {
     200: {
       description: 'Product list retrieved successfully',
-      headers: {},
+      headers: z.object({
+        'X-Request-ID': XRequestIDHeaderSchema,
+        'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
+        'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
+        'X-Total-Count': XTotalCountHeaderSchema,
+        Link: LinkHeaderSchema,
+      }),
       content: {
         'application/json': {
           schema: ProductListSchema,
@@ -1114,7 +1138,7 @@ export const postProductsRoute = createRoute({
   responses: {
     201: {
       description: 'Product created successfully',
-      headers: {},
+      headers: z.object({ Location: LocationHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema }),
       content: {
         'application/json': { schema: ProductSchema, examples: { createdProduct: ProductExample } },
       },
@@ -1145,7 +1169,11 @@ export const getProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product details',
-      headers: {},
+      headers: z.object({
+        ETag: ETagHeaderSchema,
+        'Cache-Control': CacheControlHeaderSchema,
+        'X-Request-ID': XRequestIDHeaderSchema,
+      }),
       content: {
         'application/json': { schema: ProductSchema, examples: { product: ProductExample } },
       },
@@ -1155,7 +1183,7 @@ export const getProductsProductIdRoute = createRoute({
         GetProductReviews: GetProductReviewsLink,
       },
     },
-    304: { description: 'Not modified', headers: {} },
+    304: { description: 'Not modified', headers: z.object({ ETag: ETagHeaderSchema }) },
     404: NotFoundResponse,
   },
 })
@@ -1174,7 +1202,7 @@ export const putProductsProductIdRoute = createRoute({
   responses: {
     200: {
       description: 'Product updated',
-      headers: {},
+      headers: z.object({ ETag: ETagHeaderSchema, 'X-Request-ID': XRequestIDHeaderSchema }),
       content: { 'application/json': { schema: ProductSchema } },
     },
     404: NotFoundResponse,
@@ -1194,7 +1222,10 @@ export const deleteProductsProductIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: {
-    204: { description: 'Product deleted', headers: {} },
+    204: {
+      description: 'Product deleted',
+      headers: z.object({ 'X-Request-ID': XRequestIDHeaderSchema }),
+    },
     404: NotFoundResponse,
     412: PreconditionFailedResponse,
   },

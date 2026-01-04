@@ -125,9 +125,20 @@ export function makeExamples(examples: {
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
-    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)}`)
+    .map(
+      ([StatusCode, res]) =>
+        `${/^\d+$/.test(StatusCode) ? StatusCode : `'${StatusCode}'`}:${makeResponses(res)}`,
+    )
+    // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
   return `{${result}}`
+}
+
+export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
+  const result = Object.entries(headers)
+    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header)}`)
+    .join(',')
+  return `z.object({${result}})`
 }
 
 /**
@@ -143,7 +154,7 @@ export function makeResponses(responses: Responses) {
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
-    responses.headers ? `headers:${makeHeadersAndReferences(responses.headers)}` : undefined,
+    responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
     responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
@@ -187,7 +198,9 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
     'explode' in headers && headers.explode
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
-    'schema' in headers && headers.schema ? `schema:${zodToOpenAPI(headers.schema)}` : undefined,
+    'schema' in headers && headers.schema
+      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers })}`
+      : undefined,
     'content' in headers && headers.content ? `content:${makeContent(headers.content)}` : undefined,
   ]
     .filter((v) => v !== undefined)

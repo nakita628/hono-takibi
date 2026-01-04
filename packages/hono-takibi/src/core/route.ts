@@ -1,157 +1,168 @@
 import path from 'node:path'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
-import { core } from '../helper/core.js'
-import { moduleSpecFrom } from '../helper/module-spec-from.js'
+import { core, makeBarell, makeModuleSpec } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { findSchema, lowerFirst, renderNamedImport } from '../utils/index.js'
+import { findSchema, findTokensBySuffix, lowerFirst, renderNamedImport } from '../utils/index.js'
 
-const stripStringLiterals = (code: string): string => {
-  // Remove simple single/double-quoted string literals to avoid treating object keys as identifiers.
-  return code.replace(/'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"/g, '')
+// Common type for component configuration
+type ComponentTarget = {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
 }
 
-const findTokensBySuffix = (code: string, suffix: string): readonly string[] => {
-  const tokens = stripStringLiterals(code).match(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)
-  if (!tokens) return []
-  return Array.from(new Set(tokens.filter((t) => t.endsWith(suffix))))
+type ComponentsConfig = {
+  readonly schemas?: ComponentTarget & { readonly exportTypes?: boolean }
+  readonly parameters?: ComponentTarget & { readonly exportTypes?: boolean }
+  readonly securitySchemes?: ComponentTarget
+  readonly requestBodies?: ComponentTarget
+  readonly responses?: ComponentTarget
+  readonly headers?: ComponentTarget & { readonly exportTypes?: boolean }
+  readonly examples?: ComponentTarget
+  readonly links?: ComponentTarget
+  readonly callbacks?: ComponentTarget
 }
 
+type Result =
+  | { readonly ok: true; readonly value: string }
+  | { readonly ok: false; readonly error: string }
+
+// Extract route blocks from source code
 const extractRouteBlocks = (
   src: string,
 ): readonly { readonly name: string; readonly block: string }[] => {
   const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
   const hits = Array.from(src.matchAll(re))
-    .map((m) => ({
-      name: (m[1] ?? '').trim(),
-      start: m.index ?? 0,
-    }))
+    .map((m) => ({ name: (m[1] ?? '').trim(), start: m.index ?? 0 }))
     .filter((h) => h.name.length > 0)
-  return hits.map((h, i) => {
-    const start = h.start
-    const end = i + 1 < hits.length ? (hits[i + 1]?.start ?? src.length) : src.length
-    return { name: h.name, block: src.slice(start, end).trim() }
-  })
+
+  return hits.map((h, i) => ({
+    name: h.name,
+    block: src.slice(h.start, hits[i + 1]?.start ?? src.length).trim(),
+  }))
+}
+
+// Generate Hono import statement
+const makeHonoImport = (src: string): string => {
+  const includeZ = src.includes('z.')
+  return `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
+}
+
+// Build complete source with imports
+const buildSource = (src: string, importLines: readonly string[]): string =>
+  [makeHonoImport(src), ...importLines, '\n', src, ''].filter(Boolean).join('\n')
+
+// Classify schema tokens into their respective component types
+const classifySchemaTokens = (
+  tokens: readonly string[],
+  parameterNames: ReadonlySet<string>,
+  headerNames: ReadonlySet<string>,
+): {
+  readonly schemas: ReadonlySet<string>
+  readonly parameters: ReadonlySet<string>
+  readonly headers: ReadonlySet<string>
+} => {
+  const schemas = new Set<string>()
+  const parameters = new Set<string>()
+  const headers = new Set<string>()
+
+  for (const token of tokens) {
+    if (headerNames.has(token) || token.endsWith('HeaderSchema')) {
+      headers.add(token)
+    } else if (parameterNames.has(token) || token.endsWith('ParamsSchema')) {
+      parameters.add(token)
+    } else {
+      schemas.add(token)
+    }
+  }
+  return { schemas, parameters, headers }
+}
+
+// Create import line from tokens and target
+const makeImportLine = (
+  tokens: ReadonlySet<string> | readonly string[],
+  target: ComponentTarget | undefined,
+  fromFile: string,
+): string | undefined => {
+  const arr = Array.isArray(tokens) ? tokens : Array.from(tokens)
+  if (arr.length === 0 || !target) return undefined
+  const spec = target.import ?? makeModuleSpec(fromFile, target)
+  return renderNamedImport(arr, spec, { sort: true }) || undefined
+}
+
+// Validate required component configuration
+const validateRequiredComponents = (
+  components: ComponentsConfig | undefined,
+  classified: {
+    readonly schemas: ReadonlySet<string>
+    readonly parameters: ReadonlySet<string>
+    readonly headers: ReadonlySet<string>
+  },
+  suffixTokens: { readonly [suffix: string]: readonly string[] },
+): void => {
+  const checks: readonly [string, ComponentTarget | undefined, number][] = [
+    ['schemas', components?.schemas, classified.schemas.size],
+    ['parameters', components?.parameters, classified.parameters.size],
+    ['headers', components?.headers, classified.headers.size],
+    ['responses', components?.responses, suffixTokens.Response?.length ?? 0],
+    ['requestBodies', components?.requestBodies, suffixTokens.RequestBody?.length ?? 0],
+    ['links', components?.links, suffixTokens.Link?.length ?? 0],
+    ['callbacks', components?.callbacks, suffixTokens.Callback?.length ?? 0],
+    ['examples', components?.examples, suffixTokens.Example?.length ?? 0],
+  ]
+
+  for (const [name, target, count] of checks) {
+    if (count > 0 && !target) {
+      throw new Error(
+        `Missing zod-openapi.components.${name} output (required because generated routes reference ${name})`,
+      )
+    }
+  }
 }
 
 export async function route(
   openAPI: OpenAPI,
-  routes?: {
-    readonly output: string | `${string}.ts`
-    readonly split?: boolean
-  },
-  components?: {
-    // # Reusable schemas (data models)
-    readonly schemas?: {
-      readonly output: string | `${string}.ts`
-      readonly exportTypes?: boolean
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable path, query, header and cookie parameters
-    readonly parameters?: {
-      readonly output: string | `${string}.ts`
-      readonly exportTypes?: boolean
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Security scheme definitions (see Authentication)
-    readonly securitySchemes?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable request bodies
-    readonly requestBodies?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable responses, such as 401 Unauthorized or 400 Bad Request
-    readonly responses?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable response headers
-    readonly headers?: {
-      readonly output: string | `${string}.ts`
-      readonly exportTypes?: boolean
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable examples
-    readonly examples?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable links
-    readonly links?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-    // # Reusable callbacks
-    readonly callbacks?: {
-      readonly output: string | `${string}.ts`
-      readonly split?: boolean
-      readonly import?: string
-    }
-  },
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+  routes?: { readonly output: string | `${string}.ts`; readonly split?: boolean },
+  components?: ComponentsConfig,
+): Promise<Result> {
   if (!routes?.output) return { ok: false, error: 'routes.output is required' }
-  const output = routes.output
-  const split = routes.split ?? false
 
-  const componentConfig = components
-  const schemas = componentConfig?.schemas
-
-  // Determine if non-schema components are defined (for import classification)
-  const hasNonSchemaComponents =
-    componentConfig?.requestBodies !== undefined ||
-    componentConfig?.responses !== undefined ||
-    componentConfig?.links !== undefined ||
-    componentConfig?.callbacks !== undefined ||
-    componentConfig?.headers !== undefined ||
-    componentConfig?.examples !== undefined
-
+  const { output, split = false } = routes
   const routesSrc = routeCode(openAPI)
 
-  const schemaKeys = new Set(Object.keys(openAPI.components?.schemas ?? {}))
-  const parameterKeys = new Set(Object.keys(openAPI.components?.parameters ?? {}))
-  const headerKeys = new Set(Object.keys(openAPI.components?.headers ?? {}))
+  // Build const name sets from OpenAPI components
+  const parameterNames = new Set(
+    Object.keys(openAPI.components?.parameters ?? {}).map((k) => {
+      if (k.endsWith('ParamsSchema')) return k
+      if (k.endsWith('Params')) return `${k}Schema`
+      return `${k}ParamsSchema`
+    }),
+  )
+  const headerNames = new Set(
+    Object.keys(openAPI.components?.headers ?? {}).map((k) => {
+      if (k.endsWith('HeaderSchema')) return k
+      if (k.endsWith('Header')) return `${k}Schema`
+      return `${k}HeaderSchema`
+    }),
+  )
 
-  const schemaConstName = (key: string): string => `${key}Schema`
-  const parameterConstName = (key: string): string => {
-    if (key.endsWith('ParamsSchema')) return key
-    if (key.endsWith('Params')) return `${key}Schema`
-    return `${key}ParamsSchema`
-  }
-  const headerConstName = (key: string): string => {
-    if (key.endsWith('HeaderSchema')) return key
-    if (key.endsWith('Header')) return `${key}Schema`
-    return `${key}HeaderSchema`
-  }
+  // Check for non-schema components
+  const hasOtherComponents =
+    components?.parameters !== undefined ||
+    components?.headers !== undefined ||
+    components?.requestBodies !== undefined ||
+    components?.responses !== undefined ||
+    components?.links !== undefined ||
+    components?.callbacks !== undefined ||
+    components?.examples !== undefined
 
   const buildImports = (fromFile: string, src: string): readonly string[] => {
     const schemaTokens = findSchema(src)
-    if (schemaTokens.length === 0 && !hasNonSchemaComponents) return []
+    if (schemaTokens.length === 0 && !hasOtherComponents) return []
 
-    // Check if we have other components that require import classification
-    const hasOtherComponents =
-      componentConfig?.parameters !== undefined ||
-      componentConfig?.headers !== undefined ||
-      componentConfig?.requestBodies !== undefined ||
-      componentConfig?.responses !== undefined ||
-      componentConfig?.links !== undefined ||
-      componentConfig?.callbacks !== undefined ||
-      componentConfig?.examples !== undefined
-
-    // Default (backward compatible): import all *Schema tokens from schemas module spec
+    // Simple case: only schemas configured
     if (!hasOtherComponents) {
-      if (!schemas) {
+      if (!components?.schemas) {
         if (schemaTokens.length > 0) {
           throw new Error(
             'Missing zod-openapi.components.schemas output (required because generated routes reference schemas)',
@@ -159,179 +170,80 @@ export async function route(
         }
         return []
       }
-      const schemaSpec = schemas.import ?? moduleSpecFrom(fromFile, schemas)
-      const line = renderNamedImport(schemaTokens, schemaSpec)
+      const spec = components.schemas.import ?? makeModuleSpec(fromFile, components.schemas)
+      const line = renderNamedImport(schemaTokens, spec)
       return line ? [line] : []
     }
 
-    const schemaConstNames = new Set<string>(Array.from(schemaKeys, schemaConstName))
-    const parameterConstNames = new Set<string>(Array.from(parameterKeys, parameterConstName))
-    const headerConstNames = new Set<string>(Array.from(headerKeys, headerConstName))
-
-    const schemaImportFromRoute = new Set<string>()
-    const parameterImportFromTarget = new Set<string>()
-    const headerImportFromTarget = new Set<string>()
-
-    for (const token of schemaTokens) {
-      if (headerConstNames.has(token)) {
-        headerImportFromTarget.add(token)
-        continue
-      }
-      if (parameterConstNames.has(token)) {
-        parameterImportFromTarget.add(token)
-        continue
-      }
-      if (schemaConstNames.has(token)) {
-        schemaImportFromRoute.add(token)
-        continue
-      }
-      if (token.endsWith('HeaderSchema')) {
-        headerImportFromTarget.add(token)
-        continue
-      }
-      if (token.endsWith('ParamsSchema')) {
-        parameterImportFromTarget.add(token)
-        continue
-      }
-      schemaImportFromRoute.add(token)
+    // Classify tokens and find suffix-based tokens
+    const classified = classifySchemaTokens(schemaTokens, parameterNames, headerNames)
+    const suffixTokens = {
+      Response: findTokensBySuffix(src, 'Response'),
+      RequestBody: findTokensBySuffix(src, 'RequestBody'),
+      Link: findTokensBySuffix(src, 'Link'),
+      Callback: findTokensBySuffix(src, 'Callback'),
+      Example: findTokensBySuffix(src, 'Example'),
     }
 
-    if (schemaImportFromRoute.size > 0 && !schemas) {
-      throw new Error(
-        'Missing zod-openapi.components.schemas output (required because generated routes reference schemas)',
-      )
-    }
-    if (parameterImportFromTarget.size > 0 && !componentConfig?.parameters) {
-      throw new Error(
-        'Missing zod-openapi.components.parameters output (required because generated routes reference parameters)',
-      )
-    }
-    if (headerImportFromTarget.size > 0 && !componentConfig?.headers) {
-      throw new Error(
-        'Missing zod-openapi.components.headers output (required because generated routes reference headers)',
-      )
-    }
+    validateRequiredComponents(components, classified, suffixTokens)
 
-    const requireTarget = (
-      suffix: string,
-      target:
-        | {
-            readonly output: string | `${string}.ts`
-            readonly split?: boolean
-            readonly import?: string
-          }
-        | undefined,
-      tokens: readonly string[],
-    ): string | undefined =>
-      tokens.length === 0 || target
-        ? undefined
-        : `Missing zod-openapi.components.${suffix} output (required because generated routes reference ${suffix} components)`
-
-    const responseTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Response') : []
-    const requestBodyTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'RequestBody') : []
-    const linkTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Link') : []
-    const callbackTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Callback') : []
-    const exampleTokens = hasNonSchemaComponents ? findTokensBySuffix(src, 'Example') : []
-
-    const missing =
-      requireTarget('responses', componentConfig?.responses, responseTokens) ??
-      requireTarget('requestBodies', componentConfig?.requestBodies, requestBodyTokens) ??
-      requireTarget('links', componentConfig?.links, linkTokens) ??
-      requireTarget('callback', componentConfig?.callbacks, callbackTokens) ??
-      requireTarget('examples', componentConfig?.examples, exampleTokens)
-
-    if (missing) throw new Error(missing)
-
-    const makeImportLine = (
-      tokens: ReadonlySet<string> | readonly string[],
-      target:
-        | {
-            readonly output: string | `${string}.ts`
-            readonly split?: boolean
-            readonly import?: string
-          }
-        | undefined,
-    ): string | undefined => {
-      const arr = Array.isArray(tokens) ? tokens : Array.from(tokens)
-      if (arr.length === 0 || !target) return undefined
-      const spec = target.import ?? moduleSpecFrom(fromFile, target)
-      const line = renderNamedImport(arr, spec, { sort: true })
-      return line || undefined
-    }
-
-    const schemaSpec = schemas ? (schemas.import ?? moduleSpecFrom(fromFile, schemas)) : undefined
-    const schemaImportLine =
-      schemaImportFromRoute.size > 0 && schemaSpec
-        ? renderNamedImport(Array.from(schemaImportFromRoute), schemaSpec, { sort: true })
-        : undefined
-
-    // OpenAPI Specification order:
-    // schemas, parameters, securitySchemes, requestBodies, responses, headers, examples, links, callbacks
+    // Build import lines in OpenAPI Specification order
     return [
-      schemaImportLine,
-      makeImportLine(parameterImportFromTarget, componentConfig?.parameters),
-      makeImportLine(requestBodyTokens, componentConfig?.requestBodies),
-      makeImportLine(responseTokens, componentConfig?.responses),
-      makeImportLine(headerImportFromTarget, componentConfig?.headers),
-      makeImportLine(exampleTokens, componentConfig?.examples),
-      makeImportLine(linkTokens, componentConfig?.links),
-      makeImportLine(callbackTokens, componentConfig?.callbacks),
+      makeImportLine(classified.schemas, components?.schemas, fromFile),
+      makeImportLine(classified.parameters, components?.parameters, fromFile),
+      makeImportLine(suffixTokens.RequestBody, components?.requestBodies, fromFile),
+      makeImportLine(suffixTokens.Response, components?.responses, fromFile),
+      makeImportLine(classified.headers, components?.headers, fromFile),
+      makeImportLine(suffixTokens.Example, components?.examples, fromFile),
+      makeImportLine(suffixTokens.Link, components?.links, fromFile),
+      makeImportLine(suffixTokens.Callback, components?.callbacks, fromFile),
     ].filter((line): line is string => Boolean(line))
   }
 
-  if (!split) {
+  // Write a single route file
+  const writeFile = async (filePath: string, src: string): Promise<Result> => {
     try {
-      const includeZ = routesSrc.includes('z.')
-      const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
-      const importLines = buildImports(String(output), routesSrc)
-
-      const finalSrc = [importHono, ...importLines, '\n', routesSrc].filter(Boolean).join('\n')
-
-      const coreResult = await core(finalSrc, path.dirname(output), output)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-      return { ok: true, value: `Generated route code written to ${output}` }
+      const importLines = buildImports(filePath, src)
+      const finalSrc = buildSource(src, importLines)
+      const result = await core(finalSrc, path.dirname(filePath), filePath)
+      return result.ok ? { ok: true, value: filePath } : { ok: false, error: result.error }
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) }
     }
   }
 
+  // Non-split mode: single file
+  if (!split) {
+    const result = await writeFile(String(output), routesSrc)
+    if (!result.ok) return result
+    return { ok: true, value: `Generated route code written to ${output}` }
+  }
+
+  // Split mode
   const outDir = output.replace(/\.ts$/, '')
   const blocks = extractRouteBlocks(routesSrc)
 
+  // No blocks found: write as single file
   if (blocks.length === 0) {
-    try {
-      const includeZ = routesSrc.includes('z.')
-      const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
-      const importLines = buildImports(String(output), routesSrc)
-      const finalSrc = [importHono, ...importLines, '\n', routesSrc].filter(Boolean).join('\n')
-
-      const coreResult = await core(finalSrc, path.dirname(output), output)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-      return { ok: true, value: `Generated route code written to ${output}` }
-    } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : String(e) }
-    }
+    const result = await writeFile(String(output), routesSrc)
+    if (!result.ok) return result
+    return { ok: true, value: `Generated route code written to ${output}` }
   }
 
-  try {
-    for (const { name, block } of blocks) {
-      const includeZ = block.includes('z.')
-      const importHono = `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
-      const filePath = `${outDir}/${lowerFirst(name)}.ts`
-      const importLines = buildImports(filePath, block)
-      const fileSrc = [importHono, ...importLines, '\n', block, ''].filter(Boolean).join('\n')
-
-      const coreResult = await core(fileSrc, path.dirname(filePath), filePath)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  // Write each route block to its own file
+  for (const { name, block } of blocks) {
+    const filePath = `${outDir}/${lowerFirst(name)}.ts`
+    const result = await writeFile(filePath, block)
+    if (!result.ok) return result
   }
 
-  const indexBody = `${blocks.map(({ name }) => `export * from './${lowerFirst(name)}'`).join('\n')}\n`
-
-  const coreResult = await core(indexBody, outDir, `${outDir}/index.ts`)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
+  // Write barrel file
+  const barellResult = await core(
+    makeBarell(Object.fromEntries(blocks.map((b) => [b.name, null]))),
+    outDir,
+    `${outDir}/index.ts`,
+  )
+  if (!barellResult.ok) return { ok: false, error: barellResult.error }
 
   return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
 }

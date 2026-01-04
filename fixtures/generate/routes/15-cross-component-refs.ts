@@ -1006,6 +1006,35 @@ const BatchOperationBodyRequestBody = {
   required: true,
 }
 
+const XTotalCountHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Total number of items', type: 'integer' })
+
+const XPageHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Current page number', type: 'integer' })
+
+const XPerPageHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Items per page', type: 'integer' })
+
+const LinkHeaderHeaderSchema = z
+  .string()
+  .exactOptional()
+  .openapi({ description: 'Pagination links (RFC 5988)', type: 'string' })
+
+const XRequestIdHeaderSchema = z
+  .uuid()
+  .openapi({
+    description: 'Unique request identifier',
+    example: { $ref: '#/components/examples/RequestIdExample' },
+    type: 'string',
+    format: 'uuid',
+  })
+
 const EntityListExample = {
   summary: 'Entity list',
   value: {
@@ -1022,6 +1051,13 @@ const EntityListExample = {
 
 const EntityListResponse = {
   description: 'List of entities',
+  headers: z.object({
+    'X-Total-Count': XTotalCountHeaderSchema,
+    'X-Page': XPageHeaderSchema,
+    'X-Per-Page': XPerPageHeaderSchema,
+    Link: LinkHeaderHeaderSchema,
+    'X-Request-Id': XRequestIdHeaderSchema,
+  }),
   content: {
     'application/json': {
       schema: EntityListWrapperSchema,
@@ -1029,6 +1065,13 @@ const EntityListResponse = {
     },
   },
 }
+
+const ETagHeaderSchema = z.string().openapi({ description: 'Entity tag', type: 'string' })
+
+const LastModifiedHeaderSchema = z.iso
+  .datetime()
+  .exactOptional()
+  .openapi({ description: 'Last modification date', type: 'string', format: 'date-time' })
 
 const EntityExample = {
   summary: 'Complete entity',
@@ -1047,10 +1090,19 @@ const EntityExample = {
 
 const EntityResponse = {
   description: 'Single entity',
+  headers: z.object({
+    ETag: ETagHeaderSchema,
+    'Last-Modified': LastModifiedHeaderSchema,
+    'X-Request-Id': XRequestIdHeaderSchema,
+  }),
   content: {
     'application/json': { schema: EntityWrapperSchema, examples: { entity: EntityExample } },
   },
 }
+
+const LocationHeaderSchema = z
+  .url()
+  .openapi({ description: 'Created resource URL', type: 'string', format: 'uri' })
 
 const CreatedEntityExample = {
   summary: 'Newly created entity',
@@ -1065,6 +1117,11 @@ const CreatedEntityExample = {
 
 const EntityCreatedResponse = {
   description: 'Entity created',
+  headers: z.object({
+    Location: LocationHeaderSchema,
+    ETag: ETagHeaderSchema,
+    'X-Request-Id': XRequestIdHeaderSchema,
+  }),
   content: {
     'application/json': {
       schema: EntityWrapperSchema,
@@ -1075,27 +1132,37 @@ const EntityCreatedResponse = {
 
 const RelationshipListResponse = {
   description: 'List of relationships',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: RelationshipLinksSchema } },
 }
 
 const RelationshipResponse = {
   description: 'Single relationship',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: RelationshipLinkSchema } },
 }
 
 const BatchResultResponse = {
   description: 'Batch operation result (all succeeded)',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: BatchResultSchema } },
 }
 
 const MultiStatusResponse = {
   description: 'Batch operation result (partial success)',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: BatchResultSchema } },
 }
 
-const NoContentResponse = { description: 'No content' }
+const NoContentResponse = {
+  description: 'No content',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
+}
 
-const NotModifiedResponse = { description: 'Not modified' }
+const NotModifiedResponse = {
+  description: 'Not modified',
+  headers: z.object({ ETag: ETagHeaderSchema, 'X-Request-Id': XRequestIdHeaderSchema }),
+}
 
 const ValidationErrorExample = {
   summary: 'Validation error response',
@@ -1114,6 +1181,7 @@ const ValidationErrorExample = {
 
 const ValidationErrorResponse = {
   description: 'Validation error',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: {
     'application/json': {
       schema: ErrorListSchema,
@@ -1122,8 +1190,16 @@ const ValidationErrorResponse = {
   },
 }
 
+const WWWAuthenticateHeaderSchema = z
+  .string()
+  .openapi({ description: 'Authentication challenge', type: 'string' })
+
 const UnauthorizedResponse = {
   description: 'Unauthorized',
+  headers: z.object({
+    'WWW-Authenticate': WWWAuthenticateHeaderSchema,
+    'X-Request-Id': XRequestIdHeaderSchema,
+  }),
   content: { 'application/json': { schema: ErrorListSchema } },
 }
 
@@ -1143,6 +1219,7 @@ const NotFoundErrorExample = {
 
 const NotFoundResponse = {
   description: 'Not found',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: {
     'application/json': { schema: ErrorListSchema, examples: { notFound: NotFoundErrorExample } },
   },
@@ -1150,57 +1227,15 @@ const NotFoundResponse = {
 
 const ConflictResponse = {
   description: 'Conflict',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: ErrorListSchema } },
 }
 
 const PreconditionFailedResponse = {
   description: 'Precondition failed',
+  headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
   content: { 'application/json': { schema: ErrorListSchema } },
 }
-
-const XRequestIdHeader = z
-  .uuid()
-  .openapi({
-    description: 'Unique request identifier',
-    example: { $ref: '#/components/examples/RequestIdExample' },
-    type: 'string',
-    format: 'uuid',
-  })
-
-const XTotalCountHeader = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Total number of items', type: 'integer' })
-
-const XPageHeader = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Current page number', type: 'integer' })
-
-const XPerPageHeader = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Items per page', type: 'integer' })
-
-const LinkHeader = z
-  .string()
-  .exactOptional()
-  .openapi({ description: 'Pagination links (RFC 5988)', type: 'string' })
-
-const ETagHeader = z.string().openapi({ description: 'Entity tag', type: 'string' })
-
-const LastModifiedHeader = z.iso
-  .datetime()
-  .exactOptional()
-  .openapi({ description: 'Last modification date', type: 'string', format: 'date-time' })
-
-const LocationHeader = z
-  .url()
-  .openapi({ description: 'Created resource URL', type: 'string', format: 'uri' })
-
-const WWWAuthenticateHeader = z
-  .string()
-  .openapi({ description: 'Authentication challenge', type: 'string' })
 
 const EntityIdExample = {
   summary: 'Valid entity ID',
@@ -1272,7 +1307,10 @@ const EntityWebhookCallback = {
         required: true,
       },
       responses: {
-        200: { description: 'Webhook received', headers: {} },
+        200: {
+          description: 'Webhook received',
+          headers: z.object({ 'X-Request-Id': XRequestIdHeaderSchema }),
+        },
         400: ValidationErrorResponse,
       },
     },

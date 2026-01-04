@@ -730,16 +730,6 @@ export function toIdentifierPascalCase(text: string): string {
 }
 
 /**
- * Appends a properly escaped `.regex(/pattern/)` clause.
- *
- * @param pattern - A raw regex pattern **without** the surrounding slashes.
- * @returns A string like `'.regex(/^[a-z]+$/)'`.
- */
-export function regex(pattern: string): string {
-  return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
-}
-
-/**
  * Builds a named import line for a module specifier.
  *
  * @param names - Import names to include.
@@ -766,6 +756,20 @@ export function findSchema(code: string): readonly string[] {
   return Array.from(
     new Set(
       Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
+        .map((m) => m[1] ?? '')
+        .filter(Boolean),
+    ),
+  )
+}
+
+/**
+ * Finds tokens with a specific suffix pattern in code.
+ */
+export function findTokensBySuffix(code: string, suffix: string): readonly string[] {
+  const pattern = new RegExp(`\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\b`, 'g')
+  return Array.from(
+    new Set(
+      Array.from(code.matchAll(pattern))
         .map((m) => m[1] ?? '')
         .filter(Boolean),
     ),

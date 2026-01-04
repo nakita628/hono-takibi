@@ -1,7 +1,7 @@
 import { makeConst } from '../../../../helper/code.js'
 import type { Components } from '../../../../openapi/index.js'
 
-export function examples(components: Components, exportExamples: boolean): string {
+export function examplesCode(components: Components, exportExamples: boolean): string {
   const { examples } = components
   if (!examples) return ''
 

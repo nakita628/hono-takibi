@@ -94,24 +94,69 @@ export const getExtremeResponsesRoute = createRoute({
     203: { description: 'Non-Authoritative Information' },
     204: { description: 'No Content' },
     205: { description: 'Reset Content' },
-    206: { description: 'Partial Content', headers: {} },
+    206: {
+      description: 'Partial Content',
+      headers: z.object({
+        'Content-Range': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+      }),
+    },
     207: { description: 'Multi-Status (WebDAV)' },
     208: { description: 'Already Reported (WebDAV)' },
     226: { description: 'IM Used' },
     300: { description: 'Multiple Choices' },
-    301: { description: 'Moved Permanently', headers: {} },
-    302: { description: 'Found', headers: {} },
-    303: { description: 'See Other', headers: {} },
-    304: { description: 'Not Modified', headers: {} },
+    301: {
+      description: 'Moved Permanently',
+      headers: z.object({
+        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
+    302: {
+      description: 'Found',
+      headers: z.object({
+        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
+    303: {
+      description: 'See Other',
+      headers: z.object({
+        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
+    304: {
+      description: 'Not Modified',
+      headers: z.object({
+        ETag: { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+      }),
+    },
     305: { description: 'Use Proxy (Deprecated)' },
-    307: { description: 'Temporary Redirect', headers: {} },
-    308: { description: 'Permanent Redirect', headers: {} },
+    307: {
+      description: 'Temporary Redirect',
+      headers: z.object({
+        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
+    308: {
+      description: 'Permanent Redirect',
+      headers: z.object({
+        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
+      }),
+    },
     400: { description: 'Bad Request' },
-    401: { description: 'Unauthorized', headers: {} },
+    401: {
+      description: 'Unauthorized',
+      headers: z.object({
+        'WWW-Authenticate': { required: true, schema: z.string().openapi({ type: 'string' }) },
+      }),
+    },
     402: { description: 'Payment Required' },
     403: { description: 'Forbidden' },
     404: { description: 'Not Found' },
-    405: { description: 'Method Not Allowed', headers: {} },
+    405: {
+      description: 'Method Not Allowed',
+      headers: z.object({
+        Allow: { required: true, schema: z.string().openapi({ type: 'string' }) },
+      }),
+    },
     406: { description: 'Not Acceptable' },
     407: { description: 'Proxy Authentication Required' },
     408: { description: 'Request Timeout' },
@@ -119,10 +164,20 @@ export const getExtremeResponsesRoute = createRoute({
     410: { description: 'Gone' },
     411: { description: 'Length Required' },
     412: { description: 'Precondition Failed' },
-    413: { description: 'Payload Too Large', headers: {} },
+    413: {
+      description: 'Payload Too Large',
+      headers: z.object({
+        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+      }),
+    },
     414: { description: 'URI Too Long' },
     415: { description: 'Unsupported Media Type' },
-    416: { description: 'Range Not Satisfiable', headers: {} },
+    416: {
+      description: 'Range Not Satisfiable',
+      headers: z.object({
+        'Content-Range': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+      }),
+    },
     417: { description: 'Expectation Failed' },
     418: { description: "I'm a teapot (RFC 2324)" },
     421: { description: 'Misdirected Request' },
@@ -130,15 +185,33 @@ export const getExtremeResponsesRoute = createRoute({
     423: { description: 'Locked (WebDAV)' },
     424: { description: 'Failed Dependency (WebDAV)' },
     425: { description: 'Too Early' },
-    426: { description: 'Upgrade Required', headers: {} },
+    426: {
+      description: 'Upgrade Required',
+      headers: z.object({
+        Upgrade: { required: true, schema: z.string().openapi({ type: 'string' }) },
+      }),
+    },
     428: { description: 'Precondition Required' },
-    429: { description: 'Too Many Requests', headers: {} },
+    429: {
+      description: 'Too Many Requests',
+      headers: z.object({
+        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+        'X-RateLimit-Limit': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+        'X-RateLimit-Remaining': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+        'X-RateLimit-Reset': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+      }),
+    },
     431: { description: 'Request Header Fields Too Large' },
     451: { description: 'Unavailable For Legal Reasons' },
     500: { description: 'Internal Server Error' },
     501: { description: 'Not Implemented' },
     502: { description: 'Bad Gateway' },
-    503: { description: 'Service Unavailable', headers: {} },
+    503: {
+      description: 'Service Unavailable',
+      headers: z.object({
+        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+      }),
+    },
     504: { description: 'Gateway Timeout' },
     505: { description: 'HTTP Version Not Supported' },
     506: { description: 'Variant Also Negotiates' },
