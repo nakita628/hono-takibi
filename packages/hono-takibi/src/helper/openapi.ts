@@ -368,12 +368,17 @@ export function makeRequestBody(body: RequestBody) {
  * @returns
  */
 export function makeMedia(media: Media) {
+  const encodingCode = media.encoding
+    ? Object.entries(media.encoding)
+        .map(([name, enc]) => `${JSON.stringify(name)}:{${makeEncoding(enc)}}`)
+        .join(',')
+    : undefined
   const result = [
     media.schema ? `schema:${zodToOpenAPI(media.schema)}` : undefined,
     media.itemSchema ? `itemSchema:${zodToOpenAPI(media.itemSchema)}` : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
-    media.encoding ? `encoding:{${makeEncoding(media.encoding)}}` : undefined,
+    encodingCode ? `encoding:{${encodingCode}}` : undefined,
     media.prefixEncoding ? `prefixEncoding:{${makeEncoding(media.prefixEncoding)}}` : undefined,
     media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding)}}` : undefined,
   ]
@@ -394,9 +399,15 @@ export function makeEncoding(encoding: Encoding): string {
         .join(',')
     : undefined
 
+  const headersCode = encoding.headers
+    ? Object.entries(encoding.headers)
+        .map(([name, header]) => `${JSON.stringify(name)}:${makeHeadersAndReferences(header)}`)
+        .join(',')
+    : undefined
+
   return [
     encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
-    encoding.headers ? `headers:{${makeHeadersAndReferences(encoding.headers)}}` : undefined,
+    headersCode ? `headers:{${headersCode}}` : undefined,
     nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
     encoding.prefixEncoding
       ? `prefixEncoding:{${makeEncoding(encoding.prefixEncoding)}}`
