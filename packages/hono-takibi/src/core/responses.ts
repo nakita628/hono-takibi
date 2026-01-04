@@ -2,8 +2,7 @@ import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
-import { makeRef } from '../helper/index.js'
-import { makeExamples } from '../helper/openapi.js'
+import { makeExamples, makeRef } from '../helper/index.js'
 import type { Components, Content, Header, Reference, Responses } from '../openapi/index.js'
 import {
   ensureSuffix,

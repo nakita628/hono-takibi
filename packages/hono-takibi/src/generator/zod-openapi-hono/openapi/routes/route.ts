@@ -1,4 +1,4 @@
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
 import type { Operation } from '../../../../openapi/index.js'
 import {
   methodPath,

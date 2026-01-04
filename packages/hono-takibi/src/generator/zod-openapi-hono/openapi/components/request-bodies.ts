@@ -1,5 +1,5 @@
 import { makeConst } from '../../../../helper/code.js'
-import { makeRequestBody } from '../../../../helper/openapi.js'
+import { makeRequestBody } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 export function requestBodies(components: Components, exportRequestBodies: boolean): string {
