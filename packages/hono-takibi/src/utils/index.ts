@@ -773,6 +773,20 @@ export function findSchema(code: string): readonly string[] {
 }
 
 /**
+ * Finds tokens with a specific suffix pattern in code.
+ */
+export function findTokensBySuffix(code: string, suffix: string): readonly string[] {
+  const pattern = new RegExp(`\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\b`, 'g')
+  return Array.from(
+    new Set(
+      Array.from(code.matchAll(pattern))
+        .map((m) => m[1] ?? '')
+        .filter(Boolean),
+    ),
+  )
+}
+
+/**
  * Converts the first character of a string to lowercase.
  * @param text - The string to convert to lowercase.
  * @returns

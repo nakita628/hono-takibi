@@ -1,9 +1,7 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { zodType } from '../generator/zod-to-openapi/type/index.js'
-import { makeBarell } from '../helper/barell.js'
-import { core } from '../helper/core.js'
-import { sortSchemaBlocks } from '../helper/sort-by-dependencies.js'
+import { core, makeBarell, sortSchemaBlocks } from '../helper/index.js'
 import type { OpenAPI, Schema } from '../openapi/index.js'
 import {
   ensureSuffix,

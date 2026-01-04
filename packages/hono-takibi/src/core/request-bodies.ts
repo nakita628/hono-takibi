@@ -1,29 +1,13 @@
 import path from 'node:path'
-import { makeBarell } from '../helper/barell.js'
-import { makeFileCode } from '../helper/code.js'
-import { core } from '../helper/core.js'
-import { makeRequestBody } from '../helper/index.js'
+import { core, makeBarell, makeFileCode, makeRequestBody } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import {
   ensureSuffix,
+  findTokensBySuffix,
   lowerFirst,
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-
-/**
- * Finds tokens with a specific suffix pattern in code.
- */
-const findTokensBySuffix = (code: string, suffix: string): readonly string[] => {
-  const pattern = new RegExp(`\\b([A-Za-z_$][A-Za-z0-9_$]*${suffix})\\b`, 'g')
-  return Array.from(
-    new Set(
-      Array.from(code.matchAll(pattern))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
-}
 
 /**
  * Makes import lines for examples.

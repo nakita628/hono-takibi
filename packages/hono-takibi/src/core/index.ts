@@ -1,7 +1,5 @@
 import path from 'node:path'
-import { makeExportConst } from '../helper/code.js'
-import { core } from '../helper/core.js'
-import { makeExports } from '../helper/exports.js'
+import { core, makeExportConst, makeExports } from '../helper/index.js'
 import type { Components } from '../openapi/index.js'
 
 export async function componentsCore(

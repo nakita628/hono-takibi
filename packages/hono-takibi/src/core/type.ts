@@ -1,7 +1,7 @@
 import path from 'node:path'
 import ts from 'typescript'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
-import { core } from '../helper/core.js'
+import { core } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 

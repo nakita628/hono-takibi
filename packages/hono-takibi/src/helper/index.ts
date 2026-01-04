@@ -1,3 +1,7 @@
+export { makeBarell } from './barell.js'
+export { makeConst, makeExportConst, makeFileCode, makeSchemaImport, makeZImport } from './code.js'
+export { core } from './core.js'
+export { makeExports } from './exports.js'
 export { moduleSpecFrom } from './module-spec-from.js'
 export {
   makeCallbacks,
@@ -16,5 +20,5 @@ export {
   makeRequestParams,
   makeResponses,
 } from './openapi.js'
-export { sortByDependencies } from './sort-by-dependencies.js'
+export { sortByDependencies, sortSchemaBlocks } from './sort-by-dependencies.js'
 export { wrap } from './wrap.js'

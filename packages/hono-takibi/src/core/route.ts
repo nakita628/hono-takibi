@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
-import { core } from '../helper/core.js'
-import { moduleSpecFrom } from '../helper/module-spec-from.js'
+import { core, moduleSpecFrom } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { findSchema, lowerFirst, renderNamedImport } from '../utils/index.js'
 
