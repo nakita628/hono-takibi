@@ -125,7 +125,10 @@ export function makeExamples(examples: {
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
-    .map(([StatusCode, res]) => `${/^\d+$/.test(StatusCode) ? StatusCode : `'${StatusCode}'`}:${makeResponses(res)}`)
+    .map(
+      ([StatusCode, res]) =>
+        `${/^\d+$/.test(StatusCode) ? StatusCode : `'${StatusCode}'`}:${makeResponses(res)}`,
+    )
     // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
   return `{${result}}`
