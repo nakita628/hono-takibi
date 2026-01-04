@@ -331,87 +331,6 @@ export function makeContent(
   const isReference = (v: unknown): v is Reference =>
     typeof v === 'object' && v !== null && '$ref' in v
 
-  const makeEncoding = (contentType: string, encodingName: string, encoding: Encoding): string => {
-    const headers = encoding.headers
-      ? Object.entries(encoding.headers)
-          .map(([headerKey, header]) => {
-            if ('$ref' in header && header.$ref) {
-              return `${JSON.stringify(headerKey)}:${makeRef(header.$ref)}`
-            }
-            const props = [
-              header.description ? `description:${JSON.stringify(header.description)}` : undefined,
-              'required' in header && header.required
-                ? `required:${JSON.stringify(header.required)}`
-                : undefined,
-              'deprecated' in header && header.deprecated
-                ? `deprecated:${JSON.stringify(header.deprecated)}`
-                : undefined,
-              'example' in header && header.example !== undefined
-                ? `example:${JSON.stringify(header.example)}`
-                : undefined,
-              'examples' in header && header.examples
-                ? `examples:${makeExamples(header.examples)}`
-                : undefined,
-            ]
-              .filter((v): v is string => v !== undefined)
-              .join(',')
-            return `${JSON.stringify(headerKey)}:{${props}}`
-          })
-          .join(',')
-      : undefined
-
-    const nestedEncoding = encoding.encoding
-      ? Object.entries(encoding.encoding)
-          .map(([name, enc]) => makeEncoding(contentType, name, enc))
-          .join(',')
-      : undefined
-
-    const props = [
-      encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
-      headers ? `headers:{${headers}}` : undefined,
-      nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
-      encoding.prefixEncoding
-        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', encoding.prefixEncoding)}}`
-        : undefined,
-      encoding.itemEncoding
-        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', encoding.itemEncoding)}}`
-        : undefined,
-    ]
-      .filter((v) => v !== undefined)
-      .join(',')
-
-    return `${JSON.stringify(encodingName)}:{${props}}`
-  }
-
-  const makeMediaString = (contentType: string, media: Media): string => {
-    const zSchema = zodToOpenAPI(media.schema)
-    const zItemSchema = media.itemSchema ? zodToOpenAPI(media.itemSchema) : undefined
-
-    const encoding = media.encoding
-      ? Object.entries(media.encoding)
-          .map(([encodingName, enc]) => makeEncoding(contentType, encodingName, enc))
-          .join(',')
-      : undefined
-
-    const props = [
-      `schema:${zSchema}`,
-      zItemSchema ? `itemSchema:${zItemSchema}` : undefined,
-      media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
-      media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
-      encoding ? `encoding:{${encoding}}` : undefined,
-      media.prefixEncoding
-        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', media.prefixEncoding)}}`
-        : undefined,
-      media.itemEncoding
-        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', media.itemEncoding)}}`
-        : undefined,
-    ]
-      .filter((v) => v !== undefined)
-      .join(',')
-
-    return `{${props}}`
-  }
-
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
       // Reference
@@ -420,7 +339,7 @@ export function makeContent(
       }
       // Media
       if (isMedia(mediaOrRef)) {
-        return `'${contentType}':${makeMediaString(contentType, mediaOrRef)}`
+        return `'${contentType}':${makeMedia(mediaOrRef)}`
       }
       return undefined
     })
@@ -443,11 +362,47 @@ export function makeRequestBody(body: RequestBody) {
   return `{${props}}`
 }
 
+/**
+ * generates a media code from the given media object.
+ * @param media Media object
+ * @returns
+ */
 export function makeMedia(media: Media) {
-  const props = [
+  const result = [
     media.schema ? `schema:${zodToOpenAPI(media.schema)}` : undefined,
     media.itemSchema ? `itemSchema:${zodToOpenAPI(media.itemSchema)}` : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
+    media.encoding ? `encoding:{${makeEncoding(media.encoding)}}` : undefined,
+    media.prefixEncoding ? `prefixEncoding:{${makeEncoding(media.prefixEncoding)}}` : undefined,
+    media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding)}}` : undefined,
   ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${result}}`
+}
+
+/**
+ * generates an encoding code from the given encoding object.
+ * @param encoding
+ * @returns
+ */
+export function makeEncoding(encoding: Encoding): string {
+  const nestedEncoding = encoding.encoding
+    ? Object.entries(encoding.encoding)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
+        .join(',')
+    : undefined
+
+  return [
+    encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
+    encoding.headers ? `headers:{${makeHeadersAndReferences(encoding.headers)}}` : undefined,
+    nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
+    encoding.prefixEncoding
+      ? `prefixEncoding:{${makeEncoding(encoding.prefixEncoding)}}`
+      : undefined,
+    encoding.itemEncoding ? `itemEncoding:{${makeEncoding(encoding.itemEncoding)}}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
 }
