@@ -238,7 +238,12 @@ export async function honoTakibi(): Promise<
 
   /** requestBodies */
   const requestBodiesResult = components?.requestBodies
-    ? await requestBodies(openAPI, components.requestBodies.output, components.requestBodies.split)
+    ? await requestBodies(
+        openAPI,
+        components.requestBodies.output,
+        components.requestBodies.split,
+        { schemas: components.schemas, examples: components.examples },
+      )
     : undefined
   if (requestBodiesResult && !requestBodiesResult.ok)
     return { ok: false, error: requestBodiesResult.error }
@@ -249,6 +254,7 @@ export async function honoTakibi(): Promise<
         openAPI.components ?? {},
         components.responses.output,
         components.responses.split,
+        { schemas: components.schemas, examples: components.examples, links: components.links },
       )
     : undefined
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }

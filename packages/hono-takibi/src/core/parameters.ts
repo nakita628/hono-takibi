@@ -36,19 +36,7 @@ export async function parameters(
     return { ok: false, error: 'No parameters found' }
 
   const importZ = `import { z } from '@hono/zod-openapi'`
-
-  const buildImportSchemas = (
-    fromFile: string,
-    code: string,
-    exclude: ReadonlySet<string>,
-  ): string => {
-    const target = imports?.schemas
-    if (!target) return ''
-    const tokens = findSchema(code).filter((t) => !exclude.has(t))
-    if (tokens.length === 0) return ''
-    const spec = target.import ?? moduleSpecFrom(fromFile, target)
-    return renderNamedImport(tokens, spec)
-  }
+  const schemasTarget = imports?.schemas
 
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
@@ -59,9 +47,12 @@ export async function parameters(
 
       const code = parametersCode({ parameters: { [key]: p } }, true, exportType)
       const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'ParamsSchema'))
-
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const importSchemas = buildImportSchemas(filePath, code, new Set([schemaName]))
+      const tokens = schemasTarget ? findSchema(code).filter((t) => t !== schemaName) : []
+      const spec = schemasTarget
+        ? (schemasTarget.import ?? moduleSpecFrom(filePath, schemasTarget))
+        : ''
+      const importSchemas = tokens.length > 0 ? renderNamedImport(tokens, spec) : ''
       const fileCode = [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
 
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
@@ -82,12 +73,13 @@ export async function parameters(
   }
 
   const defs = parametersCode({ parameters }, true, exportType)
-
   const outFile = String(output)
   const locals = new Set(
     Object.keys(parameters).map((k) => toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema'))),
   )
-  const importSchemas = buildImportSchemas(outFile, defs, locals)
+  const tokens = schemasTarget ? findSchema(defs).filter((t) => !locals.has(t)) : []
+  const spec = schemasTarget ? (schemasTarget.import ?? moduleSpecFrom(outFile, schemasTarget)) : ''
+  const importSchemas = tokens.length > 0 ? renderNamedImport(tokens, spec) : ''
   const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
 
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)

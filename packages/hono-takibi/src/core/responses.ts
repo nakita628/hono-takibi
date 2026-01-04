@@ -1,19 +1,13 @@
 import path from 'node:path'
 import { responsesCode } from '../generator/zod-openapi-hono/openapi/components/responses.js'
-import { core, makeBarell, makeFileCode } from '../helper/index.js'
+import { core, makeBarell, makeFileCode, moduleSpecFrom } from '../helper/index.js'
 import type { Components } from '../openapi/index.js'
-import { findTokensBySuffix, lowerFirst, renderNamedImport } from '../utils/index.js'
+import { lowerFirst } from '../utils/index.js'
 
-/**
- * Makes import lines for examples and links.
- */
-const makeExtraImports = (code: string, prefix: string): string => {
-  const examples = findTokensBySuffix(code, 'Example')
-  const links = findTokensBySuffix(code, 'Link')
-  const importExamples =
-    examples.length > 0 ? renderNamedImport(examples, `${prefix}/examples`) : ''
-  const importLinks = links.length > 0 ? renderNamedImport(links, `${prefix}/links`) : ''
-  return [importExamples, importLinks].filter(Boolean).join('\n')
+type ImportTarget = {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
 }
 
 /**
@@ -23,6 +17,11 @@ export async function responses(
   components: Components,
   output: string | `${string}.ts`,
   split?: boolean,
+  imports?: {
+    readonly schemas?: ImportTarget | undefined
+    readonly examples?: ImportTarget | undefined
+    readonly links?: ImportTarget | undefined
+  },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -37,11 +36,19 @@ export async function responses(
       if (!res) continue
       const code = responsesCode({ responses: { [key]: res } }, true)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const baseCode = makeFileCode(code, '../schemas', 'HeaderSchema')
-      const extraImports = makeExtraImports(code, '..')
-      const fileCode = extraImports
-        ? `${baseCode.split('\n')[0]}\n${extraImports}\n${baseCode.split('\n').slice(1).join('\n')}`
-        : baseCode
+      const schemasPath = imports?.schemas
+        ? (imports.schemas.import ?? moduleSpecFrom(filePath, imports.schemas))
+        : '../schemas'
+      const examplesPath = imports?.examples
+        ? (imports.examples.import ?? moduleSpecFrom(filePath, imports.examples))
+        : '../examples'
+      const linksPath = imports?.links
+        ? (imports.links.import ?? moduleSpecFrom(filePath, imports.links))
+        : '../links'
+      const fileCode = makeFileCode(code, schemasPath, 'HeaderSchema', [
+        { suffix: 'Example', path: examplesPath },
+        { suffix: 'Link', path: linksPath },
+      ])
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -60,13 +67,20 @@ export async function responses(
   }
 
   const defs = responsesCode(components, true)
-
   const outFile = String(output)
-  const baseCode = makeFileCode(defs, './schemas', 'HeaderSchema')
-  const extraImports = makeExtraImports(defs, '.')
-  const fileCode = extraImports
-    ? `${baseCode.split('\n')[0]}\n${extraImports}\n${baseCode.split('\n').slice(1).join('\n')}`
-    : baseCode
+  const schemasPath = imports?.schemas
+    ? (imports.schemas.import ?? moduleSpecFrom(outFile, imports.schemas))
+    : './schemas'
+  const examplesPath = imports?.examples
+    ? (imports.examples.import ?? moduleSpecFrom(outFile, imports.examples))
+    : './examples'
+  const linksPath = imports?.links
+    ? (imports.links.import ?? moduleSpecFrom(outFile, imports.links))
+    : './links'
+  const fileCode = makeFileCode(defs, schemasPath, 'HeaderSchema', [
+    { suffix: 'Example', path: examplesPath },
+    { suffix: 'Link', path: linksPath },
+  ])
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

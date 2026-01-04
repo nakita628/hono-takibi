@@ -1,9 +1,15 @@
 import {
   ensureSuffix,
   findSchema,
+  findTokensBySuffix,
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+
+type ExtraImportConfig = {
+  readonly suffix: string
+  readonly path: string
+}
 
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
   if (exportVariable) {
@@ -35,10 +41,22 @@ export function makeSchemaImport(code: string, schemaPath: string, excludeSuffix
 /**
  * Makes complete file code with imports.
  */
-export function makeFileCode(code: string, schemaPath: string, excludeSuffix?: string): string {
+export function makeFileCode(
+  code: string,
+  schemaPath: string,
+  excludeSuffix?: string,
+  extraImports?: readonly ExtraImportConfig[],
+): string {
   const importZ = makeZImport(code)
   const importSchemas = makeSchemaImport(code, schemaPath, excludeSuffix)
-  return [importZ, importSchemas, '\n', code, ''].filter(Boolean).join('\n')
+  const extras = (extraImports ?? [])
+    .map(({ suffix, path }) => {
+      const tokens = findTokensBySuffix(code, suffix)
+      return tokens.length > 0 ? renderNamedImport(tokens, path) : ''
+    })
+    .filter(Boolean)
+    .join('\n')
+  return [importZ, importSchemas, extras, '\n', code, ''].filter(Boolean).join('\n')
 }
 
 /**

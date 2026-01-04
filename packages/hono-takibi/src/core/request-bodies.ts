@@ -1,19 +1,14 @@
 import path from 'node:path'
 import { requestBodiesCode } from '../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { core, makeBarell, makeFileCode } from '../helper/index.js'
+import { core, makeBarell, makeFileCode, moduleSpecFrom } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { findTokensBySuffix, lowerFirst, renderNamedImport } from '../utils/index.js'
+import { lowerFirst } from '../utils/index.js'
 
-/**
- * Makes import lines for examples.
- */
-const makeExamplesImport = (code: string, prefix: string): string => {
-  const examples = findTokensBySuffix(code, 'Example')
-  return examples.length > 0 ? renderNamedImport(examples, `${prefix}/examples`) : ''
+type ImportTarget = {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
 }
-
-const coerceDateIfNeeded = (expr: string): string =>
-  expr.includes('z.date()') ? expr.replace(/z\.date\(\)/g, 'z.coerce.date()') : expr
 
 /**
  * Generates `components.requestBodies` constants (objects containing Zod schemas).
@@ -22,6 +17,10 @@ export async function requestBodies(
   openAPI: OpenAPI,
   output: string | `${string}.ts`,
   split?: boolean,
+  imports?: {
+    readonly schemas?: ImportTarget | undefined
+    readonly examples?: ImportTarget | undefined
+  },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -35,13 +34,17 @@ export async function requestBodies(
     for (const key of Object.keys(bodies)) {
       const body = bodies[key]
       if (!body) continue
-      const code = coerceDateIfNeeded(requestBodiesCode({ requestBodies: { [key]: body } }, true))
+      const code = requestBodiesCode({ requestBodies: { [key]: body } }, true)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const baseCode = makeFileCode(code, '../schemas')
-      const examplesImport = makeExamplesImport(code, '..')
-      const fileCode = examplesImport
-        ? `${baseCode.split('\n')[0]}\n${examplesImport}\n${baseCode.split('\n').slice(1).join('\n')}`
-        : baseCode
+      const schemasPath = imports?.schemas
+        ? (imports.schemas.import ?? moduleSpecFrom(filePath, imports.schemas))
+        : '../schemas'
+      const examplesPath = imports?.examples
+        ? (imports.examples.import ?? moduleSpecFrom(filePath, imports.examples))
+        : '../examples'
+      const fileCode = makeFileCode(code, schemasPath, undefined, [
+        { suffix: 'Example', path: examplesPath },
+      ])
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -59,14 +62,17 @@ export async function requestBodies(
     }
   }
 
-  const defs = coerceDateIfNeeded(requestBodiesCode({ requestBodies: bodies }, true))
-
+  const defs = requestBodiesCode({ requestBodies: bodies }, true)
   const outFile = String(output)
-  const baseCode = makeFileCode(defs, './schemas')
-  const examplesImport = makeExamplesImport(defs, '.')
-  const fileCode = examplesImport
-    ? `${baseCode.split('\n')[0]}\n${examplesImport}\n${baseCode.split('\n').slice(1).join('\n')}`
-    : baseCode
+  const schemasPath = imports?.schemas
+    ? (imports.schemas.import ?? moduleSpecFrom(outFile, imports.schemas))
+    : './schemas'
+  const examplesPath = imports?.examples
+    ? (imports.examples.import ?? moduleSpecFrom(outFile, imports.examples))
+    : './examples'
+  const fileCode = makeFileCode(defs, schemasPath, undefined, [
+    { suffix: 'Example', path: examplesPath },
+  ])
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 
