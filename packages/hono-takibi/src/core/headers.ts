@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { core, makeBarell } from '../helper/index.js'
+import { core, makeBarell, makeRef } from '../helper/index.js'
 import type { Header, OpenAPI, Reference } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -8,12 +8,8 @@ import {
   lowerFirst,
   renderNamedImport,
   toIdentifierPascalCase,
+  zodToOpenAPISchema,
 } from '../utils/index.js'
-
-const isReference = (v: unknown): v is Reference =>
-  typeof v === 'object' && v !== null && '$ref' in v
-
-const isHeader = (v: unknown): v is Header => typeof v === 'object' && v !== null && !('$ref' in v)
 
 /**
  * Builds a header schema definition.
@@ -24,24 +20,23 @@ function buildHeaderSchema(
   exportHeader: boolean,
   exportType: boolean,
 ): string {
-  const constName = toIdentifierPascalCase(ensureSuffix(key, 'HeaderSchema'))
-  const typeName = toIdentifierPascalCase(key)
-  const zInfer = exportType ? `\n\nexport type ${typeName} = z.infer<typeof ${constName}>` : ''
-  const exportPrefix = exportHeader ? 'export const' : 'const'
+  const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'HeaderSchema'))
 
-  if (isReference(header) && header.$ref) {
-    const refName = header.$ref.split('/').pop() ?? key
-    return `${exportPrefix} ${constName} = ${toIdentifierPascalCase(ensureSuffix(refName, 'HeaderSchema'))}${zInfer}`
+  if ('$ref' in header && header.$ref) {
+    return zodToOpenAPISchema(schemaName, makeRef(header.$ref), exportHeader, exportType, true)
   }
 
-  if (isHeader(header)) {
-    if (header.schema) {
-      const schema = zodToOpenAPI(header.schema, { headers: header })
-      return `${exportPrefix} ${constName} = ${schema}${zInfer}`
-    }
+  if ('schema' in header && header.schema) {
+    return zodToOpenAPISchema(
+      schemaName,
+      zodToOpenAPI(header.schema, { headers: header }),
+      exportHeader,
+      exportType,
+      true,
+    )
   }
 
-  return `${exportPrefix} ${constName} = z.any()${zInfer}`
+  return zodToOpenAPISchema(schemaName, 'z.any()', exportHeader, exportType, true)
 }
 
 /**
