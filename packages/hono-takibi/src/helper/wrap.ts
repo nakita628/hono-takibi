@@ -76,10 +76,12 @@ export function wrap(
     : []
 
   const openapiSchema = args ? JSON.stringify(args) : undefined
+  // {"type":"string"} → type:string
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
+
   const openapiProps = [
     meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
     ...headerMetaProps,
