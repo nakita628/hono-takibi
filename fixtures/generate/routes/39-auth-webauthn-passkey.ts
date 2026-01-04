@@ -1070,6 +1070,14 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
   description: 'パスキーの名前などを更新',
   operationId: 'updateCredential',
   request: {
+    params: z.object({
+      credentialId: z
+        .string()
+        .openapi({
+          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

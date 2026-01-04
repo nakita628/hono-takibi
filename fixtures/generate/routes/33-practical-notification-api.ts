@@ -1328,6 +1328,20 @@ export const putTemplatesTemplateIdRoute = createRoute({
   summary: 'テンプレート更新',
   operationId: 'updateTemplate',
   request: {
+    params: z.object({
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateTemplateRequestSchema } },
       required: true,
@@ -1373,6 +1387,20 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
   summary: 'テンプレートプレビュー',
   operationId: 'previewTemplate',
   request: {
+    params: z.object({
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
@@ -1598,6 +1626,20 @@ export const putWebhooksWebhookIdRoute = createRoute({
   summary: 'Webhook更新',
   operationId: 'updateWebhook',
   request: {
+    params: z.object({
+      webhookId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateWebhookRequestSchema } },
       required: true,

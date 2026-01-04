@@ -1328,6 +1328,14 @@ export const putOauthClientsClientIdRoute = createRoute({
   summary: 'クライアント更新',
   operationId: 'updateClient',
   request: {
+    params: z.object({
+      clientId: z
+        .string()
+        .openapi({
+          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateClientRequestSchema } },
       required: true,

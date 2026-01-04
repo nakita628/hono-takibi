@@ -1104,6 +1104,7 @@ export const postPostsPostIdQuoteRoute = createRoute({
   summary: '引用投稿',
   operationId: 'quotePost',
   request: {
+    params: z.object({ postId: PostIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1279,6 +1280,7 @@ export const postPostsPostIdRepliesRoute = createRoute({
   summary: '返信投稿',
   operationId: 'replyToPost',
   request: {
+    params: z.object({ postId: PostIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: CreatePostRequestSchema } }, required: true },
   },
   responses: {
@@ -1370,6 +1372,20 @@ export const patchMediaMediaIdRoute = createRoute({
   summary: 'メディア情報更新',
   operationId: 'updateMedia',
   request: {
+    params: z.object({
+      mediaId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'mediaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

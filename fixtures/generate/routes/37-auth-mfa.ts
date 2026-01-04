@@ -1076,6 +1076,20 @@ export const deleteMfaSmsMethodIdRoute = createRoute({
   summary: 'SMS認証削除',
   operationId: 'removeSmsMethod',
   request: {
+    params: z.object({
+      methodId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'methodId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
@@ -1345,6 +1359,14 @@ export const patchMfaWebauthnCredentialsCredentialIdRoute = createRoute({
   summary: 'WebAuthn認証器更新',
   operationId: 'updateWebAuthnCredential',
   request: {
+    params: z.object({
+      credentialId: z
+        .string()
+        .openapi({
+          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

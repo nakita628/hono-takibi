@@ -1583,6 +1583,20 @@ export const postModerationItemsItemIdActionRoute = createRoute({
   summary: 'モデレーションアクション実行',
   operationId: 'takeModerationAction',
   request: {
+    params: z.object({
+      itemId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'itemId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: ModerationActionRequestSchema } },
       required: true,
@@ -1645,6 +1659,20 @@ export const postModerationUsersUserIdSuspendRoute = createRoute({
   summary: 'ユーザー凍結',
   operationId: 'suspendUser',
   request: {
+    params: z.object({
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
@@ -1686,6 +1714,20 @@ export const postModerationUsersUserIdUnsuspendRoute = createRoute({
   summary: 'ユーザー凍結解除',
   operationId: 'unsuspendUser',
   request: {
+    params: z.object({
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

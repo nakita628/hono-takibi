@@ -697,6 +697,29 @@ export const postFilesUploadMultipartUploadIdPartRoute = createRoute({
   summary: 'パートアップロード',
   operationId: 'uploadPart',
   request: {
+    params: z.object({
+      uploadId: z
+        .string()
+        .openapi({
+          param: { name: 'uploadId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
+    query: z.object({
+      partNumber: z
+        .int()
+        .min(1)
+        .openapi({
+          param: {
+            name: 'partNumber',
+            in: 'query',
+            required: true,
+            schema: { type: 'integer', minimum: 1 },
+          },
+          type: 'integer',
+          minimum: 1,
+        }),
+    }),
     body: {
       content: {
         'application/octet-stream': {
@@ -735,6 +758,14 @@ export const postFilesUploadMultipartUploadIdCompleteRoute = createRoute({
   summary: 'マルチパートアップロード完了',
   operationId: 'completeMultipartUpload',
   request: {
+    params: z.object({
+      uploadId: z
+        .string()
+        .openapi({
+          param: { name: 'uploadId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
@@ -824,6 +855,7 @@ export const patchFilesFileIdRoute = createRoute({
   summary: 'ファイル情報更新',
   operationId: 'updateFile',
   request: {
+    params: z.object({ fileId: FileIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -935,6 +967,7 @@ export const postFilesFileIdCopyRoute = createRoute({
   summary: 'ファイルコピー',
   operationId: 'copyFile',
   request: {
+    params: z.object({ fileId: FileIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -973,6 +1006,7 @@ export const postFilesFileIdMoveRoute = createRoute({
   summary: 'ファイル移動',
   operationId: 'moveFile',
   request: {
+    params: z.object({ fileId: FileIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1086,6 +1120,7 @@ export const patchFoldersFolderIdRoute = createRoute({
   summary: 'フォルダ情報更新',
   operationId: 'updateFolder',
   request: {
+    params: z.object({ folderId: FolderIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1141,6 +1176,7 @@ export const postFilesFileIdShareRoute = createRoute({
   summary: 'ファイル共有',
   operationId: 'shareFile',
   request: {
+    params: z.object({ fileId: FileIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: ShareRequestSchema } }, required: true },
   },
   responses: {
@@ -1171,6 +1207,7 @@ export const postFilesFileIdShareLinkRoute = createRoute({
   summary: '共有リンク作成',
   operationId: 'createShareLink',
   request: {
+    params: z.object({ fileId: FileIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {

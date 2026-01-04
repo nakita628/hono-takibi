@@ -914,12 +914,12 @@ export const postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersRoute = cr
   path: '/organizations/{orgId}/departments/{deptId}/teams/{teamId}/members',
   operationId: 'addTeamMember',
   request: {
-    body: AddTeamMemberRequestBody,
     params: z.object({
       orgId: OrgIdPathParamsSchema,
       deptId: DeptIdPathParamsSchema,
       teamId: TeamIdPathParamsSchema,
     }),
+    body: AddTeamMemberRequestBody,
   },
   responses: {
     201: {

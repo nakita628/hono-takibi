@@ -12,8 +12,9 @@ import type {
   Reference,
   RequestBody,
   Responses,
+  Schema,
 } from '../openapi/index.js'
-import { toIdentifierPascalCase } from '../utils/index.js'
+import { getToSafeIdentifier, requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
 
 /**
  * generates a reference to the given $ref string.
@@ -24,21 +25,32 @@ export function makeRef($ref: string): string {
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-  const suffixMap: { readonly [k: string]: string } = {
-    '#/components/schemas/': 'Schema',
-    '#/components/parameters/': 'ParamsSchema',
-    '#/components/headers/': 'HeaderSchema',
-    '#/components/securitySchemes/': 'SecurityScheme',
-    '#/components/requestBodies/': 'RequestBody',
-    '#/components/responses/': 'Response',
-    '#/components/examples/': 'Example',
-    '#/components/links/': 'Link',
-    '#/components/callbacks/': 'Callback',
+  if ($ref.startsWith('#/components/schemas/')) {
+    return refName.endsWith('Schema') ? refName : `${refName}Schema`
   }
-  for (const [prefix, suffix] of Object.entries(suffixMap)) {
-    if ($ref.startsWith(prefix)) {
-      return refName.endsWith(suffix) ? refName : `${refName}${suffix}`
-    }
+  if ($ref.startsWith('#/components/parameters/')) {
+    return refName.endsWith('ParamsSchema') ? refName : `${refName}ParamsSchema`
+  }
+  if ($ref.startsWith('#/components/headers/')) {
+    return refName.endsWith('HeaderSchema') ? refName : `${refName}HeaderSchema`
+  }
+  if ($ref.startsWith('#/components/securitySchemes/')) {
+    return refName.endsWith('SecurityScheme') ? refName : `${refName}SecurityScheme`
+  }
+  if ($ref.startsWith('#/components/requestBodies/')) {
+    return refName.endsWith('RequestBody') ? refName : `${refName}RequestBody`
+  }
+  if ($ref.startsWith('#/components/responses/')) {
+    return refName.endsWith('Response') ? refName : `${refName}Response`
+  }
+  if ($ref.startsWith('#/components/examples/')) {
+    return refName.endsWith('Example') ? refName : `${refName}Example`
+  }
+  if ($ref.startsWith('#/components/links/')) {
+    return refName.endsWith('Link') ? refName : `${refName}Link`
+  }
+  if ($ref.startsWith('#/components/callbacks/')) {
+    return refName.endsWith('Callback') ? refName : `${refName}Callback`
   }
   return `${refName}Schema`
 }
@@ -74,13 +86,13 @@ export function makeExamples(examples: {
       }
 }) {
   const result = Object.entries(examples)
-    .map(([key, example]) => {
+    .map(([k, example]) => {
       // Reference
       if ('$ref' in example && example.$ref) {
-        return `${JSON.stringify(key)}:${makeRef(example.$ref)}`
+        return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
       // Example object
-      const props = [
+      const result = [
         example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
         example.description !== undefined
           ? `description:${JSON.stringify(example.description)}`
@@ -100,7 +112,7 @@ export function makeExamples(examples: {
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${JSON.stringify(key)}:{${props}}`
+      return `${JSON.stringify(k)}:{${result}}`
     })
     .join(',')
   return `{${result}}`
@@ -113,8 +125,8 @@ export function makeExamples(examples: {
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
-    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
-    .join('')
+    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)}`)
+    .join(',')
   return `{${result}}`
 }
 
@@ -128,7 +140,7 @@ export function makeResponses(responses: Responses) {
     return makeRef(responses.$ref)
   }
 
-  const props = [
+  const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
     responses.headers ? `headers:${makeHeadersAndReferences(responses.headers)}` : undefined,
@@ -145,7 +157,7 @@ export function makeResponses(responses: Responses) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 /**
@@ -157,7 +169,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
   }
-  const props = [
+  const result = [
     headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
     'required' in headers && headers.required
       ? `required:${JSON.stringify(headers.required)}`
@@ -180,7 +192,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 /**
@@ -189,7 +201,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
  * @returns
  */
 export function makeLinkOrReference(linkOrReference: Link | Reference) {
-  const props = [
+  const result = [
     'operationRef' in linkOrReference
       ? `operationRef:${JSON.stringify(linkOrReference.operationRef)}`
       : undefined,
@@ -214,7 +226,7 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
@@ -224,17 +236,17 @@ export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
       if (callbackRef.$ref) {
         return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
       }
-      const props = [
+      const result = [
         callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
         callbackRef.description
           ? `description:${JSON.stringify(callbackRef.description)}`
           : undefined,
       ]
-        .filter(Boolean)
+        .filter((v) => v !== undefined)
         .join(',')
-      return props ? `${JSON.stringify(callbackName)}:{${props}}` : undefined
+      return `${JSON.stringify(callbackName)}:{${result}}`
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join(',')
   return `{${result}}`
 }
@@ -255,12 +267,21 @@ export function makeCallbacks(
         }
       },
 ): string {
+  const isRef = (v: unknown): v is { $ref: string } =>
+    typeof v === 'object' &&
+    v !== null &&
+    '$ref' in v &&
+    typeof (v as { $ref: unknown }).$ref === 'string'
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
 
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
+      // Handle $ref to components/callbacks
+      if (isRef(pathItem)) {
+        return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
+      }
       if (!isPathItem(pathItem)) return undefined
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       const pathItemCode = methods
@@ -280,7 +301,7 @@ export function makeCallbacks(
               : undefined
           const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
 
-          const props = [
+          const result = [
             operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
             operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
             operation.description
@@ -306,15 +327,15 @@ export function makeCallbacks(
             operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
             operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
           ]
-            .filter(Boolean)
+            .filter((v) => v !== undefined)
             .join(',')
-          return `${method}:{${props}}`
+          return `${method}:{${result}}`
         })
-        .filter(Boolean)
+        .filter((v) => v !== undefined)
         .join(',')
       return pathItemCode ? `${JSON.stringify(callbackKey)}:{${pathItemCode}}` : undefined
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join(',')
 }
 
@@ -331,87 +352,6 @@ export function makeContent(
   const isReference = (v: unknown): v is Reference =>
     typeof v === 'object' && v !== null && '$ref' in v
 
-  const makeEncoding = (contentType: string, encodingName: string, encoding: Encoding): string => {
-    const headers = encoding.headers
-      ? Object.entries(encoding.headers)
-          .map(([headerKey, header]) => {
-            if ('$ref' in header && header.$ref) {
-              return `${JSON.stringify(headerKey)}:${makeRef(header.$ref)}`
-            }
-            const props = [
-              header.description ? `description:${JSON.stringify(header.description)}` : undefined,
-              'required' in header && header.required
-                ? `required:${JSON.stringify(header.required)}`
-                : undefined,
-              'deprecated' in header && header.deprecated
-                ? `deprecated:${JSON.stringify(header.deprecated)}`
-                : undefined,
-              'example' in header && header.example !== undefined
-                ? `example:${JSON.stringify(header.example)}`
-                : undefined,
-              'examples' in header && header.examples
-                ? `examples:${makeExamples(header.examples)}`
-                : undefined,
-            ]
-              .filter((v): v is string => v !== undefined)
-              .join(',')
-            return `${JSON.stringify(headerKey)}:{${props}}`
-          })
-          .join(',')
-      : undefined
-
-    const nestedEncoding = encoding.encoding
-      ? Object.entries(encoding.encoding)
-          .map(([name, enc]) => makeEncoding(contentType, name, enc))
-          .join(',')
-      : undefined
-
-    const props = [
-      encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
-      headers ? `headers:{${headers}}` : undefined,
-      nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
-      encoding.prefixEncoding
-        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', encoding.prefixEncoding)}}`
-        : undefined,
-      encoding.itemEncoding
-        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', encoding.itemEncoding)}}`
-        : undefined,
-    ]
-      .filter((v) => v !== undefined)
-      .join(',')
-
-    return `${JSON.stringify(encodingName)}:{${props}}`
-  }
-
-  const makeMediaString = (contentType: string, media: Media): string => {
-    const zSchema = zodToOpenAPI(media.schema)
-    const zItemSchema = media.itemSchema ? zodToOpenAPI(media.itemSchema) : undefined
-
-    const encoding = media.encoding
-      ? Object.entries(media.encoding)
-          .map(([encodingName, enc]) => makeEncoding(contentType, encodingName, enc))
-          .join(',')
-      : undefined
-
-    const props = [
-      `schema:${zSchema}`,
-      zItemSchema ? `itemSchema:${zItemSchema}` : undefined,
-      media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
-      media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
-      encoding ? `encoding:{${encoding}}` : undefined,
-      media.prefixEncoding
-        ? `prefixEncoding:{${makeEncoding(contentType, 'prefixEncoding', media.prefixEncoding)}}`
-        : undefined,
-      media.itemEncoding
-        ? `itemEncoding:{${makeEncoding(contentType, 'itemEncoding', media.itemEncoding)}}`
-        : undefined,
-    ]
-      .filter((v) => v !== undefined)
-      .join(',')
-
-    return `{${props}}`
-  }
-
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
       // Reference
@@ -420,7 +360,7 @@ export function makeContent(
       }
       // Media
       if (isMedia(mediaOrRef)) {
-        return `'${contentType}':${makeMediaString(contentType, mediaOrRef)}`
+        return `'${contentType}':${makeMedia(mediaOrRef)}`
       }
       return undefined
     })
@@ -432,22 +372,173 @@ export function makeContent(
  * @param body RequestBody object
  * @returns
  */
-export function makeRequestBody(body: RequestBody) {
-  const props = [
+export function makeRequestBody(body: RequestBody | Reference) {
+  if ('$ref' in body && body.$ref) {
+    return makeRef(body.$ref)
+  }
+  const result = [
     body.description ? `description:${JSON.stringify(body.description)}` : undefined,
-    body.content ? `content:{${makeContent(body.content)}}` : undefined,
-    body.required ? `required:${JSON.stringify(body.required)}` : undefined,
+    'content' in body && body.content ? `content:{${makeContent(body.content)}}` : undefined,
+    'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
+/**
+ * generates a media code from the given media object.
+ * @param media Media object
+ * @returns
+ */
 export function makeMedia(media: Media) {
-  const props = [
+  const encodingCode = media.encoding
+    ? Object.entries(media.encoding)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
+        .join(',')
+    : undefined
+  const result = [
     media.schema ? `schema:${zodToOpenAPI(media.schema)}` : undefined,
     media.itemSchema ? `itemSchema:${zodToOpenAPI(media.itemSchema)}` : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
+    encodingCode ? `encoding:{${encodingCode}}` : undefined,
+    media.prefixEncoding ? `prefixEncoding:{${makeEncoding(media.prefixEncoding)}}` : undefined,
+    media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding)}}` : undefined,
   ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return `{${result}}`
+}
+
+/**
+ * generates an encoding code from the given encoding object.
+ * @param encoding
+ * @returns
+ */
+export function makeEncoding(encoding: Encoding): string {
+  const nestedEncoding = encoding.encoding
+    ? Object.entries(encoding.encoding)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
+        .join(',')
+    : undefined
+
+  const headersCode = encoding.headers
+    ? Object.entries(encoding.headers)
+        .map(([name, header]) => `${JSON.stringify(name)}:${makeHeadersAndReferences(header)}`)
+        .join(',')
+    : undefined
+
+  return [
+    encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
+    headersCode ? `headers:{${headersCode}}` : undefined,
+    nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
+    encoding.prefixEncoding
+      ? `prefixEncoding:{${makeEncoding(encoding.prefixEncoding)}}`
+      : undefined,
+    encoding.itemEncoding ? `itemEncoding:{${makeEncoding(encoding.itemEncoding)}}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+}
+
+/**
+ * Generates request parts from parameters and request body.
+ * @param parameters OpenAPI parameters array
+ * @param requestBody OpenAPI request body (can be Reference or inline RequestBody)
+ * @returns Request string like `request:{query:...,body:...},` or empty string
+ */
+export function makeRequest(
+  parameters: readonly Parameter[] | undefined,
+  requestBody: RequestBody | Reference | undefined,
+) {
+  const result = [
+    parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
+    (requestBody && '$ref' in requestBody && requestBody.$ref) ||
+    (requestBody && 'content' in requestBody && requestBody.content)
+      ? `body:${makeRequestBody(requestBody)}`
+      : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return result.length > 0 ? `{${result}}` : undefined
+}
+
+/**
+ * Extracts schema from parameter content (for parameters using content instead of schema)
+ */
+function getSchemaFromContent(content: Content | undefined): Schema | undefined {
+  if (!content) return undefined
+  const firstKey = Object.keys(content)[0]
+  if (!firstKey) return undefined
+  return content[firstKey]?.schema
+}
+
+/**
+ * Converts OpenAPI parameters into a structured object grouped by location (query, path, header, cookie).
+ *
+ * @param parameters - Array of OpenAPI Parameter objects.
+ * @returns An object where keys are parameter locations and values are records of parameter names to Zod schemas.
+ *
+ * @remarks
+ * - Handles $ref references using makeRef.
+ * - Supports parameters with content instead of schema (OpenAPI 3.x).
+ * - Applies coercion for query parameters with number/boolean/date types.
+ */
+export function makeParameters(parameters: readonly Parameter[]): {
+  [section: string]: { [k: string]: string }
+} {
+  return parameters.reduce(
+    (
+      acc: {
+        [section: string]: { [k: string]: string }
+      },
+      param,
+    ) => {
+      if (param.$ref !== undefined) {
+        if (!acc[param.in]) acc[param.in] = {}
+        if (param.$ref) {
+          acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
+        }
+        return acc
+      }
+
+      // Handle parameters with content instead of schema (OpenAPI 3.x)
+      const schema = param.schema ?? getSchemaFromContent(param.content)
+      if (!schema) {
+        // Skip parameters without schema
+        if (!acc[param.in]) acc[param.in] = {}
+        acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
+        return acc
+      }
+
+      const baseSchema = zodToOpenAPI(schema, {
+        parameters: param,
+      })
+      // Initialize section if it doesn't exist
+      if (!acc[param.in]) {
+        acc[param.in] = {}
+      }
+      // queryParameter check
+      const z =
+        param.in === 'query' && schema.type === 'number'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : param.in === 'query' && schema.type === 'boolean'
+            ? baseSchema.replace('boolean', 'stringbool')
+            : param.in === 'query' && schema.type === 'date'
+              ? `z.coerce.${baseSchema.replace('z.', '')}`
+              : baseSchema
+
+      // Add parameter to its section
+      acc[param.in][getToSafeIdentifier(param.name)] = z
+      return acc
+    },
+    {},
+  )
+}
+
+export function makeRequestParams(parameters: readonly Parameter[]) {
+  const paramsObject = makeParameters(parameters)
+  const paramsArray = requestParamsArray(paramsObject)
+  return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }

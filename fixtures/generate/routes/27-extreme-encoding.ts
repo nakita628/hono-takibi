@@ -346,7 +346,11 @@ export const postEncodingTestRoute = createRoute({
             arrayOfObjects: { contentType: 'application/json' },
             partWithHeaders: {
               contentType: 'text/plain',
-              headers: { 'X-Custom-Header': {}, 'Content-Disposition': {}, 'X-Part-Index': {} },
+              headers: {
+                'X-Custom-Header': { schema: z.string().openapi({ type: 'string' }) },
+                'Content-Disposition': { schema: z.string().openapi({ type: 'string' }) },
+                'X-Part-Index': { schema: z.int().openapi({ type: 'integer' }) },
+              },
             },
           },
         },

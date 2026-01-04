@@ -782,6 +782,7 @@ export const putProjectsProjectIdRoute = createRoute({
   summary: 'プロジェクト更新',
   operationId: 'updateProject',
   request: {
+    params: z.object({ projectId: ProjectIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: UpdateProjectRequestSchema } },
       required: true,
@@ -836,6 +837,7 @@ export const postProjectsProjectIdMembersRoute = createRoute({
   summary: 'メンバー追加',
   operationId: 'addProjectMember',
   request: {
+    params: z.object({ projectId: ProjectIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: AddMemberRequestSchema } }, required: true },
   },
   responses: {
@@ -913,6 +915,7 @@ export const postProjectsProjectIdTasksRoute = createRoute({
   summary: 'タスク作成',
   operationId: 'createTask',
   request: {
+    params: z.object({ projectId: ProjectIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: CreateTaskRequestSchema } }, required: true },
   },
   responses: {
@@ -944,6 +947,7 @@ export const putTasksTaskIdRoute = createRoute({
   summary: 'タスク更新',
   operationId: 'updateTask',
   request: {
+    params: z.object({ taskId: TaskIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: UpdateTaskRequestSchema } }, required: true },
   },
   responses: {
@@ -971,6 +975,7 @@ export const patchTasksTaskIdStatusRoute = createRoute({
   summary: 'タスクステータス更新',
   operationId: 'updateTaskStatus',
   request: {
+    params: z.object({ taskId: TaskIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1035,6 +1040,7 @@ export const postTasksTaskIdCommentsRoute = createRoute({
   summary: 'コメント追加',
   operationId: 'addTaskComment',
   request: {
+    params: z.object({ taskId: TaskIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1090,6 +1096,7 @@ export const postTasksTaskIdTimeEntriesRoute = createRoute({
   summary: '時間記録作成',
   operationId: 'createTimeEntry',
   request: {
+    params: z.object({ taskId: TaskIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: CreateTimeEntryRequestSchema } },
       required: true,
@@ -1132,6 +1139,7 @@ export const postProjectsProjectIdMilestonesRoute = createRoute({
   summary: 'マイルストーン作成',
   operationId: 'createMilestone',
   request: {
+    params: z.object({ projectId: ProjectIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: CreateMilestoneRequestSchema } },
       required: true,

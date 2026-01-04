@@ -174,7 +174,25 @@ export const putResourcesIdRoute = createRoute({
   method: 'put',
   path: '/resources/{id}',
   operationId: 'updateResource',
-  request: { body: { content: { 'application/json': { schema: ResourceSchema } } } },
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
+    headers: z.object({
+      'If-Match': z
+        .string()
+        .openapi({
+          param: { name: 'If-Match', in: 'header', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
+    body: { content: { 'application/json': { schema: ResourceSchema } } },
+  },
   responses: {
     200: {
       description: 'Resource updated',

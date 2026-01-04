@@ -438,7 +438,7 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: {},
+  onEvent: GenericWebhookCallback,
 })
 
 export const postSubscriptionsRoute = createRoute({
@@ -458,7 +458,10 @@ export const postSubscriptionsRoute = createRoute({
       content: { 'application/json': { schema: SubscriptionSchema } },
     },
   },
-  callbacks: {},
+  paymentSuccess: PaymentSuccessCallback,
+  paymentFailed: PaymentFailedCallback,
+  subscriptionRenewed: SubscriptionRenewedCallback,
+  subscriptionCancelled: SubscriptionCancelledCallback,
 })
 
 export const postJobsRoute = createRoute({
@@ -472,7 +475,9 @@ export const postJobsRoute = createRoute({
   responses: {
     202: { description: 'Job accepted', content: { 'application/json': { schema: JobSchema } } },
   },
-  callbacks: {},
+  onProgress: JobProgressCallback,
+  onComplete: JobCompleteCallback,
+  onError: JobErrorCallback,
 })
 
 export const postIntegrationsIntegrationIdSyncRoute = createRoute({
@@ -497,5 +502,4 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
     }),
   },
   responses: { 202: { description: 'Sync started' } },
-  callbacks: {},
 })

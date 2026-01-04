@@ -64,11 +64,9 @@ describe('type', () => {
       const result = await type(openapi, out)
       expect(result.ok).toBe(true)
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code).toContain(`  {
-    '/test': {
-      $post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }
-    }
-  },`)
+      expect(code).toContain(
+        '$post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }',
+      )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
