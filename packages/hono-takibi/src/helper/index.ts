@@ -1,18 +1,8 @@
 export { makeBarell } from './barell.js'
 export type { ComponentImports } from './code.js'
-export {
-  buildExtraImports,
-  makeConst,
-  makeExportConst,
-  makeFileCode,
-  makeFileCodeWithImports,
-  makeSchemaImport,
-  makeZImport,
-  resolveImportPath,
-} from './code.js'
+export { makeConst, makeExportConst, makeFileCodeWithImports, makeModuleSpec } from './code.js'
 export { core } from './core.js'
 export { makeExports } from './exports.js'
-export { moduleSpecFrom } from './module-spec-from.js'
 export {
   makeCallbacks,
   makeContent,

@@ -1,3 +1,4 @@
+import path from 'node:path'
 import {
   ensureSuffix,
   findSchema,
@@ -5,7 +6,6 @@ import {
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { moduleSpecFrom } from './module-spec-from.js'
 
 type ExtraImportConfig = {
   readonly suffix: string
@@ -30,75 +30,83 @@ const SUFFIX_MAP: Readonly<Record<string, string>> = {
   callbacks: 'Callback',
 }
 
+const stripTsExt = (p: string): string => (p.endsWith('.ts') ? p.slice(0, -3) : p)
+
+const stripIndex = (p: string): string => (p.endsWith('/index') ? p.slice(0, -6) : p)
+
+const ensureDotRelative = (spec: string): string => {
+  if (spec === '') return '.'
+  if (spec.startsWith('.')) return spec
+  return `./${spec}`
+}
+
+/**
+ * Builds a relative module specifier from `fromFile` to a configured output.
+ */
+export function makeModuleSpec(
+  fromFile: string,
+  target: {
+    readonly output: string | `${string}.ts`
+    readonly split?: boolean
+  },
+): string {
+  const fromDir = path.dirname(fromFile)
+  const entry = target.split ? path.join(target.output) : target.output
+  const rel = path.relative(fromDir, entry).replace(/\\/g, '/')
+  return ensureDotRelative(stripIndex(stripTsExt(rel)))
+}
+
 /**
  * Resolves import path from target or returns default.
  */
-export function resolveImportPath(
+const resolveImportPath = (
   fromFile: string,
   target: ImportTarget | undefined,
   defaultPath: string,
-): string {
-  if (!target) return defaultPath
-  return target.import ?? moduleSpecFrom(fromFile, target)
-}
+): string => (target ? (target.import ?? makeModuleSpec(fromFile, target)) : defaultPath)
 
 /**
- * Builds extra import configs for split mode.
+ * Builds extra import configs.
  */
-export function buildExtraImports(
+const buildExtraImports = (
   fromFile: string,
   imports: ComponentImports | undefined,
   defaults: Readonly<Record<string, string>>,
-): readonly ExtraImportConfig[] {
-  return Object.entries(defaults)
+): readonly ExtraImportConfig[] =>
+  Object.entries(defaults)
     .map(([key, defaultPath]) => {
       const suffix = SUFFIX_MAP[key]
       if (!suffix) return null
-      const path = resolveImportPath(fromFile, imports?.[key], defaultPath)
-      return { suffix, path }
+      return { suffix, path: resolveImportPath(fromFile, imports?.[key], defaultPath) }
     })
     .filter((c): c is ExtraImportConfig => c !== null)
-}
 
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
-  if (exportVariable) {
-    return `export const ${toIdentifierPascalCase(ensureSuffix(text, suffix))} = `
-  }
-  return `const ${toIdentifierPascalCase(ensureSuffix(text, suffix))} = `
+  const name = toIdentifierPascalCase(ensureSuffix(text, suffix))
+  return exportVariable ? `export const ${name} = ` : `const ${name} = `
 }
 
 /**
- * Makes the Z import line if the code contains 'z.'
+ * Finds schemas defined in the code (export const XxxSchema = ...).
  */
-export function makeZImport(code: string): string {
-  return code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-}
-
-/**
- * Makes schema import line from code.
- * @param code - The generated code to analyze.
- * @param schemaPath - The import path for schemas (e.g., './schemas' or '../schemas').
- * @param excludeSuffix - Optional suffix to exclude from schema tokens (e.g., 'HeaderSchema').
- */
-export function makeSchemaImport(code: string, schemaPath: string, excludeSuffix?: string): string {
-  const tokens = excludeSuffix
-    ? findSchema(code).filter((t) => !t.endsWith(excludeSuffix))
-    : findSchema(code)
-  return tokens.length > 0 ? renderNamedImport(tokens, schemaPath) : ''
+const findDefinedSchemas = (code: string): ReadonlySet<string> => {
+  const pattern = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*Schema)\s*=/g
+  return new Set(Array.from(code.matchAll(pattern), (m) => m[1] ?? '').filter(Boolean))
 }
 
 /**
  * Makes complete file code with imports.
  */
-export function makeFileCode(
+const makeFileCode = (
   code: string,
   schemaPath: string,
-  excludeSuffix?: string,
-  extraImports?: readonly ExtraImportConfig[],
-): string {
-  const importZ = makeZImport(code)
-  const importSchemas = makeSchemaImport(code, schemaPath, excludeSuffix)
-  const extras = (extraImports ?? [])
+  extraImports: readonly ExtraImportConfig[],
+): string => {
+  const importZ = code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
+  const defined = findDefinedSchemas(code)
+  const schemaTokens = findSchema(code).filter((t) => !defined.has(t))
+  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, schemaPath) : ''
+  const extras = extraImports
     .map(({ suffix, path }) => {
       const tokens = findTokensBySuffix(code, suffix)
       return tokens.length > 0 ? renderNamedImport(tokens, path) : ''
@@ -110,7 +118,6 @@ export function makeFileCode(
 
 /**
  * Makes complete file code with imports from ComponentImports.
- * Single function to handle all import resolution.
  * @param prefix - Import path prefix (e.g., '..' for split, '.' for non-split)
  */
 export function makeFileCodeWithImports(
@@ -118,7 +125,6 @@ export function makeFileCodeWithImports(
   fromFile: string,
   imports: ComponentImports | undefined,
   prefix: string,
-  excludeSuffix?: string,
 ): string {
   const schemasPath = resolveImportPath(fromFile, imports?.schemas, `${prefix}/schemas`)
   const extraDefaults = Object.fromEntries(
@@ -126,15 +132,11 @@ export function makeFileCodeWithImports(
       .filter((key) => key !== 'schemas')
       .map((key) => [key, `${prefix}/${key}`]),
   )
-  const extraImports = buildExtraImports(fromFile, imports, extraDefaults)
-  return makeFileCode(code, schemasPath, excludeSuffix, extraImports)
+  return makeFileCode(code, schemasPath, buildExtraImports(fromFile, imports, extraDefaults))
 }
 
 /**
  * Generates a string of export const statements for the given value.
- * @param value - The value to export.
- * @param suffix - The suffix to add to the key.
- * @returns A string of export const statements.
  */
 export function makeExportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
   return Object.keys(value)
