@@ -267,12 +267,21 @@ export function makeCallbacks(
         }
       },
 ): string {
+  const isRef = (v: unknown): v is { $ref: string } =>
+    typeof v === 'object' &&
+    v !== null &&
+    '$ref' in v &&
+    typeof (v as { $ref: unknown }).$ref === 'string'
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
 
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
+      // Handle $ref to components/callbacks
+      if (isRef(pathItem)) {
+        return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
+      }
       if (!isPathItem(pathItem)) return undefined
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       const pathItemCode = methods

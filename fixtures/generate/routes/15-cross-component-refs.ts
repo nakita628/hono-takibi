@@ -1302,7 +1302,7 @@ export const postEntitiesRoute = createRoute({
     body: CreateEntityBodyRequestBody,
   },
   responses: { 201: EntityCreatedResponse, 400: ValidationErrorResponse, 409: ConflictResponse },
-  callbacks: {},
+  onEntityCreated: EntityWebhookCallback,
 })
 
 export const getEntitiesEntityIdRoute = createRoute({
@@ -1332,7 +1332,7 @@ export const putEntitiesEntityIdRoute = createRoute({
     409: ConflictResponse,
     412: PreconditionFailedResponse,
   },
-  callbacks: {},
+  onEntityUpdated: EntityWebhookCallback,
 })
 
 export const deleteEntitiesEntityIdRoute = createRoute({
@@ -1344,7 +1344,7 @@ export const deleteEntitiesEntityIdRoute = createRoute({
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
   },
   responses: { 204: NoContentResponse, 404: NotFoundResponse },
-  callbacks: {},
+  onEntityDeleted: EntityWebhookCallback,
 })
 
 export const getEntitiesEntityIdRelationshipsRoute = createRoute({

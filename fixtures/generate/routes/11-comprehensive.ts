@@ -1214,7 +1214,8 @@ export const postOrdersRoute = createRoute({
       links: { GetOrder: GetOrderByIdLink, CancelOrder: CancelOrderByIdLink },
     },
   },
-  callbacks: {},
+  orderStatusUpdate: OrderStatusCallback,
+  paymentConfirmation: PaymentCallback,
 })
 
 export const postWebhooksRoute = createRoute({
@@ -1230,5 +1231,5 @@ export const postWebhooksRoute = createRoute({
       content: { 'application/json': { schema: WebhookSchema } },
     },
   },
-  callbacks: {},
+  webhookEvent: GenericWebhookCallback,
 })

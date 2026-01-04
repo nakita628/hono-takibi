@@ -18,7 +18,6 @@ import {
  * - Produces a complete `.openapi()` route definition with validation.
  */
 export function route(path: string, method: string, operation: Operation): string {
-  const requestCode = makeRequest(operation.parameters, operation.requestBody)
   const properties = [
     `method:'${method}'`,
     `path:'${path}'`,
@@ -27,9 +26,9 @@ export function route(path: string, method: string, operation: Operation): strin
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
-    requestCode ? `request:${requestCode}` : undefined,
+    makeRequest(operation.parameters, operation.requestBody) ? `request:${makeRequest(operation.parameters, operation.requestBody)}` : undefined,
     operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
-    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.callbacks ? makeCallbacks(operation.callbacks) : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
     operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
     operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
