@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { barell } from '../helper/barell.js'
+import { makeBarell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
 import { makeRef } from '../helper/index.js'
 import { makeExamples } from '../helper/openapi.js'
@@ -135,7 +135,7 @@ export async function responses(
     }
 
     const coreResult = await core(
-      barell(responses),
+      makeBarell(responses),
       path.dirname(path.join(outDir, 'index.ts')),
       path.join(outDir, 'index.ts'),
     )

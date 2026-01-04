@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { barell } from '../helper/barell.js'
+import { makeBarell } from '../helper/barell.js'
 import { core } from '../helper/core.js'
 import { sortSchemaBlocks } from '../helper/sort-by-dependencies.js'
 import type { OpenAPI } from '../openapi/index.js'
@@ -87,7 +87,7 @@ export async function schemas(
     }
 
     const coreResult = await core(
-      barell(schemas),
+      makeBarell(schemas),
       path.dirname(`${outDir}/index.ts`),
       `${outDir}/index.ts`,
     )

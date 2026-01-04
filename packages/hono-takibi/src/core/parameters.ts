@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { barell } from '../helper/barell.js'
+import { makeBarell } from '../helper/barell.js'
 import { moduleSpecFrom } from '../helper/module-spec-from.js'
 import type { OpenAPI, Parameter } from '../openapi/index.js'
 import {
@@ -83,7 +83,7 @@ export async function parameters(
       if (!writeResult.ok) return { ok: false, error: writeResult.error }
     }
 
-    const fmtResult = await fmt(barell(parameters))
+    const fmtResult = await fmt(makeBarell(parameters))
     if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
     const mkdirResult = await mkdir(path.dirname(path.join(outDir, 'index.ts')))
     if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
