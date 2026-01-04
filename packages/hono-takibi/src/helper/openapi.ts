@@ -125,14 +125,15 @@ export function makeExamples(examples: {
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
-    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)}`)
+    .map(([StatusCode, res]) => `${/^\d+$/.test(StatusCode) ? StatusCode : `'${StatusCode}'`}:${makeResponses(res)}`)
+    // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
   return `{${result}}`
 }
 
 export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
   const result = Object.entries(headers)
-    .map(([key, header]) => `${JSON.stringify(key)}:${makeHeadersAndReferences(header)}`)
+    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header)}`)
     .join(',')
   return `z.object({${result}})`
 }
