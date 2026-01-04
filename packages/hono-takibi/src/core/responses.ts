@@ -1,17 +1,11 @@
 import path from 'node:path'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
+import { buildFileCode } from '../helper/code.js'
 import { core } from '../helper/core.js'
-import { makeExamples, makeRef } from '../helper/index.js'
-import type { Components, Content, Header, Reference, Responses } from '../openapi/index.js'
-import {
-  ensureSuffix,
-  findSchema,
-  isRecord,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { makeContent, makeRef } from '../helper/index.js'
+import type { Components, Header, Reference, Responses } from '../openapi/index.js'
+import { ensureSuffix, isRecord, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
 
 const isRef = (v: unknown): v is Reference & { $ref: string } =>
   isRecord(v) && typeof v.$ref === 'string'
@@ -42,59 +36,35 @@ const headersPropExpr = (
   return entries.length > 0 ? `headers:z.object({${entries.join(',')}})` : undefined
 }
 
-const mediaTypeExpr = (media: Content[string]): string => {
-  const schema = zodToOpenAPI(media.schema)
-  const examples = media.examples ? makeExamples(media.examples) : undefined
-  const examplesProp = examples ? `examples:${examples}` : undefined
-  return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
-}
-
-const linkEntryExpr = (
-  name: string,
-  link: Responses['links'] extends Record<string, infer V> | undefined ? V : never,
-  components: Components,
-): string => {
-  const key = JSON.stringify(name)
-  if (!(isRef(link) && link.$ref.startsWith('#/components/links/'))) {
-    return `${key}:${JSON.stringify(link)}`
-  }
-  const refKey = link.$ref.slice('#/components/links/'.length)
-  const resolved = refKey ? components.links?.[refKey] : undefined
-  return resolved
-    ? `${key}:${makeRef(link.$ref as `#/components/${string}/${string}`)}`
-    : `${key}:{$ref:${JSON.stringify(link.$ref)}}`
-}
-
 const linksPropExpr = (
   links: Responses['links'] | undefined,
   components: Components,
 ): string | undefined => {
   if (!links) return undefined
-  const entries = Object.entries(links).map(([name, link]) => linkEntryExpr(name, link, components))
+  const entries = Object.entries(links).map(([name, link]) => {
+    const key = JSON.stringify(name)
+    if (!(isRef(link) && link.$ref.startsWith('#/components/links/'))) {
+      return `${key}:${JSON.stringify(link)}`
+    }
+    const refKey = link.$ref.slice('#/components/links/'.length)
+    const resolved = refKey ? components.links?.[refKey] : undefined
+    return resolved
+      ? `${key}:${makeRef(link.$ref as `#/components/${string}/${string}`)}`
+      : `${key}:{$ref:${JSON.stringify(link.$ref)}}`
+  })
   return entries.length > 0 ? `links:{${entries.join(',')}}` : undefined
-}
-
-const contentPropExpr = (content: Responses['content'] | undefined): string | undefined => {
-  if (!content) return undefined
-  const entries = Object.entries(content).map(
-    ([contentType, media]) => `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`,
-  )
-  return entries.length > 0 ? `content:{${entries.join(',')}}` : undefined
 }
 
 const responseDefinitionExpr = (res: Responses, components: Components): string => {
   if (typeof res.$ref === 'string') return `{$ref:${JSON.stringify(res.$ref)}}`
+  const contentExpr = res.content ? `content:{${makeContent(res.content).join(',')}}` : undefined
   const props = [
     `description:${JSON.stringify(res.description ?? '')}`,
     headersPropExpr(res.headers, components),
     linksPropExpr(res.links, components),
-    contentPropExpr(res.content),
+    contentExpr,
   ].filter(Boolean)
   return `{${props.join(',')}}`
-}
-
-const buildImportSchemas = (code: string): readonly string[] => {
-  return findSchema(code).filter((t) => !t.endsWith('HeaderSchema'))
 }
 
 /**
@@ -123,12 +93,7 @@ export async function responses(
     for (const key of Object.keys(responses)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-      const schemaTokens = buildImportSchemas(one.code)
-      const importSchemas =
-        schemaTokens.length > 0 ? renderNamedImport(schemaTokens, '../schemas') : ''
-      const fileCode = [importZ, importSchemas, '\n', one.code, ''].filter(Boolean).join('\n')
-
+      const fileCode = buildFileCode(one.code, '../schemas', 'HeaderSchema')
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -155,11 +120,7 @@ export async function responses(
     .join('\n\n')
 
   const outFile = String(output)
-  const importZ = defs.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-  const schemaTokens = buildImportSchemas(defs)
-  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, './schemas') : ''
-  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
-
+  const fileCode = buildFileCode(defs, './schemas', 'HeaderSchema')
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

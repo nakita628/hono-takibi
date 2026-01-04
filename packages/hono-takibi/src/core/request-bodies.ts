@@ -1,51 +1,13 @@
 import path from 'node:path'
-import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { makeBarell } from '../helper/barell.js'
+import { buildFileCode } from '../helper/code.js'
 import { core } from '../helper/core.js'
-import { makeExamples } from '../helper/index.js'
-import type { Content, OpenAPI, RequestBody } from '../openapi/index.js'
-import {
-  ensureSuffix,
-  findSchema,
-  isRecord,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { makeRequestBody } from '../helper/index.js'
+import type { OpenAPI } from '../openapi/index.js'
+import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
 
-const isMedia = (v: unknown): v is Content[string] =>
-  isRecord(v) && 'schema' in v && isRecord(v.schema)
-
-const coerceDateIfNeeded = (schemaExpr: string): string =>
-  schemaExpr.includes('z.date()') ? `z.coerce.${schemaExpr.replace('z.', '')}` : schemaExpr
-
-const mediaTypeExpr = (media: unknown): string => {
-  if (!isMedia(media)) return '{schema:z.any()}'
-  const schema = coerceDateIfNeeded(zodToOpenAPI(media.schema))
-  const examples = media.examples ? makeExamples(media.examples) : undefined
-  const examplesProp = examples ? `examples:${examples}` : undefined
-  return `{${[`schema:${schema}`, examplesProp].filter(Boolean).join(',')}}`
-}
-
-const requestBodyExpr = (body: RequestBody): string => {
-  const required = body.required ?? false
-  const description =
-    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined
-  const content = body.content
-  if (!content) {
-    return `{${[description, `required:${required}`].filter(Boolean).join(',')}}`
-  }
-
-  const contentEntries = Object.entries(content).map(([contentType, media]) => {
-    return `${JSON.stringify(contentType)}:${mediaTypeExpr(media)}`
-  })
-  const contentExpr = `content:{${contentEntries.join(',')}}`
-  return `{${[description, `required:${required}`, contentExpr].filter(Boolean).join(',')}}`
-}
-
-const buildImportSchemas = (code: string): readonly string[] => {
-  return findSchema(code)
-}
+const coerceDateIfNeeded = (expr: string): string =>
+  expr.includes('z.date()') ? expr.replace(/z\.date\(\)/g, 'z.coerce.date()') : expr
 
 /**
  * Generates `components.requestBodies` constants (objects containing Zod schemas).
@@ -63,7 +25,7 @@ export async function requestBodies(
 
   const makeOne = (key: string): { name: string; code: string } => {
     const body = bodies[key]
-    const expr = body ? requestBodyExpr(body) : '{}'
+    const expr = body ? coerceDateIfNeeded(makeRequestBody(body)) : '{}'
     const name = toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))
     return { name, code: `export const ${name} = ${expr}` }
   }
@@ -74,12 +36,7 @@ export async function requestBodies(
     for (const key of Object.keys(bodies)) {
       const one = makeOne(key)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const importZ = one.code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-      const schemaTokens = buildImportSchemas(one.code)
-      const importSchemas =
-        schemaTokens.length > 0 ? renderNamedImport(schemaTokens, '../schemas') : ''
-      const fileCode = [importZ, importSchemas, '\n', one.code, ''].filter(Boolean).join('\n')
-
+      const fileCode = buildFileCode(one.code, '../schemas')
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -100,17 +57,13 @@ export async function requestBodies(
   const defs = Object.keys(bodies)
     .map((key) => {
       const body = bodies[key]
-      const expr = body ? requestBodyExpr(body) : '{}'
+      const expr = body ? coerceDateIfNeeded(makeRequestBody(body)) : '{}'
       return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))} = ${expr}`
     })
     .join('\n\n')
 
   const outFile = String(output)
-  const importZ = defs.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
-  const schemaTokens = buildImportSchemas(defs)
-  const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, './schemas') : ''
-  const fileCode = [importZ, importSchemas, '\n', defs, ''].filter(Boolean).join('\n')
-
+  const fileCode = buildFileCode(defs, './schemas')
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

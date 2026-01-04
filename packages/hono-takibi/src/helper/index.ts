@@ -1,4 +1,3 @@
-export { exampleExpr, examplesPropExpr, inlineExampleExpr } from './examples.js'
 export { moduleSpecFrom } from './module-spec-from.js'
 export {
   makeCallbacks,
