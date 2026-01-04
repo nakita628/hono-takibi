@@ -997,6 +997,20 @@ export const putProvidersProviderIdRoute = createRoute({
   summary: 'プロバイダー更新',
   operationId: 'updateProvider',
   request: {
+    params: z.object({
+      providerId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'providerId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateProviderRequestSchema } },
       required: true,
@@ -1117,6 +1131,7 @@ export const postAccountLinkProviderRoute = createRoute({
   description: '既存アカウントにソーシャルアカウントを連携',
   operationId: 'linkAccount',
   request: {
+    params: z.object({ provider: ProviderParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1259,6 +1274,20 @@ export const putEnterpriseSsoConfigIdRoute = createRoute({
   summary: 'エンタープライズSSO設定更新',
   operationId: 'updateEnterpriseSSOConfig',
   request: {
+    params: z.object({
+      configId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'configId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema } },
       required: true,

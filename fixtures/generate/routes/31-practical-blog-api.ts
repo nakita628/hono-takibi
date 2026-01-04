@@ -764,6 +764,7 @@ export const putPostsPostIdRoute = createRoute({
   summary: '記事更新',
   operationId: 'updatePost',
   request: {
+    params: z.object({ postId: PostIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: UpdatePostRequestSchema } }, required: true },
   },
   responses: {
@@ -820,6 +821,7 @@ export const postPostsPostIdPublishRoute = createRoute({
   summary: '記事公開',
   operationId: 'publishPost',
   request: {
+    params: z.object({ postId: PostIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -894,6 +896,7 @@ export const postPostsPostIdCommentsRoute = createRoute({
   summary: 'コメント投稿',
   operationId: 'createComment',
   request: {
+    params: z.object({ postId: PostIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: CreateCommentRequestSchema } },
       required: true,
@@ -1037,6 +1040,20 @@ export const putCategoriesCategoryIdRoute = createRoute({
   summary: 'カテゴリ更新',
   operationId: 'updateCategory',
   request: {
+    params: z.object({
+      categoryId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'categoryId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateCategoryRequestSchema } },
       required: true,
@@ -1235,6 +1252,20 @@ export const putMediaMediaIdRoute = createRoute({
   summary: 'メディア情報更新',
   operationId: 'updateMedia',
   request: {
+    params: z.object({
+      mediaId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'mediaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

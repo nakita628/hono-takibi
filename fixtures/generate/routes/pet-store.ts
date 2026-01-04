@@ -559,6 +559,36 @@ export const postPetPetIdUploadImageRoute = createRoute({
   summary: 'uploads an image',
   operationId: 'uploadFile',
   request: {
+    params: z.object({
+      petId: z
+        .int64()
+        .openapi({
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'ID of pet to update',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
+          type: 'integer',
+          format: 'int64',
+        }),
+    }),
+    query: z.object({
+      additionalMetadata: z
+        .string()
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'additionalMetadata',
+            in: 'query',
+            description: 'Additional Metadata',
+            required: false,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
+    }),
     body: {
       content: {
         'application/octet-stream': {
@@ -855,6 +885,20 @@ export const putUserUsernameRoute = createRoute({
   description: 'This can only be done by the logged in user.',
   operationId: 'updateUser',
   request: {
+    params: z.object({
+      username: z
+        .string()
+        .openapi({
+          param: {
+            name: 'username',
+            in: 'path',
+            description: 'name that need to be deleted',
+            required: true,
+            schema: { type: 'string' },
+          },
+          type: 'string',
+        }),
+    }),
     body: {
       description: 'Update an existent user in the store',
       content: {

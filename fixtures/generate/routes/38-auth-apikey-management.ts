@@ -474,6 +474,7 @@ export const patchApiKeysKeyIdRoute = createRoute({
   summary: 'APIキー更新',
   operationId: 'updateApiKey',
   request: {
+    params: z.object({ keyId: ApiKeyIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: UpdateApiKeyRequestSchema } },
       required: true,
@@ -493,6 +494,7 @@ export const postApiKeysKeyIdRevokeRoute = createRoute({
   summary: 'APIキー無効化',
   operationId: 'revokeApiKey',
   request: {
+    params: z.object({ keyId: ApiKeyIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -517,6 +519,7 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
   summary: 'APIキーローテーション',
   operationId: 'rotateApiKey',
   request: {
+    params: z.object({ keyId: ApiKeyIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {

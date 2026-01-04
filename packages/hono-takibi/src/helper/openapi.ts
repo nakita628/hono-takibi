@@ -1,3 +1,4 @@
+import { params } from '../generator/zod-openapi-hono/openapi/routes/params/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
@@ -13,7 +14,7 @@ import type {
   RequestBody,
   Responses,
 } from '../openapi/index.js'
-import { toIdentifierPascalCase } from '../utils/index.js'
+import { requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
 
 /**
  * generates a reference to the given $ref string.
@@ -24,7 +25,6 @@ export function makeRef($ref: string): string {
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-
   if ($ref.startsWith('#/components/schemas/')) {
     return refName.endsWith('Schema') ? refName : `${refName}Schema`
   }
@@ -52,7 +52,6 @@ export function makeRef($ref: string): string {
   if ($ref.startsWith('#/components/callbacks/')) {
     return refName.endsWith('Callback') ? refName : `${refName}Callback`
   }
-
   return `${refName}Schema`
 }
 
@@ -364,15 +363,18 @@ export function makeContent(
  * @param body RequestBody object
  * @returns
  */
-export function makeRequestBody(body: RequestBody) {
-  const props = [
+export function makeRequestBody(body: RequestBody | Reference) {
+  if ('$ref' in body && body.$ref) {
+    return `body:${makeRef(body.$ref)}`
+  }
+  const result = [
     body.description ? `description:${JSON.stringify(body.description)}` : undefined,
-    body.content ? `content:{${makeContent(body.content)}}` : undefined,
-    body.required ? `required:${JSON.stringify(body.required)}` : undefined,
+    'content' in body && body.content ? `content:{${makeContent(body.content)}}` : undefined,
+    'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 /**
@@ -383,7 +385,7 @@ export function makeRequestBody(body: RequestBody) {
 export function makeMedia(media: Media) {
   const encodingCode = media.encoding
     ? Object.entries(media.encoding)
-        .map(([name, enc]) => `${JSON.stringify(name)}:{${makeEncoding(enc)}}`)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
         .join(',')
     : undefined
   const result = [
@@ -429,4 +431,28 @@ export function makeEncoding(encoding: Encoding): string {
   ]
     .filter((v) => v !== undefined)
     .join(',')
+}
+
+/**
+ * Generates request parts from parameters and request body.
+ * @param parameters OpenAPI parameters array
+ * @param requestBody OpenAPI request body
+ * @returns Request string like `request:{query:...,body:...},` or empty string
+ */
+export function makeRequest(
+  parameters: readonly Parameter[] | undefined,
+  requestBody: RequestBody | undefined,
+): string {
+  const result = [
+    parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
+    requestBody?.content ? `body:${makeRequestBody(requestBody)}` : undefined,
+  ].filter((v) => v !== undefined).join(',')
+  return result.length > 0 ? `request:{${result}},` : ''
+}
+
+
+export function makeRequestParams(parameters: readonly Parameter[]) {
+  const paramsObject = params(parameters)
+  const paramsArray = requestParamsArray(paramsObject)
+  return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }

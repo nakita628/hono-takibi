@@ -385,6 +385,14 @@ export const putUsersUserIdRoute = createRoute({
   path: '/users/{userId}',
   summary: 'Update an existing user',
   request: {
+    params: z.object({
+      userId: z
+        .string()
+        .openapi({
+          param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       description: 'Updated user information',
       content: { 'application/json': { schema: UpdateUserSchema } },

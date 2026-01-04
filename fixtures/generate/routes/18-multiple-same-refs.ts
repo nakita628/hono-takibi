@@ -933,7 +933,19 @@ export const putDocumentsDocumentIdRoute = createRoute({
   method: 'put',
   path: '/documents/{documentId}',
   operationId: 'updateDocument',
-  request: { body: { content: { 'application/json': { schema: UpdateDocumentInputSchema } } } },
+  request: {
+    params: z.object({
+      documentId: DocumentIdSchema.openapi({
+        param: {
+          name: 'documentId',
+          in: 'path',
+          required: true,
+          schema: { $ref: '#/components/schemas/DocumentId' },
+        },
+      }),
+    }),
+    body: { content: { 'application/json': { schema: UpdateDocumentInputSchema } } },
+  },
   responses: {
     200: { description: 'Updated', content: { 'application/json': { schema: DocumentSchema } } },
   },
@@ -973,7 +985,19 @@ export const postDocumentsDocumentIdShareRoute = createRoute({
   method: 'post',
   path: '/documents/{documentId}/share',
   operationId: 'shareDocument',
-  request: { body: { content: { 'application/json': { schema: ShareRequestSchema } } } },
+  request: {
+    params: z.object({
+      documentId: DocumentIdSchema.openapi({
+        param: {
+          name: 'documentId',
+          in: 'path',
+          required: true,
+          schema: { $ref: '#/components/schemas/DocumentId' },
+        },
+      }),
+    }),
+    body: { content: { 'application/json': { schema: ShareRequestSchema } } },
+  },
   responses: {
     200: { description: 'Shared', content: { 'application/json': { schema: ShareResultSchema } } },
   },

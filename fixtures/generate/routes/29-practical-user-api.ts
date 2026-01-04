@@ -611,6 +611,7 @@ export const patchUsersUserIdRoute = createRoute({
   summary: 'ユーザー情報更新',
   operationId: 'updateUser',
   request: {
+    params: z.object({ userId: UserIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: UpdateUserRequestSchema } }, required: true },
   },
   responses: {

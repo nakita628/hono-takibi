@@ -811,6 +811,7 @@ export const postUsersUserIdMuteRoute = createRoute({
   summary: 'ミュート',
   operationId: 'muteUser',
   request: {
+    params: z.object({ userId: UserIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -960,6 +961,7 @@ export const putListsListIdRoute = createRoute({
   summary: 'リスト更新',
   operationId: 'updateList',
   request: {
+    params: z.object({ listId: ListIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: UpdateListRequestSchema } }, required: true },
   },
   responses: {
@@ -1005,6 +1007,7 @@ export const postListsListIdMembersRoute = createRoute({
   summary: 'リストにメンバー追加',
   operationId: 'addListMember',
   request: {
+    params: z.object({ listId: ListIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {

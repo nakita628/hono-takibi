@@ -778,6 +778,7 @@ export const putProductsProductIdRoute = createRoute({
   summary: '商品更新',
   operationId: 'updateProduct',
   request: {
+    params: z.object({ productId: ProductIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: UpdateProductRequestSchema } },
       required: true,
@@ -809,6 +810,7 @@ export const postProductsProductIdImagesRoute = createRoute({
   summary: '商品画像アップロード',
   operationId: 'uploadProductImage',
   request: {
+    params: z.object({ productId: ProductIdParamParamsSchema }),
     body: {
       content: {
         'multipart/form-data': {
@@ -930,6 +932,14 @@ export const putCartItemsItemIdRoute = createRoute({
   summary: 'カートアイテム数量変更',
   operationId: 'updateCartItem',
   request: {
+    params: z.object({
+      itemId: z
+        .string()
+        .openapi({
+          param: { name: 'itemId', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
@@ -1053,6 +1063,7 @@ export const postOrdersOrderIdCancelRoute = createRoute({
   summary: '注文キャンセル',
   operationId: 'cancelOrder',
   request: {
+    params: z.object({ orderId: OrderIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -1107,6 +1118,7 @@ export const putInventoryProductIdRoute = createRoute({
   summary: '在庫更新',
   operationId: 'updateInventory',
   request: {
+    params: z.object({ productId: ProductIdParamParamsSchema }),
     body: {
       content: { 'application/json': { schema: UpdateInventoryRequestSchema } },
       required: true,

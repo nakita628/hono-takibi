@@ -1073,6 +1073,20 @@ export const putServiceProvidersSpIdRoute = createRoute({
   summary: 'SP更新',
   operationId: 'updateServiceProvider',
   request: {
+    params: z.object({
+      spId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: { 'application/json': { schema: UpdateServiceProviderRequestSchema } },
       required: true,
@@ -1153,6 +1167,20 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
   summary: 'SPメタデータ更新',
   operationId: 'updateSpMetadata',
   request: {
+    params: z.object({
+      spId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/xml': { schema: z.string().openapi({ type: 'string' }) },
@@ -1226,6 +1254,20 @@ export const putServiceProvidersSpIdAttributesRoute = createRoute({
   summary: 'SP属性マッピング更新',
   operationId: 'updateSpAttributeMappings',
   request: {
+    params: z.object({
+      spId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'spId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

@@ -902,6 +902,7 @@ export const postDmConversationsConversationIdMessagesRoute = createRoute({
   summary: 'メッセージ送信',
   operationId: 'sendMessage',
   request: {
+    params: z.object({ conversationId: ConversationIdParamParamsSchema }),
     body: { content: { 'application/json': { schema: SendMessageRequestSchema } }, required: true },
   },
   responses: {
@@ -918,6 +919,7 @@ export const postDmConversationsConversationIdReadRoute = createRoute({
   summary: '会話を既読にする',
   operationId: 'markConversationRead',
   request: {
+    params: z.object({ conversationId: ConversationIdParamParamsSchema }),
     body: {
       content: {
         'application/json': {
@@ -984,6 +986,20 @@ export const postDmMessagesMessageIdReactionsRoute = createRoute({
   summary: 'メッセージにリアクション追加',
   operationId: 'addMessageReaction',
   request: {
+    params: z.object({
+      messageId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+          type: 'string',
+          format: 'uuid',
+        }),
+    }),
     body: {
       content: {
         'application/json': {

@@ -201,6 +201,25 @@ export const putPostsIdRoute = createRoute({
   summary: 'Update an existing post',
   description: 'Update the content of an existing post identified by its unique ID.',
   request: {
+    params: z.object({
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Unique identifier of the post.',
+            },
+          },
+          type: 'string',
+          format: 'uuid',
+          description: 'Unique identifier of the post.',
+        }),
+    }),
     body: {
       content: {
         'application/json': {
