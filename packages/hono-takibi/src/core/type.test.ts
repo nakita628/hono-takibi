@@ -65,7 +65,9 @@ describe('type', () => {
       expect(result.ok).toBe(true)
       const code = fs.readFileSync(out, 'utf-8')
       console.log(code)
-      expect(code).toContain(`{ '/test': { $post: { input: {}; output: {}; outputFormat: string; status: 200 } } },`)
+      expect(code).toContain(
+        '$post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }',
+      )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

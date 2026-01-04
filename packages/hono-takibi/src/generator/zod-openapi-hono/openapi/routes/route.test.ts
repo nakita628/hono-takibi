@@ -34,7 +34,7 @@ describe('route', () => {
         },
       },
     })
-    const expected = `export const postPostsRoute=createRoute({method:'post',path:'/posts',tags:["Hono"],operationId:'updatePost',responses:{200:{description:"Hono🔥",content:{'application/json':{schema:z.object({message:z.string().openapi({"name":"message","type":"string","example":"Hono🔥"})}).openapi({"name":"root","type":"object","properties":{"message":{"name":"message","type":"string","example":"Hono🔥"}},"required":["message"]})}}},},})`
+    const expected = `export const postPostsRoute=createRoute({method:'post',path:'/posts',tags:["Hono"],operationId:'updatePost',responses:{200:{description:"Hono🔥",content:{'application/json':{schema:z.object({message:z.string().openapi({"name":"message","type":"string","example":"Hono🔥"})}).openapi({"name":"root","type":"object","properties":{"message":{"name":"message","type":"string","example":"Hono🔥"}},"required":["message"]})}}}}})`
     expect(result).toBe(expected)
   })
 })

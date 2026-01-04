@@ -18,31 +18,24 @@ import {
  * - Produces a complete `.openapi()` route definition with validation.
  */
 export function route(path: string, method: string, operation: Operation): string {
-  const operationCode = {
-    tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : '',
-    summary: operation.summary ? `summary:${JSON.stringify(operation.summary)},` : '',
-    description: operation.description
-      ? `description:${JSON.stringify(operation.description)},`
-      : '',
-    externalDocs: operation.externalDocs
-      ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
-      : '',
-    operationId: operation.operationId ? `operationId:'${operation.operationId}',` : '',
-    request: makeRequest(operation.parameters, operation.requestBody) ? `request:${makeRequest(operation.parameters, operation.requestBody)},` : '',
-    responses: operation.responses
-      ? `responses:${makeOperationResponses(operation.responses)},`
-      : '',
-    callbacks: operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}},` : '',
-    deprecated: operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)},` : '',
-    security: operation.security ? `security:${JSON.stringify(operation.security)},` : '',
-    servers: operation.servers ? `servers:${JSON.stringify(operation.servers)},` : '',
-  }
-  
+  const requestCode = makeRequest(operation.parameters, operation.requestBody)
   const properties = [
-    `method:'${method}',`,
-    `path:'${path}',`,
-    ...Object.values(operationCode)
-  ].join('')
+    `method:'${method}'`,
+    `path:'${path}'`,
+    operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
+    operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+    requestCode ? `request:${requestCode}` : undefined,
+    operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+    operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+    operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
 
   return `export const ${methodPath(method, path)}Route=createRoute({${properties}})`
 }

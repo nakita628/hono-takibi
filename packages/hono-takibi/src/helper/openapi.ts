@@ -125,8 +125,8 @@ export function makeExamples(examples: {
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
-    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)},`)
-    .join('')
+    .map(([code, res]) => `${/^\d+$/.test(code) ? code : `'${code}'`}:${makeResponses(res)}`)
+    .join(',')
   return `{${result}}`
 }
 
@@ -445,7 +445,10 @@ export function makeRequest(
 ) {
   const result = [
     parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
-    requestBody && '$ref' in requestBody ? `body:${makeRequestBody(requestBody)}` : undefined,
+    (requestBody && '$ref' in requestBody && requestBody.$ref) ||
+    (requestBody && 'content' in requestBody && requestBody.content)
+      ? `body:${makeRequestBody(requestBody)}`
+      : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
