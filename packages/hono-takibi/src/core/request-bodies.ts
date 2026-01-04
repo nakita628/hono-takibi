@@ -1,13 +1,8 @@
 import path from 'node:path'
-import { core, makeBarell, makeFileCode, makeRequestBody } from '../helper/index.js'
+import { requestBodiesCode } from '../generator/zod-openapi-hono/openapi/components/request-bodies.js'
+import { core, makeBarell, makeFileCode } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import {
-  ensureSuffix,
-  findTokensBySuffix,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { findTokensBySuffix, lowerFirst, renderNamedImport } from '../utils/index.js'
 
 /**
  * Makes import lines for examples.
@@ -34,21 +29,16 @@ export async function requestBodies(
   if (!bodies || Object.keys(bodies).length === 0)
     return { ok: false, error: 'No requestBodies found' }
 
-  const makeOne = (key: string): { name: string; code: string } => {
-    const body = bodies[key]
-    const expr = body ? coerceDateIfNeeded(makeRequestBody(body)) : '{}'
-    const name = toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))
-    return { name, code: `export const ${name} = ${expr}` }
-  }
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
     for (const key of Object.keys(bodies)) {
-      const one = makeOne(key)
+      const body = bodies[key]
+      if (!body) continue
+      const code = coerceDateIfNeeded(requestBodiesCode({ requestBodies: { [key]: body } }, true))
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const baseCode = makeFileCode(one.code, '../schemas')
-      const examplesImport = makeExamplesImport(one.code, '..')
+      const baseCode = makeFileCode(code, '../schemas')
+      const examplesImport = makeExamplesImport(code, '..')
       const fileCode = examplesImport
         ? `${baseCode.split('\n')[0]}\n${examplesImport}\n${baseCode.split('\n').slice(1).join('\n')}`
         : baseCode
@@ -69,13 +59,7 @@ export async function requestBodies(
     }
   }
 
-  const defs = Object.keys(bodies)
-    .map((key) => {
-      const body = bodies[key]
-      const expr = body ? coerceDateIfNeeded(makeRequestBody(body)) : '{}'
-      return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'RequestBody'))} = ${expr}`
-    })
-    .join('\n\n')
+  const defs = coerceDateIfNeeded(requestBodiesCode({ requestBodies: bodies }, true))
 
   const outFile = String(output)
   const baseCode = makeFileCode(defs, './schemas')

@@ -1,43 +1,8 @@
 import path from 'node:path'
-import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { core, makeBarell, makeRef } from '../helper/index.js'
-import type { Header, OpenAPI, Reference } from '../openapi/index.js'
-import {
-  ensureSuffix,
-  findSchema,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-  zodToOpenAPISchema,
-} from '../utils/index.js'
-
-/**
- * Builds a header schema definition.
- */
-function buildHeaderSchema(
-  key: string,
-  header: Header | Reference,
-  exportHeader: boolean,
-  exportType: boolean,
-): string {
-  const schemaName = toIdentifierPascalCase(ensureSuffix(key, 'HeaderSchema'))
-
-  if ('$ref' in header && header.$ref) {
-    return zodToOpenAPISchema(schemaName, makeRef(header.$ref), exportHeader, exportType, true)
-  }
-
-  if ('schema' in header && header.schema) {
-    return zodToOpenAPISchema(
-      schemaName,
-      zodToOpenAPI(header.schema, { headers: header }),
-      exportHeader,
-      exportType,
-      true,
-    )
-  }
-
-  return zodToOpenAPISchema(schemaName, 'z.any()', exportHeader, exportType, true)
-}
+import { headersCode } from '../generator/zod-openapi-hono/openapi/components/headers.js'
+import { core, makeBarell } from '../helper/index.js'
+import type { OpenAPI } from '../openapi/index.js'
+import { findSchema, lowerFirst, renderNamedImport } from '../utils/index.js'
 
 /**
  * Generates `components.headers` as Zod schemas.
@@ -63,7 +28,7 @@ export async function headers(
       const header = headers[key]
       if (!header) continue
 
-      const code = buildHeaderSchema(key, header, true, exportType)
+      const code = headersCode({ headers: { [key]: header } }, true, exportType)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       const schemaTokens = findSchema(code)
       const importSchemas =
@@ -88,14 +53,7 @@ export async function headers(
   }
 
   // Non-split mode: single file
-  const defs = Object.keys(headers)
-    .map((key) => {
-      const header = headers[key]
-      if (!header) return ''
-      return buildHeaderSchema(key, header, true, exportType)
-    })
-    .filter(Boolean)
-    .join('\n\n')
+  const defs = headersCode({ headers }, true, exportType)
 
   const outFile = String(output)
   const schemaTokens = findSchema(defs)

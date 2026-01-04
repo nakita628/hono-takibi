@@ -7,7 +7,7 @@ import {
 } from '../../../../utils/index.js'
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
-export function headers(
+export function headersCode(
   components: Components,
   exportHeaders: boolean,
   exportHeadersTypes: boolean,

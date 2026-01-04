@@ -2,7 +2,7 @@ import { makeConst } from '../../../../helper/code.js'
 import { makeLinkOrReference } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
-export function links(components: Components, exportLinks: boolean) {
+export function linksCode(components: Components, exportLinks: boolean) {
   const { links } = components
   if (!links) return ''
 

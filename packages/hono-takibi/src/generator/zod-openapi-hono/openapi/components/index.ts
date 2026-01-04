@@ -1,14 +1,14 @@
 import { sortByDependencies } from '../../../../helper/sort-by-dependencies.js'
 import type { Components } from '../../../../openapi/index.js'
-import { callbacks } from './callbacks.js'
-import { examples } from './examples.js'
-import { headers } from './headers.js'
-import { links } from './links.js'
-import { parameters } from './parameters.js'
-import { requestBodies } from './request-bodies.js'
-import { responses } from './responses.js'
-import { schemas } from './schemas.js'
-import { securitySchemes } from './securitySchemes.js'
+import { callbacksCode } from './callbacks.js'
+import { examplesCode } from './examples.js'
+import { headersCode } from './headers.js'
+import { linksCode } from './links.js'
+import { parametersCode } from './parameters.js'
+import { requestBodiesCode } from './request-bodies.js'
+import { responsesCode } from './responses.js'
+import { schemasCode } from './schemas.js'
+import { securitySchemesCode } from './securitySchemes.js'
 
 /**
  * Converts OpenAPI component schemas to Zod-based TypeScript definitions.
@@ -41,15 +41,15 @@ export function componentsCode(
   },
 ): string {
   const code = [
-    schemas(components, options.exportSchemas, options.exportSchemasTypes),
-    parameters(components, options.exportParameters, options.exportParametersTypes),
-    securitySchemes(components, options.exportSecuritySchemes),
-    requestBodies(components, options.exportRequestBodies),
-    responses(components, options.exportResponses),
-    headers(components, options.exportHeaders, options.exportHeadersTypes),
-    examples(components, options.exportExamples),
-    links(components, options.exportLinks),
-    callbacks(components, options.exportCallbacks),
+    schemasCode(components, options.exportSchemas, options.exportSchemasTypes),
+    parametersCode(components, options.exportParameters, options.exportParametersTypes),
+    securitySchemesCode(components, options.exportSecuritySchemes),
+    requestBodiesCode(components, options.exportRequestBodies),
+    responsesCode(components, options.exportResponses),
+    headersCode(components, options.exportHeaders, options.exportHeadersTypes),
+    examplesCode(components, options.exportExamples),
+    linksCode(components, options.exportLinks),
+    callbacksCode(components, options.exportCallbacks),
   ]
     .filter(Boolean)
     .join('\n\n')

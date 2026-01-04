@@ -2,7 +2,7 @@ import { makeConst } from '../../../../helper/code.js'
 import { makeCallbacks } from '../../../../helper/index.js'
 import type { Callbacks, Components } from '../../../../openapi/index.js'
 
-export function callbacks(components: Components, exportCallbacks: boolean): string {
+export function callbacksCode(components: Components, exportCallbacks: boolean): string {
   const { callbacks } = components
   if (!callbacks) return ''
 

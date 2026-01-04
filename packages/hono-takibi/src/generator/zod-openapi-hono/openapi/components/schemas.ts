@@ -115,7 +115,7 @@ function detectCircularSchemas(
   return cyclicSchemas
 }
 
-export function schemas(
+export function schemasCode(
   components: Components,
   exportSchemas: boolean,
   exportSchemasTypes: boolean,

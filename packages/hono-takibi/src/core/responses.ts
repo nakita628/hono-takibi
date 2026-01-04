@@ -1,13 +1,8 @@
 import path from 'node:path'
-import { core, makeBarell, makeFileCode, makeResponses } from '../helper/index.js'
+import { responsesCode } from '../generator/zod-openapi-hono/openapi/components/responses.js'
+import { core, makeBarell, makeFileCode } from '../helper/index.js'
 import type { Components } from '../openapi/index.js'
-import {
-  ensureSuffix,
-  findTokensBySuffix,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { findTokensBySuffix, lowerFirst, renderNamedImport } from '../utils/index.js'
 
 /**
  * Makes import lines for examples and links.
@@ -34,21 +29,16 @@ export async function responses(
   const { responses } = components
   if (!responses) return { ok: false, error: 'No responses found' }
 
-  const makeOne = (key: string): { name: string; code: string } => {
-    const res = responses[key]
-    const expr = res ? makeResponses(res) : '{}'
-    const name = toIdentifierPascalCase(ensureSuffix(key, 'Response'))
-    return { name, code: `export const ${name} = ${expr}` }
-  }
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
 
     for (const key of Object.keys(responses)) {
-      const one = makeOne(key)
+      const res = responses[key]
+      if (!res) continue
+      const code = responsesCode({ responses: { [key]: res } }, true)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const baseCode = makeFileCode(one.code, '../schemas', 'HeaderSchema')
-      const extraImports = makeExtraImports(one.code, '..')
+      const baseCode = makeFileCode(code, '../schemas', 'HeaderSchema')
+      const extraImports = makeExtraImports(code, '..')
       const fileCode = extraImports
         ? `${baseCode.split('\n')[0]}\n${extraImports}\n${baseCode.split('\n').slice(1).join('\n')}`
         : baseCode
@@ -69,13 +59,7 @@ export async function responses(
     }
   }
 
-  const defs = Object.keys(responses)
-    .map((key) => {
-      const res = responses[key]
-      const expr = res ? makeResponses(res) : '{}'
-      return `export const ${toIdentifierPascalCase(ensureSuffix(key, 'Response'))} = ${expr}`
-    })
-    .join('\n\n')
+  const defs = responsesCode(components, true)
 
   const outFile = String(output)
   const baseCode = makeFileCode(defs, './schemas', 'HeaderSchema')

@@ -24,7 +24,7 @@ const getSchemaFromContent = (content: Content | undefined): Schema | undefined 
  * @param exportType - Whether to export the inferred Zod types.
  * @returns A string of TypeScript code with parameter definitions.
  */
-export function parameters(
+export function parametersCode(
   components: Components,
   exportParameters: boolean,
   exportParametersTypes: boolean,
