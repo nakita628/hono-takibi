@@ -170,7 +170,6 @@ export const putUsersUserIdRoute = createRoute({
   path: '/users/{userId}',
   operationId: 'updateUser',
   request: {
-    body: UpdateUserRequestBody,
     params: z.object({
       userId: z
         .string()
@@ -179,6 +178,7 @@ export const putUsersUserIdRoute = createRoute({
           type: 'string',
         }),
     }),
+    body: UpdateUserRequestBody,
   },
   responses: { 200: { description: 'User updated' } },
 })
@@ -188,7 +188,6 @@ export const patchUsersUserIdRoute = createRoute({
   path: '/users/{userId}',
   operationId: 'patchUser',
   request: {
-    body: PatchUserRequestBody,
     params: z.object({
       userId: z
         .string()
@@ -197,6 +196,7 @@ export const patchUsersUserIdRoute = createRoute({
           type: 'string',
         }),
     }),
+    body: PatchUserRequestBody,
   },
   responses: { 200: { description: 'User patched' } },
 })
@@ -206,7 +206,6 @@ export const postUsersUserIdAvatarRoute = createRoute({
   path: '/users/{userId}/avatar',
   operationId: 'uploadAvatar',
   request: {
-    body: FileUploadRequestBody,
     params: z.object({
       userId: z
         .string()
@@ -215,6 +214,7 @@ export const postUsersUserIdAvatarRoute = createRoute({
           type: 'string',
         }),
     }),
+    body: FileUploadRequestBody,
   },
   responses: { 200: { description: 'Avatar uploaded' } },
 })

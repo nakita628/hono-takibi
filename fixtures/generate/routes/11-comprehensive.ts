@@ -1167,9 +1167,9 @@ export const putProductsProductIdRoute = createRoute({
   summary: 'Update a product',
   operationId: 'updateProduct',
   request: {
-    body: UpdateProductRequestBody,
     params: z.object({ productId: ProductIdPathParamsSchema }),
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
+    body: UpdateProductRequestBody,
   },
   responses: {
     200: {

@@ -86,13 +86,13 @@ export function makeExamples(examples: {
       }
 }) {
   const result = Object.entries(examples)
-    .map(([key, example]) => {
+    .map(([k, example]) => {
       // Reference
       if ('$ref' in example && example.$ref) {
-        return `${JSON.stringify(key)}:${makeRef(example.$ref)}`
+        return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
       // Example object
-      const props = [
+      const result = [
         example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
         example.description !== undefined
           ? `description:${JSON.stringify(example.description)}`
@@ -112,7 +112,7 @@ export function makeExamples(examples: {
       ]
         .filter((v) => v !== undefined)
         .join(',')
-      return `${JSON.stringify(key)}:{${props}}`
+      return `${JSON.stringify(k)}:{${result}}`
     })
     .join(',')
   return `{${result}}`
@@ -140,7 +140,7 @@ export function makeResponses(responses: Responses) {
     return makeRef(responses.$ref)
   }
 
-  const props = [
+  const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     responses.description ? `description:${JSON.stringify(responses.description)}` : undefined,
     responses.headers ? `headers:${makeHeadersAndReferences(responses.headers)}` : undefined,
@@ -157,7 +157,7 @@ export function makeResponses(responses: Responses) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 /**
@@ -169,7 +169,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
   }
-  const props = [
+  const result = [
     headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
     'required' in headers && headers.required
       ? `required:${JSON.stringify(headers.required)}`
@@ -192,7 +192,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 /**
@@ -201,7 +201,7 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
  * @returns
  */
 export function makeLinkOrReference(linkOrReference: Link | Reference) {
-  const props = [
+  const result = [
     'operationRef' in linkOrReference
       ? `operationRef:${JSON.stringify(linkOrReference.operationRef)}`
       : undefined,
@@ -226,7 +226,7 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   ]
     .filter((v) => v !== undefined)
     .join(',')
-  return `{${props}}`
+  return `{${result}}`
 }
 
 export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
@@ -236,17 +236,17 @@ export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
       if (callbackRef.$ref) {
         return `${JSON.stringify(callbackName)}:${makeRef(callbackRef.$ref)}`
       }
-      const props = [
+      const result = [
         callbackRef.summary ? `summary:${JSON.stringify(callbackRef.summary)}` : undefined,
         callbackRef.description
           ? `description:${JSON.stringify(callbackRef.description)}`
           : undefined,
       ]
-        .filter(Boolean)
+        .filter((v) => v !== undefined)
         .join(',')
-      return props ? `${JSON.stringify(callbackName)}:{${props}}` : undefined
+      return `${JSON.stringify(callbackName)}:{${result}}`
     })
-    .filter(Boolean)
+    .filter((v) => v !== undefined)
     .join(',')
   return `{${result}}`
 }
@@ -292,7 +292,7 @@ export function makeCallbacks(
               : undefined
           const parametersCode = params && params.length > 0 ? `[${params.join(',')}]` : undefined
 
-          const props = [
+          const result = [
             operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
             operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
             operation.description
@@ -318,9 +318,9 @@ export function makeCallbacks(
             operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
             operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
           ]
-            .filter(Boolean)
+            .filter((v) => v !== undefined)
             .join(',')
-          return `${method}:{${props}}`
+          return `${method}:{${result}}`
         })
         .filter(Boolean)
         .join(',')
@@ -365,7 +365,7 @@ export function makeContent(
  */
 export function makeRequestBody(body: RequestBody | Reference) {
   if ('$ref' in body && body.$ref) {
-    return `body:${makeRef(body.$ref)}`
+    return makeRef(body.$ref)
   }
   const result = [
     body.description ? `description:${JSON.stringify(body.description)}` : undefined,
@@ -436,16 +436,19 @@ export function makeEncoding(encoding: Encoding): string {
 /**
  * Generates request parts from parameters and request body.
  * @param parameters OpenAPI parameters array
- * @param requestBody OpenAPI request body
+ * @param requestBody OpenAPI request body (can be Reference or inline RequestBody)
  * @returns Request string like `request:{query:...,body:...},` or empty string
  */
 export function makeRequest(
   parameters: readonly Parameter[] | undefined,
-  requestBody: RequestBody | undefined,
+  requestBody: RequestBody | Reference | undefined,
 ): string {
+  const hasRef = requestBody && '$ref' in requestBody && requestBody.$ref
+  const hasContent = requestBody && 'content' in requestBody && requestBody.content
+  const bodyPart = hasRef || hasContent ? `body:${makeRequestBody(requestBody)}` : undefined
   const result = [
     parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
-    requestBody?.content ? `body:${makeRequestBody(requestBody)}` : undefined,
+    bodyPart,
   ].filter((v) => v !== undefined).join(',')
   return result.length > 0 ? `request:{${result}},` : ''
 }

@@ -1298,8 +1298,8 @@ export const postEntitiesRoute = createRoute({
   path: '/entities',
   operationId: 'createEntity',
   request: {
-    body: CreateEntityBodyRequestBody,
     headers: z.object({ 'Idempotency-Key': IdempotencyKeyHeaderParamsSchema }),
+    body: CreateEntityBodyRequestBody,
   },
   responses: { 201: EntityCreatedResponse, 400: ValidationErrorResponse, 409: ConflictResponse },
   callbacks: {},
@@ -1322,9 +1322,9 @@ export const putEntitiesEntityIdRoute = createRoute({
   path: '/entities/{entityId}',
   operationId: 'updateEntity',
   request: {
-    body: UpdateEntityBodyRequestBody,
     params: z.object({ entityId: EntityIdPathParamsSchema }),
     headers: z.object({ 'If-Match': IfMatchHeaderParamsSchema }),
+    body: UpdateEntityBodyRequestBody,
   },
   responses: {
     200: EntityResponse,
@@ -1360,8 +1360,8 @@ export const postEntitiesEntityIdRelationshipsRoute = createRoute({
   path: '/entities/{entityId}/relationships',
   operationId: 'createRelationship',
   request: {
-    body: CreateRelationshipBodyRequestBody,
     params: z.object({ entityId: EntityIdPathParamsSchema }),
+    body: CreateRelationshipBodyRequestBody,
   },
   responses: { 201: RelationshipResponse },
 })
