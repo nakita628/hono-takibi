@@ -730,16 +730,6 @@ export function toIdentifierPascalCase(text: string): string {
 }
 
 /**
- * Appends a properly escaped `.regex(/pattern/)` clause.
- *
- * @param pattern - A raw regex pattern **without** the surrounding slashes.
- * @returns A string like `'.regex(/^[a-z]+$/)'`.
- */
-export function regex(pattern: string): string {
-  return `.regex(/${pattern.replace(/(?<!\\)\//g, '\\/')}/)`
-}
-
-/**
  * Builds a named import line for a module specifier.
  *
  * @param names - Import names to include.

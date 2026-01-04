@@ -1,5 +1,4 @@
 import type { Schema } from '../../../openapi/index.js'
-import { regex } from '../../../utils/index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
   email: 'email()',
@@ -53,7 +52,9 @@ export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]
   const base = format ? `z.${format}` : 'z.string()'
 
-  const pattern = schema.pattern ? regex(schema.pattern) : undefined
+  const pattern = schema.pattern
+    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/)`
+    : undefined
 
   const isFixedLength =
     schema.minLength !== undefined &&

@@ -242,7 +242,7 @@ export async function honoTakibi(): Promise<
         openAPI,
         components.requestBodies.output,
         components.requestBodies.split,
-        { schemas: components.schemas, examples: components.examples },
+        components,
       )
     : undefined
   if (requestBodiesResult && !requestBodiesResult.ok)
@@ -254,7 +254,7 @@ export async function honoTakibi(): Promise<
         openAPI.components ?? {},
         components.responses.output,
         components.responses.split,
-        { schemas: components.schemas, examples: components.examples, links: components.links },
+        components,
       )
     : undefined
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }

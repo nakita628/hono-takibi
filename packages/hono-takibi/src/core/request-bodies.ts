@@ -1,14 +1,9 @@
 import path from 'node:path'
 import { requestBodiesCode } from '../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { core, makeBarell, makeFileCode, moduleSpecFrom } from '../helper/index.js'
+import type { ComponentImports } from '../helper/index.js'
+import { core, makeBarell, makeFileCodeWithImports } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { lowerFirst } from '../utils/index.js'
-
-type ImportTarget = {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-  readonly import?: string
-}
 
 /**
  * Generates `components.requestBodies` constants (objects containing Zod schemas).
@@ -17,10 +12,7 @@ export async function requestBodies(
   openAPI: OpenAPI,
   output: string | `${string}.ts`,
   split?: boolean,
-  imports?: {
-    readonly schemas?: ImportTarget | undefined
-    readonly examples?: ImportTarget | undefined
-  },
+  imports?: ComponentImports,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -36,15 +28,7 @@ export async function requestBodies(
       if (!body) continue
       const code = requestBodiesCode({ requestBodies: { [key]: body } }, true)
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-      const schemasPath = imports?.schemas
-        ? (imports.schemas.import ?? moduleSpecFrom(filePath, imports.schemas))
-        : '../schemas'
-      const examplesPath = imports?.examples
-        ? (imports.examples.import ?? moduleSpecFrom(filePath, imports.examples))
-        : '../examples'
-      const fileCode = makeFileCode(code, schemasPath, undefined, [
-        { suffix: 'Example', path: examplesPath },
-      ])
+      const fileCode = makeFileCodeWithImports(code, filePath, imports, '..')
       const coreResult = await core(fileCode, path.dirname(filePath), filePath)
       if (!coreResult.ok) return { ok: false, error: coreResult.error }
     }
@@ -64,15 +48,7 @@ export async function requestBodies(
 
   const defs = requestBodiesCode({ requestBodies: bodies }, true)
   const outFile = String(output)
-  const schemasPath = imports?.schemas
-    ? (imports.schemas.import ?? moduleSpecFrom(outFile, imports.schemas))
-    : './schemas'
-  const examplesPath = imports?.examples
-    ? (imports.examples.import ?? moduleSpecFrom(outFile, imports.examples))
-    : './examples'
-  const fileCode = makeFileCode(defs, schemasPath, undefined, [
-    { suffix: 'Example', path: examplesPath },
-  ])
+  const fileCode = makeFileCodeWithImports(defs, outFile, imports, '.')
   const coreResult = await core(fileCode, path.dirname(outFile), outFile)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
 

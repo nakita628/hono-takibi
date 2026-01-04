@@ -5,10 +5,59 @@ import {
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+import { moduleSpecFrom } from './module-spec-from.js'
 
 type ExtraImportConfig = {
   readonly suffix: string
   readonly path: string
+}
+
+type ImportTarget = {
+  readonly output: string | `${string}.ts`
+  readonly split?: boolean
+  readonly import?: string
+}
+
+export type ComponentImports = {
+  readonly [key: string]: ImportTarget | undefined
+}
+
+const SUFFIX_MAP: Readonly<Record<string, string>> = {
+  schemas: 'Schema',
+  examples: 'Example',
+  links: 'Link',
+  headers: 'Header',
+  callbacks: 'Callback',
+}
+
+/**
+ * Resolves import path from target or returns default.
+ */
+export function resolveImportPath(
+  fromFile: string,
+  target: ImportTarget | undefined,
+  defaultPath: string,
+): string {
+  if (!target) return defaultPath
+  return target.import ?? moduleSpecFrom(fromFile, target)
+}
+
+/**
+ * Builds extra import configs for split mode.
+ */
+export function buildExtraImports(
+  fromFile: string,
+  imports: ComponentImports | undefined,
+  defaults: Readonly<Record<string, string>>,
+): readonly ExtraImportConfig[] {
+  return Object.entries(defaults)
+    .map(([key, defaultPath]) => {
+      const suffix = SUFFIX_MAP[key]
+      if (!suffix) return null
+      const path = resolveImportPath(fromFile, imports?.[key], defaultPath)
+      return { suffix, path }
+    })
+    .filter((c): c is ExtraImportConfig => c !== null)
 }
 
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
@@ -57,6 +106,28 @@ export function makeFileCode(
     .filter(Boolean)
     .join('\n')
   return [importZ, importSchemas, extras, '\n', code, ''].filter(Boolean).join('\n')
+}
+
+/**
+ * Makes complete file code with imports from ComponentImports.
+ * Single function to handle all import resolution.
+ * @param prefix - Import path prefix (e.g., '..' for split, '.' for non-split)
+ */
+export function makeFileCodeWithImports(
+  code: string,
+  fromFile: string,
+  imports: ComponentImports | undefined,
+  prefix: string,
+  excludeSuffix?: string,
+): string {
+  const schemasPath = resolveImportPath(fromFile, imports?.schemas, `${prefix}/schemas`)
+  const extraDefaults = Object.fromEntries(
+    Object.keys(SUFFIX_MAP)
+      .filter((key) => key !== 'schemas')
+      .map((key) => [key, `${prefix}/${key}`]),
+  )
+  const extraImports = buildExtraImports(fromFile, imports, extraDefaults)
+  return makeFileCode(code, schemasPath, excludeSuffix, extraImports)
 }
 
 /**
