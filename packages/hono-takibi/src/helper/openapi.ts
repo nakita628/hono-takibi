@@ -24,22 +24,35 @@ export function makeRef($ref: string): string {
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-  const suffixMap: { readonly [k: string]: string } = {
-    '#/components/schemas/': 'Schema',
-    '#/components/parameters/': 'ParamsSchema',
-    '#/components/headers/': 'HeaderSchema',
-    '#/components/securitySchemes/': 'SecurityScheme',
-    '#/components/requestBodies/': 'RequestBody',
-    '#/components/responses/': 'Response',
-    '#/components/examples/': 'Example',
-    '#/components/links/': 'Link',
-    '#/components/callbacks/': 'Callback',
+
+  if ($ref.startsWith('#/components/schemas/')) {
+    return refName.endsWith('Schema') ? refName : `${refName}Schema`
   }
-  for (const [prefix, suffix] of Object.entries(suffixMap)) {
-    if ($ref.startsWith(prefix)) {
-      return refName.endsWith(suffix) ? refName : `${refName}${suffix}`
-    }
+  if ($ref.startsWith('#/components/parameters/')) {
+    return refName.endsWith('ParamsSchema') ? refName : `${refName}ParamsSchema`
   }
+  if ($ref.startsWith('#/components/headers/')) {
+    return refName.endsWith('HeaderSchema') ? refName : `${refName}HeaderSchema`
+  }
+  if ($ref.startsWith('#/components/securitySchemes/')) {
+    return refName.endsWith('SecurityScheme') ? refName : `${refName}SecurityScheme`
+  }
+  if ($ref.startsWith('#/components/requestBodies/')) {
+    return refName.endsWith('RequestBody') ? refName : `${refName}RequestBody`
+  }
+  if ($ref.startsWith('#/components/responses/')) {
+    return refName.endsWith('Response') ? refName : `${refName}Response`
+  }
+  if ($ref.startsWith('#/components/examples/')) {
+    return refName.endsWith('Example') ? refName : `${refName}Example`
+  }
+  if ($ref.startsWith('#/components/links/')) {
+    return refName.endsWith('Link') ? refName : `${refName}Link`
+  }
+  if ($ref.startsWith('#/components/callbacks/')) {
+    return refName.endsWith('Callback') ? refName : `${refName}Callback`
+  }
+
   return `${refName}Schema`
 }
 
