@@ -442,17 +442,15 @@ export function makeEncoding(encoding: Encoding): string {
 export function makeRequest(
   parameters: readonly Parameter[] | undefined,
   requestBody: RequestBody | Reference | undefined,
-): string {
-  const hasRef = requestBody && '$ref' in requestBody && requestBody.$ref
-  const hasContent = requestBody && 'content' in requestBody && requestBody.content
-  const bodyPart = hasRef || hasContent ? `body:${makeRequestBody(requestBody)}` : undefined
+) {
   const result = [
     parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
-    bodyPart,
-  ].filter((v) => v !== undefined).join(',')
-  return result.length > 0 ? `request:{${result}},` : ''
+    requestBody && '$ref' in requestBody ? `body:${makeRequestBody(requestBody)}` : undefined,
+  ]
+    .filter((v) => v !== undefined)
+    .join(',')
+  return result.length > 0 ? `{${result}}` : undefined
 }
-
 
 export function makeRequestParams(parameters: readonly Parameter[]) {
   const paramsObject = params(parameters)

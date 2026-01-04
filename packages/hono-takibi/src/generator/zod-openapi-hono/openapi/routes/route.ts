@@ -1,9 +1,8 @@
-import { makeCallbacks, makeOperationResponses } from '../../../../helper/openapi.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { Operation } from '../../../../openapi/index.js'
 import {
   methodPath,
 } from '../../../../utils/index.js'
-import { request } from './request/index.js'
 
 /**
  * Generates TypeScript code for a Hono route from OpenAPI operation details.
@@ -19,7 +18,6 @@ import { request } from './request/index.js'
  * - Produces a complete `.openapi()` route definition with validation.
  */
 export function route(path: string, method: string, operation: Operation): string {
-  const requestParams = request(operation.parameters, operation.requestBody)
   const operationCode = {
     tags: operation.tags ? `tags:${JSON.stringify(operation.tags)},` : '',
     summary: operation.summary ? `summary:${JSON.stringify(operation.summary)},` : '',
@@ -30,7 +28,7 @@ export function route(path: string, method: string, operation: Operation): strin
       ? `externalDocs:${JSON.stringify(operation.externalDocs)},`
       : '',
     operationId: operation.operationId ? `operationId:'${operation.operationId}',` : '',
-    request: requestParams ? `${requestParams}` : '',
+    request: makeRequest(operation.parameters, operation.requestBody) ? `request:${makeRequest(operation.parameters, operation.requestBody)},` : '',
     responses: operation.responses
       ? `responses:${makeOperationResponses(operation.responses)},`
       : '',
