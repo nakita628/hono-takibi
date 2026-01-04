@@ -1,4 +1,3 @@
-import { params } from '../generator/zod-openapi-hono/openapi/routes/params/index.js'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
@@ -13,8 +12,9 @@ import type {
   Reference,
   RequestBody,
   Responses,
+  Schema,
 } from '../openapi/index.js'
-import { requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
+import { getToSafeIdentifier, requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
 
 /**
  * generates a reference to the given $ref string.
@@ -464,8 +464,81 @@ export function makeRequest(
   return result.length > 0 ? `{${result}}` : undefined
 }
 
+/**
+ * Extracts schema from parameter content (for parameters using content instead of schema)
+ */
+function getSchemaFromContent(content: Content | undefined): Schema | undefined {
+  if (!content) return undefined
+  const firstKey = Object.keys(content)[0]
+  if (!firstKey) return undefined
+  return content[firstKey]?.schema
+}
+
+/**
+ * Converts OpenAPI parameters into a structured object grouped by location (query, path, header, cookie).
+ *
+ * @param parameters - Array of OpenAPI Parameter objects.
+ * @returns An object where keys are parameter locations and values are records of parameter names to Zod schemas.
+ *
+ * @remarks
+ * - Handles $ref references using makeRef.
+ * - Supports parameters with content instead of schema (OpenAPI 3.x).
+ * - Applies coercion for query parameters with number/boolean/date types.
+ */
+export function makeParameters(parameters: readonly Parameter[]): {
+  [section: string]: { [k: string]: string }
+} {
+  return parameters.reduce(
+    (
+      acc: {
+        [section: string]: { [k: string]: string }
+      },
+      param,
+    ) => {
+      if (param.$ref !== undefined) {
+        if (!acc[param.in]) acc[param.in] = {}
+        if (param.$ref) {
+          acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
+        }
+        return acc
+      }
+
+      // Handle parameters with content instead of schema (OpenAPI 3.x)
+      const schema = param.schema ?? getSchemaFromContent(param.content)
+      if (!schema) {
+        // Skip parameters without schema
+        if (!acc[param.in]) acc[param.in] = {}
+        acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
+        return acc
+      }
+
+      const baseSchema = zodToOpenAPI(schema, {
+        parameters: param,
+      })
+      // Initialize section if it doesn't exist
+      if (!acc[param.in]) {
+        acc[param.in] = {}
+      }
+      // queryParameter check
+      const z =
+        param.in === 'query' && schema.type === 'number'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : param.in === 'query' && schema.type === 'boolean'
+            ? baseSchema.replace('boolean', 'stringbool')
+            : param.in === 'query' && schema.type === 'date'
+              ? `z.coerce.${baseSchema.replace('z.', '')}`
+              : baseSchema
+
+      // Add parameter to its section
+      acc[param.in][getToSafeIdentifier(param.name)] = z
+      return acc
+    },
+    {},
+  )
+}
+
 export function makeRequestParams(parameters: readonly Parameter[]) {
-  const paramsObject = params(parameters)
+  const paramsObject = makeParameters(parameters)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
