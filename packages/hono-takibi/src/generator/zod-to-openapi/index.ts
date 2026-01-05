@@ -23,65 +23,30 @@ export function zodToOpenAPI(
   /* combinators */
   /** allOf */
   if (schema.allOf !== undefined) {
-    if (!schema.allOf || schema.allOf.length === 0) {
-      return wrap('z.any()', schema, meta)
-    }
-    const { allOfSchemas, nullable, onlyRefSchemas } = schema.allOf.reduce<{
-      allOfSchemas: string[]
-      nullable: boolean
-      onlyRefSchemas: boolean
-    }>(
-      (acc, s) => {
-        const isOnlyNullable =
-          (typeof s === 'object' && s.type === 'null') ||
-          (typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1)
+    if (!schema.allOf?.length) return wrap('z.any()', schema, meta)
 
-        if (isOnlyNullable) {
-          return {
-            allOfSchemas: acc.allOfSchemas,
-            nullable: true,
-            onlyRefSchemas: acc.onlyRefSchemas,
-          }
-        }
+    const isNullType = (s: Schema) =>
+      s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
+    const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
+    const nullable =
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
+      schema.allOf.some(isNullType)
 
-        if (s.$ref && Object.keys(s).length === 1 && s.$ref) {
-          return {
-            allOfSchemas: [...acc.allOfSchemas, makeRef(s.$ref)],
-            nullable: acc.nullable,
-            onlyRefSchemas: acc.onlyRefSchemas,
-          }
-        }
+    const nonNull = schema.allOf.filter((s) => !isNullType(s))
+    if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
 
-        const z = zodToOpenAPI(s, meta)
-        return {
-          allOfSchemas: [...acc.allOfSchemas, z],
-          nullable: acc.nullable,
-          onlyRefSchemas: false,
-        }
-      },
-      {
-        allOfSchemas: [],
-        nullable:
-          schema.nullable === true ||
-          (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null'),
-        onlyRefSchemas: true,
-      },
+    const schemas = nonNull.map((s) =>
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta),
     )
-    const isBareAllOf = Object.keys(schema).every(
-      (key) => key === 'allOf' || key === 'nullable' || key === 'type',
-    )
-    if (allOfSchemas.length === 0) {
-      return wrap('z.any()', { ...schema, nullable }, meta)
-    }
-    if (allOfSchemas.length === 1) {
-      if (onlyRefSchemas && isBareAllOf) {
-        return nullable ? `${allOfSchemas[0]}.nullable()` : allOfSchemas[0]
-      }
-      return wrap(allOfSchemas[0], { ...schema, nullable }, meta)
-    }
-    // use .and() chain for all cases
-    const z = allOfSchemas.slice(1).reduce((acc, s) => `${acc}.and(${s})`, allOfSchemas[0])
-    return wrap(z, schema, meta)
+    const isBareRef =
+      schemas.length === 1 &&
+      nonNull.every(isRefOnly) &&
+      Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
+    if (isBareRef) return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+
+    const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
+    return wrap(z, { ...schema, nullable }, meta)
   }
   /* anyOf */
   if (schema.anyOf !== undefined) {
