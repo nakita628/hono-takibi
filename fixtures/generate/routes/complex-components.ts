@@ -16,7 +16,7 @@ const UlidSchema = z
   .openapi('Ulid')
 
 const IdSchema = z
-  .union([UuidSchema, UlidSchema])
+  .xor([UuidSchema, UlidSchema])
   .openapi({
     description: 'Primary identifier (uuid or ulid) - used everywhere',
     oneOf: [{ $ref: '#/components/schemas/Uuid' }, { $ref: '#/components/schemas/Ulid' }],
@@ -239,7 +239,7 @@ const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
 const EntityRefSchema: z.ZodType<EntityRefType> = z
   .lazy(() =>
     z
-      .union([UserSchema, CompanySchema, OrderSchema, ProductSchema, PersonSchema])
+      .xor([UserSchema, CompanySchema, OrderSchema, ProductSchema, PersonSchema])
       .openapi({
         description: 'A union that can point back to everything (more hell)',
         oneOf: [
@@ -289,54 +289,51 @@ const MoneySchema = z
 
 const CompanySchema: z.ZodType<CompanyType> = z
   .lazy(() =>
-    z
-      .intersection(
-        EntitySchema,
-        z
-          .object({
-            name: z.string().openapi({ type: 'string' }),
-            headquarters: AddressSchema.exactOptional(),
-            parent: CompanySchema.exactOptional(),
-            subsidiaries: z
-              .array(CompanySchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Company' } }),
-            employees: z
-              .array(UserSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-            primaryContact: PersonSchema.exactOptional(),
-          })
-          .openapi({
-            type: 'object',
-            required: ['name'],
-            properties: {
-              name: { type: 'string' },
-              headquarters: { $ref: '#/components/schemas/Address' },
-              parent: { $ref: '#/components/schemas/Company' },
-              subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
-              employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-              primaryContact: { $ref: '#/components/schemas/Person' },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Entity' },
-          {
-            type: 'object',
-            required: ['name'],
-            properties: {
-              name: { type: 'string' },
-              headquarters: { $ref: '#/components/schemas/Address' },
-              parent: { $ref: '#/components/schemas/Company' },
-              subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
-              employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-              primaryContact: { $ref: '#/components/schemas/Person' },
-            },
+    EntitySchema.and(
+      z
+        .object({
+          name: z.string().openapi({ type: 'string' }),
+          headquarters: AddressSchema.exactOptional(),
+          parent: CompanySchema.exactOptional(),
+          subsidiaries: z
+            .array(CompanySchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Company' } }),
+          employees: z
+            .array(UserSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+          primaryContact: PersonSchema.exactOptional(),
+        })
+        .openapi({
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            headquarters: { $ref: '#/components/schemas/Address' },
+            parent: { $ref: '#/components/schemas/Company' },
+            subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
+            employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+            primaryContact: { $ref: '#/components/schemas/Person' },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Entity' },
+        {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            headquarters: { $ref: '#/components/schemas/Address' },
+            parent: { $ref: '#/components/schemas/Company' },
+            subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
+            employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+            primaryContact: { $ref: '#/components/schemas/Person' },
+          },
+        },
+      ],
+    }),
   )
   .openapi('Company')
 
@@ -349,45 +346,42 @@ type ProductType = z.infer<typeof EntitySchema> & {
 
 const ProductSchema: z.ZodType<ProductType> = z
   .lazy(() =>
-    z
-      .intersection(
-        EntitySchema,
-        z
-          .object({
-            name: z.string().openapi({ type: 'string' }),
-            supplier: CompanySchema.exactOptional(),
-            relatedProducts: z
-              .array(ProductSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
-            price: MoneySchema.exactOptional(),
-          })
-          .openapi({
-            type: 'object',
-            required: ['name'],
-            properties: {
-              name: { type: 'string' },
-              supplier: { $ref: '#/components/schemas/Company' },
-              relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
-              price: { $ref: '#/components/schemas/Money' },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Entity' },
-          {
-            type: 'object',
-            required: ['name'],
-            properties: {
-              name: { type: 'string' },
-              supplier: { $ref: '#/components/schemas/Company' },
-              relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
-              price: { $ref: '#/components/schemas/Money' },
-            },
+    EntitySchema.and(
+      z
+        .object({
+          name: z.string().openapi({ type: 'string' }),
+          supplier: CompanySchema.exactOptional(),
+          relatedProducts: z
+            .array(ProductSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
+          price: MoneySchema.exactOptional(),
+        })
+        .openapi({
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            supplier: { $ref: '#/components/schemas/Company' },
+            relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
+            price: { $ref: '#/components/schemas/Money' },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Entity' },
+        {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string' },
+            supplier: { $ref: '#/components/schemas/Company' },
+            relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
+            price: { $ref: '#/components/schemas/Money' },
+          },
+        },
+      ],
+    }),
   )
   .openapi('Product')
 
@@ -424,66 +418,63 @@ const OrderStatusSchema = z
 
 const UserSchema: z.ZodType<UserType> = z
   .lazy(() =>
-    z
-      .intersection(
-        EntitySchema,
-        z
-          .object({
-            name: z.string().openapi({ type: 'string' }),
-            email: z.email().openapi({ type: 'string', format: 'email' }),
-            company: CompanySchema.exactOptional(),
-            manager: UserSchema.exactOptional(),
-            reports: z
-              .array(UserSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-            addresses: z
-              .array(AddressSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Address' } }),
-            preferences: UserPreferencesSchema.exactOptional(),
-            recentOrders: z
-              .array(OrderSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
-            links: ResourceLinksSchema.exactOptional(),
-          })
-          .openapi({
-            type: 'object',
-            required: ['name', 'email'],
-            properties: {
-              name: { type: 'string' },
-              email: { type: 'string', format: 'email' },
-              company: { $ref: '#/components/schemas/Company' },
-              manager: { $ref: '#/components/schemas/User' },
-              reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-              addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
-              preferences: { $ref: '#/components/schemas/UserPreferences' },
-              recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-              links: { $ref: '#/components/schemas/ResourceLinks' },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Entity' },
-          {
-            type: 'object',
-            required: ['name', 'email'],
-            properties: {
-              name: { type: 'string' },
-              email: { type: 'string', format: 'email' },
-              company: { $ref: '#/components/schemas/Company' },
-              manager: { $ref: '#/components/schemas/User' },
-              reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-              addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
-              preferences: { $ref: '#/components/schemas/UserPreferences' },
-              recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-              links: { $ref: '#/components/schemas/ResourceLinks' },
-            },
+    EntitySchema.and(
+      z
+        .object({
+          name: z.string().openapi({ type: 'string' }),
+          email: z.email().openapi({ type: 'string', format: 'email' }),
+          company: CompanySchema.exactOptional(),
+          manager: UserSchema.exactOptional(),
+          reports: z
+            .array(UserSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+          addresses: z
+            .array(AddressSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Address' } }),
+          preferences: UserPreferencesSchema.exactOptional(),
+          recentOrders: z
+            .array(OrderSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
+          links: ResourceLinksSchema.exactOptional(),
+        })
+        .openapi({
+          type: 'object',
+          required: ['name', 'email'],
+          properties: {
+            name: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+            company: { $ref: '#/components/schemas/Company' },
+            manager: { $ref: '#/components/schemas/User' },
+            reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+            addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
+            preferences: { $ref: '#/components/schemas/UserPreferences' },
+            recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
+            links: { $ref: '#/components/schemas/ResourceLinks' },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Entity' },
+        {
+          type: 'object',
+          required: ['name', 'email'],
+          properties: {
+            name: { type: 'string' },
+            email: { type: 'string', format: 'email' },
+            company: { $ref: '#/components/schemas/Company' },
+            manager: { $ref: '#/components/schemas/User' },
+            reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
+            addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
+            preferences: { $ref: '#/components/schemas/UserPreferences' },
+            recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
+            links: { $ref: '#/components/schemas/ResourceLinks' },
+          },
+        },
+      ],
+    }),
   )
   .openapi('User')
 
@@ -497,7 +488,7 @@ const AddressSchema: z.ZodType<AddressType> = z
         country: z.string().exactOptional().openapi({ type: 'string' }),
         geo: GeoPointSchema.exactOptional(),
         resident: z
-          .union([UserSchema, PersonSchema])
+          .xor([UserSchema, PersonSchema])
           .exactOptional()
           .openapi({
             oneOf: [{ $ref: '#/components/schemas/User' }, { $ref: '#/components/schemas/Person' }],
@@ -548,100 +539,94 @@ type OrderType = z.infer<typeof EntitySchema> & {
 
 const OrderSchema: z.ZodType<OrderType> = z
   .lazy(() =>
-    z
-      .intersection(
-        EntitySchema,
-        z
-          .object({
-            buyer: UserSchema,
-            status: OrderStatusSchema,
-            items: z
-              .array(OrderItemSchema)
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-            shippingAddress: AddressSchema.exactOptional(),
-            billingAddress: AddressSchema.exactOptional(),
-            auditTrail: z
-              .array(AuditLogSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/AuditLog' } }),
-            links: ResourceLinksSchema.exactOptional(),
-          })
-          .openapi({
-            type: 'object',
-            required: ['buyer', 'status', 'items'],
-            properties: {
-              buyer: { $ref: '#/components/schemas/User' },
-              status: { $ref: '#/components/schemas/OrderStatus' },
-              items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-              shippingAddress: { $ref: '#/components/schemas/Address' },
-              billingAddress: { $ref: '#/components/schemas/Address' },
-              auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
-              links: { $ref: '#/components/schemas/ResourceLinks' },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Entity' },
-          {
-            type: 'object',
-            required: ['buyer', 'status', 'items'],
-            properties: {
-              buyer: { $ref: '#/components/schemas/User' },
-              status: { $ref: '#/components/schemas/OrderStatus' },
-              items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-              shippingAddress: { $ref: '#/components/schemas/Address' },
-              billingAddress: { $ref: '#/components/schemas/Address' },
-              auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
-              links: { $ref: '#/components/schemas/ResourceLinks' },
-            },
+    EntitySchema.and(
+      z
+        .object({
+          buyer: UserSchema,
+          status: OrderStatusSchema,
+          items: z
+            .array(OrderItemSchema)
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
+          shippingAddress: AddressSchema.exactOptional(),
+          billingAddress: AddressSchema.exactOptional(),
+          auditTrail: z
+            .array(AuditLogSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/AuditLog' } }),
+          links: ResourceLinksSchema.exactOptional(),
+        })
+        .openapi({
+          type: 'object',
+          required: ['buyer', 'status', 'items'],
+          properties: {
+            buyer: { $ref: '#/components/schemas/User' },
+            status: { $ref: '#/components/schemas/OrderStatus' },
+            items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
+            shippingAddress: { $ref: '#/components/schemas/Address' },
+            billingAddress: { $ref: '#/components/schemas/Address' },
+            auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
+            links: { $ref: '#/components/schemas/ResourceLinks' },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Entity' },
+        {
+          type: 'object',
+          required: ['buyer', 'status', 'items'],
+          properties: {
+            buyer: { $ref: '#/components/schemas/User' },
+            status: { $ref: '#/components/schemas/OrderStatus' },
+            items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
+            shippingAddress: { $ref: '#/components/schemas/Address' },
+            billingAddress: { $ref: '#/components/schemas/Address' },
+            auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
+            links: { $ref: '#/components/schemas/ResourceLinks' },
+          },
+        },
+      ],
+    }),
   )
   .openapi('Order')
 
 const PersonSchema: z.ZodType<PersonType> = z
   .lazy(() =>
-    z
-      .intersection(
-        EntitySchema,
-        z
-          .object({
-            displayName: z.string().openapi({ type: 'string' }),
-            employer: CompanySchema.exactOptional(),
-            homeAddress: AddressSchema.exactOptional(),
-            friends: z
-              .array(PersonSchema)
-              .exactOptional()
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['displayName'],
-            properties: {
-              displayName: { type: 'string' },
-              employer: { $ref: '#/components/schemas/Company' },
-              homeAddress: { $ref: '#/components/schemas/Address' },
-              friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Entity' },
-          {
-            type: 'object',
-            required: ['displayName'],
-            properties: {
-              displayName: { type: 'string' },
-              employer: { $ref: '#/components/schemas/Company' },
-              homeAddress: { $ref: '#/components/schemas/Address' },
-              friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-            },
+    EntitySchema.and(
+      z
+        .object({
+          displayName: z.string().openapi({ type: 'string' }),
+          employer: CompanySchema.exactOptional(),
+          homeAddress: AddressSchema.exactOptional(),
+          friends: z
+            .array(PersonSchema)
+            .exactOptional()
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
+        })
+        .openapi({
+          type: 'object',
+          required: ['displayName'],
+          properties: {
+            displayName: { type: 'string' },
+            employer: { $ref: '#/components/schemas/Company' },
+            homeAddress: { $ref: '#/components/schemas/Address' },
+            friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Entity' },
+        {
+          type: 'object',
+          required: ['displayName'],
+          properties: {
+            displayName: { type: 'string' },
+            employer: { $ref: '#/components/schemas/Company' },
+            homeAddress: { $ref: '#/components/schemas/Address' },
+            friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
+          },
+        },
+      ],
+    }),
   )
   .openapi('Person')
 
@@ -792,7 +777,7 @@ const EventSchema: z.ZodType<EventType> = z
       .object({
         type: EventTypeSchema,
         payload: z
-          .union([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema])
+          .xor([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema])
           .openapi({
             oneOf: [
               { $ref: '#/components/schemas/UserEventPayload' },
@@ -843,29 +828,27 @@ type AuditLogType = {
   meta?: z.infer<typeof MetaSchema>
 }
 
-const FileSchema = z
-  .intersection(
-    EntitySchema,
-    z
-      .object({
-        name: z.string().openapi({ type: 'string' }),
-        size: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
-        contentType: z.string().exactOptional().openapi({ type: 'string' }),
-        download: LinkSchema.exactOptional(),
-        owner: UserSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['name', 'size'],
-        properties: {
-          name: { type: 'string' },
-          size: { type: 'integer', minimum: 0 },
-          contentType: { type: 'string' },
-          download: { $ref: '#/components/schemas/Link' },
-          owner: { $ref: '#/components/schemas/User' },
-        },
-      }),
-  )
+const FileSchema = EntitySchema.and(
+  z
+    .object({
+      name: z.string().openapi({ type: 'string' }),
+      size: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
+      contentType: z.string().exactOptional().openapi({ type: 'string' }),
+      download: LinkSchema.exactOptional(),
+      owner: UserSchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      required: ['name', 'size'],
+      properties: {
+        name: { type: 'string' },
+        size: { type: 'integer', minimum: 0 },
+        contentType: { type: 'string' },
+        download: { $ref: '#/components/schemas/Link' },
+        owner: { $ref: '#/components/schemas/User' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Entity' },
@@ -929,29 +912,27 @@ const SecretRotationSchema: z.ZodType<SecretRotationType> = z
 
 type SecretRefType = { secretId: string; rotation?: z.infer<typeof SecretRotationSchema> }
 
-const WebhookSubscriptionSchema = z
-  .intersection(
-    EntitySchema,
-    z
-      .object({
-        callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-        events: z
-          .array(EventTypeSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/EventType' } }),
-        secret: SecretRefSchema.exactOptional(),
-        lastEvent: EventSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['callbackUrl', 'events'],
-        properties: {
-          callbackUrl: { type: 'string', format: 'uri' },
-          events: { type: 'array', items: { $ref: '#/components/schemas/EventType' } },
-          secret: { $ref: '#/components/schemas/SecretRef' },
-          lastEvent: { $ref: '#/components/schemas/Event' },
-        },
-      }),
-  )
+const WebhookSubscriptionSchema = EntitySchema.and(
+  z
+    .object({
+      callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
+      events: z
+        .array(EventTypeSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/EventType' } }),
+      secret: SecretRefSchema.exactOptional(),
+      lastEvent: EventSchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      required: ['callbackUrl', 'events'],
+      properties: {
+        callbackUrl: { type: 'string', format: 'uri' },
+        events: { type: 'array', items: { $ref: '#/components/schemas/EventType' } },
+        secret: { $ref: '#/components/schemas/SecretRef' },
+        lastEvent: { $ref: '#/components/schemas/Event' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Entity' },
@@ -1097,23 +1078,19 @@ const FieldErrorSchema: z.ZodType<FieldErrorType> = z
   )
   .openapi('FieldError')
 
-const ValidationProblemDetailsSchema = z
-  .intersection(
-    ProblemDetailsSchema,
-    z
-      .object({
-        errors: z
-          .array(FieldErrorSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FieldError' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['errors'],
-        properties: {
-          errors: { type: 'array', items: { $ref: '#/components/schemas/FieldError' } },
-        },
-      }),
-  )
+const ValidationProblemDetailsSchema = ProblemDetailsSchema.and(
+  z
+    .object({
+      errors: z
+        .array(FieldErrorSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FieldError' } }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['errors'],
+      properties: { errors: { type: 'array', items: { $ref: '#/components/schemas/FieldError' } } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/ProblemDetails' },
@@ -1184,7 +1161,7 @@ const CompanyFilterSchema = z
   .openapi('CompanyFilter')
 
 const SearchFilterSchema = z
-  .union([UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])
+  .discriminatedUnion('kind', [UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])
   .openapi({
     description: 'Query filter represented as JSON in a query param (evil)',
     oneOf: [

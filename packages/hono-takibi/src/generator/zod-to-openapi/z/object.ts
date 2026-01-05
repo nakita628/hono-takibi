@@ -20,20 +20,18 @@ export function object(schema: Schema): string {
       if (isRequired) {
         return `${safeKey}:${z}`
       }
+      // .exactOptional() insert before last .openapi()
+      // example: z.string().openapi({...}) → z.string().exactOptional().openapi({...})
+      // use lastIndexOf to handle nested schemas like z.array(z.string().openapi({...})).openapi({...})
+      // slice Before .openapi()
       const openapiIndex = z.lastIndexOf('.openapi(')
+      // openapiIndex === -1 → not found
       const optionalZ =
         openapiIndex === -1
           ? `${z}.exactOptional()`
           : `${z.slice(0, openapiIndex)}.exactOptional()${z.slice(openapiIndex)}`
       return `${safeKey}:${optionalZ}`
     })
-
-    // const allOptional = objectProperties.every((v) => v.includes('.optional()'))
-    // // If all properties are optional and no required properties, return partial schema
-    // if (required.length === 0 && allOptional) {
-    //   const cleanProperties = objectProperties.map((v) => v.replace('.optional()', ''))
-    //   return `z.object({${cleanProperties}}).partial()`
-    // }
     return `z.object({${objectProperties}})`
   }
 

@@ -39,7 +39,7 @@ const SendMessageRequestSchema = z
       .enum(['email', 'sms', 'push', 'in_app'])
       .openapi({ type: 'string', enum: ['email', 'sms', 'push', 'in_app'] }),
     to: z
-      .union([
+      .xor([
         z
           .string()
           .openapi({ type: 'string', description: 'メールアドレス、電話番号、またはユーザーID' }),

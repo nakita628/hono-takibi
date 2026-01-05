@@ -22,9 +22,8 @@ export async function core(
       readonly error: string
     }
 > {
-  const fmtResult = await fmt(code)
+  const [fmtResult, mkdirResult] = await Promise.all([fmt(code), mkdir(dir)])
   if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const mkdirResult = await mkdir(dir)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
   const writeResult = await writeFile(output, fmtResult.value)
   if (!writeResult.ok) return { ok: false, error: writeResult.error }

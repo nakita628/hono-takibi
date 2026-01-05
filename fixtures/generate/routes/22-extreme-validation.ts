@@ -37,7 +37,7 @@ const ExtremeStringsSchema = z
       }),
     unicodePattern: z
       .string()
-      .regex(/^[\p{L}\p{N}]+$/)
+      .regex(/^[\p{L}\p{N}]+$/u)
       .exactOptional()
       .openapi({ type: 'string', pattern: '^[\\p{L}\\p{N}]+$' }),
     complexRegex: z
@@ -445,49 +445,17 @@ const ExtremeArraysSchema = z
       .array(z.any())
       .length(10)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        prefixItems: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-        ],
-        items: false,
-        minItems: 10,
-        maxItems: 10,
-      }),
+      .openapi({ type: 'array', minItems: 10, maxItems: 10 }),
     tupleWithAdditional: z
       .array(z.boolean().openapi({ type: 'boolean' }))
       .min(5)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }],
-        items: { type: 'boolean' },
-        minItems: 5,
-      }),
+      .openapi({ type: 'array', items: { type: 'boolean' }, minItems: 5 }),
     containsConstraint: z
       .array(z.any())
       .min(10)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        contains: {
-          type: 'object',
-          required: ['special'],
-          properties: { special: { type: 'boolean', const: true } },
-        },
-        minContains: 2,
-        maxContains: 5,
-        minItems: 10,
-      }),
+      .openapi({ type: 'array', minItems: 10 }),
   })
   .openapi({
     type: 'object',
@@ -534,41 +502,9 @@ const ExtremeArraysSchema = z
         uniqueItems: true,
         items: { type: 'array', uniqueItems: true, items: { type: 'integer' } },
       },
-      largeTuple: {
-        type: 'array',
-        prefixItems: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-        ],
-        items: false,
-        minItems: 10,
-        maxItems: 10,
-      },
-      tupleWithAdditional: {
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }],
-        items: { type: 'boolean' },
-        minItems: 5,
-      },
-      containsConstraint: {
-        type: 'array',
-        contains: {
-          type: 'object',
-          required: ['special'],
-          properties: { special: { type: 'boolean', const: true } },
-        },
-        minContains: 2,
-        maxContains: 5,
-        minItems: 10,
-      },
+      largeTuple: { type: 'array', minItems: 10, maxItems: 10 },
+      tupleWithAdditional: { type: 'array', items: { type: 'boolean' }, minItems: 5 },
+      containsConstraint: { type: 'array', minItems: 10 },
     },
   })
   .openapi('ExtremeArrays')
@@ -668,16 +604,7 @@ const ExtremeObjectsSchema = z
     patternProperties: z
       .strictObject({})
       .exactOptional()
-      .openapi({
-        type: 'object',
-        patternProperties: {
-          '^x-': { type: 'string' },
-          '^[a-z]+$': { type: 'number' },
-          '^[A-Z]+$': { type: 'boolean' },
-          '^_': { type: 'integer' },
-        },
-        additionalProperties: false,
-      }),
+      .openapi({ type: 'object', additionalProperties: false }),
     dependentRequired: z
       .object({
         billing_address: z.string().exactOptional().openapi({ type: 'string' }),
@@ -692,10 +619,6 @@ const ExtremeObjectsSchema = z
           shipping_address: { type: 'string' },
           use_same_address: { type: 'boolean' },
         },
-        dependentRequired: {
-          billing_address: ['shipping_address'],
-          shipping_address: ['billing_address'],
-        },
       }),
     dependentSchemas: z
       .object({
@@ -706,29 +629,15 @@ const ExtremeObjectsSchema = z
       .openapi({
         type: 'object',
         properties: { credit_card: { type: 'string' }, billing_address: { type: 'string' } },
-        dependentSchemas: {
-          credit_card: {
-            properties: { billing_address: { type: 'string', minLength: 10 } },
-            required: ['billing_address'],
-          },
-        },
       }),
     propertyNames: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
       .exactOptional()
-      .openapi({
-        type: 'object',
-        propertyNames: { pattern: '^[a-z][a-zA-Z0-9]*$', minLength: 2, maxLength: 20 },
-        additionalProperties: { type: 'string' },
-      }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     unevaluatedProps: z
       .object({ known: z.string().exactOptional().openapi({ type: 'string' }) })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      }),
+      .openapi({ type: 'object', properties: { known: { type: 'string' } } }),
   })
   .openapi({
     type: 'object',
@@ -793,105 +702,63 @@ const ExtremeObjectsSchema = z
           prop20: { type: 'string' },
         },
       },
-      patternProperties: {
-        type: 'object',
-        patternProperties: {
-          '^x-': { type: 'string' },
-          '^[a-z]+$': { type: 'number' },
-          '^[A-Z]+$': { type: 'boolean' },
-          '^_': { type: 'integer' },
-        },
-        additionalProperties: false,
-      },
-      dependentRequired: {
-        type: 'object',
-        properties: {
-          billing_address: { type: 'string' },
-          shipping_address: { type: 'string' },
-          use_same_address: { type: 'boolean' },
-        },
-        dependentRequired: {
-          billing_address: ['shipping_address'],
-          shipping_address: ['billing_address'],
-        },
-      },
-      dependentSchemas: {
-        type: 'object',
-        properties: { credit_card: { type: 'string' }, billing_address: { type: 'string' } },
-        dependentSchemas: {
-          credit_card: {
-            properties: { billing_address: { type: 'string', minLength: 10 } },
-            required: ['billing_address'],
-          },
-        },
-      },
-      propertyNames: {
-        type: 'object',
-        propertyNames: { pattern: '^[a-z][a-zA-Z0-9]*$', minLength: 2, maxLength: 20 },
-        additionalProperties: { type: 'string' },
-      },
-      unevaluatedProps: {
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      },
+      unevaluatedProps: { type: 'object', properties: { known: { type: 'string' } } },
     },
   })
   .openapi('ExtremeObjects')
 
-const ExtremeCompositionsSchema = z
-  .object({
-    manyOneOf: z
-      .union([
-        z.literal('type1').openapi({ type: 'string' }),
-        z.literal('type2').openapi({ type: 'string' }),
-        z.literal('type3').openapi({ type: 'string' }),
-        z.literal('type4').openapi({ type: 'string' }),
-        z.literal('type5').openapi({ type: 'string' }),
-        z.literal('type6').openapi({ type: 'string' }),
-        z.literal('type7').openapi({ type: 'string' }),
-        z.literal('type8').openapi({ type: 'string' }),
-        z.literal('type9').openapi({ type: 'string' }),
-        z.literal('type10').openapi({ type: 'string' }),
-        z.number().openapi({ type: 'number' }),
-        z.boolean().openapi({ type: 'boolean' }),
-        z
-          .array(z.string().openapi({ type: 'string' }))
-          .openapi({ type: 'array', items: { type: 'string' } }),
-        z.object({}).openapi({ type: 'object' }),
-        z.null().nullable().openapi({ type: 'null' }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'string', const: 'type1' },
-          { type: 'string', const: 'type2' },
-          { type: 'string', const: 'type3' },
-          { type: 'string', const: 'type4' },
-          { type: 'string', const: 'type5' },
-          { type: 'string', const: 'type6' },
-          { type: 'string', const: 'type7' },
-          { type: 'string', const: 'type8' },
-          { type: 'string', const: 'type9' },
-          { type: 'string', const: 'type10' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'array', items: { type: 'string' } },
-          { type: 'object' },
-          { type: 'null' },
-        ],
-      }),
-    deeplyNestedComposition: z
-      .intersection(
-        z
-          .union([
+const ExtremeCompositionsSchema: z.ZodType<ExtremeCompositionsType> = z
+  .lazy(() =>
+    z
+      .object({
+        manyOneOf: z
+          .xor([
+            z.literal('type1').openapi({ type: 'string' }),
+            z.literal('type2').openapi({ type: 'string' }),
+            z.literal('type3').openapi({ type: 'string' }),
+            z.literal('type4').openapi({ type: 'string' }),
+            z.literal('type5').openapi({ type: 'string' }),
+            z.literal('type6').openapi({ type: 'string' }),
+            z.literal('type7').openapi({ type: 'string' }),
+            z.literal('type8').openapi({ type: 'string' }),
+            z.literal('type9').openapi({ type: 'string' }),
+            z.literal('type10').openapi({ type: 'string' }),
+            z.number().openapi({ type: 'number' }),
+            z.boolean().openapi({ type: 'boolean' }),
+            z
+              .array(z.string().openapi({ type: 'string' }))
+              .openapi({ type: 'array', items: { type: 'string' } }),
+            z.object({}).openapi({ type: 'object' }),
+            z.null().nullable().openapi({ type: 'null' }),
+          ])
+          .exactOptional()
+          .openapi({
+            oneOf: [
+              { type: 'string', const: 'type1' },
+              { type: 'string', const: 'type2' },
+              { type: 'string', const: 'type3' },
+              { type: 'string', const: 'type4' },
+              { type: 'string', const: 'type5' },
+              { type: 'string', const: 'type6' },
+              { type: 'string', const: 'type7' },
+              { type: 'string', const: 'type8' },
+              { type: 'string', const: 'type9' },
+              { type: 'string', const: 'type10' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { type: 'string' } },
+              { type: 'object' },
+              { type: 'null' },
+            ],
+          }),
+        deeplyNestedComposition: z
+          .xor([
             z
               .union([
                 z
-                  .intersection(
-                    z
-                      .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-                      .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
+                  .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
+                  .openapi({ type: 'object', properties: { a: { type: 'string' } } })
+                  .and(
                     z
                       .object({ b: z.number().exactOptional().openapi({ type: 'number' }) })
                       .openapi({ type: 'object', properties: { b: { type: 'number' } } }),
@@ -936,237 +803,216 @@ const ExtremeCompositionsSchema = z
               },
               { type: 'object', properties: { d: { type: 'integer' } } },
             ],
-          }),
-        z
-          .object({ e: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { e: { type: 'string' } } }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          {
-            oneOf: [
-              {
-                anyOf: [
-                  {
-                    allOf: [
-                      { type: 'object', properties: { a: { type: 'string' } } },
-                      { type: 'object', properties: { b: { type: 'number' } } },
-                    ],
-                  },
-                  { type: 'object', properties: { c: { type: 'boolean' } } },
-                ],
-              },
-              { type: 'object', properties: { d: { type: 'integer' } } },
-            ],
-          },
-          { type: 'object', properties: { e: { type: 'string' } } },
-        ],
-      }),
-    complexNot: z
-      .intersection(
-        z
-          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
-        z.any().openapi({
-          not: {
-            anyOf: [
-              { type: 'object', properties: { value: { const: 'forbidden1' } } },
-              { type: 'object', properties: { value: { const: 'forbidden2' } } },
-              { type: 'object', properties: { value: { pattern: '^bad' } } },
-            ],
-          },
-        }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            not: {
-              anyOf: [
-                { type: 'object', properties: { value: { const: 'forbidden1' } } },
-                { type: 'object', properties: { value: { const: 'forbidden2' } } },
-                { type: 'object', properties: { value: { pattern: '^bad' } } },
-              ],
-            },
-          },
-        ],
-      }),
-    conditionalChain: z
-      .object({})
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        if: { properties: { type: { const: 'A' } } },
-        then: { properties: { valueA: { type: 'string' } }, required: ['valueA'] },
-        else: {
-          if: { properties: { type: { const: 'B' } } },
-          then: { properties: { valueB: { type: 'number' } }, required: ['valueB'] },
-          else: {
-            if: { properties: { type: { const: 'C' } } },
-            then: { properties: { valueC: { type: 'boolean' } }, required: ['valueC'] },
-            else: { properties: { valueDefault: { type: 'object' } }, required: ['valueDefault'] },
-          },
-        },
-      }),
-    conflictingAllOf: z
-      .object({
-        shared: z.string().min(5).exactOptional().openapi({ type: 'string', minLength: 5 }),
-      })
-      .openapi({ type: 'object', properties: { shared: { type: 'string', minLength: 5 } } })
-      .and(
-        z
-          .object({
-            shared: z.string().max(10).exactOptional().openapi({ type: 'string', maxLength: 10 }),
           })
-          .openapi({ type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } }),
-      )
-      .and(
-        z
-          .object({
-            shared: z
-              .string()
-              .regex(/^[a-z]+$/)
-              .exactOptional()
-              .openapi({ type: 'string', pattern: '^[a-z]+$' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: { shared: { type: 'string', pattern: '^[a-z]+$' } },
-          }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { shared: { type: 'string', minLength: 5 } } },
-          { type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } },
-          { type: 'object', properties: { shared: { type: 'string', pattern: '^[a-z]+$' } } },
-        ],
-      }),
-    recursiveConstrained: z
-      .object({
-        value: z.string().min(1).exactOptional().openapi({ type: 'string', minLength: 1 }),
-        children: z
-          .array(RecursiveConstrainedSchema)
-          .max(5)
+          .and(
+            z
+              .object({ e: z.string().exactOptional().openapi({ type: 'string' }) })
+              .openapi({ type: 'object', properties: { e: { type: 'string' } } }),
+          )
           .exactOptional()
           .openapi({
-            type: 'array',
-            maxItems: 5,
-            items: {
-              $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
+            allOf: [
+              {
+                oneOf: [
+                  {
+                    anyOf: [
+                      {
+                        allOf: [
+                          { type: 'object', properties: { a: { type: 'string' } } },
+                          { type: 'object', properties: { b: { type: 'number' } } },
+                        ],
+                      },
+                      { type: 'object', properties: { c: { type: 'boolean' } } },
+                    ],
+                  },
+                  { type: 'object', properties: { d: { type: 'integer' } } },
+                ],
+              },
+              { type: 'object', properties: { e: { type: 'string' } } },
+            ],
+          }),
+        complexNot: z
+          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { value: { type: 'string' } } })
+          .and(
+            z.any().openapi({
+              not: {
+                anyOf: [
+                  { type: 'object', properties: { value: { const: 'forbidden1' } } },
+                  { type: 'object', properties: { value: { const: 'forbidden2' } } },
+                  { type: 'object', properties: { value: { pattern: '^bad' } } },
+                ],
+              },
+            }),
+          )
+          .exactOptional()
+          .openapi({
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                not: {
+                  anyOf: [
+                    { type: 'object', properties: { value: { const: 'forbidden1' } } },
+                    { type: 'object', properties: { value: { const: 'forbidden2' } } },
+                    { type: 'object', properties: { value: { pattern: '^bad' } } },
+                  ],
+                },
+              },
+            ],
+          }),
+        conditionalChain: z.object({}).exactOptional().openapi({ type: 'object' }),
+        conflictingAllOf: z
+          .object({
+            shared: z.string().min(5).exactOptional().openapi({ type: 'string', minLength: 5 }),
+          })
+          .openapi({ type: 'object', properties: { shared: { type: 'string', minLength: 5 } } })
+          .and(
+            z
+              .object({
+                shared: z
+                  .string()
+                  .max(10)
+                  .exactOptional()
+                  .openapi({ type: 'string', maxLength: 10 }),
+              })
+              .openapi({
+                type: 'object',
+                properties: { shared: { type: 'string', maxLength: 10 } },
+              }),
+          )
+          .and(
+            z
+              .object({
+                shared: z
+                  .string()
+                  .regex(/^[a-z]+$/)
+                  .exactOptional()
+                  .openapi({ type: 'string', pattern: '^[a-z]+$' }),
+              })
+              .openapi({
+                type: 'object',
+                properties: { shared: { type: 'string', pattern: '^[a-z]+$' } },
+              }),
+          )
+          .exactOptional()
+          .openapi({
+            allOf: [
+              { type: 'object', properties: { shared: { type: 'string', minLength: 5 } } },
+              { type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } },
+              { type: 'object', properties: { shared: { type: 'string', pattern: '^[a-z]+$' } } },
+            ],
+          }),
+        recursiveConstrained: z
+          .object({
+            value: z.string().min(1).exactOptional().openapi({ type: 'string', minLength: 1 }),
+            children: z
+              .array(z.lazy(() => ExtremeCompositionsSchema))
+              .max(5)
+              .exactOptional()
+              .openapi({
+                type: 'array',
+                maxItems: 5,
+                items: {
+                  $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
+                },
+              }),
+          })
+          .exactOptional()
+          .openapi({
+            type: 'object',
+            properties: {
+              value: { type: 'string', minLength: 1 },
+              children: {
+                type: 'array',
+                maxItems: 5,
+                items: {
+                  $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
+                },
+              },
             },
           }),
       })
-      .exactOptional()
       .openapi({
         type: 'object',
         properties: {
-          value: { type: 'string', minLength: 1 },
-          children: {
-            type: 'array',
-            maxItems: 5,
-            items: {
-              $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
+          manyOneOf: {
+            oneOf: [
+              { type: 'string', const: 'type1' },
+              { type: 'string', const: 'type2' },
+              { type: 'string', const: 'type3' },
+              { type: 'string', const: 'type4' },
+              { type: 'string', const: 'type5' },
+              { type: 'string', const: 'type6' },
+              { type: 'string', const: 'type7' },
+              { type: 'string', const: 'type8' },
+              { type: 'string', const: 'type9' },
+              { type: 'string', const: 'type10' },
+              { type: 'number' },
+              { type: 'boolean' },
+              { type: 'array', items: { type: 'string' } },
+              { type: 'object' },
+              { type: 'null' },
+            ],
+          },
+          deeplyNestedComposition: {
+            allOf: [
+              {
+                oneOf: [
+                  {
+                    anyOf: [
+                      {
+                        allOf: [
+                          { type: 'object', properties: { a: { type: 'string' } } },
+                          { type: 'object', properties: { b: { type: 'number' } } },
+                        ],
+                      },
+                      { type: 'object', properties: { c: { type: 'boolean' } } },
+                    ],
+                  },
+                  { type: 'object', properties: { d: { type: 'integer' } } },
+                ],
+              },
+              { type: 'object', properties: { e: { type: 'string' } } },
+            ],
+          },
+          complexNot: {
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                not: {
+                  anyOf: [
+                    { type: 'object', properties: { value: { const: 'forbidden1' } } },
+                    { type: 'object', properties: { value: { const: 'forbidden2' } } },
+                    { type: 'object', properties: { value: { pattern: '^bad' } } },
+                  ],
+                },
+              },
+            ],
+          },
+          conditionalChain: { type: 'object' },
+          conflictingAllOf: {
+            allOf: [
+              { type: 'object', properties: { shared: { type: 'string', minLength: 5 } } },
+              { type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } },
+              { type: 'object', properties: { shared: { type: 'string', pattern: '^[a-z]+$' } } },
+            ],
+          },
+          recursiveConstrained: {
+            type: 'object',
+            properties: {
+              value: { type: 'string', minLength: 1 },
+              children: {
+                type: 'array',
+                maxItems: 5,
+                items: {
+                  $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
+                },
+              },
             },
           },
         },
       }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      manyOneOf: {
-        oneOf: [
-          { type: 'string', const: 'type1' },
-          { type: 'string', const: 'type2' },
-          { type: 'string', const: 'type3' },
-          { type: 'string', const: 'type4' },
-          { type: 'string', const: 'type5' },
-          { type: 'string', const: 'type6' },
-          { type: 'string', const: 'type7' },
-          { type: 'string', const: 'type8' },
-          { type: 'string', const: 'type9' },
-          { type: 'string', const: 'type10' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'array', items: { type: 'string' } },
-          { type: 'object' },
-          { type: 'null' },
-        ],
-      },
-      deeplyNestedComposition: {
-        allOf: [
-          {
-            oneOf: [
-              {
-                anyOf: [
-                  {
-                    allOf: [
-                      { type: 'object', properties: { a: { type: 'string' } } },
-                      { type: 'object', properties: { b: { type: 'number' } } },
-                    ],
-                  },
-                  { type: 'object', properties: { c: { type: 'boolean' } } },
-                ],
-              },
-              { type: 'object', properties: { d: { type: 'integer' } } },
-            ],
-          },
-          { type: 'object', properties: { e: { type: 'string' } } },
-        ],
-      },
-      complexNot: {
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            not: {
-              anyOf: [
-                { type: 'object', properties: { value: { const: 'forbidden1' } } },
-                { type: 'object', properties: { value: { const: 'forbidden2' } } },
-                { type: 'object', properties: { value: { pattern: '^bad' } } },
-              ],
-            },
-          },
-        ],
-      },
-      conditionalChain: {
-        type: 'object',
-        if: { properties: { type: { const: 'A' } } },
-        then: { properties: { valueA: { type: 'string' } }, required: ['valueA'] },
-        else: {
-          if: { properties: { type: { const: 'B' } } },
-          then: { properties: { valueB: { type: 'number' } }, required: ['valueB'] },
-          else: {
-            if: { properties: { type: { const: 'C' } } },
-            then: { properties: { valueC: { type: 'boolean' } }, required: ['valueC'] },
-            else: { properties: { valueDefault: { type: 'object' } }, required: ['valueDefault'] },
-          },
-        },
-      },
-      conflictingAllOf: {
-        allOf: [
-          { type: 'object', properties: { shared: { type: 'string', minLength: 5 } } },
-          { type: 'object', properties: { shared: { type: 'string', maxLength: 10 } } },
-          { type: 'object', properties: { shared: { type: 'string', pattern: '^[a-z]+$' } } },
-        ],
-      },
-      recursiveConstrained: {
-        type: 'object',
-        properties: {
-          value: { type: 'string', minLength: 1 },
-          children: {
-            type: 'array',
-            maxItems: 5,
-            items: {
-              $ref: '#/components/schemas/ExtremeCompositions/properties/recursiveConstrained',
-            },
-          },
-        },
-      },
-    },
-  })
+  )
   .openapi('ExtremeCompositions')
 
 const ExtremeValidationSchema = z
@@ -1188,6 +1034,33 @@ const ExtremeValidationSchema = z
     },
   })
   .openapi('ExtremeValidation')
+
+type ExtremeCompositionsType = {
+  manyOneOf?:
+    | 'type1'
+    | 'type2'
+    | 'type3'
+    | 'type4'
+    | 'type5'
+    | 'type6'
+    | 'type7'
+    | 'type8'
+    | 'type9'
+    | 'type10'
+    | number
+    | boolean
+    | unknown[]
+    | Record<string, unknown>
+    | (Record<string, unknown> | null)
+  deeplyNestedComposition?: (
+    | (({ a?: string } & { b?: number }) | { c?: boolean })
+    | { d?: number }
+  ) & { e?: string }
+  complexNot?: { value?: string } & Record<string, unknown>
+  conditionalChain?: Record<string, unknown>
+  conflictingAllOf?: { shared?: string } & { shared?: string } & { shared?: string }
+  recursiveConstrained?: { value?: string; children?: ExtremeCompositionsType[] }
+}
 
 const EnumEdgeCasesSchema = z
   .object({
@@ -1320,10 +1193,10 @@ const EnumEdgeCasesSchema = z
         z.literal(1.5),
         z.literal(-1.5),
         z.literal(10000000000),
-        z.literal([]),
-        z.literal({}),
-        z.literal([1, 2, 3]),
-        z.literal({ key: 'value' }),
+        z.custom<[]>(),
+        z.custom<{}>(),
+        z.custom<[1, 2, 3]>(),
+        z.custom<{ key: 'value' }>(),
       ])
       .exactOptional()
       .openapi({
@@ -1350,7 +1223,7 @@ const EnumEdgeCasesSchema = z
       }),
     constNull: z.literal(null).exactOptional(),
     constComplex: z
-      .literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] })
+      .custom<{ nested: { deeply: { value: 42 } }; array: [1, 2, 3] }>()
       .exactOptional(),
   })
   .openapi({

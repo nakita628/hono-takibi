@@ -22,6 +22,15 @@ import { getToSafeIdentifier, requestParamsArray, toIdentifierPascalCase } from 
  * @returns
  */
 export function makeRef($ref: string): string {
+  // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
+  // These are self-referential and reference the parent schema with z.lazy()
+  // The OpenAPI $ref is preserved in the .openapi() metadata for runtime accuracy
+  const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
+  if (propertiesMatch) {
+    const schemaName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+    const parentSchema = schemaName.endsWith('Schema') ? schemaName : `${schemaName}Schema`
+    return `z.lazy(() => ${parentSchema})`
+  }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))

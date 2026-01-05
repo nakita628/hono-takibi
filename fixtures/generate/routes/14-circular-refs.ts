@@ -606,7 +606,7 @@ const LiteralExpressionSchema = z
   .object({
     type: z.literal('literal').openapi({ type: 'string' }),
     value: z
-      .union([
+      .xor([
         z.string().openapi({ type: 'string' }),
         z.number().openapi({ type: 'number' }),
         z.boolean().openapi({ type: 'boolean' }),
@@ -727,7 +727,7 @@ type ExpressionType =
 const ExpressionSchema: z.ZodType<ExpressionType> = z
   .lazy(() =>
     z
-      .union([
+      .xor([
         LiteralExpressionSchema,
         BinaryExpressionSchema,
         UnaryExpressionSchema,
@@ -1014,37 +1014,34 @@ type WorkflowActionType = {
 
 const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   .lazy(() =>
-    z
-      .intersection(
-        BaseEntitySchema,
-        z
-          .object({
-            name: z.string().exactOptional().openapi({ type: 'string' }),
-            parent: ExtendedEntitySchema.exactOptional(),
-            baseReference: BaseEntitySchema.exactOptional(),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              parent: { $ref: '#/components/schemas/ExtendedEntity' },
-              baseReference: { $ref: '#/components/schemas/BaseEntity' },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/BaseEntity' },
-          {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              parent: { $ref: '#/components/schemas/ExtendedEntity' },
-              baseReference: { $ref: '#/components/schemas/BaseEntity' },
-            },
+    BaseEntitySchema.and(
+      z
+        .object({
+          name: z.string().exactOptional().openapi({ type: 'string' }),
+          parent: ExtendedEntitySchema.exactOptional(),
+          baseReference: BaseEntitySchema.exactOptional(),
+        })
+        .openapi({
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            parent: { $ref: '#/components/schemas/ExtendedEntity' },
+            baseReference: { $ref: '#/components/schemas/BaseEntity' },
           },
-        ],
-      }),
+        }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/BaseEntity' },
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            parent: { $ref: '#/components/schemas/ExtendedEntity' },
+            baseReference: { $ref: '#/components/schemas/BaseEntity' },
+          },
+        },
+      ],
+    }),
   )
   .openapi('ExtendedEntity')
 
@@ -1125,7 +1122,7 @@ const NullableCircularSchema: z.ZodType<NullableCircularType> = z
       .object({
         id: z.string().exactOptional().openapi({ type: 'string' }),
         next: z
-          .union([NullableCircularSchema, z.null().nullable().openapi({ type: 'null' })])
+          .xor([NullableCircularSchema, z.null().nullable().openapi({ type: 'null' })])
           .exactOptional()
           .openapi({
             oneOf: [{ $ref: '#/components/schemas/NullableCircular' }, { type: 'null' }],

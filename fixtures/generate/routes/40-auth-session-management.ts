@@ -141,42 +141,40 @@ const SessionSchema = z
   })
   .openapi('Session')
 
-const SessionWithTokensSchema = z
-  .intersection(
-    SessionSchema,
-    z
-      .object({
-        accessToken: z.string().openapi({ type: 'string' }),
-        refreshToken: z.string().openapi({ type: 'string' }),
-        tokenType: z
-          .string()
-          .default('Bearer')
-          .exactOptional()
-          .openapi({ type: 'string', default: 'Bearer' }),
-        accessTokenExpiresIn: z
-          .int()
-          .exactOptional()
-          .openapi({ type: 'integer', description: 'アクセストークン有効期限（秒）' }),
-        refreshTokenExpiresIn: z
-          .int()
-          .exactOptional()
-          .openapi({ type: 'integer', description: 'リフレッシュトークン有効期限（秒）' }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['accessToken', 'refreshToken'],
-        properties: {
-          accessToken: { type: 'string' },
-          refreshToken: { type: 'string' },
-          tokenType: { type: 'string', default: 'Bearer' },
-          accessTokenExpiresIn: { type: 'integer', description: 'アクセストークン有効期限（秒）' },
-          refreshTokenExpiresIn: {
-            type: 'integer',
-            description: 'リフレッシュトークン有効期限（秒）',
-          },
+const SessionWithTokensSchema = SessionSchema.and(
+  z
+    .object({
+      accessToken: z.string().openapi({ type: 'string' }),
+      refreshToken: z.string().openapi({ type: 'string' }),
+      tokenType: z
+        .string()
+        .default('Bearer')
+        .exactOptional()
+        .openapi({ type: 'string', default: 'Bearer' }),
+      accessTokenExpiresIn: z
+        .int()
+        .exactOptional()
+        .openapi({ type: 'integer', description: 'アクセストークン有効期限（秒）' }),
+      refreshTokenExpiresIn: z
+        .int()
+        .exactOptional()
+        .openapi({ type: 'integer', description: 'リフレッシュトークン有効期限（秒）' }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['accessToken', 'refreshToken'],
+      properties: {
+        accessToken: { type: 'string' },
+        refreshToken: { type: 'string' },
+        tokenType: { type: 'string', default: 'Bearer' },
+        accessTokenExpiresIn: { type: 'integer', description: 'アクセストークン有効期限（秒）' },
+        refreshTokenExpiresIn: {
+          type: 'integer',
+          description: 'リフレッシュトークン有効期限（秒）',
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Session' },

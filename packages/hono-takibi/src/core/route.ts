@@ -230,20 +230,21 @@ export async function route(
     return { ok: true, value: `Generated route code written to ${output}` }
   }
 
-  // Write each route block to its own file
-  for (const { name, block } of blocks) {
-    const filePath = `${outDir}/${lowerFirst(name)}.ts`
-    const result = await writeFile(filePath, block)
-    if (!result.ok) return result
-  }
+  // Write each route block and barrel file in parallel
+  const allResults = await Promise.all([
+    ...blocks.map(({ name, block }) => {
+      const filePath = `${outDir}/${lowerFirst(name)}.ts`
+      return writeFile(filePath, block)
+    }),
+    core(
+      makeBarell(Object.fromEntries(blocks.map((b) => [b.name, null]))),
+      outDir,
+      `${outDir}/index.ts`,
+    ),
+  ])
 
-  // Write barrel file
-  const barellResult = await core(
-    makeBarell(Object.fromEntries(blocks.map((b) => [b.name, null]))),
-    outDir,
-    `${outDir}/index.ts`,
-  )
-  if (!barellResult.ok) return { ok: false, error: barellResult.error }
+  const firstError = allResults.find((r) => !r.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
 
   return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
 }

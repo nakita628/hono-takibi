@@ -10,23 +10,21 @@ const AnimalSchema = z
   })
   .openapi('Animal')
 
-const CatSchema = z
-  .intersection(
-    AnimalSchema,
-    z
-      .object({
-        livesLeft: z
-          .int()
-          .min(0)
-          .max(9)
-          .exactOptional()
-          .openapi({ type: 'integer', minimum: 0, maximum: 9 }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } },
-      }),
-  )
+const CatSchema = AnimalSchema.and(
+  z
+    .object({
+      livesLeft: z
+        .int()
+        .min(0)
+        .max(9)
+        .exactOptional()
+        .openapi({ type: 'integer', minimum: 0, maximum: 9 }),
+    })
+    .openapi({
+      type: 'object',
+      properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Animal' },
@@ -35,21 +33,19 @@ const CatSchema = z
   })
   .openapi('Cat')
 
-const DogSchema = z
-  .intersection(
-    AnimalSchema,
-    z
-      .object({
-        barkLevel: z
-          .enum(['quiet', 'normal', 'loud'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
-      }),
-  )
+const DogSchema = AnimalSchema.and(
+  z
+    .object({
+      barkLevel: z
+        .enum(['quiet', 'normal', 'loud'])
+        .exactOptional()
+        .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
+    })
+    .openapi({
+      type: 'object',
+      properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Animal' },
@@ -89,7 +85,7 @@ export const postPolymorphicRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .union([CatSchema, DogSchema])
+            .discriminatedUnion('type', [CatSchema, DogSchema])
             .openapi({
               oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
               discriminator: {
@@ -191,32 +187,26 @@ export const putMultiStepRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .intersection(
-              BaseSchema,
-              z
-                .object({
-                  step: z
-                    .int()
-                    .min(1)
-                    .max(3)
-                    .exactOptional()
-                    .openapi({ type: 'integer', minimum: 1, maximum: 3 }),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },
-                }),
-            )
-            .openapi({
-              allOf: [
-                { $ref: '#/components/schemas/Base' },
-                {
-                  type: 'object',
-                  properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },
-                },
-              ],
-            }),
+          schema: BaseSchema.and(
+            z
+              .object({
+                step: z
+                  .int()
+                  .min(1)
+                  .max(3)
+                  .exactOptional()
+                  .openapi({ type: 'integer', minimum: 1, maximum: 3 }),
+              })
+              .openapi({
+                type: 'object',
+                properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },
+              }),
+          ).openapi({
+            allOf: [
+              { $ref: '#/components/schemas/Base' },
+              { type: 'object', properties: { step: { type: 'integer', minimum: 1, maximum: 3 } } },
+            ],
+          }),
         },
       },
     },

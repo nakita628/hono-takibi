@@ -75,13 +75,22 @@ const GeoJsonObjectSchema = z
   })
   .openapi('GeoJsonObject')
 
-const GeometrySchema = z
-  .intersection(
-    GeoJsonObjectSchema,
-    z
-      .object({
-        type: z
-          .enum([
+const GeometrySchema = GeoJsonObjectSchema.and(
+  z
+    .object({
+      type: z
+        .enum([
+          'Point',
+          'MultiPoint',
+          'LineString',
+          'MultiLineString',
+          'Polygon',
+          'MultiPolygon',
+          'GeometryCollection',
+        ])
+        .openapi({
+          type: 'string',
+          enum: [
             'Point',
             'MultiPoint',
             'LineString',
@@ -89,40 +98,29 @@ const GeometrySchema = z
             'Polygon',
             'MultiPolygon',
             'GeometryCollection',
-          ])
-          .openapi({
-            type: 'string',
-            enum: [
-              'Point',
-              'MultiPoint',
-              'LineString',
-              'MultiLineString',
-              'Polygon',
-              'MultiPolygon',
-              'GeometryCollection',
-            ],
-          }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          type: {
-            type: 'string',
-            enum: [
-              'Point',
-              'MultiPoint',
-              'LineString',
-              'MultiLineString',
-              'Polygon',
-              'MultiPolygon',
-              'GeometryCollection',
-            ],
-          },
+          ],
+        }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        type: {
+          type: 'string',
+          enum: [
+            'Point',
+            'MultiPoint',
+            'LineString',
+            'MultiLineString',
+            'Polygon',
+            'MultiPolygon',
+            'GeometryCollection',
+          ],
         },
-        required: ['type'],
-        discriminator: { propertyName: 'type' },
-      }),
-  )
+      },
+      required: ['type'],
+      discriminator: { propertyName: 'type' },
+    }),
+)
   .openapi({
     description: 'Abstract type for all GeoJSon object except Feature and FeatureCollection\n',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3' },
@@ -151,44 +149,28 @@ const GeometrySchema = z
   })
   .openapi('Geometry')
 
-const GeometryElementSchema = z
-  .intersection(
-    GeometrySchema,
-    z
-      .object({
-        type: z
-          .enum(['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'])
-          .openapi({
-            type: 'string',
-            enum: [
-              'Point',
-              'MultiPoint',
-              'LineString',
-              'MultiLineString',
-              'Polygon',
-              'MultiPolygon',
-            ],
-          }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          type: {
-            type: 'string',
-            enum: [
-              'Point',
-              'MultiPoint',
-              'LineString',
-              'MultiLineString',
-              'Polygon',
-              'MultiPolygon',
-            ],
-          },
+const GeometryElementSchema = GeometrySchema.and(
+  z
+    .object({
+      type: z
+        .enum(['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'])
+        .openapi({
+          type: 'string',
+          enum: ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'],
+        }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        type: {
+          type: 'string',
+          enum: ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'],
         },
-        required: ['type'],
-        discriminator: { propertyName: 'type' },
-      }),
-  )
+      },
+      required: ['type'],
+      discriminator: { propertyName: 'type' },
+    }),
+)
   .openapi({
     description:
       "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
@@ -245,33 +227,31 @@ const LinearRingSchema = z
   })
   .openapi('LinearRing')
 
-const MultiPolygonSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        coordinates: z
-          .array(
-            z
-              .array(LinearRingSchema)
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
-          )
-          .openapi({
-            type: 'array',
-            items: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: {
-            type: 'array',
-            items: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
-          },
+const MultiPolygonSchema = GeometryElementSchema.and(
+  z
+    .object({
+      coordinates: z
+        .array(
+          z
+            .array(LinearRingSchema)
+            .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
+        )
+        .openapi({
+          type: 'array',
+          items: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
+        }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['coordinates'],
+      properties: {
+        coordinates: {
+          type: 'array',
+          items: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.7' },
@@ -291,23 +271,21 @@ const MultiPolygonSchema = z
   })
   .openapi('MultiPolygon')
 
-const PolygonSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        coordinates: z
-          .array(LinearRingSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
-        },
-      }),
-  )
+const PolygonSchema = GeometryElementSchema.and(
+  z
+    .object({
+      coordinates: z
+        .array(LinearRingSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinearRing' } }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['coordinates'],
+      properties: {
+        coordinates: { type: 'array', items: { $ref: '#/components/schemas/LinearRing' } },
+      },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.6' },
@@ -324,23 +302,21 @@ const PolygonSchema = z
   })
   .openapi('Polygon')
 
-const PointSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        type: z.literal('Point').openapi({ type: 'string', enum: ['Point'] }),
-        coordinates: PositionSchema,
-      })
-      .openapi({
-        type: 'object',
-        required: ['type', 'coordinates'],
-        properties: {
-          type: { type: 'string', enum: ['Point'] },
-          coordinates: { $ref: '#/components/schemas/Position' },
-        },
-      }),
-  )
+const PointSchema = GeometryElementSchema.and(
+  z
+    .object({
+      type: z.literal('Point').openapi({ type: 'string', enum: ['Point'] }),
+      coordinates: PositionSchema,
+    })
+    .openapi({
+      type: 'object',
+      required: ['type', 'coordinates'],
+      properties: {
+        type: { type: 'string', enum: ['Point'] },
+        coordinates: { $ref: '#/components/schemas/Position' },
+      },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.2' },
@@ -410,28 +386,26 @@ const ProjectSchema = z
   })
   .openapi('Project')
 
-const FeatureSchema = z
-  .intersection(
-    GeoJsonObjectSchema,
-    z
-      .object({
-        geometry: GeometrySchema.nullable(),
-        properties: z.object({}).nullable().openapi({ type: 'object' }),
-        id: z
-          .union([z.number().openapi({ type: 'number' }), z.string().openapi({ type: 'string' })])
-          .exactOptional()
-          .openapi({ oneOf: [{ type: 'number' }, { type: 'string' }] }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['geometry', 'properties'],
-        properties: {
-          geometry: { allOf: [{ nullable: true }, { $ref: '#/components/schemas/Geometry' }] },
-          properties: { type: 'object', nullable: true },
-          id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
-        },
-      }),
-  )
+const FeatureSchema = GeoJsonObjectSchema.and(
+  z
+    .object({
+      geometry: GeometrySchema.nullable(),
+      properties: z.object({}).nullable().openapi({ type: 'object' }),
+      id: z
+        .xor([z.number().openapi({ type: 'number' }), z.string().openapi({ type: 'string' })])
+        .exactOptional()
+        .openapi({ oneOf: [{ type: 'number' }, { type: 'string' }] }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['geometry', 'properties'],
+      properties: {
+        geometry: { allOf: [{ nullable: true }, { $ref: '#/components/schemas/Geometry' }] },
+        properties: { type: 'object', nullable: true },
+        id: { oneOf: [{ type: 'number' }, { type: 'string' }] },
+      },
+    }),
+)
   .openapi({
     description: "GeoJSon 'Feature' object",
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.2' },
@@ -450,23 +424,19 @@ const FeatureSchema = z
   })
   .openapi('Feature')
 
-const FeatureCollectionSchema = z
-  .intersection(
-    GeoJsonObjectSchema,
-    z
-      .object({
-        features: z
-          .array(FeatureSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Feature' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['features'],
-        properties: {
-          features: { type: 'array', items: { $ref: '#/components/schemas/Feature' } },
-        },
-      }),
-  )
+const FeatureCollectionSchema = GeoJsonObjectSchema.and(
+  z
+    .object({
+      features: z
+        .array(FeatureSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/Feature' } }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['features'],
+      properties: { features: { type: 'array', items: { $ref: '#/components/schemas/Feature' } } },
+    }),
+)
   .openapi({
     description: "GeoJSon 'FeatureCollection' object",
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.3' },
@@ -495,23 +465,21 @@ const LineStringCoordinatesSchema = z
   })
   .openapi('LineStringCoordinates')
 
-const MultiPointSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        coordinates: z
-          .array(PositionSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Position' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: { type: 'array', items: { $ref: '#/components/schemas/Position' } },
-        },
-      }),
-  )
+const MultiPointSchema = GeometryElementSchema.and(
+  z
+    .object({
+      coordinates: z
+        .array(PositionSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/Position' } }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['coordinates'],
+      properties: {
+        coordinates: { type: 'array', items: { $ref: '#/components/schemas/Position' } },
+      },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.3' },
@@ -528,17 +496,15 @@ const MultiPointSchema = z
   })
   .openapi('MultiPoint')
 
-const LineStringSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({ coordinates: LineStringCoordinatesSchema })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: { coordinates: { $ref: '#/components/schemas/LineStringCoordinates' } },
-      }),
-  )
+const LineStringSchema = GeometryElementSchema.and(
+  z
+    .object({ coordinates: LineStringCoordinatesSchema })
+    .openapi({
+      type: 'object',
+      required: ['coordinates'],
+      properties: { coordinates: { $ref: '#/components/schemas/LineStringCoordinates' } },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.4' },
@@ -553,29 +519,24 @@ const LineStringSchema = z
   })
   .openapi('LineString')
 
-const MultiLineStringSchema = z
-  .intersection(
-    GeometryElementSchema,
-    z
-      .object({
-        coordinates: z
-          .array(LineStringCoordinatesSchema)
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/LineStringCoordinates' },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['coordinates'],
-        properties: {
-          coordinates: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/LineStringCoordinates' },
-          },
+const MultiLineStringSchema = GeometryElementSchema.and(
+  z
+    .object({
+      coordinates: z
+        .array(LineStringCoordinatesSchema)
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/LineStringCoordinates' } }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['coordinates'],
+      properties: {
+        coordinates: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/LineStringCoordinates' },
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     description: 'GeoJSon geometry',
     externalDocs: { url: 'https://tools.ietf.org/html/rfc7946#section-3.1.5' },
@@ -595,32 +556,30 @@ const MultiLineStringSchema = z
   })
   .openapi('MultiLineString')
 
-const GeometryCollectionSchema = z
-  .intersection(
-    GeometrySchema,
-    z
-      .object({
-        geometries: z
-          .array(GeometryElementSchema)
-          .min(0)
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/GeometryElement' },
-            minItems: 0,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['geometries'],
-        properties: {
-          geometries: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/GeometryElement' },
-            minItems: 0,
-          },
+const GeometryCollectionSchema = GeometrySchema.and(
+  z
+    .object({
+      geometries: z
+        .array(GeometryElementSchema)
+        .min(0)
+        .openapi({
+          type: 'array',
+          items: { $ref: '#/components/schemas/GeometryElement' },
+          minItems: 0,
+        }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['geometries'],
+      properties: {
+        geometries: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/GeometryElement' },
+          minItems: 0,
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     type: 'object',
     description:

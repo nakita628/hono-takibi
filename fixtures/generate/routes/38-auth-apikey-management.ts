@@ -40,19 +40,17 @@ const ApiKeySchema = z
   })
   .openapi('ApiKey')
 
-const ApiKeyWithSecretSchema = z
-  .intersection(
-    ApiKeySchema,
-    z
-      .object({
-        secretKey: z.string().openapi({ type: 'string', example: 'sk_live_1234567890abcdef' }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['secretKey'],
-        properties: { secretKey: { type: 'string', example: 'sk_live_1234567890abcdef' } },
-      }),
-  )
+const ApiKeyWithSecretSchema = ApiKeySchema.and(
+  z
+    .object({
+      secretKey: z.string().openapi({ type: 'string', example: 'sk_live_1234567890abcdef' }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['secretKey'],
+      properties: { secretKey: { type: 'string', example: 'sk_live_1234567890abcdef' } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/ApiKey' },

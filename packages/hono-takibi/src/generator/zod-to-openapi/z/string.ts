@@ -10,12 +10,15 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   emoji: 'emoji()',
   base64: 'base64()',
   base64url: 'base64url()',
+  hex: 'hex()',
+  jwt: 'jwt()',
   nanoid: 'nanoid()',
   cuid: 'cuid()',
   cuid2: 'cuid2()',
   ulid: 'ulid()',
   ipv4: 'ipv4()',
   ipv6: 'ipv6()',
+  mac: 'mac()',
   cidrv4: 'cidrv4()',
   cidrv6: 'cidrv6()',
   date: 'iso.date()',
@@ -26,7 +29,6 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   toLowerCase: 'toLowerCase()',
   toUpperCase: 'toUpperCase()',
   trim: 'trim()',
-  jwt: 'jwt()',
 }
 
 /**
@@ -52,8 +54,10 @@ export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]
   const base = format ? `z.${format}` : 'z.string()'
 
+  // Add 'u' flag for Unicode property escapes (\p{...} or \P{...})
+  const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const pattern = schema.pattern
-    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/)`
+    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''})`
     : undefined
 
   const isFixedLength =

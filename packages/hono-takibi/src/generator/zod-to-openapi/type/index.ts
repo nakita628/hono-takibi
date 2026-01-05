@@ -9,6 +9,15 @@ function schemaToTypeString(schema: Schema, selfTypeName: string): string {
   if (!schema) return 'unknown'
 
   if (schema.$ref) {
+    // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
+    // These reference a property within a schema, use the parent schema type
+    const propertiesMatch = schema.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+    if (propertiesMatch) {
+      const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+      return parentName === selfTypeName
+        ? `${parentName}Type`
+        : `z.infer<typeof ${parentName}Schema>`
+    }
     const rawRef = schema.$ref.split('/').pop() ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
     // Self-reference uses Type suffix, others use z.infer
@@ -102,6 +111,14 @@ function generateArrayType(schema: Schema, selfTypeName: string): string {
   // Use Object.getOwnPropertyDescriptor to access $ref without type assertion
   const refValue = Object.getOwnPropertyDescriptor(items, '$ref')?.value
   if (typeof refValue === 'string') {
+    // Handle nested property references
+    const propertiesMatch = refValue.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+    if (propertiesMatch) {
+      const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+      return parentName === selfTypeName
+        ? `${parentName}Type[]`
+        : `z.infer<typeof ${parentName}Schema>[]`
+    }
     const rawRef = refValue.split('/').pop() ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
     return refName === selfTypeName ? `${refName}Type[]` : `z.infer<typeof ${refName}Schema>[]`

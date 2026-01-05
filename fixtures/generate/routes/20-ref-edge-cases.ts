@@ -421,24 +421,22 @@ const PolyBaseSchema = z
   })
   .openapi('PolyBase')
 
-const PolyTypeASchema = z
-  .intersection(
-    PolyBaseSchema,
-    z
-      .object({
-        polyType: z.literal('typeA').exactOptional(),
-        fieldA: z.string().exactOptional().openapi({ type: 'string' }),
-        nestedRef: SharedComponentSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          polyType: { const: 'typeA' },
-          fieldA: { type: 'string' },
-          nestedRef: { $ref: '#/components/schemas/SharedComponent' },
-        },
-      }),
-  )
+const PolyTypeASchema = PolyBaseSchema.and(
+  z
+    .object({
+      polyType: z.literal('typeA').exactOptional(),
+      fieldA: z.string().exactOptional().openapi({ type: 'string' }),
+      nestedRef: SharedComponentSchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        polyType: { const: 'typeA' },
+        fieldA: { type: 'string' },
+        nestedRef: { $ref: '#/components/schemas/SharedComponent' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/PolyBase' },
@@ -454,24 +452,22 @@ const PolyTypeASchema = z
   })
   .openapi('PolyTypeA')
 
-const PolyTypeBSchema = z
-  .intersection(
-    PolyBaseSchema,
-    z
-      .object({
-        polyType: z.literal('typeB').exactOptional(),
-        fieldB: z.number().exactOptional().openapi({ type: 'number' }),
-        nestedRef: SharedComponentSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          polyType: { const: 'typeB' },
-          fieldB: { type: 'number' },
-          nestedRef: { $ref: '#/components/schemas/SharedComponent' },
-        },
-      }),
-  )
+const PolyTypeBSchema = PolyBaseSchema.and(
+  z
+    .object({
+      polyType: z.literal('typeB').exactOptional(),
+      fieldB: z.number().exactOptional().openapi({ type: 'number' }),
+      nestedRef: SharedComponentSchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        polyType: { const: 'typeB' },
+        fieldB: { type: 'number' },
+        nestedRef: { $ref: '#/components/schemas/SharedComponent' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/PolyBase' },
@@ -487,24 +483,22 @@ const PolyTypeBSchema = z
   })
   .openapi('PolyTypeB')
 
-const PolyTypeCSchema = z
-  .intersection(
-    PolyBaseSchema,
-    z
-      .object({
-        polyType: z.literal('typeC').exactOptional(),
-        fieldC: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        nestedRef: SharedComponentSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          polyType: { const: 'typeC' },
-          fieldC: { type: 'boolean' },
-          nestedRef: { $ref: '#/components/schemas/SharedComponent' },
-        },
-      }),
-  )
+const PolyTypeCSchema = PolyBaseSchema.and(
+  z
+    .object({
+      polyType: z.literal('typeC').exactOptional(),
+      fieldC: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+      nestedRef: SharedComponentSchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        polyType: { const: 'typeC' },
+        fieldC: { type: 'boolean' },
+        nestedRef: { $ref: '#/components/schemas/SharedComponent' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/PolyBase' },
@@ -521,7 +515,7 @@ const PolyTypeCSchema = z
   .openapi('PolyTypeC')
 
 const PolymorphicSchema = z
-  .union([PolyTypeASchema, PolyTypeBSchema, PolyTypeCSchema])
+  .discriminatedUnion('polyType', [PolyTypeASchema, PolyTypeBSchema, PolyTypeCSchema])
   .openapi({
     oneOf: [
       { $ref: '#/components/schemas/PolyTypeA' },
@@ -559,19 +553,16 @@ const ObjectWithRefDefaultSchema = z
 
 const ArrayWithRefItemsSchema = z
   .array(
-    z
-      .intersection(
-        ItemSchema,
-        z
-          .object({ arrayIndex: z.int().exactOptional().openapi({ type: 'integer' }) })
-          .openapi({ type: 'object', properties: { arrayIndex: { type: 'integer' } } }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Item' },
-          { type: 'object', properties: { arrayIndex: { type: 'integer' } } },
-        ],
-      }),
+    ItemSchema.and(
+      z
+        .object({ arrayIndex: z.int().exactOptional().openapi({ type: 'integer' }) })
+        .openapi({ type: 'object', properties: { arrayIndex: { type: 'integer' } } }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Item' },
+        { type: 'object', properties: { arrayIndex: { type: 'integer' } } },
+      ],
+    }),
   )
   .openapi({
     type: 'array',
@@ -587,19 +578,16 @@ const ArrayWithRefItemsSchema = z
 const MapWithRefValuesSchema = z
   .record(
     z.string(),
-    z
-      .intersection(
-        ItemSchema,
-        z
-          .object({ mapKey: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { mapKey: { type: 'string' } } }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/Item' },
-          { type: 'object', properties: { mapKey: { type: 'string' } } },
-        ],
-      }),
+    ItemSchema.and(
+      z
+        .object({ mapKey: z.string().exactOptional().openapi({ type: 'string' }) })
+        .openapi({ type: 'object', properties: { mapKey: { type: 'string' } } }),
+    ).openapi({
+      allOf: [
+        { $ref: '#/components/schemas/Item' },
+        { type: 'object', properties: { mapKey: { type: 'string' } } },
+      ],
+    }),
   )
   .openapi({
     type: 'object',
@@ -650,7 +638,7 @@ const ConditionalSchema = z
       .exactOptional()
       .openapi({ type: 'string', enum: ['simple', 'complex'] }),
     data: z
-      .union([SimpleDataSchema, ComplexDataSchema])
+      .xor([SimpleDataSchema, ComplexDataSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -748,8 +736,9 @@ type RecursiveCType = {
   refToB?: z.infer<typeof RecursiveBSchema>
 }
 
-const NotExampleSchema = z
-  .intersection(BaseSchema, z.any().openapi({ not: { $ref: '#/components/schemas/Forbidden' } }))
+const NotExampleSchema = BaseSchema.and(
+  z.any().openapi({ not: { $ref: '#/components/schemas/Forbidden' } }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Base' },

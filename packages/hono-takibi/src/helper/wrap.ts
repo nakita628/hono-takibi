@@ -9,6 +9,71 @@ export function wrap(
     headers?: Header
   },
 ): string {
+  // Properties not supported or causing type issues with zod-to-openapi
+  const unsupportedProps = new Set([
+    'contains',
+    'minContains',
+    'maxContains',
+    'patternProperties',
+    'dependentRequired',
+    'dependentSchemas',
+    'unevaluatedProperties',
+    'unevaluatedItems',
+    'if',
+    'then',
+    'else',
+    'prefixItems',
+    'propertyNames',
+    'contentSchema',
+    'contentEncoding',
+    'contentMediaType',
+    '$schema',
+    '$id',
+  ])
+
+  // Type guard for objects with 'not' property
+  const hasNotProperty = (v: unknown): v is { not: unknown } =>
+    typeof v === 'object' && v !== null && 'not' in v
+
+  const filterUnsupportedProps = (obj: unknown): unknown => {
+    if (obj === null || typeof obj !== 'object') {
+      return obj
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(filterUnsupportedProps)
+    }
+    const filtered: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(obj)) {
+      if (unsupportedProps.has(key)) {
+        continue
+      }
+      // Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject)
+      if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
+        continue
+      }
+      // Filter out not.not (nested not with boolean)
+      if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
+        continue
+      }
+      // Convert non-string values in required array to strings (YAML may parse null/true/false as literals)
+      if (key === 'required' && Array.isArray(value)) {
+        filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
+        continue
+      }
+      // Skip properties with too many keys to avoid TypeScript overload resolution issues
+      if (
+        key === 'properties' &&
+        typeof value === 'object' &&
+        value !== null &&
+        Object.keys(value).length > 50
+      ) {
+        continue
+      }
+      filtered[key] = filterUnsupportedProps(value)
+    }
+    return filtered
+  }
+
   const formatLiteral = (v: unknown): string => {
     /* boolean true or false */
     if (typeof v === 'boolean') {
@@ -45,7 +110,7 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  const args = Object.fromEntries(
+  const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
       ([k, v]) =>
         k !== 'nullable' &&
@@ -54,6 +119,7 @@ export function wrap(
         !(k === 'required' && typeof v === 'boolean'),
     ),
   )
+  const args = filterUnsupportedProps(baseArgs)
 
   const headerMetaProps = meta?.headers
     ? [
@@ -76,10 +142,12 @@ export function wrap(
     : []
 
   const openapiSchema = args ? JSON.stringify(args) : undefined
+  // {"type":"string"} → type:string
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
+
   const openapiProps = [
     meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
     ...headerMetaProps,

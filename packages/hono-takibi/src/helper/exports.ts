@@ -22,26 +22,25 @@ export async function makeExports(
 
   const outDir = output.replace(/\.ts$/, '')
 
-  for (const key of keys) {
-    const v = value[key]
-    const name = toIdentifierPascalCase(ensureSuffix(key, suffix))
-    const body = `export const ${name} = ${JSON.stringify(v ?? {})}\n`
-    const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
-    const result = await core(body, path.dirname(filePath), filePath)
-    if (!result.ok) return { ok: false, error: result.error }
-  }
-
   // sort abc
-  const code = `${keys
+  const indexCode = `${keys
     .sort()
     .map((v) => `export * from './${lowerFirst(v)}.ts'`)
     .join('\n')}\n`
-  const coreResult = await core(
-    code,
-    path.dirname(path.join(outDir, 'index.ts')),
-    path.join(outDir, 'index.ts'),
-  )
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
+
+  const results = await Promise.all([
+    ...keys.map((key) => {
+      const v = value[key]
+      const name = toIdentifierPascalCase(ensureSuffix(key, suffix))
+      const body = `export const ${name} = ${JSON.stringify(v ?? {})}\n`
+      const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
+      return core(body, path.dirname(filePath), filePath)
+    }),
+    core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+  ])
+
+  const firstError = results.find((r) => !r.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
 
   return {
     ok: true,

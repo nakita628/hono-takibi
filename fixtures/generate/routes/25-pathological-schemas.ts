@@ -43,12 +43,15 @@ const ContradictionsSchema = z
       .exactOptional()
       .openapi({ type: 'string', enum: ['other1', 'other2'] }),
     typeConflictAllOf: z
-      .intersection(z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' }))
+      .string()
+      .openapi({ type: 'string' })
+      .and(z.number().openapi({ type: 'number' }))
       .exactOptional()
       .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
     formatTypeMismatch: z.int().exactOptional().openapi({ type: 'integer', format: 'email' }),
     multipleConst: z
-      .intersection(z.literal('value1'), z.literal('value2'))
+      .literal('value1')
+      .and(z.literal('value2'))
       .exactOptional()
       .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
   })
@@ -133,14 +136,8 @@ const AmbiguousSchemasSchema = z
   .object({
     noType: z.any().exactOptional().openapi({ description: 'Schema with no type constraint' }),
     empty: z.any().exactOptional(),
-    justFalse: z
-      .any()
-      .exactOptional()
-      .openapi({ not: { not: false } }),
-    justTrue: z
-      .any()
-      .exactOptional()
-      .openapi({ not: { not: true } }),
+    justFalse: z.any().exactOptional(),
+    justTrue: z.any().exactOptional(),
     deepAny: z
       .union([
         z
@@ -154,7 +151,7 @@ const AmbiguousSchemasSchema = z
       .exactOptional()
       .openapi({ anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] }),
     overlappingOneOf: z
-      .union([
+      .xor([
         z
           .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
@@ -189,7 +186,7 @@ const AmbiguousSchemasSchema = z
         anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
       }),
     ambiguousDiscriminator: z
-      .union([
+      .discriminatedUnion('type', [
         z
           .object({
             type: z
@@ -221,8 +218,8 @@ const AmbiguousSchemasSchema = z
     properties: {
       noType: { description: 'Schema with no type constraint' },
       empty: {},
-      justFalse: { not: { not: false } },
-      justTrue: { not: { not: true } },
+      justFalse: {},
+      justTrue: {},
       deepAny: { anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] },
       overlappingOneOf: {
         oneOf: [
@@ -936,203 +933,148 @@ const EdgeCasesSchema = z
   })
   .openapi('EdgeCases')
 
-const RecursiveASchema: z.ZodType<RecursiveAType> = z
+const RecursiveNightmaresSchema: z.ZodType<RecursiveNightmaresType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().exactOptional().openapi({ type: 'string' }),
-        refB: RecursiveBSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          value: { type: 'string' },
-          refB: { $ref: '#/components/schemas/RecursiveB' },
-        },
-      }),
-  )
-  .openapi('RecursiveA')
-
-const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-        children: z
-          .array(ConstrainedTreeSchema)
-          .max(10)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          }),
-        parent: ConstrainedTreeSchema.exactOptional(),
-        siblings: z
-          .array(ConstrainedTreeSchema)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string', minLength: 1, maxLength: 100 },
-          children: {
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          },
-          parent: { $ref: '#/components/schemas/ConstrainedTree' },
-          siblings: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          },
-        },
-      }),
-  )
-  .openapi('ConstrainedTree')
-
-const RecursiveNightmaresSchema = z
-  .object({
-    mutuallyRecursive: RecursiveASchema.exactOptional(),
-    constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
-    recursiveInAllOf: z
-      .intersection(
-        z
+        mutuallyRecursive: RecursiveASchema.exactOptional(),
+        constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
+        recursiveInAllOf: z
           .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
-        z
-          .object({ child: RecursiveInAllOfSchema.exactOptional() })
+          .openapi({ type: 'object', properties: { value: { type: 'string' } } })
+          .and(
+            z
+              .object({ child: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
+              .openapi({
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              }),
+          )
+          .exactOptional()
+          .openapi({
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              },
+            ],
+          }),
+        recursiveInOneOf: z
+          .xor([
+            z.string().openapi({ type: 'string' }),
+            z
+              .object({ nested: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
+              .openapi({
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              }),
+          ])
+          .exactOptional()
+          .openapi({
+            oneOf: [
+              { type: 'string' },
+              {
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              },
+            ],
+          }),
+        recursiveMap: z
+          .record(
+            z.string(),
+            z.lazy(() => RecursiveNightmaresSchema),
+          )
+          .exactOptional()
           .openapi({
             type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
+            additionalProperties: {
+              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
             },
           }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveInOneOf: z
-      .union([
-        z.string().openapi({ type: 'string' }),
-        z
-          .object({ nested: RecursiveInOneOfSchema.exactOptional() })
-          .openapi({
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveMap: z
-      .record(z.string(), RecursiveMapSchema)
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      }),
-    recursiveArray: z
-      .array(
-        z
-          .array(RecursiveArraySchema)
+        recursiveArray: z
+          .array(
+            z
+              .array(z.lazy(() => RecursiveNightmaresSchema))
+              .openapi({
+                type: 'array',
+                items: {
+                  $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray',
+                },
+              }),
+          )
+          .exactOptional()
           .openapi({
             type: 'array',
-            items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+            },
           }),
-      )
-      .exactOptional()
+      })
       .openapi({
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+        type: 'object',
+        properties: {
+          mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
+          constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
+          recursiveInAllOf: {
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              },
+            ],
+          },
+          recursiveInOneOf: {
+            oneOf: [
+              { type: 'string' },
+              {
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              },
+            ],
+          },
+          recursiveMap: {
+            type: 'object',
+            additionalProperties: {
+              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+            },
+          },
+          recursiveArray: {
+            type: 'array',
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+            },
+          },
         },
       }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
-      constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
-      recursiveInAllOf: {
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveInOneOf: {
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveMap: {
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      },
-      recursiveArray: {
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-        },
-      },
-    },
-  })
+  )
   .openapi('RecursiveNightmares')
 
 const DiscrimASchema = z
@@ -1174,39 +1116,36 @@ const DiscrimCSchema = z
 const CompositionHellSchema = z
   .object({
     nestedAllOf: z
-      .intersection(
+      .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { a: { type: 'string' } } })
+      .and(
         z
-          .intersection(
-            z
-              .intersection(
-                z
-                  .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-                  .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
-                z
-                  .object({ b: z.string().exactOptional().openapi({ type: 'string' }) })
-                  .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
-              )
-              .openapi({
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              }),
-            z
-              .object({ c: z.string().exactOptional().openapi({ type: 'string' }) })
-              .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
-          )
-          .openapi({
+          .object({ b: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
+      )
+      .openapi({
+        allOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'string' } } },
+        ],
+      })
+      .and(
+        z
+          .object({ c: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
+      )
+      .openapi({
+        allOf: [
+          {
             allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
+              { type: 'object', properties: { a: { type: 'string' } } },
+              { type: 'object', properties: { b: { type: 'string' } } },
             ],
-          }),
+          },
+          { type: 'object', properties: { c: { type: 'string' } } },
+        ],
+      })
+      .and(
         z
           .object({ d: z.string().exactOptional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
@@ -1229,9 +1168,9 @@ const CompositionHellSchema = z
         ],
       }),
     nestedOneOf: z
-      .union([
+      .xor([
         z
-          .union([
+          .xor([
             z.literal('deep1').openapi({ type: 'string' }),
             z.literal('deep2').openapi({ type: 'string' }),
           ])
@@ -1242,10 +1181,7 @@ const CompositionHellSchema = z
             ],
           }),
         z
-          .union([
-            z.literal(1).openapi({ type: 'number' }),
-            z.literal(2).openapi({ type: 'number' }),
-          ])
+          .xor([z.literal(1).openapi({ type: 'number' }), z.literal(2).openapi({ type: 'number' })])
           .openapi({
             oneOf: [
               { type: 'number', const: 1 },
@@ -1290,29 +1226,28 @@ const CompositionHellSchema = z
         ],
       }),
     allMixed: z
-      .intersection(
+      .xor([
+        z
+          .union([z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' })])
+          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
         z
           .union([
-            z
-              .union([
-                z.string().openapi({ type: 'string' }),
-                z.number().openapi({ type: 'number' }),
-              ])
-              .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-            z
-              .union([
-                z.boolean().openapi({ type: 'boolean' }),
-                z.null().nullable().openapi({ type: 'null' }),
-              ])
-              .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+            z.boolean().openapi({ type: 'boolean' }),
+            z.null().nullable().openapi({ type: 'null' }),
           ])
-          .openapi({
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          }),
-        z.any().openapi({ not: { const: null } }),
+          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+      ])
+      .openapi({
+        oneOf: [
+          { anyOf: [{ type: 'string' }, { type: 'number' }] },
+          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+        ],
+      })
+      .and(
+        z
+          .any()
+          .refine((v) => v !== null)
+          .openapi({ not: { const: null } }),
       )
       .exactOptional()
       .openapi({
@@ -1327,31 +1262,13 @@ const CompositionHellSchema = z
         ],
       }),
     conditionalInAllOf: z
-      .intersection(
-        z
-          .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { type: { type: 'string' } } }),
-        z
-          .any()
-          .openapi({
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          }),
-      )
+      .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { type: { type: 'string' } } })
+      .and(z.any())
       .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
-      }),
+      .openapi({ allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}] }),
     multiDiscriminator: z
-      .union([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
+      .discriminatedUnion('kind', [DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -1400,7 +1317,7 @@ const CompositionHellSchema = z
         ],
       }),
     overlappingSchemas: z
-      .union([
+      .xor([
         z
           .object({
             a: z.string().openapi({ type: 'string' }),
@@ -1506,14 +1423,7 @@ const CompositionHellSchema = z
         ],
       },
       conditionalInAllOf: {
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
+        allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}],
       },
       multiDiscriminator: {
         oneOf: [
@@ -1582,6 +1492,77 @@ const PathologicalRootSchema = z
     },
   })
   .openapi('PathologicalRoot')
+
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().exactOptional().openapi({ type: 'string' }),
+        refB: RecursiveBSchema.exactOptional(),
+      })
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          refB: { $ref: '#/components/schemas/RecursiveB' },
+        },
+      }),
+  )
+  .openapi('RecursiveA')
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+        children: z
+          .array(ConstrainedTreeSchema)
+          .max(10)
+          .exactOptional()
+          .openapi({
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          }),
+        parent: ConstrainedTreeSchema.exactOptional(),
+        siblings: z
+          .array(ConstrainedTreeSchema)
+          .exactOptional()
+          .openapi({
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: { type: 'string', minLength: 1, maxLength: 100 },
+          children: {
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          },
+          parent: { $ref: '#/components/schemas/ConstrainedTree' },
+          siblings: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          },
+        },
+      }),
+  )
+  .openapi('ConstrainedTree')
+
+type RecursiveNightmaresType = {
+  mutuallyRecursive?: z.infer<typeof RecursiveASchema>
+  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
+  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
+  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
+  recursiveMap?: Record<string, RecursiveNightmaresType>
+  recursiveArray?: unknown[]
+}
 
 const RecursiveBSchema: z.ZodType<RecursiveBType> = z
   .lazy(() =>

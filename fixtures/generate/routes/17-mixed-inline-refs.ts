@@ -427,7 +427,7 @@ const CreateOrderInputSchema = z
     shippingAddress: AddressSchema.exactOptional(),
     billingAddress: AddressSchema.exactOptional(),
     paymentMethod: z
-      .union([CreditCardPaymentSchema, BankTransferPaymentSchema])
+      .xor([CreditCardPaymentSchema, BankTransferPaymentSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -619,7 +619,7 @@ const FilterExpressionSchema = z
       .exactOptional()
       .openapi({ type: 'string', enum: ['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'contains'] }),
     value: z
-      .union([
+      .xor([
         z.string().openapi({ type: 'string' }),
         z.number().openapi({ type: 'number' }),
         z
@@ -1008,34 +1008,31 @@ export const postUsersRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .intersection(
-              CreateUserInputSchema,
-              z
-                .object({
-                  invitationCode: z.string().exactOptional().openapi({ type: 'string' }),
-                  preferences: UserPreferencesSchema.exactOptional(),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    invitationCode: { type: 'string' },
-                    preferences: { $ref: '#/components/schemas/UserPreferences' },
-                  },
-                }),
-            )
-            .openapi({
-              allOf: [
-                { $ref: '#/components/schemas/CreateUserInput' },
-                {
-                  type: 'object',
-                  properties: {
-                    invitationCode: { type: 'string' },
-                    preferences: { $ref: '#/components/schemas/UserPreferences' },
-                  },
+          schema: CreateUserInputSchema.and(
+            z
+              .object({
+                invitationCode: z.string().exactOptional().openapi({ type: 'string' }),
+                preferences: UserPreferencesSchema.exactOptional(),
+              })
+              .openapi({
+                type: 'object',
+                properties: {
+                  invitationCode: { type: 'string' },
+                  preferences: { $ref: '#/components/schemas/UserPreferences' },
                 },
-              ],
-            }),
+              }),
+          ).openapi({
+            allOf: [
+              { $ref: '#/components/schemas/CreateUserInput' },
+              {
+                type: 'object',
+                properties: {
+                  invitationCode: { type: 'string' },
+                  preferences: { $ref: '#/components/schemas/UserPreferences' },
+                },
+              },
+            ],
+          }),
         },
       },
     },
@@ -1128,7 +1125,7 @@ export const postOrdersRoute = createRoute({
             .object({
               order: OrderSchema,
               payment: z
-                .union([
+                .xor([
                   CreditCardPaymentSchema,
                   BankTransferPaymentSchema,
                   z
@@ -1218,220 +1215,208 @@ export const getProductsProductIdVariantsRoute = createRoute({
         'application/json': {
           schema: z
             .array(
-              z
-                .intersection(
-                  ProductVariantSchema,
-                  z
-                    .object({
-                      pricing: z
-                        .intersection(
-                          PriceSchema,
-                          z
-                            .object({
-                              discounts: z
-                                .array(DiscountSchema)
-                                .exactOptional()
-                                .openapi({
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/Discount' },
-                                }),
-                            })
-                            .openapi({
-                              type: 'object',
-                              properties: {
-                                discounts: {
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/Discount' },
-                                },
-                              },
-                            }),
-                        )
-                        .exactOptional()
-                        .openapi({
-                          allOf: [
-                            { $ref: '#/components/schemas/Price' },
-                            {
-                              type: 'object',
-                              properties: {
-                                discounts: {
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/Discount' },
-                                },
-                              },
-                            },
-                          ],
-                        }),
-                      availability: z
+              ProductVariantSchema.and(
+                z
+                  .object({
+                    pricing: PriceSchema.and(
+                      z
                         .object({
-                          inStock: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-                          quantity: z.int().exactOptional().openapi({ type: 'integer' }),
-                          warehouses: z
-                            .array(
-                              z
-                                .intersection(
-                                  WarehouseSchema,
-                                  z
-                                    .object({
-                                      localQuantity: z
-                                        .int()
-                                        .exactOptional()
-                                        .openapi({ type: 'integer' }),
-                                      estimatedDelivery: DateRangeSchema.exactOptional(),
-                                    })
-                                    .openapi({
-                                      type: 'object',
-                                      properties: {
-                                        localQuantity: { type: 'integer' },
-                                        estimatedDelivery: {
-                                          $ref: '#/components/schemas/DateRange',
-                                        },
-                                      },
-                                    }),
-                                )
-                                .openapi({
-                                  allOf: [
-                                    { $ref: '#/components/schemas/Warehouse' },
-                                    {
-                                      type: 'object',
-                                      properties: {
-                                        localQuantity: { type: 'integer' },
-                                        estimatedDelivery: {
-                                          $ref: '#/components/schemas/DateRange',
-                                        },
-                                      },
-                                    },
-                                  ],
-                                }),
-                            )
+                          discounts: z
+                            .array(DiscountSchema)
                             .exactOptional()
                             .openapi({
                               type: 'array',
-                              items: {
-                                allOf: [
-                                  { $ref: '#/components/schemas/Warehouse' },
-                                  {
-                                    type: 'object',
-                                    properties: {
-                                      localQuantity: { type: 'integer' },
-                                      estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                    },
-                                  },
-                                ],
-                              },
+                              items: { $ref: '#/components/schemas/Discount' },
                             }),
                         })
-                        .exactOptional()
                         .openapi({
                           type: 'object',
                           properties: {
-                            inStock: { type: 'boolean' },
-                            quantity: { type: 'integer' },
-                            warehouses: {
+                            discounts: {
                               type: 'array',
-                              items: {
-                                allOf: [
-                                  { $ref: '#/components/schemas/Warehouse' },
-                                  {
-                                    type: 'object',
-                                    properties: {
-                                      localQuantity: { type: 'integer' },
-                                      estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                    },
-                                  },
-                                ],
-                              },
+                              items: { $ref: '#/components/schemas/Discount' },
                             },
                           },
                         }),
-                    })
-                    .openapi({
-                      type: 'object',
-                      properties: {
-                        pricing: {
-                          allOf: [
-                            { $ref: '#/components/schemas/Price' },
-                            {
-                              type: 'object',
-                              properties: {
-                                discounts: {
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/Discount' },
-                                },
-                              },
-                            },
-                          ],
-                        },
-                        availability: {
-                          type: 'object',
-                          properties: {
-                            inStock: { type: 'boolean' },
-                            quantity: { type: 'integer' },
-                            warehouses: {
-                              type: 'array',
-                              items: {
-                                allOf: [
-                                  { $ref: '#/components/schemas/Warehouse' },
-                                  {
-                                    type: 'object',
-                                    properties: {
-                                      localQuantity: { type: 'integer' },
-                                      estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                    },
-                                  },
-                                ],
+                    )
+                      .exactOptional()
+                      .openapi({
+                        allOf: [
+                          { $ref: '#/components/schemas/Price' },
+                          {
+                            type: 'object',
+                            properties: {
+                              discounts: {
+                                type: 'array',
+                                items: { $ref: '#/components/schemas/Discount' },
                               },
                             },
                           },
-                        },
-                      },
-                    }),
-                )
-                .openapi({
-                  allOf: [
-                    { $ref: '#/components/schemas/ProductVariant' },
-                    {
-                      type: 'object',
-                      properties: {
-                        pricing: {
-                          allOf: [
-                            { $ref: '#/components/schemas/Price' },
-                            {
-                              type: 'object',
-                              properties: {
-                                discounts: {
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/Discount' },
+                        ],
+                      }),
+                    availability: z
+                      .object({
+                        inStock: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+                        quantity: z.int().exactOptional().openapi({ type: 'integer' }),
+                        warehouses: z
+                          .array(
+                            WarehouseSchema.and(
+                              z
+                                .object({
+                                  localQuantity: z
+                                    .int()
+                                    .exactOptional()
+                                    .openapi({ type: 'integer' }),
+                                  estimatedDelivery: DateRangeSchema.exactOptional(),
+                                })
+                                .openapi({
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
+                                  },
+                                }),
+                            ).openapi({
+                              allOf: [
+                                { $ref: '#/components/schemas/Warehouse' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
+                                  },
                                 },
+                              ],
+                            }),
+                          )
+                          .exactOptional()
+                          .openapi({
+                            type: 'array',
+                            items: {
+                              allOf: [
+                                { $ref: '#/components/schemas/Warehouse' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
+                                  },
+                                },
+                              ],
+                            },
+                          }),
+                      })
+                      .exactOptional()
+                      .openapi({
+                        type: 'object',
+                        properties: {
+                          inStock: { type: 'boolean' },
+                          quantity: { type: 'integer' },
+                          warehouses: {
+                            type: 'array',
+                            items: {
+                              allOf: [
+                                { $ref: '#/components/schemas/Warehouse' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      }),
+                  })
+                  .openapi({
+                    type: 'object',
+                    properties: {
+                      pricing: {
+                        allOf: [
+                          { $ref: '#/components/schemas/Price' },
+                          {
+                            type: 'object',
+                            properties: {
+                              discounts: {
+                                type: 'array',
+                                items: { $ref: '#/components/schemas/Discount' },
                               },
                             },
-                          ],
-                        },
-                        availability: {
-                          type: 'object',
-                          properties: {
-                            inStock: { type: 'boolean' },
-                            quantity: { type: 'integer' },
-                            warehouses: {
-                              type: 'array',
-                              items: {
-                                allOf: [
-                                  { $ref: '#/components/schemas/Warehouse' },
-                                  {
-                                    type: 'object',
-                                    properties: {
-                                      localQuantity: { type: 'integer' },
-                                      estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                    },
+                          },
+                        ],
+                      },
+                      availability: {
+                        type: 'object',
+                        properties: {
+                          inStock: { type: 'boolean' },
+                          quantity: { type: 'integer' },
+                          warehouses: {
+                            type: 'array',
+                            items: {
+                              allOf: [
+                                { $ref: '#/components/schemas/Warehouse' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
                                   },
-                                ],
-                              },
+                                },
+                              ],
                             },
                           },
                         },
                       },
                     },
-                  ],
-                }),
+                  }),
+              ).openapi({
+                allOf: [
+                  { $ref: '#/components/schemas/ProductVariant' },
+                  {
+                    type: 'object',
+                    properties: {
+                      pricing: {
+                        allOf: [
+                          { $ref: '#/components/schemas/Price' },
+                          {
+                            type: 'object',
+                            properties: {
+                              discounts: {
+                                type: 'array',
+                                items: { $ref: '#/components/schemas/Discount' },
+                              },
+                            },
+                          },
+                        ],
+                      },
+                      availability: {
+                        type: 'object',
+                        properties: {
+                          inStock: { type: 'boolean' },
+                          quantity: { type: 'integer' },
+                          warehouses: {
+                            type: 'array',
+                            items: {
+                              allOf: [
+                                { $ref: '#/components/schemas/Warehouse' },
+                                {
+                                  type: 'object',
+                                  properties: {
+                                    localQuantity: { type: 'integer' },
+                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                ],
+              }),
             )
             .openapi({
               type: 'array',
@@ -1517,7 +1502,7 @@ export const postReportsGenerateRoute = createRoute({
                         .record(
                           z.string(),
                           z
-                            .union([
+                            .xor([
                               z.string().openapi({ type: 'string' }),
                               z.number().openapi({ type: 'number' }),
                               FilterExpressionSchema,
@@ -1678,7 +1663,7 @@ export const postWebhooksTestRoute = createRoute({
                 .object({
                   event: WebhookEventSchema.exactOptional(),
                   data: z
-                    .union([
+                    .xor([
                       UserSchema,
                       OrderSchema,
                       OrganizationSchema,
@@ -1746,60 +1731,52 @@ export const postWebhooksTestRoute = createRoute({
                         },
                       ],
                     }),
-                  context: z
-                    .intersection(
-                      RequestContextSchema,
-                      z
-                        .object({
-                          testMode: z
-                            .boolean()
-                            .default(true)
-                            .exactOptional()
-                            .openapi({ type: 'boolean', default: true }),
-                          mockResponses: z
-                            .array(
-                              z
-                                .object({
-                                  status: z.int().exactOptional().openapi({ type: 'integer' }),
-                                  body: z.object({}).exactOptional().openapi({ type: 'object' }),
-                                })
-                                .openapi({
-                                  type: 'object',
-                                  properties: {
-                                    status: { type: 'integer' },
-                                    body: { type: 'object' },
-                                  },
-                                }),
-                            )
-                            .exactOptional()
-                            .openapi({
-                              type: 'array',
-                              items: {
+                  context: RequestContextSchema.and(
+                    z
+                      .object({
+                        testMode: z
+                          .boolean()
+                          .default(true)
+                          .exactOptional()
+                          .openapi({ type: 'boolean', default: true }),
+                        mockResponses: z
+                          .array(
+                            z
+                              .object({
+                                status: z.int().exactOptional().openapi({ type: 'integer' }),
+                                body: z.object({}).exactOptional().openapi({ type: 'object' }),
+                              })
+                              .openapi({
                                 type: 'object',
                                 properties: {
                                   status: { type: 'integer' },
                                   body: { type: 'object' },
                                 },
-                              },
-                            }),
-                        })
-                        .openapi({
-                          type: 'object',
-                          properties: {
-                            testMode: { type: 'boolean', default: true },
-                            mockResponses: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: {
-                                  status: { type: 'integer' },
-                                  body: { type: 'object' },
-                                },
-                              },
+                              }),
+                          )
+                          .exactOptional()
+                          .openapi({
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: { status: { type: 'integer' }, body: { type: 'object' } },
+                            },
+                          }),
+                      })
+                      .openapi({
+                        type: 'object',
+                        properties: {
+                          testMode: { type: 'boolean', default: true },
+                          mockResponses: {
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              properties: { status: { type: 'integer' }, body: { type: 'object' } },
                             },
                           },
-                        }),
-                    )
+                        },
+                      }),
+                  )
                     .exactOptional()
                     .openapi({
                       allOf: [

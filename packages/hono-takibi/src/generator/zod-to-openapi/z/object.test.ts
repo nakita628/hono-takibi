@@ -45,7 +45,6 @@ describe('object', () => {
       },
       'z.strictObject({test:z.string().openapi({"type":"string"})})',
     ],
-
     [
       {
         type: 'object',
@@ -58,6 +57,17 @@ describe('object', () => {
         additionalProperties: true,
       },
       'z.looseObject({test:z.string().openapi({"type":"string"})})',
+    ],
+    [
+      {
+        type: 'object',
+        properties: {
+          test: {
+            type: 'string',
+          },
+        },
+      },
+      'z.object({test:z.string().exactOptional().openapi({"type":"string"})})',
     ],
   ])('object(%o) → %s', (input, expected) => {
     expect(object(input)).toBe(expected)

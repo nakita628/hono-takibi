@@ -23,68 +23,30 @@ export function zodToOpenAPI(
   /* combinators */
   /** allOf */
   if (schema.allOf !== undefined) {
-    if (!schema.allOf || schema.allOf.length === 0) {
-      return wrap('z.any()', schema, meta)
-    }
-    const { allOfSchemas, nullable, onlyRefSchemas } = schema.allOf.reduce<{
-      allOfSchemas: string[]
-      nullable: boolean
-      onlyRefSchemas: boolean
-    }>(
-      (acc, s) => {
-        const isOnlyNullable =
-          (typeof s === 'object' && s.type === 'null') ||
-          (typeof s === 'object' && s?.nullable === true && Object.keys(s).length === 1)
+    if (!schema.allOf?.length) return wrap('z.any()', schema, meta)
 
-        if (isOnlyNullable) {
-          return {
-            allOfSchemas: acc.allOfSchemas,
-            nullable: true,
-            onlyRefSchemas: acc.onlyRefSchemas,
-          }
-        }
+    const isNullType = (s: Schema) =>
+      s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
+    const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
+    const nullable =
+      schema.nullable === true ||
+      (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
+      schema.allOf.some(isNullType)
 
-        if (s.$ref && Object.keys(s).length === 1 && s.$ref) {
-          return {
-            allOfSchemas: [...acc.allOfSchemas, makeRef(s.$ref)],
-            nullable: acc.nullable,
-            onlyRefSchemas: acc.onlyRefSchemas,
-          }
-        }
+    const nonNull = schema.allOf.filter((s) => !isNullType(s))
+    if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
 
-        const z = zodToOpenAPI(s, meta)
-        return {
-          allOfSchemas: [...acc.allOfSchemas, z],
-          nullable: acc.nullable,
-          onlyRefSchemas: false,
-        }
-      },
-      {
-        allOfSchemas: [],
-        nullable:
-          schema.nullable === true ||
-          (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null'),
-        onlyRefSchemas: true,
-      },
+    const schemas = nonNull.map((s) =>
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta),
     )
-    const isBareAllOf = Object.keys(schema).every(
-      (key) => key === 'allOf' || key === 'nullable' || key === 'type',
-    )
-    if (allOfSchemas.length === 0) {
-      return wrap('z.any()', { ...schema, nullable }, meta)
-    }
-    if (allOfSchemas.length === 1) {
-      if (onlyRefSchemas && isBareAllOf) {
-        return nullable ? `${allOfSchemas[0]}.nullable()` : allOfSchemas[0]
-      }
-      return wrap(allOfSchemas[0], { ...schema, nullable }, meta)
-    }
-    // z.intersection only accepts 2 arguments, so use .and() chain for 3+
-    const z =
-      allOfSchemas.length === 2
-        ? `z.intersection(${allOfSchemas[0]},${allOfSchemas[1]})`
-        : allOfSchemas.slice(1).reduce((acc, s) => `${acc}.and(${s})`, allOfSchemas[0])
-    return wrap(z, schema, meta)
+    const isBareRef =
+      schemas.length === 1 &&
+      nonNull.every(isRefOnly) &&
+      Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
+    if (isBareRef) return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+
+    const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
+    return wrap(z, { ...schema, nullable }, meta)
   }
   /* anyOf */
   if (schema.anyOf !== undefined) {
@@ -107,6 +69,8 @@ export function zodToOpenAPI(
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return wrap('z.any()', schema, meta)
     }
+    // Check if any oneOf member uses allOf (would create ZodIntersection)
+    const hasAllOf = schema.oneOf.some((s) => s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) => {
       if (s.$ref && Object.keys(s).length === 1) {
         if (s.$ref) {
@@ -115,34 +79,59 @@ export function zodToOpenAPI(
       }
       return zodToOpenAPI(s, meta)
     })
-    // discriminatedUnion Support hesitant
-    // This is because using intersection causes a type error.
-    // const discriminator = schema.discriminator?.propertyName
-    // const z = discriminator
-    //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
-    //   : `z.union([${schemas.join(',')}])`
-    // return wrap(z, schema, paramName, paramIn)
-    const z = `z.union([${oneOfSchemas.join(',')}])`
+    const discriminator = schema.discriminator?.propertyName
+    // Use z.xor instead of discriminatedUnion when allOf is present (ZodIntersection not compatible)
+    const z =
+      discriminator && !hasAllOf
+        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
+        : `z.xor([${oneOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
   }
   /* not */
   if (schema.not !== undefined) {
-    if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
-      const predicate = `(v) => typeof v !== '${schema.not.type}'`
-      const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, meta)
+    const typePredicates: Record<string, string> = {
+      string: `(v) => typeof v !== 'string'`,
+      number: `(v) => typeof v !== 'number'`,
+      integer: `(v) => typeof v !== 'number' || !Number.isInteger(v)`,
+      boolean: `(v) => typeof v !== 'boolean'`,
+      array: '(v) => !Array.isArray(v)',
+      object: `(v) => typeof v !== 'object' || v === null || Array.isArray(v)`,
+      null: '(v) => v !== null',
     }
+    // 1. not.const
+    if (typeof schema.not === 'object' && 'const' in schema.not) {
+      const value = JSON.stringify(schema.not.const)
+      const predicate = `(v) => v !== ${value}`
+      return wrap(`z.any().refine(${predicate})`, schema, meta)
+    }
+    // 2. not.type (single type)
+    if (typeof schema.not === 'object' && typeof schema.not.type === 'string') {
+      const predicate = typePredicates[schema.not.type]
+      if (predicate) {
+        return wrap(`z.any().refine(${predicate})`, schema, meta)
+      }
+    }
+    // 3. not.enum
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
-      const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, meta)
+      return wrap(`z.any().refine(${predicate})`, schema, meta)
     }
+    // 4. fallback
     return wrap('z.any()', schema, meta)
   }
   /* const */
   if (schema.const !== undefined) {
-    const z = `z.literal(${JSON.stringify(schema.const)})`
+    const value = schema.const
+    // z.literal only supports primitives in Zod 4
+    const isPrimitive =
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    const z = isPrimitive
+      ? `z.literal(${JSON.stringify(value)})`
+      : `z.custom<${JSON.stringify(value)}>()`
     return wrap(z, schema, meta)
   }
   /* enum */

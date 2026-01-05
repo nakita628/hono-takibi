@@ -65,133 +65,138 @@ export async function honoTakibi(): Promise<
   const components = zo?.components
   const schemaTarget = components?.schemas
 
-  const takibiResult = zo?.output
-    ? await takibi(openAPI, zo.output, false, false, '/', {
-        exportSchemasTypes: zo.exportSchemasTypes ?? false,
-        exportSchemas: zo.exportSchemas ?? false,
-        exportParametersTypes: zo.exportParametersTypes ?? false,
-        exportParameters: zo.exportParameters ?? false,
-        exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
-        exportRequestBodies: zo.exportRequestBodies ?? false,
-        exportResponses: zo.exportResponses ?? false,
-        exportHeadersTypes: zo.exportHeadersTypes ?? false,
-        exportHeaders: zo.exportHeaders ?? false,
-        exportExamples: zo.exportExamples ?? false,
-        exportLinks: zo.exportLinks ?? false,
-        exportCallbacks: zo.exportCallbacks ?? false,
-      })
-    : undefined
+  const [
+    takibiResult,
+    schemaResult,
+    parameterResult,
+    headersResult,
+    examplesResult,
+    linksResult,
+    callbacksResult,
+    securitySchemesResult,
+    requestBodiesResult,
+    responsesResult,
+    routeResult,
+    typeResult,
+    rpcResult,
+  ] = await Promise.all([
+    zo?.output
+      ? takibi(openAPI, zo.output, false, false, '/', {
+          exportSchemasTypes: zo.exportSchemasTypes ?? false,
+          exportSchemas: zo.exportSchemas ?? false,
+          exportParametersTypes: zo.exportParametersTypes ?? false,
+          exportParameters: zo.exportParameters ?? false,
+          exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
+          exportRequestBodies: zo.exportRequestBodies ?? false,
+          exportResponses: zo.exportResponses ?? false,
+          exportHeadersTypes: zo.exportHeadersTypes ?? false,
+          exportHeaders: zo.exportHeaders ?? false,
+          exportExamples: zo.exportExamples ?? false,
+          exportLinks: zo.exportLinks ?? false,
+          exportCallbacks: zo.exportCallbacks ?? false,
+        })
+      : Promise.resolve(undefined),
+    components?.schemas
+      ? schemas(
+          openAPI,
+          components.schemas.output,
+          components.schemas.exportTypes ?? false,
+          components.schemas.split ?? false,
+        )
+      : Promise.resolve(undefined),
+    components?.parameters
+      ? componentsCore(
+          { parameters: openAPI.components?.parameters ?? {} },
+          'Parameter',
+          components.parameters.output,
+          components.parameters.split ?? false,
+          components.parameters.exportTypes ?? false,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+      : Promise.resolve(undefined),
+    components?.headers
+      ? componentsCore(
+          { headers: openAPI.components?.headers ?? {} },
+          'Header',
+          components.headers.output,
+          components.headers.split ?? false,
+          components.headers.exportTypes ?? false,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+      : Promise.resolve(undefined),
+    components?.examples
+      ? componentsCore(
+          { examples: openAPI.components?.examples ?? {} },
+          'Example',
+          components.examples.output,
+          components.examples.split ?? false,
+        )
+      : Promise.resolve(undefined),
+    components?.links
+      ? componentsCore(
+          { links: openAPI.components?.links ?? {} },
+          'Link',
+          components.links.output,
+          components.links.split ?? false,
+        )
+      : Promise.resolve(undefined),
+    components?.callbacks
+      ? componentsCore(
+          { callbacks: openAPI.components?.callbacks ?? {} },
+          'Callback',
+          components.callbacks.output,
+          components.callbacks.split ?? false,
+        )
+      : Promise.resolve(undefined),
+    components?.securitySchemes
+      ? componentsCore(
+          { securitySchemes: openAPI.components?.securitySchemes ?? {} },
+          'SecurityScheme',
+          components.securitySchemes.output,
+          components.securitySchemes.split ?? false,
+        )
+      : Promise.resolve(undefined),
+    components?.requestBodies
+      ? componentsCore(
+          { requestBodies: openAPI.components?.requestBodies ?? {} },
+          'RequestBody',
+          components.requestBodies.output,
+          components.requestBodies.split ?? false,
+          undefined,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+      : Promise.resolve(undefined),
+    components?.responses
+      ? componentsCore(
+          { responses: openAPI.components?.responses ?? {} },
+          'Response',
+          components.responses.output,
+          components.responses.split ?? false,
+          undefined,
+          schemaTarget ? { schemas: schemaTarget } : undefined,
+        )
+      : Promise.resolve(undefined),
+    zo?.routes ? route(openAPI, zo.routes, components) : Promise.resolve(undefined),
+    c.type ? type(openAPI, c.type.output) : Promise.resolve(undefined),
+    c.rpc
+      ? rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
+      : Promise.resolve(undefined),
+  ])
+
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
-
-  const schemaResult = components?.schemas
-    ? await schemas(
-        openAPI,
-        components.schemas.output,
-        components.schemas.exportTypes ?? false,
-        components.schemas.split ?? false,
-      )
-    : undefined
   if (schemaResult && !schemaResult.ok) return { ok: false, error: schemaResult.error }
-
-  const parameterResult = components?.parameters
-    ? await componentsCore(
-        { parameters: openAPI.components?.parameters ?? {} },
-        'Parameter',
-        components.parameters.output,
-        components.parameters.split ?? false,
-        components.parameters.exportTypes ?? false,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
-      )
-    : undefined
   if (parameterResult && !parameterResult.ok) return { ok: false, error: parameterResult.error }
-
-  const headersResult = components?.headers
-    ? await componentsCore(
-        { headers: openAPI.components?.headers ?? {} },
-        'Header',
-        components.headers.output,
-        components.headers.split ?? false,
-        components.headers.exportTypes ?? false,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
-      )
-    : undefined
   if (headersResult && !headersResult.ok) return { ok: false, error: headersResult.error }
-
-  const examplesResult = components?.examples
-    ? await componentsCore(
-        { examples: openAPI.components?.examples ?? {} },
-        'Example',
-        components.examples.output,
-        components.examples.split ?? false,
-      )
-    : undefined
   if (examplesResult && !examplesResult.ok) return { ok: false, error: examplesResult.error }
-
-  const linksResult = components?.links
-    ? await componentsCore(
-        { links: openAPI.components?.links ?? {} },
-        'Link',
-        components.links.output,
-        components.links.split ?? false,
-      )
-    : undefined
   if (linksResult && !linksResult.ok) return { ok: false, error: linksResult.error }
-
-  const callbacksResult = components?.callbacks
-    ? await componentsCore(
-        { callbacks: openAPI.components?.callbacks ?? {} },
-        'Callback',
-        components.callbacks.output,
-        components.callbacks.split ?? false,
-      )
-    : undefined
   if (callbacksResult && !callbacksResult.ok) return { ok: false, error: callbacksResult.error }
-
-  const securitySchemesResult = components?.securitySchemes
-    ? await componentsCore(
-        { securitySchemes: openAPI.components?.securitySchemes ?? {} },
-        'SecurityScheme',
-        components.securitySchemes.output,
-        components.securitySchemes.split ?? false,
-      )
-    : undefined
   if (securitySchemesResult && !securitySchemesResult.ok)
     return { ok: false, error: securitySchemesResult.error }
-
-  const requestBodiesResult = components?.requestBodies
-    ? await componentsCore(
-        { requestBodies: openAPI.components?.requestBodies ?? {} },
-        'RequestBody',
-        components.requestBodies.output,
-        components.requestBodies.split ?? false,
-        undefined,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
-      )
-    : undefined
   if (requestBodiesResult && !requestBodiesResult.ok)
     return { ok: false, error: requestBodiesResult.error }
-
-  const responsesResult = components?.responses
-    ? await componentsCore(
-        { responses: openAPI.components?.responses ?? {} },
-        'Response',
-        components.responses.output,
-        components.responses.split ?? false,
-        undefined,
-        schemaTarget ? { schemas: schemaTarget } : undefined,
-      )
-    : undefined
   if (responsesResult && !responsesResult.ok) return { ok: false, error: responsesResult.error }
-
-  const routeResult = zo?.routes ? await route(openAPI, zo.routes, components) : undefined
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
-
-  const typeResult = c.type ? await type(openAPI, c.type.output) : undefined
   if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
-
-  const rpcResult = c.rpc
-    ? await rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
-    : undefined
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
 
   const results = [
