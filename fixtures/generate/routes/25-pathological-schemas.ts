@@ -933,202 +933,148 @@ const EdgeCasesSchema = z
   })
   .openapi('EdgeCases')
 
-const RecursiveASchema: z.ZodType<RecursiveAType> = z
+const RecursiveNightmaresSchema: z.ZodType<RecursiveNightmaresType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().exactOptional().openapi({ type: 'string' }),
-        refB: RecursiveBSchema.exactOptional(),
+        mutuallyRecursive: RecursiveASchema.exactOptional(),
+        constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
+        recursiveInAllOf: z
+          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { value: { type: 'string' } } })
+          .and(
+            z
+              .object({ child: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
+              .openapi({
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              }),
+          )
+          .exactOptional()
+          .openapi({
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              },
+            ],
+          }),
+        recursiveInOneOf: z
+          .xor([
+            z.string().openapi({ type: 'string' }),
+            z
+              .object({ nested: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
+              .openapi({
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              }),
+          ])
+          .exactOptional()
+          .openapi({
+            oneOf: [
+              { type: 'string' },
+              {
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              },
+            ],
+          }),
+        recursiveMap: z
+          .record(
+            z.string(),
+            z.lazy(() => RecursiveNightmaresSchema),
+          )
+          .exactOptional()
+          .openapi({
+            type: 'object',
+            additionalProperties: {
+              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+            },
+          }),
+        recursiveArray: z
+          .array(
+            z
+              .array(z.lazy(() => RecursiveNightmaresSchema))
+              .openapi({
+                type: 'array',
+                items: {
+                  $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray',
+                },
+              }),
+          )
+          .exactOptional()
+          .openapi({
+            type: 'array',
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+            },
+          }),
       })
       .openapi({
         type: 'object',
         properties: {
-          value: { type: 'string' },
-          refB: { $ref: '#/components/schemas/RecursiveB' },
-        },
-      }),
-  )
-  .openapi('RecursiveA')
-
-const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-        children: z
-          .array(ConstrainedTreeSchema)
-          .max(10)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          }),
-        parent: ConstrainedTreeSchema.exactOptional(),
-        siblings: z
-          .array(ConstrainedTreeSchema)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string', minLength: 1, maxLength: 100 },
-          children: {
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
+          constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
+          recursiveInAllOf: {
+            allOf: [
+              { type: 'object', properties: { value: { type: 'string' } } },
+              {
+                type: 'object',
+                properties: {
+                  child: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
+                  },
+                },
+              },
+            ],
           },
-          parent: { $ref: '#/components/schemas/ConstrainedTree' },
-          siblings: {
+          recursiveInOneOf: {
+            oneOf: [
+              { type: 'string' },
+              {
+                type: 'object',
+                properties: {
+                  nested: {
+                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
+                  },
+                },
+              },
+            ],
+          },
+          recursiveMap: {
+            type: 'object',
+            additionalProperties: {
+              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
+            },
+          },
+          recursiveArray: {
             type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
+            },
           },
         },
       }),
   )
-  .openapi('ConstrainedTree')
-
-const RecursiveNightmaresSchema = z
-  .object({
-    mutuallyRecursive: RecursiveASchema.exactOptional(),
-    constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
-    recursiveInAllOf: z
-      .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-      .openapi({ type: 'object', properties: { value: { type: 'string' } } })
-      .and(
-        z
-          .object({ child: RecursiveInAllOfSchema.exactOptional() })
-          .openapi({
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveInOneOf: z
-      .xor([
-        z.string().openapi({ type: 'string' }),
-        z
-          .object({ nested: RecursiveInOneOfSchema.exactOptional() })
-          .openapi({
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      }),
-    recursiveMap: z
-      .record(z.string(), RecursiveMapSchema)
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      }),
-    recursiveArray: z
-      .array(
-        z
-          .array(RecursiveArraySchema)
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-          }),
-      )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-        },
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
-      constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
-      recursiveInAllOf: {
-        allOf: [
-          { type: 'object', properties: { value: { type: 'string' } } },
-          {
-            type: 'object',
-            properties: {
-              child: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveInOneOf: {
-        oneOf: [
-          { type: 'string' },
-          {
-            type: 'object',
-            properties: {
-              nested: {
-                $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-              },
-            },
-          },
-        ],
-      },
-      recursiveMap: {
-        type: 'object',
-        additionalProperties: {
-          $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-        },
-      },
-      recursiveArray: {
-        type: 'array',
-        items: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-        },
-      },
-    },
-  })
   .openapi('RecursiveNightmares')
 
 const DiscrimASchema = z
@@ -1546,6 +1492,77 @@ const PathologicalRootSchema = z
     },
   })
   .openapi('PathologicalRoot')
+
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().exactOptional().openapi({ type: 'string' }),
+        refB: RecursiveBSchema.exactOptional(),
+      })
+      .openapi({
+        type: 'object',
+        properties: {
+          value: { type: 'string' },
+          refB: { $ref: '#/components/schemas/RecursiveB' },
+        },
+      }),
+  )
+  .openapi('RecursiveA')
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+        children: z
+          .array(ConstrainedTreeSchema)
+          .max(10)
+          .exactOptional()
+          .openapi({
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          }),
+        parent: ConstrainedTreeSchema.exactOptional(),
+        siblings: z
+          .array(ConstrainedTreeSchema)
+          .exactOptional()
+          .openapi({
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          }),
+      })
+      .openapi({
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: { type: 'string', minLength: 1, maxLength: 100 },
+          children: {
+            type: 'array',
+            maxItems: 10,
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+          },
+          parent: { $ref: '#/components/schemas/ConstrainedTree' },
+          siblings: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ConstrainedTree' },
+            uniqueItems: true,
+          },
+        },
+      }),
+  )
+  .openapi('ConstrainedTree')
+
+type RecursiveNightmaresType = {
+  mutuallyRecursive?: z.infer<typeof RecursiveASchema>
+  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
+  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
+  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
+  recursiveMap?: Record<string, RecursiveNightmaresType>
+  recursiveArray?: unknown[]
+}
 
 const RecursiveBSchema: z.ZodType<RecursiveBType> = z
   .lazy(() =>
