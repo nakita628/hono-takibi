@@ -22,40 +22,38 @@ const BaseEventSchema = z
   })
   .openapi('BaseEvent')
 
-const UserEventSchema = z
-  .intersection(
-    BaseEventSchema,
-    z
-      .object({
-        eventType: z
-          .enum(['user.created', 'user.updated', 'user.deleted'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] }),
-        userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        userData: z
-          .object({
-            email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
-            name: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['userId'],
-        properties: {
-          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
-          userId: { type: 'string', format: 'uuid' },
-          userData: {
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          },
+const UserEventSchema = BaseEventSchema.and(
+  z
+    .object({
+      eventType: z
+        .enum(['user.created', 'user.updated', 'user.deleted'])
+        .exactOptional()
+        .openapi({ type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] }),
+      userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+      userData: z
+        .object({
+          email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+          name: z.string().exactOptional().openapi({ type: 'string' }),
+        })
+        .exactOptional()
+        .openapi({
+          type: 'object',
+          properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
+        }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['userId'],
+      properties: {
+        eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
+        userId: { type: 'string', format: 'uuid' },
+        userData: {
+          type: 'object',
+          properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/BaseEvent' },
@@ -75,46 +73,38 @@ const UserEventSchema = z
   })
   .openapi('UserEvent')
 
-const OrderEventSchema = z
-  .intersection(
-    BaseEventSchema,
-    z
-      .object({
-        eventType: z
-          .enum(['order.placed', 'order.shipped', 'order.delivered'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] }),
-        orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        orderData: z
-          .object({
-            total: z.float64().exactOptional().openapi({ type: 'number', format: 'float64' }),
-            items: z.int().exactOptional().openapi({ type: 'integer' }),
-          })
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            properties: {
-              total: { type: 'number', format: 'float64' },
-              items: { type: 'integer' },
-            },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['orderId'],
-        properties: {
-          eventType: { type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] },
-          orderId: { type: 'string', format: 'uuid' },
-          orderData: {
-            type: 'object',
-            properties: {
-              total: { type: 'number', format: 'float64' },
-              items: { type: 'integer' },
-            },
-          },
+const OrderEventSchema = BaseEventSchema.and(
+  z
+    .object({
+      eventType: z
+        .enum(['order.placed', 'order.shipped', 'order.delivered'])
+        .exactOptional()
+        .openapi({ type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] }),
+      orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+      orderData: z
+        .object({
+          total: z.float64().exactOptional().openapi({ type: 'number', format: 'float64' }),
+          items: z.int().exactOptional().openapi({ type: 'integer' }),
+        })
+        .exactOptional()
+        .openapi({
+          type: 'object',
+          properties: { total: { type: 'number', format: 'float64' }, items: { type: 'integer' } },
+        }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['orderId'],
+      properties: {
+        eventType: { type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] },
+        orderId: { type: 'string', format: 'uuid' },
+        orderData: {
+          type: 'object',
+          properties: { total: { type: 'number', format: 'float64' }, items: { type: 'integer' } },
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/BaseEvent' },
@@ -137,28 +127,26 @@ const OrderEventSchema = z
   })
   .openapi('OrderEvent')
 
-const SystemEventSchema = z
-  .intersection(
-    BaseEventSchema,
-    z
-      .object({
-        eventType: z
-          .enum(['system.startup', 'system.shutdown'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['system.startup', 'system.shutdown'] }),
-        component: z.string().openapi({ type: 'string' }),
-        details: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['component'],
-        properties: {
-          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
-          component: { type: 'string' },
-          details: { type: 'string' },
-        },
-      }),
-  )
+const SystemEventSchema = BaseEventSchema.and(
+  z
+    .object({
+      eventType: z
+        .enum(['system.startup', 'system.shutdown'])
+        .exactOptional()
+        .openapi({ type: 'string', enum: ['system.startup', 'system.shutdown'] }),
+      component: z.string().openapi({ type: 'string' }),
+      details: z.string().exactOptional().openapi({ type: 'string' }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['component'],
+      properties: {
+        eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
+        component: { type: 'string' },
+        details: { type: 'string' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/BaseEvent' },
@@ -183,7 +171,7 @@ type EventType =
 const EventSchema: z.ZodType<EventType> = z
   .lazy(() =>
     z
-      .union([UserEventSchema, OrderEventSchema, SystemEventSchema])
+      .discriminatedUnion('eventType', [UserEventSchema, OrderEventSchema, SystemEventSchema])
       .openapi({
         oneOf: [
           { $ref: '#/components/schemas/UserEvent' },
@@ -463,7 +451,7 @@ const PolygonSchema = z
   .openapi('Polygon')
 
 const ShapeSchema = z
-  .union([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
+  .xor([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
   .openapi({
     oneOf: [
       { $ref: '#/components/schemas/Circle' },
@@ -584,7 +572,7 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
     z
       .object({
         value: z
-          .union([
+          .xor([
             z.string().openapi({ type: 'string' }),
             z.number().openapi({ type: 'number' }),
             z.boolean().openapi({ type: 'boolean' }),
@@ -616,8 +604,9 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
           .exactOptional()
           .openapi({ not: { type: 'null' } }),
         restrictedValue: z
-          .intersection(
-            z.string().openapi({ type: 'string' }),
+          .string()
+          .openapi({ type: 'string' })
+          .and(
             z
               .any()
               .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
