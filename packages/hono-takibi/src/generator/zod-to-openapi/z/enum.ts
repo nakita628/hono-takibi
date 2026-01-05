@@ -4,6 +4,9 @@ export function _enum(schema: Schema): string {
   /* ht */
   const ht = (t: string): boolean =>
     schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
+  /* isPrimitive - check if value is a valid z.literal primitive */
+  const isPrimitive = (v: unknown): boolean =>
+    v === null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
   /* lit - converts a value to a valid JavaScript literal */
   const lit = (v: unknown): string => {
     if (v === null) return 'null'
@@ -13,6 +16,9 @@ export function _enum(schema: Schema): string {
     // For arrays and objects, use JSON.stringify
     return JSON.stringify(v)
   }
+  /* zLit - wraps value appropriately for Zod 4 */
+  const zLit = (v: unknown): string =>
+    isPrimitive(v) ? `z.literal(${lit(v)})` : `z.custom<${JSON.stringify(v)}>()`
   /* tuple */
   const tuple = (arr: readonly unknown[]): string =>
     `z.tuple([${arr.map((v) => `z.literal(${lit(v)})`).join(',')}])`
@@ -46,8 +52,8 @@ export function _enum(schema: Schema): string {
   }
   /* mixed / null only */
   if (schema.enum.length > 1) {
-    const parts = schema.enum.map((v) => `z.literal(${lit(v)})`)
+    const parts = schema.enum.map(zLit)
     return `z.union([${parts.join(',')}])`
   }
-  return `z.literal(${lit(schema.enum[0])})`
+  return zLit(schema.enum[0])
 }

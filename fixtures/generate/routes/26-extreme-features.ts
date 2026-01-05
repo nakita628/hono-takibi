@@ -5,123 +5,31 @@ const JsonSchema2020FeaturesSchema = z
     prefixItems: z
       .array(z.null().nullable().openapi({ type: 'null' }))
       .exactOptional()
-      .openapi({
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        items: { type: 'null' },
-      }),
-    unevaluatedItems: z
-      .array(z.any())
-      .exactOptional()
-      .openapi({ type: 'array', prefixItems: [{ type: 'string' }], unevaluatedItems: false }),
+      .openapi({ type: 'array', items: { type: 'null' } }),
+    unevaluatedItems: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
     unevaluatedProperties: z
       .object({ known: z.string().exactOptional().openapi({ type: 'string' }) })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      }),
+      .openapi({ type: 'object', properties: { known: { type: 'string' } } }),
     dependentRequired: z
       .object({
         a: z.string().exactOptional().openapi({ type: 'string' }),
         b: z.string().exactOptional().openapi({ type: 'string' }),
       })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { a: { type: 'string' }, b: { type: 'string' } },
-        dependentRequired: { a: ['b'] },
-      }),
+      .openapi({ type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } }),
     dependentSchemas: z
       .object({ creditCard: z.string().exactOptional().openapi({ type: 'string' }) })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { creditCard: { type: 'string' } },
-        dependentSchemas: {
-          creditCard: {
-            properties: { billingAddress: { type: 'string' } },
-            required: ['billingAddress'],
-          },
-        },
-      }),
-    propertyNames: z
-      .object({})
-      .exactOptional()
-      .openapi({ type: 'object', propertyNames: { pattern: '^[a-z]+$' } }),
-    minContains: z
-      .array(z.any())
-      .exactOptional()
-      .openapi({ type: 'array', contains: { type: 'string' }, minContains: 2 }),
-    maxContains: z
-      .array(z.any())
-      .exactOptional()
-      .openapi({ type: 'array', contains: { type: 'number' }, maxContains: 5 }),
-    contentEncoding: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', contentEncoding: 'base64' }),
-    contentMediaType: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', contentMediaType: 'application/json' }),
-    contentSchema: z
-      .string()
-      .exactOptional()
-      .openapi({
-        type: 'string',
-        contentMediaType: 'application/json',
-        contentSchema: { type: 'object', properties: { nested: { type: 'string' } } },
-      }),
+      .openapi({ type: 'object', properties: { creditCard: { type: 'string' } } }),
+    propertyNames: z.object({}).exactOptional().openapi({ type: 'object' }),
+    minContains: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
+    maxContains: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
+    contentEncoding: z.string().exactOptional().openapi({ type: 'string' }),
+    contentMediaType: z.string().exactOptional().openapi({ type: 'string' }),
+    contentSchema: z.string().exactOptional().openapi({ type: 'string' }),
   })
-  .openapi({
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://example.com/schemas/features',
-    type: 'object',
-    properties: {
-      prefixItems: {
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        items: { type: 'null' },
-      },
-      unevaluatedItems: {
-        type: 'array',
-        prefixItems: [{ type: 'string' }],
-        unevaluatedItems: false,
-      },
-      unevaluatedProperties: {
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      },
-      dependentRequired: {
-        type: 'object',
-        properties: { a: { type: 'string' }, b: { type: 'string' } },
-        dependentRequired: { a: ['b'] },
-      },
-      dependentSchemas: {
-        type: 'object',
-        properties: { creditCard: { type: 'string' } },
-        dependentSchemas: {
-          creditCard: {
-            properties: { billingAddress: { type: 'string' } },
-            required: ['billingAddress'],
-          },
-        },
-      },
-      propertyNames: { type: 'object', propertyNames: { pattern: '^[a-z]+$' } },
-      minContains: { type: 'array', contains: { type: 'string' }, minContains: 2 },
-      maxContains: { type: 'array', contains: { type: 'number' }, maxContains: 5 },
-      contentEncoding: { type: 'string', contentEncoding: 'base64' },
-      contentMediaType: { type: 'string', contentMediaType: 'application/json' },
-      contentSchema: {
-        type: 'string',
-        contentMediaType: 'application/json',
-        contentSchema: { type: 'object', properties: { nested: { type: 'string' } } },
-      },
-    },
-  })
+  .openapi({ type: 'object', properties: {} })
   .openapi('JsonSchema2020Features')
 
 const ItemSchema = z

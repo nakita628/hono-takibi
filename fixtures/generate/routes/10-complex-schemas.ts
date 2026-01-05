@@ -600,7 +600,7 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
           }),
         notNull: z
           .any()
-          .refine((v) => typeof v !== 'null')
+          .refine((v) => v !== null)
           .exactOptional()
           .openapi({ not: { type: 'null' } }),
         restrictedValue: z

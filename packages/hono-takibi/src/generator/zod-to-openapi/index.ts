@@ -69,6 +69,8 @@ export function zodToOpenAPI(
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return wrap('z.any()', schema, meta)
     }
+    // Check if any oneOf member uses allOf (would create ZodIntersection)
+    const hasAllOf = schema.oneOf.some((s) => s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) => {
       if (s.$ref && Object.keys(s).length === 1) {
         if (s.$ref) {
@@ -78,29 +80,58 @@ export function zodToOpenAPI(
       return zodToOpenAPI(s, meta)
     })
     const discriminator = schema.discriminator?.propertyName
-    const z = discriminator
-      ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
-      : `z.xor([${oneOfSchemas.join(',')}])`
+    // Use z.xor instead of discriminatedUnion when allOf is present (ZodIntersection not compatible)
+    const z =
+      discriminator && !hasAllOf
+        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
+        : `z.xor([${oneOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
   }
   /* not */
   if (schema.not !== undefined) {
-    if (typeof schema.not === 'object' && schema.not.type && typeof schema.not.type === 'string') {
-      const predicate = `(v) => typeof v !== '${schema.not.type}'`
-      const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, meta)
+    const typePredicates: Record<string, string> = {
+      string: `(v) => typeof v !== 'string'`,
+      number: `(v) => typeof v !== 'number'`,
+      integer: `(v) => typeof v !== 'number' || !Number.isInteger(v)`,
+      boolean: `(v) => typeof v !== 'boolean'`,
+      array: '(v) => !Array.isArray(v)',
+      object: `(v) => typeof v !== 'object' || v === null || Array.isArray(v)`,
+      null: '(v) => v !== null',
     }
+    // 1. not.const
+    if (typeof schema.not === 'object' && 'const' in schema.not) {
+      const value = JSON.stringify(schema.not.const)
+      const predicate = `(v) => v !== ${value}`
+      return wrap(`z.any().refine(${predicate})`, schema, meta)
+    }
+    // 2. not.type (single type)
+    if (typeof schema.not === 'object' && typeof schema.not.type === 'string') {
+      const predicate = typePredicates[schema.not.type]
+      if (predicate) {
+        return wrap(`z.any().refine(${predicate})`, schema, meta)
+      }
+    }
+    // 3. not.enum
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
-      const z = `z.any().refine(${predicate})`
-      return wrap(z, schema, meta)
+      return wrap(`z.any().refine(${predicate})`, schema, meta)
     }
+    // 4. fallback
     return wrap('z.any()', schema, meta)
   }
   /* const */
   if (schema.const !== undefined) {
-    const z = `z.literal(${JSON.stringify(schema.const)})`
+    const value = schema.const
+    // z.literal only supports primitives in Zod 4
+    const isPrimitive =
+      value === null ||
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    const z = isPrimitive
+      ? `z.literal(${JSON.stringify(value)})`
+      : `z.custom<${JSON.stringify(value)}>()`
     return wrap(z, schema, meta)
   }
   /* enum */

@@ -1,0 +1,71 @@
+openapi: 3.1.0
+info:
+  title: Not Schema API
+  version: 1.0.0
+  description: Tests not schema constraints
+
+paths:
+  /validate:
+    post:
+      operationId: validateNotSchema
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotSchemaTest'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    NotSchemaTest:
+      type: object
+      properties:
+        # Not a specific const value
+        notSpecificValue:
+          not:
+            const: forbidden
+
+        # Not a string type
+        notString:
+          not:
+            type: string
+
+        # Not a number type
+        notNumber:
+          not:
+            type: number
+
+        # Not null
+        notNull:
+          not:
+            type: 'null'
+
+        # Not an array
+        notArray:
+          not:
+            type: array
+
+        # Not an object
+        notObject:
+          not:
+            type: object
+
+        # Not in a list of enum values
+        notInList:
+          not:
+            enum:
+              - apple
+              - banana
+              - cherry
+
+        # Not a boolean
+        notBoolean:
+          not:
+            type: boolean
+
+        # Not an integer
+        notInteger:
+          not:
+            type: integer

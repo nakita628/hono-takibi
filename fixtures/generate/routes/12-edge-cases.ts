@@ -447,12 +447,7 @@ const MatrixDataSchema = z
 const CoordinateSchema = z
   .array(z.number().openapi({ type: 'number' }))
   .length(3)
-  .openapi({
-    type: 'array',
-    items: [{ type: 'number' }, { type: 'number' }, { type: 'number' }],
-    minItems: 3,
-    maxItems: 3,
-  })
+  .openapi({ type: 'array', minItems: 3, maxItems: 3 })
   .openapi('Coordinate')
 
 const ComplexUnionSchema = z

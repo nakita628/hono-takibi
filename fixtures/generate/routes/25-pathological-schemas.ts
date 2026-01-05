@@ -136,14 +136,8 @@ const AmbiguousSchemasSchema = z
   .object({
     noType: z.any().exactOptional().openapi({ description: 'Schema with no type constraint' }),
     empty: z.any().exactOptional(),
-    justFalse: z
-      .any()
-      .exactOptional()
-      .openapi({ not: { not: false } }),
-    justTrue: z
-      .any()
-      .exactOptional()
-      .openapi({ not: { not: true } }),
+    justFalse: z.any().exactOptional(),
+    justTrue: z.any().exactOptional(),
     deepAny: z
       .union([
         z
@@ -224,8 +218,8 @@ const AmbiguousSchemasSchema = z
     properties: {
       noType: { description: 'Schema with no type constraint' },
       empty: {},
-      justFalse: { not: { not: false } },
-      justTrue: { not: { not: true } },
+      justFalse: {},
+      justTrue: {},
       deepAny: { anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] },
       overlappingOneOf: {
         oneOf: [
@@ -1303,7 +1297,12 @@ const CompositionHellSchema = z
           { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
         ],
       })
-      .and(z.any().openapi({ not: { const: null } }))
+      .and(
+        z
+          .any()
+          .refine((v) => v !== null)
+          .openapi({ not: { const: null } }),
+      )
       .exactOptional()
       .openapi({
         allOf: [
@@ -1319,26 +1318,9 @@ const CompositionHellSchema = z
     conditionalInAllOf: z
       .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
       .openapi({ type: 'object', properties: { type: { type: 'string' } } })
-      .and(
-        z
-          .any()
-          .openapi({
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          }),
-      )
+      .and(z.any())
       .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
-      }),
+      .openapi({ allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}] }),
     multiDiscriminator: z
       .discriminatedUnion('kind', [DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
       .exactOptional()
@@ -1495,14 +1477,7 @@ const CompositionHellSchema = z
         ],
       },
       conditionalInAllOf: {
-        allOf: [
-          { type: 'object', properties: { type: { type: 'string' } } },
-          {
-            if: { properties: { type: { const: 'A' } } },
-            then: { properties: { valueA: { type: 'string' } } },
-            else: { properties: { valueOther: { type: 'number' } } },
-          },
-        ],
+        allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}],
       },
       multiDiscriminator: {
         oneOf: [

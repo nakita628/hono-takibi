@@ -1,6 +1,59 @@
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
+// Properties not supported or causing type issues with zod-to-openapi
+const unsupportedProps = new Set([
+  'contains',
+  'minContains',
+  'maxContains',
+  'patternProperties',
+  'dependentRequired',
+  'dependentSchemas',
+  'unevaluatedProperties',
+  'unevaluatedItems',
+  'if',
+  'then',
+  'else',
+  'prefixItems',
+  'propertyNames',
+  'contentSchema',
+  'contentEncoding',
+  'contentMediaType',
+  '$schema',
+  '$id',
+])
+
+function filterUnsupportedProps(obj: unknown): unknown {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(filterUnsupportedProps)
+  }
+  const filtered: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    if (unsupportedProps.has(key)) {
+      continue
+    }
+    // Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject)
+    if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
+      continue
+    }
+    // Filter out not.not (nested not with boolean)
+    if (
+      key === 'not' &&
+      typeof value === 'object' &&
+      value !== null &&
+      'not' in value &&
+      typeof (value as Record<string, unknown>).not === 'boolean'
+    ) {
+      continue
+    }
+    filtered[key] = filterUnsupportedProps(value)
+  }
+  return filtered
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -45,7 +98,7 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  const args = Object.fromEntries(
+  const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
       ([k, v]) =>
         k !== 'nullable' &&
@@ -54,6 +107,7 @@ export function wrap(
         !(k === 'required' && typeof v === 'boolean'),
     ),
   )
+  const args = filterUnsupportedProps(baseArgs) as Record<string, unknown>
 
   const headerMetaProps = meta?.headers
     ? [

@@ -445,49 +445,17 @@ const ExtremeArraysSchema = z
       .array(z.any())
       .length(10)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        prefixItems: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-        ],
-        items: false,
-        minItems: 10,
-        maxItems: 10,
-      }),
+      .openapi({ type: 'array', minItems: 10, maxItems: 10 }),
     tupleWithAdditional: z
       .array(z.boolean().openapi({ type: 'boolean' }))
       .min(5)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }],
-        items: { type: 'boolean' },
-        minItems: 5,
-      }),
+      .openapi({ type: 'array', items: { type: 'boolean' }, minItems: 5 }),
     containsConstraint: z
       .array(z.any())
       .min(10)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        contains: {
-          type: 'object',
-          required: ['special'],
-          properties: { special: { type: 'boolean', const: true } },
-        },
-        minContains: 2,
-        maxContains: 5,
-        minItems: 10,
-      }),
+      .openapi({ type: 'array', minItems: 10 }),
   })
   .openapi({
     type: 'object',
@@ -534,41 +502,9 @@ const ExtremeArraysSchema = z
         uniqueItems: true,
         items: { type: 'array', uniqueItems: true, items: { type: 'integer' } },
       },
-      largeTuple: {
-        type: 'array',
-        prefixItems: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'boolean' },
-          { type: 'integer' },
-          { type: 'string' },
-          { type: 'number' },
-        ],
-        items: false,
-        minItems: 10,
-        maxItems: 10,
-      },
-      tupleWithAdditional: {
-        type: 'array',
-        prefixItems: [{ type: 'string' }, { type: 'number' }],
-        items: { type: 'boolean' },
-        minItems: 5,
-      },
-      containsConstraint: {
-        type: 'array',
-        contains: {
-          type: 'object',
-          required: ['special'],
-          properties: { special: { type: 'boolean', const: true } },
-        },
-        minContains: 2,
-        maxContains: 5,
-        minItems: 10,
-      },
+      largeTuple: { type: 'array', minItems: 10, maxItems: 10 },
+      tupleWithAdditional: { type: 'array', items: { type: 'boolean' }, minItems: 5 },
+      containsConstraint: { type: 'array', minItems: 10 },
     },
   })
   .openapi('ExtremeArrays')
@@ -668,16 +604,7 @@ const ExtremeObjectsSchema = z
     patternProperties: z
       .strictObject({})
       .exactOptional()
-      .openapi({
-        type: 'object',
-        patternProperties: {
-          '^x-': { type: 'string' },
-          '^[a-z]+$': { type: 'number' },
-          '^[A-Z]+$': { type: 'boolean' },
-          '^_': { type: 'integer' },
-        },
-        additionalProperties: false,
-      }),
+      .openapi({ type: 'object', additionalProperties: false }),
     dependentRequired: z
       .object({
         billing_address: z.string().exactOptional().openapi({ type: 'string' }),
@@ -692,10 +619,6 @@ const ExtremeObjectsSchema = z
           shipping_address: { type: 'string' },
           use_same_address: { type: 'boolean' },
         },
-        dependentRequired: {
-          billing_address: ['shipping_address'],
-          shipping_address: ['billing_address'],
-        },
       }),
     dependentSchemas: z
       .object({
@@ -706,29 +629,15 @@ const ExtremeObjectsSchema = z
       .openapi({
         type: 'object',
         properties: { credit_card: { type: 'string' }, billing_address: { type: 'string' } },
-        dependentSchemas: {
-          credit_card: {
-            properties: { billing_address: { type: 'string', minLength: 10 } },
-            required: ['billing_address'],
-          },
-        },
       }),
     propertyNames: z
       .record(z.string(), z.string().openapi({ type: 'string' }))
       .exactOptional()
-      .openapi({
-        type: 'object',
-        propertyNames: { pattern: '^[a-z][a-zA-Z0-9]*$', minLength: 2, maxLength: 20 },
-        additionalProperties: { type: 'string' },
-      }),
+      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     unevaluatedProps: z
       .object({ known: z.string().exactOptional().openapi({ type: 'string' }) })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      }),
+      .openapi({ type: 'object', properties: { known: { type: 'string' } } }),
   })
   .openapi({
     type: 'object',
@@ -793,48 +702,7 @@ const ExtremeObjectsSchema = z
           prop20: { type: 'string' },
         },
       },
-      patternProperties: {
-        type: 'object',
-        patternProperties: {
-          '^x-': { type: 'string' },
-          '^[a-z]+$': { type: 'number' },
-          '^[A-Z]+$': { type: 'boolean' },
-          '^_': { type: 'integer' },
-        },
-        additionalProperties: false,
-      },
-      dependentRequired: {
-        type: 'object',
-        properties: {
-          billing_address: { type: 'string' },
-          shipping_address: { type: 'string' },
-          use_same_address: { type: 'boolean' },
-        },
-        dependentRequired: {
-          billing_address: ['shipping_address'],
-          shipping_address: ['billing_address'],
-        },
-      },
-      dependentSchemas: {
-        type: 'object',
-        properties: { credit_card: { type: 'string' }, billing_address: { type: 'string' } },
-        dependentSchemas: {
-          credit_card: {
-            properties: { billing_address: { type: 'string', minLength: 10 } },
-            required: ['billing_address'],
-          },
-        },
-      },
-      propertyNames: {
-        type: 'object',
-        propertyNames: { pattern: '^[a-z][a-zA-Z0-9]*$', minLength: 2, maxLength: 20 },
-        additionalProperties: { type: 'string' },
-      },
-      unevaluatedProps: {
-        type: 'object',
-        properties: { known: { type: 'string' } },
-        unevaluatedProperties: false,
-      },
+      unevaluatedProps: { type: 'object', properties: { known: { type: 'string' } } },
     },
   })
   .openapi('ExtremeObjects')
@@ -990,23 +858,7 @@ const ExtremeCompositionsSchema = z
           },
         ],
       }),
-    conditionalChain: z
-      .object({})
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        if: { properties: { type: { const: 'A' } } },
-        then: { properties: { valueA: { type: 'string' } }, required: ['valueA'] },
-        else: {
-          if: { properties: { type: { const: 'B' } } },
-          then: { properties: { valueB: { type: 'number' } }, required: ['valueB'] },
-          else: {
-            if: { properties: { type: { const: 'C' } } },
-            then: { properties: { valueC: { type: 'boolean' } }, required: ['valueC'] },
-            else: { properties: { valueDefault: { type: 'object' } }, required: ['valueDefault'] },
-          },
-        },
-      }),
+    conditionalChain: z.object({}).exactOptional().openapi({ type: 'object' }),
     conflictingAllOf: z
       .object({
         shared: z.string().min(5).exactOptional().openapi({ type: 'string', minLength: 5 }),
@@ -1128,20 +980,7 @@ const ExtremeCompositionsSchema = z
           },
         ],
       },
-      conditionalChain: {
-        type: 'object',
-        if: { properties: { type: { const: 'A' } } },
-        then: { properties: { valueA: { type: 'string' } }, required: ['valueA'] },
-        else: {
-          if: { properties: { type: { const: 'B' } } },
-          then: { properties: { valueB: { type: 'number' } }, required: ['valueB'] },
-          else: {
-            if: { properties: { type: { const: 'C' } } },
-            then: { properties: { valueC: { type: 'boolean' } }, required: ['valueC'] },
-            else: { properties: { valueDefault: { type: 'object' } }, required: ['valueDefault'] },
-          },
-        },
-      },
+      conditionalChain: { type: 'object' },
       conflictingAllOf: {
         allOf: [
           { type: 'object', properties: { shared: { type: 'string', minLength: 5 } } },
@@ -1317,10 +1156,10 @@ const EnumEdgeCasesSchema = z
         z.literal(1.5),
         z.literal(-1.5),
         z.literal(10000000000),
-        z.literal([]),
-        z.literal({}),
-        z.literal([1, 2, 3]),
-        z.literal({ key: 'value' }),
+        z.custom<[]>(),
+        z.custom<{}>(),
+        z.custom<[1, 2, 3]>(),
+        z.custom<{ key: 'value' }>(),
       ])
       .exactOptional()
       .openapi({
@@ -1347,7 +1186,7 @@ const EnumEdgeCasesSchema = z
       }),
     constNull: z.literal(null).exactOptional(),
     constComplex: z
-      .literal({ nested: { deeply: { value: 42 } }, array: [1, 2, 3] })
+      .custom<{ nested: { deeply: { value: 42 } }; array: [1, 2, 3] }>()
       .exactOptional(),
   })
   .openapi({

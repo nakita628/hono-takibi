@@ -109,7 +109,7 @@ const StreamItemSchema = z
 const EncodedContentSchema = z
   .object({
     plainText: z.string().exactOptional().openapi({ type: 'string' }),
-    base64: z.string().exactOptional().openapi({ type: 'string', contentEncoding: 'base64' }),
+    base64: z.string().exactOptional().openapi({ type: 'string' }),
     quotedPrintable: z
       .string()
       .exactOptional()
@@ -140,7 +140,7 @@ const EncodedContentSchema = z
     type: 'object',
     properties: {
       plainText: { type: 'string' },
-      base64: { type: 'string', contentEncoding: 'base64' },
+      base64: { type: 'string' },
       quotedPrintable: { type: 'string', description: 'Quoted-printable encoded' },
       hexEncoded: { type: 'string', pattern: '^[0-9a-fA-F]+$' },
       urlEncoded: { type: 'string', description: 'URL encoded string' },
@@ -657,75 +657,24 @@ export const postSchemaEncodingRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              base64Field: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', contentEncoding: 'base64' }),
-              base64urlField: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', contentEncoding: 'base64url' }),
-              jsonString: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', contentMediaType: 'application/json' }),
-              xmlString: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', contentMediaType: 'application/xml' }),
-              embeddedJson: z
-                .string()
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  contentMediaType: 'application/json',
-                  contentSchema: {
-                    type: 'object',
-                    properties: { nested: { type: 'string' }, value: { type: 'integer' } },
-                  },
-                }),
-              binaryData: z
-                .string()
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  contentEncoding: 'base64',
-                  contentMediaType: 'application/octet-stream',
-                }),
-              imageData: z
-                .string()
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  contentEncoding: 'base64',
-                  contentMediaType: 'image/png',
-                }),
+              base64Field: z.string().exactOptional().openapi({ type: 'string' }),
+              base64urlField: z.string().exactOptional().openapi({ type: 'string' }),
+              jsonString: z.string().exactOptional().openapi({ type: 'string' }),
+              xmlString: z.string().exactOptional().openapi({ type: 'string' }),
+              embeddedJson: z.string().exactOptional().openapi({ type: 'string' }),
+              binaryData: z.string().exactOptional().openapi({ type: 'string' }),
+              imageData: z.string().exactOptional().openapi({ type: 'string' }),
             })
             .openapi({
               type: 'object',
               properties: {
-                base64Field: { type: 'string', contentEncoding: 'base64' },
-                base64urlField: { type: 'string', contentEncoding: 'base64url' },
-                jsonString: { type: 'string', contentMediaType: 'application/json' },
-                xmlString: { type: 'string', contentMediaType: 'application/xml' },
-                embeddedJson: {
-                  type: 'string',
-                  contentMediaType: 'application/json',
-                  contentSchema: {
-                    type: 'object',
-                    properties: { nested: { type: 'string' }, value: { type: 'integer' } },
-                  },
-                },
-                binaryData: {
-                  type: 'string',
-                  contentEncoding: 'base64',
-                  contentMediaType: 'application/octet-stream',
-                },
-                imageData: {
-                  type: 'string',
-                  contentEncoding: 'base64',
-                  contentMediaType: 'image/png',
-                },
+                base64Field: { type: 'string' },
+                base64urlField: { type: 'string' },
+                jsonString: { type: 'string' },
+                xmlString: { type: 'string' },
+                embeddedJson: { type: 'string' },
+                binaryData: { type: 'string' },
+                imageData: { type: 'string' },
               },
             }),
         },
