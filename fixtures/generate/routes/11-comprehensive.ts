@@ -211,21 +211,19 @@ const CreateProductInputSchema = z
   })
   .openapi('CreateProductInput')
 
-const UpdateProductInputSchema = z
-  .intersection(
-    CreateProductInputSchema,
-    z
-      .object({
-        status: z
-          .enum(['draft', 'active', 'archived'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { status: { type: 'string', enum: ['draft', 'active', 'archived'] } },
-      }),
-  )
+const UpdateProductInputSchema = CreateProductInputSchema.and(
+  z
+    .object({
+      status: z
+        .enum(['draft', 'active', 'archived'])
+        .exactOptional()
+        .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
+    })
+    .openapi({
+      type: 'object',
+      properties: { status: { type: 'string', enum: ['draft', 'active', 'archived'] } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/CreateProductInput' },
@@ -759,10 +757,9 @@ const BadRequestResponse = {
 const UnauthorizedResponse = {
   description: 'Authentication required',
   headers: z.object({
-    'WWW-Authenticate': z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', example: 'Bearer realm="api"' }),
+    'WWW-Authenticate': {
+      schema: z.string().exactOptional().openapi({ type: 'string', example: 'Bearer realm="api"' }),
+    },
   }),
   content: {
     'application/json': {
@@ -834,10 +831,12 @@ const TooManyRequestsResponse = {
     'X-RateLimit-Limit': XRateLimitLimitHeaderSchema,
     'X-RateLimit-Remaining': XRateLimitRemainingHeaderSchema,
     'X-RateLimit-Reset': XRateLimitResetHeaderSchema,
-    'Retry-After': z
-      .int()
-      .exactOptional()
-      .openapi({ type: 'integer', description: 'Seconds until retry' }),
+    'Retry-After': {
+      schema: z
+        .int()
+        .exactOptional()
+        .openapi({ type: 'integer', description: 'Seconds until retry' }),
+    },
   }),
   content: {
     'application/json': {

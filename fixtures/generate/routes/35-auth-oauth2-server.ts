@@ -589,26 +589,21 @@ const OAuthClientSchema = z
   })
   .openapi('OAuthClient')
 
-const OAuthClientWithSecretSchema = z
-  .intersection(
-    OAuthClientSchema,
-    z
-      .object({
-        clientSecret: z
-          .string()
-          .openapi({ type: 'string', description: 'クライアントシークレット（作成時のみ返却）' }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['clientSecret'],
-        properties: {
-          clientSecret: {
-            type: 'string',
-            description: 'クライアントシークレット（作成時のみ返却）',
-          },
-        },
-      }),
-  )
+const OAuthClientWithSecretSchema = OAuthClientSchema.and(
+  z
+    .object({
+      clientSecret: z
+        .string()
+        .openapi({ type: 'string', description: 'クライアントシークレット（作成時のみ返却）' }),
+    })
+    .openapi({
+      type: 'object',
+      required: ['clientSecret'],
+      properties: {
+        clientSecret: { type: 'string', description: 'クライアントシークレット（作成時のみ返却）' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/OAuthClient' },
@@ -1011,7 +1006,7 @@ export const postOauthTokenRoute = createRoute({
       content: {
         'application/x-www-form-urlencoded': {
           schema: z
-            .union([
+            .xor([
               AuthorizationCodeTokenRequestSchema,
               ClientCredentialsTokenRequestSchema,
               RefreshTokenRequestSchema,

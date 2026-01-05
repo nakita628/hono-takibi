@@ -347,7 +347,7 @@ const FileListResponseSchema = z
     data: z
       .array(
         z
-          .union([FileSchema, FolderSchema])
+          .xor([FileSchema, FolderSchema])
           .openapi({
             oneOf: [{ $ref: '#/components/schemas/File' }, { $ref: '#/components/schemas/Folder' }],
           }),

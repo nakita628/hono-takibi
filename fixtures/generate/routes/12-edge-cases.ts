@@ -456,7 +456,7 @@ const CoordinateSchema = z
   .openapi('Coordinate')
 
 const ComplexUnionSchema = z
-  .union([
+  .xor([
     z.string().openapi({ type: 'string' }),
     z.number().openapi({ type: 'number' }),
     z
@@ -477,16 +477,12 @@ const ComplexUnionSchema = z
   .openapi('ComplexUnion')
 
 const MergedSchema = z
-  .intersection(
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { id: { type: 'string' }, name: { type: 'string' } },
-      }),
+  .object({
+    id: z.string().exactOptional().openapi({ type: 'string' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+  })
+  .openapi({ type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } })
+  .and(
     z
       .object({
         id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
@@ -654,8 +650,8 @@ const NoContentResponse = { description: 'No content response' }
 const HeadersOnlyResponse = {
   description: 'Response with headers only',
   headers: z.object({
-    'X-Custom-Header': z.string().exactOptional().openapi({ type: 'string' }),
-    'X-Another-Header': z.int().exactOptional().openapi({ type: 'integer' }),
+    'X-Custom-Header': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+    'X-Another-Header': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
   }),
 }
 

@@ -77,14 +77,10 @@ export function zodToOpenAPI(
       }
       return zodToOpenAPI(s, meta)
     })
-    // discriminatedUnion Support hesitant
-    // This is because using intersection causes a type error.
-    // const discriminator = schema.discriminator?.propertyName
-    // const z = discriminator
-    //   ? `z.discriminatedUnion('${discriminator}',[${schemas.join(',')}])`
-    //   : `z.union([${schemas.join(',')}])`
-    // return wrap(z, schema, paramName, paramIn)
-    const z = `z.union([${oneOfSchemas.join(',')}])`
+    const discriminator = schema.discriminator?.propertyName
+    const z = discriminator
+      ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
+      : `z.xor([${oneOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
   }
   /* not */

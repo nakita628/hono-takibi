@@ -1569,7 +1569,7 @@ export const postMfaVerifyRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .union([
+            .xor([
               TotpVerificationSchema,
               SmsEmailVerificationSchema,
               WebAuthnVerificationSchema,

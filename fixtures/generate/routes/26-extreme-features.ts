@@ -265,24 +265,22 @@ const PetSchema = z
   })
   .openapi('Pet')
 
-const DogSchema = z
-  .intersection(
-    PetSchema,
-    z
-      .object({
-        petType: z.literal('dog').exactOptional(),
-        breed: z.string().exactOptional().openapi({ type: 'string' }),
-        barkVolume: z.int().exactOptional().openapi({ type: 'integer' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          petType: { const: 'dog' },
-          breed: { type: 'string' },
-          barkVolume: { type: 'integer' },
-        },
-      }),
-  )
+const DogSchema = PetSchema.and(
+  z
+    .object({
+      petType: z.literal('dog').exactOptional(),
+      breed: z.string().exactOptional().openapi({ type: 'string' }),
+      barkVolume: z.int().exactOptional().openapi({ type: 'integer' }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        petType: { const: 'dog' },
+        breed: { type: 'string' },
+        barkVolume: { type: 'integer' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -298,24 +296,22 @@ const DogSchema = z
   })
   .openapi('Dog')
 
-const CatSchema = z
-  .intersection(
-    PetSchema,
-    z
-      .object({
-        petType: z.literal('cat').exactOptional(),
-        breed: z.string().exactOptional().openapi({ type: 'string' }),
-        meowPitch: z.int().exactOptional().openapi({ type: 'integer' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          petType: { const: 'cat' },
-          breed: { type: 'string' },
-          meowPitch: { type: 'integer' },
-        },
-      }),
-  )
+const CatSchema = PetSchema.and(
+  z
+    .object({
+      petType: z.literal('cat').exactOptional(),
+      breed: z.string().exactOptional().openapi({ type: 'string' }),
+      meowPitch: z.int().exactOptional().openapi({ type: 'integer' }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        petType: { const: 'cat' },
+        breed: { type: 'string' },
+        meowPitch: { type: 'integer' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -331,24 +327,22 @@ const CatSchema = z
   })
   .openapi('Cat')
 
-const BirdSchema = z
-  .intersection(
-    PetSchema,
-    z
-      .object({
-        petType: z.literal('bird').exactOptional(),
-        species: z.string().exactOptional().openapi({ type: 'string' }),
-        canFly: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          petType: { const: 'bird' },
-          species: { type: 'string' },
-          canFly: { type: 'boolean' },
-        },
-      }),
-  )
+const BirdSchema = PetSchema.and(
+  z
+    .object({
+      petType: z.literal('bird').exactOptional(),
+      species: z.string().exactOptional().openapi({ type: 'string' }),
+      canFly: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        petType: { const: 'bird' },
+        species: { type: 'string' },
+        canFly: { type: 'boolean' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Pet' },
@@ -365,7 +359,7 @@ const BirdSchema = z
   .openapi('Bird')
 
 const DiscriminatedUnionSchema = z
-  .union([DogSchema, CatSchema, BirdSchema])
+  .discriminatedUnion('petType', [DogSchema, CatSchema, BirdSchema])
   .openapi({
     oneOf: [
       { $ref: '#/components/schemas/Dog' },

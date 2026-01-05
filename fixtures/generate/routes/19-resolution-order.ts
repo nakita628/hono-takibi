@@ -190,7 +190,7 @@ const EntityDetailsSchema = z
 const ConfigValueSchema: z.ZodType<ConfigValueType> = z
   .lazy(() =>
     z
-      .union([
+      .xor([
         z.string().openapi({ type: 'string' }),
         z.number().openapi({ type: 'number' }),
         z.boolean().openapi({ type: 'boolean' }),
@@ -365,22 +365,20 @@ const DependencyTypeSchema = z
   .openapi({ type: 'string', enum: ['hard', 'soft', 'optional'] })
   .openapi('DependencyType')
 
-const DependencyLinkSchema = z
-  .intersection(
-    EntityLinkSchema,
-    z
-      .object({
-        dependencyType: DependencyTypeSchema.exactOptional(),
-        criticality: CriticalitySchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          dependencyType: { $ref: '#/components/schemas/DependencyType' },
-          criticality: { $ref: '#/components/schemas/Criticality' },
-        },
-      }),
-  )
+const DependencyLinkSchema = EntityLinkSchema.and(
+  z
+    .object({
+      dependencyType: DependencyTypeSchema.exactOptional(),
+      criticality: CriticalitySchema.exactOptional(),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        dependencyType: { $ref: '#/components/schemas/DependencyType' },
+        criticality: { $ref: '#/components/schemas/Criticality' },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/EntityLink' },
@@ -585,7 +583,7 @@ const StreamDataSchema = z
   .openapi('StreamData')
 
 const InputDataSchema = z
-  .union([StructuredDataSchema, RawDataSchema, StreamDataSchema])
+  .xor([StructuredDataSchema, RawDataSchema, StreamDataSchema])
   .openapi({
     oneOf: [
       { $ref: '#/components/schemas/StructuredData' },
@@ -652,7 +650,7 @@ const DataSourceSchema = z
 const ConditionSchema: z.ZodType<ConditionType> = z
   .lazy(() =>
     z
-      .union([SimpleConditionSchema, CompoundConditionSchema])
+      .xor([SimpleConditionSchema, CompoundConditionSchema])
       .openapi({
         oneOf: [
           { $ref: '#/components/schemas/SimpleCondition' },
@@ -1142,16 +1140,14 @@ const DependencyGraphSchema = z
   })
   .openapi('DependencyGraph')
 
-const TransformConfigSchema = z
-  .intersection(
-    StageConfigSchema,
-    z
-      .object({ errorHandling: ValidationActionSchema.exactOptional() })
-      .openapi({
-        type: 'object',
-        properties: { errorHandling: { $ref: '#/components/schemas/ValidationAction' } },
-      }),
-  )
+const TransformConfigSchema = StageConfigSchema.and(
+  z
+    .object({ errorHandling: ValidationActionSchema.exactOptional() })
+    .openapi({
+      type: 'object',
+      properties: { errorHandling: { $ref: '#/components/schemas/ValidationAction' } },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/StageConfig' },
@@ -1197,34 +1193,19 @@ const TransformPipelineSchema = z
   })
   .openapi('TransformPipeline')
 
-const TransformResultSchema = z
-  .intersection(
-    ProcessResultSchema,
-    z
-      .object({
-        transformations: z
-          .array(
-            z
-              .object({
-                step: z.string().exactOptional().openapi({ type: 'string' }),
-                inputCount: z.int().exactOptional().openapi({ type: 'integer' }),
-                outputCount: z.int().exactOptional().openapi({ type: 'integer' }),
-                duration: z.int().exactOptional().openapi({ type: 'integer' }),
-              })
-              .openapi({
-                type: 'object',
-                properties: {
-                  step: { type: 'string' },
-                  inputCount: { type: 'integer' },
-                  outputCount: { type: 'integer' },
-                  duration: { type: 'integer' },
-                },
-              }),
-          )
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            items: {
+const TransformResultSchema = ProcessResultSchema.and(
+  z
+    .object({
+      transformations: z
+        .array(
+          z
+            .object({
+              step: z.string().exactOptional().openapi({ type: 'string' }),
+              inputCount: z.int().exactOptional().openapi({ type: 'integer' }),
+              outputCount: z.int().exactOptional().openapi({ type: 'integer' }),
+              duration: z.int().exactOptional().openapi({ type: 'integer' }),
+            })
+            .openapi({
               type: 'object',
               properties: {
                 step: { type: 'string' },
@@ -1232,27 +1213,40 @@ const TransformResultSchema = z
                 outputCount: { type: 'integer' },
                 duration: { type: 'integer' },
               },
+            }),
+        )
+        .exactOptional()
+        .openapi({
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              step: { type: 'string' },
+              inputCount: { type: 'integer' },
+              outputCount: { type: 'integer' },
+              duration: { type: 'integer' },
             },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          transformations: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                step: { type: 'string' },
-                inputCount: { type: 'integer' },
-                outputCount: { type: 'integer' },
-                duration: { type: 'integer' },
-              },
+          },
+        }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        transformations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              step: { type: 'string' },
+              inputCount: { type: 'integer' },
+              outputCount: { type: 'integer' },
+              duration: { type: 'integer' },
             },
           },
         },
-      }),
-  )
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/ProcessResult' },

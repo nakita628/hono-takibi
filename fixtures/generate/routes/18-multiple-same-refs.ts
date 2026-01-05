@@ -318,28 +318,26 @@ const ActivityEntrySchema = z
   })
   .openapi('ActivityEntry')
 
-const DocumentWithHistorySchema = z
-  .intersection(
-    DocumentSchema,
-    z
-      .object({
-        versions: z
-          .array(DocumentVersionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } }),
-        activityLog: z
-          .array(ActivityEntrySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          versions: { type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } },
-          activityLog: { type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } },
-        },
-      }),
-  )
+const DocumentWithHistorySchema = DocumentSchema.and(
+  z
+    .object({
+      versions: z
+        .array(DocumentVersionSchema)
+        .exactOptional()
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } }),
+      activityLog: z
+        .array(ActivityEntrySchema)
+        .exactOptional()
+        .openapi({ type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } }),
+    })
+    .openapi({
+      type: 'object',
+      properties: {
+        versions: { type: 'array', items: { $ref: '#/components/schemas/DocumentVersion' } },
+        activityLog: { type: 'array', items: { $ref: '#/components/schemas/ActivityEntry' } },
+      },
+    }),
+)
   .openapi({
     allOf: [
       { $ref: '#/components/schemas/Document' },

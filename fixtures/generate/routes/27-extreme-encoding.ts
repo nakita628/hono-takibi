@@ -11,7 +11,7 @@ const ResponseSchema = z
 const JsonApiResponseSchema = z
   .object({
     data: z
-      .union([
+      .xor([
         z.object({}).openapi({ type: 'object' }),
         z
           .array(z.object({}).openapi({ type: 'object' }))

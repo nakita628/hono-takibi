@@ -842,7 +842,7 @@ const ExtremeObjectsSchema = z
 const ExtremeCompositionsSchema = z
   .object({
     manyOneOf: z
-      .union([
+      .xor([
         z.literal('type1').openapi({ type: 'string' }),
         z.literal('type2').openapi({ type: 'string' }),
         z.literal('type3').openapi({ type: 'string' }),
@@ -882,61 +882,59 @@ const ExtremeCompositionsSchema = z
         ],
       }),
     deeplyNestedComposition: z
-      .intersection(
+      .xor([
         z
           .union([
             z
-              .union([
+              .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
+              .openapi({ type: 'object', properties: { a: { type: 'string' } } })
+              .and(
                 z
-                  .intersection(
-                    z
-                      .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-                      .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
-                    z
-                      .object({ b: z.number().exactOptional().openapi({ type: 'number' }) })
-                      .openapi({ type: 'object', properties: { b: { type: 'number' } } }),
-                  )
-                  .openapi({
-                    allOf: [
-                      { type: 'object', properties: { a: { type: 'string' } } },
-                      { type: 'object', properties: { b: { type: 'number' } } },
-                    ],
-                  }),
-                z
-                  .object({ c: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
-                  .openapi({ type: 'object', properties: { c: { type: 'boolean' } } }),
-              ])
+                  .object({ b: z.number().exactOptional().openapi({ type: 'number' }) })
+                  .openapi({ type: 'object', properties: { b: { type: 'number' } } }),
+              )
               .openapi({
-                anyOf: [
-                  {
-                    allOf: [
-                      { type: 'object', properties: { a: { type: 'string' } } },
-                      { type: 'object', properties: { b: { type: 'number' } } },
-                    ],
-                  },
-                  { type: 'object', properties: { c: { type: 'boolean' } } },
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'number' } } },
                 ],
               }),
             z
-              .object({ d: z.int().exactOptional().openapi({ type: 'integer' }) })
-              .openapi({ type: 'object', properties: { d: { type: 'integer' } } }),
+              .object({ c: z.boolean().exactOptional().openapi({ type: 'boolean' }) })
+              .openapi({ type: 'object', properties: { c: { type: 'boolean' } } }),
           ])
           .openapi({
-            oneOf: [
+            anyOf: [
               {
-                anyOf: [
-                  {
-                    allOf: [
-                      { type: 'object', properties: { a: { type: 'string' } } },
-                      { type: 'object', properties: { b: { type: 'number' } } },
-                    ],
-                  },
-                  { type: 'object', properties: { c: { type: 'boolean' } } },
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'number' } } },
                 ],
               },
-              { type: 'object', properties: { d: { type: 'integer' } } },
+              { type: 'object', properties: { c: { type: 'boolean' } } },
             ],
           }),
+        z
+          .object({ d: z.int().exactOptional().openapi({ type: 'integer' }) })
+          .openapi({ type: 'object', properties: { d: { type: 'integer' } } }),
+      ])
+      .openapi({
+        oneOf: [
+          {
+            anyOf: [
+              {
+                allOf: [
+                  { type: 'object', properties: { a: { type: 'string' } } },
+                  { type: 'object', properties: { b: { type: 'number' } } },
+                ],
+              },
+              { type: 'object', properties: { c: { type: 'boolean' } } },
+            ],
+          },
+          { type: 'object', properties: { d: { type: 'integer' } } },
+        ],
+      })
+      .and(
         z
           .object({ e: z.string().exactOptional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { e: { type: 'string' } } }),
@@ -964,10 +962,9 @@ const ExtremeCompositionsSchema = z
         ],
       }),
     complexNot: z
-      .intersection(
-        z
-          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
+      .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { value: { type: 'string' } } })
+      .and(
         z.any().openapi({
           not: {
             anyOf: [

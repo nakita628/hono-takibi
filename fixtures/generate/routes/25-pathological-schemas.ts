@@ -43,12 +43,15 @@ const ContradictionsSchema = z
       .exactOptional()
       .openapi({ type: 'string', enum: ['other1', 'other2'] }),
     typeConflictAllOf: z
-      .intersection(z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' }))
+      .string()
+      .openapi({ type: 'string' })
+      .and(z.number().openapi({ type: 'number' }))
       .exactOptional()
       .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
     formatTypeMismatch: z.int().exactOptional().openapi({ type: 'integer', format: 'email' }),
     multipleConst: z
-      .intersection(z.literal('value1'), z.literal('value2'))
+      .literal('value1')
+      .and(z.literal('value2'))
       .exactOptional()
       .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
   })
@@ -154,7 +157,7 @@ const AmbiguousSchemasSchema = z
       .exactOptional()
       .openapi({ anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] }),
     overlappingOneOf: z
-      .union([
+      .xor([
         z
           .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
@@ -189,7 +192,7 @@ const AmbiguousSchemasSchema = z
         anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
       }),
     ambiguousDiscriminator: z
-      .union([
+      .discriminatedUnion('type', [
         z
           .object({
             type: z
@@ -1003,10 +1006,9 @@ const RecursiveNightmaresSchema = z
     mutuallyRecursive: RecursiveASchema.exactOptional(),
     constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
     recursiveInAllOf: z
-      .intersection(
-        z
-          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
+      .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { value: { type: 'string' } } })
+      .and(
         z
           .object({ child: RecursiveInAllOfSchema.exactOptional() })
           .openapi({
@@ -1033,7 +1035,7 @@ const RecursiveNightmaresSchema = z
         ],
       }),
     recursiveInOneOf: z
-      .union([
+      .xor([
         z.string().openapi({ type: 'string' }),
         z
           .object({ nested: RecursiveInOneOfSchema.exactOptional() })
@@ -1174,39 +1176,36 @@ const DiscrimCSchema = z
 const CompositionHellSchema = z
   .object({
     nestedAllOf: z
-      .intersection(
+      .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { a: { type: 'string' } } })
+      .and(
         z
-          .intersection(
-            z
-              .intersection(
-                z
-                  .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-                  .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
-                z
-                  .object({ b: z.string().exactOptional().openapi({ type: 'string' }) })
-                  .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
-              )
-              .openapi({
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              }),
-            z
-              .object({ c: z.string().exactOptional().openapi({ type: 'string' }) })
-              .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
-          )
-          .openapi({
+          .object({ b: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
+      )
+      .openapi({
+        allOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'string' } } },
+        ],
+      })
+      .and(
+        z
+          .object({ c: z.string().exactOptional().openapi({ type: 'string' }) })
+          .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
+      )
+      .openapi({
+        allOf: [
+          {
             allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
+              { type: 'object', properties: { a: { type: 'string' } } },
+              { type: 'object', properties: { b: { type: 'string' } } },
             ],
-          }),
+          },
+          { type: 'object', properties: { c: { type: 'string' } } },
+        ],
+      })
+      .and(
         z
           .object({ d: z.string().exactOptional().openapi({ type: 'string' }) })
           .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
@@ -1229,9 +1228,9 @@ const CompositionHellSchema = z
         ],
       }),
     nestedOneOf: z
-      .union([
+      .xor([
         z
-          .union([
+          .xor([
             z.literal('deep1').openapi({ type: 'string' }),
             z.literal('deep2').openapi({ type: 'string' }),
           ])
@@ -1242,10 +1241,7 @@ const CompositionHellSchema = z
             ],
           }),
         z
-          .union([
-            z.literal(1).openapi({ type: 'number' }),
-            z.literal(2).openapi({ type: 'number' }),
-          ])
+          .xor([z.literal(1).openapi({ type: 'number' }), z.literal(2).openapi({ type: 'number' })])
           .openapi({
             oneOf: [
               { type: 'number', const: 1 },
@@ -1290,30 +1286,24 @@ const CompositionHellSchema = z
         ],
       }),
     allMixed: z
-      .intersection(
+      .xor([
+        z
+          .union([z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' })])
+          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
         z
           .union([
-            z
-              .union([
-                z.string().openapi({ type: 'string' }),
-                z.number().openapi({ type: 'number' }),
-              ])
-              .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-            z
-              .union([
-                z.boolean().openapi({ type: 'boolean' }),
-                z.null().nullable().openapi({ type: 'null' }),
-              ])
-              .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+            z.boolean().openapi({ type: 'boolean' }),
+            z.null().nullable().openapi({ type: 'null' }),
           ])
-          .openapi({
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          }),
-        z.any().openapi({ not: { const: null } }),
-      )
+          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
+      ])
+      .openapi({
+        oneOf: [
+          { anyOf: [{ type: 'string' }, { type: 'number' }] },
+          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+        ],
+      })
+      .and(z.any().openapi({ not: { const: null } }))
       .exactOptional()
       .openapi({
         allOf: [
@@ -1327,10 +1317,9 @@ const CompositionHellSchema = z
         ],
       }),
     conditionalInAllOf: z
-      .intersection(
-        z
-          .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { type: { type: 'string' } } }),
+      .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
+      .openapi({ type: 'object', properties: { type: { type: 'string' } } })
+      .and(
         z
           .any()
           .openapi({
@@ -1351,7 +1340,7 @@ const CompositionHellSchema = z
         ],
       }),
     multiDiscriminator: z
-      .union([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
+      .discriminatedUnion('kind', [DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -1400,7 +1389,7 @@ const CompositionHellSchema = z
         ],
       }),
     overlappingSchemas: z
-      .union([
+      .xor([
         z
           .object({
             a: z.string().openapi({ type: 'string' }),

@@ -37,7 +37,7 @@ const TagSchema = z
 const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
   .lazy(() =>
     z
-      .union([
+      .xor([
         z.string().openapi({ type: 'string' }),
         z.number().openapi({ type: 'number' }),
         z.boolean().openapi({ type: 'boolean' }),
@@ -500,7 +500,7 @@ const BatchOperationSchema = z
       .exactOptional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     body: z
-      .union([CreateEntityInputSchema, UpdateEntityInputSchema])
+      .xor([CreateEntityInputSchema, UpdateEntityInputSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -536,7 +536,7 @@ const BatchResponseItemSchema = z
       .exactOptional()
       .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
     body: z
-      .union([EntityWrapperSchema, ErrorListSchema])
+      .xor([EntityWrapperSchema, ErrorListSchema])
       .exactOptional()
       .openapi({
         oneOf: [
@@ -677,7 +677,7 @@ const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
             ],
           }),
         value: z
-          .union([
+          .xor([
             z.string().openapi({ type: 'string' }),
             z.number().openapi({ type: 'number' }),
             z.boolean().openapi({ type: 'boolean' }),
