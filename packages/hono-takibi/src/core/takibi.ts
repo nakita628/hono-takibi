@@ -86,9 +86,11 @@ export async function takibi(
     if (template && output.includes('/')) {
       const dir = path.dirname(output)
       const target = path.join(dir, 'index.ts')
-      const appResult = await core(app(openAPI, output, basePath), dir, target)
+      const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
+        core(app(openAPI, output, basePath), dir, target),
+        zodOpenAPIHonoHandler(openAPI, output, test),
+      ])
       if (!appResult.ok) return { ok: false, error: appResult.error }
-      const zodOpenAPIHonoHandlerResult = await zodOpenAPIHonoHandler(openAPI, output, test)
       if (!zodOpenAPIHonoHandlerResult.ok)
         return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
       return { ok: true, value: 'Generated code and template files written' }
@@ -209,30 +211,40 @@ async function zodOpenAPIHonoHandler(
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
-  for (const handler of mergedHandlers) {
-    const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
-    const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
-    const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
-    const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
-
-    const fmtResult = await fmt(fileContent)
-    if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-    const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
-    if (!writeResult.ok) return { ok: false, error: writeResult.error }
-
-    if (test) {
-      const writeResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
-      if (!writeResult.ok) return { ok: false, error: writeResult.error }
-    }
-  }
-
   const handlerFiles = mergedHandlers.map((h) => h.fileName)
   const exports = handlerFiles.map((h) => `export * from './${h}'`).join('\n')
 
-  const fmtResult = await fmt(exports)
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
+  const handlerResults = await Promise.all([
+    ...mergedHandlers.map(async (handler) => {
+      const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
+      const importRouteTypes = routeTypes
+        ? `import type { ${routeTypes} } from '${importFrom}';`
+        : ''
+      const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
+      const fileContent = `${importStatements}\n\n${handler.routeHandlerContents.join('\n\n')}`
+
+      const fmtResult = await fmt(fileContent)
+      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+      const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
+      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
+
+      if (test) {
+        const testWriteResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
+        if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
+      }
+      return { ok: true, value: undefined } as const
+    }),
+    (async () => {
+      const fmtResult = await fmt(exports)
+      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+      const writeResult = await writeFile(`${handlerPath}/index.ts`, fmtResult.value)
+      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
+      return { ok: true, value: undefined } as const
+    })(),
+  ])
+
+  const firstError = handlerResults.find((r) => !r.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
 
   return { ok: true, value: undefined }
 }

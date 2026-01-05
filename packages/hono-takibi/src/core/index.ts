@@ -66,23 +66,23 @@ export async function componentsCore(
       const data = components[componentKey]
       if (!data || typeof data !== 'object') return { ok: false, error: `No ${componentKey} found` }
 
-      const fileResults = await Promise.all(
-        Object.entries(data)
+      const indexPath = path.join(outDir, 'index.ts')
+
+      const allResults = await Promise.all([
+        ...Object.entries(data)
           .filter(([, item]) => item !== undefined)
-          .map(async ([key, item]) => {
+          .map(([key, item]) => {
             const singleComponent = { [componentKey]: { [key]: item } }
             const code = generator(singleComponent, true, exportType ?? false)
             const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
             return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
           }),
-      )
+        core(makeBarell(data), outDir, indexPath),
+      ])
 
-      const firstError = fileResults.find((result) => !result.ok)
+      const firstError = allResults.find((result) => !result.ok)
       if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
 
-      const indexPath = path.join(outDir, 'index.ts')
-      const coreResult = await core(makeBarell(data as Record<string, unknown>), outDir, indexPath)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
       return {
         ok: true,
         value: `Generated ${componentKey} code written to ${outDir}/*.ts (index.ts included)`,

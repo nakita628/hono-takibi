@@ -171,44 +171,42 @@ export async function schemas(
     // Detect circular references
     const cyclicSchemas = detectCircularSchemas(schemaNames, depsMap)
 
-    for (const schemaName of schemaNames) {
-      const schema = schemas[schemaName] as Schema
-      const z = zSchemaMap.get(schemaName) ?? zodToOpenAPI(schema)
-      const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
-      const safeSchemaName = toIdentifierPascalCase(schemaName)
+    const allResults = await Promise.all([
+      ...schemaNames.map((schemaName) => {
+        const schema = schemas[schemaName] as Schema
+        const z = zSchemaMap.get(schemaName) ?? zodToOpenAPI(schema)
+        const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
+        const safeSchemaName = toIdentifierPascalCase(schemaName)
 
-      const isCircular = cyclicSchemas.has(schemaName)
-      const isSelfReferencing = z.includes(variableName)
-      const needsLazy = isCircular || isSelfReferencing
+        const isCircular = cyclicSchemas.has(schemaName)
+        const isSelfReferencing = z.includes(variableName)
+        const needsLazy = isCircular || isSelfReferencing
 
-      const typeDefinition = needsLazy ? `${zodType(schema, safeSchemaName)}\n\n` : ''
-      const zExpr = needsLazy ? `z.lazy(() => ${z})` : z
-      const returnType = needsLazy ? `:z.ZodType<${safeSchemaName}Type>` : ''
+        const typeDefinition = needsLazy ? `${zodType(schema, safeSchemaName)}\n\n` : ''
+        const zExpr = needsLazy ? `z.lazy(() => ${z})` : z
+        const returnType = needsLazy ? `:z.ZodType<${safeSchemaName}Type>` : ''
 
-      const schemaCode = `export const ${variableName}${returnType} = ${zExpr}.openapi('${safeSchemaName}')`
-      const zodInferCode = exportType
-        ? `\n\nexport type ${safeSchemaName} = z.infer<typeof ${variableName}>`
-        : ''
-      const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
-
-      const importZ = `import { z } from '@hono/zod-openapi'`
-      const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
-      const depImports =
-        deps.length > 0
-          ? deps.map((d) => `import { ${d}Schema } from './${lowerFirst(d)}'`).join('\n')
+        const schemaCode = `export const ${variableName}${returnType} = ${zExpr}.openapi('${safeSchemaName}')`
+        const zodInferCode = exportType
+          ? `\n\nexport type ${safeSchemaName} = z.infer<typeof ${variableName}>`
           : ''
-      const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
-      const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
-      const coreResult = await core(fileCode, path.dirname(filePath), filePath)
-      if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    }
+        const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
 
-    const coreResult = await core(
-      makeBarell(schemas),
-      path.dirname(`${outDir}/index.ts`),
-      `${outDir}/index.ts`,
-    )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+        const importZ = `import { z } from '@hono/zod-openapi'`
+        const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
+        const depImports =
+          deps.length > 0
+            ? deps.map((d) => `import { ${d}Schema } from './${lowerFirst(d)}'`).join('\n')
+            : ''
+        const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
+        const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
+        return core(fileCode, path.dirname(filePath), filePath)
+      }),
+      core(makeBarell(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
+    ])
+
+    const firstError = allResults.find((r) => !r.ok)
+    if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
 
     return {
       ok: true,

@@ -415,22 +415,25 @@ export async function rpc(
     return { ok: true, value: `Generated rpc code written to ${output}` }
   }
 
-  // Split: write each file + index.ts (barrel)
+  // Split: write each file + index.ts (barrel) in parallel
   const { outDir, indexPath } = resolveSplitOutDir(output)
-
-  for (const { funcName, code } of operationCodes) {
-    const fileSrc = `${header}${code}\n`
-    const filePath = path.join(outDir, `${funcName}.ts`)
-    const coreResult = await core(fileSrc, path.dirname(filePath), filePath)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  }
 
   const exportLines = Array.from(
     new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
   )
   const index = `${exportLines.join('\n')}\n`
-  const coreResult = await core(index, path.dirname(indexPath), indexPath)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
+
+  const allResults = await Promise.all([
+    ...operationCodes.map(({ funcName, code }) => {
+      const fileSrc = `${header}${code}\n`
+      const filePath = path.join(outDir, `${funcName}.ts`)
+      return core(fileSrc, path.dirname(filePath), filePath)
+    }),
+    core(index, path.dirname(indexPath), indexPath),
+  ])
+
+  const firstError = allResults.find((r) => !r.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
   return {
     ok: true,
     value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,
