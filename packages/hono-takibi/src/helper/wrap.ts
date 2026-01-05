@@ -55,6 +55,20 @@ export function wrap(
       if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
         continue
       }
+      // Convert non-string values in required array to strings (YAML may parse null/true/false as literals)
+      if (key === 'required' && Array.isArray(value)) {
+        filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
+        continue
+      }
+      // Skip properties with too many keys to avoid TypeScript overload resolution issues
+      if (
+        key === 'properties' &&
+        typeof value === 'object' &&
+        value !== null &&
+        Object.keys(value).length > 50
+      ) {
+        continue
+      }
       filtered[key] = filterUnsupportedProps(value)
     }
     return filtered
