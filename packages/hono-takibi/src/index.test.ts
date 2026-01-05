@@ -6,2742 +6,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Test run
 // pnpm vitest run ./src/index.test.ts
 
-const openapi = {
-  openapi: '3.0.3',
-  info: {
-    title: 'ABC only / components x3 (B -> C -> A)',
-    version: '1.0.0',
-  },
-  paths: {
-    '/A/{C}': {
-      post: {
-        operationId: 'A',
-        security: [
-          {
-            A: [],
-          },
-        ],
-        parameters: [
-          {
-            $ref: '#/components/parameters/C',
-          },
-          {
-            $ref: '#/components/parameters/B',
-          },
-          {
-            $ref: '#/components/parameters/A',
-          },
-        ],
-        requestBody: {
-          $ref: '#/components/requestBodies/A',
-        },
-        responses: {
-          '200': {
-            $ref: '#/components/responses/A',
-          },
-        },
-        callbacks: {
-          A: {
-            $ref: '#/components/callbacks/A',
-          },
-        },
-      },
-    },
-    '/B/{C}': {
-      post: {
-        operationId: 'B',
-        security: [
-          {
-            B: [],
-          },
-        ],
-        parameters: [
-          {
-            $ref: '#/components/parameters/C',
-          },
-          {
-            $ref: '#/components/parameters/B',
-          },
-          {
-            $ref: '#/components/parameters/A',
-          },
-        ],
-        requestBody: {
-          $ref: '#/components/requestBodies/B',
-        },
-        responses: {
-          '200': {
-            $ref: '#/components/responses/B',
-          },
-        },
-        callbacks: {
-          B: {
-            $ref: '#/components/callbacks/B',
-          },
-        },
-      },
-    },
-    '/C/{C}': {
-      post: {
-        operationId: 'C',
-        security: [
-          {
-            C: [],
-          },
-        ],
-        parameters: [
-          {
-            $ref: '#/components/parameters/C',
-          },
-          {
-            $ref: '#/components/parameters/B',
-          },
-          {
-            $ref: '#/components/parameters/A',
-          },
-        ],
-        requestBody: {
-          $ref: '#/components/requestBodies/C',
-        },
-        responses: {
-          '200': {
-            $ref: '#/components/responses/C',
-          },
-        },
-        callbacks: {
-          C: {
-            $ref: '#/components/callbacks/C',
-          },
-        },
-      },
-    },
-  },
-  components: {
-    schemas: {
-      B: {
-        type: 'object',
-        required: ['B', 'C'],
-        properties: {
-          B: {
-            type: 'string',
-            format: 'uri',
-          },
-          C: {
-            $ref: '#/components/schemas/C',
-          },
-        },
-      },
-      C: {
-        type: 'object',
-        required: ['B', 'A'],
-        properties: {
-          B: {
-            type: 'string',
-            format: 'uri',
-          },
-          A: {
-            $ref: '#/components/schemas/A',
-          },
-        },
-      },
-      A: {
-        type: 'object',
-        required: ['B', 'A'],
-        properties: {
-          B: {
-            type: 'string',
-            format: 'uri',
-          },
-          A: {
-            type: 'string',
-          },
-        },
-      },
-    },
-    parameters: {
-      B: {
-        name: 'B',
-        in: 'query',
-        required: false,
-        schema: {
-          type: 'string',
-        },
-      },
-      C: {
-        name: 'C',
-        in: 'path',
-        required: true,
-        schema: {
-          type: 'string',
-        },
-      },
-      A: {
-        name: 'A',
-        in: 'header',
-        required: false,
-        schema: {
-          type: 'string',
-        },
-      },
-    },
-    securitySchemes: {
-      B: {
-        type: 'http',
-        scheme: 'bearer',
-      },
-      C: {
-        type: 'http',
-        scheme: 'bearer',
-      },
-      A: {
-        type: 'http',
-        scheme: 'bearer',
-      },
-    },
-    requestBodies: {
-      B: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/B',
-            },
-            examples: {
-              B: {
-                $ref: '#/components/examples/B',
-              },
-            },
-          },
-        },
-      },
-      C: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/C',
-            },
-            examples: {
-              C: {
-                $ref: '#/components/examples/C',
-              },
-            },
-          },
-        },
-      },
-      A: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/A',
-            },
-            examples: {
-              A: {
-                $ref: '#/components/examples/A',
-              },
-            },
-          },
-        },
-      },
-    },
-    responses: {
-      B: {
-        description: 'B',
-        headers: {
-          B: {
-            $ref: '#/components/headers/B',
-          },
-          C: {
-            $ref: '#/components/headers/C',
-          },
-          A: {
-            $ref: '#/components/headers/A',
-          },
-        },
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/B',
-            },
-            examples: {
-              B: {
-                $ref: '#/components/examples/B',
-              },
-            },
-          },
-        },
-        links: {
-          B: {
-            $ref: '#/components/links/B',
-          },
-        },
-      },
-      C: {
-        description: 'C',
-        headers: {
-          B: {
-            $ref: '#/components/headers/B',
-          },
-          C: {
-            $ref: '#/components/headers/C',
-          },
-          A: {
-            $ref: '#/components/headers/A',
-          },
-        },
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/C',
-            },
-            examples: {
-              C: {
-                $ref: '#/components/examples/C',
-              },
-            },
-          },
-        },
-        links: {
-          C: {
-            $ref: '#/components/links/C',
-          },
-        },
-      },
-      A: {
-        description: 'A',
-        headers: {
-          B: {
-            $ref: '#/components/headers/B',
-          },
-          C: {
-            $ref: '#/components/headers/C',
-          },
-          A: {
-            $ref: '#/components/headers/A',
-          },
-        },
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/A',
-            },
-            examples: {
-              A: {
-                $ref: '#/components/examples/A',
-              },
-            },
-          },
-        },
-        links: {
-          A: {
-            $ref: '#/components/links/A',
-          },
-        },
-      },
-    },
-    headers: {
-      B: {
-        schema: {
-          type: 'string',
-        },
-      },
-      C: {
-        schema: {
-          type: 'string',
-        },
-      },
-      A: {
-        schema: {
-          type: 'string',
-        },
-      },
-    },
-    examples: {
-      B: {
-        value: {
-          B: 'https://example.com/B',
-          C: {
-            B: 'https://example.com/C',
-            A: {
-              B: 'https://example.com/A',
-              A: 'A',
-            },
-          },
-        },
-      },
-      C: {
-        value: {
-          B: 'https://example.com/C',
-          A: {
-            B: 'https://example.com/A',
-            A: 'A',
-          },
-        },
-      },
-      A: {
-        value: {
-          B: 'https://example.com/A',
-          A: 'A',
-        },
-      },
-    },
-    links: {
-      B: {
-        operationId: 'B',
-      },
-      C: {
-        operationId: 'C',
-      },
-      A: {
-        operationId: 'A',
-      },
-    },
-    callbacks: {
-      B: {
-        '{$request.body#/B}': {
-          post: {
-            requestBody: {
-              $ref: '#/components/requestBodies/B',
-            },
-            responses: {
-              '200': {
-                $ref: '#/components/responses/B',
-              },
-            },
-          },
-        },
-      },
-      C: {
-        '{$request.body#/B}': {
-          post: {
-            requestBody: {
-              $ref: '#/components/requestBodies/C',
-            },
-            responses: {
-              '200': {
-                $ref: '#/components/responses/C',
-              },
-            },
-          },
-        },
-      },
-      A: {
-        '{$request.body#/B}': {
-          post: {
-            requestBody: {
-              $ref: '#/components/requestBodies/A',
-            },
-            responses: {
-              '200': {
-                $ref: '#/components/responses/A',
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-}
-
-describe('Hono Takibi Normal Test', () => {
-  beforeEach(() => {
-    fs.rmSync('tmp-openapi', { recursive: true, force: true })
-    fs.rmSync('tmp-route', { recursive: true, force: true })
-
-    fs.mkdirSync('tmp-openapi', { recursive: true })
-    fs.writeFileSync('tmp-openapi/test.json', JSON.stringify(openapi))
-
-    fs.mkdirSync('tmp-route', { recursive: true })
-  })
-
-  afterEach(() => {
-    fs.rmSync('tmp-openapi', { recursive: true, force: true })
-    fs.rmSync('tmp-route', { recursive: true, force: true })
-  })
-
-  // #1: exportSchemasTypes=true
-  it('--export-schemas-types', () => {
-    const openapiPath = path.join('tmp-openapi/test.json')
-    execSync(
-      `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas-types`,
-    )
-    const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  })
-
-  //   // #2: exportSchemas=true
-  //   it('--export-schemas', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // export const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // export const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // export const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-
-  //   // #3: exportParametersTypes=true
-  //   it('--export-parameters-types', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-parameters-types`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // export type BParams = z.infer<typeof BParamsSchema>
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // export type CParams = z.infer<typeof CParamsSchema>
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // export type AParams = z.infer<typeof AParamsSchema>
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-
-  //   // #4: --export-parameters=true
-  //   it('--export-parameters', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(`node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts`)
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-
-  //   // #5: --export-security-schemes=true
-  //   it('--export-security-schemes', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-security-schemes`,
-  //     )
-
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // export const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #6 export-request-bodies
-  //   it('export-request-bodies', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-request-bodies`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // export const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // export const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #7 export-responses
-  //   it('--export-responses', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-responses`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // export const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // export const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // export const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #8 export-headers-types
-  //   it('--export-headers-types', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-headers-types`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // export type BHeader = z.infer<typeof BHeaderSchema>
-
-  // const CHeaderSchema = z.string()
-
-  // export type CHeader = z.infer<typeof CHeaderSchema>
-
-  // const AHeaderSchema = z.string()
-
-  // export type AHeader = z.infer<typeof AHeaderSchema>
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #9 export-headers
-  //   it('--export-headers', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-headers`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // export const BHeaderSchema = z.string()
-
-  // export const CHeaderSchema = z.string()
-
-  // export const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #10 export-examples
-  //   it('--export-examples', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-examples`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // export const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // export const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // export const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #11 export-links
-  //   it('--export-links', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-links`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // export const BLink = { operationId: 'B' }
-
-  // export const CLink = { operationId: 'C' }
-
-  // export const ALink = { operationId: 'A' }
-
-  // const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // #12 export-callbacks
-  //   it('--export-callbacks', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-callbacks`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // const BParamsSchema = z.string().openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // const CParamsSchema = z.string().openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // const AParamsSchema = z.string().openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // const BHeaderSchema = z.string()
-
-  // const CHeaderSchema = z.string()
-
-  // const AHeaderSchema = z.string()
-
-  // const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // const BLink = { operationId: 'B' }
-
-  // const CLink = { operationId: 'C' }
-
-  // const ALink = { operationId: 'A' }
-
-  // export const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // export const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // export const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //     expect(result).toBe(expected)
-  //   })
-  //   // 13 all
-  //   it('--export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-security-schemes --export-request-bodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks', () => {
-  //     const openapiPath = path.join('tmp-openapi/test.json')
-  //     execSync(
-  //       `node ${path.resolve('dist/index.js')} ${openapiPath} -o tmp-route/test.ts --export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-security-schemes --export-request-bodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks`,
-  //     )
-  //     const result = fs.readFileSync('tmp-route/test.ts', { encoding: 'utf-8' })
-  //     const expected = `import { createRoute, z } from '@hono/zod-openapi'
-
-  // export const ASchema = z.object({ B: z.url(), A: z.string() }).openapi('A')
-
-  // export type A = z.infer<typeof ASchema>
-
-  // export const CSchema = z.object({ B: z.url(), A: ASchema }).openapi('C')
-
-  // export type C = z.infer<typeof CSchema>
-
-  // export const BSchema = z.object({ B: z.url(), C: CSchema }).openapi('B')
-
-  // export type B = z.infer<typeof BSchema>
-
-  // export const BParamsSchema = z
-  //   .string()
-  //   .openapi({ param: { in: 'query', name: 'B', required: false } })
-
-  // export type BParams = z.infer<typeof BParamsSchema>
-
-  // export const CParamsSchema = z
-  //   .string()
-  //   .openapi({ param: { in: 'path', name: 'C', required: true } })
-
-  // export type CParams = z.infer<typeof CParamsSchema>
-
-  // export const AParamsSchema = z
-  //   .string()
-  //   .openapi({ param: { in: 'header', name: 'A', required: false } })
-
-  // export type AParams = z.infer<typeof AParamsSchema>
-
-  // export const BSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const CSecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const ASecurityScheme = { type: 'http', scheme: 'bearer' }
-
-  // export const BRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // export const CRequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // export const ARequestBody = {
-  //   required: true,
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // export const BResponse = {
-  //   description: 'B',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { B: { $ref: '#/components/links/B' } },
-  //   content: {
-  //     'application/json': { schema: BSchema, examples: { B: { $ref: '#/components/examples/B' } } },
-  //   },
-  // }
-
-  // export const CResponse = {
-  //   description: 'C',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { C: { $ref: '#/components/links/C' } },
-  //   content: {
-  //     'application/json': { schema: CSchema, examples: { C: { $ref: '#/components/examples/C' } } },
-  //   },
-  // }
-
-  // export const AResponse = {
-  //   description: 'A',
-  //   headers: z.object({
-  //     B: z.string().optional(),
-  //     C: z.string().optional(),
-  //     A: z.string().optional(),
-  //   }),
-  //   links: { A: { $ref: '#/components/links/A' } },
-  //   content: {
-  //     'application/json': { schema: ASchema, examples: { A: { $ref: '#/components/examples/A' } } },
-  //   },
-  // }
-
-  // export const BHeaderSchema = z.string()
-
-  // export type BHeader = z.infer<typeof BHeaderSchema>
-
-  // export const CHeaderSchema = z.string()
-
-  // export type CHeader = z.infer<typeof CHeaderSchema>
-
-  // export const AHeaderSchema = z.string()
-
-  // export type AHeader = z.infer<typeof AHeaderSchema>
-
-  // export const BExample = {
-  //   value: {
-  //     B: 'https://example.com/B',
-  //     C: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  //   },
-  // }
-
-  // export const CExample = {
-  //   value: { B: 'https://example.com/C', A: { B: 'https://example.com/A', A: 'A' } },
-  // }
-
-  // export const AExample = { value: { B: 'https://example.com/A', A: 'A' } }
-
-  // export const BLink = { operationId: 'B' }
-
-  // export const CLink = { operationId: 'C' }
-
-  // export const ALink = { operationId: 'A' }
-
-  // export const BCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/B' },
-  //       responses: { '200': { $ref: '#/components/responses/B' } },
-  //     },
-  //   },
-  // }
-
-  // export const CCallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/C' },
-  //       responses: { '200': { $ref: '#/components/responses/C' } },
-  //     },
-  //   },
-  // }
-
-  // export const ACallback = {
-  //   '{$request.body#/B}': {
-  //     post: {
-  //       requestBody: { $ref: '#/components/requestBodies/A' },
-  //       responses: { '200': { $ref: '#/components/responses/A' } },
-  //     },
-  //   },
-  // }
-
-  // export const postACRoute = createRoute({
-  //   method: 'post',
-  //   path: '/A/{C}',
-  //   operationId: 'A',
-  //   security: [{ A: [] }],
-  //   callbacks: { A: ACallback },
-  //   request: {
-  //     body: ARequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: AResponse },
-  // })
-
-  // export const postBCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/B/{C}',
-  //   operationId: 'B',
-  //   security: [{ B: [] }],
-  //   callbacks: { B: BCallback },
-  //   request: {
-  //     body: BRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: BResponse },
-  // })
-
-  // export const postCCRoute = createRoute({
-  //   method: 'post',
-  //   path: '/C/{C}',
-  //   operationId: 'C',
-  //   security: [{ C: [] }],
-  //   callbacks: { C: CCallback },
-  //   request: {
-  //     body: CRequestBody,
-  //     params: z.object({ C: CParamsSchema }),
-  //     query: z.object({ B: BParamsSchema.optional() }),
-  //     headers: z.object({ A: AParamsSchema.optional() }),
-  //   },
-  //   responses: { 200: CResponse },
-  // })
-  // `
-  //   })
-})
-
 describe('CLI options test with string matching', () => {
   beforeEach(() => {
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
@@ -2778,82 +42,26 @@ Options:
 
   it('-h returns help text', () => {
     const result = execSync(`node ${path.resolve('dist/index.js')} -h`).toString()
-    expect(result).toContain('Usage: hono-takibi')
-    expect(result).toContain('--export-schemas')
-  })
+    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
-  it('generates basic route without options', () => {
-    const simpleOpenAPI = {
-      openapi: '3.0.3',
-      info: { title: 'Simple API', version: '1.0.0' },
-      paths: {
-        '/users': {
-          get: {
-            operationId: 'getUsers',
-            responses: { 200: { description: 'Success' } },
-          },
-        },
-      },
-    }
-    fs.writeFileSync('tmp-cli-test/simple.json', JSON.stringify(simpleOpenAPI))
-    execSync(
-      `node ${path.resolve('dist/index.js')} tmp-cli-test/simple.json -o tmp-cli-test/output.ts`,
-    )
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
-
-export const getUsersRoute = createRoute({
-  method: 'get',
-  path: '/users',
-  operationId: 'getUsers',
-  responses: { 200: { description: 'Success' } },
-})
+Options:
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command
 `)
-  })
-
-  it('generates route with schema', () => {
-    const schemaOpenAPI = {
-      openapi: '3.0.3',
-      info: { title: 'Schema API', version: '1.0.0' },
-      paths: {
-        '/users/{id}': {
-          get: {
-            operationId: 'getUser',
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-            responses: {
-              200: {
-                description: 'Success',
-                content: {
-                  'application/json': { schema: { $ref: '#/components/schemas/User' } },
-                },
-              },
-            },
-          },
-        },
-      },
-      components: {
-        schemas: {
-          User: {
-            type: 'object',
-            required: ['id', 'name'],
-            properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
-            },
-          },
-        },
-      },
-    }
-    fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
-    execSync(
-      `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts`,
-    )
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain("import { createRoute, z } from '@hono/zod-openapi'")
-    expect(result).toContain('const UserSchema = z')
-    expect(result).toContain(".openapi('User')")
-    expect(result).toContain("path: '/users/{id}'")
-    expect(result).toContain("operationId: 'getUser'")
   })
 
   it('--export-schemas exports schema with export keyword', () => {
@@ -2891,7 +99,22 @@ export const getUsersRoute = createRoute({
       `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain('export const ItemSchema = z')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z
+  .object({ id: z.int().exactOptional().openapi({ type: 'integer' }) })
+  .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
+  .openapi('Item')
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
   })
 
   it('--export-schemas-types exports schema type', () => {
@@ -2929,7 +152,24 @@ export const getUsersRoute = createRoute({
       `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas-types`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain('export type Item = z.infer<typeof ItemSchema>')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+const ItemSchema = z
+  .object({ id: z.int().exactOptional().openapi({ type: 'integer' }) })
+  .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
+  .openapi('Item')
+
+export type Item = z.infer<typeof ItemSchema>
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
   })
 
   it('--export-parameters exports parameters with export keyword', () => {
@@ -2961,7 +201,23 @@ export const getUsersRoute = createRoute({
       `node ${path.resolve('dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain('export const ItemIdParamsSchema =')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemIdParamsSchema = z
+  .string()
+  .openapi({
+    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    type: 'string',
+  })
+
+export const getItemsIdRoute = createRoute({
+  method: 'get',
+  path: '/items/{id}',
+  operationId: 'getItem',
+  request: { params: z.object({ id: ItemIdParamsSchema }) },
+  responses: { 200: { description: 'Success' } },
+})
+`)
   })
 
   it('--export-parameters-types exports parameter types', () => {
@@ -2993,108 +249,606 @@ export const getUsersRoute = createRoute({
       `node ${path.resolve('dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters-types`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain('export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+const ItemIdParamsSchema = z
+  .string()
+  .openapi({
+    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    type: 'string',
   })
 
-  it('generates route with POST method and request body', () => {
-    const postOpenAPI = {
+export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
+
+export const getItemsIdRoute = createRoute({
+  method: 'get',
+  path: '/items/{id}',
+  operationId: 'getItem',
+  request: { params: z.object({ id: ItemIdParamsSchema }) },
+  responses: { 200: { description: 'Success' } },
+})
+`)
+  })
+
+  it('--export-security-schemes exports security schemes with export keyword', () => {
+    const securityOpenAPI = {
       openapi: '3.0.3',
-      info: { title: 'POST API', version: '1.0.0' },
+      info: { title: 'Security API', version: '1.0.0' },
+      paths: {
+        '/secure': {
+          get: {
+            operationId: 'getSecure',
+            security: [{ BearerAuth: [] }],
+            responses: { 200: { description: 'Success' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          BearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/security.json', JSON.stringify(securityOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/security.json -o tmp-cli-test/output.ts --export-security-schemes`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
+
+export const getSecureRoute = createRoute({
+  method: 'get',
+  path: '/secure',
+  operationId: 'getSecure',
+  responses: { 200: { description: 'Success' } },
+  security: [{ BearerAuth: [] }],
+})
+`)
+  })
+
+  it('--export-request-bodies exports request bodies with export keyword', () => {
+    const requestBodyOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'RequestBody API', version: '1.0.0' },
       paths: {
         '/users': {
           post: {
             operationId: 'createUser',
-            requestBody: {
-              required: true,
-              content: {
-                'application/json': {
-                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+            requestBody: { $ref: '#/components/requestBodies/UserBody' },
+            responses: { 201: { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        requestBodies: {
+          UserBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/requestbody.json', JSON.stringify(requestBodyOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/requestbody.json -o tmp-cli-test/output.ts --export-request-bodies`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const UserBodyRequestBody = {
+  content: {
+    'application/json': {
+      schema: z
+        .object({ name: z.string().exactOptional().openapi({ type: 'string' }) })
+        .openapi({ type: 'object', properties: { name: { type: 'string' } } }),
+    },
+  },
+  required: true,
+}
+
+export const postUsersRoute = createRoute({
+  method: 'post',
+  path: '/users',
+  operationId: 'createUser',
+  request: { body: UserBodyRequestBody },
+  responses: { 201: { description: 'Created' } },
+})
+`)
+  })
+
+  it('--export-responses exports responses with export keyword', () => {
+    const responseOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Response API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: { 200: { $ref: '#/components/responses/UserListResponse' } },
+          },
+        },
+      },
+      components: {
+        responses: {
+          UserListResponse: {
+            description: 'List of users',
+            content: {
+              'application/json': {
+                schema: { type: 'array', items: { type: 'object' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/response.json', JSON.stringify(responseOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/response.json -o tmp-cli-test/output.ts --export-responses`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const UserListResponse = {
+  description: 'List of users',
+  content: {
+    'application/json': {
+      schema: z
+        .array(z.object({}).openapi({ type: 'object' }))
+        .openapi({ type: 'array', items: { type: 'object' } }),
+    },
+  },
+}
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: { 200: UserListResponse },
+})
+`)
+  })
+
+  it('--export-headers exports headers with export keyword', () => {
+    const headerOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Header API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'Success',
+                headers: { 'X-Rate-Limit': { $ref: '#/components/headers/RateLimit' } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        headers: {
+          RateLimit: {
+            description: 'Rate limit',
+            schema: { type: 'integer' },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/header.json -o tmp-cli-test/output.ts --export-headers`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', type: 'integer' })
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: { description: 'Success', headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }) },
+  },
+})
+`)
+  })
+
+  it('--export-headers-types exports header types', () => {
+    const headerOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Header API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'Success',
+                headers: { 'X-Rate-Limit': { $ref: '#/components/headers/RateLimit' } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        headers: {
+          RateLimit: {
+            description: 'Rate limit',
+            schema: { type: 'integer' },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/header.json -o tmp-cli-test/output.ts --export-headers-types`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', type: 'integer' })
+
+export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: { description: 'Success', headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }) },
+  },
+})
+`)
+  })
+
+  it('--export-examples exports examples with export keyword', () => {
+    const exampleOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Example API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object' },
+                    examples: { UserExample: { $ref: '#/components/examples/UserExample' } },
+                  },
                 },
               },
             },
-            responses: { 201: { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        examples: {
+          UserExample: {
+            summary: 'User example',
+            value: { id: 1, name: 'John' },
           },
         },
       },
     }
-    fs.writeFileSync('tmp-cli-test/post.json', JSON.stringify(postOpenAPI))
+    fs.writeFileSync('tmp-cli-test/example.json', JSON.stringify(exampleOpenAPI))
     execSync(
-      `node ${path.resolve('dist/index.js')} tmp-cli-test/post.json -o tmp-cli-test/output.ts`,
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/example.json -o tmp-cli-test/output.ts --export-examples`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain("method: 'post'")
-    expect(result).toContain("path: '/users'")
-    expect(result).toContain("operationId: 'createUser'")
-    expect(result).toContain('body:')
-    expect(result).toContain('201: { description: ')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const UserExample = { summary: 'User example', value: { id: 1, name: 'John' } }
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': {
+          schema: z.object({}).openapi({ type: 'object' }),
+          examples: { UserExample: UserExample },
+        },
+      },
+    },
+  },
+})
+`)
   })
 
-  it('generates route with multiple HTTP methods', () => {
-    const multiMethodOpenAPI = {
+  it('--export-links exports links with export keyword', () => {
+    const linkOpenAPI = {
       openapi: '3.0.3',
-      info: { title: 'Multi Method API', version: '1.0.0' },
+      info: { title: 'Link API', version: '1.0.0' },
       paths: {
-        '/items': {
+        '/users/{id}': {
           get: {
-            operationId: 'listItems',
-            responses: { 200: { description: 'List' } },
-          },
-          post: {
-            operationId: 'createItem',
-            responses: { 201: { description: 'Created' } },
+            operationId: 'getUser',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: {
+              200: {
+                description: 'Success',
+                links: { GetUserPosts: { $ref: '#/components/links/GetUserPosts' } },
+              },
+            },
           },
         },
+      },
+      components: {
+        links: {
+          GetUserPosts: {
+            operationId: 'getUserPosts',
+            parameters: { userId: '$response.body#/id' },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/link.json', JSON.stringify(linkOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/link.json -o tmp-cli-test/output.ts --export-links`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const GetUserPostsLink = {
+  operationId: 'getUserPosts',
+  parameters: { userId: '$response.body#/id' },
+}
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: {
+    params: z.object({
+      id: z
+        .string()
+        .openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          type: 'string',
+        }),
+    }),
+  },
+  responses: { 200: { description: 'Success', links: { GetUserPosts: GetUserPostsLink } } },
+})
+`)
+  })
+
+  it('--export-callbacks exports callbacks with export keyword', () => {
+    const callbackOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Callback API', version: '1.0.0' },
+      paths: {
+        '/subscribe': {
+          post: {
+            operationId: 'subscribe',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { callbackUrl: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { 201: { description: 'Subscribed' } },
+            callbacks: { onEvent: { $ref: '#/components/callbacks/OnEvent' } },
+          },
+        },
+      },
+      components: {
+        callbacks: {
+          OnEvent: {
+            '{$request.body#/callbackUrl}': {
+              post: {
+                requestBody: {
+                  content: { 'application/json': { schema: { type: 'object' } } },
+                },
+                responses: { 200: { description: 'OK' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/callback.json', JSON.stringify(callbackOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/callback.json -o tmp-cli-test/output.ts --export-callbacks`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const OnEventCallback = {
+  '{$request.body#/callbackUrl}': {
+    post: {
+      requestBody: {
+        content: { 'application/json': { schema: z.object({}).openapi({ type: 'object' }) } },
+      },
+      responses: { 200: { description: 'OK' } },
+    },
+  },
+}
+
+export const postSubscribeRoute = createRoute({
+  method: 'post',
+  path: '/subscribe',
+  operationId: 'subscribe',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({ callbackUrl: z.string().exactOptional().openapi({ type: 'string' }) })
+            .openapi({ type: 'object', properties: { callbackUrl: { type: 'string' } } }),
+        },
+      },
+    },
+  },
+  responses: { 201: { description: 'Subscribed' } },
+  onEvent: OnEventCallback,
+})
+`)
+  })
+
+  it('all export options enabled', () => {
+    const allOptionsOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'All Options API', version: '1.0.0' },
+      paths: {
         '/items/{id}': {
           get: {
             operationId: 'getItem',
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-            responses: { 200: { description: 'OK' } },
+            security: [{ BearerAuth: [] }],
+            parameters: [{ $ref: '#/components/parameters/ItemId' }],
+            responses: { 200: { $ref: '#/components/responses/ItemResponse' } },
           },
-          delete: {
-            operationId: 'deleteItem',
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
-            responses: { 204: { description: 'Deleted' } },
+          post: {
+            operationId: 'createItem',
+            requestBody: { $ref: '#/components/requestBodies/ItemBody' },
+            responses: { 201: { description: 'Created' } },
+            callbacks: { onCreated: { $ref: '#/components/callbacks/OnCreated' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: { id: { type: 'integer' }, name: { type: 'string' } },
+          },
+        },
+        parameters: {
+          ItemId: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        },
+        securitySchemes: {
+          BearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+        requestBodies: {
+          ItemBody: {
+            required: true,
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } },
+          },
+        },
+        responses: {
+          ItemResponse: {
+            description: 'Item response',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } },
+            headers: { 'X-Rate-Limit': { $ref: '#/components/headers/RateLimit' } },
+            links: { GetRelated: { $ref: '#/components/links/GetRelated' } },
+          },
+        },
+        headers: {
+          RateLimit: { description: 'Rate limit', schema: { type: 'integer' } },
+        },
+        examples: {
+          ItemExample: { summary: 'Item example', value: { id: 1, name: 'Test' } },
+        },
+        links: {
+          GetRelated: { operationId: 'getRelated', parameters: { id: '$response.body#/id' } },
+        },
+        callbacks: {
+          OnCreated: {
+            '{$request.body#/callbackUrl}': {
+              post: { responses: { 200: { description: 'OK' } } },
+            },
           },
         },
       },
     }
-    fs.writeFileSync('tmp-cli-test/multi.json', JSON.stringify(multiMethodOpenAPI))
+    fs.writeFileSync('tmp-cli-test/all-options.json', JSON.stringify(allOptionsOpenAPI))
     execSync(
-      `node ${path.resolve('dist/index.js')} tmp-cli-test/multi.json -o tmp-cli-test/output.ts`,
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/all-options.json -o tmp-cli-test/output.ts --export-schemas-types --export-schemas --export-parameters-types --export-parameters --export-security-schemes --export-request-bodies --export-responses --export-headers-types --export-headers --export-examples --export-links --export-callbacks`,
     )
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain('export const getItemsRoute = createRoute')
-    expect(result).toContain('export const postItemsRoute = createRoute')
-    expect(result).toContain('export const getItemsIdRoute = createRoute')
-    expect(result).toContain('export const deleteItemsIdRoute = createRoute')
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemSchema = z
+  .object({
+    id: z.int().exactOptional().openapi({ type: 'integer' }),
+    name: z.string().exactOptional().openapi({ type: 'string' }),
+  })
+  .openapi({ type: 'object', properties: { id: { type: 'integer' }, name: { type: 'string' } } })
+  .openapi('Item')
+
+export type Item = z.infer<typeof ItemSchema>
+
+export const ItemIdParamsSchema = z
+  .string()
+  .openapi({
+    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    type: 'string',
   })
 
-  it('generates route with query parameters', () => {
-    const queryOpenAPI = {
-      openapi: '3.0.3',
-      info: { title: 'Query API', version: '1.0.0' },
-      paths: {
-        '/search': {
-          get: {
-            operationId: 'search',
-            parameters: [
-              { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
-              { name: 'limit', in: 'query', required: false, schema: { type: 'integer' } },
-            ],
-            responses: { 200: { description: 'Results' } },
-          },
-        },
-      },
-    }
-    fs.writeFileSync('tmp-cli-test/query.json', JSON.stringify(queryOpenAPI))
-    execSync(
-      `node ${path.resolve('dist/index.js')} tmp-cli-test/query.json -o tmp-cli-test/output.ts`,
-    )
-    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
-    expect(result).toContain("operationId: 'search'")
-    expect(result).toContain('query: z.object')
-    expect(result).toContain("name: 'q'")
-    expect(result).toContain("in: 'query'")
+export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
+
+export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
+
+export const ItemBodyRequestBody = {
+  content: { 'application/json': { schema: ItemSchema } },
+  required: true,
+}
+
+export const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', type: 'integer' })
+
+export const GetRelatedLink = {
+  operationId: 'getRelated',
+  parameters: { id: '$response.body#/id' },
+}
+
+export const ItemResponse = {
+  description: 'Item response',
+  headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }),
+  content: { 'application/json': { schema: ItemSchema } },
+  links: { GetRelated: GetRelatedLink },
+}
+
+export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
+
+export const ItemExample = { summary: 'Item example', value: { id: 1, name: 'Test' } }
+
+export const OnCreatedCallback = {
+  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },
+}
+
+export const getItemsIdRoute = createRoute({
+  method: 'get',
+  path: '/items/{id}',
+  operationId: 'getItem',
+  request: { params: z.object({ id: ItemIdParamsSchema }) },
+  responses: { 200: ItemResponse },
+  security: [{ BearerAuth: [] }],
+})
+
+export const postItemsIdRoute = createRoute({
+  method: 'post',
+  path: '/items/{id}',
+  operationId: 'createItem',
+  request: { body: ItemBodyRequestBody },
+  responses: { 201: { description: 'Created' } },
+  onCreated: OnCreatedCallback,
+})
+`)
   })
 
   it('error on missing input file', () => {
