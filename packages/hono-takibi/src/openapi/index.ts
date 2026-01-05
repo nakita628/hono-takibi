@@ -203,6 +203,8 @@ export type FormatString =
   | 'uuidv6'
   | 'uuidv7'
   | 'uri'
+  | 'hex'
+  | 'jwt'
   | 'emoji'
   | 'base64'
   | 'base64url'
@@ -223,7 +225,6 @@ export type FormatString =
   | 'toLowerCase' // toLowerCase
   | 'toUpperCase' // toUpperCase
   | 'trim' // trim whitespace
-  | 'jwt' // JSON Web Token
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 

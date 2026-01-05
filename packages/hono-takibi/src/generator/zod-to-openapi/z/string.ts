@@ -10,12 +10,15 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   emoji: 'emoji()',
   base64: 'base64()',
   base64url: 'base64url()',
+  hex: 'hex()',
+  jwt: 'jwt()',
   nanoid: 'nanoid()',
   cuid: 'cuid()',
   cuid2: 'cuid2()',
   ulid: 'ulid()',
   ipv4: 'ipv4()',
   ipv6: 'ipv6()',
+  mac: 'mac()',
   cidrv4: 'cidrv4()',
   cidrv6: 'cidrv6()',
   date: 'iso.date()',
@@ -26,7 +29,6 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   toLowerCase: 'toLowerCase()',
   toUpperCase: 'toUpperCase()',
   trim: 'trim()',
-  jwt: 'jwt()',
 }
 
 /**

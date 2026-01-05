@@ -2742,6 +2742,385 @@ describe('Hono Takibi Normal Test', () => {
   //   })
 })
 
+describe('CLI options test with string matching', () => {
+  beforeEach(() => {
+    fs.rmSync('tmp-cli-test', { recursive: true, force: true })
+    fs.mkdirSync('tmp-cli-test', { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync('tmp-cli-test', { recursive: true, force: true })
+  })
+
+  it('--help returns help text', () => {
+    const result = execSync(`node ${path.resolve('dist/index.js')} --help`).toString()
+    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
+
+Options:
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command
+`)
+  })
+
+  it('-h returns help text', () => {
+    const result = execSync(`node ${path.resolve('dist/index.js')} -h`).toString()
+    expect(result).toContain('Usage: hono-takibi')
+    expect(result).toContain('--export-schemas')
+  })
+
+  it('generates basic route without options', () => {
+    const simpleOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Simple API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: { 200: { description: 'Success' } },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/simple.json', JSON.stringify(simpleOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/simple.json -o tmp-cli-test/output.ts`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: { 200: { description: 'Success' } },
+})
+`)
+  })
+
+  it('generates route with schema', () => {
+    const schemaOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Schema API', version: '1.0.0' },
+      paths: {
+        '/users/{id}': {
+          get: {
+            operationId: 'getUser',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/User' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            required: ['id', 'name'],
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain("import { createRoute, z } from '@hono/zod-openapi'")
+    expect(result).toContain('const UserSchema = z')
+    expect(result).toContain(".openapi('User')")
+    expect(result).toContain("path: '/users/{id}'")
+    expect(result).toContain("operationId: 'getUser'")
+  })
+
+  it('--export-schemas exports schema with export keyword', () => {
+    const schemaOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Schema API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain('export const ItemSchema = z')
+  })
+
+  it('--export-schemas-types exports schema type', () => {
+    const schemaOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Schema API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'Success',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Item' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+            },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/schema.json -o tmp-cli-test/output.ts --export-schemas-types`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain('export type Item = z.infer<typeof ItemSchema>')
+  })
+
+  it('--export-parameters exports parameters with export keyword', () => {
+    const paramOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Param API', version: '1.0.0' },
+      paths: {
+        '/items/{id}': {
+          get: {
+            operationId: 'getItem',
+            parameters: [{ $ref: '#/components/parameters/ItemId' }],
+            responses: { 200: { description: 'Success' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          ItemId: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain('export const ItemIdParamsSchema =')
+  })
+
+  it('--export-parameters-types exports parameter types', () => {
+    const paramOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Param API', version: '1.0.0' },
+      paths: {
+        '/items/{id}': {
+          get: {
+            operationId: 'getItem',
+            parameters: [{ $ref: '#/components/parameters/ItemId' }],
+            responses: { 200: { description: 'Success' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          ItemId: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/param.json -o tmp-cli-test/output.ts --export-parameters-types`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain('export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>')
+  })
+
+  it('generates route with POST method and request body', () => {
+    const postOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'POST API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          post: {
+            operationId: 'createUser',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { 201: { description: 'Created' } },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/post.json', JSON.stringify(postOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/post.json -o tmp-cli-test/output.ts`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain("method: 'post'")
+    expect(result).toContain("path: '/users'")
+    expect(result).toContain("operationId: 'createUser'")
+    expect(result).toContain('body:')
+    expect(result).toContain('201: { description: ')
+  })
+
+  it('generates route with multiple HTTP methods', () => {
+    const multiMethodOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Multi Method API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'listItems',
+            responses: { 200: { description: 'List' } },
+          },
+          post: {
+            operationId: 'createItem',
+            responses: { 201: { description: 'Created' } },
+          },
+        },
+        '/items/{id}': {
+          get: {
+            operationId: 'getItem',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { 200: { description: 'OK' } },
+          },
+          delete: {
+            operationId: 'deleteItem',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { 204: { description: 'Deleted' } },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/multi.json', JSON.stringify(multiMethodOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/multi.json -o tmp-cli-test/output.ts`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain('export const getItemsRoute = createRoute')
+    expect(result).toContain('export const postItemsRoute = createRoute')
+    expect(result).toContain('export const getItemsIdRoute = createRoute')
+    expect(result).toContain('export const deleteItemsIdRoute = createRoute')
+  })
+
+  it('generates route with query parameters', () => {
+    const queryOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Query API', version: '1.0.0' },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+              { name: 'limit', in: 'query', required: false, schema: { type: 'integer' } },
+            ],
+            responses: { 200: { description: 'Results' } },
+          },
+        },
+      },
+    }
+    fs.writeFileSync('tmp-cli-test/query.json', JSON.stringify(queryOpenAPI))
+    execSync(
+      `node ${path.resolve('dist/index.js')} tmp-cli-test/query.json -o tmp-cli-test/output.ts`,
+    )
+    const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
+    expect(result).toContain("operationId: 'search'")
+    expect(result).toContain('query: z.object')
+    expect(result).toContain("name: 'q'")
+    expect(result).toContain("in: 'query'")
+  })
+
+  it('error on missing input file', () => {
+    expect(() => {
+      execSync(
+        `node ${path.resolve('dist/index.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
+        { encoding: 'utf-8' },
+      )
+    }).toThrow()
+  })
+
+  it('error on missing output option', () => {
+    const simpleOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Simple API', version: '1.0.0' },
+      paths: {},
+    }
+    fs.writeFileSync('tmp-cli-test/simple.json', JSON.stringify(simpleOpenAPI))
+    expect(() => {
+      execSync(`node ${path.resolve('dist/index.js')} tmp-cli-test/simple.json`, {
+        encoding: 'utf-8',
+      })
+    }).toThrow()
+  })
+})
+
 describe('cli test', () => {
   let exitSpy: ReturnType<typeof vi.spyOn>
   let logSpy: ReturnType<typeof vi.spyOn>
