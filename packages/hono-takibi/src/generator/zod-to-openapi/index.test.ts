@@ -158,7 +158,7 @@ describe('zodToOpenAPI', () => {
               },
             ],
           },
-          'z.intersection(GeoJsonObjectSchema,z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]).openapi({"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]})}).openapi({"type":"object","properties":{"type":{"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]}},"required":["type"],"discriminator":{"propertyName":"type"}})).openapi({"description":"Abstract type for all GeoJSon object except Feature and FeatureCollection\\n","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","properties":{"type":{"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]}},"required":["type"],"discriminator":{"propertyName":"type"}}]})',
+          'GeoJsonObjectSchema.and(z.object({type:z.enum(["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]).openapi({"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]})}).openapi({"type":"object","properties":{"type":{"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]}},"required":["type"],"discriminator":{"propertyName":"type"}})).openapi({"description":"Abstract type for all GeoJSon object except Feature and FeatureCollection\\n","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","properties":{"type":{"type":"string","enum":["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon","GeometryCollection"]}},"required":["type"],"discriminator":{"propertyName":"type"}}]})',
         ],
         [
           {
@@ -202,7 +202,7 @@ describe('zodToOpenAPI', () => {
               },
             ],
           },
-          `z.intersection(GeoJsonObjectSchema,z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable().openapi({"type":"object"}),id:z.union([z.number().openapi({"type":"number"}),z.string().openapi({"type":"string"})]).exactOptional().openapi({"oneOf":[{"type":"number"},{"type":"string"}]})}).openapi({"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}}]})`,
+          `GeoJsonObjectSchema.and(z.object({geometry:GeometrySchema.nullable(),properties:z.object({}).nullable().openapi({"type":"object"}),id:z.union([z.number().openapi({"type":"number"}),z.string().openapi({"type":"string"})]).exactOptional().openapi({"oneOf":[{"type":"number"},{"type":"string"}]})}).openapi({"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}})).openapi({"description":"GeoJSon 'Feature' object","externalDocs":{"url":"https://tools.ietf.org/html/rfc7946#section-3.2"},"allOf":[{"$ref":"#/components/schemas/GeoJsonObject"},{"type":"object","required":["geometry","properties"],"properties":{"geometry":{"allOf":[{"nullable":true},{"$ref":"#/components/schemas/Geometry"}]},"properties":{"type":"object","nullable":true},"id":{"oneOf":[{"type":"number"},{"type":"string"}]}}}]})`,
         ],
         [
           {
@@ -227,7 +227,7 @@ describe('zodToOpenAPI', () => {
               },
             ],
           },
-          'z.intersection(z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}),z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}]})',
+          'z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}).and(z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}]})',
         ],
         [
           {
@@ -253,7 +253,7 @@ describe('zodToOpenAPI', () => {
             ],
             nullable: true,
           },
-          'z.intersection(z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}),z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).nullable().openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}]})',
+          'z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}).and(z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).nullable().openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}]})',
         ],
         [
           {
@@ -279,7 +279,7 @@ describe('zodToOpenAPI', () => {
             ],
             type: ['null'],
           },
-          'z.intersection(z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}),z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).nullable().openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}],"type":["null"]})',
+          'z.object({a:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["a"],"properties":{"a":{"type":"string"}}}).and(z.object({b:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["b"],"properties":{"b":{"type":"string"}}})).nullable().openapi({"allOf":[{"type":"object","required":["a"],"properties":{"a":{"type":"string"}}},{"type":"object","required":["b"],"properties":{"b":{"type":"string"}}}],"type":["null"]})',
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)
