@@ -12,54 +12,23 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        value: z.string().openapi({ type: 'string' }),
+        id: z.uuid(),
+        value: z.string(),
         parent: TreeNodeSchema.exactOptional(),
-        children: z
-          .array(TreeNodeSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
-        metadata: z
-          .record(z.string(), TreeNodeSchema)
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/TreeNode' },
-          }),
+        children: z.array(TreeNodeSchema).exactOptional(),
+        metadata: z.record(z.string(), TreeNodeSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'value'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          value: { type: 'string' },
-          parent: { $ref: '#/components/schemas/TreeNode' },
-          children: { type: 'array', items: { $ref: '#/components/schemas/TreeNode' } },
-          metadata: {
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/TreeNode' },
-          },
-        },
-      }),
+      .openapi({ required: ['id', 'value'] }),
   )
   .openapi('TreeNode')
 
 const LinkedListSchema: z.ZodType<LinkedListType> = z
   .lazy(() =>
-    z
-      .object({
-        head: LinkedListNodeSchema.exactOptional(),
-        tail: LinkedListNodeSchema.exactOptional(),
-        length: z.int().exactOptional().openapi({ type: 'integer' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          head: { $ref: '#/components/schemas/LinkedListNode' },
-          tail: { $ref: '#/components/schemas/LinkedListNode' },
-          length: { type: 'integer' },
-        },
-      }),
+    z.object({
+      head: LinkedListNodeSchema.exactOptional(),
+      tail: LinkedListNodeSchema.exactOptional(),
+      length: z.int().exactOptional(),
+    }),
   )
   .openapi('LinkedList')
 
@@ -74,21 +43,12 @@ const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
   .lazy(() =>
     z
       .object({
-        value: z.string().openapi({ type: 'string' }),
+        value: z.string(),
         prev: LinkedListNodeSchema.exactOptional(),
         next: LinkedListNodeSchema.exactOptional(),
         list: LinkedListSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string' },
-          prev: { $ref: '#/components/schemas/LinkedListNode' },
-          next: { $ref: '#/components/schemas/LinkedListNode' },
-          list: { $ref: '#/components/schemas/LinkedList' },
-        },
-      }),
+      .openapi({ required: ['value'] }),
   )
   .openapi('LinkedListNode')
 
@@ -102,41 +62,18 @@ const GraphNodeSchema: z.ZodType<GraphNodeType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        data: z.object({}).exactOptional().openapi({ type: 'object' }),
-        edges: z
-          .array(GraphEdgeSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
+        id: z.string(),
+        data: z.object({}).exactOptional(),
+        edges: z.array(GraphEdgeSchema).exactOptional(),
         graph: GraphSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id'],
-        properties: {
-          id: { type: 'string' },
-          data: { type: 'object' },
-          edges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
-          graph: { $ref: '#/components/schemas/Graph' },
-        },
-      }),
+      .openapi({ required: ['id'] }),
   )
   .openapi('GraphNode')
 
 const GraphMetadataSchema: z.ZodType<GraphMetadataType> = z
   .lazy(() =>
-    z
-      .object({
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        rootNode: GraphNodeSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          rootNode: { $ref: '#/components/schemas/GraphNode' },
-        },
-      }),
+    z.object({ name: z.string().exactOptional(), rootNode: GraphNodeSchema.exactOptional() }),
   )
   .openapi('GraphMetadata')
 
@@ -150,21 +87,11 @@ const GraphSchema: z.ZodType<GraphType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        nodes: z
-          .array(GraphNodeSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
+        id: z.string().exactOptional(),
+        nodes: z.array(GraphNodeSchema),
         metadata: GraphMetadataSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['nodes'],
-        properties: {
-          id: { type: 'string' },
-          nodes: { type: 'array', items: { $ref: '#/components/schemas/GraphNode' } },
-          metadata: { $ref: '#/components/schemas/GraphMetadata' },
-        },
-      }),
+      .openapi({ required: ['nodes'] }),
   )
   .openapi('Graph')
 
@@ -172,23 +99,13 @@ const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
+        id: z.string().exactOptional(),
         source: GraphNodeSchema,
         target: GraphNodeSchema,
-        weight: z.number().exactOptional().openapi({ type: 'number' }),
+        weight: z.number().exactOptional(),
         metadata: EdgeMetadataSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['source', 'target'],
-        properties: {
-          id: { type: 'string' },
-          source: { $ref: '#/components/schemas/GraphNode' },
-          target: { $ref: '#/components/schemas/GraphNode' },
-          weight: { type: 'number' },
-          metadata: { $ref: '#/components/schemas/EdgeMetadata' },
-        },
-      }),
+      .openapi({ required: ['source', 'target'] }),
   )
   .openapi('GraphEdge')
 
@@ -201,21 +118,10 @@ type GraphNodeType = {
 
 const EdgeMetadataSchema: z.ZodType<EdgeMetadataType> = z
   .lazy(() =>
-    z
-      .object({
-        label: z.string().exactOptional().openapi({ type: 'string' }),
-        relatedEdges: z
-          .array(GraphEdgeSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          label: { type: 'string' },
-          relatedEdges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
-        },
-      }),
+    z.object({
+      label: z.string().exactOptional(),
+      relatedEdges: z.array(GraphEdgeSchema).exactOptional(),
+    }),
   )
   .openapi('EdgeMetadata')
 
@@ -233,22 +139,12 @@ type EdgeMetadataType = { label?: string; relatedEdges?: z.infer<typeof GraphEdg
 
 const UserProfileSchema: z.ZodType<UserProfileType> = z
   .lazy(() =>
-    z
-      .object({
-        bio: z.string().exactOptional().openapi({ type: 'string' }),
-        avatar: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-        user: SocialUserSchema.exactOptional(),
-        settings: ProfileSettingsSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          bio: { type: 'string' },
-          avatar: { type: 'string', format: 'uri' },
-          user: { $ref: '#/components/schemas/SocialUser' },
-          settings: { $ref: '#/components/schemas/ProfileSettings' },
-        },
-      }),
+    z.object({
+      bio: z.string().exactOptional(),
+      avatar: z.url().exactOptional(),
+      user: SocialUserSchema.exactOptional(),
+      settings: ProfileSettingsSchema.exactOptional(),
+    }),
   )
   .openapi('UserProfile')
 
@@ -256,41 +152,16 @@ const PostSchema: z.ZodType<PostType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        content: z.string().openapi({ type: 'string' }),
+        id: z.string(),
+        content: z.string(),
         author: SocialUserSchema,
-        likes: z
-          .array(SocialUserSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialUser' } }),
-        reposts: z
-          .array(PostSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
+        likes: z.array(SocialUserSchema).exactOptional(),
+        reposts: z.array(PostSchema).exactOptional(),
         replyTo: PostSchema.exactOptional(),
-        replies: z
-          .array(PostSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-        mentions: z
-          .array(SocialUserSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialUser' } }),
+        replies: z.array(PostSchema).exactOptional(),
+        mentions: z.array(SocialUserSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'content', 'author'],
-        properties: {
-          id: { type: 'string' },
-          content: { type: 'string' },
-          author: { $ref: '#/components/schemas/SocialUser' },
-          likes: { type: 'array', items: { $ref: '#/components/schemas/SocialUser' } },
-          reposts: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
-          replyTo: { $ref: '#/components/schemas/Post' },
-          replies: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
-          mentions: { type: 'array', items: { $ref: '#/components/schemas/SocialUser' } },
-        },
-      }),
+      .openapi({ required: ['id', 'content', 'author'] }),
   )
   .openapi('Post')
 
@@ -308,58 +179,25 @@ const SocialUserSchema: z.ZodType<SocialUserType> = z
   .lazy(() =>
     z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        username: z.string().openapi({ type: 'string' }),
+        id: z.uuid(),
+        username: z.string(),
         profile: UserProfileSchema.exactOptional(),
-        followers: z
-          .array(SocialUserSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialUser' } }),
-        following: z
-          .array(SocialUserSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialUser' } }),
-        posts: z
-          .array(PostSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-        blockedUsers: z
-          .array(SocialUserSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/SocialUser' } }),
+        followers: z.array(SocialUserSchema).exactOptional(),
+        following: z.array(SocialUserSchema).exactOptional(),
+        posts: z.array(PostSchema).exactOptional(),
+        blockedUsers: z.array(SocialUserSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'username'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          username: { type: 'string' },
-          profile: { $ref: '#/components/schemas/UserProfile' },
-          followers: { type: 'array', items: { $ref: '#/components/schemas/SocialUser' } },
-          following: { type: 'array', items: { $ref: '#/components/schemas/SocialUser' } },
-          posts: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
-          blockedUsers: { type: 'array', items: { $ref: '#/components/schemas/SocialUser' } },
-        },
-      }),
+      .openapi({ required: ['id', 'username'] }),
   )
   .openapi('SocialUser')
 
 const ProfileSettingsSchema: z.ZodType<ProfileSettingsType> = z
   .lazy(() =>
-    z
-      .object({
-        privacy: z.string().exactOptional().openapi({ type: 'string' }),
-        notifications: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        profile: UserProfileSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          privacy: { type: 'string' },
-          notifications: { type: 'boolean' },
-          profile: { $ref: '#/components/schemas/UserProfile' },
-        },
-      }),
+    z.object({
+      privacy: z.string().exactOptional(),
+      notifications: z.boolean().exactOptional(),
+      profile: UserProfileSchema.exactOptional(),
+    }),
   )
   .openapi('ProfileSettings')
 
@@ -389,49 +227,23 @@ type PostType = {
 
 const FilePermissionsSchema: z.ZodType<FilePermissionsType> = z
   .lazy(() =>
-    z
-      .object({
-        read: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        write: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        execute: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        acl: z
-          .array(AccessControlEntrySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          read: { type: 'boolean' },
-          write: { type: 'boolean' },
-          execute: { type: 'boolean' },
-          acl: { type: 'array', items: { $ref: '#/components/schemas/AccessControlEntry' } },
-        },
-      }),
+    z.object({
+      read: z.boolean().exactOptional(),
+      write: z.boolean().exactOptional(),
+      execute: z.boolean().exactOptional(),
+      acl: z.array(AccessControlEntrySchema).exactOptional(),
+    }),
   )
   .openapi('FilePermissions')
 
 const FileOwnerSchema: z.ZodType<FileOwnerType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        ownedFiles: z
-          .array(FileSystemEntrySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } }),
-        homeDirectory: FileSystemEntrySchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          ownedFiles: { type: 'array', items: { $ref: '#/components/schemas/FileSystemEntry' } },
-          homeDirectory: { $ref: '#/components/schemas/FileSystemEntry' },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      ownedFiles: z.array(FileSystemEntrySchema).exactOptional(),
+      homeDirectory: FileSystemEntrySchema.exactOptional(),
+    }),
   )
   .openapi('FileOwner')
 
@@ -446,42 +258,22 @@ const FileSystemEntrySchema: z.ZodType<FileSystemEntryType> = z
   .lazy(() =>
     z
       .object({
-        name: z.string().openapi({ type: 'string' }),
-        type: z
-          .enum(['file', 'directory', 'symlink'])
-          .openapi({ type: 'string', enum: ['file', 'directory', 'symlink'] }),
+        name: z.string(),
+        type: z.enum(['file', 'directory', 'symlink']),
         permissions: FilePermissionsSchema.exactOptional(),
         owner: FileOwnerSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['name', 'type'],
-        properties: {
-          name: { type: 'string' },
-          type: { type: 'string', enum: ['file', 'directory', 'symlink'] },
-          permissions: { $ref: '#/components/schemas/FilePermissions' },
-          owner: { $ref: '#/components/schemas/FileOwner' },
-        },
-      }),
+      .openapi({ required: ['name', 'type'] }),
   )
   .openapi('FileSystemEntry')
 
 const AccessControlEntrySchema: z.ZodType<AccessControlEntryType> = z
   .lazy(() =>
-    z
-      .object({
-        principal: FileOwnerSchema.exactOptional(),
-        permissions: FilePermissionsSchema.exactOptional(),
-        entry: FileSystemEntrySchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          principal: { $ref: '#/components/schemas/FileOwner' },
-          permissions: { $ref: '#/components/schemas/FilePermissions' },
-          entry: { $ref: '#/components/schemas/FileSystemEntry' },
-        },
-      }),
+    z.object({
+      principal: FileOwnerSchema.exactOptional(),
+      permissions: FilePermissionsSchema.exactOptional(),
+      entry: FileSystemEntrySchema.exactOptional(),
+    }),
   )
   .openapi('AccessControlEntry')
 
@@ -507,45 +299,21 @@ type FileOwnerType = {
 
 const CommentAuthorSchema: z.ZodType<CommentAuthorType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        recentComments: z
-          .array(CommentSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          recentComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      recentComments: z.array(CommentSchema).exactOptional(),
+    }),
   )
   .openapi('CommentAuthor')
 
 const CommentThreadSchema: z.ZodType<CommentThreadType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        rootComment: CommentSchema.exactOptional(),
-        allComments: z
-          .array(CommentSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          rootComment: { $ref: '#/components/schemas/Comment' },
-          allComments: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      rootComment: CommentSchema.exactOptional(),
+      allComments: z.array(CommentSchema).exactOptional(),
+    }),
   )
   .openapi('CommentThread')
 
@@ -563,30 +331,15 @@ const CommentSchema: z.ZodType<CommentType> = z
   .lazy(() =>
     z
       .object({
-        id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-        content: z.string().openapi({ type: 'string' }),
+        id: z.uuid(),
+        content: z.string(),
         author: CommentAuthorSchema.exactOptional(),
         parent: CommentSchema.exactOptional(),
-        replies: z
-          .array(CommentSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
+        replies: z.array(CommentSchema).exactOptional(),
         thread: CommentThreadSchema.exactOptional(),
         quotedComment: CommentSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'content'],
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          content: { type: 'string' },
-          author: { $ref: '#/components/schemas/CommentAuthor' },
-          parent: { $ref: '#/components/schemas/Comment' },
-          replies: { type: 'array', items: { $ref: '#/components/schemas/Comment' } },
-          thread: { $ref: '#/components/schemas/CommentThread' },
-          quotedComment: { $ref: '#/components/schemas/Comment' },
-        },
-      }),
+      .openapi({ required: ['id', 'content'] }),
   )
   .openapi('Comment')
 
@@ -603,53 +356,20 @@ type CommentThreadType = {
 }
 
 const LiteralExpressionSchema = z
-  .object({
-    type: z.literal('literal').openapi({ type: 'string' }),
-    value: z
-      .xor([
-        z.string().openapi({ type: 'string' }),
-        z.number().openapi({ type: 'number' }),
-        z.boolean().openapi({ type: 'boolean' }),
-      ])
-      .openapi({ oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }] }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'value'],
-    properties: {
-      type: { type: 'string', const: 'literal' },
-      value: { oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }] },
-    },
-  })
+  .object({ type: z.literal('literal'), value: z.xor([z.string(), z.number(), z.boolean()]) })
+  .openapi({ required: ['type', 'value'] })
   .openapi('LiteralExpression')
 
 const BinaryExpressionSchema: z.ZodType<BinaryExpressionType> = z
   .lazy(() =>
     z
       .object({
-        type: z.literal('binary').openapi({ type: 'string' }),
-        operator: z
-          .enum(['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'])
-          .openapi({
-            type: 'string',
-            enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'],
-          }),
+        type: z.literal('binary'),
+        operator: z.enum(['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||']),
         left: ExpressionSchema,
         right: ExpressionSchema,
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'operator', 'left', 'right'],
-        properties: {
-          type: { type: 'string', const: 'binary' },
-          operator: {
-            type: 'string',
-            enum: ['+', '-', '*', '/', '==', '!=', '<', '>', '&&', '||'],
-          },
-          left: { $ref: '#/components/schemas/Expression' },
-          right: { $ref: '#/components/schemas/Expression' },
-        },
-      }),
+      .openapi({ required: ['type', 'operator', 'left', 'right'] }),
   )
   .openapi('BinaryExpression')
 
@@ -657,19 +377,11 @@ const UnaryExpressionSchema: z.ZodType<UnaryExpressionType> = z
   .lazy(() =>
     z
       .object({
-        type: z.literal('unary').openapi({ type: 'string' }),
-        operator: z.enum(['-', '!', '~']).openapi({ type: 'string', enum: ['-', '!', '~'] }),
+        type: z.literal('unary'),
+        operator: z.enum(['-', '!', '~']),
         operand: ExpressionSchema,
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'operator', 'operand'],
-        properties: {
-          type: { type: 'string', const: 'unary' },
-          operator: { type: 'string', enum: ['-', '!', '~'] },
-          operand: { $ref: '#/components/schemas/Expression' },
-        },
-      }),
+      .openapi({ required: ['type', 'operator', 'operand'] }),
   )
   .openapi('UnaryExpression')
 
@@ -677,21 +389,12 @@ const ConditionalExpressionSchema: z.ZodType<ConditionalExpressionType> = z
   .lazy(() =>
     z
       .object({
-        type: z.literal('conditional').openapi({ type: 'string' }),
+        type: z.literal('conditional'),
         condition: ExpressionSchema,
         consequent: ExpressionSchema,
         alternate: ExpressionSchema,
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'condition', 'consequent', 'alternate'],
-        properties: {
-          type: { type: 'string', const: 'conditional' },
-          condition: { $ref: '#/components/schemas/Expression' },
-          consequent: { $ref: '#/components/schemas/Expression' },
-          alternate: { $ref: '#/components/schemas/Expression' },
-        },
-      }),
+      .openapi({ required: ['type', 'condition', 'consequent', 'alternate'] }),
   )
   .openapi('ConditionalExpression')
 
@@ -699,21 +402,11 @@ const FunctionCallExpressionSchema: z.ZodType<FunctionCallExpressionType> = z
   .lazy(() =>
     z
       .object({
-        type: z.literal('call').openapi({ type: 'string' }),
+        type: z.literal('call'),
         callee: ExpressionSchema,
-        arguments: z
-          .array(ExpressionSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Expression' } }),
+        arguments: z.array(ExpressionSchema),
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'callee', 'arguments'],
-        properties: {
-          type: { type: 'string', const: 'call' },
-          callee: { $ref: '#/components/schemas/Expression' },
-          arguments: { type: 'array', items: { $ref: '#/components/schemas/Expression' } },
-        },
-      }),
+      .openapi({ required: ['type', 'callee', 'arguments'] }),
   )
   .openapi('FunctionCallExpression')
 
@@ -726,23 +419,13 @@ type ExpressionType =
 
 const ExpressionSchema: z.ZodType<ExpressionType> = z
   .lazy(() =>
-    z
-      .xor([
-        LiteralExpressionSchema,
-        BinaryExpressionSchema,
-        UnaryExpressionSchema,
-        ConditionalExpressionSchema,
-        FunctionCallExpressionSchema,
-      ])
-      .openapi({
-        oneOf: [
-          { $ref: '#/components/schemas/LiteralExpression' },
-          { $ref: '#/components/schemas/BinaryExpression' },
-          { $ref: '#/components/schemas/UnaryExpression' },
-          { $ref: '#/components/schemas/ConditionalExpression' },
-          { $ref: '#/components/schemas/FunctionCallExpression' },
-        ],
-      }),
+    z.xor([
+      LiteralExpressionSchema,
+      BinaryExpressionSchema,
+      UnaryExpressionSchema,
+      ConditionalExpressionSchema,
+      FunctionCallExpressionSchema,
+    ]),
   )
   .openapi('Expression')
 
@@ -774,25 +457,12 @@ type FunctionCallExpressionType = {
 
 const CategorizedProductSchema: z.ZodType<CategorizedProductType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        primaryCategory: CategorySchema.exactOptional(),
-        secondaryCategories: z
-          .array(CategorySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          primaryCategory: { $ref: '#/components/schemas/Category' },
-          secondaryCategories: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      primaryCategory: CategorySchema.exactOptional(),
+      secondaryCategories: z.array(CategorySchema).exactOptional(),
+    }),
   )
   .openapi('CategorizedProduct')
 
@@ -811,50 +481,16 @@ const CategorySchema: z.ZodType<CategoryType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
+        id: z.string(),
+        name: z.string(),
         parent: CategorySchema.exactOptional(),
-        children: z
-          .array(CategorySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-        ancestors: z
-          .array(CategorySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-        descendants: z
-          .array(CategorySchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-        relatedCategories: z
-          .record(z.string(), CategorySchema)
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/Category' },
-          }),
-        products: z
-          .array(CategorizedProductSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/CategorizedProduct' } }),
+        children: z.array(CategorySchema).exactOptional(),
+        ancestors: z.array(CategorySchema).exactOptional(),
+        descendants: z.array(CategorySchema).exactOptional(),
+        relatedCategories: z.record(z.string(), CategorySchema).exactOptional(),
+        products: z.array(CategorizedProductSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'name'],
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          parent: { $ref: '#/components/schemas/Category' },
-          children: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
-          ancestors: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
-          descendants: { type: 'array', items: { $ref: '#/components/schemas/Category' } },
-          relatedCategories: {
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/Category' },
-          },
-          products: { type: 'array', items: { $ref: '#/components/schemas/CategorizedProduct' } },
-        },
-      }),
+      .openapi({ required: ['id', 'name'] }),
   )
   .openapi('Category')
 
@@ -869,49 +505,25 @@ const StateTransitionSchema: z.ZodType<StateTransitionType> = z
   .lazy(() =>
     z
       .object({
-        event: z.string().openapi({ type: 'string' }),
+        event: z.string(),
         sourceState: WorkflowStateSchema.exactOptional(),
         targetState: WorkflowStateSchema,
         guard: TransitionGuardSchema.exactOptional(),
-        actions: z
-          .array(WorkflowActionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
+        actions: z.array(WorkflowActionSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['event', 'targetState'],
-        properties: {
-          event: { type: 'string' },
-          sourceState: { $ref: '#/components/schemas/WorkflowState' },
-          targetState: { $ref: '#/components/schemas/WorkflowState' },
-          guard: { $ref: '#/components/schemas/TransitionGuard' },
-          actions: { type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } },
-        },
-      }),
+      .openapi({ required: ['event', 'targetState'] }),
   )
   .openapi('StateTransition')
 
 const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
   .lazy(() =>
-    z
-      .object({
-        type: z.string().exactOptional().openapi({ type: 'string' }),
-        config: z.object({}).exactOptional().openapi({ type: 'object' }),
-        nextAction: WorkflowActionSchema.exactOptional(),
-        fallbackAction: WorkflowActionSchema.exactOptional(),
-        triggerTransition: StateTransitionSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          type: { type: 'string' },
-          config: { type: 'object' },
-          nextAction: { $ref: '#/components/schemas/WorkflowAction' },
-          fallbackAction: { $ref: '#/components/schemas/WorkflowAction' },
-          triggerTransition: { $ref: '#/components/schemas/StateTransition' },
-        },
-      }),
+    z.object({
+      type: z.string().exactOptional(),
+      config: z.object({}).exactOptional(),
+      nextAction: WorkflowActionSchema.exactOptional(),
+      fallbackAction: WorkflowActionSchema.exactOptional(),
+      triggerTransition: StateTransitionSchema.exactOptional(),
+    }),
   )
   .openapi('WorkflowAction')
 
@@ -930,64 +542,25 @@ const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
   .lazy(() =>
     z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
-        description: z.string().exactOptional().openapi({ type: 'string' }),
-        transitions: z
-          .array(StateTransitionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/StateTransition' } }),
-        entryActions: z
-          .array(WorkflowActionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
-        exitActions: z
-          .array(WorkflowActionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } }),
+        id: z.string(),
+        name: z.string(),
+        description: z.string().exactOptional(),
+        transitions: z.array(StateTransitionSchema).exactOptional(),
+        entryActions: z.array(WorkflowActionSchema).exactOptional(),
+        exitActions: z.array(WorkflowActionSchema).exactOptional(),
         parentState: WorkflowStateSchema.exactOptional(),
-        childStates: z
-          .array(WorkflowStateSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/WorkflowState' } }),
+        childStates: z.array(WorkflowStateSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'name'],
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          description: { type: 'string' },
-          transitions: { type: 'array', items: { $ref: '#/components/schemas/StateTransition' } },
-          entryActions: { type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } },
-          exitActions: { type: 'array', items: { $ref: '#/components/schemas/WorkflowAction' } },
-          parentState: { $ref: '#/components/schemas/WorkflowState' },
-          childStates: { type: 'array', items: { $ref: '#/components/schemas/WorkflowState' } },
-        },
-      }),
+      .openapi({ required: ['id', 'name'] }),
   )
   .openapi('WorkflowState')
 
 const TransitionGuardSchema: z.ZodType<TransitionGuardType> = z
   .lazy(() =>
-    z
-      .object({
-        condition: z.string().exactOptional().openapi({ type: 'string' }),
-        relatedTransitions: z
-          .array(StateTransitionSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/StateTransition' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          condition: { type: 'string' },
-          relatedTransitions: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/StateTransition' },
-          },
-        },
-      }),
+    z.object({
+      condition: z.string().exactOptional(),
+      relatedTransitions: z.array(StateTransitionSchema).exactOptional(),
+    }),
   )
   .openapi('TransitionGuard')
 
@@ -1015,33 +588,12 @@ type WorkflowActionType = {
 const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   .lazy(() =>
     BaseEntitySchema.and(
-      z
-        .object({
-          name: z.string().exactOptional().openapi({ type: 'string' }),
-          parent: ExtendedEntitySchema.exactOptional(),
-          baseReference: BaseEntitySchema.exactOptional(),
-        })
-        .openapi({
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            parent: { $ref: '#/components/schemas/ExtendedEntity' },
-            baseReference: { $ref: '#/components/schemas/BaseEntity' },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/BaseEntity' },
-        {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            parent: { $ref: '#/components/schemas/ExtendedEntity' },
-            baseReference: { $ref: '#/components/schemas/BaseEntity' },
-          },
-        },
-      ],
-    }),
+      z.object({
+        name: z.string().exactOptional(),
+        parent: ExtendedEntitySchema.exactOptional(),
+        baseReference: BaseEntitySchema.exactOptional(),
+      }),
+    ),
   )
   .openapi('ExtendedEntity')
 
@@ -1049,18 +601,10 @@ type BaseEntityType = { id?: string; relatedEntity?: z.infer<typeof ExtendedEnti
 
 const BaseEntitySchema: z.ZodType<BaseEntityType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        relatedEntity: ExtendedEntitySchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          relatedEntity: { $ref: '#/components/schemas/ExtendedEntity' },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      relatedEntity: ExtendedEntitySchema.exactOptional(),
+    }),
   )
   .openapi('BaseEntity')
 
@@ -1079,34 +623,12 @@ type RecursiveMapType = {
 
 const RecursiveMapSchema: z.ZodType<RecursiveMapType> = z
   .lazy(() =>
-    z
-      .object({
-        key: z.string().exactOptional().openapi({ type: 'string' }),
-        value: z.string().exactOptional().openapi({ type: 'string' }),
-        nested: z
-          .record(z.string(), RecursiveMapSchema)
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/RecursiveMap' },
-          }),
-        items: z
-          .array(RecursiveMapSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/RecursiveMap' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          key: { type: 'string' },
-          value: { type: 'string' },
-          nested: {
-            type: 'object',
-            additionalProperties: { $ref: '#/components/schemas/RecursiveMap' },
-          },
-          items: { type: 'array', items: { $ref: '#/components/schemas/RecursiveMap' } },
-        },
-      }),
+    z.object({
+      key: z.string().exactOptional(),
+      value: z.string().exactOptional(),
+      nested: z.record(z.string(), RecursiveMapSchema).exactOptional(),
+      items: z.array(RecursiveMapSchema).exactOptional(),
+    }),
   )
   .openapi('RecursiveMap')
 
@@ -1118,44 +640,14 @@ type NullableCircularType = {
 
 const NullableCircularSchema: z.ZodType<NullableCircularType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        next: z
-          .xor([NullableCircularSchema, z.null().nullable().openapi({ type: 'null' })])
-          .exactOptional()
-          .openapi({
-            oneOf: [{ $ref: '#/components/schemas/NullableCircular' }, { type: 'null' }],
-          }),
-        prev: z
-          .object({
-            id: z.string().exactOptional().openapi({ type: 'string' }),
-            next: NullableCircularSchema.exactOptional(),
-          })
-          .nullable()
-          .exactOptional()
-          .openapi({
-            type: ['object', 'null'],
-            properties: {
-              id: { type: 'string' },
-              next: { $ref: '#/components/schemas/NullableCircular' },
-            },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          next: { oneOf: [{ $ref: '#/components/schemas/NullableCircular' }, { type: 'null' }] },
-          prev: {
-            type: ['object', 'null'],
-            properties: {
-              id: { type: 'string' },
-              next: { $ref: '#/components/schemas/NullableCircular' },
-            },
-          },
-        },
-      }),
+    z.object({
+      id: z.string().exactOptional(),
+      next: z.xor([NullableCircularSchema, z.null().nullable()]).exactOptional(),
+      prev: z
+        .object({ id: z.string().exactOptional(), next: NullableCircularSchema.exactOptional() })
+        .nullable()
+        .exactOptional(),
+    }),
   )
   .openapi('NullableCircular')
 
@@ -1166,13 +658,7 @@ export const getTreesRoute = createRoute({
   responses: {
     200: {
       description: 'Tree structures',
-      content: {
-        'application/json': {
-          schema: z
-            .array(TreeNodeSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/TreeNode' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(TreeNodeSchema) } },
     },
   },
 })
@@ -1240,13 +726,7 @@ export const getCommentsRoute = createRoute({
   responses: {
     200: {
       description: 'Nested comments',
-      content: {
-        'application/json': {
-          schema: z
-            .array(CommentSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Comment' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(CommentSchema) } },
     },
   },
 })

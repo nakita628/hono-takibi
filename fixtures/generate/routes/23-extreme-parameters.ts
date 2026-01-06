@@ -11,26 +11,13 @@ const ReusableIdParamsSchema = z
       schema: { type: 'string', format: 'uuid' },
       example: '550e8400-e29b-41d4-a716-446655440000',
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const ReusablePaginationParamsSchema = z
   .object({
-    page: z
-      .int()
-      .min(1)
-      .default(1)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 1, default: 1 }),
-    limit: z
-      .int()
-      .min(1)
-      .max(100)
-      .default(20)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 1, maximum: 100, default: 20 }),
-    cursor: z.string().exactOptional().openapi({ type: 'string' }),
+    page: z.int().min(1).default(1).exactOptional(),
+    limit: z.int().min(1).max(100).default(20).exactOptional(),
+    cursor: z.string().exactOptional(),
   })
   .exactOptional()
   .openapi({
@@ -51,12 +38,6 @@ const ReusablePaginationParamsSchema = z
         cursorBased: { value: { cursor: 'eyJpZCI6MTAwfQ==', limit: 50 } },
       },
     },
-    type: 'object',
-    properties: {
-      page: { type: 'integer', minimum: 1, default: 1 },
-      limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-      cursor: { type: 'string' },
-    },
   })
 
 export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
@@ -67,15 +48,11 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
     params: z.object({
       p1: z
         .string()
-        .openapi({
-          param: { name: 'p1', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'p1', in: 'path', required: true, schema: { type: 'string' } } }),
       p2: z
         .int()
         .openapi({
           param: { name: 'p2', in: 'path', required: true, schema: { type: 'integer' } },
-          type: 'integer',
         }),
       p3: z
         .uuid()
@@ -86,8 +63,6 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
       p4: z.iso
         .date()
@@ -98,20 +73,14 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
             required: true,
             schema: { type: 'string', format: 'date' },
           },
-          type: 'string',
-          format: 'date',
         }),
       p5: z
         .number()
-        .openapi({
-          param: { name: 'p5', in: 'path', required: true, schema: { type: 'number' } },
-          type: 'number',
-        }),
+        .openapi({ param: { name: 'p5', in: 'path', required: true, schema: { type: 'number' } } }),
       p6: z
         .boolean()
         .openapi({
           param: { name: 'p6', in: 'path', required: true, schema: { type: 'boolean' } },
-          type: 'boolean',
         }),
       p7: z
         .enum(['a', 'b', 'c'])
@@ -122,8 +91,6 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
             required: true,
             schema: { type: 'string', enum: ['a', 'b', 'c'] },
           },
-          type: 'string',
-          enum: ['a', 'b', 'c'],
         }),
       p8: z
         .int64()
@@ -134,8 +101,6 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
       p9: z
         .string()
@@ -147,14 +112,11 @@ export const getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Route = createRoute({
             required: true,
             schema: { type: 'string', pattern: '^[a-z]+$' },
           },
-          type: 'string',
-          pattern: '^[a-z]+$',
         }),
       p10: z
         .string()
         .openapi({
           param: { name: 'p10', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -180,7 +142,6 @@ export const getQueryStylesRoute = createRoute({
                 explode: true,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -192,8 +153,6 @@ export const getQueryStylesRoute = createRoute({
             explode: true,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       formNoExplode: z
         .array(
@@ -208,7 +167,6 @@ export const getQueryStylesRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -220,8 +178,6 @@ export const getQueryStylesRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       spaceDelimited: z
         .array(
@@ -236,7 +192,6 @@ export const getQueryStylesRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'integer' } },
               },
-              type: 'integer',
             }),
         )
         .exactOptional()
@@ -248,8 +203,6 @@ export const getQueryStylesRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'integer' } },
           },
-          type: 'array',
-          items: { type: 'integer' },
         }),
       pipeDelimited: z
         .array(
@@ -264,7 +217,6 @@ export const getQueryStylesRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -276,27 +228,13 @@ export const getQueryStylesRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       deepObject: z
         .object({
           level1: z
-            .object({
-              level2: z
-                .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-                .exactOptional()
-                .openapi({ type: 'object', properties: { value: { type: 'string' } } }),
-            })
-            .exactOptional()
-            .openapi({
-              type: 'object',
-              properties: { level2: { type: 'object', properties: { value: { type: 'string' } } } },
-            }),
-          array: z
-            .array(z.string().openapi({ type: 'string' }))
-            .exactOptional()
-            .openapi({ type: 'array', items: { type: 'string' } }),
+            .object({ level2: z.object({ value: z.string().exactOptional() }).exactOptional() })
+            .exactOptional(),
+          array: z.array(z.string()).exactOptional(),
         })
         .exactOptional()
         .openapi({
@@ -318,20 +256,9 @@ export const getQueryStylesRoute = createRoute({
               },
             },
           },
-          type: 'object',
-          properties: {
-            level1: {
-              type: 'object',
-              properties: { level2: { type: 'object', properties: { value: { type: 'string' } } } },
-            },
-            array: { type: 'array', items: { type: 'string' } },
-          },
         }),
       formObject: z
-        .object({
-          key1: z.string().exactOptional().openapi({ type: 'string' }),
-          key2: z.int().exactOptional().openapi({ type: 'integer' }),
-        })
+        .object({ key1: z.string().exactOptional(), key2: z.int().exactOptional() })
         .exactOptional()
         .openapi({
           param: {
@@ -344,14 +271,9 @@ export const getQueryStylesRoute = createRoute({
               properties: { key1: { type: 'string' }, key2: { type: 'integer' } },
             },
           },
-          type: 'object',
-          properties: { key1: { type: 'string' }, key2: { type: 'integer' } },
         }),
       formObjectNoExplode: z
-        .object({
-          a: z.string().exactOptional().openapi({ type: 'string' }),
-          b: z.string().exactOptional().openapi({ type: 'string' }),
-        })
+        .object({ a: z.string().exactOptional(), b: z.string().exactOptional() })
         .exactOptional()
         .openapi({
           param: {
@@ -364,8 +286,6 @@ export const getQueryStylesRoute = createRoute({
               properties: { a: { type: 'string' }, b: { type: 'string' } },
             },
           },
-          type: 'object',
-          properties: { a: { type: 'string' }, b: { type: 'string' } },
         }),
       allowEmpty: z
         .string()
@@ -377,7 +297,6 @@ export const getQueryStylesRoute = createRoute({
             allowEmptyValue: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       allowReserved: z
         .string()
@@ -389,83 +308,28 @@ export const getQueryStylesRoute = createRoute({
             allowReserved: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       complexDeep: z
         .object({
           filters: z
             .object({
-              status: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
+              status: z.array(z.string()).exactOptional(),
               dateRange: z
-                .object({
-                  from: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-                  to: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    from: { type: 'string', format: 'date' },
-                    to: { type: 'string', format: 'date' },
-                  },
-                }),
+                .object({ from: z.iso.date().exactOptional(), to: z.iso.date().exactOptional() })
+                .exactOptional(),
             })
-            .exactOptional()
-            .openapi({
-              type: 'object',
-              properties: {
-                status: { type: 'array', items: { type: 'string' } },
-                dateRange: {
-                  type: 'object',
-                  properties: {
-                    from: { type: 'string', format: 'date' },
-                    to: { type: 'string', format: 'date' },
-                  },
-                },
-              },
-            }),
+            .exactOptional(),
           pagination: z
-            .object({
-              page: z.int().exactOptional().openapi({ type: 'integer' }),
-              limit: z.int().exactOptional().openapi({ type: 'integer' }),
-            })
-            .exactOptional()
-            .openapi({
-              type: 'object',
-              properties: { page: { type: 'integer' }, limit: { type: 'integer' } },
-            }),
+            .object({ page: z.int().exactOptional(), limit: z.int().exactOptional() })
+            .exactOptional(),
           sort: z
             .array(
-              z
-                .object({
-                  field: z.string().exactOptional().openapi({ type: 'string' }),
-                  order: z
-                    .enum(['asc', 'desc'])
-                    .exactOptional()
-                    .openapi({ type: 'string', enum: ['asc', 'desc'] }),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    field: { type: 'string' },
-                    order: { type: 'string', enum: ['asc', 'desc'] },
-                  },
-                }),
+              z.object({
+                field: z.string().exactOptional(),
+                order: z.enum(['asc', 'desc']).exactOptional(),
+              }),
             )
-            .exactOptional()
-            .openapi({
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  field: { type: 'string' },
-                  order: { type: 'string', enum: ['asc', 'desc'] },
-                },
-              },
-            }),
+            .exactOptional(),
         })
         .exactOptional()
         .openapi({
@@ -506,36 +370,6 @@ export const getQueryStylesRoute = createRoute({
               },
             },
           },
-          type: 'object',
-          properties: {
-            filters: {
-              type: 'object',
-              properties: {
-                status: { type: 'array', items: { type: 'string' } },
-                dateRange: {
-                  type: 'object',
-                  properties: {
-                    from: { type: 'string', format: 'date' },
-                    to: { type: 'string', format: 'date' },
-                  },
-                },
-              },
-            },
-            pagination: {
-              type: 'object',
-              properties: { page: { type: 'integer' }, limit: { type: 'integer' } },
-            },
-            sort: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  field: { type: 'string' },
-                  order: { type: 'string', enum: ['asc', 'desc'] },
-                },
-              },
-            },
-          },
         }),
     }),
   },
@@ -561,7 +395,6 @@ export const getPathStylesSimpleLabelMatrixRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .openapi({
@@ -573,8 +406,6 @@ export const getPathStylesSimpleLabelMatrixRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       label: z
         .array(
@@ -589,7 +420,6 @@ export const getPathStylesSimpleLabelMatrixRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .openapi({
@@ -601,14 +431,9 @@ export const getPathStylesSimpleLabelMatrixRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       matrix: z
-        .object({
-          x: z.int().exactOptional().openapi({ type: 'integer' }),
-          y: z.int().exactOptional().openapi({ type: 'integer' }),
-        })
+        .object({ x: z.int().exactOptional(), y: z.int().exactOptional() })
         .openapi({
           param: {
             name: 'matrix',
@@ -621,8 +446,6 @@ export const getPathStylesSimpleLabelMatrixRoute = createRoute({
               properties: { x: { type: 'integer' }, y: { type: 'integer' } },
             },
           },
-          type: 'object',
-          properties: { x: { type: 'integer' }, y: { type: 'integer' } },
         }),
     }),
   },
@@ -648,7 +471,6 @@ export const getHeaderStylesRoute = createRoute({
                 explode: false,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -660,8 +482,6 @@ export const getHeaderStylesRoute = createRoute({
             explode: false,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       'X-Simple-Array-Exploded': z
         .array(
@@ -676,7 +496,6 @@ export const getHeaderStylesRoute = createRoute({
                 explode: true,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -688,14 +507,9 @@ export const getHeaderStylesRoute = createRoute({
             explode: true,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       'X-Object-Header': z
-        .object({
-          key1: z.string().exactOptional().openapi({ type: 'string' }),
-          key2: z.string().exactOptional().openapi({ type: 'string' }),
-        })
+        .object({ key1: z.string().exactOptional(), key2: z.string().exactOptional() })
         .exactOptional()
         .openapi({
           param: {
@@ -708,37 +522,23 @@ export const getHeaderStylesRoute = createRoute({
               properties: { key1: { type: 'string' }, key2: { type: 'string' } },
             },
           },
-          type: 'object',
-          properties: { key1: { type: 'string' }, key2: { type: 'string' } },
         }),
       'X-Custom-1': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Custom-1', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'X-Custom-1', in: 'header', schema: { type: 'string' } } }),
       'X-Custom-2': z
         .int()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Custom-2', in: 'header', schema: { type: 'integer' } },
-          type: 'integer',
-        }),
+        .openapi({ param: { name: 'X-Custom-2', in: 'header', schema: { type: 'integer' } } }),
       'X-Custom-3': z
         .boolean()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Custom-3', in: 'header', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'X-Custom-3', in: 'header', schema: { type: 'boolean' } } }),
       'X-Custom-4': z
         .number()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Custom-4', in: 'header', schema: { type: 'number' } },
-          type: 'number',
-        }),
+        .openapi({ param: { name: 'X-Custom-4', in: 'header', schema: { type: 'number' } } }),
       'X-Custom-5': z.iso
         .datetime()
         .exactOptional()
@@ -748,51 +548,31 @@ export const getHeaderStylesRoute = createRoute({
             in: 'header',
             schema: { type: 'string', format: 'date-time' },
           },
-          type: 'string',
-          format: 'date-time',
         }),
       Accept: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept', in: 'header', schema: { type: 'string' } } }),
       'Accept-Language': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } } }),
       'Accept-Encoding': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } } }),
       'Cache-Control': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Cache-Control', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Cache-Control', in: 'header', schema: { type: 'string' } } }),
       'If-Match': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'If-Match', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'If-Match', in: 'header', schema: { type: 'string' } } }),
       'If-None-Match': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'If-None-Match', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'If-None-Match', in: 'header', schema: { type: 'string' } } }),
       'If-Modified-Since': z.iso
         .datetime()
         .exactOptional()
@@ -802,8 +582,6 @@ export const getHeaderStylesRoute = createRoute({
             in: 'header',
             schema: { type: 'string', format: 'date-time' },
           },
-          type: 'string',
-          format: 'date-time',
         }),
       'If-Unmodified-Since': z.iso
         .datetime()
@@ -814,52 +592,33 @@ export const getHeaderStylesRoute = createRoute({
             in: 'header',
             schema: { type: 'string', format: 'date-time' },
           },
-          type: 'string',
-          format: 'date-time',
         }),
       Authorization: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Authorization', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Authorization', in: 'header', schema: { type: 'string' } } }),
       'X-Request-ID': z
         .uuid()
         .exactOptional()
         .openapi({
           param: { name: 'X-Request-ID', in: 'header', schema: { type: 'string', format: 'uuid' } },
-          type: 'string',
-          format: 'uuid',
         }),
       'X-Correlation-ID': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Correlation-ID', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'X-Correlation-ID', in: 'header', schema: { type: 'string' } } }),
       'X-Forwarded-For': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Forwarded-For', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'X-Forwarded-For', in: 'header', schema: { type: 'string' } } }),
       'X-Real-IP': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'X-Real-IP', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'X-Real-IP', in: 'header', schema: { type: 'string' } } }),
       'User-Agent': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'User-Agent', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'User-Agent', in: 'header', schema: { type: 'string' } } }),
     }),
   },
   responses: { 200: { description: 'OK' } },
@@ -874,15 +633,9 @@ export const getCookieStylesRoute = createRoute({
       session_id: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'session_id', in: 'cookie', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'session_id', in: 'cookie', schema: { type: 'string' } } }),
       preferences: z
-        .object({
-          theme: z.string().exactOptional().openapi({ type: 'string' }),
-          language: z.string().exactOptional().openapi({ type: 'string' }),
-        })
+        .object({ theme: z.string().exactOptional(), language: z.string().exactOptional() })
         .exactOptional()
         .openapi({
           param: {
@@ -895,52 +648,33 @@ export const getCookieStylesRoute = createRoute({
               properties: { theme: { type: 'string' }, language: { type: 'string' } },
             },
           },
-          type: 'object',
-          properties: { theme: { type: 'string' }, language: { type: 'string' } },
         }),
       user_id: z
         .uuid()
         .exactOptional()
         .openapi({
           param: { name: 'user_id', in: 'cookie', schema: { type: 'string', format: 'uuid' } },
-          type: 'string',
-          format: 'uuid',
         }),
       access_token: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'access_token', in: 'cookie', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'access_token', in: 'cookie', schema: { type: 'string' } } }),
       refresh_token: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'refresh_token', in: 'cookie', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'refresh_token', in: 'cookie', schema: { type: 'string' } } }),
       consent: z
         .boolean()
         .exactOptional()
-        .openapi({
-          param: { name: 'consent', in: 'cookie', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'consent', in: 'cookie', schema: { type: 'boolean' } } }),
       tracking_id: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'tracking_id', in: 'cookie', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'tracking_id', in: 'cookie', schema: { type: 'string' } } }),
       cart_id: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'cart_id', in: 'cookie', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'cart_id', in: 'cookie', schema: { type: 'string' } } }),
       visited: z
         .array(
           z
@@ -952,7 +686,6 @@ export const getCookieStylesRoute = createRoute({
                 in: 'cookie',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -962,8 +695,6 @@ export const getCookieStylesRoute = createRoute({
             in: 'cookie',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
     }),
   },
@@ -979,42 +710,28 @@ export const getManyQueryParamsRoute = createRoute({
       q: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'q', in: 'query', schema: { type: 'string' } }, type: 'string' }),
+        .openapi({ param: { name: 'q', in: 'query', schema: { type: 'string' } } }),
       page: z
         .int()
         .exactOptional()
-        .openapi({
-          param: { name: 'page', in: 'query', schema: { type: 'integer' } },
-          type: 'integer',
-        }),
+        .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer' } } }),
       limit: z
         .int()
         .exactOptional()
-        .openapi({
-          param: { name: 'limit', in: 'query', schema: { type: 'integer' } },
-          type: 'integer',
-        }),
+        .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer' } } }),
       offset: z
         .int()
         .exactOptional()
-        .openapi({
-          param: { name: 'offset', in: 'query', schema: { type: 'integer' } },
-          type: 'integer',
-        }),
+        .openapi({ param: { name: 'offset', in: 'query', schema: { type: 'integer' } } }),
       sort: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'sort', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'sort', in: 'query', schema: { type: 'string' } } }),
       order: z
         .enum(['asc', 'desc'])
         .exactOptional()
         .openapi({
           param: { name: 'order', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
-          type: 'string',
-          enum: ['asc', 'desc'],
         }),
       fields: z
         .array(
@@ -1027,7 +744,6 @@ export const getManyQueryParamsRoute = createRoute({
                 in: 'query',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -1037,8 +753,6 @@ export const getManyQueryParamsRoute = createRoute({
             in: 'query',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       include: z
         .array(
@@ -1051,7 +765,6 @@ export const getManyQueryParamsRoute = createRoute({
                 in: 'query',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -1061,8 +774,6 @@ export const getManyQueryParamsRoute = createRoute({
             in: 'query',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       exclude: z
         .array(
@@ -1075,7 +786,6 @@ export const getManyQueryParamsRoute = createRoute({
                 in: 'query',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -1085,15 +795,12 @@ export const getManyQueryParamsRoute = createRoute({
             in: 'query',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       filter: z
         .object({})
         .exactOptional()
         .openapi({
           param: { name: 'filter', in: 'query', style: 'deepObject', schema: { type: 'object' } },
-          type: 'object',
         }),
       status: z
         .array(
@@ -1106,7 +813,6 @@ export const getManyQueryParamsRoute = createRoute({
                 in: 'query',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -1116,23 +822,15 @@ export const getManyQueryParamsRoute = createRoute({
             in: 'query',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       type: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'type', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'type', in: 'query', schema: { type: 'string' } } }),
       category: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'category', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'category', in: 'query', schema: { type: 'string' } } }),
       tags: z
         .array(
           z
@@ -1144,7 +842,6 @@ export const getManyQueryParamsRoute = createRoute({
                 in: 'query',
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -1154,249 +851,147 @@ export const getManyQueryParamsRoute = createRoute({
             in: 'query',
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
       minPrice: z.coerce
         .number()
         .exactOptional()
-        .openapi({
-          param: { name: 'minPrice', in: 'query', schema: { type: 'number' } },
-          type: 'number',
-        }),
+        .openapi({ param: { name: 'minPrice', in: 'query', schema: { type: 'number' } } }),
       maxPrice: z.coerce
         .number()
         .exactOptional()
-        .openapi({
-          param: { name: 'maxPrice', in: 'query', schema: { type: 'number' } },
-          type: 'number',
-        }),
+        .openapi({ param: { name: 'maxPrice', in: 'query', schema: { type: 'number' } } }),
       minDate: z.iso
         .date()
         .exactOptional()
         .openapi({
           param: { name: 'minDate', in: 'query', schema: { type: 'string', format: 'date' } },
-          type: 'string',
-          format: 'date',
         }),
       maxDate: z.iso
         .date()
         .exactOptional()
         .openapi({
           param: { name: 'maxDate', in: 'query', schema: { type: 'string', format: 'date' } },
-          type: 'string',
-          format: 'date',
         }),
       active: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'active', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'active', in: 'query', schema: { type: 'boolean' } } }),
       verified: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'verified', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'verified', in: 'query', schema: { type: 'boolean' } } }),
       featured: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'featured', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'featured', in: 'query', schema: { type: 'boolean' } } }),
       promoted: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'promoted', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'promoted', in: 'query', schema: { type: 'boolean' } } }),
       archived: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'archived', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'archived', in: 'query', schema: { type: 'boolean' } } }),
       deleted: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'deleted', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'deleted', in: 'query', schema: { type: 'boolean' } } }),
       createdBy: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'createdBy', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'createdBy', in: 'query', schema: { type: 'string' } } }),
       updatedBy: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'updatedBy', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'updatedBy', in: 'query', schema: { type: 'string' } } }),
       ownerId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'ownerId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'ownerId', in: 'query', schema: { type: 'string' } } }),
       groupId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'groupId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'groupId', in: 'query', schema: { type: 'string' } } }),
       teamId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'teamId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'teamId', in: 'query', schema: { type: 'string' } } }),
       projectId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'projectId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'projectId', in: 'query', schema: { type: 'string' } } }),
       workspaceId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'workspaceId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'workspaceId', in: 'query', schema: { type: 'string' } } }),
       organizationId: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'organizationId', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'organizationId', in: 'query', schema: { type: 'string' } } }),
       locale: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'locale', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'locale', in: 'query', schema: { type: 'string' } } }),
       timezone: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'timezone', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'timezone', in: 'query', schema: { type: 'string' } } }),
       currency: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'currency', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'currency', in: 'query', schema: { type: 'string' } } }),
       format: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'format', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'format', in: 'query', schema: { type: 'string' } } }),
       version: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'version', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'version', in: 'query', schema: { type: 'string' } } }),
       beta: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'beta', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'beta', in: 'query', schema: { type: 'boolean' } } }),
       debug: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'debug', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'debug', in: 'query', schema: { type: 'boolean' } } }),
       trace: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'trace', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'trace', in: 'query', schema: { type: 'boolean' } } }),
       verbose: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'verbose', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'verbose', in: 'query', schema: { type: 'boolean' } } }),
       callback: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'callback', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'callback', in: 'query', schema: { type: 'string' } } }),
       jsonp: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'jsonp', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'jsonp', in: 'query', schema: { type: 'string' } } }),
       envelope: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'envelope', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'envelope', in: 'query', schema: { type: 'boolean' } } }),
       pretty: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'pretty', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'pretty', in: 'query', schema: { type: 'boolean' } } }),
       compress: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'compress', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'compress', in: 'query', schema: { type: 'boolean' } } }),
       cache: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { name: 'cache', in: 'query', schema: { type: 'boolean' } },
-          type: 'boolean',
-        }),
+        .openapi({ param: { name: 'cache', in: 'query', schema: { type: 'boolean' } } }),
       timeout: z
         .int()
         .exactOptional()
-        .openapi({
-          param: { name: 'timeout', in: 'query', schema: { type: 'integer' } },
-          type: 'integer',
-        }),
+        .openapi({ param: { name: 'timeout', in: 'query', schema: { type: 'integer' } } }),
     }),
   },
   responses: { 200: { description: 'OK' } },
@@ -1410,9 +1005,9 @@ export const getParameterContentRoute = createRoute({
     query: z.object({
       jsonFilter: z
         .object({
-          field: z.string().exactOptional().openapi({ type: 'string' }),
-          operator: z.string().exactOptional().openapi({ type: 'string' }),
-          value: z.string().exactOptional().openapi({ type: 'string' }),
+          field: z.string().exactOptional(),
+          operator: z.string().exactOptional(),
+          value: z.string().exactOptional(),
         })
         .exactOptional()
         .openapi({
@@ -1432,40 +1027,19 @@ export const getParameterContentRoute = createRoute({
               },
             },
           },
-          type: 'object',
-          properties: {
-            field: { type: 'string' },
-            operator: { type: 'string' },
-            value: { type: 'string' },
-          },
         }),
       complexQuery: z
         .object({
           filters: z
             .array(
-              z
-                .object({
-                  field: z.string().exactOptional().openapi({ type: 'string' }),
-                  op: z.string().exactOptional().openapi({ type: 'string' }),
-                  val: z.any().exactOptional(),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: { field: { type: 'string' }, op: { type: 'string' }, val: {} },
-                }),
+              z.object({
+                field: z.string().exactOptional(),
+                op: z.string().exactOptional(),
+                val: z.any().exactOptional(),
+              }),
             )
-            .exactOptional()
-            .openapi({
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: { field: { type: 'string' }, op: { type: 'string' }, val: {} },
-              },
-            }),
-          logic: z
-            .enum(['and', 'or'])
-            .exactOptional()
-            .openapi({ type: 'string', enum: ['and', 'or'] }),
+            .exactOptional(),
+          logic: z.enum(['and', 'or']).exactOptional(),
         })
         .exactOptional()
         .openapi({
@@ -1490,28 +1064,14 @@ export const getParameterContentRoute = createRoute({
               },
             },
           },
-          type: 'object',
-          properties: {
-            filters: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: { field: { type: 'string' }, op: { type: 'string' }, val: {} },
-              },
-            },
-            logic: { type: 'string', enum: ['and', 'or'] },
-          },
         }),
     }),
     headers: z.object({
       'X-Metadata': z
         .object({
-          requestId: z.string().exactOptional().openapi({ type: 'string' }),
-          timestamp: z.iso
-            .datetime()
-            .exactOptional()
-            .openapi({ type: 'string', format: 'date-time' }),
-          source: z.string().exactOptional().openapi({ type: 'string' }),
+          requestId: z.string().exactOptional(),
+          timestamp: z.iso.datetime().exactOptional(),
+          source: z.string().exactOptional(),
         })
         .exactOptional()
         .openapi({
@@ -1530,12 +1090,6 @@ export const getParameterContentRoute = createRoute({
                 },
               },
             },
-          },
-          type: 'object',
-          properties: {
-            requestId: { type: 'string' },
-            timestamp: { type: 'string', format: 'date-time' },
-            source: { type: 'string' },
           },
         }),
     }),
@@ -1560,7 +1114,6 @@ export const getDeprecatedParamsRoute = createRoute({
             schema: { type: 'string' },
             description: 'This parameter is deprecated',
           },
-          type: 'string',
         }),
       legacyFilter: z
         .string()
@@ -1572,7 +1125,6 @@ export const getDeprecatedParamsRoute = createRoute({
             deprecated: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       newParam: z
         .string()
@@ -1584,7 +1136,6 @@ export const getDeprecatedParamsRoute = createRoute({
             schema: { type: 'string' },
             description: 'Use this instead of oldParam',
           },
-          type: 'string',
         }),
     }),
     headers: z.object({
@@ -1598,7 +1149,6 @@ export const getDeprecatedParamsRoute = createRoute({
             deprecated: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
@@ -1625,8 +1175,6 @@ export const getExamplesParamsRoute = createRoute({
               pending: { summary: 'Pending status', value: 'pending' },
             },
           },
-          type: 'string',
-          enum: ['active', 'inactive', 'pending'],
         }),
       ids: z
         .array(
@@ -1650,8 +1198,6 @@ export const getExamplesParamsRoute = createRoute({
                   },
                 },
               },
-              type: 'string',
-              format: 'uuid',
             }),
         )
         .exactOptional()
@@ -1672,14 +1218,9 @@ export const getExamplesParamsRoute = createRoute({
               },
             },
           },
-          type: 'array',
-          items: { type: 'string', format: 'uuid' },
         }),
       filter: z
-        .object({
-          status: z.string().exactOptional().openapi({ type: 'string' }),
-          date: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-        })
+        .object({ status: z.string().exactOptional(), date: z.iso.date().exactOptional() })
         .exactOptional()
         .openapi({
           param: {
@@ -1698,8 +1239,6 @@ export const getExamplesParamsRoute = createRoute({
               },
             },
           },
-          type: 'object',
-          properties: { status: { type: 'string' }, date: { type: 'string', format: 'date' } },
         }),
     }),
   },

@@ -5,20 +5,8 @@ type CategoryType = { id: string; name: string; parent?: CategoryType }
 const CategorySchema: z.ZodType<CategoryType> = z
   .lazy(() =>
     z
-      .object({
-        id: z.string().openapi({ type: 'string' }),
-        name: z.string().openapi({ type: 'string' }),
-        parent: CategorySchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['id', 'name'],
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          parent: { $ref: '#/components/schemas/Category' },
-        },
-      }),
+      .object({ id: z.string(), name: z.string(), parent: CategorySchema.exactOptional() })
+      .openapi({ required: ['id', 'name'] }),
   )
   .openapi('Category')
 

@@ -2,287 +2,112 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const WebhookRegistrationSchema = z
   .object({
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    events: z
-      .array(
-        z
-          .enum([
-            'order.created',
-            'order.updated',
-            'order.cancelled',
-            'payment.success',
-            'payment.failed',
-            'user.created',
-            'user.deleted',
-          ])
-          .openapi({
-            type: 'string',
-            enum: [
-              'order.created',
-              'order.updated',
-              'order.cancelled',
-              'payment.success',
-              'payment.failed',
-              'user.created',
-              'user.deleted',
-            ],
-          }),
-      )
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'string',
-          enum: [
-            'order.created',
-            'order.updated',
-            'order.cancelled',
-            'payment.success',
-            'payment.failed',
-            'user.created',
-            'user.deleted',
-          ],
-        },
-      }),
-    secret: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'Shared secret for HMAC signature' }),
+    url: z.url(),
+    events: z.array(
+      z.enum([
+        'order.created',
+        'order.updated',
+        'order.cancelled',
+        'payment.success',
+        'payment.failed',
+        'user.created',
+        'user.deleted',
+      ]),
+    ),
+    secret: z.string().exactOptional().openapi({ description: 'Shared secret for HMAC signature' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['url', 'events'],
-    properties: {
-      url: { type: 'string', format: 'uri' },
-      events: {
-        type: 'array',
-        items: {
-          type: 'string',
-          enum: [
-            'order.created',
-            'order.updated',
-            'order.cancelled',
-            'payment.success',
-            'payment.failed',
-            'user.created',
-            'user.deleted',
-          ],
-        },
-      },
-      secret: { type: 'string', description: 'Shared secret for HMAC signature' },
-    },
-  })
+  .openapi({ required: ['url', 'events'] })
   .openapi('WebhookRegistration')
 
 const WebhookSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    events: z
-      .array(z.string().openapi({ type: 'string' }))
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    status: z
-      .enum(['active', 'inactive', 'failed'])
-      .openapi({ type: 'string', enum: ['active', 'inactive', 'failed'] }),
-    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    url: z.url(),
+    events: z.array(z.string()),
+    status: z.enum(['active', 'inactive', 'failed']),
+    createdAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'url', 'events', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      url: { type: 'string', format: 'uri' },
-      events: { type: 'array', items: { type: 'string' } },
-      status: { type: 'string', enum: ['active', 'inactive', 'failed'] },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'url', 'events', 'status'] })
   .openapi('Webhook')
 
 const CreateSubscriptionInputSchema = z
-  .object({
-    planId: z.string().openapi({ type: 'string' }),
-    paymentMethodId: z.string().openapi({ type: 'string' }),
-    callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['planId', 'paymentMethodId', 'callbackUrl'],
-    properties: {
-      planId: { type: 'string' },
-      paymentMethodId: { type: 'string' },
-      callbackUrl: { type: 'string', format: 'uri' },
-    },
-  })
+  .object({ planId: z.string(), paymentMethodId: z.string(), callbackUrl: z.url() })
+  .openapi({ required: ['planId', 'paymentMethodId', 'callbackUrl'] })
   .openapi('CreateSubscriptionInput')
 
 const SubscriptionSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    planId: z.string().openapi({ type: 'string' }),
-    status: z
-      .enum(['active', 'past_due', 'cancelled', 'expired'])
-      .openapi({ type: 'string', enum: ['active', 'past_due', 'cancelled', 'expired'] }),
-    currentPeriodEnd: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    planId: z.string(),
+    status: z.enum(['active', 'past_due', 'cancelled', 'expired']),
+    currentPeriodEnd: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'planId', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      planId: { type: 'string' },
-      status: { type: 'string', enum: ['active', 'past_due', 'cancelled', 'expired'] },
-      currentPeriodEnd: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'planId', 'status'] })
   .openapi('Subscription')
 
 const CreateJobInputSchema = z
   .object({
-    type: z
-      .enum(['export', 'import', 'process'])
-      .openapi({ type: 'string', enum: ['export', 'import', 'process'] }),
-    data: z.object({}).exactOptional().openapi({ type: 'object' }),
-    callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
+    type: z.enum(['export', 'import', 'process']),
+    data: z.object({}).exactOptional(),
+    callbackUrl: z.url(),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'callbackUrl'],
-    properties: {
-      type: { type: 'string', enum: ['export', 'import', 'process'] },
-      data: { type: 'object' },
-      callbackUrl: { type: 'string', format: 'uri' },
-    },
-  })
+  .openapi({ required: ['type', 'callbackUrl'] })
   .openapi('CreateJobInput')
 
 const JobSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    type: z.string().openapi({ type: 'string' }),
-    status: z
-      .enum(['queued', 'running', 'completed', 'failed'])
-      .openapi({ type: 'string', enum: ['queued', 'running', 'completed', 'failed'] }),
-    progress: z
-      .int()
-      .min(0)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
+    id: z.uuid(),
+    type: z.string(),
+    status: z.enum(['queued', 'running', 'completed', 'failed']),
+    progress: z.int().min(0).max(100).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'type', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      type: { type: 'string' },
-      status: { type: 'string', enum: ['queued', 'running', 'completed', 'failed'] },
-      progress: { type: 'integer', minimum: 0, maximum: 100 },
-    },
-  })
+  .openapi({ required: ['id', 'type', 'status'] })
   .openapi('Job')
 
 const WebhookPayloadSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    type: z.string().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    data: z.object({}).openapi({ type: 'object' }),
-    signature: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'HMAC-SHA256 signature' }),
+    id: z.uuid(),
+    type: z.string(),
+    timestamp: z.iso.datetime(),
+    data: z.object({}),
+    signature: z.string().exactOptional().openapi({ description: 'HMAC-SHA256 signature' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'type', 'timestamp', 'data'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      type: { type: 'string' },
-      timestamp: { type: 'string', format: 'date-time' },
-      data: { type: 'object' },
-      signature: { type: 'string', description: 'HMAC-SHA256 signature' },
-    },
-  })
+  .openapi({ required: ['id', 'type', 'timestamp', 'data'] })
   .openapi('WebhookPayload')
 
 const PaymentEventSchema = z
   .object({
-    subscriptionId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    amount: z.float64().openapi({ type: 'number', format: 'float64' }),
-    currency: z.string().exactOptional().openapi({ type: 'string' }),
-    status: z.enum(['success', 'failed']).openapi({ type: 'string', enum: ['success', 'failed'] }),
-    failureReason: z.string().exactOptional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    subscriptionId: z.uuid(),
+    amount: z.float64(),
+    currency: z.string().exactOptional(),
+    status: z.enum(['success', 'failed']),
+    failureReason: z.string().exactOptional(),
+    timestamp: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['subscriptionId', 'amount', 'status'],
-    properties: {
-      subscriptionId: { type: 'string', format: 'uuid' },
-      amount: { type: 'number', format: 'float64' },
-      currency: { type: 'string' },
-      status: { type: 'string', enum: ['success', 'failed'] },
-      failureReason: { type: 'string' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['subscriptionId', 'amount', 'status'] })
   .openapi('PaymentEvent')
 
 const JobProgressSchema = z
   .object({
-    jobId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    progress: z.int().min(0).max(100).openapi({ type: 'integer', minimum: 0, maximum: 100 }),
-    message: z.string().exactOptional().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    jobId: z.uuid(),
+    progress: z.int().min(0).max(100),
+    message: z.string().exactOptional(),
+    timestamp: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['jobId', 'progress'],
-    properties: {
-      jobId: { type: 'string', format: 'uuid' },
-      progress: { type: 'integer', minimum: 0, maximum: 100 },
-      message: { type: 'string' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['jobId', 'progress'] })
   .openapi('JobProgress')
 
 const JobResultSchema = z
   .object({
-    jobId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['completed', 'failed'])
-      .openapi({ type: 'string', enum: ['completed', 'failed'] }),
-    result: z.object({}).exactOptional().openapi({ type: 'object' }),
+    jobId: z.uuid(),
+    status: z.enum(['completed', 'failed']),
+    result: z.object({}).exactOptional(),
     error: z
-      .object({
-        code: z.string().exactOptional().openapi({ type: 'string' }),
-        message: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { code: { type: 'string' }, message: { type: 'string' } },
-      }),
-    completedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+      .object({ code: z.string().exactOptional(), message: z.string().exactOptional() })
+      .exactOptional(),
+    completedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['jobId', 'status'],
-    properties: {
-      jobId: { type: 'string', format: 'uuid' },
-      status: { type: 'string', enum: ['completed', 'failed'] },
-      result: { type: 'object' },
-      error: {
-        type: 'object',
-        properties: { code: { type: 'string' }, message: { type: 'string' } },
-      },
-      completedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['jobId', 'status'] })
   .openapi('JobResult')
 
 const GenericWebhookCallback = {
@@ -330,24 +155,10 @@ const SubscriptionRenewedCallback = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z
-              .object({
-                subscriptionId: z
-                  .uuid()
-                  .exactOptional()
-                  .openapi({ type: 'string', format: 'uuid' }),
-                newPeriodEnd: z.iso
-                  .datetime()
-                  .exactOptional()
-                  .openapi({ type: 'string', format: 'date-time' }),
-              })
-              .openapi({
-                type: 'object',
-                properties: {
-                  subscriptionId: { type: 'string', format: 'uuid' },
-                  newPeriodEnd: { type: 'string', format: 'date-time' },
-                },
-              }),
+            schema: z.object({
+              subscriptionId: z.uuid().exactOptional(),
+              newPeriodEnd: z.iso.datetime().exactOptional(),
+            }),
           },
         },
       },
@@ -363,26 +174,11 @@ const SubscriptionCancelledCallback = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z
-              .object({
-                subscriptionId: z
-                  .uuid()
-                  .exactOptional()
-                  .openapi({ type: 'string', format: 'uuid' }),
-                cancelledAt: z.iso
-                  .datetime()
-                  .exactOptional()
-                  .openapi({ type: 'string', format: 'date-time' }),
-                reason: z.string().exactOptional().openapi({ type: 'string' }),
-              })
-              .openapi({
-                type: 'object',
-                properties: {
-                  subscriptionId: { type: 'string', format: 'uuid' },
-                  cancelledAt: { type: 'string', format: 'date-time' },
-                  reason: { type: 'string' },
-                },
-              }),
+            schema: z.object({
+              subscriptionId: z.uuid().exactOptional(),
+              cancelledAt: z.iso.datetime().exactOptional(),
+              reason: z.string().exactOptional(),
+            }),
           },
         },
       },
@@ -496,8 +292,6 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },

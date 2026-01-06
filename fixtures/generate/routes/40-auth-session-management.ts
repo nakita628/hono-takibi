@@ -2,358 +2,147 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const DeviceInfoSchema = z
   .object({
-    id: z.string().exactOptional().openapi({ type: 'string' }),
-    fingerprint: z.string().exactOptional().openapi({ type: 'string' }),
-    type: z
-      .enum(['desktop', 'mobile', 'tablet', 'unknown'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] }),
-    os: z.string().exactOptional().openapi({ type: 'string' }),
-    osVersion: z.string().exactOptional().openapi({ type: 'string' }),
-    browser: z.string().exactOptional().openapi({ type: 'string' }),
-    browserVersion: z.string().exactOptional().openapi({ type: 'string' }),
-    userAgent: z.string().exactOptional().openapi({ type: 'string' }),
-    isTrusted: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      fingerprint: { type: 'string' },
-      type: { type: 'string', enum: ['desktop', 'mobile', 'tablet', 'unknown'] },
-      os: { type: 'string' },
-      osVersion: { type: 'string' },
-      browser: { type: 'string' },
-      browserVersion: { type: 'string' },
-      userAgent: { type: 'string' },
-      isTrusted: { type: 'boolean' },
-    },
+    id: z.string().exactOptional(),
+    fingerprint: z.string().exactOptional(),
+    type: z.enum(['desktop', 'mobile', 'tablet', 'unknown']).exactOptional(),
+    os: z.string().exactOptional(),
+    osVersion: z.string().exactOptional(),
+    browser: z.string().exactOptional(),
+    browserVersion: z.string().exactOptional(),
+    userAgent: z.string().exactOptional(),
+    isTrusted: z.boolean().exactOptional(),
   })
   .openapi('DeviceInfo')
 
 const LocationInfoSchema = z
   .object({
-    ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
-    country: z.string().exactOptional().openapi({ type: 'string' }),
-    countryCode: z.string().exactOptional().openapi({ type: 'string' }),
-    region: z.string().exactOptional().openapi({ type: 'string' }),
-    city: z.string().exactOptional().openapi({ type: 'string' }),
-    latitude: z.number().exactOptional().openapi({ type: 'number' }),
-    longitude: z.number().exactOptional().openapi({ type: 'number' }),
-    timezone: z.string().exactOptional().openapi({ type: 'string' }),
-    isp: z.string().exactOptional().openapi({ type: 'string' }),
-    isVpn: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    isTor: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    isProxy: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      ipAddress: { type: 'string' },
-      country: { type: 'string' },
-      countryCode: { type: 'string' },
-      region: { type: 'string' },
-      city: { type: 'string' },
-      latitude: { type: 'number' },
-      longitude: { type: 'number' },
-      timezone: { type: 'string' },
-      isp: { type: 'string' },
-      isVpn: { type: 'boolean' },
-      isTor: { type: 'boolean' },
-      isProxy: { type: 'boolean' },
-    },
+    ipAddress: z.string().exactOptional(),
+    country: z.string().exactOptional(),
+    countryCode: z.string().exactOptional(),
+    region: z.string().exactOptional(),
+    city: z.string().exactOptional(),
+    latitude: z.number().exactOptional(),
+    longitude: z.number().exactOptional(),
+    timezone: z.string().exactOptional(),
+    isp: z.string().exactOptional(),
+    isVpn: z.boolean().exactOptional(),
+    isTor: z.boolean().exactOptional(),
+    isProxy: z.boolean().exactOptional(),
   })
   .openapi('LocationInfo')
 
 const SessionSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['active', 'expired', 'revoked'])
-      .openapi({ type: 'string', enum: ['active', 'expired', 'revoked'] }),
-    isCurrent: z
-      .boolean()
-      .exactOptional()
-      .openapi({ type: 'boolean', description: '現在のセッションかどうか' }),
+    id: z.uuid(),
+    userId: z.uuid(),
+    status: z.enum(['active', 'expired', 'revoked']),
+    isCurrent: z.boolean().exactOptional().openapi({ description: '現在のセッションかどうか' }),
     device: DeviceInfoSchema.exactOptional(),
     location: LocationInfoSchema.exactOptional(),
     authMethod: z
       .enum(['password', 'mfa', 'sso', 'passkey', 'magic_link', 'social'])
       .exactOptional()
-      .openapi({
-        type: 'string',
-        enum: ['password', 'mfa', 'sso', 'passkey', 'magic_link', 'social'],
-        description: '認証方法',
-      }),
+      .openapi({ description: '認証方法' }),
     authProvider: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: '認証プロバイダー（SSO/Social の場合）' }),
-    mfaVerified: z
-      .boolean()
-      .exactOptional()
-      .openapi({ type: 'boolean', description: 'MFA検証済みか' }),
-    riskScore: z
-      .number()
-      .min(0)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'number', minimum: 0, maximum: 100, description: 'リスクスコア' }),
-    lastActivityAt: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time' }),
-    idleTimeoutAt: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    revokedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    revokedReason: z.string().exactOptional().openapi({ type: 'string' }),
+      .openapi({ description: '認証プロバイダー（SSO/Social の場合）' }),
+    mfaVerified: z.boolean().exactOptional().openapi({ description: 'MFA検証済みか' }),
+    riskScore: z.number().min(0).max(100).exactOptional().openapi({ description: 'リスクスコア' }),
+    lastActivityAt: z.iso.datetime().exactOptional(),
+    idleTimeoutAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
+    expiresAt: z.iso.datetime(),
+    revokedAt: z.iso.datetime().exactOptional(),
+    revokedReason: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'userId', 'status', 'createdAt', 'expiresAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      userId: { type: 'string', format: 'uuid' },
-      status: { type: 'string', enum: ['active', 'expired', 'revoked'] },
-      isCurrent: { type: 'boolean', description: '現在のセッションかどうか' },
-      device: { $ref: '#/components/schemas/DeviceInfo' },
-      location: { $ref: '#/components/schemas/LocationInfo' },
-      authMethod: {
-        type: 'string',
-        enum: ['password', 'mfa', 'sso', 'passkey', 'magic_link', 'social'],
-        description: '認証方法',
-      },
-      authProvider: { type: 'string', description: '認証プロバイダー（SSO/Social の場合）' },
-      mfaVerified: { type: 'boolean', description: 'MFA検証済みか' },
-      riskScore: { type: 'number', minimum: 0, maximum: 100, description: 'リスクスコア' },
-      lastActivityAt: { type: 'string', format: 'date-time' },
-      idleTimeoutAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-      expiresAt: { type: 'string', format: 'date-time' },
-      revokedAt: { type: 'string', format: 'date-time' },
-      revokedReason: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['id', 'userId', 'status', 'createdAt', 'expiresAt'] })
   .openapi('Session')
 
 const SessionWithTokensSchema = SessionSchema.and(
   z
     .object({
-      accessToken: z.string().openapi({ type: 'string' }),
-      refreshToken: z.string().openapi({ type: 'string' }),
-      tokenType: z
-        .string()
-        .default('Bearer')
-        .exactOptional()
-        .openapi({ type: 'string', default: 'Bearer' }),
+      accessToken: z.string(),
+      refreshToken: z.string(),
+      tokenType: z.string().default('Bearer').exactOptional(),
       accessTokenExpiresIn: z
         .int()
         .exactOptional()
-        .openapi({ type: 'integer', description: 'アクセストークン有効期限（秒）' }),
+        .openapi({ description: 'アクセストークン有効期限（秒）' }),
       refreshTokenExpiresIn: z
         .int()
         .exactOptional()
-        .openapi({ type: 'integer', description: 'リフレッシュトークン有効期限（秒）' }),
+        .openapi({ description: 'リフレッシュトークン有効期限（秒）' }),
     })
-    .openapi({
-      type: 'object',
-      required: ['accessToken', 'refreshToken'],
-      properties: {
-        accessToken: { type: 'string' },
-        refreshToken: { type: 'string' },
-        tokenType: { type: 'string', default: 'Bearer' },
-        accessTokenExpiresIn: { type: 'integer', description: 'アクセストークン有効期限（秒）' },
-        refreshTokenExpiresIn: {
-          type: 'integer',
-          description: 'リフレッシュトークン有効期限（秒）',
-        },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Session' },
-      {
-        type: 'object',
-        required: ['accessToken', 'refreshToken'],
-        properties: {
-          accessToken: { type: 'string' },
-          refreshToken: { type: 'string' },
-          tokenType: { type: 'string', default: 'Bearer' },
-          accessTokenExpiresIn: { type: 'integer', description: 'アクセストークン有効期限（秒）' },
-          refreshTokenExpiresIn: {
-            type: 'integer',
-            description: 'リフレッシュトークン有効期限（秒）',
-          },
-        },
-      },
-    ],
-  })
-  .openapi('SessionWithTokens')
+    .openapi({ required: ['accessToken', 'refreshToken'] }),
+).openapi('SessionWithTokens')
 
 const CreateSessionRequestSchema = z
   .object({
-    grantType: z
-      .enum(['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social'])
-      .openapi({
-        type: 'string',
-        enum: ['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social'],
-      }),
-    username: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'password grant用' }),
-    password: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'password grant用' }),
-    mfaToken: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'mfa_token grant用' }),
-    mfaCode: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'mfa_token grant用' }),
-    ssoToken: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'sso_token grant用' }),
-    passkeyResponse: z
-      .object({})
-      .exactOptional()
-      .openapi({ type: 'object', description: 'passkey grant用' }),
-    magicLinkToken: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'magic_link grant用' }),
-    socialProvider: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'social grant用' }),
-    socialToken: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'social grant用' }),
+    grantType: z.enum(['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social']),
+    username: z.string().exactOptional().openapi({ description: 'password grant用' }),
+    password: z.string().exactOptional().openapi({ description: 'password grant用' }),
+    mfaToken: z.string().exactOptional().openapi({ description: 'mfa_token grant用' }),
+    mfaCode: z.string().exactOptional().openapi({ description: 'mfa_token grant用' }),
+    ssoToken: z.string().exactOptional().openapi({ description: 'sso_token grant用' }),
+    passkeyResponse: z.object({}).exactOptional().openapi({ description: 'passkey grant用' }),
+    magicLinkToken: z.string().exactOptional().openapi({ description: 'magic_link grant用' }),
+    socialProvider: z.string().exactOptional().openapi({ description: 'social grant用' }),
+    socialToken: z.string().exactOptional().openapi({ description: 'social grant用' }),
     deviceFingerprint: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: 'デバイスフィンガープリント' }),
-    rememberMe: z
-      .boolean()
-      .default(false)
-      .exactOptional()
-      .openapi({ type: 'boolean', default: false }),
+      .openapi({ description: 'デバイスフィンガープリント' }),
+    rememberMe: z.boolean().default(false).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['grantType'],
-    properties: {
-      grantType: {
-        type: 'string',
-        enum: ['password', 'mfa_token', 'sso_token', 'passkey', 'magic_link', 'social'],
-      },
-      username: { type: 'string', description: 'password grant用' },
-      password: { type: 'string', description: 'password grant用' },
-      mfaToken: { type: 'string', description: 'mfa_token grant用' },
-      mfaCode: { type: 'string', description: 'mfa_token grant用' },
-      ssoToken: { type: 'string', description: 'sso_token grant用' },
-      passkeyResponse: { type: 'object', description: 'passkey grant用' },
-      magicLinkToken: { type: 'string', description: 'magic_link grant用' },
-      socialProvider: { type: 'string', description: 'social grant用' },
-      socialToken: { type: 'string', description: 'social grant用' },
-      deviceFingerprint: { type: 'string', description: 'デバイスフィンガープリント' },
-      rememberMe: { type: 'boolean', default: false },
-    },
-  })
+  .openapi({ required: ['grantType'] })
   .openapi('CreateSessionRequest')
 
 const SessionValidationResultSchema = z
   .object({
-    valid: z.boolean().openapi({ type: 'boolean' }),
+    valid: z.boolean(),
     session: SessionSchema.exactOptional(),
-    reason: z.string().exactOptional().openapi({ type: 'string', description: '無効な場合の理由' }),
+    reason: z.string().exactOptional().openapi({ description: '無効な場合の理由' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['valid'],
-    properties: {
-      valid: { type: 'boolean' },
-      session: { $ref: '#/components/schemas/Session' },
-      reason: { type: 'string', description: '無効な場合の理由' },
-    },
-  })
+  .openapi({ required: ['valid'] })
   .openapi('SessionValidationResult')
 
 const SessionHistorySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    sessionId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    eventType: z
-      .enum(['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'])
-      .openapi({
-        type: 'string',
-        enum: ['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'],
-      }),
+    id: z.uuid(),
+    sessionId: z.uuid().exactOptional(),
+    eventType: z.enum([
+      'created',
+      'refreshed',
+      'extended',
+      'activity',
+      'expired',
+      'revoked',
+      'logout',
+    ]),
     device: DeviceInfoSchema.exactOptional(),
     location: LocationInfoSchema.exactOptional(),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    timestamp: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'eventType', 'timestamp'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      sessionId: { type: 'string', format: 'uuid' },
-      eventType: {
-        type: 'string',
-        enum: ['created', 'refreshed', 'extended', 'activity', 'expired', 'revoked', 'logout'],
-      },
-      device: { $ref: '#/components/schemas/DeviceInfo' },
-      location: { $ref: '#/components/schemas/LocationInfo' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'eventType', 'timestamp'] })
   .openapi('SessionHistory')
 
 const SecurityEventSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    eventType: z
-      .enum([
-        'login_failed',
-        'suspicious_login',
-        'new_device',
-        'new_location',
-        'impossible_travel',
-        'brute_force_attempt',
-        'session_hijack_attempt',
-        'password_spray',
-        'concurrent_sessions_exceeded',
-      ])
-      .openapi({
-        type: 'string',
-        enum: [
-          'login_failed',
-          'suspicious_login',
-          'new_device',
-          'new_location',
-          'impossible_travel',
-          'brute_force_attempt',
-          'session_hijack_attempt',
-          'password_spray',
-          'concurrent_sessions_exceeded',
-        ],
-      }),
-    severity: z
-      .enum(['low', 'medium', 'high', 'critical'])
-      .openapi({ type: 'string', enum: ['low', 'medium', 'high', 'critical'] }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
+    id: z.uuid(),
+    eventType: z.enum([
+      'login_failed',
+      'suspicious_login',
+      'new_device',
+      'new_location',
+      'impossible_travel',
+      'brute_force_attempt',
+      'session_hijack_attempt',
+      'password_spray',
+      'concurrent_sessions_exceeded',
+    ]),
+    severity: z.enum(['low', 'medium', 'high', 'critical']),
+    description: z.string().exactOptional(),
     device: DeviceInfoSchema.exactOptional(),
     location: LocationInfoSchema.exactOptional(),
     actionTaken: z
@@ -365,260 +154,85 @@ const SecurityEventSchema = z
         'account_locked',
         'alert_sent',
       ])
-      .exactOptional()
-      .openapi({
-        type: 'string',
-        enum: [
-          'none',
-          'captcha_required',
-          'mfa_required',
-          'session_revoked',
-          'account_locked',
-          'alert_sent',
-        ],
-      }),
-    resolved: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+      .exactOptional(),
+    resolved: z.boolean().exactOptional(),
+    timestamp: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'eventType', 'severity', 'timestamp'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      eventType: {
-        type: 'string',
-        enum: [
-          'login_failed',
-          'suspicious_login',
-          'new_device',
-          'new_location',
-          'impossible_travel',
-          'brute_force_attempt',
-          'session_hijack_attempt',
-          'password_spray',
-          'concurrent_sessions_exceeded',
-        ],
-      },
-      severity: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
-      description: { type: 'string' },
-      device: { $ref: '#/components/schemas/DeviceInfo' },
-      location: { $ref: '#/components/schemas/LocationInfo' },
-      actionTaken: {
-        type: 'string',
-        enum: [
-          'none',
-          'captcha_required',
-          'mfa_required',
-          'session_revoked',
-          'account_locked',
-          'alert_sent',
-        ],
-      },
-      resolved: { type: 'boolean' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'eventType', 'severity', 'timestamp'] })
   .openapi('SecurityEvent')
 
 const SessionPolicySchema = z
   .object({
-    sessionDuration: z
-      .int()
-      .exactOptional()
-      .openapi({ type: 'integer', description: 'セッション有効期間（秒）' }),
-    idleTimeout: z
-      .int()
-      .exactOptional()
-      .openapi({ type: 'integer', description: 'アイドルタイムアウト（秒）' }),
-    maxConcurrentSessions: z
-      .int()
-      .exactOptional()
-      .openapi({ type: 'integer', description: '最大同時セッション数' }),
+    sessionDuration: z.int().exactOptional().openapi({ description: 'セッション有効期間（秒）' }),
+    idleTimeout: z.int().exactOptional().openapi({ description: 'アイドルタイムアウト（秒）' }),
+    maxConcurrentSessions: z.int().exactOptional().openapi({ description: '最大同時セッション数' }),
     concurrentSessionAction: z
       .enum(['allow', 'deny', 'revoke_oldest'])
       .exactOptional()
-      .openapi({
-        type: 'string',
-        enum: ['allow', 'deny', 'revoke_oldest'],
-        description: '同時セッション超過時のアクション',
-      }),
-    requireMfaForNewDevice: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    requireMfaForNewLocation: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    allowRememberMe: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+      .openapi({ description: '同時セッション超過時のアクション' }),
+    requireMfaForNewDevice: z.boolean().exactOptional(),
+    requireMfaForNewLocation: z.boolean().exactOptional(),
+    allowRememberMe: z.boolean().exactOptional(),
     rememberMeDuration: z
       .int()
       .exactOptional()
-      .openapi({ type: 'integer', description: 'Remember Me の期間（秒）' }),
+      .openapi({ description: 'Remember Me の期間（秒）' }),
     refreshTokenRotation: z
       .boolean()
       .exactOptional()
-      .openapi({ type: 'boolean', description: 'リフレッシュトークンのローテーション' }),
-    absoluteTimeout: z
-      .int()
-      .exactOptional()
-      .openapi({ type: 'integer', description: '絶対タイムアウト（秒）' }),
+      .openapi({ description: 'リフレッシュトークンのローテーション' }),
+    absoluteTimeout: z.int().exactOptional().openapi({ description: '絶対タイムアウト（秒）' }),
     ipBindingEnabled: z
       .boolean()
       .exactOptional()
-      .openapi({ type: 'boolean', description: 'IPアドレスバインディング' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      sessionDuration: { type: 'integer', description: 'セッション有効期間（秒）' },
-      idleTimeout: { type: 'integer', description: 'アイドルタイムアウト（秒）' },
-      maxConcurrentSessions: { type: 'integer', description: '最大同時セッション数' },
-      concurrentSessionAction: {
-        type: 'string',
-        enum: ['allow', 'deny', 'revoke_oldest'],
-        description: '同時セッション超過時のアクション',
-      },
-      requireMfaForNewDevice: { type: 'boolean' },
-      requireMfaForNewLocation: { type: 'boolean' },
-      allowRememberMe: { type: 'boolean' },
-      rememberMeDuration: { type: 'integer', description: 'Remember Me の期間（秒）' },
-      refreshTokenRotation: {
-        type: 'boolean',
-        description: 'リフレッシュトークンのローテーション',
-      },
-      absoluteTimeout: { type: 'integer', description: '絶対タイムアウト（秒）' },
-      ipBindingEnabled: { type: 'boolean', description: 'IPアドレスバインディング' },
-    },
+      .openapi({ description: 'IPアドレスバインディング' }),
   })
   .openapi('SessionPolicy')
 
 const UpdateSessionPolicyRequestSchema = z
   .object({
-    sessionDuration: z
-      .int()
-      .min(300)
-      .max(604800)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 300, maximum: 604800 }),
-    idleTimeout: z
-      .int()
-      .min(60)
-      .max(86400)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 60, maximum: 86400 }),
-    maxConcurrentSessions: z
-      .int()
-      .min(1)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 1, maximum: 100 }),
-    concurrentSessionAction: z
-      .enum(['allow', 'deny', 'revoke_oldest'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['allow', 'deny', 'revoke_oldest'] }),
-    requireMfaForNewDevice: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    requireMfaForNewLocation: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    allowRememberMe: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    rememberMeDuration: z.int().exactOptional().openapi({ type: 'integer' }),
-    refreshTokenRotation: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      sessionDuration: { type: 'integer', minimum: 300, maximum: 604800 },
-      idleTimeout: { type: 'integer', minimum: 60, maximum: 86400 },
-      maxConcurrentSessions: { type: 'integer', minimum: 1, maximum: 100 },
-      concurrentSessionAction: { type: 'string', enum: ['allow', 'deny', 'revoke_oldest'] },
-      requireMfaForNewDevice: { type: 'boolean' },
-      requireMfaForNewLocation: { type: 'boolean' },
-      allowRememberMe: { type: 'boolean' },
-      rememberMeDuration: { type: 'integer' },
-      refreshTokenRotation: { type: 'boolean' },
-    },
+    sessionDuration: z.int().min(300).max(604800).exactOptional(),
+    idleTimeout: z.int().min(60).max(86400).exactOptional(),
+    maxConcurrentSessions: z.int().min(1).max(100).exactOptional(),
+    concurrentSessionAction: z.enum(['allow', 'deny', 'revoke_oldest']).exactOptional(),
+    requireMfaForNewDevice: z.boolean().exactOptional(),
+    requireMfaForNewLocation: z.boolean().exactOptional(),
+    allowRememberMe: z.boolean().exactOptional(),
+    rememberMeDuration: z.int().exactOptional(),
+    refreshTokenRotation: z.boolean().exactOptional(),
   })
   .openapi('UpdateSessionPolicyRequest')
 
 const TrustedDeviceSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
+    id: z.uuid(),
+    name: z.string().exactOptional(),
     device: DeviceInfoSchema,
-    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    lastUsedAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
+    expiresAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'device', 'createdAt', 'expiresAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      device: { $ref: '#/components/schemas/DeviceInfo' },
-      lastUsedAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-      expiresAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'device', 'createdAt', 'expiresAt'] })
   .openapi('TrustedDevice')
 
 const PaginationSchema = z
-  .object({
-    page: z.int().openapi({ type: 'integer' }),
-    limit: z.int().openapi({ type: 'integer' }),
-    total: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['page', 'limit', 'total', 'totalPages'],
-    properties: {
-      page: { type: 'integer' },
-      limit: { type: 'integer' },
-      total: { type: 'integer' },
-      totalPages: { type: 'integer' },
-    },
-  })
+  .object({ page: z.int(), limit: z.int(), total: z.int(), totalPages: z.int() })
+  .openapi({ required: ['page', 'limit', 'total', 'totalPages'] })
   .openapi('Pagination')
 
 const SessionHistoryResponseSchema = z
-  .object({
-    data: z
-      .array(SessionHistorySchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/SessionHistory' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/SessionHistory' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(SessionHistorySchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('SessionHistoryResponse')
 
 const SecurityEventListResponseSchema = z
-  .object({
-    data: z
-      .array(SecurityEventSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/SecurityEvent' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/SecurityEvent' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(SecurityEventSchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('SecurityEventListResponse')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const SessionIdParamParamsSchema = z
@@ -630,8 +244,6 @@ const SessionIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const PageParamParamsSchema = z
@@ -641,9 +253,6 @@ const PageParamParamsSchema = z
   .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-    type: 'integer',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -658,10 +267,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -703,21 +308,13 @@ export const getSessionsRoute = createRoute({
             description: '期限切れセッションも含める',
             schema: { type: 'boolean', default: false },
           },
-          type: 'boolean',
-          default: false,
         }),
     }),
   },
   responses: {
     200: {
       description: 'セッション一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(SessionSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Session' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(SessionSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -743,10 +340,7 @@ export const postSessionsRoute = createRoute({
       headers: z.object({
         'Set-Cookie': {
           description: 'セッションCookie',
-          schema: z
-            .string()
-            .exactOptional()
-            .openapi({ description: 'セッションCookie', type: 'string' }),
+          schema: z.string().exactOptional().openapi({ description: 'セッションCookie' }),
         },
       }),
       content: { 'application/json': { schema: SessionWithTokensSchema } },
@@ -784,10 +378,7 @@ export const deleteSessionsCurrentRoute = createRoute({
       headers: z.object({
         'Set-Cookie': {
           description: 'セッションCookie削除',
-          schema: z
-            .string()
-            .exactOptional()
-            .openapi({ description: 'セッションCookie削除', type: 'string' }),
+          schema: z.string().exactOptional().openapi({ description: 'セッションCookie削除' }),
         },
       }),
     },
@@ -807,13 +398,7 @@ export const postSessionsCurrentRefreshRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ refreshToken: z.string().openapi({ type: 'string' }) })
-            .openapi({
-              type: 'object',
-              required: ['refreshToken'],
-              properties: { refreshToken: { type: 'string' } },
-            }),
+          schema: z.object({ refreshToken: z.string() }).openapi({ required: ['refreshToken'] }),
         },
       },
       required: true,
@@ -842,31 +427,14 @@ export const postSessionsCurrentExtendRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              duration: z
-                .int()
-                .min(60)
-                .max(86400)
-                .exactOptional()
-                .openapi({
-                  type: 'integer',
-                  description: '延長時間（秒）',
-                  minimum: 60,
-                  maximum: 86400,
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                duration: {
-                  type: 'integer',
-                  description: '延長時間（秒）',
-                  minimum: 60,
-                  maximum: 86400,
-                },
-              },
-            }),
+          schema: z.object({
+            duration: z
+              .int()
+              .min(60)
+              .max(86400)
+              .exactOptional()
+              .openapi({ description: '延長時間（秒）' }),
+          }),
         },
       },
     },
@@ -890,24 +458,10 @@ export const postSessionsCurrentActivityRoute = createRoute({
       description: '記録成功',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              lastActivityAt: z.iso
-                .datetime()
-                .exactOptional()
-                .openapi({ type: 'string', format: 'date-time' }),
-              idleTimeoutAt: z.iso
-                .datetime()
-                .exactOptional()
-                .openapi({ type: 'string', format: 'date-time' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                lastActivityAt: { type: 'string', format: 'date-time' },
-                idleTimeoutAt: { type: 'string', format: 'date-time' },
-              },
-            }),
+          schema: z.object({
+            lastActivityAt: z.iso.datetime().exactOptional(),
+            idleTimeoutAt: z.iso.datetime().exactOptional(),
+          }),
         },
       },
     },
@@ -961,28 +515,13 @@ export const postSessionsRevokeAllRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              includeCurrent: z
-                .boolean()
-                .default(false)
-                .exactOptional()
-                .openapi({
-                  type: 'boolean',
-                  default: false,
-                  description: '現在のセッションも含めるか',
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                includeCurrent: {
-                  type: 'boolean',
-                  default: false,
-                  description: '現在のセッションも含めるか',
-                },
-              },
-            }),
+          schema: z.object({
+            includeCurrent: z
+              .boolean()
+              .default(false)
+              .exactOptional()
+              .openapi({ description: '現在のセッションも含めるか' }),
+          }),
         },
       },
     },
@@ -991,11 +530,7 @@ export const postSessionsRevokeAllRoute = createRoute({
     200: {
       description: '無効化成功',
       content: {
-        'application/json': {
-          schema: z
-            .object({ revokedCount: z.int().exactOptional().openapi({ type: 'integer' }) })
-            .openapi({ type: 'object', properties: { revokedCount: { type: 'integer' } } }),
-        },
+        'application/json': { schema: z.object({ revokedCount: z.int().exactOptional() }) },
       },
     },
     401: UnauthorizedResponse,
@@ -1014,15 +549,10 @@ export const postSessionsValidateRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              accessToken: z.string().exactOptional().openapi({ type: 'string' }),
-              sessionId: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { accessToken: { type: 'string' }, sessionId: { type: 'string' } },
-            }),
+          schema: z.object({
+            accessToken: z.string().exactOptional(),
+            sessionId: z.string().exactOptional(),
+          }),
         },
       },
       required: true,
@@ -1052,16 +582,12 @@ export const getSessionsHistoryRoute = createRoute({
         .exactOptional()
         .openapi({
           param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
-          type: 'string',
-          format: 'date-time',
         }),
       to: z.iso
         .datetime()
         .exactOptional()
         .openapi({
           param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
-          type: 'string',
-          format: 'date-time',
         }),
     }),
   },
@@ -1095,8 +621,6 @@ export const getSessionsSecurityEventsRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
           },
-          type: 'string',
-          enum: ['low', 'medium', 'high', 'critical'],
         }),
     }),
   },
@@ -1157,13 +681,7 @@ export const getSessionsTrustedDevicesRoute = createRoute({
   responses: {
     200: {
       description: '信頼済みデバイス一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(TrustedDeviceSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/TrustedDevice' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(TrustedDeviceSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1180,36 +698,15 @@ export const postSessionsTrustedDevicesRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              name: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'デバイス名' }),
-              trustDuration: z
-                .int()
-                .min(1)
-                .max(365)
-                .exactOptional()
-                .openapi({
-                  type: 'integer',
-                  description: '信頼期間（日）',
-                  minimum: 1,
-                  maximum: 365,
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                name: { type: 'string', description: 'デバイス名' },
-                trustDuration: {
-                  type: 'integer',
-                  description: '信頼期間（日）',
-                  minimum: 1,
-                  maximum: 365,
-                },
-              },
-            }),
+          schema: z.object({
+            name: z.string().exactOptional().openapi({ description: 'デバイス名' }),
+            trustDuration: z
+              .int()
+              .min(1)
+              .max(365)
+              .exactOptional()
+              .openapi({ description: '信頼期間（日）' }),
+          }),
         },
       },
     },
@@ -1241,8 +738,6 @@ export const deleteSessionsTrustedDevicesDeviceIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },

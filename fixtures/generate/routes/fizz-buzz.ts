@@ -17,15 +17,12 @@ export const getFizzbuzzRoute = createRoute({
             name: 'number',
             in: 'query',
           },
-          type: 'number',
-          minimum: 1,
         }),
       details: z
         .stringbool()
         .exactOptional()
         .openapi({
           param: { schema: { type: 'boolean' }, required: false, name: 'details', in: 'query' },
-          type: 'boolean',
         }),
     }),
   },
@@ -34,25 +31,13 @@ export const getFizzbuzzRoute = createRoute({
       description: 'FizzBuzz result',
       content: {
         'application/json': {
-          schema: z
-            .object({ result: z.string().openapi({ type: 'string' }) })
-            .openapi({
-              type: 'object',
-              properties: { result: { type: 'string' } },
-              required: ['result'],
-            }),
+          schema: z.object({ result: z.string() }).openapi({ required: ['result'] }),
         },
       },
     },
     400: {
       description: 'Invalid input',
-      content: {
-        'application/json': {
-          schema: z
-            .object({ error: z.string().exactOptional().openapi({ type: 'string' }) })
-            .openapi({ type: 'object', properties: { error: { type: 'string' } } }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ error: z.string().exactOptional() }) } },
     },
   },
 })

@@ -2,85 +2,37 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserProfileSchema = z
   .object({
-    firstName: z.string().exactOptional().openapi({ type: 'string' }),
-    lastName: z.string().exactOptional().openapi({ type: 'string' }),
-    avatar: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    bio: z.string().exactOptional().openapi({ type: 'string' }),
-    social: z
-      .record(z.string(), z.url().openapi({ type: 'string', format: 'uri' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string', format: 'uri' } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      firstName: { type: 'string' },
-      lastName: { type: 'string' },
-      avatar: { type: 'string', format: 'uri' },
-      bio: { type: 'string' },
-      social: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
-    },
+    firstName: z.string().exactOptional(),
+    lastName: z.string().exactOptional(),
+    avatar: z.url().exactOptional(),
+    bio: z.string().exactOptional(),
+    social: z.record(z.string(), z.url()).exactOptional(),
   })
   .openapi('UserProfile')
 
 const NotificationSettingsSchema = z
   .object({
-    email: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    push: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    sms: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    channels: z
-      .record(z.string(), z.boolean().openapi({ type: 'boolean' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'boolean' } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      email: { type: 'boolean' },
-      push: { type: 'boolean' },
-      sms: { type: 'boolean' },
-      channels: { type: 'object', additionalProperties: { type: 'boolean' } },
-    },
+    email: z.boolean().exactOptional(),
+    push: z.boolean().exactOptional(),
+    sms: z.boolean().exactOptional(),
+    channels: z.record(z.string(), z.boolean()).exactOptional(),
   })
   .openapi('NotificationSettings')
 
 const PrivacySettingsSchema = z
   .object({
-    profileVisibility: z
-      .enum(['public', 'private', 'connections'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['public', 'private', 'connections'] }),
-    showEmail: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    showActivity: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      profileVisibility: { type: 'string', enum: ['public', 'private', 'connections'] },
-      showEmail: { type: 'boolean' },
-      showActivity: { type: 'boolean' },
-    },
+    profileVisibility: z.enum(['public', 'private', 'connections']).exactOptional(),
+    showEmail: z.boolean().exactOptional(),
+    showActivity: z.boolean().exactOptional(),
   })
   .openapi('PrivacySettings')
 
 const UserPreferencesSchema = z
   .object({
-    language: z.string().exactOptional().openapi({ type: 'string' }),
-    timezone: z.string().exactOptional().openapi({ type: 'string' }),
-    theme: z
-      .enum(['light', 'dark', 'system'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
-    dateFormat: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      language: { type: 'string' },
-      timezone: { type: 'string' },
-      theme: { type: 'string', enum: ['light', 'dark', 'system'] },
-      dateFormat: { type: 'string' },
-    },
+    language: z.string().exactOptional(),
+    timezone: z.string().exactOptional(),
+    theme: z.enum(['light', 'dark', 'system']).exactOptional(),
+    dateFormat: z.string().exactOptional(),
   })
   .openapi('UserPreferences')
 
@@ -90,800 +42,301 @@ const UserSettingsSchema = z
     privacy: PrivacySettingsSchema.exactOptional(),
     preferences: UserPreferencesSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      notifications: { $ref: '#/components/schemas/NotificationSettings' },
-      privacy: { $ref: '#/components/schemas/PrivacySettings' },
-      preferences: { $ref: '#/components/schemas/UserPreferences' },
-    },
-  })
   .openapi('UserSettings')
 
 const EntityMetadataSchema = z
   .object({
-    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    version: z.int().exactOptional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-      version: { type: 'integer' },
-    },
+    createdAt: z.iso.datetime().exactOptional(),
+    updatedAt: z.iso.datetime().exactOptional(),
+    version: z.int().exactOptional(),
   })
   .openapi('EntityMetadata')
 
 const UserSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
+    id: z.uuid(),
+    email: z.email(),
     profile: UserProfileSchema.exactOptional(),
     settings: UserSettingsSchema.exactOptional(),
     metadata: EntityMetadataSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'email'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      email: { type: 'string', format: 'email' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-      settings: { $ref: '#/components/schemas/UserSettings' },
-      metadata: { $ref: '#/components/schemas/EntityMetadata' },
-    },
-  })
+  .openapi({ required: ['id', 'email'] })
   .openapi('User')
 
 const CreateUserInputSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
+    email: z.email(),
     profile: UserProfileSchema.exactOptional(),
-    password: z.string().exactOptional().openapi({ type: 'string', format: 'password' }),
+    password: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['email'],
-    properties: {
-      email: { type: 'string', format: 'email' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-      password: { type: 'string', format: 'password' },
-    },
-  })
+  .openapi({ required: ['email'] })
   .openapi('CreateUserInput')
 
 const UserFilterSchema = z
   .object({
-    status: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    createdAfter: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdBefore: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time' }),
-    search: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      status: { type: 'array', items: { type: 'string' } },
-      createdAfter: { type: 'string', format: 'date-time' },
-      createdBefore: { type: 'string', format: 'date-time' },
-      search: { type: 'string' },
-    },
+    status: z.array(z.string()).exactOptional(),
+    createdAfter: z.iso.datetime().exactOptional(),
+    createdBefore: z.iso.datetime().exactOptional(),
+    search: z.string().exactOptional(),
   })
   .openapi('UserFilter')
 
 const AddressSchema = z
   .object({
-    street: z.string().exactOptional().openapi({ type: 'string' }),
-    city: z.string().exactOptional().openapi({ type: 'string' }),
-    state: z.string().exactOptional().openapi({ type: 'string' }),
-    postalCode: z.string().exactOptional().openapi({ type: 'string' }),
-    country: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      street: { type: 'string' },
-      city: { type: 'string' },
-      state: { type: 'string' },
-      postalCode: { type: 'string' },
-      country: { type: 'string' },
-    },
+    street: z.string().exactOptional(),
+    city: z.string().exactOptional(),
+    state: z.string().exactOptional(),
+    postalCode: z.string().exactOptional(),
+    country: z.string().exactOptional(),
   })
   .openapi('Address')
 
 const OrganizationMemberSchema = z
   .object({
     user: UserSchema,
-    role: z
-      .enum(['owner', 'admin', 'member', 'viewer'])
-      .openapi({ type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] }),
-    joinedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    role: z.enum(['owner', 'admin', 'member', 'viewer']),
+    joinedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['user', 'role'],
-    properties: {
-      user: { $ref: '#/components/schemas/User' },
-      role: { type: 'string', enum: ['owner', 'admin', 'member', 'viewer'] },
-      joinedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['user', 'role'] })
   .openapi('OrganizationMember')
 
 const OrganizationSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
+    id: z.uuid(),
+    name: z.string(),
+    description: z.string().exactOptional(),
     address: AddressSchema.exactOptional(),
-    members: z
-      .array(OrganizationMemberSchema)
-      .exactOptional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrganizationMember' } }),
+    members: z.array(OrganizationMemberSchema).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      description: { type: 'string' },
-      address: { $ref: '#/components/schemas/Address' },
-      members: { type: 'array', items: { $ref: '#/components/schemas/OrganizationMember' } },
-    },
-  })
+  .openapi({ required: ['id', 'name'] })
   .openapi('Organization')
 
 const TeamSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    members: z
-      .array(UserSchema)
-      .exactOptional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      members: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-    },
-  })
+  .object({ id: z.uuid(), name: z.string(), members: z.array(UserSchema).exactOptional() })
+  .openapi({ required: ['id', 'name'] })
   .openapi('Team')
 
 const PriceSchema = z
   .object({
-    amount: z.number().openapi({ type: 'number', format: 'double' }),
-    currency: z
-      .string()
-      .regex(/^[A-Z]{3}$/)
-      .openapi({ type: 'string', pattern: '^[A-Z]{3}$' }),
-    formatted: z.string().exactOptional().openapi({ type: 'string' }),
+    amount: z.number(),
+    currency: z.string().regex(/^[A-Z]{3}$/),
+    formatted: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['amount', 'currency'],
-    properties: {
-      amount: { type: 'number', format: 'double' },
-      currency: { type: 'string', pattern: '^[A-Z]{3}$' },
-      formatted: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['amount', 'currency'] })
   .openapi('Price')
 
 const ProductVariantSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    sku: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
-    attributes: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
+    id: z.uuid(),
+    sku: z.string(),
+    name: z.string(),
+    attributes: z.record(z.string(), z.string()).exactOptional(),
     price: PriceSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'sku', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      sku: { type: 'string' },
-      name: { type: 'string' },
-      attributes: { type: 'object', additionalProperties: { type: 'string' } },
-      price: { $ref: '#/components/schemas/Price' },
-    },
-  })
+  .openapi({ required: ['id', 'sku', 'name'] })
   .openapi('ProductVariant')
 
 const OrderItemSchema = z
-  .object({
-    product: ProductVariantSchema,
-    quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }),
-    price: PriceSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['product', 'quantity', 'price'],
-    properties: {
-      product: { $ref: '#/components/schemas/ProductVariant' },
-      quantity: { type: 'integer', minimum: 1 },
-      price: { $ref: '#/components/schemas/Price' },
-    },
-  })
+  .object({ product: ProductVariantSchema, quantity: z.int().min(1), price: PriceSchema })
+  .openapi({ required: ['product', 'quantity', 'price'] })
   .openapi('OrderItem')
 
 const OrderSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid(),
     customer: UserSchema.exactOptional(),
-    items: z
-      .array(OrderItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
+    items: z.array(OrderItemSchema),
     total: PriceSchema,
-    status: z
-      .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
-      .exactOptional()
-      .openapi({
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-      }),
+    status: z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']).exactOptional(),
     shippingAddress: AddressSchema.exactOptional(),
     billingAddress: AddressSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'items', 'total'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      customer: { $ref: '#/components/schemas/User' },
-      items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-      total: { $ref: '#/components/schemas/Price' },
-      status: {
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-      },
-      shippingAddress: { $ref: '#/components/schemas/Address' },
-      billingAddress: { $ref: '#/components/schemas/Address' },
-    },
-  })
+  .openapi({ required: ['id', 'items', 'total'] })
   .openapi('Order')
 
 const CreditCardPaymentSchema = z
   .object({
-    method: z.literal('credit_card').openapi({ type: 'string' }),
-    cardToken: z.string().openapi({ type: 'string' }),
-    saveCard: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    method: z.literal('credit_card'),
+    cardToken: z.string(),
+    saveCard: z.boolean().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['method', 'cardToken'],
-    properties: {
-      method: { type: 'string', const: 'credit_card' },
-      cardToken: { type: 'string' },
-      saveCard: { type: 'boolean' },
-    },
-  })
+  .openapi({ required: ['method', 'cardToken'] })
   .openapi('CreditCardPayment')
 
 const BankTransferPaymentSchema = z
   .object({
-    method: z.literal('bank_transfer').openapi({ type: 'string' }),
-    bankAccount: z.string().openapi({ type: 'string' }),
-    routingNumber: z.string().exactOptional().openapi({ type: 'string' }),
+    method: z.literal('bank_transfer'),
+    bankAccount: z.string(),
+    routingNumber: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['method', 'bankAccount'],
-    properties: {
-      method: { type: 'string', const: 'bank_transfer' },
-      bankAccount: { type: 'string' },
-      routingNumber: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['method', 'bankAccount'] })
   .openapi('BankTransferPayment')
 
 const CreateOrderInputSchema = z
   .object({
-    items: z
-      .array(
-        z
-          .object({
-            productId: z.string().openapi({ type: 'string' }),
-            variantId: z.string().openapi({ type: 'string' }),
-            quantity: z.int().openapi({ type: 'integer' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['productId', 'variantId', 'quantity'],
-            properties: {
-              productId: { type: 'string' },
-              variantId: { type: 'string' },
-              quantity: { type: 'integer' },
-            },
-          }),
-      )
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['productId', 'variantId', 'quantity'],
-          properties: {
-            productId: { type: 'string' },
-            variantId: { type: 'string' },
-            quantity: { type: 'integer' },
-          },
-        },
-      }),
+    items: z.array(
+      z
+        .object({ productId: z.string(), variantId: z.string(), quantity: z.int() })
+        .openapi({ required: ['productId', 'variantId', 'quantity'] }),
+    ),
     shippingAddress: AddressSchema.exactOptional(),
     billingAddress: AddressSchema.exactOptional(),
-    paymentMethod: z
-      .xor([CreditCardPaymentSchema, BankTransferPaymentSchema])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { $ref: '#/components/schemas/CreditCardPayment' },
-          { $ref: '#/components/schemas/BankTransferPayment' },
-        ],
-      }),
+    paymentMethod: z.xor([CreditCardPaymentSchema, BankTransferPaymentSchema]).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['items'],
-    properties: {
-      items: {
-        type: 'array',
-        items: {
-          type: 'object',
-          required: ['productId', 'variantId', 'quantity'],
-          properties: {
-            productId: { type: 'string' },
-            variantId: { type: 'string' },
-            quantity: { type: 'integer' },
-          },
-        },
-      },
-      shippingAddress: { $ref: '#/components/schemas/Address' },
-      billingAddress: { $ref: '#/components/schemas/Address' },
-      paymentMethod: {
-        oneOf: [
-          { $ref: '#/components/schemas/CreditCardPayment' },
-          { $ref: '#/components/schemas/BankTransferPayment' },
-        ],
-      },
-    },
-  })
+  .openapi({ required: ['items'] })
   .openapi('CreateOrderInput')
 
 const DiscountSchema = z
   .object({
-    type: z
-      .enum(['percentage', 'fixed'])
-      .openapi({ type: 'string', enum: ['percentage', 'fixed'] }),
-    value: z.number().openapi({ type: 'number' }),
-    code: z.string().exactOptional().openapi({ type: 'string' }),
-    validUntil: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    type: z.enum(['percentage', 'fixed']),
+    value: z.number(),
+    code: z.string().exactOptional(),
+    validUntil: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'value'],
-    properties: {
-      type: { type: 'string', enum: ['percentage', 'fixed'] },
-      value: { type: 'number' },
-      code: { type: 'string' },
-      validUntil: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['type', 'value'] })
   .openapi('Discount')
 
 const DateRangeSchema = z
-  .object({
-    from: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-    to: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      from: { type: 'string', format: 'date' },
-      to: { type: 'string', format: 'date' },
-    },
-  })
+  .object({ from: z.iso.date().exactOptional(), to: z.iso.date().exactOptional() })
   .openapi('DateRange')
 
 const ShippingInfoSchema = z
   .object({
-    carrier: z.string().exactOptional().openapi({ type: 'string' }),
-    method: z.string().exactOptional().openapi({ type: 'string' }),
-    trackingNumber: z.string().exactOptional().openapi({ type: 'string' }),
+    carrier: z.string().exactOptional(),
+    method: z.string().exactOptional(),
+    trackingNumber: z.string().exactOptional(),
     estimatedDelivery: DateRangeSchema.exactOptional(),
     cost: PriceSchema.exactOptional(),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      carrier: { type: 'string' },
-      method: { type: 'string' },
-      trackingNumber: { type: 'string' },
-      estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-      cost: { $ref: '#/components/schemas/Price' },
-    },
   })
   .openapi('ShippingInfo')
 
 const WarehouseSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
+    id: z.string(),
+    name: z.string(),
     address: AddressSchema.exactOptional(),
-    capacity: z.int().exactOptional().openapi({ type: 'integer' }),
+    capacity: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string' },
-      address: { $ref: '#/components/schemas/Address' },
-      capacity: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['id', 'name'] })
   .openapi('Warehouse')
 
 const SalesReportParamsSchema = z
   .object({
     dateRange: DateRangeSchema,
-    groupBy: z
-      .enum(['day', 'week', 'month', 'quarter'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['day', 'week', 'month', 'quarter'] }),
-    metrics: z
-      .array(
-        z
-          .enum(['revenue', 'orders', 'avgOrderValue', 'customers'])
-          .openapi({ type: 'string', enum: ['revenue', 'orders', 'avgOrderValue', 'customers'] }),
-      )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: { type: 'string', enum: ['revenue', 'orders', 'avgOrderValue', 'customers'] },
-      }),
+    groupBy: z.enum(['day', 'week', 'month', 'quarter']).exactOptional(),
+    metrics: z.array(z.enum(['revenue', 'orders', 'avgOrderValue', 'customers'])).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['dateRange'],
-    properties: {
-      dateRange: { $ref: '#/components/schemas/DateRange' },
-      groupBy: { type: 'string', enum: ['day', 'week', 'month', 'quarter'] },
-      metrics: {
-        type: 'array',
-        items: { type: 'string', enum: ['revenue', 'orders', 'avgOrderValue', 'customers'] },
-      },
-    },
-  })
+  .openapi({ required: ['dateRange'] })
   .openapi('SalesReportParams')
 
 const InventoryReportParamsSchema = z
   .object({
-    warehouses: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    categories: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    lowStockThreshold: z.int().exactOptional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      warehouses: { type: 'array', items: { type: 'string' } },
-      categories: { type: 'array', items: { type: 'string' } },
-      lowStockThreshold: { type: 'integer' },
-    },
+    warehouses: z.array(z.string()).exactOptional(),
+    categories: z.array(z.string()).exactOptional(),
+    lowStockThreshold: z.int().exactOptional(),
   })
   .openapi('InventoryReportParams')
 
 const UserReportParamsSchema = z
   .object({
     dateRange: DateRangeSchema.exactOptional(),
-    segments: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    includeInactive: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      dateRange: { $ref: '#/components/schemas/DateRange' },
-      segments: { type: 'array', items: { type: 'string' } },
-      includeInactive: { type: 'boolean' },
-    },
+    segments: z.array(z.string()).exactOptional(),
+    includeInactive: z.boolean().exactOptional(),
   })
   .openapi('UserReportParams')
 
 const FilterExpressionSchema = z
   .object({
-    operator: z
-      .enum(['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'contains'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'contains'] }),
-    value: z
-      .xor([
-        z.string().openapi({ type: 'string' }),
-        z.number().openapi({ type: 'number' }),
-        z
-          .array(z.string().openapi({ type: 'string' }))
-          .openapi({ type: 'array', items: { type: 'string' } }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'array', items: { type: 'string' } },
-        ],
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      operator: { type: 'string', enum: ['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'contains'] },
-      value: {
-        oneOf: [
-          { type: 'string' },
-          { type: 'number' },
-          { type: 'array', items: { type: 'string' } },
-        ],
-      },
-    },
+    operator: z.enum(['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'contains']).exactOptional(),
+    value: z.xor([z.string(), z.number(), z.array(z.string())]).exactOptional(),
   })
   .openapi('FilterExpression')
 
 const ReportFormatSchema = z
   .object({
-    type: z
-      .enum(['json', 'csv', 'xlsx', 'pdf'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['json', 'csv', 'xlsx', 'pdf'] }),
-    options: z
-      .looseObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: true }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      type: { type: 'string', enum: ['json', 'csv', 'xlsx', 'pdf'] },
-      options: { type: 'object', additionalProperties: true },
-    },
+    type: z.enum(['json', 'csv', 'xlsx', 'pdf']).exactOptional(),
+    options: z.looseObject({}).exactOptional(),
   })
   .openapi('ReportFormat')
 
 const EmailDeliverySchema = z
   .object({
-    recipients: z
-      .array(z.email().openapi({ type: 'string', format: 'email' }))
-      .openapi({ type: 'array', items: { type: 'string', format: 'email' } }),
-    subject: z.string().exactOptional().openapi({ type: 'string' }),
-    message: z.string().exactOptional().openapi({ type: 'string' }),
+    recipients: z.array(z.email()),
+    subject: z.string().exactOptional(),
+    message: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['recipients'],
-    properties: {
-      recipients: { type: 'array', items: { type: 'string', format: 'email' } },
-      subject: { type: 'string' },
-      message: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['recipients'] })
   .openapi('EmailDelivery')
 
 const RetryPolicySchema = z
   .object({
-    maxRetries: z.int().default(3).exactOptional().openapi({ type: 'integer', default: 3 }),
-    backoffMultiplier: z
-      .number()
-      .default(2)
-      .exactOptional()
-      .openapi({ type: 'number', default: 2 }),
-    initialDelay: z.int().default(1000).exactOptional().openapi({ type: 'integer', default: 1000 }),
-    maxDelay: z.int().default(60000).exactOptional().openapi({ type: 'integer', default: 60000 }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      maxRetries: { type: 'integer', default: 3 },
-      backoffMultiplier: { type: 'number', default: 2 },
-      initialDelay: { type: 'integer', default: 1000 },
-      maxDelay: { type: 'integer', default: 60000 },
-    },
+    maxRetries: z.int().default(3).exactOptional(),
+    backoffMultiplier: z.number().default(2).exactOptional(),
+    initialDelay: z.int().default(1000).exactOptional(),
+    maxDelay: z.int().default(60000).exactOptional(),
   })
   .openapi('RetryPolicy')
 
 const WebhookDeliverySchema = z
   .object({
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    headers: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
+    url: z.url(),
+    headers: z.record(z.string(), z.string()).exactOptional(),
     retryPolicy: RetryPolicySchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['url'],
-    properties: {
-      url: { type: 'string', format: 'uri' },
-      headers: { type: 'object', additionalProperties: { type: 'string' } },
-      retryPolicy: { $ref: '#/components/schemas/RetryPolicy' },
-    },
-  })
+  .openapi({ required: ['url'] })
   .openapi('WebhookDelivery')
 
 const ReportJobSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['queued', 'processing', 'completed', 'failed'])
-      .openapi({ type: 'string', enum: ['queued', 'processing', 'completed', 'failed'] }),
-    progress: z
-      .int()
-      .min(0)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'integer', minimum: 0, maximum: 100 }),
+    id: z.uuid(),
+    status: z.enum(['queued', 'processing', 'completed', 'failed']),
+    progress: z.int().min(0).max(100).exactOptional(),
     result: z
-      .object({
-        url: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-        expiresAt: z.iso
-          .datetime()
-          .exactOptional()
-          .openapi({ type: 'string', format: 'date-time' }),
-      })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          url: { type: 'string', format: 'uri' },
-          expiresAt: { type: 'string', format: 'date-time' },
-        },
-      }),
+      .object({ url: z.url().exactOptional(), expiresAt: z.iso.datetime().exactOptional() })
+      .exactOptional(),
     error: z
-      .object({
-        code: z.string().exactOptional().openapi({ type: 'string' }),
-        message: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { code: { type: 'string' }, message: { type: 'string' } },
-      }),
+      .object({ code: z.string().exactOptional(), message: z.string().exactOptional() })
+      .exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      status: { type: 'string', enum: ['queued', 'processing', 'completed', 'failed'] },
-      progress: { type: 'integer', minimum: 0, maximum: 100 },
-      result: {
-        type: 'object',
-        properties: {
-          url: { type: 'string', format: 'uri' },
-          expiresAt: { type: 'string', format: 'date-time' },
-        },
-      },
-      error: {
-        type: 'object',
-        properties: { code: { type: 'string' }, message: { type: 'string' } },
-      },
-    },
-  })
+  .openapi({ required: ['id', 'status'] })
   .openapi('ReportJob')
 
 const WebhookEventSchema = z
-  .object({
-    type: z.string().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    version: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'timestamp'],
-    properties: {
-      type: { type: 'string' },
-      timestamp: { type: 'string', format: 'date-time' },
-      version: { type: 'string' },
-    },
-  })
+  .object({ type: z.string(), timestamp: z.iso.datetime(), version: z.string().exactOptional() })
+  .openapi({ required: ['type', 'timestamp'] })
   .openapi('WebhookEvent')
 
 const GenericEntitySchema = z
   .object({
-    id: z.string().exactOptional().openapi({ type: 'string' }),
-    type: z.string().exactOptional().openapi({ type: 'string' }),
-    attributes: z
-      .looseObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: true }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      type: { type: 'string' },
-      attributes: { type: 'object', additionalProperties: true },
-    },
+    id: z.string().exactOptional(),
+    type: z.string().exactOptional(),
+    attributes: z.looseObject({}).exactOptional(),
   })
   .openapi('GenericEntity')
 
 const RequestContextSchema = z
   .object({
-    requestId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    source: z.string().exactOptional().openapi({ type: 'string' }),
-    userAgent: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      requestId: { type: 'string', format: 'uuid' },
-      timestamp: { type: 'string', format: 'date-time' },
-      source: { type: 'string' },
-      userAgent: { type: 'string' },
-    },
+    requestId: z.uuid().exactOptional(),
+    timestamp: z.iso.datetime().exactOptional(),
+    source: z.string().exactOptional(),
+    userAgent: z.string().exactOptional(),
   })
   .openapi('RequestContext')
 
 const WebhookTestResultSchema = z
   .object({
-    success: z.boolean().openapi({ type: 'boolean' }),
-    statusCode: z.int().exactOptional().openapi({ type: 'integer' }),
-    responseTime: z.int().exactOptional().openapi({ type: 'integer' }),
-    response: z.object({}).exactOptional().openapi({ type: 'object' }),
-    error: z.string().exactOptional().openapi({ type: 'string' }),
+    success: z.boolean(),
+    statusCode: z.int().exactOptional(),
+    responseTime: z.int().exactOptional(),
+    response: z.object({}).exactOptional(),
+    error: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['success'],
-    properties: {
-      success: { type: 'boolean' },
-      statusCode: { type: 'integer' },
-      responseTime: { type: 'integer' },
-      response: { type: 'object' },
-      error: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['success'] })
   .openapi('WebhookTestResult')
 
 const PaginationSchema = z
-  .object({
-    page: z.int().openapi({ type: 'integer' }),
-    limit: z.int().openapi({ type: 'integer' }),
-    total: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().exactOptional().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['page', 'limit', 'total'],
-    properties: {
-      page: { type: 'integer' },
-      limit: { type: 'integer' },
-      total: { type: 'integer' },
-      totalPages: { type: 'integer' },
-    },
-  })
+  .object({ page: z.int(), limit: z.int(), total: z.int(), totalPages: z.int().exactOptional() })
+  .openapi({ required: ['page', 'limit', 'total'] })
   .openapi('Pagination')
 
 const UserIdPathParamsSchema = z
@@ -895,8 +348,6 @@ const UserIdPathParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const LimitParamParamsSchema = z
@@ -911,10 +362,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const OffsetParamParamsSchema = z
@@ -924,9 +371,6 @@ const OffsetParamParamsSchema = z
   .exactOptional()
   .openapi({
     param: { name: 'offset', in: 'query', schema: { type: 'integer', minimum: 0, default: 0 } },
-    type: 'integer',
-    minimum: 0,
-    default: 0,
   })
 
 export const getUsersRoute = createRoute({
@@ -944,8 +388,6 @@ export const getUsersRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['active', 'inactive', 'pending'] },
           },
-          type: 'string',
-          enum: ['active', 'inactive', 'pending'],
         }),
       limit: LimitParamParamsSchema,
       offset: OffsetParamParamsSchema,
@@ -961,39 +403,13 @@ export const getUsersRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              data: z
-                .array(UserSchema)
-                .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+              data: z.array(UserSchema),
               pagination: PaginationSchema,
               _links: z
-                .object({
-                  self: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-                  next: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    self: { type: 'string', format: 'uri' },
-                    next: { type: 'string', format: 'uri' },
-                  },
-                }),
+                .object({ self: z.url().exactOptional(), next: z.url().exactOptional() })
+                .exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['data', 'pagination'],
-              properties: {
-                data: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-                pagination: { $ref: '#/components/schemas/Pagination' },
-                _links: {
-                  type: 'object',
-                  properties: {
-                    self: { type: 'string', format: 'uri' },
-                    next: { type: 'string', format: 'uri' },
-                  },
-                },
-              },
-            }),
+            .openapi({ required: ['data', 'pagination'] }),
         },
       },
     },
@@ -1009,30 +425,11 @@ export const postUsersRoute = createRoute({
       content: {
         'application/json': {
           schema: CreateUserInputSchema.and(
-            z
-              .object({
-                invitationCode: z.string().exactOptional().openapi({ type: 'string' }),
-                preferences: UserPreferencesSchema.exactOptional(),
-              })
-              .openapi({
-                type: 'object',
-                properties: {
-                  invitationCode: { type: 'string' },
-                  preferences: { $ref: '#/components/schemas/UserPreferences' },
-                },
-              }),
-          ).openapi({
-            allOf: [
-              { $ref: '#/components/schemas/CreateUserInput' },
-              {
-                type: 'object',
-                properties: {
-                  invitationCode: { type: 'string' },
-                  preferences: { $ref: '#/components/schemas/UserPreferences' },
-                },
-              },
-            ],
-          }),
+            z.object({
+              invitationCode: z.string().exactOptional(),
+              preferences: UserPreferencesSchema.exactOptional(),
+            }),
+          ),
         },
       },
     },
@@ -1052,59 +449,21 @@ export const getUsersUserIdRoute = createRoute({
       description: 'User details',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              data: UserSchema.exactOptional(),
-              computed: z
-                .object({
-                  fullName: z.string().exactOptional().openapi({ type: 'string' }),
-                  membershipDuration: z.string().exactOptional().openapi({ type: 'string' }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    fullName: { type: 'string' },
-                    membershipDuration: { type: 'string' },
-                  },
-                }),
-              embedded: z
-                .object({
-                  organization: OrganizationSchema.exactOptional(),
-                  teams: z
-                    .array(TeamSchema)
-                    .exactOptional()
-                    .openapi({ type: 'array', items: { $ref: '#/components/schemas/Team' } }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    organization: { $ref: '#/components/schemas/Organization' },
-                    teams: { type: 'array', items: { $ref: '#/components/schemas/Team' } },
-                  },
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                data: { $ref: '#/components/schemas/User' },
-                computed: {
-                  type: 'object',
-                  properties: {
-                    fullName: { type: 'string' },
-                    membershipDuration: { type: 'string' },
-                  },
-                },
-                embedded: {
-                  type: 'object',
-                  properties: {
-                    organization: { $ref: '#/components/schemas/Organization' },
-                    teams: { type: 'array', items: { $ref: '#/components/schemas/Team' } },
-                  },
-                },
-              },
-            }),
+          schema: z.object({
+            data: UserSchema.exactOptional(),
+            computed: z
+              .object({
+                fullName: z.string().exactOptional(),
+                membershipDuration: z.string().exactOptional(),
+              })
+              .exactOptional(),
+            embedded: z
+              .object({
+                organization: OrganizationSchema.exactOptional(),
+                teams: z.array(TeamSchema).exactOptional(),
+              })
+              .exactOptional(),
+          }),
         },
       },
     },
@@ -1124,70 +483,20 @@ export const postOrdersRoute = createRoute({
           schema: z
             .object({
               order: OrderSchema,
-              payment: z
-                .xor([
-                  CreditCardPaymentSchema,
-                  BankTransferPaymentSchema,
-                  z
-                    .object({
-                      method: z.literal('invoice').openapi({ type: 'string' }),
-                      invoiceAddress: AddressSchema.exactOptional(),
-                      paymentTerms: z
-                        .int()
-                        .default(30)
-                        .exactOptional()
-                        .openapi({ type: 'integer', default: 30 }),
-                    })
-                    .openapi({
-                      type: 'object',
-                      required: ['method'],
-                      properties: {
-                        method: { type: 'string', const: 'invoice' },
-                        invoiceAddress: { $ref: '#/components/schemas/Address' },
-                        paymentTerms: { type: 'integer', default: 30 },
-                      },
-                    }),
-                ])
-                .openapi({
-                  oneOf: [
-                    { $ref: '#/components/schemas/CreditCardPayment' },
-                    { $ref: '#/components/schemas/BankTransferPayment' },
-                    {
-                      type: 'object',
-                      required: ['method'],
-                      properties: {
-                        method: { type: 'string', const: 'invoice' },
-                        invoiceAddress: { $ref: '#/components/schemas/Address' },
-                        paymentTerms: { type: 'integer', default: 30 },
-                      },
-                    },
-                  ],
-                }),
+              payment: z.xor([
+                CreditCardPaymentSchema,
+                BankTransferPaymentSchema,
+                z
+                  .object({
+                    method: z.literal('invoice'),
+                    invoiceAddress: AddressSchema.exactOptional(),
+                    paymentTerms: z.int().default(30).exactOptional(),
+                  })
+                  .openapi({ required: ['method'] }),
+              ]),
               shipping: ShippingInfoSchema.exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['order', 'payment'],
-              properties: {
-                order: { $ref: '#/components/schemas/Order' },
-                payment: {
-                  oneOf: [
-                    { $ref: '#/components/schemas/CreditCardPayment' },
-                    { $ref: '#/components/schemas/BankTransferPayment' },
-                    {
-                      type: 'object',
-                      required: ['method'],
-                      properties: {
-                        method: { type: 'string', const: 'invoice' },
-                        invoiceAddress: { $ref: '#/components/schemas/Address' },
-                        paymentTerms: { type: 'integer', default: 30 },
-                      },
-                    },
-                  ],
-                },
-                shipping: { $ref: '#/components/schemas/ShippingInfo' },
-              },
-            }),
+            .openapi({ required: ['order', 'payment'] }),
         },
       },
     },
@@ -1204,7 +513,6 @@ export const getProductsProductIdVariantsRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'productId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -1213,260 +521,31 @@ export const getProductsProductIdVariantsRoute = createRoute({
       description: 'Product variants',
       content: {
         'application/json': {
-          schema: z
-            .array(
-              ProductVariantSchema.and(
-                z
+          schema: z.array(
+            ProductVariantSchema.and(
+              z.object({
+                pricing: PriceSchema.and(
+                  z.object({ discounts: z.array(DiscountSchema).exactOptional() }),
+                ).exactOptional(),
+                availability: z
                   .object({
-                    pricing: PriceSchema.and(
-                      z
-                        .object({
-                          discounts: z
-                            .array(DiscountSchema)
-                            .exactOptional()
-                            .openapi({
-                              type: 'array',
-                              items: { $ref: '#/components/schemas/Discount' },
-                            }),
-                        })
-                        .openapi({
-                          type: 'object',
-                          properties: {
-                            discounts: {
-                              type: 'array',
-                              items: { $ref: '#/components/schemas/Discount' },
-                            },
-                          },
-                        }),
-                    )
-                      .exactOptional()
-                      .openapi({
-                        allOf: [
-                          { $ref: '#/components/schemas/Price' },
-                          {
-                            type: 'object',
-                            properties: {
-                              discounts: {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/Discount' },
-                              },
-                            },
-                          },
-                        ],
-                      }),
-                    availability: z
-                      .object({
-                        inStock: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-                        quantity: z.int().exactOptional().openapi({ type: 'integer' }),
-                        warehouses: z
-                          .array(
-                            WarehouseSchema.and(
-                              z
-                                .object({
-                                  localQuantity: z
-                                    .int()
-                                    .exactOptional()
-                                    .openapi({ type: 'integer' }),
-                                  estimatedDelivery: DateRangeSchema.exactOptional(),
-                                })
-                                .openapi({
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                }),
-                            ).openapi({
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            }),
-                          )
-                          .exactOptional()
-                          .openapi({
-                            type: 'array',
-                            items: {
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            },
+                    inStock: z.boolean().exactOptional(),
+                    quantity: z.int().exactOptional(),
+                    warehouses: z
+                      .array(
+                        WarehouseSchema.and(
+                          z.object({
+                            localQuantity: z.int().exactOptional(),
+                            estimatedDelivery: DateRangeSchema.exactOptional(),
                           }),
-                      })
-                      .exactOptional()
-                      .openapi({
-                        type: 'object',
-                        properties: {
-                          inStock: { type: 'boolean' },
-                          quantity: { type: 'integer' },
-                          warehouses: {
-                            type: 'array',
-                            items: {
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        },
-                      }),
+                        ),
+                      )
+                      .exactOptional(),
                   })
-                  .openapi({
-                    type: 'object',
-                    properties: {
-                      pricing: {
-                        allOf: [
-                          { $ref: '#/components/schemas/Price' },
-                          {
-                            type: 'object',
-                            properties: {
-                              discounts: {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/Discount' },
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      availability: {
-                        type: 'object',
-                        properties: {
-                          inStock: { type: 'boolean' },
-                          quantity: { type: 'integer' },
-                          warehouses: {
-                            type: 'array',
-                            items: {
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }),
-              ).openapi({
-                allOf: [
-                  { $ref: '#/components/schemas/ProductVariant' },
-                  {
-                    type: 'object',
-                    properties: {
-                      pricing: {
-                        allOf: [
-                          { $ref: '#/components/schemas/Price' },
-                          {
-                            type: 'object',
-                            properties: {
-                              discounts: {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/Discount' },
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      availability: {
-                        type: 'object',
-                        properties: {
-                          inStock: { type: 'boolean' },
-                          quantity: { type: 'integer' },
-                          warehouses: {
-                            type: 'array',
-                            items: {
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                ],
+                  .exactOptional(),
               }),
-            )
-            .openapi({
-              type: 'array',
-              items: {
-                allOf: [
-                  { $ref: '#/components/schemas/ProductVariant' },
-                  {
-                    type: 'object',
-                    properties: {
-                      pricing: {
-                        allOf: [
-                          { $ref: '#/components/schemas/Price' },
-                          {
-                            type: 'object',
-                            properties: {
-                              discounts: {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/Discount' },
-                              },
-                            },
-                          },
-                        ],
-                      },
-                      availability: {
-                        type: 'object',
-                        properties: {
-                          inStock: { type: 'boolean' },
-                          quantity: { type: 'integer' },
-                          warehouses: {
-                            type: 'array',
-                            items: {
-                              allOf: [
-                                { $ref: '#/components/schemas/Warehouse' },
-                                {
-                                  type: 'object',
-                                  properties: {
-                                    localQuantity: { type: 'integer' },
-                                    estimatedDelivery: { $ref: '#/components/schemas/DateRange' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            }),
+            ),
+          ),
         },
       },
     },
@@ -1483,155 +562,31 @@ export const postReportsGenerateRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              reportType: z
-                .enum(['sales', 'inventory', 'users', 'custom'])
-                .openapi({ type: 'string', enum: ['sales', 'inventory', 'users', 'custom'] }),
-              parameters: z
-                .union([
-                  SalesReportParamsSchema,
-                  InventoryReportParamsSchema,
-                  UserReportParamsSchema,
-                  z
-                    .object({
-                      query: z.string().exactOptional().openapi({ type: 'string' }),
-                      fields: z
-                        .array(z.string().openapi({ type: 'string' }))
-                        .exactOptional()
-                        .openapi({ type: 'array', items: { type: 'string' } }),
-                      filters: z
-                        .record(
-                          z.string(),
-                          z
-                            .xor([
-                              z.string().openapi({ type: 'string' }),
-                              z.number().openapi({ type: 'number' }),
-                              FilterExpressionSchema,
-                            ])
-                            .openapi({
-                              oneOf: [
-                                { type: 'string' },
-                                { type: 'number' },
-                                { $ref: '#/components/schemas/FilterExpression' },
-                              ],
-                            }),
-                        )
-                        .exactOptional()
-                        .openapi({
-                          type: 'object',
-                          additionalProperties: {
-                            oneOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { $ref: '#/components/schemas/FilterExpression' },
-                            ],
-                          },
-                        }),
-                    })
-                    .openapi({
-                      type: 'object',
-                      description: 'Custom report parameters',
-                      properties: {
-                        query: { type: 'string' },
-                        fields: { type: 'array', items: { type: 'string' } },
-                        filters: {
-                          type: 'object',
-                          additionalProperties: {
-                            oneOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { $ref: '#/components/schemas/FilterExpression' },
-                            ],
-                          },
-                        },
-                      },
-                    }),
-                ])
-                .openapi({
-                  anyOf: [
-                    { $ref: '#/components/schemas/SalesReportParams' },
-                    { $ref: '#/components/schemas/InventoryReportParams' },
-                    { $ref: '#/components/schemas/UserReportParams' },
-                    {
-                      type: 'object',
-                      description: 'Custom report parameters',
-                      properties: {
-                        query: { type: 'string' },
-                        fields: { type: 'array', items: { type: 'string' } },
-                        filters: {
-                          type: 'object',
-                          additionalProperties: {
-                            oneOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { $ref: '#/components/schemas/FilterExpression' },
-                            ],
-                          },
-                        },
-                      },
-                    },
-                  ],
-                }),
+              reportType: z.enum(['sales', 'inventory', 'users', 'custom']),
+              parameters: z.union([
+                SalesReportParamsSchema,
+                InventoryReportParamsSchema,
+                UserReportParamsSchema,
+                z
+                  .object({
+                    query: z.string().exactOptional(),
+                    fields: z.array(z.string()).exactOptional(),
+                    filters: z
+                      .record(z.string(), z.xor([z.string(), z.number(), FilterExpressionSchema]))
+                      .exactOptional(),
+                  })
+                  .openapi({ description: 'Custom report parameters' }),
+              ]),
               format: ReportFormatSchema.exactOptional(),
               delivery: z
                 .object({
-                  method: z
-                    .enum(['download', 'email', 'webhook'])
-                    .exactOptional()
-                    .openapi({ type: 'string', enum: ['download', 'email', 'webhook'] }),
+                  method: z.enum(['download', 'email', 'webhook']).exactOptional(),
                   email: EmailDeliverySchema.exactOptional(),
                   webhook: WebhookDeliverySchema.exactOptional(),
                 })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    method: { type: 'string', enum: ['download', 'email', 'webhook'] },
-                    email: { $ref: '#/components/schemas/EmailDelivery' },
-                    webhook: { $ref: '#/components/schemas/WebhookDelivery' },
-                  },
-                }),
+                .exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['reportType', 'parameters'],
-              properties: {
-                reportType: { type: 'string', enum: ['sales', 'inventory', 'users', 'custom'] },
-                parameters: {
-                  anyOf: [
-                    { $ref: '#/components/schemas/SalesReportParams' },
-                    { $ref: '#/components/schemas/InventoryReportParams' },
-                    { $ref: '#/components/schemas/UserReportParams' },
-                    {
-                      type: 'object',
-                      description: 'Custom report parameters',
-                      properties: {
-                        query: { type: 'string' },
-                        fields: { type: 'array', items: { type: 'string' } },
-                        filters: {
-                          type: 'object',
-                          additionalProperties: {
-                            oneOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { $ref: '#/components/schemas/FilterExpression' },
-                            ],
-                          },
-                        },
-                      },
-                    },
-                  ],
-                },
-                format: { $ref: '#/components/schemas/ReportFormat' },
-                delivery: {
-                  type: 'object',
-                  properties: {
-                    method: { type: 'string', enum: ['download', 'email', 'webhook'] },
-                    email: { $ref: '#/components/schemas/EmailDelivery' },
-                    webhook: { $ref: '#/components/schemas/WebhookDelivery' },
-                  },
-                },
-              },
-            }),
+            .openapi({ required: ['reportType', 'parameters'] }),
         },
       },
     },
@@ -1654,259 +609,38 @@ export const postWebhooksTestRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              endpoint: z.url().openapi({ type: 'string', format: 'uri' }),
-              headers: z
-                .record(z.string(), z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-              payload: z
-                .object({
-                  event: WebhookEventSchema.exactOptional(),
-                  data: z
-                    .xor([
-                      UserSchema,
-                      OrderSchema,
-                      OrganizationSchema,
-                      z
-                        .record(
-                          z.string(),
-                          z
-                            .union([
-                              z.string().openapi({ type: 'string' }),
-                              z.number().openapi({ type: 'number' }),
-                              z.boolean().openapi({ type: 'boolean' }),
-                              z
-                                .array(GenericEntitySchema)
-                                .openapi({
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/GenericEntity' },
-                                }),
-                            ])
-                            .openapi({
-                              anyOf: [
-                                { type: 'string' },
-                                { type: 'number' },
-                                { type: 'boolean' },
-                                {
-                                  type: 'array',
-                                  items: { $ref: '#/components/schemas/GenericEntity' },
-                                },
-                              ],
-                            }),
-                        )
-                        .openapi({
-                          type: 'object',
-                          additionalProperties: {
-                            anyOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { type: 'boolean' },
-                              {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/GenericEntity' },
-                              },
-                            ],
-                          },
+              endpoint: z.url(),
+              headers: z.record(z.string(), z.string()).exactOptional(),
+              payload: z.object({
+                event: WebhookEventSchema.exactOptional(),
+                data: z
+                  .xor([
+                    UserSchema,
+                    OrderSchema,
+                    OrganizationSchema,
+                    z.record(
+                      z.string(),
+                      z.union([z.string(), z.number(), z.boolean(), z.array(GenericEntitySchema)]),
+                    ),
+                  ])
+                  .exactOptional(),
+                context: RequestContextSchema.and(
+                  z.object({
+                    testMode: z.boolean().default(true).exactOptional(),
+                    mockResponses: z
+                      .array(
+                        z.object({
+                          status: z.int().exactOptional(),
+                          body: z.object({}).exactOptional(),
                         }),
-                    ])
-                    .exactOptional()
-                    .openapi({
-                      oneOf: [
-                        { $ref: '#/components/schemas/User' },
-                        { $ref: '#/components/schemas/Order' },
-                        { $ref: '#/components/schemas/Organization' },
-                        {
-                          type: 'object',
-                          additionalProperties: {
-                            anyOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { type: 'boolean' },
-                              {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/GenericEntity' },
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    }),
-                  context: RequestContextSchema.and(
-                    z
-                      .object({
-                        testMode: z
-                          .boolean()
-                          .default(true)
-                          .exactOptional()
-                          .openapi({ type: 'boolean', default: true }),
-                        mockResponses: z
-                          .array(
-                            z
-                              .object({
-                                status: z.int().exactOptional().openapi({ type: 'integer' }),
-                                body: z.object({}).exactOptional().openapi({ type: 'object' }),
-                              })
-                              .openapi({
-                                type: 'object',
-                                properties: {
-                                  status: { type: 'integer' },
-                                  body: { type: 'object' },
-                                },
-                              }),
-                          )
-                          .exactOptional()
-                          .openapi({
-                            type: 'array',
-                            items: {
-                              type: 'object',
-                              properties: { status: { type: 'integer' }, body: { type: 'object' } },
-                            },
-                          }),
-                      })
-                      .openapi({
-                        type: 'object',
-                        properties: {
-                          testMode: { type: 'boolean', default: true },
-                          mockResponses: {
-                            type: 'array',
-                            items: {
-                              type: 'object',
-                              properties: { status: { type: 'integer' }, body: { type: 'object' } },
-                            },
-                          },
-                        },
-                      }),
-                  )
-                    .exactOptional()
-                    .openapi({
-                      allOf: [
-                        { $ref: '#/components/schemas/RequestContext' },
-                        {
-                          type: 'object',
-                          properties: {
-                            testMode: { type: 'boolean', default: true },
-                            mockResponses: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: {
-                                  status: { type: 'integer' },
-                                  body: { type: 'object' },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      ],
-                    }),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    event: { $ref: '#/components/schemas/WebhookEvent' },
-                    data: {
-                      oneOf: [
-                        { $ref: '#/components/schemas/User' },
-                        { $ref: '#/components/schemas/Order' },
-                        { $ref: '#/components/schemas/Organization' },
-                        {
-                          type: 'object',
-                          additionalProperties: {
-                            anyOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { type: 'boolean' },
-                              {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/GenericEntity' },
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                    context: {
-                      allOf: [
-                        { $ref: '#/components/schemas/RequestContext' },
-                        {
-                          type: 'object',
-                          properties: {
-                            testMode: { type: 'boolean', default: true },
-                            mockResponses: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: {
-                                  status: { type: 'integer' },
-                                  body: { type: 'object' },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                }),
+                      )
+                      .exactOptional(),
+                  }),
+                ).exactOptional(),
+              }),
               retryPolicy: RetryPolicySchema.exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['endpoint', 'payload'],
-              properties: {
-                endpoint: { type: 'string', format: 'uri' },
-                headers: { type: 'object', additionalProperties: { type: 'string' } },
-                payload: {
-                  type: 'object',
-                  properties: {
-                    event: { $ref: '#/components/schemas/WebhookEvent' },
-                    data: {
-                      oneOf: [
-                        { $ref: '#/components/schemas/User' },
-                        { $ref: '#/components/schemas/Order' },
-                        { $ref: '#/components/schemas/Organization' },
-                        {
-                          type: 'object',
-                          additionalProperties: {
-                            anyOf: [
-                              { type: 'string' },
-                              { type: 'number' },
-                              { type: 'boolean' },
-                              {
-                                type: 'array',
-                                items: { $ref: '#/components/schemas/GenericEntity' },
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                    context: {
-                      allOf: [
-                        { $ref: '#/components/schemas/RequestContext' },
-                        {
-                          type: 'object',
-                          properties: {
-                            testMode: { type: 'boolean', default: true },
-                            mockResponses: {
-                              type: 'array',
-                              items: {
-                                type: 'object',
-                                properties: {
-                                  status: { type: 'integer' },
-                                  body: { type: 'object' },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-                retryPolicy: { $ref: '#/components/schemas/RetryPolicy' },
-              },
-            }),
+            .openapi({ required: ['endpoint', 'payload'] }),
         },
       },
     },

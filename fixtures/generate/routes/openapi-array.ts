@@ -12,47 +12,16 @@ export const getArrayRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              string_array: z
-                .array(z.string().openapi({ type: 'string' }))
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              equivalent: z
-                .array(z.string().openapi({ type: 'string' }))
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              string_optional_array: z
-                .array(z.string().openapi({ type: 'string' }))
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              string_array_optional: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              nonempty: z
-                .array(z.string().openapi({ type: 'string' }))
-                .min(1)
-                .openapi({ type: 'array', items: { type: 'string' }, minItems: 1 }),
-              min5: z
-                .array(z.string().openapi({ type: 'string' }))
-                .min(5)
-                .openapi({ type: 'array', items: { type: 'string' }, minItems: 5 }),
-              max5: z
-                .array(z.string().openapi({ type: 'string' }))
-                .max(5)
-                .openapi({ type: 'array', items: { type: 'string' }, maxItems: 5 }),
-              length5: z
-                .array(z.string().openapi({ type: 'string' }))
-                .openapi({ type: 'array', items: { type: 'string' } }),
+              string_array: z.array(z.string()),
+              equivalent: z.array(z.string()),
+              string_optional_array: z.array(z.string()),
+              string_array_optional: z.array(z.string()).exactOptional(),
+              nonempty: z.array(z.string()).min(1).openapi({ minItems: 1 }),
+              min5: z.array(z.string()).min(5).openapi({ minItems: 5 }),
+              max5: z.array(z.string()).max(5).openapi({ maxItems: 5 }),
+              length5: z.array(z.string()),
             })
             .openapi({
-              type: 'object',
-              properties: {
-                string_array: { type: 'array', items: { type: 'string' } },
-                equivalent: { type: 'array', items: { type: 'string' } },
-                string_optional_array: { type: 'array', items: { type: 'string' } },
-                string_array_optional: { type: 'array', items: { type: 'string' } },
-                nonempty: { type: 'array', items: { type: 'string' }, minItems: 1 },
-                min5: { type: 'array', items: { type: 'string' }, minItems: 5 },
-                max5: { type: 'array', items: { type: 'string' }, maxItems: 5 },
-                length5: { type: 'array', items: { type: 'string' } },
-              },
               required: [
                 'string_array',
                 'equivalent',

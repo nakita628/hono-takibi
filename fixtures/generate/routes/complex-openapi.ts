@@ -2,23 +2,13 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const AddressSchema = z
   .object({
-    street: z.string().openapi({ type: 'string', example: '123 Main St' }),
-    city: z.string().openapi({ type: 'string', example: 'Anytown' }),
-    state: z.string().openapi({ type: 'string', example: 'CA' }),
-    postalCode: z.string().openapi({ type: 'string', example: '12345' }),
-    country: z.string().openapi({ type: 'string', example: 'USA' }),
+    street: z.string().openapi({ example: '123 Main St' }),
+    city: z.string().openapi({ example: 'Anytown' }),
+    state: z.string().openapi({ example: 'CA' }),
+    postalCode: z.string().openapi({ example: '12345' }),
+    country: z.string().openapi({ example: 'USA' }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      street: { type: 'string', example: '123 Main St' },
-      city: { type: 'string', example: 'Anytown' },
-      state: { type: 'string', example: 'CA' },
-      postalCode: { type: 'string', example: '12345' },
-      country: { type: 'string', example: 'USA' },
-    },
-    required: ['street', 'city', 'state', 'postalCode', 'country'],
-  })
+  .openapi({ required: ['street', 'city', 'state', 'postalCode', 'country'] })
   .openapi('Address')
 
 const UserProfileSchema = z
@@ -26,301 +16,123 @@ const UserProfileSchema = z
     bio: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', example: 'Software engineer with 10 years of experience.' }),
-    social: z
-      .strictObject({
-        twitter: z.string().exactOptional().openapi({ type: 'string', example: '@johndoe' }),
-        linkedin: z.string().exactOptional().openapi({ type: 'string', example: 'john-doe' }),
-      })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          twitter: { type: 'string', example: '@johndoe' },
-          linkedin: { type: 'string', example: 'john-doe' },
-        },
-        additionalProperties: false,
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      bio: { type: 'string', example: 'Software engineer with 10 years of experience.' },
-      social: {
-        type: 'object',
-        properties: {
-          twitter: { type: 'string', example: '@johndoe' },
-          linkedin: { type: 'string', example: 'john-doe' },
-        },
-        additionalProperties: false,
-      },
-    },
-    additionalProperties: false,
+      .openapi({ example: 'Software engineer with 10 years of experience.' }),
+    social: z.strictObject({
+      twitter: z.string().exactOptional().openapi({ example: '@johndoe' }),
+      linkedin: z.string().exactOptional().exactOptional().openapi({ example: 'john-doe' }),
+    }),
   })
   .openapi('UserProfile')
 
 const UserSchema = z
   .object({
-    id: z.string().openapi({ type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' }),
-    name: z.string().openapi({ type: 'string', example: 'John Doe' }),
-    email: z.email().openapi({ type: 'string', format: 'email', example: 'john.doe@example.com' }),
+    id: z.string().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+    name: z.string().openapi({ example: 'John Doe' }),
+    email: z.email().openapi({ example: 'john.doe@example.com' }),
     address: AddressSchema.exactOptional(),
     profile: UserProfileSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
-      name: { type: 'string', example: 'John Doe' },
-      email: { type: 'string', format: 'email', example: 'john.doe@example.com' },
-      address: { $ref: '#/components/schemas/Address' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-    },
-    required: ['id', 'name', 'email'],
-  })
+  .openapi({ required: ['id', 'name', 'email'] })
   .openapi('User')
 
 const NewUserSchema = z
   .object({
-    name: z.string().openapi({ type: 'string', example: 'Jane Doe' }),
-    email: z.email().openapi({ type: 'string', format: 'email', example: 'jane.doe@example.com' }),
+    name: z.string().openapi({ example: 'Jane Doe' }),
+    email: z.email().openapi({ example: 'jane.doe@example.com' }),
     address: AddressSchema.exactOptional(),
     profile: UserProfileSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string', example: 'Jane Doe' },
-      email: { type: 'string', format: 'email', example: 'jane.doe@example.com' },
-      address: { $ref: '#/components/schemas/Address' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-    },
-    required: ['name', 'email'],
-  })
+  .openapi({ required: ['name', 'email'] })
   .openapi('NewUser')
 
 const UpdateUserSchema = z
   .object({
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    name: z.string().exactOptional(),
+    email: z.email().exactOptional(),
     address: AddressSchema.exactOptional(),
     profile: UserProfileSchema.exactOptional(),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      email: { type: 'string', format: 'email' },
-      address: { $ref: '#/components/schemas/Address' },
-      profile: { $ref: '#/components/schemas/UserProfile' },
-    },
   })
   .openapi('UpdateUser')
 
 const OrderItemSchema = z
   .object({
-    productId: z.string().openapi({ type: 'string', example: 'PROD-001' }),
-    quantity: z.int().openapi({ type: 'integer', example: 2 }),
-    price: z.float32().openapi({ type: 'number', format: 'float', example: 49.99 }),
+    productId: z.string().openapi({ example: 'PROD-001' }),
+    quantity: z.int().openapi({ example: 2 }),
+    price: z.float32().openapi({ example: 49.99 }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      productId: { type: 'string', example: 'PROD-001' },
-      quantity: { type: 'integer', example: 2 },
-      price: { type: 'number', format: 'float', example: 49.99 },
-    },
-    required: ['productId', 'quantity', 'price'],
-  })
+  .openapi({ required: ['productId', 'quantity', 'price'] })
   .openapi('OrderItem')
 
 const CreditCardPaymentSchema = z
   .object({
-    method: z
-      .literal('credit_card')
-      .default('credit_card')
-      .openapi({ type: 'string', enum: ['credit_card'], default: 'credit_card' }),
-    cardNumber: z.string().openapi({ type: 'string', example: '4111111111111111' }),
-    cardHolder: z.string().openapi({ type: 'string', example: 'John Doe' }),
+    method: z.literal('credit_card').default('credit_card'),
+    cardNumber: z.string().openapi({ example: '4111111111111111' }),
+    cardHolder: z.string().openapi({ example: 'John Doe' }),
     expirationDate: z
       .string()
       .regex(/^\d{2}\/\d{2}$/)
-      .openapi({ type: 'string', pattern: '^\\d{2}/\\d{2}$', example: '12/25' }),
+      .openapi({ example: '12/25' }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      method: { type: 'string', enum: ['credit_card'], default: 'credit_card' },
-      cardNumber: { type: 'string', example: '4111111111111111' },
-      cardHolder: { type: 'string', example: 'John Doe' },
-      expirationDate: { type: 'string', pattern: '^\\d{2}/\\d{2}$', example: '12/25' },
-    },
-    required: ['method', 'cardNumber', 'cardHolder', 'expirationDate'],
-  })
+  .openapi({ required: ['method', 'cardNumber', 'cardHolder', 'expirationDate'] })
   .openapi('CreditCardPayment')
 
 const PaypalPaymentSchema = z
   .object({
-    method: z
-      .literal('paypal')
-      .default('paypal')
-      .openapi({ type: 'string', enum: ['paypal'], default: 'paypal' }),
-    email: z.email().openapi({ type: 'string', format: 'email', example: 'user@paypal.com' }),
+    method: z.literal('paypal').default('paypal'),
+    email: z.email().openapi({ example: 'user@paypal.com' }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      method: { type: 'string', enum: ['paypal'], default: 'paypal' },
-      email: { type: 'string', format: 'email', example: 'user@paypal.com' },
-    },
-    required: ['method', 'email'],
-  })
+  .openapi({ required: ['method', 'email'] })
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z
   .discriminatedUnion('method', [CreditCardPaymentSchema, PaypalPaymentSchema])
   .openapi({
     description: 'A polymorphic payment method',
-    oneOf: [
-      { $ref: '#/components/schemas/CreditCardPayment' },
-      { $ref: '#/components/schemas/PaypalPayment' },
-    ],
     discriminator: { propertyName: 'method' },
   })
   .openapi('PaymentMethod')
 
 const OrderSchema = z
   .object({
-    orderId: z.string().openapi({ type: 'string', example: 'ORD-001' }),
+    orderId: z.string().openapi({ example: 'ORD-001' }),
     user: UserSchema,
-    items: z
-      .array(OrderItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-    total: z.float32().openapi({ type: 'number', format: 'float', example: 199.99 }),
+    items: z.array(OrderItemSchema),
+    total: z.float32().openapi({ example: 199.99 }),
     status: z
       .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
-      .openapi({
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-        example: 'pending',
-      }),
+      .openapi({ example: 'pending' }),
     paymentMethod: PaymentMethodSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      orderId: { type: 'string', example: 'ORD-001' },
-      user: { $ref: '#/components/schemas/User' },
-      items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-      total: { type: 'number', format: 'float', example: 199.99 },
-      status: {
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-        example: 'pending',
-      },
-      paymentMethod: { $ref: '#/components/schemas/PaymentMethod' },
-    },
-    required: ['orderId', 'user', 'items', 'total', 'status'],
-  })
+  .openapi({ required: ['orderId', 'user', 'items', 'total', 'status'] })
   .openapi('Order')
 
 const NewOrderSchema = z
   .object({
-    userId: z.string().openapi({ type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' }),
-    items: z
-      .array(OrderItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
+    userId: z.string().openapi({ example: '123e4567-e89b-12d3-a456-426614174000' }),
+    items: z.array(OrderItemSchema),
     paymentMethod: PaymentMethodSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      userId: { type: 'string', example: '123e4567-e89b-12d3-a456-426614174000' },
-      items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-      paymentMethod: { $ref: '#/components/schemas/PaymentMethod' },
-    },
-    required: ['userId', 'items'],
-  })
+  .openapi({ required: ['userId', 'items'] })
   .openapi('NewOrder')
 
 const ComplexTypeSchema = z
   .object({
-    id: z.string().openapi({ type: 'string', example: 'ct-001' }),
+    id: z.string().openapi({ example: 'ct-001' }),
     attributes: z
       .object({
-        type: z.string().openapi({ type: 'string', example: 'example' }),
-        details: z
-          .array(
-            z
-              .object({
-                key: z.string().openapi({ type: 'string', example: 'color' }),
-                value: z.string().openapi({ type: 'string', example: 'red' }),
-              })
-              .openapi({
-                type: 'object',
-                properties: {
-                  key: { type: 'string', example: 'color' },
-                  value: { type: 'string', example: 'red' },
-                },
-                required: ['key', 'value'],
-              }),
-          )
-          .openapi({
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                key: { type: 'string', example: 'color' },
-                value: { type: 'string', example: 'red' },
-              },
-              required: ['key', 'value'],
-            },
-          }),
+        type: z.string().openapi({ example: 'example' }),
+        details: z.array(
+          z
+            .object({
+              key: z.string().openapi({ example: 'color' }),
+              value: z.string().openapi({ example: 'red' }),
+            })
+            .openapi({ required: ['key', 'value'] }),
+        ),
       })
-      .openapi({
-        type: 'object',
-        properties: {
-          type: { type: 'string', example: 'example' },
-          details: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                key: { type: 'string', example: 'color' },
-                value: { type: 'string', example: 'red' },
-              },
-              required: ['key', 'value'],
-            },
-          },
-        },
-        required: ['type', 'details'],
-      }),
+      .openapi({ required: ['type', 'details'] }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string', example: 'ct-001' },
-      attributes: {
-        type: 'object',
-        properties: {
-          type: { type: 'string', example: 'example' },
-          details: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                key: { type: 'string', example: 'color' },
-                value: { type: 'string', example: 'red' },
-              },
-              required: ['key', 'value'],
-            },
-          },
-        },
-        required: ['type', 'details'],
-      },
-    },
-    required: ['id', 'attributes'],
-  })
+  .openapi({ required: ['id', 'attributes'] })
   .openapi('ComplexType')
 
 export const getUsersRoute = createRoute({
@@ -330,13 +142,7 @@ export const getUsersRoute = createRoute({
   responses: {
     200: {
       description: 'A list of users',
-      content: {
-        'application/json': {
-          schema: z
-            .array(UserSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(UserSchema) } },
     },
   },
 })
@@ -370,7 +176,6 @@ export const getUsersUserIdRoute = createRoute({
         .string()
         .openapi({
           param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -390,7 +195,6 @@ export const putUsersUserIdRoute = createRoute({
         .string()
         .openapi({
           param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: {
@@ -418,7 +222,6 @@ export const deleteUsersUserIdRoute = createRoute({
         .string()
         .openapi({
           param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -435,13 +238,7 @@ export const getOrdersRoute = createRoute({
   responses: {
     200: {
       description: 'A list of orders',
-      content: {
-        'application/json': {
-          schema: z
-            .array(OrderSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(OrderSchema) } },
     },
   },
 })

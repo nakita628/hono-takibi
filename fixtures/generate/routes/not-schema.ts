@@ -48,20 +48,6 @@ const NotSchemaTestSchema = z
       .exactOptional()
       .openapi({ not: { type: 'integer' } }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      notSpecificValue: { not: { const: 'forbidden' } },
-      notString: { not: { type: 'string' } },
-      notNumber: { not: { type: 'number' } },
-      notNull: { not: { type: 'null' } },
-      notArray: { not: { type: 'array' } },
-      notObject: { not: { type: 'object' } },
-      notInList: { not: { enum: ['apple', 'banana', 'cherry'] } },
-      notBoolean: { not: { type: 'boolean' } },
-      notInteger: { not: { type: 'integer' } },
-    },
-  })
   .openapi('NotSchemaTest')
 
 export const postValidateRoute = createRoute({

@@ -2,727 +2,255 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const MfaMethodSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    type: z
-      .enum(['totp', 'sms', 'email', 'webauthn'])
-      .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
-    name: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'ユーザーが付けた名前' }),
-    maskedValue: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'マスクされた電話番号/メール' }),
-    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    type: z.enum(['totp', 'sms', 'email', 'webauthn']),
+    enabled: z.boolean(),
+    name: z.string().exactOptional().openapi({ description: 'ユーザーが付けた名前' }),
+    maskedValue: z.string().exactOptional().openapi({ description: 'マスクされた電話番号/メール' }),
+    lastUsedAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'type', 'enabled', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      type: { type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] },
-      enabled: { type: 'boolean' },
-      name: { type: 'string', description: 'ユーザーが付けた名前' },
-      maskedValue: { type: 'string', description: 'マスクされた電話番号/メール' },
-      lastUsedAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'type', 'enabled', 'createdAt'] })
   .openapi('MfaMethod')
 
 const MfaStatusSchema = z
   .object({
-    enabled: z.boolean().openapi({ type: 'boolean' }),
+    enabled: z.boolean(),
     enforced: z
       .boolean()
       .exactOptional()
-      .openapi({ type: 'boolean', description: '組織ポリシーでMFAが強制されているか' }),
-    preferredMethod: z
-      .enum(['totp', 'sms', 'email', 'webauthn'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
-    methods: z
-      .array(MfaMethodSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/MfaMethod' } }),
-    backupCodesRemaining: z.int().exactOptional().openapi({ type: 'integer' }),
+      .openapi({ description: '組織ポリシーでMFAが強制されているか' }),
+    preferredMethod: z.enum(['totp', 'sms', 'email', 'webauthn']).exactOptional(),
+    methods: z.array(MfaMethodSchema),
+    backupCodesRemaining: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['enabled', 'methods'],
-    properties: {
-      enabled: { type: 'boolean' },
-      enforced: { type: 'boolean', description: '組織ポリシーでMFAが強制されているか' },
-      preferredMethod: { type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] },
-      methods: { type: 'array', items: { $ref: '#/components/schemas/MfaMethod' } },
-      backupCodesRemaining: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['enabled', 'methods'] })
   .openapi('MfaStatus')
 
 const MfaMethodEnabledSchema = z
   .object({
     method: MfaMethodSchema,
     backupCodes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .openapi({
-        type: 'array',
-        items: { type: 'string' },
-        description: '初回設定時のみバックアップコードを返す',
-      }),
+      .array(z.string())
+      .openapi({ description: '初回設定時のみバックアップコードを返す' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['method', 'backupCodes'],
-    properties: {
-      method: { $ref: '#/components/schemas/MfaMethod' },
-      backupCodes: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '初回設定時のみバックアップコードを返す',
-      },
-    },
-  })
+  .openapi({ required: ['method', 'backupCodes'] })
   .openapi('MfaMethodEnabled')
 
 const TotpSetupResponseSchema = z
   .object({
-    secret: z
-      .string()
-      .openapi({ type: 'string', description: 'Base32エンコードされたシークレット' }),
-    qrCode: z
-      .string()
-      .openapi({ type: 'string', description: 'Base64エンコードされたQRコード画像' }),
-    otpauthUri: z.url().openapi({ type: 'string', format: 'uri', description: 'otpauth:// URI' }),
+    secret: z.string().openapi({ description: 'Base32エンコードされたシークレット' }),
+    qrCode: z.string().openapi({ description: 'Base64エンコードされたQRコード画像' }),
+    otpauthUri: z.url().openapi({ description: 'otpauth:// URI' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['secret', 'qrCode', 'otpauthUri'],
-    properties: {
-      secret: { type: 'string', description: 'Base32エンコードされたシークレット' },
-      qrCode: { type: 'string', description: 'Base64エンコードされたQRコード画像' },
-      otpauthUri: { type: 'string', format: 'uri', description: 'otpauth:// URI' },
-    },
-  })
+  .openapi({ required: ['secret', 'qrCode', 'otpauthUri'] })
   .openapi('TotpSetupResponse')
 
 const WebAuthnRegistrationOptionsSchema = z
   .object({
-    challenge: z
-      .string()
-      .openapi({ type: 'string', description: 'Base64URLエンコードされたチャレンジ' }),
-    rp: z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { id: { type: 'string' }, name: { type: 'string' } },
-      }),
-    user: z
-      .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        displayName: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          displayName: { type: 'string' },
-        },
-      }),
-    pubKeyCredParams: z
-      .array(
-        z
-          .object({
-            type: z.string().exactOptional().openapi({ type: 'string' }),
-            alg: z.int().exactOptional().openapi({ type: 'integer' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: { type: { type: 'string' }, alg: { type: 'integer' } },
-          }),
-      )
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { type: { type: 'string' }, alg: { type: 'integer' } },
-        },
-      }),
-    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
+    challenge: z.string().openapi({ description: 'Base64URLエンコードされたチャレンジ' }),
+    rp: z.object({ id: z.string().exactOptional(), name: z.string().exactOptional() }),
+    user: z.object({
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      displayName: z.string().exactOptional(),
+    }),
+    pubKeyCredParams: z.array(
+      z.object({ type: z.string().exactOptional(), alg: z.int().exactOptional() }),
+    ),
+    timeout: z.int().exactOptional(),
     excludeCredentials: z
       .array(
-        z
-          .object({
-            type: z.string().exactOptional().openapi({ type: 'string' }),
-            id: z.string().exactOptional().openapi({ type: 'string' }),
-            transports: z
-              .array(z.string().openapi({ type: 'string' }))
-              .exactOptional()
-              .openapi({ type: 'array', items: { type: 'string' } }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-              id: { type: 'string' },
-              transports: { type: 'array', items: { type: 'string' } },
-            },
-          }),
+        z.object({
+          type: z.string().exactOptional(),
+          id: z.string().exactOptional(),
+          transports: z.array(z.string()).exactOptional(),
+        }),
       )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string' },
-            id: { type: 'string' },
-            transports: { type: 'array', items: { type: 'string' } },
-          },
-        },
-      }),
+      .exactOptional(),
     authenticatorSelection: z
       .object({
-        authenticatorAttachment: z.string().exactOptional().openapi({ type: 'string' }),
-        residentKey: z.string().exactOptional().openapi({ type: 'string' }),
-        userVerification: z.string().exactOptional().openapi({ type: 'string' }),
+        authenticatorAttachment: z.string().exactOptional(),
+        residentKey: z.string().exactOptional(),
+        userVerification: z.string().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          authenticatorAttachment: { type: 'string' },
-          residentKey: { type: 'string' },
-          userVerification: { type: 'string' },
-        },
-      }),
-    attestation: z.string().exactOptional().openapi({ type: 'string' }),
+      .exactOptional(),
+    attestation: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['challenge', 'rp', 'user', 'pubKeyCredParams'],
-    properties: {
-      challenge: { type: 'string', description: 'Base64URLエンコードされたチャレンジ' },
-      rp: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } },
-      user: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          displayName: { type: 'string' },
-        },
-      },
-      pubKeyCredParams: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { type: { type: 'string' }, alg: { type: 'integer' } },
-        },
-      },
-      timeout: { type: 'integer' },
-      excludeCredentials: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string' },
-            id: { type: 'string' },
-            transports: { type: 'array', items: { type: 'string' } },
-          },
-        },
-      },
-      authenticatorSelection: {
-        type: 'object',
-        properties: {
-          authenticatorAttachment: { type: 'string' },
-          residentKey: { type: 'string' },
-          userVerification: { type: 'string' },
-        },
-      },
-      attestation: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['challenge', 'rp', 'user', 'pubKeyCredParams'] })
   .openapi('WebAuthnRegistrationOptions')
 
 const WebAuthnRegistrationResponseSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    rawId: z.string().openapi({ type: 'string' }),
-    response: z
-      .object({
-        clientDataJSON: z.string().exactOptional().openapi({ type: 'string' }),
-        attestationObject: z.string().exactOptional().openapi({ type: 'string' }),
-        transports: z
-          .array(z.string().openapi({ type: 'string' }))
-          .exactOptional()
-          .openapi({ type: 'array', items: { type: 'string' } }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          clientDataJSON: { type: 'string' },
-          attestationObject: { type: 'string' },
-          transports: { type: 'array', items: { type: 'string' } },
-        },
-      }),
-    type: z.string().openapi({ type: 'string' }),
-    name: z.string().exactOptional().openapi({ type: 'string', description: '認証器の名前' }),
+    id: z.string(),
+    rawId: z.string(),
+    response: z.object({
+      clientDataJSON: z.string().exactOptional(),
+      attestationObject: z.string().exactOptional(),
+      transports: z.array(z.string()).exactOptional(),
+    }),
+    type: z.string(),
+    name: z.string().exactOptional().openapi({ description: '認証器の名前' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'rawId', 'response', 'type'],
-    properties: {
-      id: { type: 'string' },
-      rawId: { type: 'string' },
-      response: {
-        type: 'object',
-        properties: {
-          clientDataJSON: { type: 'string' },
-          attestationObject: { type: 'string' },
-          transports: { type: 'array', items: { type: 'string' } },
-        },
-      },
-      type: { type: 'string' },
-      name: { type: 'string', description: '認証器の名前' },
-    },
-  })
+  .openapi({ required: ['id', 'rawId', 'response', 'type'] })
   .openapi('WebAuthnRegistrationResponse')
 
 const WebAuthnCredentialSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    credentialId: z.string().openapi({ type: 'string' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    aaguid: z.string().exactOptional().openapi({ type: 'string', description: '認証器のAAGUID' }),
-    deviceType: z
-      .enum(['platform', 'cross-platform'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['platform', 'cross-platform'] }),
-    transports: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    signCount: z.int().exactOptional().openapi({ type: 'integer' }),
-    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    credentialId: z.string(),
+    name: z.string().exactOptional(),
+    aaguid: z.string().exactOptional().openapi({ description: '認証器のAAGUID' }),
+    deviceType: z.enum(['platform', 'cross-platform']).exactOptional(),
+    transports: z.array(z.string()).exactOptional(),
+    signCount: z.int().exactOptional(),
+    lastUsedAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'credentialId', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      credentialId: { type: 'string' },
-      name: { type: 'string' },
-      aaguid: { type: 'string', description: '認証器のAAGUID' },
-      deviceType: { type: 'string', enum: ['platform', 'cross-platform'] },
-      transports: { type: 'array', items: { type: 'string' } },
-      signCount: { type: 'integer' },
-      lastUsedAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'credentialId', 'createdAt'] })
   .openapi('WebAuthnCredential')
 
 const WebAuthnAuthenticationOptionsSchema = z
   .object({
-    challenge: z.string().openapi({ type: 'string' }),
-    timeout: z.int().exactOptional().openapi({ type: 'integer' }),
-    rpId: z.string().exactOptional().openapi({ type: 'string' }),
-    allowCredentials: z
-      .array(
-        z
-          .object({
-            type: z.string().exactOptional().openapi({ type: 'string' }),
-            id: z.string().exactOptional().openapi({ type: 'string' }),
-            transports: z
-              .array(z.string().openapi({ type: 'string' }))
-              .exactOptional()
-              .openapi({ type: 'array', items: { type: 'string' } }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              type: { type: 'string' },
-              id: { type: 'string' },
-              transports: { type: 'array', items: { type: 'string' } },
-            },
-          }),
-      )
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string' },
-            id: { type: 'string' },
-            transports: { type: 'array', items: { type: 'string' } },
-          },
-        },
+    challenge: z.string(),
+    timeout: z.int().exactOptional(),
+    rpId: z.string().exactOptional(),
+    allowCredentials: z.array(
+      z.object({
+        type: z.string().exactOptional(),
+        id: z.string().exactOptional(),
+        transports: z.array(z.string()).exactOptional(),
       }),
-    userVerification: z.string().exactOptional().openapi({ type: 'string' }),
+    ),
+    userVerification: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['challenge', 'allowCredentials'],
-    properties: {
-      challenge: { type: 'string' },
-      timeout: { type: 'integer' },
-      rpId: { type: 'string' },
-      allowCredentials: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string' },
-            id: { type: 'string' },
-            transports: { type: 'array', items: { type: 'string' } },
-          },
-        },
-      },
-      userVerification: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['challenge', 'allowCredentials'] })
   .openapi('WebAuthnAuthenticationOptions')
 
 const BackupCodesResponseSchema = z
   .object({
-    codes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    generatedAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    warning: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: '安全に保管するよう警告' }),
+    codes: z.array(z.string()),
+    generatedAt: z.iso.datetime(),
+    warning: z.string().exactOptional().openapi({ description: '安全に保管するよう警告' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['codes', 'generatedAt'],
-    properties: {
-      codes: { type: 'array', items: { type: 'string' } },
-      generatedAt: { type: 'string', format: 'date-time' },
-      warning: { type: 'string', description: '安全に保管するよう警告' },
-    },
-  })
+  .openapi({ required: ['codes', 'generatedAt'] })
   .openapi('BackupCodesResponse')
 
 const BackupCodesStatusSchema = z
   .object({
-    total: z.int().openapi({ type: 'integer' }),
-    remaining: z.int().openapi({ type: 'integer' }),
+    total: z.int(),
+    remaining: z.int(),
     usedCodes: z
       .array(
-        z
-          .object({
-            usedAt: z.iso
-              .datetime()
-              .exactOptional()
-              .openapi({ type: 'string', format: 'date-time' }),
-            ipAddress: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              usedAt: { type: 'string', format: 'date-time' },
-              ipAddress: { type: 'string' },
-            },
-          }),
+        z.object({
+          usedAt: z.iso.datetime().exactOptional(),
+          ipAddress: z.string().exactOptional(),
+        }),
       )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            usedAt: { type: 'string', format: 'date-time' },
-            ipAddress: { type: 'string' },
-          },
-        },
-      }),
-    generatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+      .exactOptional(),
+    generatedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['total', 'remaining'],
-    properties: {
-      total: { type: 'integer' },
-      remaining: { type: 'integer' },
-      usedCodes: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            usedAt: { type: 'string', format: 'date-time' },
-            ipAddress: { type: 'string' },
-          },
-        },
-      },
-      generatedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['total', 'remaining'] })
   .openapi('BackupCodesStatus')
 
 const MfaChallengeSchema = z
   .object({
-    challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    method: z
-      .enum(['totp', 'sms', 'email', 'webauthn', 'backup_code'])
-      .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn', 'backup_code'] }),
-    expiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    challengeId: z.uuid(),
+    method: z.enum(['totp', 'sms', 'email', 'webauthn', 'backup_code']),
+    expiresAt: z.iso.datetime(),
     maskedDestination: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: 'SMSまたはメールの場合、マスクされた送信先' }),
+      .openapi({ description: 'SMSまたはメールの場合、マスクされた送信先' }),
     availableMethods: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string())
       .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' }, description: '利用可能な他のMFA方式' }),
+      .openapi({ description: '利用可能な他のMFA方式' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['challengeId', 'method', 'expiresAt'],
-    properties: {
-      challengeId: { type: 'string', format: 'uuid' },
-      method: { type: 'string', enum: ['totp', 'sms', 'email', 'webauthn', 'backup_code'] },
-      expiresAt: { type: 'string', format: 'date-time' },
-      maskedDestination: {
-        type: 'string',
-        description: 'SMSまたはメールの場合、マスクされた送信先',
-      },
-      availableMethods: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '利用可能な他のMFA方式',
-      },
-    },
-  })
+  .openapi({ required: ['challengeId', 'method', 'expiresAt'] })
   .openapi('MfaChallenge')
 
 const TotpVerificationSchema = z
-  .object({
-    challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    method: z.literal('totp').openapi({ type: 'string', enum: ['totp'] }),
-    code: z
-      .string()
-      .regex(/^\d{6}$/)
-      .openapi({ type: 'string', pattern: '^\\d{6}$' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['challengeId', 'method', 'code'],
-    properties: {
-      challengeId: { type: 'string', format: 'uuid' },
-      method: { type: 'string', enum: ['totp'] },
-      code: { type: 'string', pattern: '^\\d{6}$' },
-    },
-  })
+  .object({ challengeId: z.uuid(), method: z.literal('totp'), code: z.string().regex(/^\d{6}$/) })
+  .openapi({ required: ['challengeId', 'method', 'code'] })
   .openapi('TotpVerification')
 
 const SmsEmailVerificationSchema = z
   .object({
-    challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    method: z.enum(['sms', 'email']).openapi({ type: 'string', enum: ['sms', 'email'] }),
-    code: z
-      .string()
-      .regex(/^\d{6}$/)
-      .openapi({ type: 'string', pattern: '^\\d{6}$' }),
+    challengeId: z.uuid(),
+    method: z.enum(['sms', 'email']),
+    code: z.string().regex(/^\d{6}$/),
   })
-  .openapi({
-    type: 'object',
-    required: ['challengeId', 'method', 'code'],
-    properties: {
-      challengeId: { type: 'string', format: 'uuid' },
-      method: { type: 'string', enum: ['sms', 'email'] },
-      code: { type: 'string', pattern: '^\\d{6}$' },
-    },
-  })
+  .openapi({ required: ['challengeId', 'method', 'code'] })
   .openapi('SmsEmailVerification')
 
 const WebAuthnVerificationSchema = z
   .object({
-    challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    method: z.literal('webauthn').openapi({ type: 'string', enum: ['webauthn'] }),
+    challengeId: z.uuid(),
+    method: z.literal('webauthn'),
     credential: z
       .object({
-        id: z.string().openapi({ type: 'string' }),
-        rawId: z.string().openapi({ type: 'string' }),
-        response: z
-          .object({
-            clientDataJSON: z.string().exactOptional().openapi({ type: 'string' }),
-            authenticatorData: z.string().exactOptional().openapi({ type: 'string' }),
-            signature: z.string().exactOptional().openapi({ type: 'string' }),
-            userHandle: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              clientDataJSON: { type: 'string' },
-              authenticatorData: { type: 'string' },
-              signature: { type: 'string' },
-              userHandle: { type: 'string' },
-            },
-          }),
-        type: z.string().openapi({ type: 'string' }),
+        id: z.string(),
+        rawId: z.string(),
+        response: z.object({
+          clientDataJSON: z.string().exactOptional(),
+          authenticatorData: z.string().exactOptional(),
+          signature: z.string().exactOptional(),
+          userHandle: z.string().exactOptional(),
+        }),
+        type: z.string(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id', 'rawId', 'response', 'type'],
-        properties: {
-          id: { type: 'string' },
-          rawId: { type: 'string' },
-          response: {
-            type: 'object',
-            properties: {
-              clientDataJSON: { type: 'string' },
-              authenticatorData: { type: 'string' },
-              signature: { type: 'string' },
-              userHandle: { type: 'string' },
-            },
-          },
-          type: { type: 'string' },
-        },
-      }),
+      .openapi({ required: ['id', 'rawId', 'response', 'type'] }),
   })
-  .openapi({
-    type: 'object',
-    required: ['challengeId', 'method', 'credential'],
-    properties: {
-      challengeId: { type: 'string', format: 'uuid' },
-      method: { type: 'string', enum: ['webauthn'] },
-      credential: {
-        type: 'object',
-        required: ['id', 'rawId', 'response', 'type'],
-        properties: {
-          id: { type: 'string' },
-          rawId: { type: 'string' },
-          response: {
-            type: 'object',
-            properties: {
-              clientDataJSON: { type: 'string' },
-              authenticatorData: { type: 'string' },
-              signature: { type: 'string' },
-              userHandle: { type: 'string' },
-            },
-          },
-          type: { type: 'string' },
-        },
-      },
-    },
-  })
+  .openapi({ required: ['challengeId', 'method', 'credential'] })
   .openapi('WebAuthnVerification')
 
 const BackupCodeVerificationSchema = z
   .object({
-    challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    method: z.literal('backup_code').openapi({ type: 'string', enum: ['backup_code'] }),
-    code: z
-      .string()
-      .regex(/^[A-Z0-9]{8}$/)
-      .openapi({ type: 'string', pattern: '^[A-Z0-9]{8}$' }),
+    challengeId: z.uuid(),
+    method: z.literal('backup_code'),
+    code: z.string().regex(/^[A-Z0-9]{8}$/),
   })
-  .openapi({
-    type: 'object',
-    required: ['challengeId', 'method', 'code'],
-    properties: {
-      challengeId: { type: 'string', format: 'uuid' },
-      method: { type: 'string', enum: ['backup_code'] },
-      code: { type: 'string', pattern: '^[A-Z0-9]{8}$' },
-    },
-  })
+  .openapi({ required: ['challengeId', 'method', 'code'] })
   .openapi('BackupCodeVerification')
 
 const MfaVerificationResultSchema = z
   .object({
-    verified: z.boolean().openapi({ type: 'boolean' }),
+    verified: z.boolean(),
     accessToken: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: '認証成功時のアクセストークン' }),
-    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
-    expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
+      .openapi({ description: '認証成功時のアクセストークン' }),
+    refreshToken: z.string().exactOptional(),
+    expiresIn: z.int().exactOptional(),
     backupCodesRemaining: z
       .int()
       .exactOptional()
-      .openapi({ type: 'integer', description: 'バックアップコード使用時の残数' }),
+      .openapi({ description: 'バックアップコード使用時の残数' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['verified'],
-    properties: {
-      verified: { type: 'boolean' },
-      accessToken: { type: 'string', description: '認証成功時のアクセストークン' },
-      refreshToken: { type: 'string' },
-      expiresIn: { type: 'integer' },
-      backupCodesRemaining: { type: 'integer', description: 'バックアップコード使用時の残数' },
-    },
-  })
+  .openapi({ required: ['verified'] })
   .openapi('MfaVerificationResult')
 
 const MfaErrorSchema = z
   .object({
-    error: z
-      .enum([
-        'invalid_code',
-        'expired_code',
-        'invalid_challenge',
-        'too_many_attempts',
-        'method_not_available',
-        'already_configured',
-      ])
-      .openapi({
-        type: 'string',
-        enum: [
-          'invalid_code',
-          'expired_code',
-          'invalid_challenge',
-          'too_many_attempts',
-          'method_not_available',
-          'already_configured',
-        ],
-      }),
-    message: z.string().openapi({ type: 'string' }),
-    attemptsRemaining: z.int().exactOptional().openapi({ type: 'integer' }),
-    retryAfter: z.int().exactOptional().openapi({ type: 'integer', description: '秒数' }),
+    error: z.enum([
+      'invalid_code',
+      'expired_code',
+      'invalid_challenge',
+      'too_many_attempts',
+      'method_not_available',
+      'already_configured',
+    ]),
+    message: z.string(),
+    attemptsRemaining: z.int().exactOptional(),
+    retryAfter: z.int().exactOptional().openapi({ description: '秒数' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['error', 'message'],
-    properties: {
-      error: {
-        type: 'string',
-        enum: [
-          'invalid_code',
-          'expired_code',
-          'invalid_challenge',
-          'too_many_attempts',
-          'method_not_available',
-          'already_configured',
-        ],
-      },
-      message: { type: 'string' },
-      attemptsRemaining: { type: 'integer' },
-      retryAfter: { type: 'integer', description: '秒数' },
-    },
-  })
+  .openapi({ required: ['error', 'message'] })
   .openapi('MfaError')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -757,13 +285,7 @@ export const getMfaMethodsRoute = createRoute({
   responses: {
     200: {
       description: 'MFA方式一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(MfaMethodSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/MfaMethod' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(MfaMethodSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -782,30 +304,13 @@ export const putMfaPreferredRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              method: z
-                .enum(['totp', 'sms', 'email', 'webauthn'])
-                .openapi({ type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] }),
+              method: z.enum(['totp', 'sms', 'email', 'webauthn']),
               methodId: z
                 .uuid()
                 .exactOptional()
-                .openapi({
-                  type: 'string',
-                  format: 'uuid',
-                  description: '特定のデバイス/番号を指定',
-                }),
+                .openapi({ description: '特定のデバイス/番号を指定' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['method'],
-              properties: {
-                method: { type: 'string', enum: ['totp', 'sms', 'email', 'webauthn'] },
-                methodId: {
-                  type: 'string',
-                  format: 'uuid',
-                  description: '特定のデバイス/番号を指定',
-                },
-              },
-            }),
+            .openapi({ required: ['method'] }),
         },
       },
       required: true,
@@ -830,28 +335,13 @@ export const postMfaTotpSetupRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              issuer: z
-                .string()
-                .default('MyApp')
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  description: '発行者名（アプリに表示される）',
-                  default: 'MyApp',
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                issuer: {
-                  type: 'string',
-                  description: '発行者名（アプリに表示される）',
-                  default: 'MyApp',
-                },
-              },
-            }),
+          schema: z.object({
+            issuer: z
+              .string()
+              .default('MyApp')
+              .exactOptional()
+              .openapi({ description: '発行者名（アプリに表示される）' }),
+          }),
         },
       },
     },
@@ -883,19 +373,10 @@ export const postMfaTotpVerifyRoute = createRoute({
               code: z
                 .string()
                 .regex(/^\d{6}$/)
-                .openapi({ type: 'string', pattern: '^\\d{6}$', description: '6桁のTOTPコード' }),
-              secret: z
-                .string()
-                .openapi({ type: 'string', description: '設定時に受け取ったシークレット' }),
+                .openapi({ description: '6桁のTOTPコード' }),
+              secret: z.string().openapi({ description: '設定時に受け取ったシークレット' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['code', 'secret'],
-              properties: {
-                code: { type: 'string', pattern: '^\\d{6}$', description: '6桁のTOTPコード' },
-                secret: { type: 'string', description: '設定時に受け取ったシークレット' },
-              },
-            }),
+            .openapi({ required: ['code', 'secret'] }),
         },
       },
       required: true,
@@ -927,20 +408,9 @@ export const deleteMfaTotpRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              code: z
-                .string()
-                .openapi({
-                  type: 'string',
-                  description: '現在のTOTPコードまたはバックアップコード',
-                }),
+              code: z.string().openapi({ description: '現在のTOTPコードまたはバックアップコード' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['code'],
-              properties: {
-                code: { type: 'string', description: '現在のTOTPコードまたはバックアップコード' },
-              },
-            }),
+            .openapi({ required: ['code'] }),
         },
       },
       required: true,
@@ -970,23 +440,9 @@ export const postMfaSmsSetupRoute = createRoute({
               phoneNumber: z
                 .string()
                 .regex(/^\+[1-9]\d{1,14}$/)
-                .openapi({
-                  type: 'string',
-                  pattern: '^\\+[1-9]\\d{1,14}$',
-                  description: 'E.164形式の電話番号',
-                }),
+                .openapi({ description: 'E.164形式の電話番号' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['phoneNumber'],
-              properties: {
-                phoneNumber: {
-                  type: 'string',
-                  pattern: '^\\+[1-9]\\d{1,14}$',
-                  description: 'E.164形式の電話番号',
-                },
-              },
-            }),
+            .openapi({ required: ['phoneNumber'] }),
         },
       },
       required: true,
@@ -997,26 +453,14 @@ export const postMfaSmsSetupRoute = createRoute({
       description: '確認コード送信',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              challengeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-              expiresIn: z
-                .int()
-                .exactOptional()
-                .openapi({ type: 'integer', description: '有効期限（秒）' }),
-              maskedPhone: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'マスクされた電話番号' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                challengeId: { type: 'string', format: 'uuid' },
-                expiresIn: { type: 'integer', description: '有効期限（秒）' },
-                maskedPhone: { type: 'string', description: 'マスクされた電話番号' },
-              },
-            }),
+          schema: z.object({
+            challengeId: z.uuid().exactOptional(),
+            expiresIn: z.int().exactOptional().openapi({ description: '有効期限（秒）' }),
+            maskedPhone: z
+              .string()
+              .exactOptional()
+              .openapi({ description: 'マスクされた電話番号' }),
+          }),
         },
       },
     },
@@ -1038,21 +482,8 @@ export const postMfaSmsVerifyRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-              code: z
-                .string()
-                .regex(/^\d{6}$/)
-                .openapi({ type: 'string', pattern: '^\\d{6}$' }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['challengeId', 'code'],
-              properties: {
-                challengeId: { type: 'string', format: 'uuid' },
-                code: { type: 'string', pattern: '^\\d{6}$' },
-              },
-            }),
+            .object({ challengeId: z.uuid(), code: z.string().regex(/^\d{6}$/) })
+            .openapi({ required: ['challengeId', 'code'] }),
         },
       },
       required: true,
@@ -1086,8 +517,6 @@ export const deleteMfaSmsMethodIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
     body: {
@@ -1095,17 +524,9 @@ export const deleteMfaSmsMethodIdRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              verificationCode: z
-                .string()
-                .openapi({ type: 'string', description: '任意のMFA認証コード' }),
+              verificationCode: z.string().openapi({ description: '任意のMFA認証コード' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['verificationCode'],
-              properties: {
-                verificationCode: { type: 'string', description: '任意のMFA認証コード' },
-              },
-            }),
+            .openapi({ required: ['verificationCode'] }),
         },
       },
       required: true,
@@ -1125,27 +546,12 @@ export const postMfaEmailSetupRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              email: z
-                .email()
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  format: 'email',
-                  description: '省略時はアカウントのメールアドレスを使用',
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                email: {
-                  type: 'string',
-                  format: 'email',
-                  description: '省略時はアカウントのメールアドレスを使用',
-                },
-              },
-            }),
+          schema: z.object({
+            email: z
+              .email()
+              .exactOptional()
+              .openapi({ description: '省略時はアカウントのメールアドレスを使用' }),
+          }),
         },
       },
     },
@@ -1155,20 +561,11 @@ export const postMfaEmailSetupRoute = createRoute({
       description: '確認コード送信',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              challengeId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-              expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
-              maskedEmail: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                challengeId: { type: 'string', format: 'uuid' },
-                expiresIn: { type: 'integer' },
-                maskedEmail: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            challengeId: z.uuid().exactOptional(),
+            expiresIn: z.int().exactOptional(),
+            maskedEmail: z.string().exactOptional(),
+          }),
         },
       },
     },
@@ -1189,21 +586,8 @@ export const postMfaEmailVerifyRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-              code: z
-                .string()
-                .regex(/^\d{6}$/)
-                .openapi({ type: 'string', pattern: '^\\d{6}$' }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['challengeId', 'code'],
-              properties: {
-                challengeId: { type: 'string', format: 'uuid' },
-                code: { type: 'string', pattern: '^\\d{6}$' },
-              },
-            }),
+            .object({ challengeId: z.uuid(), code: z.string().regex(/^\d{6}$/) })
+            .openapi({ required: ['challengeId', 'code'] }),
         },
       },
       required: true,
@@ -1231,44 +615,17 @@ export const postMfaWebauthnRegisterOptionsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              authenticatorType: z
-                .enum(['platform', 'cross-platform', 'any'])
-                .default('any')
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  enum: ['platform', 'cross-platform', 'any'],
-                  default: 'any',
-                  description: '認証器タイプ',
-                }),
-              residentKey: z
-                .enum(['discouraged', 'preferred', 'required'])
-                .default('preferred')
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  enum: ['discouraged', 'preferred', 'required'],
-                  default: 'preferred',
-                }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                authenticatorType: {
-                  type: 'string',
-                  enum: ['platform', 'cross-platform', 'any'],
-                  default: 'any',
-                  description: '認証器タイプ',
-                },
-                residentKey: {
-                  type: 'string',
-                  enum: ['discouraged', 'preferred', 'required'],
-                  default: 'preferred',
-                },
-              },
-            }),
+          schema: z.object({
+            authenticatorType: z
+              .enum(['platform', 'cross-platform', 'any'])
+              .default('any')
+              .exactOptional()
+              .openapi({ description: '認証器タイプ' }),
+            residentKey: z
+              .enum(['discouraged', 'preferred', 'required'])
+              .default('preferred')
+              .exactOptional(),
+          }),
         },
       },
     },
@@ -1315,13 +672,7 @@ export const getMfaWebauthnCredentialsRoute = createRoute({
   responses: {
     200: {
       description: '認証器一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(WebAuthnCredentialSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/WebAuthnCredential' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(WebAuthnCredentialSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1340,7 +691,6 @@ export const deleteMfaWebauthnCredentialsCredentialIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -1364,18 +714,11 @@ export const patchMfaWebauthnCredentialsCredentialIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: {
       content: {
-        'application/json': {
-          schema: z
-            .object({
-              name: z.string().max(100).exactOptional().openapi({ type: 'string', maxLength: 100 }),
-            })
-            .openapi({ type: 'object', properties: { name: { type: 'string', maxLength: 100 } } }),
-        },
+        'application/json': { schema: z.object({ name: z.string().max(100).exactOptional() }) },
       },
       required: true,
     },
@@ -1403,25 +746,10 @@ export const postMfaBackupCodesGenerateRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              verificationCode: z
-                .string()
-                .openapi({ type: 'string', description: '現在のMFA認証コード' }),
-              count: z
-                .int()
-                .min(6)
-                .max(16)
-                .default(10)
-                .exactOptional()
-                .openapi({ type: 'integer', minimum: 6, maximum: 16, default: 10 }),
+              verificationCode: z.string().openapi({ description: '現在のMFA認証コード' }),
+              count: z.int().min(6).max(16).default(10).exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['verificationCode'],
-              properties: {
-                verificationCode: { type: 'string', description: '現在のMFA認証コード' },
-                count: { type: 'integer', minimum: 6, maximum: 16, default: 10 },
-              },
-            }),
+            .openapi({ required: ['verificationCode'] }),
         },
       },
       required: true,
@@ -1467,30 +795,13 @@ export const postMfaChallengeRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              mfaToken: z
-                .string()
-                .openapi({ type: 'string', description: 'ログイン時に受け取ったMFAトークン' }),
+              mfaToken: z.string().openapi({ description: 'ログイン時に受け取ったMFAトークン' }),
               method: z
                 .enum(['totp', 'sms', 'email', 'webauthn', 'backup_code'])
                 .exactOptional()
-                .openapi({
-                  type: 'string',
-                  enum: ['totp', 'sms', 'email', 'webauthn', 'backup_code'],
-                  description: '使用するMFA方式',
-                }),
+                .openapi({ description: '使用するMFA方式' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['mfaToken'],
-              properties: {
-                mfaToken: { type: 'string', description: 'ログイン時に受け取ったMFAトークン' },
-                method: {
-                  type: 'string',
-                  enum: ['totp', 'sms', 'email', 'webauthn', 'backup_code'],
-                  description: '使用するMFA方式',
-                },
-              },
-            }),
+            .openapi({ required: ['mfaToken'] }),
         },
       },
       required: true,
@@ -1516,13 +827,7 @@ export const postMfaChallengeSendRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
-            .openapi({
-              type: 'object',
-              required: ['challengeId'],
-              properties: { challengeId: { type: 'string', format: 'uuid' } },
-            }),
+          schema: z.object({ challengeId: z.uuid() }).openapi({ required: ['challengeId'] }),
         },
       },
       required: true,
@@ -1533,23 +838,11 @@ export const postMfaChallengeSendRoute = createRoute({
       description: 'コード送信成功',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              sent: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-              maskedDestination: z.string().exactOptional().openapi({ type: 'string' }),
-              retryAfter: z
-                .int()
-                .exactOptional()
-                .openapi({ type: 'integer', description: '再送信可能までの秒数' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                sent: { type: 'boolean' },
-                maskedDestination: { type: 'string' },
-                retryAfter: { type: 'integer', description: '再送信可能までの秒数' },
-              },
-            }),
+          schema: z.object({
+            sent: z.boolean().exactOptional(),
+            maskedDestination: z.string().exactOptional(),
+            retryAfter: z.int().exactOptional().openapi({ description: '再送信可能までの秒数' }),
+          }),
         },
       },
     },
@@ -1568,21 +861,12 @@ export const postMfaVerifyRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .xor([
-              TotpVerificationSchema,
-              SmsEmailVerificationSchema,
-              WebAuthnVerificationSchema,
-              BackupCodeVerificationSchema,
-            ])
-            .openapi({
-              oneOf: [
-                { $ref: '#/components/schemas/TotpVerification' },
-                { $ref: '#/components/schemas/SmsEmailVerification' },
-                { $ref: '#/components/schemas/WebAuthnVerification' },
-                { $ref: '#/components/schemas/BackupCodeVerification' },
-              ],
-            }),
+          schema: z.xor([
+            TotpVerificationSchema,
+            SmsEmailVerificationSchema,
+            WebAuthnVerificationSchema,
+            BackupCodeVerificationSchema,
+          ]),
         },
       },
       required: true,
@@ -1607,13 +891,7 @@ export const postMfaWebauthnAuthenticateOptionsRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ challengeId: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
-            .openapi({
-              type: 'object',
-              required: ['challengeId'],
-              properties: { challengeId: { type: 'string', format: 'uuid' } },
-            }),
+          schema: z.object({ challengeId: z.uuid() }).openapi({ required: ['challengeId'] }),
         },
       },
       required: true,
@@ -1639,13 +917,7 @@ export const postMfaRecoveryRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ email: z.email().openapi({ type: 'string', format: 'email' }) })
-            .openapi({
-              type: 'object',
-              required: ['email'],
-              properties: { email: { type: 'string', format: 'email' } },
-            }),
+          schema: z.object({ email: z.email() }).openapi({ required: ['email'] }),
         },
       },
       required: true,
@@ -1655,11 +927,7 @@ export const postMfaRecoveryRoute = createRoute({
     200: {
       description: 'リカバリーメール送信',
       content: {
-        'application/json': {
-          schema: z
-            .object({ message: z.string().exactOptional().openapi({ type: 'string' }) })
-            .openapi({ type: 'object', properties: { message: { type: 'string' } } }),
-        },
+        'application/json': { schema: z.object({ message: z.string().exactOptional() }) },
       },
     },
     404: { description: 'アカウントが見つかりません' },
@@ -1678,57 +946,19 @@ export const postMfaRecoveryVerifyRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              token: z
-                .string()
-                .openapi({ type: 'string', description: 'リカバリーメールのトークン' }),
+              token: z.string().openapi({ description: 'リカバリーメールのトークン' }),
               identityVerification: z
                 .object({
-                  dateOfBirth: z.iso
-                    .date()
-                    .exactOptional()
-                    .openapi({ type: 'string', format: 'date' }),
+                  dateOfBirth: z.iso.date().exactOptional(),
                   lastFourDigits: z
                     .string()
                     .regex(/^\d{4}$/)
                     .exactOptional()
-                    .openapi({
-                      type: 'string',
-                      pattern: '^\\d{4}$',
-                      description: '登録済み支払い方法の下4桁',
-                    }),
+                    .openapi({ description: '登録済み支払い方法の下4桁' }),
                 })
-                .openapi({
-                  type: 'object',
-                  description: '本人確認情報',
-                  properties: {
-                    dateOfBirth: { type: 'string', format: 'date' },
-                    lastFourDigits: {
-                      type: 'string',
-                      pattern: '^\\d{4}$',
-                      description: '登録済み支払い方法の下4桁',
-                    },
-                  },
-                }),
+                .openapi({ description: '本人確認情報' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['token', 'identityVerification'],
-              properties: {
-                token: { type: 'string', description: 'リカバリーメールのトークン' },
-                identityVerification: {
-                  type: 'object',
-                  description: '本人確認情報',
-                  properties: {
-                    dateOfBirth: { type: 'string', format: 'date' },
-                    lastFourDigits: {
-                      type: 'string',
-                      pattern: '^\\d{4}$',
-                      description: '登録済み支払い方法の下4桁',
-                    },
-                  },
-                },
-              },
-            }),
+            .openapi({ required: ['token', 'identityVerification'] }),
         },
       },
       required: true,
@@ -1739,21 +969,13 @@ export const postMfaRecoveryVerifyRoute = createRoute({
       description: 'リカバリー成功',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              temporaryToken: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'MFA再設定用の一時トークン' }),
-              expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                temporaryToken: { type: 'string', description: 'MFA再設定用の一時トークン' },
-                expiresIn: { type: 'integer' },
-              },
-            }),
+          schema: z.object({
+            temporaryToken: z
+              .string()
+              .exactOptional()
+              .openapi({ description: 'MFA再設定用の一時トークン' }),
+            expiresIn: z.int().exactOptional(),
+          }),
         },
       },
     },

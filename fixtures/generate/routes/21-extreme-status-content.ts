@@ -13,16 +13,13 @@ const AnySchema = z
 const NullSchema = z
   .null()
   .nullable()
-  .openapi({ type: 'null', description: 'Only accepts null' })
+  .openapi({ description: 'Only accepts null' })
   .openapi('NullSchema')
 
 const MultiTypeSchema = z
   .string()
   .nullable()
-  .openapi({
-    type: ['string', 'number', 'integer', 'boolean', 'null'],
-    description: 'Accepts multiple primitive types',
-  })
+  .openapi({ description: 'Accepts multiple primitive types' })
   .openapi('MultiTypeSchema')
 
 export const getExtremeResponsesRoute = createRoute({
@@ -37,56 +34,46 @@ export const getExtremeResponsesRoute = createRoute({
     200: {
       description: 'OK',
       content: {
-        'application/json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/xml': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/yaml': { schema: z.object({}).openapi({ type: 'object' }) },
-        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
-        'text/html': { schema: z.string().openapi({ type: 'string' }) },
-        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
-        'text/tab-separated-values': { schema: z.string().openapi({ type: 'string' }) },
-        'application/octet-stream': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-        'application/pdf': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/gif': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/webp': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/svg+xml': { schema: z.string().openapi({ type: 'string' }) },
-        'audio/mpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'audio/ogg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'video/mp4': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'video/webm': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/zip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/gzip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/x-tar': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/vnd.ms-excel': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-        'application/vnd.ms-powerpoint': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-        'application/msword': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/vnd.api+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/hal+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/problem+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/ld+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/geo+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/graphql+json': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/x-ndjson': { schema: z.string().openapi({ type: 'string' }) },
-        'application/x-msgpack': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/cbor': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/x-protobuf': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-        'application/avro': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/x-parquet': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/*': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'text/*': { schema: z.string().openapi({ type: 'string' }) },
-        '*/*': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'application/json': { schema: z.object({}) },
+        'application/xml': { schema: z.object({}) },
+        'application/yaml': { schema: z.object({}) },
+        'text/plain': { schema: z.string() },
+        'text/html': { schema: z.string() },
+        'text/csv': { schema: z.string() },
+        'text/tab-separated-values': { schema: z.string() },
+        'application/octet-stream': { schema: z.file() },
+        'application/pdf': { schema: z.file() },
+        'image/png': { schema: z.file() },
+        'image/jpeg': { schema: z.file() },
+        'image/gif': { schema: z.file() },
+        'image/webp': { schema: z.file() },
+        'image/svg+xml': { schema: z.string() },
+        'audio/mpeg': { schema: z.file() },
+        'audio/ogg': { schema: z.file() },
+        'video/mp4': { schema: z.file() },
+        'video/webm': { schema: z.file() },
+        'application/zip': { schema: z.file() },
+        'application/gzip': { schema: z.file() },
+        'application/x-tar': { schema: z.file() },
+        'application/vnd.ms-excel': { schema: z.file() },
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': { schema: z.file() },
+        'application/vnd.ms-powerpoint': { schema: z.file() },
+        'application/msword': { schema: z.file() },
+        'application/vnd.api+json': { schema: z.object({}) },
+        'application/hal+json': { schema: z.object({}) },
+        'application/problem+json': { schema: z.object({}) },
+        'application/ld+json': { schema: z.object({}) },
+        'application/geo+json': { schema: z.object({}) },
+        'application/graphql+json': { schema: z.object({}) },
+        'application/x-ndjson': { schema: z.string() },
+        'application/x-msgpack': { schema: z.file() },
+        'application/cbor': { schema: z.file() },
+        'application/x-protobuf': { schema: z.file() },
+        'application/avro': { schema: z.file() },
+        'application/x-parquet': { schema: z.file() },
+        'image/*': { schema: z.file() },
+        'text/*': { schema: z.string() },
+        '*/*': { schema: z.file() },
       },
     },
     201: { description: 'Created' },
@@ -96,9 +83,7 @@ export const getExtremeResponsesRoute = createRoute({
     205: { description: 'Reset Content' },
     206: {
       description: 'Partial Content',
-      headers: z.object({
-        'Content-Range': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ 'Content-Range': { schema: z.string().exactOptional() } }),
     },
     207: { description: 'Multi-Status (WebDAV)' },
     208: { description: 'Already Reported (WebDAV)' },
@@ -106,56 +91,40 @@ export const getExtremeResponsesRoute = createRoute({
     300: { description: 'Multiple Choices' },
     301: {
       description: 'Moved Permanently',
-      headers: z.object({
-        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { required: true, schema: z.url() } }),
     },
     302: {
       description: 'Found',
-      headers: z.object({
-        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { required: true, schema: z.url() } }),
     },
     303: {
       description: 'See Other',
-      headers: z.object({
-        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { required: true, schema: z.url() } }),
     },
     304: {
       description: 'Not Modified',
-      headers: z.object({
-        ETag: { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ ETag: { schema: z.string().exactOptional() } }),
     },
     305: { description: 'Use Proxy (Deprecated)' },
     307: {
       description: 'Temporary Redirect',
-      headers: z.object({
-        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { required: true, schema: z.url() } }),
     },
     308: {
       description: 'Permanent Redirect',
-      headers: z.object({
-        Location: { required: true, schema: z.url().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { required: true, schema: z.url() } }),
     },
     400: { description: 'Bad Request' },
     401: {
       description: 'Unauthorized',
-      headers: z.object({
-        'WWW-Authenticate': { required: true, schema: z.string().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ 'WWW-Authenticate': { required: true, schema: z.string() } }),
     },
     402: { description: 'Payment Required' },
     403: { description: 'Forbidden' },
     404: { description: 'Not Found' },
     405: {
       description: 'Method Not Allowed',
-      headers: z.object({
-        Allow: { required: true, schema: z.string().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ Allow: { required: true, schema: z.string() } }),
     },
     406: { description: 'Not Acceptable' },
     407: { description: 'Proxy Authentication Required' },
@@ -166,17 +135,13 @@ export const getExtremeResponsesRoute = createRoute({
     412: { description: 'Precondition Failed' },
     413: {
       description: 'Payload Too Large',
-      headers: z.object({
-        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
-      }),
+      headers: z.object({ 'Retry-After': { schema: z.int().exactOptional() } }),
     },
     414: { description: 'URI Too Long' },
     415: { description: 'Unsupported Media Type' },
     416: {
       description: 'Range Not Satisfiable',
-      headers: z.object({
-        'Content-Range': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ 'Content-Range': { schema: z.string().exactOptional() } }),
     },
     417: { description: 'Expectation Failed' },
     418: { description: "I'm a teapot (RFC 2324)" },
@@ -187,18 +152,16 @@ export const getExtremeResponsesRoute = createRoute({
     425: { description: 'Too Early' },
     426: {
       description: 'Upgrade Required',
-      headers: z.object({
-        Upgrade: { required: true, schema: z.string().openapi({ type: 'string' }) },
-      }),
+      headers: z.object({ Upgrade: { required: true, schema: z.string() } }),
     },
     428: { description: 'Precondition Required' },
     429: {
       description: 'Too Many Requests',
       headers: z.object({
-        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
-        'X-RateLimit-Limit': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
-        'X-RateLimit-Remaining': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
-        'X-RateLimit-Reset': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+        'Retry-After': { schema: z.int().exactOptional() },
+        'X-RateLimit-Limit': { schema: z.int().exactOptional() },
+        'X-RateLimit-Remaining': { schema: z.int().exactOptional() },
+        'X-RateLimit-Reset': { schema: z.int().exactOptional() },
       }),
     },
     431: { description: 'Request Header Fields Too Large' },
@@ -208,9 +171,7 @@ export const getExtremeResponsesRoute = createRoute({
     502: { description: 'Bad Gateway' },
     503: {
       description: 'Service Unavailable',
-      headers: z.object({
-        'Retry-After': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
-      }),
+      headers: z.object({ 'Retry-After': { schema: z.int().exactOptional() } }),
     },
     504: { description: 'Gateway Timeout' },
     505: { description: 'HTTP Version Not Supported' },
@@ -228,15 +189,7 @@ export const getExtremeResponsesRoute = createRoute({
       description: 'Unexpected response',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              code: z.int().exactOptional().openapi({ type: 'integer' }),
-              message: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { code: { type: 'integer' }, message: { type: 'string' } },
-            }),
+          schema: z.object({ code: z.int().exactOptional(), message: z.string().exactOptional() }),
         },
       },
     },
@@ -251,83 +204,33 @@ export const postMultipartVariationsRoute = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: z
-            .object({
-              file: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-              metadata: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                file: { type: 'string', format: 'binary' },
-                metadata: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            file: z.file().exactOptional(),
+            metadata: z.string().exactOptional(),
+          }),
           encoding: {
             file: { contentType: 'application/octet-stream' },
             metadata: { contentType: 'application/json' },
           },
         },
-        'multipart/mixed': {
-          schema: z
-            .object({
-              parts: z
-                .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { parts: { type: 'array', items: { type: 'string', format: 'binary' } } },
-            }),
-        },
+        'multipart/mixed': { schema: z.object({ parts: z.array(z.file()).exactOptional() }) },
         'multipart/related': {
-          schema: z
-            .object({
-              root: z.string().exactOptional().openapi({ type: 'string' }),
-              attachments: z
-                .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                root: { type: 'string' },
-                attachments: { type: 'array', items: { type: 'string', format: 'binary' } },
-              },
-            }),
+          schema: z.object({
+            root: z.string().exactOptional(),
+            attachments: z.array(z.file()).exactOptional(),
+          }),
         },
         'multipart/alternative': {
-          schema: z
-            .object({
-              text: z.string().exactOptional().openapi({ type: 'string' }),
-              html: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { text: { type: 'string' }, html: { type: 'string' } },
-            }),
+          schema: z.object({ text: z.string().exactOptional(), html: z.string().exactOptional() }),
         },
-        'multipart/digest': { schema: z.object({}).openapi({ type: 'object' }) },
-        'multipart/parallel': { schema: z.object({}).openapi({ type: 'object' }) },
-        'multipart/byteranges': { schema: z.object({}).openapi({ type: 'object' }) },
+        'multipart/digest': { schema: z.object({}) },
+        'multipart/parallel': { schema: z.object({}) },
+        'multipart/byteranges': { schema: z.object({}) },
         'application/x-www-form-urlencoded': {
-          schema: z
-            .object({
-              field1: z.string().exactOptional().openapi({ type: 'string' }),
-              field2: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                field1: { type: 'string' },
-                field2: { type: 'array', items: { type: 'string' } },
-              },
-            }),
+          schema: z.object({
+            field1: z.string().exactOptional(),
+            field2: z.array(z.string()).exactOptional(),
+          }),
           encoding: { field2: {} },
         },
       },
@@ -343,17 +246,13 @@ export const postCharsetVariationsRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json; charset=utf-8': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/json; charset=utf-16': { schema: z.object({}).openapi({ type: 'object' }) },
-        'application/json; charset=iso-8859-1': {
-          schema: z.object({}).openapi({ type: 'object' }),
-        },
-        'text/plain; charset=utf-8': { schema: z.string().openapi({ type: 'string' }) },
-        'text/plain; charset=ascii': { schema: z.string().openapi({ type: 'string' }) },
-        'text/html; charset=utf-8': { schema: z.string().openapi({ type: 'string' }) },
-        'multipart/form-data; boundary=----WebKitFormBoundary': {
-          schema: z.object({}).openapi({ type: 'object' }),
-        },
+        'application/json; charset=utf-8': { schema: z.object({}) },
+        'application/json; charset=utf-16': { schema: z.object({}) },
+        'application/json; charset=iso-8859-1': { schema: z.object({}) },
+        'text/plain; charset=utf-8': { schema: z.string() },
+        'text/plain; charset=ascii': { schema: z.string() },
+        'text/html; charset=utf-8': { schema: z.string() },
+        'multipart/form-data; boundary=----WebKitFormBoundary': { schema: z.object({}) },
       },
     },
   },

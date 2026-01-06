@@ -2,85 +2,54 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UuidSchema = z
   .uuid()
-  .openapi({ type: 'string', format: 'uuid', examples: ['f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01'] })
+  .openapi({ examples: ['f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01'] })
   .openapi('Uuid')
 
 const UlidSchema = z
   .string()
   .regex(/^[0-9A-HJKMNP-TV-Z]{26}$/)
-  .openapi({
-    type: 'string',
-    pattern: '^[0-9A-HJKMNP-TV-Z]{26}$',
-    examples: ['01J1K9N3E6R6ZK7Z6B0Q9Q3H3J'],
-  })
+  .openapi({ examples: ['01J1K9N3E6R6ZK7Z6B0Q9Q3H3J'] })
   .openapi('Ulid')
 
 const IdSchema = z
   .xor([UuidSchema, UlidSchema])
-  .openapi({
-    description: 'Primary identifier (uuid or ulid) - used everywhere',
-    oneOf: [{ $ref: '#/components/schemas/Uuid' }, { $ref: '#/components/schemas/Ulid' }],
-  })
+  .openapi({ description: 'Primary identifier (uuid or ulid) - used everywhere' })
   .openapi('Id')
 
 const TraceIdSchema = z
   .string()
   .min(8)
   .max(128)
-  .openapi({
-    type: 'string',
-    description: 'Correlation id for tracing; also appears as header/parameter/example',
-    minLength: 8,
-    maxLength: 128,
-  })
+  .openapi({ description: 'Correlation id for tracing; also appears as header/parameter/example' })
   .openapi('TraceId')
 
 const CursorSchema = z
   .string()
-  .openapi({ type: 'string', description: 'Pagination cursor (opaque)' })
+  .openapi({ description: 'Pagination cursor (opaque)' })
   .openapi('Cursor')
 
 const LocaleSchema = z
   .string()
   .regex(/^[a-z]{2}(-[A-Z]{2})?$/)
-  .openapi({ type: 'string', pattern: '^[a-z]{2}(-[A-Z]{2})?$', examples: ['ja-JP', 'en-US'] })
+  .openapi({ examples: ['ja-JP', 'en-US'] })
   .openapi('Locale')
 
 const MetaSchema: z.ZodType<MetaType> = z
   .lazy(() =>
     z
       .object({
-        createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-        updatedAt: z.iso
-          .datetime()
-          .exactOptional()
-          .openapi({ type: 'string', format: 'date-time' }),
+        createdAt: z.iso.datetime(),
+        updatedAt: z.iso.datetime().exactOptional(),
         trace: TraceContextSchema.exactOptional(),
         links: ResourceLinksSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['createdAt'],
-        properties: {
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' },
-          trace: { $ref: '#/components/schemas/TraceContext' },
-          links: { $ref: '#/components/schemas/ResourceLinks' },
-        },
-      }),
+      .openapi({ required: ['createdAt'] }),
   )
   .openapi('Meta')
 
 const EntitySchema = z
   .object({ id: IdSchema, meta: MetaSchema })
-  .openapi({
-    type: 'object',
-    required: ['id', 'meta'],
-    properties: {
-      id: { $ref: '#/components/schemas/Id' },
-      meta: { $ref: '#/components/schemas/Meta' },
-    },
-  })
+  .openapi({ required: ['id', 'meta'] })
   .openapi('Entity')
 
 const TraceContextSchema: z.ZodType<TraceContextType> = z
@@ -89,29 +58,14 @@ const TraceContextSchema: z.ZodType<TraceContextType> = z
       .object({
         traceId: TraceIdSchema,
         parent: TraceContextSchema.exactOptional(),
-        baggage: z
-          .record(z.string(), z.string().openapi({ type: 'string' }))
-          .exactOptional()
-          .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
+        baggage: z.record(z.string(), z.string()).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['traceId'],
-        properties: {
-          traceId: { $ref: '#/components/schemas/TraceId' },
-          parent: { $ref: '#/components/schemas/TraceContext' },
-          baggage: { type: 'object', additionalProperties: { type: 'string' } },
-        },
-      }),
+      .openapi({ required: ['traceId'] }),
   )
   .openapi('TraceContext')
 
 const ResourceLinksSchema: z.ZodType<ResourceLinksType> = z
-  .lazy(() =>
-    z
-      .record(z.string(), LinkSchema)
-      .openapi({ type: 'object', additionalProperties: { $ref: '#/components/schemas/Link' } }),
-  )
+  .lazy(() => z.record(z.string(), LinkSchema))
   .openapi('ResourceLinks')
 
 type MetaType = {
@@ -131,21 +85,12 @@ const LinkSchema: z.ZodType<LinkType> = z
   .lazy(() =>
     z
       .object({
-        href: z.string().openapi({ type: 'string', format: 'uri-reference' }),
-        rel: z.string().exactOptional().openapi({ type: 'string' }),
+        href: z.string(),
+        rel: z.string().exactOptional(),
         meta: MetaSchema.exactOptional(),
         next: LinkSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['href'],
-        properties: {
-          href: { type: 'string', format: 'uri-reference' },
-          rel: { type: 'string' },
-          meta: { $ref: '#/components/schemas/Meta' },
-          next: { $ref: '#/components/schemas/Link' },
-        },
-      }),
+      .openapi({ required: ['href'] }),
   )
   .openapi('Link')
 
@@ -154,19 +99,7 @@ type ResourceLinksType = Record<string, z.infer<typeof LinkSchema>>
 type LinkType = { href: string; rel?: string; meta?: z.infer<typeof MetaSchema>; next?: LinkType }
 
 const GeoGraphSchema: z.ZodType<GeoGraphType> = z
-  .lazy(() =>
-    z
-      .object({
-        nodes: z
-          .array(GraphNodeSchema)
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphNode' } }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['nodes'],
-        properties: { nodes: { type: 'array', items: { $ref: '#/components/schemas/GraphNode' } } },
-      }),
-  )
+  .lazy(() => z.object({ nodes: z.array(GraphNodeSchema) }).openapi({ required: ['nodes'] }))
   .openapi('GeoGraph')
 
 type GeoPointType = { lat: number; lng: number; graph?: z.infer<typeof GeoGraphSchema> }
@@ -175,19 +108,11 @@ const GeoPointSchema: z.ZodType<GeoPointType> = z
   .lazy(() =>
     z
       .object({
-        lat: z.number().min(-90).max(90).openapi({ type: 'number', minimum: -90, maximum: 90 }),
-        lng: z.number().min(-180).max(180).openapi({ type: 'number', minimum: -180, maximum: 180 }),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
         graph: GeoGraphSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['lat', 'lng'],
-        properties: {
-          lat: { type: 'number', minimum: -90, maximum: 90 },
-          lng: { type: 'number', minimum: -180, maximum: 180 },
-          graph: { $ref: '#/components/schemas/GeoGraph' },
-        },
-      }),
+      .openapi({ required: ['lat', 'lng'] }),
   )
   .openapi('GeoPoint')
 
@@ -196,21 +121,10 @@ const GraphNodeSchema: z.ZodType<GraphNodeType> = z
     z
       .object({
         id: IdSchema,
-        edges: z
-          .array(GraphEdgeSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } }),
+        edges: z.array(GraphEdgeSchema).exactOptional(),
         entity: EntityRefSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['id'],
-        properties: {
-          id: { $ref: '#/components/schemas/Id' },
-          edges: { type: 'array', items: { $ref: '#/components/schemas/GraphEdge' } },
-          entity: { $ref: '#/components/schemas/EntityRef' },
-        },
-      }),
+      .openapi({ required: ['id'] }),
   )
   .openapi('GraphNode')
 
@@ -221,18 +135,10 @@ const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
     z
       .object({
         to: GraphNodeSchema,
-        weight: z.number().exactOptional().openapi({ type: 'number' }),
+        weight: z.number().exactOptional(),
         meta: MetaSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['to'],
-        properties: {
-          to: { $ref: '#/components/schemas/GraphNode' },
-          weight: { type: 'number' },
-          meta: { $ref: '#/components/schemas/Meta' },
-        },
-      }),
+      .openapi({ required: ['to'] }),
   )
   .openapi('GraphEdge')
 
@@ -240,16 +146,7 @@ const EntityRefSchema: z.ZodType<EntityRefType> = z
   .lazy(() =>
     z
       .xor([UserSchema, CompanySchema, OrderSchema, ProductSchema, PersonSchema])
-      .openapi({
-        description: 'A union that can point back to everything (more hell)',
-        oneOf: [
-          { $ref: '#/components/schemas/User' },
-          { $ref: '#/components/schemas/Company' },
-          { $ref: '#/components/schemas/Order' },
-          { $ref: '#/components/schemas/Product' },
-          { $ref: '#/components/schemas/Person' },
-        ],
-      }),
+      .openapi({ description: 'A union that can point back to everything (more hell)' }),
   )
   .openapi('EntityRef')
 
@@ -265,26 +162,15 @@ type GraphEdgeType = {
   meta?: z.infer<typeof MetaSchema>
 }
 
-const CurrencySchema = z
-  .enum(['JPY', 'USD', 'EUR'])
-  .openapi({ type: 'string', enum: ['JPY', 'USD', 'EUR'] })
-  .openapi('Currency')
+const CurrencySchema = z.enum(['JPY', 'USD', 'EUR']).openapi('Currency')
 
 const MoneySchema = z
   .object({
     currency: CurrencySchema,
-    amount: z.number().multipleOf(0.01).openapi({ type: 'number', multipleOf: 0.01 }),
+    amount: z.number().multipleOf(0.01),
     trace: TraceContextSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['currency', 'amount'],
-    properties: {
-      currency: { $ref: '#/components/schemas/Currency' },
-      amount: { type: 'number', multipleOf: 0.01 },
-      trace: { $ref: '#/components/schemas/TraceContext' },
-    },
-  })
+  .openapi({ required: ['currency', 'amount'] })
   .openapi('Money')
 
 const CompanySchema: z.ZodType<CompanyType> = z
@@ -292,48 +178,15 @@ const CompanySchema: z.ZodType<CompanyType> = z
     EntitySchema.and(
       z
         .object({
-          name: z.string().openapi({ type: 'string' }),
+          name: z.string(),
           headquarters: AddressSchema.exactOptional(),
           parent: CompanySchema.exactOptional(),
-          subsidiaries: z
-            .array(CompanySchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Company' } }),
-          employees: z
-            .array(UserSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+          subsidiaries: z.array(CompanySchema).exactOptional(),
+          employees: z.array(UserSchema).exactOptional(),
           primaryContact: PersonSchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            headquarters: { $ref: '#/components/schemas/Address' },
-            parent: { $ref: '#/components/schemas/Company' },
-            subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
-            employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-            primaryContact: { $ref: '#/components/schemas/Person' },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/Entity' },
-        {
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            headquarters: { $ref: '#/components/schemas/Address' },
-            parent: { $ref: '#/components/schemas/Company' },
-            subsidiaries: { type: 'array', items: { $ref: '#/components/schemas/Company' } },
-            employees: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-            primaryContact: { $ref: '#/components/schemas/Person' },
-          },
-        },
-      ],
-    }),
+        .openapi({ required: ['name'] }),
+    ),
   )
   .openapi('Company')
 
@@ -349,39 +202,13 @@ const ProductSchema: z.ZodType<ProductType> = z
     EntitySchema.and(
       z
         .object({
-          name: z.string().openapi({ type: 'string' }),
+          name: z.string(),
           supplier: CompanySchema.exactOptional(),
-          relatedProducts: z
-            .array(ProductSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
+          relatedProducts: z.array(ProductSchema).exactOptional(),
           price: MoneySchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            supplier: { $ref: '#/components/schemas/Company' },
-            relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
-            price: { $ref: '#/components/schemas/Money' },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/Entity' },
-        {
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            supplier: { $ref: '#/components/schemas/Company' },
-            relatedProducts: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
-            price: { $ref: '#/components/schemas/Money' },
-          },
-        },
-      ],
-    }),
+        .openapi({ required: ['name'] }),
+    ),
   )
   .openapi('Product')
 
@@ -396,85 +223,32 @@ const OrderItemSchema: z.ZodType<OrderItemType> = z
     z
       .object({
         product: ProductSchema,
-        quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }),
+        quantity: z.int().min(1),
         unitPrice: MoneySchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['product', 'quantity'],
-        properties: {
-          product: { $ref: '#/components/schemas/Product' },
-          quantity: { type: 'integer', minimum: 1 },
-          unitPrice: { $ref: '#/components/schemas/Money' },
-        },
-      }),
+      .openapi({ required: ['product', 'quantity'] }),
   )
   .openapi('OrderItem')
 
-const OrderStatusSchema = z
-  .enum(['pending', 'paid', 'shipped', 'cancelled'])
-  .openapi({ type: 'string', enum: ['pending', 'paid', 'shipped', 'cancelled'] })
-  .openapi('OrderStatus')
+const OrderStatusSchema = z.enum(['pending', 'paid', 'shipped', 'cancelled']).openapi('OrderStatus')
 
 const UserSchema: z.ZodType<UserType> = z
   .lazy(() =>
     EntitySchema.and(
       z
         .object({
-          name: z.string().openapi({ type: 'string' }),
-          email: z.email().openapi({ type: 'string', format: 'email' }),
+          name: z.string(),
+          email: z.email(),
           company: CompanySchema.exactOptional(),
           manager: UserSchema.exactOptional(),
-          reports: z
-            .array(UserSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-          addresses: z
-            .array(AddressSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Address' } }),
+          reports: z.array(UserSchema).exactOptional(),
+          addresses: z.array(AddressSchema).exactOptional(),
           preferences: UserPreferencesSchema.exactOptional(),
-          recentOrders: z
-            .array(OrderSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
+          recentOrders: z.array(OrderSchema).exactOptional(),
           links: ResourceLinksSchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['name', 'email'],
-          properties: {
-            name: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-            company: { $ref: '#/components/schemas/Company' },
-            manager: { $ref: '#/components/schemas/User' },
-            reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-            addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
-            preferences: { $ref: '#/components/schemas/UserPreferences' },
-            recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-            links: { $ref: '#/components/schemas/ResourceLinks' },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/Entity' },
-        {
-          type: 'object',
-          required: ['name', 'email'],
-          properties: {
-            name: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-            company: { $ref: '#/components/schemas/Company' },
-            manager: { $ref: '#/components/schemas/User' },
-            reports: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-            addresses: { type: 'array', items: { $ref: '#/components/schemas/Address' } },
-            preferences: { $ref: '#/components/schemas/UserPreferences' },
-            recentOrders: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-            links: { $ref: '#/components/schemas/ResourceLinks' },
-          },
-        },
-      ],
-    }),
+        .openapi({ required: ['name', 'email'] }),
+    ),
   )
   .openapi('User')
 
@@ -482,32 +256,14 @@ const AddressSchema: z.ZodType<AddressType> = z
   .lazy(() =>
     z
       .object({
-        line1: z.string().openapi({ type: 'string' }),
-        line2: z.string().exactOptional().openapi({ type: 'string' }),
-        city: z.string().openapi({ type: 'string' }),
-        country: z.string().exactOptional().openapi({ type: 'string' }),
+        line1: z.string(),
+        line2: z.string().exactOptional(),
+        city: z.string(),
+        country: z.string().exactOptional(),
         geo: GeoPointSchema.exactOptional(),
-        resident: z
-          .xor([UserSchema, PersonSchema])
-          .exactOptional()
-          .openapi({
-            oneOf: [{ $ref: '#/components/schemas/User' }, { $ref: '#/components/schemas/Person' }],
-          }),
+        resident: z.xor([UserSchema, PersonSchema]).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['line1', 'city'],
-        properties: {
-          line1: { type: 'string' },
-          line2: { type: 'string' },
-          city: { type: 'string' },
-          country: { type: 'string' },
-          geo: { $ref: '#/components/schemas/GeoPoint' },
-          resident: {
-            oneOf: [{ $ref: '#/components/schemas/User' }, { $ref: '#/components/schemas/Person' }],
-          },
-        },
-      }),
+      .openapi({ required: ['line1', 'city'] }),
   )
   .openapi('Address')
 
@@ -515,15 +271,7 @@ const AuditLogSchema: z.ZodType<AuditLogType> = z
   .lazy(() =>
     z
       .object({ entity: EntityRefSchema, event: EventSchema, meta: MetaSchema.exactOptional() })
-      .openapi({
-        type: 'object',
-        required: ['entity', 'event'],
-        properties: {
-          entity: { $ref: '#/components/schemas/EntityRef' },
-          event: { $ref: '#/components/schemas/Event' },
-          meta: { $ref: '#/components/schemas/Meta' },
-        },
-      }),
+      .openapi({ required: ['entity', 'event'] }),
   )
   .openapi('AuditLog')
 
@@ -544,48 +292,14 @@ const OrderSchema: z.ZodType<OrderType> = z
         .object({
           buyer: UserSchema,
           status: OrderStatusSchema,
-          items: z
-            .array(OrderItemSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
+          items: z.array(OrderItemSchema),
           shippingAddress: AddressSchema.exactOptional(),
           billingAddress: AddressSchema.exactOptional(),
-          auditTrail: z
-            .array(AuditLogSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/AuditLog' } }),
+          auditTrail: z.array(AuditLogSchema).exactOptional(),
           links: ResourceLinksSchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['buyer', 'status', 'items'],
-          properties: {
-            buyer: { $ref: '#/components/schemas/User' },
-            status: { $ref: '#/components/schemas/OrderStatus' },
-            items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-            shippingAddress: { $ref: '#/components/schemas/Address' },
-            billingAddress: { $ref: '#/components/schemas/Address' },
-            auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
-            links: { $ref: '#/components/schemas/ResourceLinks' },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/Entity' },
-        {
-          type: 'object',
-          required: ['buyer', 'status', 'items'],
-          properties: {
-            buyer: { $ref: '#/components/schemas/User' },
-            status: { $ref: '#/components/schemas/OrderStatus' },
-            items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-            shippingAddress: { $ref: '#/components/schemas/Address' },
-            billingAddress: { $ref: '#/components/schemas/Address' },
-            auditTrail: { type: 'array', items: { $ref: '#/components/schemas/AuditLog' } },
-            links: { $ref: '#/components/schemas/ResourceLinks' },
-          },
-        },
-      ],
-    }),
+        .openapi({ required: ['buyer', 'status', 'items'] }),
+    ),
   )
   .openapi('Order')
 
@@ -594,39 +308,13 @@ const PersonSchema: z.ZodType<PersonType> = z
     EntitySchema.and(
       z
         .object({
-          displayName: z.string().openapi({ type: 'string' }),
+          displayName: z.string(),
           employer: CompanySchema.exactOptional(),
           homeAddress: AddressSchema.exactOptional(),
-          friends: z
-            .array(PersonSchema)
-            .exactOptional()
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Person' } }),
+          friends: z.array(PersonSchema).exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['displayName'],
-          properties: {
-            displayName: { type: 'string' },
-            employer: { $ref: '#/components/schemas/Company' },
-            homeAddress: { $ref: '#/components/schemas/Address' },
-            friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-          },
-        }),
-    ).openapi({
-      allOf: [
-        { $ref: '#/components/schemas/Entity' },
-        {
-          type: 'object',
-          required: ['displayName'],
-          properties: {
-            displayName: { type: 'string' },
-            employer: { $ref: '#/components/schemas/Company' },
-            homeAddress: { $ref: '#/components/schemas/Address' },
-            friends: { type: 'array', items: { $ref: '#/components/schemas/Person' } },
-          },
-        },
-      ],
-    }),
+        .openapi({ required: ['displayName'] }),
+    ),
   )
   .openapi('Person')
 
@@ -664,25 +352,12 @@ type UserPreferencesType = {
 
 const UserPreferencesSchema: z.ZodType<UserPreferencesType> = z
   .lazy(() =>
-    z
-      .object({
-        locale: LocaleSchema.exactOptional(),
-        marketingOptIn: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        theme: z
-          .enum(['light', 'dark', 'system'])
-          .exactOptional()
-          .openapi({ type: 'string', enum: ['light', 'dark', 'system'] }),
-        shadowProfile: UserSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          locale: { $ref: '#/components/schemas/Locale' },
-          marketingOptIn: { type: 'boolean' },
-          theme: { type: 'string', enum: ['light', 'dark', 'system'] },
-          shadowProfile: { $ref: '#/components/schemas/User' },
-        },
-      }),
+    z.object({
+      locale: LocaleSchema.exactOptional(),
+      marketingOptIn: z.boolean().exactOptional(),
+      theme: z.enum(['light', 'dark', 'system']).exactOptional(),
+      shadowProfile: UserSchema.exactOptional(),
+    }),
   )
   .openapi('UserPreferences')
 
@@ -707,24 +382,13 @@ type EntityRefType =
 
 const EventTypeSchema = z
   .enum(['user.created', 'user.updated', 'order.created', 'order.shipped', 'system.alert'])
-  .openapi({
-    type: 'string',
-    enum: ['user.created', 'user.updated', 'order.created', 'order.shipped', 'system.alert'],
-  })
   .openapi('EventType')
 
 const UserEventPayloadSchema: z.ZodType<UserEventPayloadType> = z
   .lazy(() =>
     z
       .object({ user: UserSchema, previous: UserSchema.exactOptional() })
-      .openapi({
-        type: 'object',
-        required: ['user'],
-        properties: {
-          user: { $ref: '#/components/schemas/User' },
-          previous: { $ref: '#/components/schemas/User' },
-        },
-      }),
+      .openapi({ required: ['user'] }),
   )
   .openapi('UserEventPayload')
 
@@ -732,32 +396,15 @@ const OrderEventPayloadSchema: z.ZodType<OrderEventPayloadType> = z
   .lazy(() =>
     z
       .object({ order: OrderSchema, previousStatus: OrderStatusSchema.exactOptional() })
-      .openapi({
-        type: 'object',
-        required: ['order'],
-        properties: {
-          order: { $ref: '#/components/schemas/Order' },
-          previousStatus: { $ref: '#/components/schemas/OrderStatus' },
-        },
-      }),
+      .openapi({ required: ['order'] }),
   )
   .openapi('OrderEventPayload')
 
 const SystemEventPayloadSchema: z.ZodType<SystemEventPayloadType> = z
   .lazy(() =>
     z
-      .object({
-        message: z.string().openapi({ type: 'string' }),
-        related: EntityRefSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['message'],
-        properties: {
-          message: { type: 'string' },
-          related: { $ref: '#/components/schemas/EntityRef' },
-        },
-      }),
+      .object({ message: z.string(), related: EntityRefSchema.exactOptional() })
+      .openapi({ required: ['message'] }),
   )
   .openapi('SystemEventPayload')
 
@@ -776,37 +423,11 @@ const EventSchema: z.ZodType<EventType> = z
     z
       .object({
         type: EventTypeSchema,
-        payload: z
-          .xor([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema])
-          .openapi({
-            oneOf: [
-              { $ref: '#/components/schemas/UserEventPayload' },
-              { $ref: '#/components/schemas/OrderEventPayload' },
-              { $ref: '#/components/schemas/SystemEventPayload' },
-            ],
-          }),
-        causedBy: z
-          .array(EventSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/Event' } }),
+        payload: z.xor([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema]),
+        causedBy: z.array(EventSchema).exactOptional(),
         trace: TraceContextSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'payload'],
-        properties: {
-          type: { $ref: '#/components/schemas/EventType' },
-          payload: {
-            oneOf: [
-              { $ref: '#/components/schemas/UserEventPayload' },
-              { $ref: '#/components/schemas/OrderEventPayload' },
-              { $ref: '#/components/schemas/SystemEventPayload' },
-            ],
-          },
-          causedBy: { type: 'array', items: { $ref: '#/components/schemas/Event' } },
-          trace: { $ref: '#/components/schemas/TraceContext' },
-        },
-      }),
+      .openapi({ required: ['type', 'payload'] }),
   )
   .openapi('Event')
 
@@ -831,57 +452,20 @@ type AuditLogType = {
 const FileSchema = EntitySchema.and(
   z
     .object({
-      name: z.string().openapi({ type: 'string' }),
-      size: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
-      contentType: z.string().exactOptional().openapi({ type: 'string' }),
+      name: z.string(),
+      size: z.int().min(0),
+      contentType: z.string().exactOptional(),
       download: LinkSchema.exactOptional(),
       owner: UserSchema.exactOptional(),
     })
-    .openapi({
-      type: 'object',
-      required: ['name', 'size'],
-      properties: {
-        name: { type: 'string' },
-        size: { type: 'integer', minimum: 0 },
-        contentType: { type: 'string' },
-        download: { $ref: '#/components/schemas/Link' },
-        owner: { $ref: '#/components/schemas/User' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Entity' },
-      {
-        type: 'object',
-        required: ['name', 'size'],
-        properties: {
-          name: { type: 'string' },
-          size: { type: 'integer', minimum: 0 },
-          contentType: { type: 'string' },
-          download: { $ref: '#/components/schemas/Link' },
-          owner: { $ref: '#/components/schemas/User' },
-        },
-      },
-    ],
-  })
-  .openapi('File')
+    .openapi({ required: ['name', 'size'] }),
+).openapi('File')
 
 const SecretRefSchema: z.ZodType<SecretRefType> = z
   .lazy(() =>
     z
-      .object({
-        secretId: z.string().openapi({ type: 'string' }),
-        rotation: SecretRotationSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        required: ['secretId'],
-        properties: {
-          secretId: { type: 'string' },
-          rotation: { $ref: '#/components/schemas/SecretRotation' },
-        },
-      }),
+      .object({ secretId: z.string(), rotation: SecretRotationSchema.exactOptional() })
+      .openapi({ required: ['secretId'] }),
   )
   .openapi('SecretRef')
 
@@ -893,20 +477,11 @@ type SecretRotationType = {
 
 const SecretRotationSchema: z.ZodType<SecretRotationType> = z
   .lazy(() =>
-    z
-      .object({
-        next: SecretRefSchema.exactOptional(),
-        previous: SecretRefSchema.exactOptional(),
-        meta: MetaSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          next: { $ref: '#/components/schemas/SecretRef' },
-          previous: { $ref: '#/components/schemas/SecretRef' },
-          meta: { $ref: '#/components/schemas/Meta' },
-        },
-      }),
+    z.object({
+      next: SecretRefSchema.exactOptional(),
+      previous: SecretRefSchema.exactOptional(),
+      meta: MetaSchema.exactOptional(),
+    }),
   )
   .openapi('SecretRotation')
 
@@ -915,97 +490,40 @@ type SecretRefType = { secretId: string; rotation?: z.infer<typeof SecretRotatio
 const WebhookSubscriptionSchema = EntitySchema.and(
   z
     .object({
-      callbackUrl: z.url().openapi({ type: 'string', format: 'uri' }),
-      events: z
-        .array(EventTypeSchema)
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/EventType' } }),
+      callbackUrl: z.url(),
+      events: z.array(EventTypeSchema),
       secret: SecretRefSchema.exactOptional(),
       lastEvent: EventSchema.exactOptional(),
     })
-    .openapi({
-      type: 'object',
-      required: ['callbackUrl', 'events'],
-      properties: {
-        callbackUrl: { type: 'string', format: 'uri' },
-        events: { type: 'array', items: { $ref: '#/components/schemas/EventType' } },
-        secret: { $ref: '#/components/schemas/SecretRef' },
-        lastEvent: { $ref: '#/components/schemas/Event' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Entity' },
-      {
-        type: 'object',
-        required: ['callbackUrl', 'events'],
-        properties: {
-          callbackUrl: { type: 'string', format: 'uri' },
-          events: { type: 'array', items: { $ref: '#/components/schemas/EventType' } },
-          secret: { $ref: '#/components/schemas/SecretRef' },
-          lastEvent: { $ref: '#/components/schemas/Event' },
-        },
-      },
-    ],
-  })
-  .openapi('WebhookSubscription')
+    .openapi({ required: ['callbackUrl', 'events'] }),
+).openapi('WebhookSubscription')
 
 const WebhookEventSchema = z
   .object({ subscription: WebhookSubscriptionSchema, event: EventSchema })
-  .openapi({
-    type: 'object',
-    required: ['subscription', 'event'],
-    properties: {
-      subscription: { $ref: '#/components/schemas/WebhookSubscription' },
-      event: { $ref: '#/components/schemas/Event' },
-    },
-  })
+  .openapi({ required: ['subscription', 'event'] })
   .openapi('WebhookEvent')
 
 const TokenRequestSchema = z
   .object({
-    grantType: z
-      .enum(['client_credentials', 'refresh_token'])
-      .openapi({ type: 'string', enum: ['client_credentials', 'refresh_token'] }),
-    clientId: z.string().exactOptional().openapi({ type: 'string' }),
-    clientSecret: z.string().exactOptional().openapi({ type: 'string' }),
-    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
+    grantType: z.enum(['client_credentials', 'refresh_token']),
+    clientId: z.string().exactOptional(),
+    clientSecret: z.string().exactOptional(),
+    refreshToken: z.string().exactOptional(),
     trace: TraceContextSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['grantType'],
-    properties: {
-      grantType: { type: 'string', enum: ['client_credentials', 'refresh_token'] },
-      clientId: { type: 'string' },
-      clientSecret: { type: 'string' },
-      refreshToken: { type: 'string' },
-      trace: { $ref: '#/components/schemas/TraceContext' },
-    },
-  })
+  .openapi({ required: ['grantType'] })
   .openapi('TokenRequest')
 
 const TokenResponseSchema = z
   .object({
-    accessToken: z.string().openapi({ type: 'string' }),
-    tokenType: z.literal('Bearer').openapi({ type: 'string', enum: ['Bearer'] }),
-    expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
-    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
-    scope: z.string().exactOptional().openapi({ type: 'string' }),
+    accessToken: z.string(),
+    tokenType: z.literal('Bearer'),
+    expiresIn: z.int().exactOptional(),
+    refreshToken: z.string().exactOptional(),
+    scope: z.string().exactOptional(),
     meta: MetaSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['accessToken', 'tokenType'],
-    properties: {
-      accessToken: { type: 'string' },
-      tokenType: { type: 'string', enum: ['Bearer'] },
-      expiresIn: { type: 'integer' },
-      refreshToken: { type: 'string' },
-      scope: { type: 'string' },
-      meta: { $ref: '#/components/schemas/Meta' },
-    },
-  })
+  .openapi({ required: ['accessToken', 'tokenType'] })
   .openapi('TokenResponse')
 
 type ProblemDetailsType = {
@@ -1022,30 +540,15 @@ const ProblemDetailsSchema: z.ZodType<ProblemDetailsType> = z
   .lazy(() =>
     z
       .object({
-        type: z.url().openapi({ type: 'string', format: 'uri' }),
-        title: z.string().openapi({ type: 'string' }),
-        status: z.int().openapi({ type: 'integer' }),
-        detail: z.string().exactOptional().openapi({ type: 'string' }),
-        instance: z.string().exactOptional().openapi({ type: 'string', format: 'uri-reference' }),
+        type: z.url(),
+        title: z.string(),
+        status: z.int(),
+        detail: z.string().exactOptional(),
+        instance: z.string().exactOptional(),
         traceId: TraceIdSchema.exactOptional(),
-        causes: z
-          .array(ProblemDetailsSchema)
-          .exactOptional()
-          .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProblemDetails' } }),
+        causes: z.array(ProblemDetailsSchema).exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['type', 'title', 'status'],
-        properties: {
-          type: { type: 'string', format: 'uri' },
-          title: { type: 'string' },
-          status: { type: 'integer' },
-          detail: { type: 'string' },
-          instance: { type: 'string', format: 'uri-reference' },
-          traceId: { $ref: '#/components/schemas/TraceId' },
-          causes: { type: 'array', items: { $ref: '#/components/schemas/ProblemDetails' } },
-        },
-      }),
+      .openapi({ required: ['type', 'title', 'status'] }),
   )
   .openapi('ProblemDetails')
 
@@ -1060,115 +563,52 @@ const FieldErrorSchema: z.ZodType<FieldErrorType> = z
   .lazy(() =>
     z
       .object({
-        path: z.string().openapi({ type: 'string' }),
-        message: z.string().openapi({ type: 'string' }),
+        path: z.string(),
+        message: z.string(),
         nested: FieldErrorSchema.exactOptional(),
         problem: ProblemDetailsSchema.exactOptional(),
       })
-      .openapi({
-        type: 'object',
-        required: ['path', 'message'],
-        properties: {
-          path: { type: 'string' },
-          message: { type: 'string' },
-          nested: { $ref: '#/components/schemas/FieldError' },
-          problem: { $ref: '#/components/schemas/ProblemDetails' },
-        },
-      }),
+      .openapi({ required: ['path', 'message'] }),
   )
   .openapi('FieldError')
 
 const ValidationProblemDetailsSchema = ProblemDetailsSchema.and(
-  z
-    .object({
-      errors: z
-        .array(FieldErrorSchema)
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/FieldError' } }),
-    })
-    .openapi({
-      type: 'object',
-      required: ['errors'],
-      properties: { errors: { type: 'array', items: { $ref: '#/components/schemas/FieldError' } } },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/ProblemDetails' },
-      {
-        type: 'object',
-        required: ['errors'],
-        properties: {
-          errors: { type: 'array', items: { $ref: '#/components/schemas/FieldError' } },
-        },
-      },
-    ],
-  })
-  .openapi('ValidationProblemDetails')
+  z.object({ errors: z.array(FieldErrorSchema) }).openapi({ required: ['errors'] }),
+).openapi('ValidationProblemDetails')
 
 const UserFilterSchema = z
   .object({
-    kind: z.literal('user').openapi({ type: 'string' }),
-    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
+    kind: z.literal('user'),
+    email: z.email().exactOptional(),
     company: CompanySchema.exactOptional(),
     manager: UserSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: {
-      kind: { type: 'string', const: 'user' },
-      email: { type: 'string', format: 'email' },
-      company: { $ref: '#/components/schemas/Company' },
-      manager: { $ref: '#/components/schemas/User' },
-    },
-  })
+  .openapi({ required: ['kind'] })
   .openapi('UserFilter')
 
 const OrderFilterSchema = z
   .object({
-    kind: z.literal('order').openapi({ type: 'string' }),
+    kind: z.literal('order'),
     status: OrderStatusSchema.exactOptional(),
     buyer: UserSchema.exactOptional(),
     minTotal: MoneySchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: {
-      kind: { type: 'string', const: 'order' },
-      status: { $ref: '#/components/schemas/OrderStatus' },
-      buyer: { $ref: '#/components/schemas/User' },
-      minTotal: { $ref: '#/components/schemas/Money' },
-    },
-  })
+  .openapi({ required: ['kind'] })
   .openapi('OrderFilter')
 
 const CompanyFilterSchema = z
   .object({
-    kind: z.literal('company').openapi({ type: 'string' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
+    kind: z.literal('company'),
+    name: z.string().exactOptional(),
     parent: CompanySchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: {
-      kind: { type: 'string', const: 'company' },
-      name: { type: 'string' },
-      parent: { $ref: '#/components/schemas/Company' },
-    },
-  })
+  .openapi({ required: ['kind'] })
   .openapi('CompanyFilter')
 
 const SearchFilterSchema = z
   .discriminatedUnion('kind', [UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])
   .openapi({
     description: 'Query filter represented as JSON in a query param (evil)',
-    oneOf: [
-      { $ref: '#/components/schemas/UserFilter' },
-      { $ref: '#/components/schemas/OrderFilter' },
-      { $ref: '#/components/schemas/CompanyFilter' },
-    ],
     discriminator: {
       propertyName: 'kind',
       mapping: {
@@ -1244,9 +684,6 @@ const LimitQueryParamParamsSchema = z
       schema: { type: 'integer', minimum: 1, maximum: 200 },
       example: 50,
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 200,
   })
 
 const CursorQueryParamParamsSchema = CursorSchema.exactOptional().openapi({
@@ -1287,8 +724,6 @@ const IncludeQueryParamParamsSchema = z
           style: 'form',
           explode: true,
         },
-        type: 'string',
-        enum: ['company', 'manager', 'reports', 'orders', 'auditTrail', 'graph'],
       }),
   )
   .exactOptional()
@@ -1306,11 +741,6 @@ const IncludeQueryParamParamsSchema = z
       },
       style: 'form',
       explode: true,
-    },
-    type: 'array',
-    items: {
-      type: 'string',
-      enum: ['company', 'manager', 'reports', 'orders', 'auditTrail', 'graph'],
     },
   })
 
@@ -1451,27 +881,11 @@ const UserPrefsExample = {
 const UpdateUserRequestRequestBody = {
   content: {
     'application/json': {
-      schema: z
-        .union([
-          UserSchema,
-          UserPreferencesSchema,
-          z
-            .object({ patch: ProblemDetailsSchema.exactOptional() })
-            .openapi({
-              type: 'object',
-              properties: { patch: { $ref: '#/components/schemas/ProblemDetails' } },
-            }),
-        ])
-        .openapi({
-          anyOf: [
-            { $ref: '#/components/schemas/User' },
-            { $ref: '#/components/schemas/UserPreferences' },
-            {
-              type: 'object',
-              properties: { patch: { $ref: '#/components/schemas/ProblemDetails' } },
-            },
-          ],
-        }),
+      schema: z.union([
+        UserSchema,
+        UserPreferencesSchema,
+        z.object({ patch: ProblemDetailsSchema.exactOptional() }),
+      ]),
       examples: { prefs: UserPrefsExample },
     },
   },
@@ -1611,7 +1025,6 @@ const WwwAuthenticateHeaderHeaderSchema = z
   .openapi({
     description: 'WWW-Authenticate for Bearer',
     example: 'Bearer realm="inferno", error="invalid_token"',
-    type: 'string',
   })
 
 const ProblemUnauthorizedExample = {
@@ -1666,17 +1079,17 @@ const NotFoundResponse = {
 const RateLimitLimitHeaderHeaderSchema = z
   .int()
   .exactOptional()
-  .openapi({ description: 'Rate limit total', example: 1000, type: 'integer' })
+  .openapi({ description: 'Rate limit total', example: 1000 })
 
 const RateLimitRemainingHeaderHeaderSchema = z
   .int()
   .exactOptional()
-  .openapi({ description: 'Rate limit remaining', example: 998, type: 'integer' })
+  .openapi({ description: 'Rate limit remaining', example: 998 })
 
 const RateLimitResetHeaderHeaderSchema = z
   .int()
   .exactOptional()
-  .openapi({ description: 'Rate limit reset epoch seconds', example: 1735689600, type: 'integer' })
+  .openapi({ description: 'Rate limit reset epoch seconds', example: 1735689600 })
 
 const ProblemRateLimitedExample = {
   value: {
@@ -1772,21 +1185,11 @@ const UserListResponse = {
     'application/json': {
       schema: z
         .object({
-          items: z
-            .array(UserSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
+          items: z.array(UserSchema),
           nextCursor: CursorSchema.exactOptional(),
           meta: MetaSchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['items'],
-          properties: {
-            items: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-            nextCursor: { $ref: '#/components/schemas/Cursor' },
-            meta: { $ref: '#/components/schemas/Meta' },
-          },
-        }),
+        .openapi({ required: ['items'] }),
       examples: { list: UserListExample },
     },
   },
@@ -1849,21 +1252,11 @@ const OrderListResponse = {
     'application/json': {
       schema: z
         .object({
-          items: z
-            .array(OrderSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
+          items: z.array(OrderSchema),
           nextCursor: CursorSchema.exactOptional(),
           meta: MetaSchema.exactOptional(),
         })
-        .openapi({
-          type: 'object',
-          required: ['items'],
-          properties: {
-            items: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-            nextCursor: { $ref: '#/components/schemas/Cursor' },
-            meta: { $ref: '#/components/schemas/Meta' },
-          },
-        }),
+        .openapi({ required: ['items'] }),
       examples: { list: OrderListExample },
     },
   },
@@ -1941,18 +1334,10 @@ const SubscriptionLifecycleCallback = {
           headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
           content: {
             'application/json': {
-              schema: z
-                .object({
-                  ok: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-                  next: LinkSchema.exactOptional(),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    ok: { type: 'boolean' },
-                    next: { $ref: '#/components/schemas/Link' },
-                  },
-                }),
+              schema: z.object({
+                ok: z.boolean().exactOptional(),
+                next: LinkSchema.exactOptional(),
+              }),
               examples: { ack: { value: { ok: true, next: { href: '/subscriptions' } } } },
             },
           },
@@ -1974,18 +1359,10 @@ const OrderCreatedCallback = {
           description: 'Ack',
           content: {
             'application/json': {
-              schema: z
-                .object({
-                  ok: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-                  echo: WebhookEventSchema.exactOptional(),
-                })
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    ok: { type: 'boolean' },
-                    echo: { $ref: '#/components/schemas/WebhookEvent' },
-                  },
-                }),
+              schema: z.object({
+                ok: z.boolean().exactOptional(),
+                echo: WebhookEventSchema.exactOptional(),
+              }),
             },
           },
         },

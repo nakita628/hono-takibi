@@ -1,153 +1,65 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const ResponseSchema = z
-  .object({
-    data: z.object({}).exactOptional().openapi({ type: 'object' }),
-    meta: z.object({}).exactOptional().openapi({ type: 'object' }),
-  })
-  .openapi({ type: 'object', properties: { data: { type: 'object' }, meta: { type: 'object' } } })
+  .object({ data: z.object({}).exactOptional(), meta: z.object({}).exactOptional() })
   .openapi('Response')
 
 const JsonApiResponseSchema = z
   .object({
-    data: z
-      .xor([
-        z.object({}).openapi({ type: 'object' }),
-        z
-          .array(z.object({}).openapi({ type: 'object' }))
-          .openapi({ type: 'array', items: { type: 'object' } }),
-      ])
-      .exactOptional()
-      .openapi({ oneOf: [{ type: 'object' }, { type: 'array', items: { type: 'object' } }] }),
-    included: z
-      .array(z.object({}).openapi({ type: 'object' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'object' } }),
-    meta: z.object({}).exactOptional().openapi({ type: 'object' }),
-    links: z.object({}).exactOptional().openapi({ type: 'object' }),
-    jsonapi: z
-      .object({ version: z.string().exactOptional().openapi({ type: 'string' }) })
-      .exactOptional()
-      .openapi({ type: 'object', properties: { version: { type: 'string' } } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      data: { oneOf: [{ type: 'object' }, { type: 'array', items: { type: 'object' } }] },
-      included: { type: 'array', items: { type: 'object' } },
-      meta: { type: 'object' },
-      links: { type: 'object' },
-      jsonapi: { type: 'object', properties: { version: { type: 'string' } } },
-    },
+    data: z.xor([z.object({}), z.array(z.object({}))]).exactOptional(),
+    included: z.array(z.object({})).exactOptional(),
+    meta: z.object({}).exactOptional(),
+    links: z.object({}).exactOptional(),
+    jsonapi: z.object({ version: z.string().exactOptional() }).exactOptional(),
   })
   .openapi('JsonApiResponse')
 
 const HalResponseSchema = z
   .object({
     _links: z
-      .object({
-        self: z
-          .object({ href: z.string().exactOptional().openapi({ type: 'string' }) })
-          .exactOptional()
-          .openapi({ type: 'object', properties: { href: { type: 'string' } } }),
-      })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: { self: { type: 'object', properties: { href: { type: 'string' } } } },
-      }),
-    _embedded: z.object({}).exactOptional().openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      _links: {
-        type: 'object',
-        properties: { self: { type: 'object', properties: { href: { type: 'string' } } } },
-      },
-      _embedded: { type: 'object' },
-    },
+      .object({ self: z.object({ href: z.string().exactOptional() }).exactOptional() })
+      .exactOptional(),
+    _embedded: z.object({}).exactOptional(),
   })
   .openapi('HalResponse')
 
 const ProblemResponseSchema = z
   .object({
-    type: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    title: z.string().exactOptional().openapi({ type: 'string' }),
-    status: z.int().exactOptional().openapi({ type: 'integer' }),
-    detail: z.string().exactOptional().openapi({ type: 'string' }),
-    instance: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      type: { type: 'string', format: 'uri' },
-      title: { type: 'string' },
-      status: { type: 'integer' },
-      detail: { type: 'string' },
-      instance: { type: 'string', format: 'uri' },
-    },
+    type: z.url().exactOptional(),
+    title: z.string().exactOptional(),
+    status: z.int().exactOptional(),
+    detail: z.string().exactOptional(),
+    instance: z.url().exactOptional(),
   })
   .openapi('ProblemResponse')
 
 const StreamItemSchema = z
   .object({
-    id: z.string().exactOptional().openapi({ type: 'string' }),
-    data: z.object({}).exactOptional().openapi({ type: 'object' }),
-    timestamp: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      data: { type: 'object' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
+    id: z.string().exactOptional(),
+    data: z.object({}).exactOptional(),
+    timestamp: z.iso.datetime().exactOptional(),
   })
   .openapi('StreamItem')
 
 const EncodedContentSchema = z
   .object({
-    plainText: z.string().exactOptional().openapi({ type: 'string' }),
-    base64: z.string().exactOptional().openapi({ type: 'string' }),
+    plainText: z.string().exactOptional(),
+    base64: z.string().exactOptional(),
     quotedPrintable: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: 'Quoted-printable encoded' }),
+      .openapi({ description: 'Quoted-printable encoded' }),
     hexEncoded: z
       .string()
       .regex(/^[0-9a-fA-F]+$/)
-      .exactOptional()
-      .openapi({ type: 'string', pattern: '^[0-9a-fA-F]+$' }),
-    urlEncoded: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'URL encoded string' }),
-    htmlEncoded: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'HTML entity encoded' }),
-    jsonEscaped: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'JSON escaped string' }),
+      .exactOptional(),
+    urlEncoded: z.string().exactOptional().openapi({ description: 'URL encoded string' }),
+    htmlEncoded: z.string().exactOptional().openapi({ description: 'HTML entity encoded' }),
+    jsonEscaped: z.string().exactOptional().openapi({ description: 'JSON escaped string' }),
     unicodeEscaped: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', description: 'Unicode escaped (\\uXXXX)' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      plainText: { type: 'string' },
-      base64: { type: 'string' },
-      quotedPrintable: { type: 'string', description: 'Quoted-printable encoded' },
-      hexEncoded: { type: 'string', pattern: '^[0-9a-fA-F]+$' },
-      urlEncoded: { type: 'string', description: 'URL encoded string' },
-      htmlEncoded: { type: 'string', description: 'HTML entity encoded' },
-      jsonEscaped: { type: 'string', description: 'JSON escaped string' },
-      unicodeEscaped: { type: 'string', description: 'Unicode escaped (\\uXXXX)' },
-    },
+      .openapi({ description: 'Unicode escaped (\\uXXXX)' }),
   })
   .openapi('EncodedContent')
 
@@ -159,175 +71,40 @@ export const postEncodingTestRoute = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: z
-            .object({
-              simpleString: z.string().exactOptional().openapi({ type: 'string' }),
-              arrayExplode: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              arrayNoExplode: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              objectForm: z
-                .object({
-                  key1: z.string().exactOptional().openapi({ type: 'string' }),
-                  key2: z.int().exactOptional().openapi({ type: 'integer' }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: { key1: { type: 'string' }, key2: { type: 'integer' } },
-                }),
-              objectDeepObject: z
-                .object({
-                  nested: z
-                    .object({ deep: z.string().exactOptional().openapi({ type: 'string' }) })
-                    .exactOptional()
-                    .openapi({ type: 'object', properties: { deep: { type: 'string' } } }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    nested: { type: 'object', properties: { deep: { type: 'string' } } },
-                  },
-                }),
-              imageFile: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-              documentFile: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-              jsonString: z
-                .object({ data: z.string().exactOptional().openapi({ type: 'string' }) })
-                .exactOptional()
-                .openapi({ type: 'object', properties: { data: { type: 'string' } } }),
-              base64Data: z.string().exactOptional().openapi({ type: 'string', format: 'byte' }),
-              multipleFiles: z
-                .array(z.file().openapi({ type: 'string', format: 'binary' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string', format: 'binary' } }),
-              complexNested: z
-                .object({
-                  level1: z
-                    .object({
-                      level2: z
-                        .object({
-                          value: z.string().exactOptional().openapi({ type: 'string' }),
-                          array: z
-                            .array(z.int().openapi({ type: 'integer' }))
-                            .exactOptional()
-                            .openapi({ type: 'array', items: { type: 'integer' } }),
-                        })
-                        .exactOptional()
-                        .openapi({
-                          type: 'object',
-                          properties: {
-                            value: { type: 'string' },
-                            array: { type: 'array', items: { type: 'integer' } },
-                          },
-                        }),
-                    })
-                    .exactOptional()
-                    .openapi({
-                      type: 'object',
-                      properties: {
-                        level2: {
-                          type: 'object',
-                          properties: {
-                            value: { type: 'string' },
-                            array: { type: 'array', items: { type: 'integer' } },
-                          },
-                        },
-                      },
-                    }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    level1: {
-                      type: 'object',
-                      properties: {
-                        level2: {
-                          type: 'object',
-                          properties: {
-                            value: { type: 'string' },
-                            array: { type: 'array', items: { type: 'integer' } },
-                          },
-                        },
-                      },
-                    },
-                  },
-                }),
-              arrayOfObjects: z
-                .array(
-                  z
-                    .object({
-                      id: z.int().exactOptional().openapi({ type: 'integer' }),
-                      name: z.string().exactOptional().openapi({ type: 'string' }),
-                    })
-                    .openapi({
-                      type: 'object',
-                      properties: { id: { type: 'integer' }, name: { type: 'string' } },
-                    }),
-                )
-                .exactOptional()
-                .openapi({
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: { id: { type: 'integer' }, name: { type: 'string' } },
-                  },
-                }),
-              partWithHeaders: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                simpleString: { type: 'string' },
-                arrayExplode: { type: 'array', items: { type: 'string' } },
-                arrayNoExplode: { type: 'array', items: { type: 'string' } },
-                objectForm: {
-                  type: 'object',
-                  properties: { key1: { type: 'string' }, key2: { type: 'integer' } },
-                },
-                objectDeepObject: {
-                  type: 'object',
-                  properties: {
-                    nested: { type: 'object', properties: { deep: { type: 'string' } } },
-                  },
-                },
-                imageFile: { type: 'string', format: 'binary' },
-                documentFile: { type: 'string', format: 'binary' },
-                jsonString: { type: 'object', properties: { data: { type: 'string' } } },
-                base64Data: { type: 'string', format: 'byte' },
-                multipleFiles: { type: 'array', items: { type: 'string', format: 'binary' } },
-                complexNested: {
-                  type: 'object',
-                  properties: {
-                    level1: {
-                      type: 'object',
-                      properties: {
-                        level2: {
-                          type: 'object',
-                          properties: {
-                            value: { type: 'string' },
-                            array: { type: 'array', items: { type: 'integer' } },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-                arrayOfObjects: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: { id: { type: 'integer' }, name: { type: 'string' } },
-                  },
-                },
-                partWithHeaders: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            simpleString: z.string().exactOptional(),
+            arrayExplode: z.array(z.string()).exactOptional(),
+            arrayNoExplode: z.array(z.string()).exactOptional(),
+            objectForm: z
+              .object({ key1: z.string().exactOptional(), key2: z.int().exactOptional() })
+              .exactOptional(),
+            objectDeepObject: z
+              .object({ nested: z.object({ deep: z.string().exactOptional() }).exactOptional() })
+              .exactOptional(),
+            imageFile: z.file().exactOptional(),
+            documentFile: z.file().exactOptional(),
+            jsonString: z.object({ data: z.string().exactOptional() }).exactOptional(),
+            base64Data: z.string().exactOptional(),
+            multipleFiles: z.array(z.file()).exactOptional(),
+            complexNested: z
+              .object({
+                level1: z
+                  .object({
+                    level2: z
+                      .object({
+                        value: z.string().exactOptional(),
+                        array: z.array(z.int()).exactOptional(),
+                      })
+                      .exactOptional(),
+                  })
+                  .exactOptional(),
+              })
+              .exactOptional(),
+            arrayOfObjects: z
+              .array(z.object({ id: z.int().exactOptional(), name: z.string().exactOptional() }))
+              .exactOptional(),
+            partWithHeaders: z.string().exactOptional(),
+          }),
           encoding: {
             simpleString: { contentType: 'text/plain' },
             arrayExplode: {},
@@ -347,13 +124,9 @@ export const postEncodingTestRoute = createRoute({
             partWithHeaders: {
               contentType: 'text/plain',
               headers: {
-                'X-Custom-Header': {
-                  schema: z.string().exactOptional().openapi({ type: 'string' }),
-                },
-                'Content-Disposition': {
-                  schema: z.string().exactOptional().openapi({ type: 'string' }),
-                },
-                'X-Part-Index': { schema: z.int().exactOptional().openapi({ type: 'integer' }) },
+                'X-Custom-Header': { schema: z.string().exactOptional() },
+                'Content-Disposition': { schema: z.string().exactOptional() },
+                'X-Part-Index': { schema: z.int().exactOptional() },
               },
             },
           },
@@ -381,30 +154,19 @@ export const getContentNegotiationRoute = createRoute({
             required: false,
             schema: { type: 'string', default: 'application/json' },
           },
-          type: 'string',
-          default: 'application/json',
         }),
       'Accept-Language': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } } }),
       'Accept-Encoding': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } } }),
       'Accept-Charset': z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'Accept-Charset', in: 'header', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'Accept-Charset', in: 'header', schema: { type: 'string' } } }),
     }),
   },
   responses: {
@@ -414,10 +176,10 @@ export const getContentNegotiationRoute = createRoute({
         'application/json': { schema: ResponseSchema },
         'application/xml': { schema: ResponseSchema },
         'application/yaml': { schema: ResponseSchema },
-        'text/plain': { schema: z.string().openapi({ type: 'string' }) },
-        'text/html': { schema: z.string().openapi({ type: 'string' }) },
-        'text/csv': { schema: z.string().openapi({ type: 'string' }) },
-        'application/pdf': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+        'text/plain': { schema: z.string() },
+        'text/html': { schema: z.string() },
+        'text/csv': { schema: z.string() },
+        'application/pdf': { schema: z.file() },
         'application/vnd.api+json': { schema: JsonApiResponseSchema },
         'application/hal+json': { schema: HalResponseSchema },
         'application/problem+json': { schema: ProblemResponseSchema },
@@ -433,64 +195,35 @@ export const postBinaryVariationsRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/octet-stream': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
+        'application/octet-stream': { schema: z.file() },
         'application/json': {
-          schema: z
-            .object({
-              data: z
-                .string()
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  format: 'byte',
-                  description: 'Base64 encoded binary data',
-                }),
-              filename: z.string().exactOptional().openapi({ type: 'string' }),
-              mimeType: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                data: { type: 'string', format: 'byte', description: 'Base64 encoded binary data' },
-                filename: { type: 'string' },
-                mimeType: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            data: z.string().exactOptional().openapi({ description: 'Base64 encoded binary data' }),
+            filename: z.string().exactOptional(),
+            mimeType: z.string().exactOptional(),
+          }),
         },
         'multipart/mixed': {
-          schema: z
-            .object({
-              part1: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-              part2: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-              part3: z.file().exactOptional().openapi({ type: 'string', format: 'binary' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                part1: { type: 'string', format: 'binary' },
-                part2: { type: 'string', format: 'binary' },
-                part3: { type: 'string', format: 'binary' },
-              },
-            }),
+          schema: z.object({
+            part1: z.file().exactOptional(),
+            part2: z.file().exactOptional(),
+            part3: z.file().exactOptional(),
+          }),
         },
-        'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/gif': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/webp': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'image/svg+xml': { schema: z.string().openapi({ type: 'string' }) },
-        'audio/mpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'audio/ogg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'audio/wav': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'video/mp4': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'video/webm': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/zip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/gzip': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/x-tar': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/x-7z-compressed': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
+        'image/png': { schema: z.file() },
+        'image/jpeg': { schema: z.file() },
+        'image/gif': { schema: z.file() },
+        'image/webp': { schema: z.file() },
+        'image/svg+xml': { schema: z.string() },
+        'audio/mpeg': { schema: z.file() },
+        'audio/ogg': { schema: z.file() },
+        'audio/wav': { schema: z.file() },
+        'video/mp4': { schema: z.file() },
+        'video/webm': { schema: z.file() },
+        'application/zip': { schema: z.file() },
+        'application/gzip': { schema: z.file() },
+        'application/x-tar': { schema: z.file() },
+        'application/x-7z-compressed': { schema: z.file() },
       },
     },
   },
@@ -508,21 +241,12 @@ export const getStreamingRoute = createRoute({
         'text/event-stream': {
           schema: z
             .string()
-            .openapi({
-              type: 'string',
-              description: 'SSE format:\nevent: message\ndata: {"key": "value"}\n',
-            }),
+            .openapi({ description: 'SSE format:\nevent: message\ndata: {"key": "value"}\n' }),
         },
         'application/x-ndjson': {
-          schema: z
-            .string()
-            .openapi({ type: 'string', description: 'Newline-delimited JSON objects' }),
+          schema: z.string().openapi({ description: 'Newline-delimited JSON objects' }),
         },
-        'application/json': {
-          schema: z
-            .array(StreamItemSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/StreamItem' } }),
-        },
+        'application/json': { schema: z.array(StreamItemSchema) },
       },
     },
   },
@@ -535,10 +259,8 @@ export const postStreamingRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/x-ndjson': { schema: z.string().openapi({ type: 'string' }) },
-        'application/octet-stream': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
+        'application/x-ndjson': { schema: z.string() },
+        'application/octet-stream': { schema: z.file() },
       },
     },
   },
@@ -553,67 +275,26 @@ export const postUrlEncodedComplexRoute = createRoute({
     body: {
       content: {
         'application/x-www-form-urlencoded': {
-          schema: z
-            .object({
-              string: z.string().exactOptional().openapi({ type: 'string' }),
-              number: z.number().exactOptional().openapi({ type: 'number' }),
-              boolean: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-              arrayDefault: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-              arrayExplode: z
-                .array(z.int().openapi({ type: 'integer' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'integer' } }),
-              nested: z
-                .object({
-                  key1: z.string().exactOptional().openapi({ type: 'string' }),
-                  key2: z
-                    .object({ subkey: z.string().exactOptional().openapi({ type: 'string' }) })
-                    .exactOptional()
-                    .openapi({ type: 'object', properties: { subkey: { type: 'string' } } }),
-                })
-                .exactOptional()
-                .openapi({
-                  type: 'object',
-                  properties: {
-                    key1: { type: 'string' },
-                    key2: { type: 'object', properties: { subkey: { type: 'string' } } },
-                  },
-                }),
-              specialChars: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'Should handle & = ? % + space etc.' }),
-              unicode: z.string().exactOptional().openapi({ type: 'string' }),
-              emptyString: z.string().exactOptional().openapi({ type: 'string' }),
-              multiValue: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                string: { type: 'string' },
-                number: { type: 'number' },
-                boolean: { type: 'boolean' },
-                arrayDefault: { type: 'array', items: { type: 'string' } },
-                arrayExplode: { type: 'array', items: { type: 'integer' } },
-                nested: {
-                  type: 'object',
-                  properties: {
-                    key1: { type: 'string' },
-                    key2: { type: 'object', properties: { subkey: { type: 'string' } } },
-                  },
-                },
-                specialChars: { type: 'string', description: 'Should handle & = ? % + space etc.' },
-                unicode: { type: 'string' },
-                emptyString: { type: 'string' },
-                multiValue: { type: 'array', items: { type: 'string' } },
-              },
-            }),
+          schema: z.object({
+            string: z.string().exactOptional(),
+            number: z.number().exactOptional(),
+            boolean: z.boolean().exactOptional(),
+            arrayDefault: z.array(z.string()).exactOptional(),
+            arrayExplode: z.array(z.int()).exactOptional(),
+            nested: z
+              .object({
+                key1: z.string().exactOptional(),
+                key2: z.object({ subkey: z.string().exactOptional() }).exactOptional(),
+              })
+              .exactOptional(),
+            specialChars: z
+              .string()
+              .exactOptional()
+              .openapi({ description: 'Should handle & = ? % + space etc.' }),
+            unicode: z.string().exactOptional(),
+            emptyString: z.string().exactOptional(),
+            multiValue: z.array(z.string()).exactOptional(),
+          }),
           encoding: { arrayDefault: {}, arrayExplode: {}, nested: {} },
         },
       },
@@ -631,16 +312,13 @@ export const getResponseEncodingRoute = createRoute({
       description: 'Response with various encodings',
       headers: z.object({
         'Content-Encoding': {
-          schema: z
-            .enum(['gzip', 'deflate', 'br', 'identity'])
-            .exactOptional()
-            .openapi({ type: 'string', enum: ['gzip', 'deflate', 'br', 'identity'] }),
+          schema: z.enum(['gzip', 'deflate', 'br', 'identity']).exactOptional(),
         },
-        'Content-Type': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-        'Content-Language': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-        'Content-Disposition': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-        'Transfer-Encoding': { schema: z.string().exactOptional().openapi({ type: 'string' }) },
-        Vary: { schema: z.string().exactOptional().openapi({ type: 'string' }) },
+        'Content-Type': { schema: z.string().exactOptional() },
+        'Content-Language': { schema: z.string().exactOptional() },
+        'Content-Disposition': { schema: z.string().exactOptional() },
+        'Transfer-Encoding': { schema: z.string().exactOptional() },
+        Vary: { schema: z.string().exactOptional() },
       }),
       content: { 'application/json': { schema: ResponseSchema } },
     },
@@ -655,28 +333,15 @@ export const postSchemaEncodingRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              base64Field: z.string().exactOptional().openapi({ type: 'string' }),
-              base64urlField: z.string().exactOptional().openapi({ type: 'string' }),
-              jsonString: z.string().exactOptional().openapi({ type: 'string' }),
-              xmlString: z.string().exactOptional().openapi({ type: 'string' }),
-              embeddedJson: z.string().exactOptional().openapi({ type: 'string' }),
-              binaryData: z.string().exactOptional().openapi({ type: 'string' }),
-              imageData: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                base64Field: { type: 'string' },
-                base64urlField: { type: 'string' },
-                jsonString: { type: 'string' },
-                xmlString: { type: 'string' },
-                embeddedJson: { type: 'string' },
-                binaryData: { type: 'string' },
-                imageData: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            base64Field: z.string().exactOptional(),
+            base64urlField: z.string().exactOptional(),
+            jsonString: z.string().exactOptional(),
+            xmlString: z.string().exactOptional(),
+            embeddedJson: z.string().exactOptional(),
+            binaryData: z.string().exactOptional(),
+            imageData: z.string().exactOptional(),
+          }),
         },
       },
     },

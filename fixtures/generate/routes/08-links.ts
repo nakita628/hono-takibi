@@ -2,151 +2,56 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    customerId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    paymentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
-      .openapi({
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-      }),
-    total: z.float64().openapi({ type: 'number', format: 'float64' }),
-    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    customerId: z.uuid(),
+    paymentId: z.uuid().exactOptional(),
+    status: z.enum(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']),
+    total: z.float64(),
+    createdAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'customerId', 'status', 'total'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      customerId: { type: 'string', format: 'uuid' },
-      paymentId: { type: 'string', format: 'uuid' },
-      status: {
-        type: 'string',
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
-      },
-      total: { type: 'number', format: 'float64' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'customerId', 'status', 'total'] })
   .openapi('Order')
 
 const OrderItemSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productName: z.string().exactOptional().openapi({ type: 'string' }),
-    quantity: z.int32().openapi({ type: 'integer', format: 'int32' }),
-    price: z.float64().openapi({ type: 'number', format: 'float64' }),
+    id: z.uuid(),
+    productId: z.uuid(),
+    productName: z.string().exactOptional(),
+    quantity: z.int32(),
+    price: z.float64(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'productId', 'quantity', 'price'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      productId: { type: 'string', format: 'uuid' },
-      productName: { type: 'string' },
-      quantity: { type: 'integer', format: 'int32' },
-      price: { type: 'number', format: 'float64' },
-    },
-  })
+  .openapi({ required: ['id', 'productId', 'quantity', 'price'] })
   .openapi('OrderItem')
 
 const CustomerSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'email'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-    },
-  })
+  .object({ id: z.uuid(), email: z.email(), name: z.string().exactOptional() })
+  .openapi({ required: ['id', 'email'] })
   .openapi('Customer')
 
 const PaymentSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    amount: z.float64().openapi({ type: 'number', format: 'float64' }),
-    status: z
-      .enum(['pending', 'completed', 'failed', 'refunded'])
-      .openapi({ type: 'string', enum: ['pending', 'completed', 'failed', 'refunded'] }),
-    method: z
-      .enum(['credit_card', 'debit_card', 'paypal', 'bank_transfer'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'] }),
+    id: z.uuid(),
+    orderId: z.uuid(),
+    amount: z.float64(),
+    status: z.enum(['pending', 'completed', 'failed', 'refunded']),
+    method: z.enum(['credit_card', 'debit_card', 'paypal', 'bank_transfer']).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'orderId', 'amount', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      orderId: { type: 'string', format: 'uuid' },
-      amount: { type: 'number', format: 'float64' },
-      status: { type: 'string', enum: ['pending', 'completed', 'failed', 'refunded'] },
-      method: { type: 'string', enum: ['credit_card', 'debit_card', 'paypal', 'bank_transfer'] },
-    },
-  })
+  .openapi({ required: ['id', 'orderId', 'amount', 'status'] })
   .openapi('Payment')
 
 const CreateOrderInputSchema = z
   .object({
-    customerId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+    customerId: z.uuid(),
     items: z
       .array(
         z
-          .object({
-            productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-            quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['productId', 'quantity'],
-            properties: {
-              productId: { type: 'string', format: 'uuid' },
-              quantity: { type: 'integer', minimum: 1 },
-            },
-          }),
+          .object({ productId: z.uuid(), quantity: z.int().min(1) })
+          .openapi({ required: ['productId', 'quantity'] }),
       )
       .min(1)
-      .openapi({
-        type: 'array',
-        minItems: 1,
-        items: {
-          type: 'object',
-          required: ['productId', 'quantity'],
-          properties: {
-            productId: { type: 'string', format: 'uuid' },
-            quantity: { type: 'integer', minimum: 1 },
-          },
-        },
-      }),
+      .openapi({ minItems: 1 }),
   })
-  .openapi({
-    type: 'object',
-    required: ['customerId', 'items'],
-    properties: {
-      customerId: { type: 'string', format: 'uuid' },
-      items: {
-        type: 'array',
-        minItems: 1,
-        items: {
-          type: 'object',
-          required: ['productId', 'quantity'],
-          properties: {
-            productId: { type: 'string', format: 'uuid' },
-            quantity: { type: 'integer', minimum: 1 },
-          },
-        },
-      },
-    },
-  })
+  .openapi({ required: ['customerId', 'items'] })
   .openapi('CreateOrderInput')
 
 const GetOrderByIdLink = {
@@ -218,8 +123,6 @@ export const getOrdersOrderIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -252,8 +155,6 @@ export const deleteOrdersOrderIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -275,21 +176,13 @@ export const getOrdersOrderIdItemsRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
   responses: {
     200: {
       description: 'Order items',
-      content: {
-        'application/json': {
-          schema: z
-            .array(OrderItemSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(OrderItemSchema) } },
       links: { GetOrder: GetOrderByIdLink },
     },
   },
@@ -310,8 +203,6 @@ export const getCustomersCustomerIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -339,21 +230,13 @@ export const getCustomersCustomerIdOrdersRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
   responses: {
     200: {
       description: 'Customer orders',
-      content: {
-        'application/json': {
-          schema: z
-            .array(OrderSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(OrderSchema) } },
     },
   },
 })
@@ -373,8 +256,6 @@ export const getPaymentsPaymentIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
