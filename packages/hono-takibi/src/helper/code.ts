@@ -8,7 +8,7 @@ export type ImportTarget = {
 }
 
 export type ComponentImports = {
-  readonly [key: string]: ImportTarget | undefined
+  readonly [k: string]: ImportTarget
 }
 
 /**
@@ -64,7 +64,15 @@ const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: s
 export function makeImports(
   code: string,
   fromFile: string,
-  components: ComponentImports | undefined,
+  components:
+    | {
+        readonly [k: string]: {
+          readonly output: string | `${string}.ts`
+          readonly split?: boolean
+          readonly import?: string
+        }
+      }
+    | undefined,
   isRoute: boolean,
   prefix = '.',
 ): string {

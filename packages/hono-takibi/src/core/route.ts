@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
-import type { ComponentImports } from '../helper/index.js'
 import { core, makeBarell, makeImports } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { lowerFirst } from '../utils/index.js'
@@ -11,7 +10,13 @@ export async function route(
     readonly output: string | `${string}.ts`
     readonly split?: boolean
   },
-  components?: ComponentImports,
+  components?: {
+    readonly [k: string]: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+  },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

@@ -61,9 +61,8 @@ export async function honoTakibi(): Promise<
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const zo = c['zod-openapi']
-  const components = zo?.components
-  const schemaTarget = components?.schemas
+  const zodOpenAPI = c['zod-openapi']
+  const components = zodOpenAPI?.components
 
   const [
     takibiResult,
@@ -80,20 +79,20 @@ export async function honoTakibi(): Promise<
     typeResult,
     rpcResult,
   ] = await Promise.all([
-    zo?.output
-      ? takibi(openAPI, zo.output, false, false, '/', {
-          exportSchemasTypes: zo.exportSchemasTypes ?? false,
-          exportSchemas: zo.exportSchemas ?? false,
-          exportParametersTypes: zo.exportParametersTypes ?? false,
-          exportParameters: zo.exportParameters ?? false,
-          exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
-          exportRequestBodies: zo.exportRequestBodies ?? false,
-          exportResponses: zo.exportResponses ?? false,
-          exportHeadersTypes: zo.exportHeadersTypes ?? false,
-          exportHeaders: zo.exportHeaders ?? false,
-          exportExamples: zo.exportExamples ?? false,
-          exportLinks: zo.exportLinks ?? false,
-          exportCallbacks: zo.exportCallbacks ?? false,
+    zodOpenAPI?.output
+      ? takibi(openAPI, zodOpenAPI.output, false, false, '/', {
+          exportSchemasTypes: zodOpenAPI.exportSchemasTypes ?? false,
+          exportSchemas: zodOpenAPI.exportSchemas ?? false,
+          exportParametersTypes: zodOpenAPI.exportParametersTypes ?? false,
+          exportParameters: zodOpenAPI.exportParameters ?? false,
+          exportSecuritySchemes: zodOpenAPI.exportSecuritySchemes ?? false,
+          exportRequestBodies: zodOpenAPI.exportRequestBodies ?? false,
+          exportResponses: zodOpenAPI.exportResponses ?? false,
+          exportHeadersTypes: zodOpenAPI.exportHeadersTypes ?? false,
+          exportHeaders: zodOpenAPI.exportHeaders ?? false,
+          exportExamples: zodOpenAPI.exportExamples ?? false,
+          exportLinks: zodOpenAPI.exportLinks ?? false,
+          exportCallbacks: zodOpenAPI.exportCallbacks ?? false,
         })
       : Promise.resolve(undefined),
     components?.schemas
@@ -111,7 +110,7 @@ export async function honoTakibi(): Promise<
           components.parameters.output,
           components.parameters.split ?? false,
           components.parameters.exportTypes ?? false,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.headers
@@ -121,7 +120,7 @@ export async function honoTakibi(): Promise<
           components.headers.output,
           components.headers.split ?? false,
           components.headers.exportTypes ?? false,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.examples
@@ -163,7 +162,7 @@ export async function honoTakibi(): Promise<
           components.requestBodies.output,
           components.requestBodies.split ?? false,
           undefined,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.responses
@@ -173,10 +172,10 @@ export async function honoTakibi(): Promise<
           components.responses.output,
           components.responses.split ?? false,
           undefined,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
-    zo?.routes ? route(openAPI, zo.routes, components) : Promise.resolve(undefined),
+    zodOpenAPI?.routes ? route(openAPI, zodOpenAPI.routes, components) : Promise.resolve(undefined),
     c.type ? type(openAPI, c.type.output) : Promise.resolve(undefined),
     c.rpc
       ? rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
