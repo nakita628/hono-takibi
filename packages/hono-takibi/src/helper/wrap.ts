@@ -110,7 +110,7 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
-  // zodメソッドチェーンで既に表現されるプロパティ（2重管理防止のため除外）
+  // zod method chain already expressed properties (to prevent double management)
   const zodExpressedProps = new Set([
     'type',
     'format',
