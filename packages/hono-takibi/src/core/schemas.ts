@@ -4,7 +4,12 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import { zodType } from '../generator/zod-to-openapi/type/index.js'
 import { analyzeCircularSchemas, core, makeBarell, sortByDependencies } from '../helper/index.js'
 import type { OpenAPI, Schema } from '../openapi/index.js'
-import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
 const findSchemaRefs = (code: string, selfName: string): string[] => {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
@@ -61,11 +66,11 @@ export async function schemas(
           : ''
         const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
 
-        const importZ = `import{z}from'@hono/zod-openapi'`
+        const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
         const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
         const depImports =
           deps.length > 0
-            ? deps.map((d) => `import{${d}Schema}from'./${lowerFirst(d)}'`).join('\n')
+            ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${lowerFirst(d)}`)).join('\n')
             : ''
         const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
         const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
@@ -87,7 +92,7 @@ export async function schemas(
     return { ok: true, value: 'No schemas found' }
   }
 
-  const importCode = `import{z}from'@hono/zod-openapi'`
+  const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const schemaDefinitions = schemasCode({ schemas }, true, exportType)
   const sorted = sortByDependencies(schemaDefinitions)
   const schemaDefinitionsCode = `${importCode}\n\n${sorted}`

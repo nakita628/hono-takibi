@@ -3,10 +3,8 @@ import { headersCode } from '../generator/zod-openapi-hono/openapi/components/he
 import { parametersCode } from '../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { requestBodiesCode } from '../generator/zod-openapi-hono/openapi/components/request-bodies.js'
 import { responsesCode } from '../generator/zod-openapi-hono/openapi/components/responses.js'
-import { makeBarell } from '../helper/barell.js'
 import type { ComponentImports } from '../helper/code.js'
-import { makeFileCodeWithImports } from '../helper/code.js'
-import { core, makeExportConst, makeExports } from '../helper/index.js'
+import { core, makeBarell, makeExportConst, makeExports, makeImports } from '../helper/index.js'
 import type { Components } from '../openapi/index.js'
 import { lowerFirst } from '../utils/index.js'
 
@@ -59,7 +57,7 @@ export async function componentsCore(
   if (suffix in zodCodeGenerators && generator) {
     const prefix = split ? '..' : '.'
     const toFileCode = (code: string, filePath: string) =>
-      makeFileCodeWithImports(code, filePath, imports, prefix)
+      makeImports(code, filePath, imports, false, prefix)
 
     if (split) {
       const outDir = String(output).replace(/\.ts$/, '')

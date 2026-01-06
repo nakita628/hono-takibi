@@ -740,14 +740,9 @@ export function toIdentifierPascalCase(text: string): string {
  * @param options - Optional sorting behavior.
  * @returns Import line or empty string when no names exist.
  */
-export function renderNamedImport(
-  names: readonly string[],
-  spec: string,
-  options?: { readonly sort?: boolean },
-): string {
+export function renderNamedImport(names: readonly string[], spec: string): string {
   const unique = Array.from(new Set(names))
-  const list = options?.sort ? [...unique].sort() : unique
-  return list.length > 0 ? `import{${list.join(',')}}from'${spec}'` : ''
+  return unique.length > 0 ? `import{${unique.join(',')}}from'${spec}'` : ''
 }
 
 /**
