@@ -323,3 +323,189 @@ describe('templateCode (sandbox)', () => {
     }
   })
 })
+
+// Simple OpenAPI for strict tests
+const simpleOpenapi: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'Test', version: 'v1' },
+  paths: {
+    '/test': {
+      get: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+describe('--template mode strict content tests', () => {
+  it('verifies index.ts content with correct import paths', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      const result = await runTakibi(simpleOpenapi, out, { template: true, test: false })
+
+      expect(result).toStrictEqual({ ok: true, value: 'Generated code and template files written' })
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const expectedIndex = `import { swaggerUI } from '@hono/swagger-ui'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRouteHandler } from './handlers'
+import { getTestRoute } from './route'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+if (process.env.NODE_ENV === 'development') {
+  app
+    .doc31('/doc', { openapi: '3.1.0', info: { title: 'Test', version: 'v1' } })
+    .get('/ui', swaggerUI({ url: '/doc' }))
+}
+
+export type AddType = typeof api
+
+export default app
+`
+      expect(indexContent).toBe(expectedIndex)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('verifies handlers/index.ts barrel export content', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      await runTakibi(simpleOpenapi, out, { template: true, test: false })
+
+      const handlersIndexContent = fs.readFileSync(
+        path.join(srcDir, 'handlers', 'index.ts'),
+        'utf-8',
+      )
+      const expectedHandlersIndex = `export * from './test.ts'
+`
+      expect(handlersIndexContent).toBe(expectedHandlersIndex)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('verifies handler file content with correct import path', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      await runTakibi(simpleOpenapi, out, { template: true, test: false })
+
+      const handlerContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.ts'), 'utf-8')
+      const expectedHandler = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getTestRoute } from '../route'
+
+export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) => {}
+`
+      expect(handlerContent).toBe(expectedHandler)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('verifies route.ts content', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      await runTakibi(simpleOpenapi, out, { template: true, test: false })
+
+      const routeContent = fs.readFileSync(path.join(srcDir, 'route.ts'), 'utf-8')
+      const expectedRoute = `import { createRoute, z } from '@hono/zod-openapi'
+
+export const getTestRoute = createRoute({
+  method: 'get',
+  path: '/test',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.object({ id: z.string() }).openapi({ required: ['id'] }) },
+      },
+    },
+  },
+})
+`
+      expect(routeContent).toBe(expectedRoute)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('verifies test file is empty when --test is true', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      await runTakibi(simpleOpenapi, out, { template: true, test: true })
+
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'test.test.ts'))).toBe(true)
+      const testContent = fs.readFileSync(path.join(srcDir, 'handlers', 'test.test.ts'), 'utf-8')
+      expect(testContent).toBe('')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('verifies index.ts with basePath correctly configured', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-strict-'))
+    try {
+      const srcDir = path.join(dir, 'src')
+      fs.mkdirSync(srcDir, { recursive: true })
+
+      const out = path.join(srcDir, 'route.ts') as `${string}.ts`
+      await runTakibi(simpleOpenapi, out, { template: true, test: false, basePath: '/api/v1' })
+
+      const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
+      const expectedIndex = `import { swaggerUI } from '@hono/swagger-ui'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getTestRouteHandler } from './handlers'
+import { getTestRoute } from './route'
+
+const app = new OpenAPIHono().basePath('/api/v1')
+
+export const api = app.openapi(getTestRoute, getTestRouteHandler)
+
+if (process.env.NODE_ENV === 'development') {
+  app
+    .doc31('/doc', { openapi: '3.1.0', info: { title: 'Test', version: 'v1' } })
+    .get('/ui', swaggerUI({ url: '/api/v1/doc' }))
+}
+
+export type AddType = typeof api
+
+export default app
+`
+      expect(indexContent).toBe(expectedIndex)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

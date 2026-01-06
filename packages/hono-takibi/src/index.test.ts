@@ -823,6 +823,188 @@ export const postItemsIdRoute = createRoute({
   })
 })
 
+describe('hono-takibi.config.ts split generation tests', () => {
+  const testDir = 'tmp-config-test'
+
+  beforeEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+    fs.mkdirSync(testDir, { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+  })
+
+  it('generates split schemas with correct import paths', () => {
+    const openAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'Success',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: { id: { type: 'string' }, name: { type: 'string' } },
+            required: ['id'],
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
+    },
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
+
+    // Verify schemas split output
+    const schemasIndex = fs.readFileSync(path.join(testDir, 'src/schemas/index.ts'), 'utf-8')
+    expect(schemasIndex).toBe(`export * from './user'\n`)
+
+    const userSchema = fs.readFileSync(path.join(testDir, 'src/schemas/user.ts'), 'utf-8')
+    expect(userSchema).toBe(`import { z } from '@hono/zod-openapi'
+
+export const UserSchema = z
+  .object({ id: z.string(), name: z.string().exactOptional() })
+  .openapi({ required: ['id'] })
+  .openapi('User')
+`)
+
+    // Verify routes split output with correct import path
+    const routesIndex = fs.readFileSync(path.join(testDir, 'src/routes/index.ts'), 'utf-8')
+    expect(routesIndex).toBe(`export * from './getUsers'\n`)
+
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    expect(getUsersRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
+import { UserSchema } from '@/schemas'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: { description: 'Success', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
+  })
+
+  it('generates split routes and schemas with exportTypes', () => {
+    const openAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'Success',
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: { id: { type: 'integer' } },
+            required: ['id'],
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    components: {
+      schemas: { output: 'src/schemas', split: true, exportTypes: true },
+    },
+    routes: { output: 'src/routes', split: true },
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
+
+    // Verify schemas with exportTypes
+    const itemSchema = fs.readFileSync(path.join(testDir, 'src/schemas/item.ts'), 'utf-8')
+    expect(itemSchema).toBe(`import { z } from '@hono/zod-openapi'
+
+export const ItemSchema = z
+  .object({ id: z.int() })
+  .openapi({ required: ['id'] })
+  .openapi('Item')
+
+export type Item = z.infer<typeof ItemSchema>
+`)
+  })
+
+  it('generates single file output (non-split mode)', () => {
+    const openAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'getTest',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    }
+
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    output: 'src/routes.ts',
+  },
+}`
+
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
+
+    const routesFile = fs.readFileSync(path.join(testDir, 'src/routes.ts'), 'utf-8')
+    expect(routesFile).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getTestRoute = createRoute({
+  method: 'get',
+  path: '/test',
+  operationId: 'getTest',
+  responses: { 200: { description: 'OK' } },
+})
+`)
+  })
+})
+
 describe('cli test', () => {
   let exitSpy: ReturnType<typeof vi.spyOn>
   let logSpy: ReturnType<typeof vi.spyOn>
