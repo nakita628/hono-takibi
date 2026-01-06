@@ -7,7 +7,7 @@ export function zodType(
   cyclicGroup?: ReadonlySet<string>,
 ): string {
   // Check if this is a Record-like type (object with only additionalProperties)
-  // For cyclic groups, use interface to support circular references
+  // For cyclic groups, use index signature syntax to support circular references
   const typeIsObject = Array.isArray(schema.type)
     ? schema.type.includes('object')
     : schema.type === 'object'
@@ -22,7 +22,7 @@ export function zodType(
       typeName,
       cyclicGroup,
     )
-    return `interface ${typeName}Type{[key:string]:${valueType}}`
+    return `type ${typeName}Type={[key:string]:${valueType}}`
   }
 
   return `type ${typeName}Type=${schemaToTypeString(schema, typeName, cyclicGroup)}`
