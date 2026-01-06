@@ -516,7 +516,7 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
  * - Applies coercion for query parameters with number/boolean/date types.
  */
 export function makeParameters(parameters: readonly Parameter[]): {
-  [section: string]: { readonly[k: string]: string }
+  [section: string]: { readonly [k: string]: string }
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     // Initialize section if needed
