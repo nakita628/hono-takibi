@@ -69,8 +69,9 @@ export function zodToOpenAPI(
     if (!schema.oneOf || schema.oneOf.length === 0) {
       return wrap('z.any()', schema, meta)
     }
-    // Check if any oneOf member uses allOf (would create ZodIntersection)
-    const hasAllOf = schema.oneOf.some((s) => s.allOf !== undefined)
+    // Check if any oneOf member is a $ref (could reference allOf schema) or uses allOf directly
+    // ZodIntersection (from allOf) is not compatible with discriminatedUnion
+    const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) => {
       if (s.$ref && Object.keys(s).length === 1) {
         if (s.$ref) {
@@ -80,9 +81,9 @@ export function zodToOpenAPI(
       return zodToOpenAPI(s, meta)
     })
     const discriminator = schema.discriminator?.propertyName
-    // Use z.xor instead of discriminatedUnion when allOf is present (ZodIntersection not compatible)
+    // Use z.xor when $ref is present (referenced schema might use allOf)
     const z =
-      discriminator && !hasAllOf
+      discriminator && !hasRefOrAllOf
         ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}])`
         : `z.xor([${oneOfSchemas.join(',')}])`
     return wrap(z, schema, meta)

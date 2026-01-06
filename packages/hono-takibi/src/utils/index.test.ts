@@ -670,7 +670,7 @@ describe('utils', () => {
       ['foo-bar', 'FooBar'],
       ['foo@bar!baz', 'FooBarBaz'],
       ['post.title', 'PostTitle'],
-      ['テスト', '___'],
+      ['テスト', 'Unnamed37447'],
       ['123startWithNumber', '_123startWithNumber'],
     ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
       expect(toIdentifierPascalCase(input)).toBe(expected)
@@ -720,25 +720,25 @@ export type Limit = z.infer<typeof LimitSchema>`)
     // #1: exportSchema=true, exportType=true
     it.concurrent('zodToOpenAPISchema --export-schema true --export-type true', () => {
       const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', true, true)
-      const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')\n\nexport type Test = z.infer<typeof TestSchema>`
+      const expected = `export const TestSchema=z.object({test:z.string()}).openapi('Test')\n\nexport type Test=z.infer<typeof TestSchema>`
       expect(result).toBe(expected)
     })
     // #2: exportSchema=true, exportType=false
     it.concurrent('zodToOpenAPISchema --export-schema true --export-type false', () => {
       const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', true, false)
-      const expected = `export const TestSchema = z.object({test:z.string()}).openapi('Test')`
+      const expected = `export const TestSchema=z.object({test:z.string()}).openapi('Test')`
       expect(result).toBe(expected)
     })
     // #3: exportSchema=false, exportType=true
     it.concurrent('zodToOpenAPISchema --export-schema false --export-type true', () => {
       const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', false, true)
-      const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')\n\nexport type Test = z.infer<typeof TestSchema>`
+      const expected = `const TestSchema=z.object({test:z.string()}).openapi('Test')\n\nexport type Test=z.infer<typeof TestSchema>`
       expect(result).toBe(expected)
     })
     // #4: exportSchema=false, exportType=false
     it.concurrent('zodToOpenAPISchema --export-schema false --export-type false', () => {
       const result = zodToOpenAPISchema('TestSchema', 'z.object({test:z.string()})', false, false)
-      const expected = `const TestSchema = z.object({test:z.string()}).openapi('Test')`
+      const expected = `const TestSchema=z.object({test:z.string()}).openapi('Test')`
       expect(result).toBe(expected)
     })
   })

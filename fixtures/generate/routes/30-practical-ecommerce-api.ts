@@ -2,546 +2,224 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const CategorySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    slug: z.string().exactOptional().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    parentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    imageUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    productCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string().exactOptional(),
+    description: z.string().exactOptional(),
+    parentId: z.uuid().exactOptional(),
+    imageUrl: z.url().exactOptional(),
+    productCount: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      slug: { type: 'string' },
-      description: { type: 'string' },
-      parentId: { type: 'string', format: 'uuid' },
-      imageUrl: { type: 'string', format: 'uri' },
-      productCount: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['id', 'name'] })
   .openapi('Category')
 
 const ProductImageSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    url: z.url().openapi({ type: 'string', format: 'uri' }),
-    altText: z.string().exactOptional().openapi({ type: 'string' }),
-    isPrimary: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    sortOrder: z.int().exactOptional().openapi({ type: 'integer' }),
+    id: z.string(),
+    url: z.url(),
+    altText: z.string().exactOptional(),
+    isPrimary: z.boolean().exactOptional(),
+    sortOrder: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'url'],
-    properties: {
-      id: { type: 'string' },
-      url: { type: 'string', format: 'uri' },
-      altText: { type: 'string' },
-      isPrimary: { type: 'boolean' },
-      sortOrder: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['id', 'url'] })
   .openapi('ProductImage')
 
 const InventorySchema = z
   .object({
-    quantity: z.int().min(0).openapi({ type: 'integer', minimum: 0 }),
-    reservedQuantity: z.int().min(0).exactOptional().openapi({ type: 'integer', minimum: 0 }),
-    status: z
-      .enum(['in_stock', 'low_stock', 'out_of_stock'])
-      .openapi({ type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] }),
-    lowStockThreshold: z.int().exactOptional().openapi({ type: 'integer' }),
-    trackInventory: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    quantity: z.int().min(0),
+    reservedQuantity: z.int().min(0).exactOptional(),
+    status: z.enum(['in_stock', 'low_stock', 'out_of_stock']),
+    lowStockThreshold: z.int().exactOptional(),
+    trackInventory: z.boolean().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['quantity', 'status'],
-    properties: {
-      quantity: { type: 'integer', minimum: 0 },
-      reservedQuantity: { type: 'integer', minimum: 0 },
-      status: { type: 'string', enum: ['in_stock', 'low_stock', 'out_of_stock'] },
-      lowStockThreshold: { type: 'integer' },
-      trackInventory: { type: 'boolean' },
-    },
-  })
+  .openapi({ required: ['quantity', 'status'] })
   .openapi('Inventory')
 
 const ProductSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
-    compareAtPrice: z
-      .number()
-      .min(0)
-      .exactOptional()
-      .openapi({ type: 'number', minimum: 0, description: '割引前価格' }),
-    sku: z.string().exactOptional().openapi({ type: 'string' }),
-    barcode: z.string().exactOptional().openapi({ type: 'string' }),
+    id: z.uuid(),
+    name: z.string(),
+    description: z.string().exactOptional(),
+    price: z.number().min(0),
+    compareAtPrice: z.number().min(0).exactOptional().openapi({ description: '割引前価格' }),
+    sku: z.string().exactOptional(),
+    barcode: z.string().exactOptional(),
     category: CategorySchema.exactOptional(),
-    images: z
-      .array(ProductImageSchema)
-      .exactOptional()
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProductImage' } }),
-    status: z
-      .enum(['draft', 'active', 'archived'])
-      .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
+    images: z.array(ProductImageSchema).exactOptional(),
+    status: z.enum(['draft', 'active', 'archived']),
     inventory: InventorySchema.exactOptional(),
-    attributes: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    attributes: z.record(z.string(), z.string()).exactOptional(),
+    tags: z.array(z.string()).exactOptional(),
+    createdAt: z.iso.datetime().exactOptional(),
+    updatedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'price', 'status'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      description: { type: 'string' },
-      price: { type: 'number', minimum: 0 },
-      compareAtPrice: { type: 'number', minimum: 0, description: '割引前価格' },
-      sku: { type: 'string' },
-      barcode: { type: 'string' },
-      category: { $ref: '#/components/schemas/Category' },
-      images: { type: 'array', items: { $ref: '#/components/schemas/ProductImage' } },
-      status: { type: 'string', enum: ['draft', 'active', 'archived'] },
-      inventory: { $ref: '#/components/schemas/Inventory' },
-      attributes: { type: 'object', additionalProperties: { type: 'string' } },
-      tags: { type: 'array', items: { type: 'string' } },
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'price', 'status'] })
   .openapi('Product')
 
 const CartItemSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
+    id: z.string(),
     product: ProductSchema,
-    quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }),
-    price: z.number().openapi({ type: 'number' }),
-    total: z.number().openapi({ type: 'number' }),
+    quantity: z.int().min(1),
+    price: z.number(),
+    total: z.number(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'product', 'quantity', 'price', 'total'],
-    properties: {
-      id: { type: 'string' },
-      product: { $ref: '#/components/schemas/Product' },
-      quantity: { type: 'integer', minimum: 1 },
-      price: { type: 'number' },
-      total: { type: 'number' },
-    },
-  })
+  .openapi({ required: ['id', 'product', 'quantity', 'price', 'total'] })
   .openapi('CartItem')
 
 const CartSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    items: z
-      .array(CartItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/CartItem' } }),
-    subtotal: z.number().openapi({ type: 'number' }),
-    discount: z.number().exactOptional().openapi({ type: 'number' }),
-    tax: z.number().exactOptional().openapi({ type: 'number' }),
-    shipping: z.number().exactOptional().openapi({ type: 'number' }),
-    total: z.number().openapi({ type: 'number' }),
-    itemCount: z.int().exactOptional().openapi({ type: 'integer' }),
+    id: z.string(),
+    items: z.array(CartItemSchema),
+    subtotal: z.number(),
+    discount: z.number().exactOptional(),
+    tax: z.number().exactOptional(),
+    shipping: z.number().exactOptional(),
+    total: z.number(),
+    itemCount: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'items', 'subtotal', 'total'],
-    properties: {
-      id: { type: 'string' },
-      items: { type: 'array', items: { $ref: '#/components/schemas/CartItem' } },
-      subtotal: { type: 'number' },
-      discount: { type: 'number' },
-      tax: { type: 'number' },
-      shipping: { type: 'number' },
-      total: { type: 'number' },
-      itemCount: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['id', 'items', 'subtotal', 'total'] })
   .openapi('Cart')
 
 const OrderItemSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    productName: z.string().openapi({ type: 'string' }),
-    sku: z.string().exactOptional().openapi({ type: 'string' }),
-    quantity: z.int().openapi({ type: 'integer' }),
-    price: z.number().openapi({ type: 'number' }),
-    total: z.number().openapi({ type: 'number' }),
-    imageUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    id: z.string(),
+    productId: z.uuid(),
+    productName: z.string(),
+    sku: z.string().exactOptional(),
+    quantity: z.int(),
+    price: z.number(),
+    total: z.number(),
+    imageUrl: z.url().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'productId', 'productName', 'quantity', 'price', 'total'],
-    properties: {
-      id: { type: 'string' },
-      productId: { type: 'string', format: 'uuid' },
-      productName: { type: 'string' },
-      sku: { type: 'string' },
-      quantity: { type: 'integer' },
-      price: { type: 'number' },
-      total: { type: 'number' },
-      imageUrl: { type: 'string', format: 'uri' },
-    },
-  })
+  .openapi({ required: ['id', 'productId', 'productName', 'quantity', 'price', 'total'] })
   .openapi('OrderItem')
 
 const AddressSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    postalCode: z.string().openapi({ type: 'string' }),
-    prefecture: z.string().openapi({ type: 'string' }),
-    city: z.string().openapi({ type: 'string' }),
-    address1: z.string().openapi({ type: 'string' }),
-    address2: z.string().exactOptional().openapi({ type: 'string' }),
-    phone: z.string().exactOptional().openapi({ type: 'string' }),
+    name: z.string(),
+    postalCode: z.string(),
+    prefecture: z.string(),
+    city: z.string(),
+    address1: z.string(),
+    address2: z.string().exactOptional(),
+    phone: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'postalCode', 'prefecture', 'city', 'address1'],
-    properties: {
-      name: { type: 'string' },
-      postalCode: { type: 'string' },
-      prefecture: { type: 'string' },
-      city: { type: 'string' },
-      address1: { type: 'string' },
-      address2: { type: 'string' },
-      phone: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['name', 'postalCode', 'prefecture', 'city', 'address1'] })
   .openapi('Address')
 
 const OrderSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    orderNumber: z.string().openapi({ type: 'string' }),
-    status: z
-      .enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
-      .openapi({
-        type: 'string',
-        enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
-      }),
-    items: z
-      .array(OrderItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/OrderItem' } }),
-    subtotal: z.number().exactOptional().openapi({ type: 'number' }),
-    discount: z.number().exactOptional().openapi({ type: 'number' }),
-    tax: z.number().exactOptional().openapi({ type: 'number' }),
-    shipping: z.number().exactOptional().openapi({ type: 'number' }),
-    total: z.number().openapi({ type: 'number' }),
+    id: z.uuid(),
+    orderNumber: z.string(),
+    status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']),
+    items: z.array(OrderItemSchema),
+    subtotal: z.number().exactOptional(),
+    discount: z.number().exactOptional(),
+    tax: z.number().exactOptional(),
+    shipping: z.number().exactOptional(),
+    total: z.number(),
     shippingAddress: AddressSchema.exactOptional(),
     billingAddress: AddressSchema.exactOptional(),
-    paymentMethod: z.string().exactOptional().openapi({ type: 'string' }),
-    paymentStatus: z
-      .enum(['pending', 'paid', 'failed', 'refunded'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['pending', 'paid', 'failed', 'refunded'] }),
-    notes: z.string().exactOptional().openapi({ type: 'string' }),
-    trackingNumber: z.string().exactOptional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    paymentMethod: z.string().exactOptional(),
+    paymentStatus: z.enum(['pending', 'paid', 'failed', 'refunded']).exactOptional(),
+    notes: z.string().exactOptional(),
+    trackingNumber: z.string().exactOptional(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'orderNumber', 'status', 'items', 'total', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      orderNumber: { type: 'string' },
-      status: {
-        type: 'string',
-        enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
-      },
-      items: { type: 'array', items: { $ref: '#/components/schemas/OrderItem' } },
-      subtotal: { type: 'number' },
-      discount: { type: 'number' },
-      tax: { type: 'number' },
-      shipping: { type: 'number' },
-      total: { type: 'number' },
-      shippingAddress: { $ref: '#/components/schemas/Address' },
-      billingAddress: { $ref: '#/components/schemas/Address' },
-      paymentMethod: { type: 'string' },
-      paymentStatus: { type: 'string', enum: ['pending', 'paid', 'failed', 'refunded'] },
-      notes: { type: 'string' },
-      trackingNumber: { type: 'string' },
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'orderNumber', 'status', 'items', 'total', 'createdAt'] })
   .openapi('Order')
 
 const CreateProductRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    price: z.number().min(0).openapi({ type: 'number', minimum: 0 }),
-    compareAtPrice: z.number().min(0).exactOptional().openapi({ type: 'number', minimum: 0 }),
-    sku: z.string().exactOptional().openapi({ type: 'string' }),
-    barcode: z.string().exactOptional().openapi({ type: 'string' }),
-    categoryId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['draft', 'active'])
-      .default('draft')
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['draft', 'active'], default: 'draft' }),
-    attributes: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    name: z.string().min(1).max(200),
+    description: z.string().exactOptional(),
+    price: z.number().min(0),
+    compareAtPrice: z.number().min(0).exactOptional(),
+    sku: z.string().exactOptional(),
+    barcode: z.string().exactOptional(),
+    categoryId: z.uuid().exactOptional(),
+    status: z.enum(['draft', 'active']).default('draft').exactOptional(),
+    attributes: z.record(z.string(), z.string()).exactOptional(),
+    tags: z.array(z.string()).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'price'],
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 200 },
-      description: { type: 'string' },
-      price: { type: 'number', minimum: 0 },
-      compareAtPrice: { type: 'number', minimum: 0 },
-      sku: { type: 'string' },
-      barcode: { type: 'string' },
-      categoryId: { type: 'string', format: 'uuid' },
-      status: { type: 'string', enum: ['draft', 'active'], default: 'draft' },
-      attributes: { type: 'object', additionalProperties: { type: 'string' } },
-      tags: { type: 'array', items: { type: 'string' } },
-    },
-  })
+  .openapi({ required: ['name', 'price'] })
   .openapi('CreateProductRequest')
 
 const UpdateProductRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(200)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    price: z.number().min(0).exactOptional().openapi({ type: 'number', minimum: 0 }),
-    compareAtPrice: z.number().min(0).exactOptional().openapi({ type: 'number', minimum: 0 }),
-    sku: z.string().exactOptional().openapi({ type: 'string' }),
-    barcode: z.string().exactOptional().openapi({ type: 'string' }),
-    categoryId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    status: z
-      .enum(['draft', 'active', 'archived'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['draft', 'active', 'archived'] }),
-    attributes: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 200 },
-      description: { type: 'string' },
-      price: { type: 'number', minimum: 0 },
-      compareAtPrice: { type: 'number', minimum: 0 },
-      sku: { type: 'string' },
-      barcode: { type: 'string' },
-      categoryId: { type: 'string', format: 'uuid' },
-      status: { type: 'string', enum: ['draft', 'active', 'archived'] },
-      attributes: { type: 'object', additionalProperties: { type: 'string' } },
-      tags: { type: 'array', items: { type: 'string' } },
-    },
+    name: z.string().min(1).max(200).exactOptional(),
+    description: z.string().exactOptional(),
+    price: z.number().min(0).exactOptional(),
+    compareAtPrice: z.number().min(0).exactOptional(),
+    sku: z.string().exactOptional(),
+    barcode: z.string().exactOptional(),
+    categoryId: z.uuid().exactOptional(),
+    status: z.enum(['draft', 'active', 'archived']).exactOptional(),
+    attributes: z.record(z.string(), z.string()).exactOptional(),
+    tags: z.array(z.string()).exactOptional(),
   })
   .openapi('UpdateProductRequest')
 
 const CreateCategoryRequestSchema = z
   .object({
-    name: z.string().openapi({ type: 'string' }),
-    slug: z.string().exactOptional().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    parentId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    name: z.string(),
+    slug: z.string().exactOptional(),
+    description: z.string().exactOptional(),
+    parentId: z.uuid().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name'],
-    properties: {
-      name: { type: 'string' },
-      slug: { type: 'string' },
-      description: { type: 'string' },
-      parentId: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ required: ['name'] })
   .openapi('CreateCategoryRequest')
 
 const AddToCartRequestSchema = z
-  .object({
-    productId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    quantity: z.int().min(1).default(1).openapi({ type: 'integer', minimum: 1, default: 1 }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['productId', 'quantity'],
-    properties: {
-      productId: { type: 'string', format: 'uuid' },
-      quantity: { type: 'integer', minimum: 1, default: 1 },
-    },
-  })
+  .object({ productId: z.uuid(), quantity: z.int().min(1).default(1) })
+  .openapi({ required: ['productId', 'quantity'] })
   .openapi('AddToCartRequest')
 
 const CreateOrderRequestSchema = z
   .object({
     shippingAddress: AddressSchema,
     billingAddress: AddressSchema.exactOptional(),
-    paymentMethod: z
-      .enum(['credit_card', 'bank_transfer', 'convenience_store', 'cod'])
-      .openapi({
-        type: 'string',
-        enum: ['credit_card', 'bank_transfer', 'convenience_store', 'cod'],
-      }),
-    notes: z.string().exactOptional().openapi({ type: 'string' }),
-    couponCode: z.string().exactOptional().openapi({ type: 'string' }),
+    paymentMethod: z.enum(['credit_card', 'bank_transfer', 'convenience_store', 'cod']),
+    notes: z.string().exactOptional(),
+    couponCode: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['shippingAddress', 'paymentMethod'],
-    properties: {
-      shippingAddress: { $ref: '#/components/schemas/Address' },
-      billingAddress: { $ref: '#/components/schemas/Address' },
-      paymentMethod: {
-        type: 'string',
-        enum: ['credit_card', 'bank_transfer', 'convenience_store', 'cod'],
-      },
-      notes: { type: 'string' },
-      couponCode: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['shippingAddress', 'paymentMethod'] })
   .openapi('CreateOrderRequest')
 
 const UpdateInventoryRequestSchema = z
   .object({
-    quantity: z.int().min(0).exactOptional().openapi({ type: 'integer', minimum: 0 }),
-    lowStockThreshold: z.int().exactOptional().openapi({ type: 'integer' }),
-    trackInventory: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      quantity: { type: 'integer', minimum: 0 },
-      lowStockThreshold: { type: 'integer' },
-      trackInventory: { type: 'boolean' },
-    },
+    quantity: z.int().min(0).exactOptional(),
+    lowStockThreshold: z.int().exactOptional(),
+    trackInventory: z.boolean().exactOptional(),
   })
   .openapi('UpdateInventoryRequest')
 
 const PaginationSchema = z
-  .object({
-    page: z.int().openapi({ type: 'integer' }),
-    limit: z.int().openapi({ type: 'integer' }),
-    total: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['page', 'limit', 'total', 'totalPages'],
-    properties: {
-      page: { type: 'integer' },
-      limit: { type: 'integer' },
-      total: { type: 'integer' },
-      totalPages: { type: 'integer' },
-    },
-  })
+  .object({ page: z.int(), limit: z.int(), total: z.int(), totalPages: z.int() })
+  .openapi({ required: ['page', 'limit', 'total', 'totalPages'] })
   .openapi('Pagination')
 
 const ProductListResponseSchema = z
-  .object({
-    data: z
-      .array(ProductSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Product' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(ProductSchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('ProductListResponse')
 
 const OrderListResponseSchema = z
-  .object({
-    data: z
-      .array(OrderSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Order' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(OrderSchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('OrderListResponse')
 
 const ErrorSchema = z
   .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
+    code: z.string(),
+    message: z.string(),
     details: z
-      .array(
-        z
-          .object({
-            field: z.string().exactOptional().openapi({ type: 'string' }),
-            message: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: { field: { type: 'string' }, message: { type: 'string' } },
-          }),
-      )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { field: { type: 'string' }, message: { type: 'string' } },
-        },
-      }),
+      .array(z.object({ field: z.string().exactOptional(), message: z.string().exactOptional() }))
+      .exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: {
-      code: { type: 'string' },
-      message: { type: 'string' },
-      details: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { field: { type: 'string' }, message: { type: 'string' } },
-        },
-      },
-    },
-  })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const ProductIdParamParamsSchema = z
@@ -553,8 +231,6 @@ const ProductIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const OrderIdParamParamsSchema = z
@@ -566,8 +242,6 @@ const OrderIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const PageParamParamsSchema = z
@@ -577,9 +251,6 @@ const PageParamParamsSchema = z
   .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-    type: 'integer',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -594,10 +265,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -637,7 +304,6 @@ export const getProductsRoute = createRoute({
             description: 'カテゴリIDでフィルタ',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       minPrice: z.coerce
         .number()
@@ -650,8 +316,6 @@ export const getProductsRoute = createRoute({
             description: '最低価格',
             schema: { type: 'number', minimum: 0 },
           },
-          type: 'number',
-          minimum: 0,
         }),
       maxPrice: z.coerce
         .number()
@@ -664,8 +328,6 @@ export const getProductsRoute = createRoute({
             description: '最高価格',
             schema: { type: 'number', minimum: 0 },
           },
-          type: 'number',
-          minimum: 0,
         }),
       inStock: z
         .stringbool()
@@ -677,7 +339,6 @@ export const getProductsRoute = createRoute({
             description: '在庫ありのみ',
             schema: { type: 'boolean' },
           },
-          type: 'boolean',
         }),
       search: z
         .string()
@@ -689,7 +350,6 @@ export const getProductsRoute = createRoute({
             description: 'キーワード検索',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       sort: z
         .enum([
@@ -718,15 +378,6 @@ export const getProductsRoute = createRoute({
               ],
             },
           },
-          type: 'string',
-          enum: [
-            'price:asc',
-            'price:desc',
-            'name:asc',
-            'name:desc',
-            'createdAt:desc',
-            'popularity:desc',
-          ],
         }),
     }),
   },
@@ -815,22 +466,8 @@ export const postProductsProductIdImagesRoute = createRoute({
       content: {
         'multipart/form-data': {
           schema: z
-            .object({
-              file: z.file().openapi({ type: 'string', format: 'binary' }),
-              isPrimary: z
-                .boolean()
-                .default(false)
-                .exactOptional()
-                .openapi({ type: 'boolean', default: false }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['file'],
-              properties: {
-                file: { type: 'string', format: 'binary' },
-                isPrimary: { type: 'boolean', default: false },
-              },
-            }),
+            .object({ file: z.file(), isPrimary: z.boolean().default(false).exactOptional() })
+            .openapi({ required: ['file'] }),
         },
       },
       required: true,
@@ -855,13 +492,7 @@ export const getCategoriesRoute = createRoute({
   responses: {
     200: {
       description: 'カテゴリ一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(CategorySchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Category' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(CategorySchema) } },
     },
   },
 })
@@ -937,19 +568,12 @@ export const putCartItemsItemIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'itemId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ quantity: z.int().min(1).openapi({ type: 'integer', minimum: 1 }) })
-            .openapi({
-              type: 'object',
-              required: ['quantity'],
-              properties: { quantity: { type: 'integer', minimum: 1 } },
-            }),
+          schema: z.object({ quantity: z.int().min(1) }).openapi({ required: ['quantity'] }),
         },
       },
       required: true,
@@ -974,7 +598,6 @@ export const deleteCartItemsItemIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'itemId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -1008,8 +631,6 @@ export const getOrdersRoute = createRoute({
               enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
             },
           },
-          type: 'string',
-          enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
         }),
     }),
   },
@@ -1067,17 +688,9 @@ export const postOrdersOrderIdCancelRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              reason: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'キャンセル理由' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { reason: { type: 'string', description: 'キャンセル理由' } },
-            }),
+          schema: z.object({
+            reason: z.string().exactOptional().openapi({ description: 'キャンセル理由' }),
+          }),
         },
       },
     },

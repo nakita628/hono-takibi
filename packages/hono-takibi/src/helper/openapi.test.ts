@@ -74,10 +74,10 @@ describe('openapi helper', () => {
       expect(makeRef('#/unknown/path/Test')).toBe('TestSchema')
     })
     it.concurrent('makeRef with hyphen in name converts to PascalCase', () => {
-      expect(makeRef('#/components/schemas/my-test-schema')).toBe('MyTestSchema')
+      expect(makeRef('#/components/schemas/my-test-schema')).toBe('MyTestSchemaSchema')
     })
     it.concurrent('makeRef with underscore in name converts to PascalCase', () => {
-      expect(makeRef('#/components/schemas/my_test_schema')).toBe('MyTestSchema')
+      expect(makeRef('#/components/schemas/my_test_schema')).toBe('MyTestSchemaSchema')
     })
     it.concurrent('makeRef with multiple URL encoded special characters', () => {
       expect(makeRef('#/components/schemas/Test%2FName%2FPath')).toBe('TestNamePathSchema')
@@ -212,7 +212,7 @@ describe('openapi helper', () => {
         headers: { 'X-Rate-Limit': { schema: { type: 'integer' } } },
       })
       expect(result).toBe(
-        '{description:"Success",headers:z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({"type":"integer"})}})}',
+        '{description:"Success",headers:z.object({"X-Rate-Limit":{schema:z.int().exactOptional()}})}',
       )
     })
     it.concurrent('generates response with content', () => {
@@ -221,7 +221,7 @@ describe('openapi helper', () => {
         content: { 'application/json': { schema: { type: 'string' } } },
       })
       expect(result).toBe(
-        `{description:"Success",content:{'application/json':{schema:z.string().openapi({"type":"string"})}}}`,
+        `{description:"Success",content:{'application/json':{schema:z.string()}}}`,
       )
     })
     it.concurrent('generates response with links', () => {
@@ -247,7 +247,7 @@ describe('openapi helper', () => {
         links: { Next: { operationId: 'getNext' } },
       })
       expect(result).toBe(
-        `{summary:"Sum",description:"Desc",headers:z.object({"X-Custom":{schema:z.string().exactOptional().openapi({"type":"string"})}}),content:{'application/json':{schema:z.object({}).openapi({"type":"object"})}},links:{"Next":{operationId:"getNext"}}}`,
+        `{summary:"Sum",description:"Desc",headers:z.object({"X-Custom":{schema:z.string().exactOptional()}}),content:{'application/json':{schema:z.object({})}},links:{"Next":{operationId:"getNext"}}}`,
       )
     })
     it.concurrent('generates empty response object', () => {
@@ -350,7 +350,7 @@ describe('openapi helper', () => {
       const result = makeContent({
         'application/json': { schema: { type: 'string' } },
       })
-      expect(result).toEqual([`'application/json':{schema:z.string().openapi({"type":"string"})}`])
+      expect(result).toEqual([`'application/json':{schema:z.string()}`])
     })
     it.concurrent('generates content with $ref', () => {
       const result = makeContent({
@@ -364,8 +364,8 @@ describe('openapi helper', () => {
         'application/xml': { schema: { type: 'string' } },
       })
       expect(result).toEqual([
-        `'application/json':{schema:z.string().openapi({"type":"string"})}`,
-        `'application/xml':{schema:z.string().openapi({"type":"string"})}`,
+        `'application/json':{schema:z.string()}`,
+        `'application/xml':{schema:z.string()}`,
       ])
     })
   })
@@ -382,7 +382,7 @@ describe('openapi helper', () => {
         required: true,
       })
       expect(result).toBe(
-        `{description:"User data",content:{'application/json':{schema:z.string().openapi({"type":"string"})}},required:true}`,
+        `{description:"User data",content:{'application/json':{schema:z.string()}},required:true}`,
       )
     })
     it.concurrent('generates request body with description only', () => {
@@ -393,18 +393,14 @@ describe('openapi helper', () => {
       const result = makeRequestBody({
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(
-        `{content:{'application/json':{schema:z.object({}).openapi({"type":"object"})}}}`,
-      )
+      expect(result).toBe(`{content:{'application/json':{schema:z.object({})}}}`)
     })
     it.concurrent('generates request body with required false', () => {
       const result = makeRequestBody({
         content: { 'application/json': { schema: { type: 'string' } } },
         required: false,
       })
-      expect(result).toBe(
-        `{content:{'application/json':{schema:z.string().openapi({"type":"string"})}}}`,
-      )
+      expect(result).toBe(`{content:{'application/json':{schema:z.string()}}}`)
     })
     it.concurrent('generates empty request body', () => {
       const result = makeRequestBody({})
@@ -418,7 +414,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        `{content:{'application/json':{schema:z.object({}).openapi({"type":"object"})},'application/xml':{schema:z.object({}).openapi({"type":"object"})}}}`,
+        `{content:{'application/json':{schema:z.object({})},'application/xml':{schema:z.object({})}}}`,
       )
     })
   })
@@ -426,11 +422,11 @@ describe('openapi helper', () => {
   describe('makeMedia', () => {
     it.concurrent('generates media with schema', () => {
       const result = makeMedia({ schema: { type: 'string' } })
-      expect(result).toBe('{schema:z.string().openapi({"type":"string"})}')
+      expect(result).toBe('{schema:z.string()}')
     })
     it.concurrent('generates media with example', () => {
       const result = makeMedia({ schema: { type: 'string' }, example: 'test' })
-      expect(result).toBe('{schema:z.string().openapi({"type":"string"}),example:"test"}')
+      expect(result).toBe('{schema:z.string(),example:"test"}')
     })
     it.concurrent('generates media with itemSchema', () => {
       const result = makeMedia({
@@ -438,18 +434,14 @@ describe('openapi helper', () => {
         itemSchema: { type: 'string' },
         // biome-ignore lint: test
       } as any)
-      expect(result).toBe(
-        '{schema:z.array(z.string().openapi({"type":"string"})).openapi({"type":"array","items":{"type":"string"}}),itemSchema:z.string().openapi({"type":"string"})}',
-      )
+      expect(result).toBe('{schema:z.array(z.string()),itemSchema:z.string()}')
     })
     it.concurrent('generates media with examples', () => {
       const result = makeMedia({
         schema: { type: 'string' },
         examples: { sample: { value: 'example-value' } },
       })
-      expect(result).toBe(
-        '{schema:z.string().openapi({"type":"string"}),examples:{"sample":{value:"example-value"}}}',
-      )
+      expect(result).toBe('{schema:z.string(),examples:{"sample":{value:"example-value"}}}')
     })
     it.concurrent('generates media with encoding', () => {
       const result = makeMedia({
@@ -457,7 +449,7 @@ describe('openapi helper', () => {
         encoding: { file: { contentType: 'application/octet-stream' } },
       })
       expect(result).toBe(
-        '{schema:z.object({}).openapi({"type":"object"}),encoding:{"file":{contentType:"application/octet-stream"}}}',
+        '{schema:z.object({}),encoding:{"file":{contentType:"application/octet-stream"}}}',
       )
     })
     it.concurrent('generates media with prefixEncoding', () => {
@@ -465,18 +457,14 @@ describe('openapi helper', () => {
         schema: { type: 'object' },
         prefixEncoding: { contentType: 'text/plain' },
       })
-      expect(result).toBe(
-        '{schema:z.object({}).openapi({"type":"object"}),prefixEncoding:{contentType:"text/plain"}}',
-      )
+      expect(result).toBe('{schema:z.object({}),prefixEncoding:{contentType:"text/plain"}}')
     })
     it.concurrent('generates media with itemEncoding', () => {
       const result = makeMedia({
         schema: { type: 'array' },
         itemEncoding: { contentType: 'application/json' },
       })
-      expect(result).toBe(
-        '{schema:z.array(z.any()).openapi({"type":"array"}),itemEncoding:{contentType:"application/json"}}',
-      )
+      expect(result).toBe('{schema:z.array(z.any()),itemEncoding:{contentType:"application/json"}}')
     })
   })
 
@@ -491,7 +479,7 @@ describe('openapi helper', () => {
         headers: { 'Content-Disposition': { schema: { type: 'string' } } },
       })
       expect(result).toBe(
-        'contentType:"multipart/form-data",headers:{"Content-Disposition":{schema:z.string().exactOptional().openapi({"type":"string"})}}',
+        'contentType:"multipart/form-data",headers:{"Content-Disposition":{schema:z.string().exactOptional()}}',
       )
     })
     it.concurrent('generates encoding with nested encoding', () => {
@@ -521,7 +509,7 @@ describe('openapi helper', () => {
         itemEncoding: { contentType: 'application/xml' },
       })
       expect(result).toBe(
-        'contentType:"multipart/form-data",headers:{"X-Custom":{schema:z.string().exactOptional().openapi({"type":"string"})}},encoding:{"part":{contentType:"text/plain"}},prefixEncoding:{contentType:"text/csv"},itemEncoding:{contentType:"application/xml"}',
+        'contentType:"multipart/form-data",headers:{"X-Custom":{schema:z.string().exactOptional()}},encoding:{"part":{contentType:"text/plain"}},prefixEncoding:{contentType:"text/csv"},itemEncoding:{contentType:"application/xml"}',
       )
     })
   })
@@ -566,7 +554,7 @@ describe('openapi helper', () => {
         } as any,
       ])
       expect(result.query.filter).toBe(
-        'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}}},"type":"object"})',
+        'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}}}})',
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
@@ -584,16 +572,16 @@ describe('openapi helper', () => {
         { name: 'limit', in: 'query', schema: { type: 'integer' } },
       ])
       expect(result.query.page).toBe(
-        'z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"})',
+        'z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})',
       )
       expect(result.query.limit).toBe(
-        'z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}},"type":"integer"})',
+        'z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})',
       )
     })
     it.concurrent('generates path parameter with exact string output', () => {
       const result = makeParameters([{ name: 'userId', in: 'path', schema: { type: 'string' } }])
       expect(result.path.userId).toBe(
-        'z.string().exactOptional().openapi({param:{"name":"userId","in":"path","schema":{"type":"string"}},"type":"string"})',
+        'z.string().exactOptional().openapi({param:{"name":"userId","in":"path","schema":{"type":"string"}}})',
       )
     })
     it.concurrent('generates header parameter with exact string output', () => {
@@ -601,7 +589,7 @@ describe('openapi helper', () => {
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },
       ])
       expect(result.header.Authorization).toBe(
-        'z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}},"type":"string"})',
+        'z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}}})',
       )
     })
     it.concurrent('generates cookie parameter with exact string output', () => {
@@ -609,7 +597,7 @@ describe('openapi helper', () => {
         { name: 'session_id', in: 'cookie', schema: { type: 'string' } },
       ])
       expect(result.cookie.session_id).toBe(
-        'z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"}},"type":"string"})',
+        'z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"}}})',
       )
     })
   })
@@ -660,9 +648,7 @@ describe('openapi helper', () => {
       const result = makeHeaderResponses({
         'X-Rate-Limit': { schema: { type: 'integer' } },
       })
-      expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({"type":"integer"})}})`,
-      )
+      expect(result).toBe(`z.object({"X-Rate-Limit":{schema:z.int().exactOptional()}})`)
     })
     it.concurrent('generates header responses with $ref', () => {
       const result = makeHeaderResponses({
@@ -677,7 +663,7 @@ describe('openapi helper', () => {
         'X-Rate-Reset': { schema: { type: 'integer' } },
       })
       expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({"type":"integer"})},"X-Rate-Remaining":{schema:z.int().exactOptional().openapi({"type":"integer"})},"X-Rate-Reset":{schema:z.int().exactOptional().openapi({"type":"integer"})}})`,
+        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional()},"X-Rate-Remaining":{schema:z.int().exactOptional()},"X-Rate-Reset":{schema:z.int().exactOptional()}})`,
       )
     })
     it.concurrent('generates header responses with mixed schema and $ref', () => {
@@ -686,7 +672,7 @@ describe('openapi helper', () => {
         'X-Custom': { $ref: '#/components/headers/CustomHeader' },
       })
       expect(result).toBe(
-        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional().openapi({"type":"integer"})},"X-Custom":CustomHeaderHeaderSchema})`,
+        `z.object({"X-Rate-Limit":{schema:z.int().exactOptional()},"X-Custom":CustomHeaderHeaderSchema})`,
       )
     })
   })
@@ -698,7 +684,7 @@ describe('openapi helper', () => {
         schema: { type: 'integer' },
       })
       expect(result).toBe(
-        '{description:"Rate limit header",schema:z.int().exactOptional().openapi({description:"Rate limit header","type":"integer"})}',
+        '{description:"Rate limit header",schema:z.int().exactOptional().openapi({description:"Rate limit header"})}',
       )
     })
     it.concurrent('generates header with $ref', () => {
@@ -714,7 +700,7 @@ describe('openapi helper', () => {
         schema: { type: 'string' },
       })
       expect(result).toBe(
-        '{required:true,deprecated:true,schema:z.string().openapi({deprecated:true,"type":"string"})}',
+        '{required:true,deprecated:true,schema:z.string().openapi({deprecated:true})}',
       )
     })
     it.concurrent('generates header with example', () => {
@@ -723,7 +709,7 @@ describe('openapi helper', () => {
         example: 'example-value',
       })
       expect(result).toBe(
-        '{example:"example-value",schema:z.string().exactOptional().openapi({example:"example-value","type":"string"})}',
+        '{example:"example-value",schema:z.string().exactOptional().openapi({example:"example-value"})}',
       )
     })
     it.concurrent('generates header with examples', () => {
@@ -732,7 +718,7 @@ describe('openapi helper', () => {
         examples: { sample: { value: 'sample-value' } },
       })
       expect(result).toBe(
-        '{examples:{"sample":{value:"sample-value"}},schema:z.string().exactOptional().openapi({examples:{"sample":{value:"sample-value"}},"type":"string"})}',
+        '{examples:{"sample":{value:"sample-value"}},schema:z.string().exactOptional().openapi({examples:{"sample":{value:"sample-value"}}})}',
       )
     })
     it.concurrent('generates header with style', () => {
@@ -741,7 +727,7 @@ describe('openapi helper', () => {
         style: 'simple',
       })
       expect(result).toBe(
-        '{style:"simple",schema:z.array(z.string().exactOptional().openapi({style:"simple","type":"string"})).exactOptional().openapi({style:"simple","type":"array"})}',
+        '{style:"simple",schema:z.array(z.string().exactOptional().openapi({style:"simple"})).exactOptional().openapi({style:"simple"})}',
       )
     })
     it.concurrent('generates header with explode', () => {
@@ -750,16 +736,14 @@ describe('openapi helper', () => {
         explode: true,
       })
       expect(result).toBe(
-        '{explode:true,schema:z.array(z.string().exactOptional().openapi({explode:true,"type":"string"})).exactOptional().openapi({explode:true,"type":"array"})}',
+        '{explode:true,schema:z.array(z.string().exactOptional().openapi({explode:true})).exactOptional().openapi({explode:true})}',
       )
     })
     it.concurrent('generates header with content', () => {
       const result = makeHeadersAndReferences({
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(
-        `{content:'application/json':{schema:z.object({}).openapi({"type":"object"})}}`,
-      )
+      expect(result).toBe(`{content:'application/json':{schema:z.object({})}}`)
     })
   })
 
@@ -770,23 +754,21 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})})}',
+        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})})}',
       )
     })
     it.concurrent('generates request with body only', () => {
       const result = makeRequest(undefined, {
         content: { 'application/json': { schema: { type: 'object' } } },
       })
-      expect(result).toBe(
-        `{body:{content:{'application/json':{schema:z.object({}).openapi({"type":"object"})}}}}`,
-      )
+      expect(result).toBe(`{body:{content:{'application/json':{schema:z.object({})}}}}`)
     })
     it.concurrent('generates request with both parameters and body', () => {
       const result = makeRequest([{ name: 'id', in: 'path', schema: { type: 'string' } }], {
         content: { 'application/json': { schema: { type: 'object' } } },
       })
       expect(result).toBe(
-        `{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})}),body:{content:{'application/json':{schema:z.object({}).openapi({"type":"object"})}}}}`,
+        `{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),body:{content:{'application/json':{schema:z.object({})}}}}`,
       )
     })
     it.concurrent('returns undefined for empty request', () => {
@@ -809,7 +791,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"})})}',
+        '{query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
       )
     })
     it.concurrent('generates request with header parameters', () => {
@@ -818,7 +800,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        `{headers:z.object({"X-Api-Key":z.string().exactOptional().openapi({param:{"name":"X-Api-Key","in":"header","schema":{"type":"string"}},"type":"string"})})}`,
+        `{headers:z.object({"X-Api-Key":z.string().exactOptional().openapi({param:{"name":"X-Api-Key","in":"header","schema":{"type":"string"}}})})}`,
       )
     })
     it.concurrent('generates request with multiple parameter types', () => {
@@ -830,7 +812,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"})})}',
+        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})}',
       )
     })
   })
@@ -839,13 +821,13 @@ describe('openapi helper', () => {
     it.concurrent('generates params for path parameter', () => {
       const result = makeRequestParams([{ name: 'id', in: 'path', schema: { type: 'string' } }])
       expect(result).toBe(
-        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})})',
+        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})})',
       )
     })
     it.concurrent('generates query for query parameter', () => {
       const result = makeRequestParams([{ name: 'page', in: 'query', schema: { type: 'integer' } }])
       expect(result).toBe(
-        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"})})',
+        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})})',
       )
     })
     it.concurrent('generates header for header parameter', () => {
@@ -853,7 +835,7 @@ describe('openapi helper', () => {
         { name: 'X-Token', in: 'header', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        `headers:z.object({"X-Token":z.string().exactOptional().openapi({param:{"name":"X-Token","in":"header","schema":{"type":"string"}},"type":"string"})})`,
+        `headers:z.object({"X-Token":z.string().exactOptional().openapi({param:{"name":"X-Token","in":"header","schema":{"type":"string"}}})})`,
       )
     })
     it.concurrent('generates cookie for cookie parameter', () => {
@@ -861,7 +843,7 @@ describe('openapi helper', () => {
         { name: 'session', in: 'cookie', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'cookies:z.object({session:z.string().exactOptional().openapi({param:{"name":"session","in":"cookie","schema":{"type":"string"}},"type":"string"})})',
+        'cookies:z.object({session:z.string().exactOptional().openapi({param:{"name":"session","in":"cookie","schema":{"type":"string"}}})})',
       )
     })
     it.concurrent('returns undefined for empty parameters', () => {
@@ -875,7 +857,7 @@ describe('openapi helper', () => {
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}},"type":"string"})})',
+        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"}}})})',
       )
     })
     it.concurrent('generates multiple query parameters', () => {
@@ -885,7 +867,7 @@ describe('openapi helper', () => {
         { name: 'sort', in: 'query', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}},"type":"integer"}),limit:z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}},"type":"integer"}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"}},"type":"string"})})',
+        'query:z.object({page:z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}}),limit:z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"}}})})',
       )
     })
   })
@@ -930,7 +912,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        `"{$request.body#/callbackUrl}":{post:{tags:["callback"],summary:"Callback summary",description:"Callback description",operationId:"callbackOp",requestBody:{content:{'application/json':{schema:z.object({}).openapi({"type":"object"})}}},responses:{200:{description:"Success"}},deprecated:true}}`,
+        `"{$request.body#/callbackUrl}":{post:{tags:["callback"],summary:"Callback summary",description:"Callback description",operationId:"callbackOp",requestBody:{content:{'application/json':{schema:z.object({})}}},responses:{200:{description:"Success"}},deprecated:true}}`,
       )
     })
     it.concurrent('generates callback with multiple methods', () => {
@@ -958,7 +940,7 @@ describe('openapi helper', () => {
         },
       })
       expect(result).toBe(
-        '"{$request.body#/url}":{post:{parameters:[z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}},"type":"string"})],responses:{200:{description:"Success"}}}}',
+        '"{$request.body#/url}":{post:{parameters:[z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})],responses:{200:{description:"Success"}}}}',
       )
     })
     it.concurrent('generates callback with external docs', () => {

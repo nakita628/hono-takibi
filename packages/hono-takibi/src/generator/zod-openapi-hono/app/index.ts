@@ -31,12 +31,12 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
 
   const handlerNames = Array.from(new Set(routeMappings.map((m) => m.handlerName))).sort()
   const handlerImport =
-    handlerNames.length > 0 ? `import { ${handlerNames.join(',')} } from './handlers'` : ''
+    handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'./handlers'` : ''
 
   const routeNames = Array.from(new Set(routeMappings.map((m) => m.routeName))).sort()
   const routeModule = `./${output.replace(/^.*\//, '').replace(/\.ts$/, '')}`
   const routesImport =
-    routeNames.length > 0 ? `import { ${routeNames.join(',')} } from '${routeModule}'` : ''
+    routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
 
   const path = basePath === '/' ? '/doc' : `${basePath}/doc`
   const registerComponentCode = openapi.components?.securitySchemes
@@ -50,8 +50,8 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
   const doc = is31Plus ? 'doc31' : 'doc'
 
   const importSection = [
-    `import { swaggerUI } from '@hono/swagger-ui'`,
-    `import { OpenAPIHono } from '@hono/zod-openapi'`,
+    `import{swaggerUI}from'@hono/swagger-ui'`,
+    `import{OpenAPIHono}from'@hono/zod-openapi'`,
     handlerImport,
     routesImport,
   ]
@@ -60,11 +60,11 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
 
   const appInit =
     basePath !== '/'
-      ? `const app = new OpenAPIHono().basePath('${basePath}')`
-      : 'const app = new OpenAPIHono()'
+      ? `const app=new OpenAPIHono().basePath('${basePath}')`
+      : 'const app=new OpenAPIHono()'
 
   const apiInit =
-    'export const api = app' +
+    'export const api=app' +
     routeMappings
       .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')
@@ -91,7 +91,7 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
     appInit,
     apiInit,
     swagger,
-    'export type AddType = typeof api',
+    'export type AddType=typeof api',
     'export default app',
   ].join('\n\n')
 }

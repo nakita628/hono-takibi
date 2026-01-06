@@ -2,312 +2,115 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ApiKeySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    prefix: z.string().openapi({ type: 'string', example: 'sk_live_' }),
-    maskedKey: z.string().exactOptional().openapi({ type: 'string', example: 'sk_live_****abcd' }),
-    status: z
-      .enum(['active', 'revoked', 'expired'])
-      .openapi({ type: 'string', enum: ['active', 'revoked', 'expired'] }),
-    environment: z
-      .enum(['production', 'staging', 'development', 'test'])
-      .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    name: z.string(),
+    description: z.string().exactOptional(),
+    prefix: z.string().openapi({ example: 'sk_live_' }),
+    maskedKey: z.string().exactOptional().openapi({ example: 'sk_live_****abcd' }),
+    status: z.enum(['active', 'revoked', 'expired']),
+    environment: z.enum(['production', 'staging', 'development', 'test']),
+    scopes: z.array(z.string()).exactOptional(),
+    expiresAt: z.iso.datetime().exactOptional(),
+    lastUsedAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'prefix', 'status', 'environment', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      description: { type: 'string' },
-      prefix: { type: 'string', example: 'sk_live_' },
-      maskedKey: { type: 'string', example: 'sk_live_****abcd' },
-      status: { type: 'string', enum: ['active', 'revoked', 'expired'] },
-      environment: { type: 'string', enum: ['production', 'staging', 'development', 'test'] },
-      scopes: { type: 'array', items: { type: 'string' } },
-      expiresAt: { type: 'string', format: 'date-time' },
-      lastUsedAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'prefix', 'status', 'environment', 'createdAt'] })
   .openapi('ApiKey')
 
 const ApiKeyWithSecretSchema = ApiKeySchema.and(
   z
-    .object({
-      secretKey: z.string().openapi({ type: 'string', example: 'sk_live_1234567890abcdef' }),
-    })
-    .openapi({
-      type: 'object',
-      required: ['secretKey'],
-      properties: { secretKey: { type: 'string', example: 'sk_live_1234567890abcdef' } },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/ApiKey' },
-      {
-        type: 'object',
-        required: ['secretKey'],
-        properties: { secretKey: { type: 'string', example: 'sk_live_1234567890abcdef' } },
-      },
-    ],
-  })
-  .openapi('ApiKeyWithSecret')
+    .object({ secretKey: z.string().openapi({ example: 'sk_live_1234567890abcdef' }) })
+    .openapi({ required: ['secretKey'] }),
+).openapi('ApiKeyWithSecret')
 
 const CreateApiKeyRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    environment: z
-      .enum(['production', 'staging', 'development', 'test'])
-      .openapi({ type: 'string', enum: ['production', 'staging', 'development', 'test'] }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    expiresAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    name: z.string().min(1).max(200),
+    description: z.string().exactOptional(),
+    environment: z.enum(['production', 'staging', 'development', 'test']),
+    scopes: z.array(z.string()).exactOptional(),
+    expiresAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'environment'],
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 200 },
-      description: { type: 'string' },
-      environment: { type: 'string', enum: ['production', 'staging', 'development', 'test'] },
-      scopes: { type: 'array', items: { type: 'string' } },
-      expiresAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['name', 'environment'] })
   .openapi('CreateApiKeyRequest')
 
 const UpdateApiKeyRequestSchema = z
   .object({
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      description: { type: 'string' },
-      scopes: { type: 'array', items: { type: 'string' } },
-    },
+    name: z.string().exactOptional(),
+    description: z.string().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
   })
   .openapi('UpdateApiKeyRequest')
 
 const ApiKeyRotationResultSchema = z
-  .object({
-    newKey: ApiKeyWithSecretSchema,
-    oldKeyExpiresAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['newKey', 'oldKeyExpiresAt'],
-    properties: {
-      newKey: { $ref: '#/components/schemas/ApiKeyWithSecret' },
-      oldKeyExpiresAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .object({ newKey: ApiKeyWithSecretSchema, oldKeyExpiresAt: z.iso.datetime() })
+  .openapi({ required: ['newKey', 'oldKeyExpiresAt'] })
   .openapi('ApiKeyRotationResult')
 
 const UsageDataSchema = z
   .object({
-    from: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    to: z.iso.date().openapi({ type: 'string', format: 'date' }),
-    dataPoints: z
-      .array(
-        z
-          .object({
-            timestamp: z.iso
-              .datetime()
-              .exactOptional()
-              .openapi({ type: 'string', format: 'date-time' }),
-            requests: z.int().exactOptional().openapi({ type: 'integer' }),
-            successCount: z.int().exactOptional().openapi({ type: 'integer' }),
-            errorCount: z.int().exactOptional().openapi({ type: 'integer' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              timestamp: { type: 'string', format: 'date-time' },
-              requests: { type: 'integer' },
-              successCount: { type: 'integer' },
-              errorCount: { type: 'integer' },
-            },
-          }),
-      )
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            timestamp: { type: 'string', format: 'date-time' },
-            requests: { type: 'integer' },
-            successCount: { type: 'integer' },
-            errorCount: { type: 'integer' },
-          },
-        },
+    from: z.iso.date(),
+    to: z.iso.date(),
+    dataPoints: z.array(
+      z.object({
+        timestamp: z.iso.datetime().exactOptional(),
+        requests: z.int().exactOptional(),
+        successCount: z.int().exactOptional(),
+        errorCount: z.int().exactOptional(),
       }),
-    summary: z
-      .object({
-        totalRequests: z.int().exactOptional().openapi({ type: 'integer' }),
-        successRate: z.number().exactOptional().openapi({ type: 'number' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: { totalRequests: { type: 'integer' }, successRate: { type: 'number' } },
-      }),
+    ),
+    summary: z.object({
+      totalRequests: z.int().exactOptional(),
+      successRate: z.number().exactOptional(),
+    }),
   })
-  .openapi({
-    type: 'object',
-    required: ['from', 'to', 'dataPoints', 'summary'],
-    properties: {
-      from: { type: 'string', format: 'date' },
-      to: { type: 'string', format: 'date' },
-      dataPoints: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            timestamp: { type: 'string', format: 'date-time' },
-            requests: { type: 'integer' },
-            successCount: { type: 'integer' },
-            errorCount: { type: 'integer' },
-          },
-        },
-      },
-      summary: {
-        type: 'object',
-        properties: { totalRequests: { type: 'integer' }, successRate: { type: 'number' } },
-      },
-    },
-  })
+  .openapi({ required: ['from', 'to', 'dataPoints', 'summary'] })
   .openapi('UsageData')
 
 const RateLimitStatusSchema = z
   .object({
-    limit: z.int().openapi({ type: 'integer' }),
-    remaining: z.int().openapi({ type: 'integer' }),
-    resetAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    currentUsage: z.int().exactOptional().openapi({ type: 'integer' }),
+    limit: z.int(),
+    remaining: z.int(),
+    resetAt: z.iso.datetime(),
+    currentUsage: z.int().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['limit', 'remaining', 'resetAt'],
-    properties: {
-      limit: { type: 'integer' },
-      remaining: { type: 'integer' },
-      resetAt: { type: 'string', format: 'date-time' },
-      currentUsage: { type: 'integer' },
-    },
-  })
+  .openapi({ required: ['limit', 'remaining', 'resetAt'] })
   .openapi('RateLimitStatus')
 
 const ApiKeyVerificationResultSchema = z
   .object({
-    valid: z.boolean().openapi({ type: 'boolean' }),
-    keyId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-    environment: z.string().exactOptional().openapi({ type: 'string' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    missingScopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    reason: z.string().exactOptional().openapi({ type: 'string' }),
+    valid: z.boolean(),
+    keyId: z.uuid().exactOptional(),
+    environment: z.string().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
+    missingScopes: z.array(z.string()).exactOptional(),
+    reason: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['valid'],
-    properties: {
-      valid: { type: 'boolean' },
-      keyId: { type: 'string', format: 'uuid' },
-      environment: { type: 'string' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      missingScopes: { type: 'array', items: { type: 'string' } },
-      reason: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['valid'] })
   .openapi('ApiKeyVerificationResult')
 
 const ScopeDefinitionSchema = z
   .object({
-    name: z.string().openapi({ type: 'string', example: 'users:read' }),
-    description: z.string().openapi({ type: 'string' }),
-    category: z.string().exactOptional().openapi({ type: 'string' }),
+    name: z.string().openapi({ example: 'users:read' }),
+    description: z.string(),
+    category: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'description'],
-    properties: {
-      name: { type: 'string', example: 'users:read' },
-      description: { type: 'string' },
-      category: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['name', 'description'] })
   .openapi('ScopeDefinition')
 
 const PaginationSchema = z
-  .object({
-    page: z.int().openapi({ type: 'integer' }),
-    limit: z.int().openapi({ type: 'integer' }),
-    total: z.int().openapi({ type: 'integer' }),
-    totalPages: z.int().openapi({ type: 'integer' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['page', 'limit', 'total', 'totalPages'],
-    properties: {
-      page: { type: 'integer' },
-      limit: { type: 'integer' },
-      total: { type: 'integer' },
-      totalPages: { type: 'integer' },
-    },
-  })
+  .object({ page: z.int(), limit: z.int(), total: z.int(), totalPages: z.int() })
+  .openapi({ required: ['page', 'limit', 'total', 'totalPages'] })
   .openapi('Pagination')
 
 const ApiKeyListResponseSchema = z
-  .object({
-    data: z
-      .array(ApiKeySchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/ApiKey' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/ApiKey' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(ApiKeySchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('ApiKeyListResponse')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const ApiKeyIdParamParamsSchema = z
@@ -319,8 +122,6 @@ const ApiKeyIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const PageParamParamsSchema = z
@@ -330,9 +131,6 @@ const PageParamParamsSchema = z
   .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-    type: 'integer',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -347,10 +145,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -389,8 +183,6 @@ export const getApiKeysRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['active', 'revoked', 'expired'] },
           },
-          type: 'string',
-          enum: ['active', 'revoked', 'expired'],
         }),
       environment: z
         .enum(['production', 'staging', 'development', 'test'])
@@ -401,8 +193,6 @@ export const getApiKeysRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['production', 'staging', 'development', 'test'] },
           },
-          type: 'string',
-          enum: ['production', 'staging', 'development', 'test'],
         }),
     }),
   },
@@ -494,13 +284,7 @@ export const postApiKeysKeyIdRevokeRoute = createRoute({
   request: {
     params: z.object({ keyId: ApiKeyIdParamParamsSchema }),
     body: {
-      content: {
-        'application/json': {
-          schema: z
-            .object({ reason: z.string().exactOptional().openapi({ type: 'string' }) })
-            .openapi({ type: 'object', properties: { reason: { type: 'string' } } }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ reason: z.string().exactOptional() }) } },
     },
   },
   responses: {
@@ -521,22 +305,9 @@ export const postApiKeysKeyIdRotateRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              gracePeriodHours: z
-                .int()
-                .min(0)
-                .max(168)
-                .default(24)
-                .exactOptional()
-                .openapi({ type: 'integer', minimum: 0, maximum: 168, default: 24 }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                gracePeriodHours: { type: 'integer', minimum: 0, maximum: 168, default: 24 },
-              },
-            }),
+          schema: z.object({
+            gracePeriodHours: z.int().min(0).max(168).default(24).exactOptional(),
+          }),
         },
       },
     },
@@ -569,8 +340,6 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'date' },
           },
-          type: 'string',
-          format: 'date',
         }),
       to: z.iso
         .date()
@@ -581,8 +350,6 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'date' },
           },
-          type: 'string',
-          format: 'date',
         }),
       granularity: z
         .enum(['hour', 'day', 'week', 'month'])
@@ -594,9 +361,6 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['hour', 'day', 'week', 'month'], default: 'day' },
           },
-          type: 'string',
-          enum: ['hour', 'day', 'week', 'month'],
-          default: 'day',
         }),
     }),
   },
@@ -638,21 +402,8 @@ export const postApiKeysVerifyRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              apiKey: z.string().openapi({ type: 'string' }),
-              requiredScopes: z
-                .array(z.string().openapi({ type: 'string' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'string' } }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['apiKey'],
-              properties: {
-                apiKey: { type: 'string' },
-                requiredScopes: { type: 'array', items: { type: 'string' } },
-              },
-            }),
+            .object({ apiKey: z.string(), requiredScopes: z.array(z.string()).exactOptional() })
+            .openapi({ required: ['apiKey'] }),
         },
       },
       required: true,
@@ -676,13 +427,7 @@ export const getScopesRoute = createRoute({
   responses: {
     200: {
       description: 'スコープ一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(ScopeDefinitionSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/ScopeDefinition' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(ScopeDefinitionSchema) } },
     },
     401: UnauthorizedResponse,
   },

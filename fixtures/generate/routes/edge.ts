@@ -1,79 +1,21 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 const AnimalSchema = z
-  .object({ type: z.string().openapi({ type: 'string' }) })
-  .openapi({
-    type: 'object',
-    required: ['type'],
-    properties: { type: { type: 'string' } },
-    discriminator: { propertyName: 'type' },
-  })
+  .object({ type: z.string() })
+  .openapi({ required: ['type'], discriminator: { propertyName: 'type' } })
   .openapi('Animal')
 
 const CatSchema = AnimalSchema.and(
-  z
-    .object({
-      livesLeft: z
-        .int()
-        .min(0)
-        .max(9)
-        .exactOptional()
-        .openapi({ type: 'integer', minimum: 0, maximum: 9 }),
-    })
-    .openapi({
-      type: 'object',
-      properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Animal' },
-      { type: 'object', properties: { livesLeft: { type: 'integer', minimum: 0, maximum: 9 } } },
-    ],
-  })
-  .openapi('Cat')
+  z.object({ livesLeft: z.int().min(0).max(9).exactOptional() }),
+).openapi('Cat')
 
 const DogSchema = AnimalSchema.and(
-  z
-    .object({
-      barkLevel: z
-        .enum(['quiet', 'normal', 'loud'])
-        .exactOptional()
-        .openapi({ type: 'string', enum: ['quiet', 'normal', 'loud'] }),
-    })
-    .openapi({
-      type: 'object',
-      properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Animal' },
-      {
-        type: 'object',
-        properties: { barkLevel: { type: 'string', enum: ['quiet', 'normal', 'loud'] } },
-      },
-    ],
-  })
-  .openapi('Dog')
+  z.object({ barkLevel: z.enum(['quiet', 'normal', 'loud']).exactOptional() }),
+).openapi('Dog')
 
 const BaseSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    metadata: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
-      .nullable()
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: { type: 'string' } }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      metadata: { type: 'object', nullable: true, additionalProperties: { type: 'string' } },
-    },
-  })
+  .object({ id: z.uuid(), metadata: z.record(z.string(), z.string()).nullable().exactOptional() })
+  .openapi({ required: ['id'] })
   .openapi('Base')
 
 export const postPolymorphicRoute = createRoute({
@@ -85,9 +27,8 @@ export const postPolymorphicRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .discriminatedUnion('type', [CatSchema, DogSchema])
+            .xor([CatSchema, DogSchema])
             .openapi({
-              oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
               discriminator: {
                 propertyName: 'type',
                 mapping: { cat: '#/components/schemas/Cat', dog: '#/components/schemas/Dog' },
@@ -109,10 +50,7 @@ export const getSearchRoute = createRoute({
     query: z.object({
       q: z
         .string()
-        .openapi({
-          param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } } }),
       filter: z
         .union([
           z
@@ -126,7 +64,6 @@ export const getSearchRoute = createRoute({
                   anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
                 },
               },
-              type: 'string',
             }),
           z
             .array(
@@ -141,7 +78,6 @@ export const getSearchRoute = createRoute({
                       anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
                     },
                   },
-                  type: 'string',
                 }),
             )
             .exactOptional()
@@ -153,8 +89,6 @@ export const getSearchRoute = createRoute({
                   anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
                 },
               },
-              type: 'array',
-              items: { type: 'string' },
             }),
         ])
         .exactOptional()
@@ -164,7 +98,6 @@ export const getSearchRoute = createRoute({
             in: 'query',
             schema: { anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }] },
           },
-          anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
         }),
       exclude: z
         .any()
@@ -187,26 +120,7 @@ export const putMultiStepRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: BaseSchema.and(
-            z
-              .object({
-                step: z
-                  .int()
-                  .min(1)
-                  .max(3)
-                  .exactOptional()
-                  .openapi({ type: 'integer', minimum: 1, maximum: 3 }),
-              })
-              .openapi({
-                type: 'object',
-                properties: { step: { type: 'integer', minimum: 1, maximum: 3 } },
-              }),
-          ).openapi({
-            allOf: [
-              { $ref: '#/components/schemas/Base' },
-              { type: 'object', properties: { step: { type: 'integer', minimum: 1, maximum: 3 } } },
-            ],
-          }),
+          schema: BaseSchema.and(z.object({ step: z.int().min(1).max(3).exactOptional() })),
         },
       },
     },

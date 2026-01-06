@@ -110,13 +110,35 @@ export function wrap(
 
   const z = isNullable ? `${s}.nullable()` : s
 
+  // zod method chain already expressed properties (to prevent double management)
+  const zodExpressedProps = new Set([
+    'type',
+    'format',
+    'default',
+    'minLength',
+    'maxLength',
+    'minimum',
+    'maximum',
+    'exclusiveMinimum',
+    'exclusiveMaximum',
+    'pattern',
+    'enum',
+    'items',
+    'properties',
+    'additionalProperties',
+    'oneOf',
+    'anyOf',
+    'allOf',
+    'multipleOf',
+    'uniqueItems',
+    'nullable',
+    'const',
+    '$ref',
+  ])
+
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
-      ([k, v]) =>
-        k !== 'nullable' &&
-        k !== 'const' &&
-        k !== '$ref' &&
-        !(k === 'required' && typeof v === 'boolean'),
+      ([k, v]) => !(zodExpressedProps.has(k) || (k === 'required' && typeof v === 'boolean')),
     ),
   )
   const args = filterUnsupportedProps(baseArgs)

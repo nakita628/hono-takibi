@@ -382,7 +382,7 @@ export async function rpc(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const client = 'client'
-  const s = `import { client } from '${importPath}'`
+  const s = `import{client}from'${importPath}'`
   const header = s.length ? `${s}\n\n` : ''
 
   const pathsMaybe = openAPI.paths

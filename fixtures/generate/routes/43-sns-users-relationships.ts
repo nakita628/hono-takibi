@@ -2,285 +2,125 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const RelationshipSchema = z
   .object({
-    userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    following: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    followedBy: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    blocking: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    blockedBy: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    muting: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    mutingNotifications: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    followRequestSent: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    followRequestReceived: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    userId: z.uuid(),
+    following: z.boolean().exactOptional(),
+    followedBy: z.boolean().exactOptional(),
+    blocking: z.boolean().exactOptional(),
+    blockedBy: z.boolean().exactOptional(),
+    muting: z.boolean().exactOptional(),
+    mutingNotifications: z.boolean().exactOptional(),
+    followRequestSent: z.boolean().exactOptional(),
+    followRequestReceived: z.boolean().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['userId'],
-    properties: {
-      userId: { type: 'string', format: 'uuid' },
-      following: { type: 'boolean' },
-      followedBy: { type: 'boolean' },
-      blocking: { type: 'boolean' },
-      blockedBy: { type: 'boolean' },
-      muting: { type: 'boolean' },
-      mutingNotifications: { type: 'boolean' },
-      followRequestSent: { type: 'boolean' },
-      followRequestReceived: { type: 'boolean' },
-    },
-  })
+  .openapi({ required: ['userId'] })
   .openapi('Relationship')
 
 const UserSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    username: z
-      .string()
-      .regex(/^[a-zA-Z0-9_]{1,15}$/)
-      .openapi({ type: 'string', pattern: '^[a-zA-Z0-9_]{1,15}$' }),
-    displayName: z.string().max(50).openapi({ type: 'string', maxLength: 50 }),
-    bio: z.string().max(160).exactOptional().openapi({ type: 'string', maxLength: 160 }),
-    location: z.string().max(30).exactOptional().openapi({ type: 'string', maxLength: 30 }),
-    website: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    bannerUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    isVerified: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    isProtected: z
-      .boolean()
-      .exactOptional()
-      .openapi({ type: 'boolean', description: '非公開アカウントか' }),
-    birthDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-    pinnedPostId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
+    id: z.uuid(),
+    username: z.string().regex(/^[a-zA-Z0-9_]{1,15}$/),
+    displayName: z.string().max(50),
+    bio: z.string().max(160).exactOptional(),
+    location: z.string().max(30).exactOptional(),
+    website: z.url().exactOptional(),
+    avatarUrl: z.url().exactOptional(),
+    bannerUrl: z.url().exactOptional(),
+    isVerified: z.boolean().exactOptional(),
+    isProtected: z.boolean().exactOptional().openapi({ description: '非公開アカウントか' }),
+    birthDate: z.iso.date().exactOptional(),
+    pinnedPostId: z.uuid().exactOptional(),
     metrics: z
       .object({
-        followersCount: z.int().exactOptional().openapi({ type: 'integer' }),
-        followingCount: z.int().exactOptional().openapi({ type: 'integer' }),
-        postsCount: z.int().exactOptional().openapi({ type: 'integer' }),
-        likesCount: z.int().exactOptional().openapi({ type: 'integer' }),
-        listedCount: z.int().exactOptional().openapi({ type: 'integer' }),
+        followersCount: z.int().exactOptional(),
+        followingCount: z.int().exactOptional(),
+        postsCount: z.int().exactOptional(),
+        likesCount: z.int().exactOptional(),
+        listedCount: z.int().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          followersCount: { type: 'integer' },
-          followingCount: { type: 'integer' },
-          postsCount: { type: 'integer' },
-          likesCount: { type: 'integer' },
-          listedCount: { type: 'integer' },
-        },
-      }),
+      .exactOptional(),
     relationship: RelationshipSchema.exactOptional().openapi({
       description: '認証ユーザーとの関係',
     }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'username', 'displayName', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      username: { type: 'string', pattern: '^[a-zA-Z0-9_]{1,15}$' },
-      displayName: { type: 'string', maxLength: 50 },
-      bio: { type: 'string', maxLength: 160 },
-      location: { type: 'string', maxLength: 30 },
-      website: { type: 'string', format: 'uri' },
-      avatarUrl: { type: 'string', format: 'uri' },
-      bannerUrl: { type: 'string', format: 'uri' },
-      isVerified: { type: 'boolean' },
-      isProtected: { type: 'boolean', description: '非公開アカウントか' },
-      birthDate: { type: 'string', format: 'date' },
-      pinnedPostId: { type: 'string', format: 'uuid' },
-      metrics: {
-        type: 'object',
-        properties: {
-          followersCount: { type: 'integer' },
-          followingCount: { type: 'integer' },
-          postsCount: { type: 'integer' },
-          likesCount: { type: 'integer' },
-          listedCount: { type: 'integer' },
-        },
-      },
-      relationship: {
-        $ref: '#/components/schemas/Relationship',
-        description: '認証ユーザーとの関係',
-      },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'username', 'displayName', 'createdAt'] })
   .openapi('User')
 
 const UpdateProfileRequestSchema = z
   .object({
-    displayName: z.string().max(50).exactOptional().openapi({ type: 'string', maxLength: 50 }),
-    bio: z.string().max(160).exactOptional().openapi({ type: 'string', maxLength: 160 }),
-    location: z.string().max(30).exactOptional().openapi({ type: 'string', maxLength: 30 }),
-    website: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    birthDate: z.iso.date().exactOptional().openapi({ type: 'string', format: 'date' }),
-    isProtected: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    pinnedPostId: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      displayName: { type: 'string', maxLength: 50 },
-      bio: { type: 'string', maxLength: 160 },
-      location: { type: 'string', maxLength: 30 },
-      website: { type: 'string', format: 'uri' },
-      birthDate: { type: 'string', format: 'date' },
-      isProtected: { type: 'boolean' },
-      pinnedPostId: { type: 'string', format: 'uuid' },
-    },
+    displayName: z.string().max(50).exactOptional(),
+    bio: z.string().max(160).exactOptional(),
+    location: z.string().max(30).exactOptional(),
+    website: z.url().exactOptional(),
+    birthDate: z.iso.date().exactOptional(),
+    isProtected: z.boolean().exactOptional(),
+    pinnedPostId: z.uuid().exactOptional(),
   })
   .openapi('UpdateProfileRequest')
 
 const UserSummarySchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    username: z.string().openapi({ type: 'string' }),
-    displayName: z.string().openapi({ type: 'string' }),
-    avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    isVerified: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    isProtected: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    id: z.uuid(),
+    username: z.string(),
+    displayName: z.string(),
+    avatarUrl: z.url().exactOptional(),
+    isVerified: z.boolean().exactOptional(),
+    isProtected: z.boolean().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'username', 'displayName'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      username: { type: 'string' },
-      displayName: { type: 'string' },
-      avatarUrl: { type: 'string', format: 'uri' },
-      isVerified: { type: 'boolean' },
-      isProtected: { type: 'boolean' },
-    },
-  })
+  .openapi({ required: ['id', 'username', 'displayName'] })
   .openapi('UserSummary')
 
 const ListSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().max(25).openapi({ type: 'string', maxLength: 25 }),
-    description: z.string().max(100).exactOptional().openapi({ type: 'string', maxLength: 100 }),
-    isPrivate: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+    id: z.uuid(),
+    name: z.string().max(25),
+    description: z.string().max(100).exactOptional(),
+    isPrivate: z.boolean().exactOptional(),
     owner: UserSummarySchema,
-    memberCount: z.int().openapi({ type: 'integer' }),
-    followerCount: z.int().exactOptional().openapi({ type: 'integer' }),
-    isFollowing: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    isMember: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    memberCount: z.int(),
+    followerCount: z.int().exactOptional(),
+    isFollowing: z.boolean().exactOptional(),
+    isMember: z.boolean().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'owner', 'memberCount', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string', maxLength: 25 },
-      description: { type: 'string', maxLength: 100 },
-      isPrivate: { type: 'boolean' },
-      owner: { $ref: '#/components/schemas/UserSummary' },
-      memberCount: { type: 'integer' },
-      followerCount: { type: 'integer' },
-      isFollowing: { type: 'boolean' },
-      isMember: { type: 'boolean' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'owner', 'memberCount', 'createdAt'] })
   .openapi('List')
 
 const CreateListRequestSchema = z
   .object({
-    name: z.string().min(1).max(25).openapi({ type: 'string', minLength: 1, maxLength: 25 }),
-    description: z.string().max(100).exactOptional().openapi({ type: 'string', maxLength: 100 }),
-    isPrivate: z
-      .boolean()
-      .default(false)
-      .exactOptional()
-      .openapi({ type: 'boolean', default: false }),
+    name: z.string().min(1).max(25),
+    description: z.string().max(100).exactOptional(),
+    isPrivate: z.boolean().default(false).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name'],
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 25 },
-      description: { type: 'string', maxLength: 100 },
-      isPrivate: { type: 'boolean', default: false },
-    },
-  })
+  .openapi({ required: ['name'] })
   .openapi('CreateListRequest')
 
 const UpdateListRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(25)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 25 }),
-    description: z.string().max(100).exactOptional().openapi({ type: 'string', maxLength: 100 }),
-    isPrivate: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 25 },
-      description: { type: 'string', maxLength: 100 },
-      isPrivate: { type: 'boolean' },
-    },
+    name: z.string().min(1).max(25).exactOptional(),
+    description: z.string().max(100).exactOptional(),
+    isPrivate: z.boolean().exactOptional(),
   })
   .openapi('UpdateListRequest')
 
 const PostSchema = z
-  .object({ id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }) })
-  .openapi({
-    type: 'object',
-    description: '投稿（別APIファイルで定義）',
-    properties: { id: { type: 'string', format: 'uuid' } },
-  })
+  .object({ id: z.uuid().exactOptional() })
+  .openapi({ description: '投稿（別APIファイルで定義）' })
   .openapi('Post')
 
 const UserListResponseSchema = z
-  .object({
-    data: z
-      .array(UserSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-    nextCursor: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['data'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-      nextCursor: { type: 'string' },
-    },
-  })
+  .object({ data: z.array(UserSchema), nextCursor: z.string().exactOptional() })
+  .openapi({ required: ['data'] })
   .openapi('UserListResponse')
 
 const PostListResponseSchema = z
-  .object({
-    data: z
-      .array(PostSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Post' } }),
-    nextCursor: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['data'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
-      nextCursor: { type: 'string' },
-    },
-  })
+  .object({ data: z.array(PostSchema), nextCursor: z.string().exactOptional() })
+  .openapi({ required: ['data'] })
   .openapi('PostListResponse')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const UserIdParamParamsSchema = z
@@ -292,8 +132,6 @@ const UserIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const ListIdParamParamsSchema = z
@@ -305,14 +143,12 @@ const ListIdParamParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const CursorParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } }, type: 'string' })
+  .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -326,10 +162,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -379,7 +211,6 @@ export const getUsersByUsernameUsernameRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'username', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
   },
@@ -407,7 +238,6 @@ export const getUsersSearchRoute = createRoute({
             description: '検索クエリ',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
@@ -439,7 +269,6 @@ export const getUsersLookupRoute = createRoute({
             description: 'ユーザーIDのカンマ区切り',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       usernames: z
         .string()
@@ -451,20 +280,13 @@ export const getUsersLookupRoute = createRoute({
             description: 'ユーザー名のカンマ区切り',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
   responses: {
     200: {
       description: 'ユーザー一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(UserSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(UserSchema) } },
     },
   },
 })
@@ -512,13 +334,7 @@ export const postMeAvatarRoute = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: z
-            .object({ image: z.file().openapi({ type: 'string', format: 'binary' }) })
-            .openapi({
-              type: 'object',
-              required: ['image'],
-              properties: { image: { type: 'string', format: 'binary' } },
-            }),
+          schema: z.object({ image: z.file() }).openapi({ required: ['image'] }),
         },
       },
       required: true,
@@ -527,18 +343,7 @@ export const postMeAvatarRoute = createRoute({
   responses: {
     200: {
       description: 'アップロード成功',
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { avatarUrl: { type: 'string', format: 'uri' } },
-            }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ avatarUrl: z.url().exactOptional() }) } },
     },
     401: UnauthorizedResponse,
   },
@@ -565,13 +370,7 @@ export const postMeBannerRoute = createRoute({
     body: {
       content: {
         'multipart/form-data': {
-          schema: z
-            .object({ image: z.file().openapi({ type: 'string', format: 'binary' }) })
-            .openapi({
-              type: 'object',
-              required: ['image'],
-              properties: { image: { type: 'string', format: 'binary' } },
-            }),
+          schema: z.object({ image: z.file() }).openapi({ required: ['image'] }),
         },
       },
       required: true,
@@ -580,18 +379,7 @@ export const postMeBannerRoute = createRoute({
   responses: {
     200: {
       description: 'アップロード成功',
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              bannerUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { bannerUrl: { type: 'string', format: 'uri' } },
-            }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ bannerUrl: z.url().exactOptional() }) } },
     },
     401: UnauthorizedResponse,
   },
@@ -710,20 +498,13 @@ export const getRelationshipsRoute = createRoute({
             description: 'ユーザーIDのカンマ区切り',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
   responses: {
     200: {
       description: '関係性一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(RelationshipSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Relationship' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(RelationshipSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -815,29 +596,17 @@ export const postUsersUserIdMuteRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({
-              duration: z
-                .int()
-                .exactOptional()
-                .openapi({ type: 'integer', description: 'ミュート期間（秒）。省略で無期限' }),
-              notifications: z
-                .boolean()
-                .default(true)
-                .exactOptional()
-                .openapi({ type: 'boolean', default: true, description: '通知もミュートするか' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                duration: { type: 'integer', description: 'ミュート期間（秒）。省略で無期限' },
-                notifications: {
-                  type: 'boolean',
-                  default: true,
-                  description: '通知もミュートするか',
-                },
-              },
-            }),
+          schema: z.object({
+            duration: z
+              .int()
+              .exactOptional()
+              .openapi({ description: 'ミュート期間（秒）。省略で無期限' }),
+            notifications: z
+              .boolean()
+              .default(true)
+              .exactOptional()
+              .openapi({ description: '通知もミュートするか' }),
+          }),
         },
       },
     },
@@ -912,13 +681,7 @@ export const getListsRoute = createRoute({
   responses: {
     200: {
       description: 'リスト一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(ListSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/List' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(ListSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1011,13 +774,7 @@ export const postListsListIdMembersRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ userId: z.uuid().openapi({ type: 'string', format: 'uuid' }) })
-            .openapi({
-              type: 'object',
-              required: ['userId'],
-              properties: { userId: { type: 'string', format: 'uuid' } },
-            }),
+          schema: z.object({ userId: z.uuid() }).openapi({ required: ['userId'] }),
         },
       },
       required: true,
@@ -1073,13 +830,7 @@ export const getUsersUserIdListsRoute = createRoute({
   responses: {
     200: {
       description: 'リスト一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(ListSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/List' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(ListSchema) } },
     },
   },
 })

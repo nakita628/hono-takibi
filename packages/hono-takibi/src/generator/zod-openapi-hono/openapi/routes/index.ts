@@ -1,77 +1,43 @@
 import type { OpenAPI, Operation, Parameter } from '../../../../openapi/index.js'
-import { route } from './route.js'
+import { createRoute } from './create-route.js'
 
-type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'patch' | 'options' | 'head' | 'trace'
-
-const METHODS: readonly HttpMethod[] = [
-  'get',
-  'put',
-  'post',
-  'delete',
-  'patch',
-  'options',
-  'head',
-  'trace',
-]
-
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-
-const isComponentsParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-  ref.startsWith('#/components/parameters/')
-
-const resolveParamRef = (
-  p: { $ref: string },
-  componentsParameters: Record<string, Parameter> | undefined,
-): Parameter | undefined => {
-  if (!componentsParameters) return undefined
-  if (!isComponentsParameterRef(p.$ref)) return undefined
-  const key = p.$ref.split('/').pop()
-  if (!key) return undefined
-  const param = componentsParameters[key]
-  if (!param) return undefined
-  return { ...param, $ref: p.$ref }
-}
-
+/**
+ * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
+ */
 export function routeCode(openapi: OpenAPI): string {
+  const isParameter = (p: unknown): p is Parameter => {
+    if (typeof p !== 'object' || p === null) return false
+    if (!('name' in p) || !('in' in p) || !('schema' in p)) return false
+    const { in: inValue } = p
+    return inValue === 'path' || inValue === 'query' || inValue === 'header' || inValue === 'cookie'
+  }
   const routes: string[] = []
-
-  const parametersMap = openapi.components?.parameters
-  const openAPIPaths = openapi.paths
-
-  const isOp = (v: unknown): v is Operation => isRecord(v) && 'responses' in v
-  const isParam = (p: unknown): p is Parameter => isRecord(p) && 'name' in p && 'in' in p
-  const isParamRef = (p: unknown): p is { $ref: string } =>
-    isRecord(p) && typeof p.$ref === 'string'
-
-  for (const path in openAPIPaths) {
-    const pathItem = openAPIPaths[path]
+  for (const path in openapi.paths) {
+    const pathItem = openapi.paths[path]
     if (!pathItem) continue
 
-    for (const method of METHODS) {
-      const maybeOp = pathItem[method]
-      if (!isOp(maybeOp)) continue
-      const mergedParams: Parameter[] | undefined = (() => {
-        const out: Parameter[] = []
-        const push = (p: unknown) => {
-          if (isParam(p)) return void out.push(p)
-          if (isParamRef(p)) {
-            const resolved = resolveParamRef(p, parametersMap)
-            if (resolved) out.push(resolved)
-          }
+    for (const method of ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const) {
+      const operation = pathItem[method]
+      if (!operation?.responses) continue
+
+      // Merge path-level and operation-level parameters, resolving $ref
+      const params: Parameter[] = []
+      for (const p of [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]) {
+        // Parameter object (has name and in)
+        if (isParameter(p)) {
+          params.push(p)
+          continue
         }
-        if (Array.isArray(pathItem.parameters)) {
-          for (const p of pathItem.parameters) push(p)
+        // Reference object ($ref to components/parameters)
+        if ('$ref' in p && p.$ref?.startsWith('#/components/parameters/') && openapi.components?.parameters) {
+          const key = p.$ref.slice(p.$ref.lastIndexOf('/') + 1)
+          const resolved = openapi.components.parameters[key]
+          if (resolved) params.push({ ...resolved, $ref: p.$ref })
         }
-        if (Array.isArray(maybeOp.parameters)) {
-          for (const p of maybeOp.parameters) push(p)
-        }
-        return out.length ? out : undefined
-      })()
-      const op: Operation = (() => {
-        if (mergedParams) return { ...maybeOp, parameters: mergedParams }
-        return maybeOp
-      })()
-      routes.push(route(path, method, op))
+      }
+
+      const op: Operation = params.length > 0 ? { ...operation, parameters: params } : operation
+      routes.push(createRoute(path, method, op))
     }
   }
   return routes.filter(Boolean).join('\n\n')

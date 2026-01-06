@@ -2,55 +2,31 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const JsonSchema2020FeaturesSchema = z
   .object({
-    prefixItems: z
-      .array(z.null().nullable().openapi({ type: 'null' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'null' } }),
-    unevaluatedItems: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
-    unevaluatedProperties: z
-      .object({ known: z.string().exactOptional().openapi({ type: 'string' }) })
-      .exactOptional()
-      .openapi({ type: 'object', properties: { known: { type: 'string' } } }),
+    prefixItems: z.array(z.null().nullable()).exactOptional(),
+    unevaluatedItems: z.array(z.any()).exactOptional(),
+    unevaluatedProperties: z.object({ known: z.string().exactOptional() }).exactOptional(),
     dependentRequired: z
-      .object({
-        a: z.string().exactOptional().openapi({ type: 'string' }),
-        b: z.string().exactOptional().openapi({ type: 'string' }),
-      })
-      .exactOptional()
-      .openapi({ type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } }),
-    dependentSchemas: z
-      .object({ creditCard: z.string().exactOptional().openapi({ type: 'string' }) })
-      .exactOptional()
-      .openapi({ type: 'object', properties: { creditCard: { type: 'string' } } }),
-    propertyNames: z.object({}).exactOptional().openapi({ type: 'object' }),
-    minContains: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
-    maxContains: z.array(z.any()).exactOptional().openapi({ type: 'array' }),
-    contentEncoding: z.string().exactOptional().openapi({ type: 'string' }),
-    contentMediaType: z.string().exactOptional().openapi({ type: 'string' }),
-    contentSchema: z.string().exactOptional().openapi({ type: 'string' }),
+      .object({ a: z.string().exactOptional(), b: z.string().exactOptional() })
+      .exactOptional(),
+    dependentSchemas: z.object({ creditCard: z.string().exactOptional() }).exactOptional(),
+    propertyNames: z.object({}).exactOptional(),
+    minContains: z.array(z.any()).exactOptional(),
+    maxContains: z.array(z.any()).exactOptional(),
+    contentEncoding: z.string().exactOptional(),
+    contentMediaType: z.string().exactOptional(),
+    contentSchema: z.string().exactOptional(),
   })
-  .openapi({ type: 'object', properties: {} })
   .openapi('JsonSchema2020Features')
 
 const ItemSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    metadata: z
-      .looseObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: true }),
+    id: z.uuid(),
+    name: z.string(),
+    description: z.string().exactOptional(),
+    metadata: z.looseObject({}).exactOptional(),
   })
   .openapi({
-    type: 'object',
     required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      description: { type: 'string' },
-      metadata: { type: 'object', additionalProperties: true },
-    },
     example: {
       id: '550e8400-e29b-41d4-a716-446655440000',
       name: 'Example Item',
@@ -63,19 +39,10 @@ const ItemCreatedEventSchema = z
   .object({
     event: z.literal('item.created'),
     data: ItemSchema,
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    metadata: z.object({}).exactOptional().openapi({ type: 'object' }),
+    timestamp: z.iso.datetime(),
+    metadata: z.object({}).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['event', 'data', 'timestamp'],
-    properties: {
-      event: { const: 'item.created' },
-      data: { $ref: '#/components/schemas/Item' },
-      timestamp: { type: 'string', format: 'date-time' },
-      metadata: { type: 'object' },
-    },
-  })
+  .openapi({ required: ['event', 'data', 'timestamp'] })
   .openapi('ItemCreatedEvent')
 
 const ItemUpdatedEventSchema = z
@@ -83,40 +50,15 @@ const ItemUpdatedEventSchema = z
     event: z.literal('item.updated'),
     data: ItemSchema,
     previousData: ItemSchema.exactOptional(),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    changedFields: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    timestamp: z.iso.datetime(),
+    changedFields: z.array(z.string()).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['event', 'data', 'timestamp'],
-    properties: {
-      event: { const: 'item.updated' },
-      data: { $ref: '#/components/schemas/Item' },
-      previousData: { $ref: '#/components/schemas/Item' },
-      timestamp: { type: 'string', format: 'date-time' },
-      changedFields: { type: 'array', items: { type: 'string' } },
-    },
-  })
+  .openapi({ required: ['event', 'data', 'timestamp'] })
   .openapi('ItemUpdatedEvent')
 
 const ItemDeletedEventSchema = z
-  .object({
-    event: z.literal('item.deleted'),
-    itemId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['event', 'itemId', 'timestamp'],
-    properties: {
-      event: { const: 'item.deleted' },
-      itemId: { type: 'string', format: 'uuid' },
-      timestamp: { type: 'string', format: 'date-time' },
-    },
-  })
+  .object({ event: z.literal('item.deleted'), itemId: z.uuid(), timestamp: z.iso.datetime() })
+  .openapi({ required: ['event', 'itemId', 'timestamp'] })
   .openapi('ItemDeletedEvent')
 
 const XmlFeaturesSchema = z
@@ -124,156 +66,51 @@ const XmlFeaturesSchema = z
     attribute: z
       .string()
       .exactOptional()
-      .openapi({ type: 'string', xml: { attribute: true, name: 'attr' } }),
+      .openapi({ xml: { attribute: true, name: 'attr' } }),
     wrapped: z
-      .array(z.string().openapi({ type: 'string', xml: { name: 'item' } }))
+      .array(z.string().openapi({ xml: { name: 'item' } }))
       .exactOptional()
-      .openapi({
-        type: 'array',
-        xml: { wrapped: true, name: 'items' },
-        items: { type: 'string', xml: { name: 'item' } },
-      }),
+      .openapi({ xml: { wrapped: true, name: 'items' } }),
     namespacedChild: z
-      .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
+      .object({ value: z.string().exactOptional() })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        xml: { namespace: 'http://example.com/child', prefix: 'ch' },
-        properties: { value: { type: 'string' } },
-      }),
+      .openapi({ xml: { namespace: 'http://example.com/child', prefix: 'ch' } }),
   })
-  .openapi({
-    type: 'object',
-    xml: { name: 'root', namespace: 'http://example.com/schema', prefix: 'ex' },
-    properties: {
-      attribute: { type: 'string', xml: { attribute: true, name: 'attr' } },
-      wrapped: {
-        type: 'array',
-        xml: { wrapped: true, name: 'items' },
-        items: { type: 'string', xml: { name: 'item' } },
-      },
-      namespacedChild: {
-        type: 'object',
-        xml: { namespace: 'http://example.com/child', prefix: 'ch' },
-        properties: { value: { type: 'string' } },
-      },
-    },
-  })
+  .openapi({ xml: { name: 'root', namespace: 'http://example.com/schema', prefix: 'ex' } })
   .openapi('XmlFeatures')
 
 const PetSchema = z
-  .object({
-    petType: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['petType', 'name'],
-    properties: { petType: { type: 'string' }, name: { type: 'string' } },
-  })
+  .object({ petType: z.string(), name: z.string() })
+  .openapi({ required: ['petType', 'name'] })
   .openapi('Pet')
 
 const DogSchema = PetSchema.and(
-  z
-    .object({
-      petType: z.literal('dog').exactOptional(),
-      breed: z.string().exactOptional().openapi({ type: 'string' }),
-      barkVolume: z.int().exactOptional().openapi({ type: 'integer' }),
-    })
-    .openapi({
-      type: 'object',
-      properties: {
-        petType: { const: 'dog' },
-        breed: { type: 'string' },
-        barkVolume: { type: 'integer' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Pet' },
-      {
-        type: 'object',
-        properties: {
-          petType: { const: 'dog' },
-          breed: { type: 'string' },
-          barkVolume: { type: 'integer' },
-        },
-      },
-    ],
-  })
-  .openapi('Dog')
+  z.object({
+    petType: z.literal('dog').exactOptional(),
+    breed: z.string().exactOptional(),
+    barkVolume: z.int().exactOptional(),
+  }),
+).openapi('Dog')
 
 const CatSchema = PetSchema.and(
-  z
-    .object({
-      petType: z.literal('cat').exactOptional(),
-      breed: z.string().exactOptional().openapi({ type: 'string' }),
-      meowPitch: z.int().exactOptional().openapi({ type: 'integer' }),
-    })
-    .openapi({
-      type: 'object',
-      properties: {
-        petType: { const: 'cat' },
-        breed: { type: 'string' },
-        meowPitch: { type: 'integer' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Pet' },
-      {
-        type: 'object',
-        properties: {
-          petType: { const: 'cat' },
-          breed: { type: 'string' },
-          meowPitch: { type: 'integer' },
-        },
-      },
-    ],
-  })
-  .openapi('Cat')
+  z.object({
+    petType: z.literal('cat').exactOptional(),
+    breed: z.string().exactOptional(),
+    meowPitch: z.int().exactOptional(),
+  }),
+).openapi('Cat')
 
 const BirdSchema = PetSchema.and(
-  z
-    .object({
-      petType: z.literal('bird').exactOptional(),
-      species: z.string().exactOptional().openapi({ type: 'string' }),
-      canFly: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    })
-    .openapi({
-      type: 'object',
-      properties: {
-        petType: { const: 'bird' },
-        species: { type: 'string' },
-        canFly: { type: 'boolean' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/Pet' },
-      {
-        type: 'object',
-        properties: {
-          petType: { const: 'bird' },
-          species: { type: 'string' },
-          canFly: { type: 'boolean' },
-        },
-      },
-    ],
-  })
-  .openapi('Bird')
+  z.object({
+    petType: z.literal('bird').exactOptional(),
+    species: z.string().exactOptional(),
+    canFly: z.boolean().exactOptional(),
+  }),
+).openapi('Bird')
 
 const DiscriminatedUnionSchema = z
-  .discriminatedUnion('petType', [DogSchema, CatSchema, BirdSchema])
+  .xor([DogSchema, CatSchema, BirdSchema])
   .openapi({
-    oneOf: [
-      { $ref: '#/components/schemas/Dog' },
-      { $ref: '#/components/schemas/Cat' },
-      { $ref: '#/components/schemas/Bird' },
-    ],
     discriminator: {
       propertyName: 'petType',
       mapping: {
@@ -289,15 +126,8 @@ const DiscriminatedUnionSchema = z
   .openapi('DiscriminatedUnion')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const PageParamParamsSchema = z
@@ -307,9 +137,6 @@ const PageParamParamsSchema = z
   .exactOptional()
   .openapi({
     param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-    type: 'integer',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -324,10 +151,6 @@ const LimitParamParamsSchema = z
       in: 'query',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -349,10 +172,7 @@ export const getStreamRoute = createRoute({
   summary: 'Stream data with Server-Sent Events',
   operationId: 'streamData',
   responses: {
-    200: {
-      description: 'Event stream',
-      content: { 'text/event-stream': { schema: z.string().openapi({ type: 'string' }) } },
-    },
+    200: { description: 'Event stream', content: { 'text/event-stream': { schema: z.string() } } },
   },
 })
 
@@ -365,22 +185,13 @@ export const postGraphqlRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/graphql': { schema: z.string().openapi({ type: 'string' }) },
+        'application/graphql': { schema: z.string() },
         'application/json': {
-          schema: z
-            .object({
-              query: z.string().exactOptional().openapi({ type: 'string' }),
-              variables: z.object({}).exactOptional().openapi({ type: 'object' }),
-              operationName: z.string().exactOptional().openapi({ type: 'string' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                query: { type: 'string' },
-                variables: { type: 'object' },
-                operationName: { type: 'string' },
-              },
-            }),
+          schema: z.object({
+            query: z.string().exactOptional(),
+            variables: z.object({}).exactOptional(),
+            operationName: z.string().exactOptional(),
+          }),
         },
       },
     },
@@ -390,21 +201,10 @@ export const postGraphqlRoute = createRoute({
       description: 'GraphQL response',
       content: {
         'application/graphql+json': {
-          schema: z
-            .object({
-              data: z.object({}).exactOptional().openapi({ type: 'object' }),
-              errors: z
-                .array(z.object({}).openapi({ type: 'object' }))
-                .exactOptional()
-                .openapi({ type: 'array', items: { type: 'object' } }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                data: { type: 'object' },
-                errors: { type: 'array', items: { type: 'object' } },
-              },
-            }),
+          schema: z.object({
+            data: z.object({}).exactOptional(),
+            errors: z.array(z.object({})).exactOptional(),
+          }),
         },
       },
     },
@@ -420,20 +220,13 @@ export const postGrpcGatewayRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/grpc': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-        'application/grpc+proto': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
+        'application/grpc': { schema: z.file() },
+        'application/grpc+proto': { schema: z.file() },
       },
     },
   },
   responses: {
-    200: {
-      description: 'gRPC response',
-      content: {
-        'application/grpc': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-      },
-    },
+    200: { description: 'gRPC response', content: { 'application/grpc': { schema: z.file() } } },
   },
 })
 
@@ -451,24 +244,15 @@ export const getDeprecatedEndpointRoute = createRoute({
       headers: z.object({
         Deprecation: {
           description: 'Deprecation date',
-          schema: z
-            .string()
-            .exactOptional()
-            .openapi({ description: 'Deprecation date', type: 'string' }),
+          schema: z.string().exactOptional().openapi({ description: 'Deprecation date' }),
         },
         Sunset: {
           description: 'Removal date',
-          schema: z
-            .string()
-            .exactOptional()
-            .openapi({ description: 'Removal date', type: 'string' }),
+          schema: z.string().exactOptional().openapi({ description: 'Removal date' }),
         },
         Link: {
           description: 'Link to replacement',
-          schema: z
-            .string()
-            .exactOptional()
-            .openapi({ description: 'Link to replacement', type: 'string' }),
+          schema: z.string().exactOptional().openapi({ description: 'Link to replacement' }),
         },
       }),
     },

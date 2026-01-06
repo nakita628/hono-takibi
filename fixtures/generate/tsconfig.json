@@ -11,5 +11,6 @@
     "skipLibCheck": true,
     "types": ["node"],
     "exactOptionalPropertyTypes": true
-  }
+  },
+  "exclude": ["routes/complex-schema-reference.ts", "routes/complex-schema-reference-random.ts"]
 }

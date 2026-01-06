@@ -2,33 +2,17 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    email: z.email(),
+    name: z.string().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'email', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'email', 'createdAt'] })
   .openapi('User')
 
 const CreateUserRequestSchema = z
-  .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['email'],
-    properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-  })
+  .object({ email: z.email(), name: z.string().exactOptional() })
+  .openapi({ required: ['email'] })
   .openapi('CreateUserRequest')
 
 export const getUsersRoute = createRoute({
@@ -38,13 +22,7 @@ export const getUsersRoute = createRoute({
   responses: {
     200: {
       description: 'List of users',
-      content: {
-        'application/json': {
-          schema: z
-            .array(UserSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(UserSchema) } },
     },
   },
 })
@@ -76,8 +54,6 @@ export const getUsersUserIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },

@@ -2,83 +2,37 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    role: z
-      .enum(['admin', 'user', 'guest'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
+    id: z.string(),
+    email: z.email(),
+    name: z.string().exactOptional(),
+    role: z.enum(['admin', 'user', 'guest']).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'email'],
-    properties: {
-      id: { type: 'string' },
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-      role: { type: 'string', enum: ['admin', 'user', 'guest'] },
-    },
-  })
+  .openapi({ required: ['id', 'email'] })
   .openapi('User')
 
 const CreateUserInputSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    password: z
-      .file()
-      .min(8)
-      .exactOptional()
-      .openapi({ type: 'string', format: 'binary', minLength: 8 }),
+    email: z.email(),
+    name: z.string().exactOptional(),
+    password: z.file().min(8).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['email'],
-    properties: {
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-      password: { type: 'string', format: 'binary', minLength: 8 },
-    },
-  })
+  .openapi({ required: ['email'] })
   .openapi('CreateUserInput')
 
 const UpdateUserInputSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().openapi({ type: 'string' }),
-    role: z
-      .enum(['admin', 'user', 'guest'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
+    email: z.email(),
+    name: z.string(),
+    role: z.enum(['admin', 'user', 'guest']).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['email', 'name'],
-    properties: {
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-      role: { type: 'string', enum: ['admin', 'user', 'guest'] },
-    },
-  })
+  .openapi({ required: ['email', 'name'] })
   .openapi('UpdateUserInput')
 
 const PatchUserInputSchema = z
   .object({
-    email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    role: z
-      .enum(['admin', 'user', 'guest'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['admin', 'user', 'guest'] }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-      role: { type: 'string', enum: ['admin', 'user', 'guest'] },
-    },
+    email: z.email().exactOptional(),
+    name: z.string().exactOptional(),
+    role: z.enum(['admin', 'user', 'guest']).exactOptional(),
   })
   .openapi('PatchUserInput')
 
@@ -118,21 +72,11 @@ const FileUploadRequestBody = {
   content: {
     'multipart/form-data': {
       schema: z
-        .object({
-          file: z.file().openapi({ type: 'string', format: 'binary' }),
-          description: z.string().exactOptional().openapi({ type: 'string' }),
-        })
-        .openapi({
-          type: 'object',
-          required: ['file'],
-          properties: {
-            file: { type: 'string', format: 'binary' },
-            description: { type: 'string' },
-          },
-        }),
+        .object({ file: z.file(), description: z.string().exactOptional() })
+        .openapi({ required: ['file'] }),
     },
-    'image/png': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
-    'image/jpeg': { schema: z.file().openapi({ type: 'string', format: 'binary' }) },
+    'image/png': { schema: z.file() },
+    'image/jpeg': { schema: z.file() },
   },
   required: true,
 }
@@ -145,12 +89,7 @@ const BulkCreateUsersRequestBody = {
         .array(CreateUserInputSchema)
         .min(1)
         .max(100)
-        .openapi({
-          type: 'array',
-          minItems: 1,
-          maxItems: 100,
-          items: { $ref: '#/components/schemas/CreateUserInput' },
-        }),
+        .openapi({ minItems: 1, maxItems: 100 }),
     },
     'application/x-ndjson': { schema: CreateUserInputSchema },
   },
@@ -175,7 +114,6 @@ export const putUsersUserIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: UpdateUserRequestBody,
@@ -193,7 +131,6 @@ export const patchUsersUserIdRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: PatchUserRequestBody,
@@ -211,7 +148,6 @@ export const postUsersUserIdAvatarRoute = createRoute({
         .string()
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
         }),
     }),
     body: FileUploadRequestBody,

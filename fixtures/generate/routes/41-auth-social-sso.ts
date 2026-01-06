@@ -2,587 +2,233 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ProviderInfoSchema = z
   .object({
-    id: z.string().openapi({ type: 'string' }),
-    name: z.string().openapi({ type: 'string', description: '表示名' }),
-    type: z
-      .enum(['oauth2', 'oidc', 'saml'])
-      .openapi({ type: 'string', enum: ['oauth2', 'oidc', 'saml'] }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
-    icon: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    id: z.string(),
+    name: z.string().openapi({ description: '表示名' }),
+    type: z.enum(['oauth2', 'oidc', 'saml']),
+    enabled: z.boolean(),
+    icon: z.url().exactOptional(),
     buttonColor: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .exactOptional()
-      .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
+      .exactOptional(),
     buttonTextColor: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/)
-      .exactOptional()
-      .openapi({ type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' }),
+      .exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'type', 'enabled'],
-    properties: {
-      id: { type: 'string' },
-      name: { type: 'string', description: '表示名' },
-      type: { type: 'string', enum: ['oauth2', 'oidc', 'saml'] },
-      enabled: { type: 'boolean' },
-      icon: { type: 'string', format: 'uri' },
-      buttonColor: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
-      buttonTextColor: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'type', 'enabled'] })
   .openapi('ProviderInfo')
 
 const ProviderConfigSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    type: z
-      .enum(['oauth2', 'oidc', 'saml'])
-      .openapi({ type: 'string', enum: ['oauth2', 'oidc', 'saml'] }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
-    clientId: z.string().exactOptional().openapi({ type: 'string' }),
-    authorizationUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    tokenUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    userInfoUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    id: z.uuid(),
+    name: z.string(),
+    type: z.enum(['oauth2', 'oidc', 'saml']),
+    enabled: z.boolean(),
+    clientId: z.string().exactOptional(),
+    authorizationUrl: z.url().exactOptional(),
+    tokenUrl: z.url().exactOptional(),
+    userInfoUrl: z.url().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
     attributeMapping: z
       .object({
-        id: z.string().exactOptional().openapi({ type: 'string' }),
-        email: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        picture: z.string().exactOptional().openapi({ type: 'string' }),
+        id: z.string().exactOptional(),
+        email: z.string().exactOptional(),
+        name: z.string().exactOptional(),
+        picture: z.string().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          email: { type: 'string' },
-          name: { type: 'string' },
-          picture: { type: 'string' },
-        },
-      }),
+      .exactOptional(),
     allowedDomains: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string())
       .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' }, description: '許可するメールドメイン' }),
-    autoCreateUser: z
-      .boolean()
-      .default(true)
-      .exactOptional()
-      .openapi({ type: 'boolean', default: true }),
+      .openapi({ description: '許可するメールドメイン' }),
+    autoCreateUser: z.boolean().default(true).exactOptional(),
     autoLinkUser: z
       .boolean()
       .default(false)
       .exactOptional()
-      .openapi({
-        type: 'boolean',
-        default: false,
-        description: 'メールアドレスで既存ユーザーに自動連携',
-      }),
-    icon: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    buttonColor: z.string().exactOptional().openapi({ type: 'string' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+      .openapi({ description: 'メールアドレスで既存ユーザーに自動連携' }),
+    icon: z.url().exactOptional(),
+    buttonColor: z.string().exactOptional(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'type', 'enabled', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      type: { type: 'string', enum: ['oauth2', 'oidc', 'saml'] },
-      enabled: { type: 'boolean' },
-      clientId: { type: 'string' },
-      authorizationUrl: { type: 'string', format: 'uri' },
-      tokenUrl: { type: 'string', format: 'uri' },
-      userInfoUrl: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          email: { type: 'string' },
-          name: { type: 'string' },
-          picture: { type: 'string' },
-        },
-      },
-      allowedDomains: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '許可するメールドメイン',
-      },
-      autoCreateUser: { type: 'boolean', default: true },
-      autoLinkUser: {
-        type: 'boolean',
-        default: false,
-        description: 'メールアドレスで既存ユーザーに自動連携',
-      },
-      icon: { type: 'string', format: 'uri' },
-      buttonColor: { type: 'string' },
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'type', 'enabled', 'createdAt'] })
   .openapi('ProviderConfig')
 
 const CreateProviderRequestSchema = z
   .object({
-    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-    type: z.enum(['oauth2', 'oidc']).openapi({ type: 'string', enum: ['oauth2', 'oidc'] }),
-    clientId: z.string().openapi({ type: 'string' }),
-    clientSecret: z.string().openapi({ type: 'string' }),
-    authorizationUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    tokenUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    userInfoUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).exactOptional().openapi({ type: 'object' }),
-    allowedDomains: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    autoCreateUser: z
-      .boolean()
-      .default(true)
-      .exactOptional()
-      .openapi({ type: 'boolean', default: true }),
-    autoLinkUser: z
-      .boolean()
-      .default(false)
-      .exactOptional()
-      .openapi({ type: 'boolean', default: false }),
-    icon: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    buttonColor: z.string().exactOptional().openapi({ type: 'string' }),
+    name: z.string().min(1).max(100),
+    type: z.enum(['oauth2', 'oidc']),
+    clientId: z.string(),
+    clientSecret: z.string(),
+    authorizationUrl: z.url().exactOptional(),
+    tokenUrl: z.url().exactOptional(),
+    userInfoUrl: z.url().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
+    attributeMapping: z.object({}).exactOptional(),
+    allowedDomains: z.array(z.string()).exactOptional(),
+    autoCreateUser: z.boolean().default(true).exactOptional(),
+    autoLinkUser: z.boolean().default(false).exactOptional(),
+    icon: z.url().exactOptional(),
+    buttonColor: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'type', 'clientId', 'clientSecret'],
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 100 },
-      type: { type: 'string', enum: ['oauth2', 'oidc'] },
-      clientId: { type: 'string' },
-      clientSecret: { type: 'string' },
-      authorizationUrl: { type: 'string', format: 'uri' },
-      tokenUrl: { type: 'string', format: 'uri' },
-      userInfoUrl: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: { type: 'object' },
-      allowedDomains: { type: 'array', items: { type: 'string' } },
-      autoCreateUser: { type: 'boolean', default: true },
-      autoLinkUser: { type: 'boolean', default: false },
-      icon: { type: 'string', format: 'uri' },
-      buttonColor: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['name', 'type', 'clientId', 'clientSecret'] })
   .openapi('CreateProviderRequest')
 
 const UpdateProviderRequestSchema = z
   .object({
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    enabled: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    clientId: z.string().exactOptional().openapi({ type: 'string' }),
-    clientSecret: z.string().exactOptional().openapi({ type: 'string' }),
-    authorizationUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    tokenUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    userInfoUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).exactOptional().openapi({ type: 'object' }),
-    allowedDomains: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    autoCreateUser: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    autoLinkUser: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      enabled: { type: 'boolean' },
-      clientId: { type: 'string' },
-      clientSecret: { type: 'string' },
-      authorizationUrl: { type: 'string', format: 'uri' },
-      tokenUrl: { type: 'string', format: 'uri' },
-      userInfoUrl: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: { type: 'object' },
-      allowedDomains: { type: 'array', items: { type: 'string' } },
-      autoCreateUser: { type: 'boolean' },
-      autoLinkUser: { type: 'boolean' },
-    },
+    name: z.string().exactOptional(),
+    enabled: z.boolean().exactOptional(),
+    clientId: z.string().exactOptional(),
+    clientSecret: z.string().exactOptional(),
+    authorizationUrl: z.url().exactOptional(),
+    tokenUrl: z.url().exactOptional(),
+    userInfoUrl: z.url().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
+    attributeMapping: z.object({}).exactOptional(),
+    allowedDomains: z.array(z.string()).exactOptional(),
+    autoCreateUser: z.boolean().exactOptional(),
+    autoLinkUser: z.boolean().exactOptional(),
   })
   .openapi('UpdateProviderRequest')
 
 const SocialAuthResultSchema = z
   .object({
-    user: z
-      .object({
-        id: z.uuid().exactOptional().openapi({ type: 'string', format: 'uuid' }),
-        email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        picture: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          email: { type: 'string', format: 'email' },
-          name: { type: 'string' },
-          picture: { type: 'string', format: 'uri' },
-        },
-      }),
-    isNewUser: z.boolean().openapi({ type: 'boolean' }),
-    accessToken: z.string().exactOptional().openapi({ type: 'string' }),
-    refreshToken: z.string().exactOptional().openapi({ type: 'string' }),
-    expiresIn: z.int().exactOptional().openapi({ type: 'integer' }),
-    provider: z.string().exactOptional().openapi({ type: 'string' }),
-    providerUserId: z.string().exactOptional().openapi({ type: 'string' }),
+    user: z.object({
+      id: z.uuid().exactOptional(),
+      email: z.email().exactOptional(),
+      name: z.string().exactOptional(),
+      picture: z.url().exactOptional(),
+    }),
+    isNewUser: z.boolean(),
+    accessToken: z.string().exactOptional(),
+    refreshToken: z.string().exactOptional(),
+    expiresIn: z.int().exactOptional(),
+    provider: z.string().exactOptional(),
+    providerUserId: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['user', 'isNewUser'],
-    properties: {
-      user: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          email: { type: 'string', format: 'email' },
-          name: { type: 'string' },
-          picture: { type: 'string', format: 'uri' },
-        },
-      },
-      isNewUser: { type: 'boolean' },
-      accessToken: { type: 'string' },
-      refreshToken: { type: 'string' },
-      expiresIn: { type: 'integer' },
-      provider: { type: 'string' },
-      providerUserId: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['user', 'isNewUser'] })
   .openapi('SocialAuthResult')
 
 const SocialAuthErrorSchema = z
   .object({
-    error: z
-      .enum([
-        'invalid_request',
-        'access_denied',
-        'unauthorized_client',
-        'invalid_scope',
-        'server_error',
-        'temporarily_unavailable',
-        'invalid_token',
-        'email_not_verified',
-        'domain_not_allowed',
-        'user_exists',
-        'linking_failed',
-      ])
-      .openapi({
-        type: 'string',
-        enum: [
-          'invalid_request',
-          'access_denied',
-          'unauthorized_client',
-          'invalid_scope',
-          'server_error',
-          'temporarily_unavailable',
-          'invalid_token',
-          'email_not_verified',
-          'domain_not_allowed',
-          'user_exists',
-          'linking_failed',
-        ],
-      }),
-    message: z.string().openapi({ type: 'string' }),
-    provider: z.string().exactOptional().openapi({ type: 'string' }),
+    error: z.enum([
+      'invalid_request',
+      'access_denied',
+      'unauthorized_client',
+      'invalid_scope',
+      'server_error',
+      'temporarily_unavailable',
+      'invalid_token',
+      'email_not_verified',
+      'domain_not_allowed',
+      'user_exists',
+      'linking_failed',
+    ]),
+    message: z.string(),
+    provider: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['error', 'message'],
-    properties: {
-      error: {
-        type: 'string',
-        enum: [
-          'invalid_request',
-          'access_denied',
-          'unauthorized_client',
-          'invalid_scope',
-          'server_error',
-          'temporarily_unavailable',
-          'invalid_token',
-          'email_not_verified',
-          'domain_not_allowed',
-          'user_exists',
-          'linking_failed',
-        ],
-      },
-      message: { type: 'string' },
-      provider: { type: 'string' },
-    },
-  })
+  .openapi({ required: ['error', 'message'] })
   .openapi('SocialAuthError')
 
 const LinkedAccountSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    provider: z.string().openapi({ type: 'string' }),
-    providerUserId: z.string().openapi({ type: 'string' }),
-    providerEmail: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
-    providerName: z.string().exactOptional().openapi({ type: 'string' }),
-    providerPicture: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    lastUsedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
+    id: z.uuid(),
+    provider: z.string(),
+    providerUserId: z.string(),
+    providerEmail: z.email().exactOptional(),
+    providerName: z.string().exactOptional(),
+    providerPicture: z.url().exactOptional(),
+    lastUsedAt: z.iso.datetime().exactOptional(),
+    createdAt: z.iso.datetime(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'provider', 'providerUserId', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      provider: { type: 'string' },
-      providerUserId: { type: 'string' },
-      providerEmail: { type: 'string', format: 'email' },
-      providerName: { type: 'string' },
-      providerPicture: { type: 'string', format: 'uri' },
-      lastUsedAt: { type: 'string', format: 'date-time' },
-      createdAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'provider', 'providerUserId', 'createdAt'] })
   .openapi('LinkedAccount')
 
 const SAMLConfigSchema = z
   .object({
-    entityId: z.string().exactOptional().openapi({ type: 'string', description: 'IdP Entity ID' }),
-    ssoUrl: z
-      .url()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'uri', description: 'IdP SSO URL' }),
-    sloUrl: z
-      .url()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'uri', description: 'IdP SLO URL' }),
-    certificate: z
-      .string()
-      .exactOptional()
-      .openapi({ type: 'string', description: 'IdP 証明書（PEM形式）' }),
-    signRequest: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    signatureAlgorithm: z
-      .enum(['RSA-SHA256', 'RSA-SHA512'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['RSA-SHA256', 'RSA-SHA512'] }),
-    digestAlgorithm: z
-      .enum(['SHA256', 'SHA512'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['SHA256', 'SHA512'] }),
-    nameIdFormat: z.string().exactOptional().openapi({ type: 'string' }),
+    entityId: z.string().exactOptional().openapi({ description: 'IdP Entity ID' }),
+    ssoUrl: z.url().exactOptional().openapi({ description: 'IdP SSO URL' }),
+    sloUrl: z.url().exactOptional().openapi({ description: 'IdP SLO URL' }),
+    certificate: z.string().exactOptional().openapi({ description: 'IdP 証明書（PEM形式）' }),
+    signRequest: z.boolean().exactOptional(),
+    signatureAlgorithm: z.enum(['RSA-SHA256', 'RSA-SHA512']).exactOptional(),
+    digestAlgorithm: z.enum(['SHA256', 'SHA512']).exactOptional(),
+    nameIdFormat: z.string().exactOptional(),
     attributeMapping: z
       .object({
-        email: z.string().exactOptional().openapi({ type: 'string' }),
-        name: z.string().exactOptional().openapi({ type: 'string' }),
-        firstName: z.string().exactOptional().openapi({ type: 'string' }),
-        lastName: z.string().exactOptional().openapi({ type: 'string' }),
-        groups: z.string().exactOptional().openapi({ type: 'string' }),
+        email: z.string().exactOptional(),
+        name: z.string().exactOptional(),
+        firstName: z.string().exactOptional(),
+        lastName: z.string().exactOptional(),
+        groups: z.string().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          email: { type: 'string' },
-          name: { type: 'string' },
-          firstName: { type: 'string' },
-          lastName: { type: 'string' },
-          groups: { type: 'string' },
-        },
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      entityId: { type: 'string', description: 'IdP Entity ID' },
-      ssoUrl: { type: 'string', format: 'uri', description: 'IdP SSO URL' },
-      sloUrl: { type: 'string', format: 'uri', description: 'IdP SLO URL' },
-      certificate: { type: 'string', description: 'IdP 証明書（PEM形式）' },
-      signRequest: { type: 'boolean' },
-      signatureAlgorithm: { type: 'string', enum: ['RSA-SHA256', 'RSA-SHA512'] },
-      digestAlgorithm: { type: 'string', enum: ['SHA256', 'SHA512'] },
-      nameIdFormat: { type: 'string' },
-      attributeMapping: {
-        type: 'object',
-        properties: {
-          email: { type: 'string' },
-          name: { type: 'string' },
-          firstName: { type: 'string' },
-          lastName: { type: 'string' },
-          groups: { type: 'string' },
-        },
-      },
-    },
+      .exactOptional(),
   })
   .openapi('SAMLConfig')
 
 const OIDCConfigSchema = z
   .object({
-    issuer: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    clientId: z.string().exactOptional().openapi({ type: 'string' }),
-    authorizationEndpoint: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    tokenEndpoint: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    userInfoEndpoint: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    jwksUri: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    scopes: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-    attributeMapping: z.object({}).exactOptional().openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      issuer: { type: 'string', format: 'uri' },
-      clientId: { type: 'string' },
-      authorizationEndpoint: { type: 'string', format: 'uri' },
-      tokenEndpoint: { type: 'string', format: 'uri' },
-      userInfoEndpoint: { type: 'string', format: 'uri' },
-      jwksUri: { type: 'string', format: 'uri' },
-      scopes: { type: 'array', items: { type: 'string' } },
-      attributeMapping: { type: 'object' },
-    },
+    issuer: z.url().exactOptional(),
+    clientId: z.string().exactOptional(),
+    authorizationEndpoint: z.url().exactOptional(),
+    tokenEndpoint: z.url().exactOptional(),
+    userInfoEndpoint: z.url().exactOptional(),
+    jwksUri: z.url().exactOptional(),
+    scopes: z.array(z.string()).exactOptional(),
+    attributeMapping: z.object({}).exactOptional(),
   })
   .openapi('OIDCConfig')
 
 const EnterpriseSSOConfigSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string', description: '組織名' }),
-    type: z.enum(['saml', 'oidc']).openapi({ type: 'string', enum: ['saml', 'oidc'] }),
-    domains: z
-      .array(z.string().openapi({ type: 'string' }))
-      .openapi({
-        type: 'array',
-        items: { type: 'string' },
-        description: '関連付けられたメールドメイン',
-      }),
-    enabled: z.boolean().openapi({ type: 'boolean' }),
+    id: z.uuid(),
+    name: z.string().openapi({ description: '組織名' }),
+    type: z.enum(['saml', 'oidc']),
+    domains: z.array(z.string()).openapi({ description: '関連付けられたメールドメイン' }),
+    enabled: z.boolean(),
     samlConfig: SAMLConfigSchema.exactOptional(),
     oidcConfig: OIDCConfigSchema.exactOptional(),
     userProvisioning: z
       .object({
-        autoCreate: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        autoUpdate: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        defaultRole: z.string().exactOptional().openapi({ type: 'string' }),
+        autoCreate: z.boolean().exactOptional(),
+        autoUpdate: z.boolean().exactOptional(),
+        defaultRole: z.string().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          autoCreate: { type: 'boolean' },
-          autoUpdate: { type: 'boolean' },
-          defaultRole: { type: 'string' },
-        },
-      }),
-    createdAt: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+      .exactOptional(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name', 'type', 'domains', 'enabled', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string', description: '組織名' },
-      type: { type: 'string', enum: ['saml', 'oidc'] },
-      domains: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '関連付けられたメールドメイン',
-      },
-      enabled: { type: 'boolean' },
-      samlConfig: { $ref: '#/components/schemas/SAMLConfig' },
-      oidcConfig: { $ref: '#/components/schemas/OIDCConfig' },
-      userProvisioning: {
-        type: 'object',
-        properties: {
-          autoCreate: { type: 'boolean' },
-          autoUpdate: { type: 'boolean' },
-          defaultRole: { type: 'string' },
-        },
-      },
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-    },
-  })
+  .openapi({ required: ['id', 'name', 'type', 'domains', 'enabled', 'createdAt'] })
   .openapi('EnterpriseSSOConfig')
 
 const CreateEnterpriseSSORequestSchema = z
   .object({
-    name: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    type: z.enum(['saml', 'oidc']).openapi({ type: 'string', enum: ['saml', 'oidc'] }),
-    domains: z
-      .array(z.string().openapi({ type: 'string' }))
-      .min(1)
-      .openapi({ type: 'array', minItems: 1, items: { type: 'string' } }),
+    name: z.string().min(1).max(200),
+    type: z.enum(['saml', 'oidc']),
+    domains: z.array(z.string()).min(1).openapi({ minItems: 1 }),
     samlConfig: SAMLConfigSchema.exactOptional(),
     oidcConfig: OIDCConfigSchema.exactOptional(),
-    userProvisioning: z.object({}).exactOptional().openapi({ type: 'object' }),
+    userProvisioning: z.object({}).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['name', 'type', 'domains'],
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 200 },
-      type: { type: 'string', enum: ['saml', 'oidc'] },
-      domains: { type: 'array', minItems: 1, items: { type: 'string' } },
-      samlConfig: { $ref: '#/components/schemas/SAMLConfig' },
-      oidcConfig: { $ref: '#/components/schemas/OIDCConfig' },
-      userProvisioning: { type: 'object' },
-    },
-  })
+  .openapi({ required: ['name', 'type', 'domains'] })
   .openapi('CreateEnterpriseSSORequest')
 
 const UpdateEnterpriseSSORequestSchema = z
   .object({
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-    enabled: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-    domains: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    name: z.string().exactOptional(),
+    enabled: z.boolean().exactOptional(),
+    domains: z.array(z.string()).exactOptional(),
     samlConfig: SAMLConfigSchema.exactOptional(),
     oidcConfig: OIDCConfigSchema.exactOptional(),
-    userProvisioning: z.object({}).exactOptional().openapi({ type: 'object' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string' },
-      enabled: { type: 'boolean' },
-      domains: { type: 'array', items: { type: 'string' } },
-      samlConfig: { $ref: '#/components/schemas/SAMLConfig' },
-      oidcConfig: { $ref: '#/components/schemas/OIDCConfig' },
-      userProvisioning: { type: 'object' },
-    },
+    userProvisioning: z.object({}).exactOptional(),
   })
   .openapi('UpdateEnterpriseSSORequest')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: { code: { type: 'string' }, message: { type: 'string' } },
-  })
+  .object({ code: z.string(), message: z.string() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const ProviderParamParamsSchema = z
@@ -620,19 +266,6 @@ const ProviderParamParamsSchema = z
         ],
       },
     },
-    type: 'string',
-    enum: [
-      'google',
-      'github',
-      'microsoft',
-      'apple',
-      'facebook',
-      'twitter',
-      'linkedin',
-      'slack',
-      'discord',
-      'custom',
-    ],
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -671,16 +304,11 @@ export const getSocialAuthorizeProviderRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uri' },
           },
-          type: 'string',
-          format: 'uri',
         }),
       state: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'state', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'state', in: 'query', schema: { type: 'string' } } }),
       scope: z
         .string()
         .exactOptional()
@@ -691,7 +319,6 @@ export const getSocialAuthorizeProviderRoute = createRoute({
             description: '追加のスコープ（カンマ区切り）',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       login_hint: z
         .string()
@@ -703,7 +330,6 @@ export const getSocialAuthorizeProviderRoute = createRoute({
             description: 'ログインヒント',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       prompt: z
         .enum(['none', 'consent', 'select_account'])
@@ -714,17 +340,13 @@ export const getSocialAuthorizeProviderRoute = createRoute({
             in: 'query',
             schema: { type: 'string', enum: ['none', 'consent', 'select_account'] },
           },
-          type: 'string',
-          enum: ['none', 'consent', 'select_account'],
         }),
     }),
   },
   responses: {
     302: {
       description: 'プロバイダーの認証画面にリダイレクト',
-      headers: z.object({
-        Location: { schema: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { schema: z.url().exactOptional() } }),
     },
     400: {
       description: '不正なリクエスト',
@@ -753,15 +375,11 @@ export const getSocialCallbackProviderRoute = createRoute({
             description: '認可コード',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       state: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'state', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'state', in: 'query', schema: { type: 'string' } } }),
       error: z
         .string()
         .exactOptional()
@@ -772,23 +390,17 @@ export const getSocialCallbackProviderRoute = createRoute({
             description: 'エラーコード',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       error_description: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'error_description', in: 'query', schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'error_description', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
     302: {
       description: 'アプリケーションにリダイレクト',
-      headers: z.object({
-        Location: { schema: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }) },
-      }),
+      headers: z.object({ Location: { schema: z.url().exactOptional() } }),
     },
     400: {
       description: '認証失敗',
@@ -810,24 +422,12 @@ export const postSocialTokenRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              provider: z.string().openapi({ type: 'string' }),
-              code: z.string().openapi({ type: 'string' }),
-              redirectUri: z.url().openapi({ type: 'string', format: 'uri' }),
-              codeVerifier: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', description: 'PKCE用' }),
+              provider: z.string(),
+              code: z.string(),
+              redirectUri: z.url(),
+              codeVerifier: z.string().exactOptional().openapi({ description: 'PKCE用' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['provider', 'code', 'redirectUri'],
-              properties: {
-                provider: { type: 'string' },
-                code: { type: 'string' },
-                redirectUri: { type: 'string', format: 'uri' },
-                codeVerifier: { type: 'string', description: 'PKCE用' },
-              },
-            }),
+            .openapi({ required: ['provider', 'code', 'redirectUri'] }),
         },
       },
       required: true,
@@ -858,33 +458,11 @@ export const postSocialTokenNativeRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              provider: z.string().openapi({ type: 'string' }),
-              token: z
-                .string()
-                .openapi({ type: 'string', description: 'ID Token または Access Token' }),
-              tokenType: z
-                .enum(['id_token', 'access_token'])
-                .default('id_token')
-                .exactOptional()
-                .openapi({
-                  type: 'string',
-                  enum: ['id_token', 'access_token'],
-                  default: 'id_token',
-                }),
+              provider: z.string(),
+              token: z.string().openapi({ description: 'ID Token または Access Token' }),
+              tokenType: z.enum(['id_token', 'access_token']).default('id_token').exactOptional(),
             })
-            .openapi({
-              type: 'object',
-              required: ['provider', 'token'],
-              properties: {
-                provider: { type: 'string' },
-                token: { type: 'string', description: 'ID Token または Access Token' },
-                tokenType: {
-                  type: 'string',
-                  enum: ['id_token', 'access_token'],
-                  default: 'id_token',
-                },
-              },
-            }),
+            .openapi({ required: ['provider', 'token'] }),
         },
       },
       required: true,
@@ -911,13 +489,7 @@ export const getProvidersRoute = createRoute({
   responses: {
     200: {
       description: 'プロバイダー一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(ProviderInfoSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProviderInfo' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(ProviderInfoSchema) } },
     },
   },
 })
@@ -931,13 +503,7 @@ export const getProvidersAdminRoute = createRoute({
   responses: {
     200: {
       description: 'プロバイダー一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(ProviderConfigSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/ProviderConfig' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(ProviderConfigSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -984,8 +550,6 @@ export const getProvidersProviderIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -1017,8 +581,6 @@ export const putProvidersProviderIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
     body: {
@@ -1053,8 +615,6 @@ export const deleteProvidersProviderIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -1079,8 +639,6 @@ export const postProvidersProviderIdTestRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -1089,20 +647,11 @@ export const postProvidersProviderIdTestRoute = createRoute({
       description: 'テスト結果',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              success: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-              message: z.string().exactOptional().openapi({ type: 'string' }),
-              details: z.object({}).exactOptional().openapi({ type: 'object' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                success: { type: 'boolean' },
-                message: { type: 'string' },
-                details: { type: 'object' },
-              },
-            }),
+          schema: z.object({
+            success: z.boolean().exactOptional(),
+            message: z.string().exactOptional(),
+            details: z.object({}).exactOptional(),
+          }),
         },
       },
     },
@@ -1120,13 +669,7 @@ export const getAccountLinkedRoute = createRoute({
   responses: {
     200: {
       description: '連携アカウント一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(LinkedAccountSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/LinkedAccount' } }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(LinkedAccountSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1146,18 +689,8 @@ export const postAccountLinkProviderRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              code: z.string().openapi({ type: 'string' }),
-              redirectUri: z.url().openapi({ type: 'string', format: 'uri' }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['code', 'redirectUri'],
-              properties: {
-                code: { type: 'string' },
-                redirectUri: { type: 'string', format: 'uri' },
-              },
-            }),
+            .object({ code: z.string(), redirectUri: z.url() })
+            .openapi({ required: ['code', 'redirectUri'] }),
         },
       },
       required: true,
@@ -1205,16 +738,7 @@ export const getEnterpriseSsoRoute = createRoute({
   responses: {
     200: {
       description: 'SSO設定一覧',
-      content: {
-        'application/json': {
-          schema: z
-            .array(EnterpriseSSOConfigSchema)
-            .openapi({
-              type: 'array',
-              items: { $ref: '#/components/schemas/EnterpriseSSOConfig' },
-            }),
-        },
-      },
+      content: { 'application/json': { schema: z.array(EnterpriseSSOConfigSchema) } },
     },
     401: UnauthorizedResponse,
   },
@@ -1261,8 +785,6 @@ export const getEnterpriseSsoConfigIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -1294,8 +816,6 @@ export const putEnterpriseSsoConfigIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
     body: {
@@ -1330,8 +850,6 @@ export const deleteEnterpriseSsoConfigIdRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
@@ -1357,7 +875,6 @@ export const getEnterpriseSsoDomainLookupRoute = createRoute({
             schema: { type: 'string' },
             example: 'company.com',
           },
-          type: 'string',
         }),
     }),
   },
@@ -1388,15 +905,10 @@ export const getEnterpriseSsoConfigIdMetadataRoute = createRoute({
             required: true,
             schema: { type: 'string', format: 'uuid' },
           },
-          type: 'string',
-          format: 'uuid',
         }),
     }),
   },
   responses: {
-    200: {
-      description: 'SPメタデータ',
-      content: { 'application/xml': { schema: z.string().openapi({ type: 'string' }) } },
-    },
+    200: { description: 'SPメタデータ', content: { 'application/xml': { schema: z.string() } } },
   },
 })

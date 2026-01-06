@@ -2,211 +2,95 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    petId: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 198772 }),
-    quantity: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32', example: 7 }),
-    shipDate: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
+    id: z.int64().exactOptional().openapi({ example: 10 }),
+    petId: z.int64().exactOptional().openapi({ example: 198772 }),
+    quantity: z.int32().exactOptional().openapi({ example: 7 }),
+    shipDate: z.iso.datetime().exactOptional(),
     status: z
       .enum(['placed', 'approved', 'delivered'])
       .exactOptional()
-      .openapi({
-        type: 'string',
-        description: 'Order Status',
-        example: 'approved',
-        enum: ['placed', 'approved', 'delivered'],
-      }),
-    complete: z.boolean().exactOptional().openapi({ type: 'boolean' }),
+      .openapi({ description: 'Order Status', example: 'approved' }),
+    complete: z.boolean().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'integer', format: 'int64', example: 10 },
-      petId: { type: 'integer', format: 'int64', example: 198772 },
-      quantity: { type: 'integer', format: 'int32', example: 7 },
-      shipDate: { type: 'string', format: 'date-time' },
-      status: {
-        type: 'string',
-        description: 'Order Status',
-        example: 'approved',
-        enum: ['placed', 'approved', 'delivered'],
-      },
-      complete: { type: 'boolean' },
-    },
-    xml: { name: 'order' },
-  })
+  .openapi({ xml: { name: 'order' } })
   .openapi('Order')
 
 const AddressSchema = z
   .object({
-    street: z.string().exactOptional().openapi({ type: 'string', example: '437 Lytton' }),
-    city: z.string().exactOptional().openapi({ type: 'string', example: 'Palo Alto' }),
-    state: z.string().exactOptional().openapi({ type: 'string', example: 'CA' }),
-    zip: z.string().exactOptional().openapi({ type: 'string', example: '94301' }),
+    street: z.string().exactOptional().openapi({ example: '437 Lytton' }),
+    city: z.string().exactOptional().openapi({ example: 'Palo Alto' }),
+    state: z.string().exactOptional().openapi({ example: 'CA' }),
+    zip: z.string().exactOptional().openapi({ example: '94301' }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      street: { type: 'string', example: '437 Lytton' },
-      city: { type: 'string', example: 'Palo Alto' },
-      state: { type: 'string', example: 'CA' },
-      zip: { type: 'string', example: '94301' },
-    },
-    xml: { name: 'address' },
-  })
+  .openapi({ xml: { name: 'address' } })
   .openapi('Address')
 
 const CustomerSchema = z
   .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 100000 }),
-    username: z.string().exactOptional().openapi({ type: 'string', example: 'fehguy' }),
+    id: z.int64().exactOptional().openapi({ example: 100000 }),
+    username: z.string().exactOptional().openapi({ example: 'fehguy' }),
     address: z
       .array(AddressSchema)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        xml: { name: 'addresses', wrapped: true },
-        items: { $ref: '#/components/schemas/Address' },
-      }),
+      .openapi({ xml: { name: 'addresses', wrapped: true } }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'integer', format: 'int64', example: 100000 },
-      username: { type: 'string', example: 'fehguy' },
-      address: {
-        type: 'array',
-        xml: { name: 'addresses', wrapped: true },
-        items: { $ref: '#/components/schemas/Address' },
-      },
-    },
-    xml: { name: 'customer' },
-  })
+  .openapi({ xml: { name: 'customer' } })
   .openapi('Customer')
 
 const CategorySchema = z
   .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 1 }),
-    name: z.string().exactOptional().openapi({ type: 'string', example: 'Dogs' }),
+    id: z.int64().exactOptional().openapi({ example: 1 }),
+    name: z.string().exactOptional().openapi({ example: 'Dogs' }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'integer', format: 'int64', example: 1 },
-      name: { type: 'string', example: 'Dogs' },
-    },
-    xml: { name: 'category' },
-  })
+  .openapi({ xml: { name: 'category' } })
   .openapi('Category')
 
 const UserSchema = z
   .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    username: z.string().exactOptional().openapi({ type: 'string', example: 'theUser' }),
-    firstName: z.string().exactOptional().openapi({ type: 'string', example: 'John' }),
-    lastName: z.string().exactOptional().openapi({ type: 'string', example: 'James' }),
-    email: z.string().exactOptional().openapi({ type: 'string', example: 'john@email.com' }),
-    password: z.string().exactOptional().openapi({ type: 'string', example: '12345' }),
-    phone: z.string().exactOptional().openapi({ type: 'string', example: '12345' }),
-    userStatus: z
-      .int32()
-      .exactOptional()
-      .openapi({ type: 'integer', description: 'User Status', format: 'int32', example: 1 }),
+    id: z.int64().exactOptional().openapi({ example: 10 }),
+    username: z.string().exactOptional().openapi({ example: 'theUser' }),
+    firstName: z.string().exactOptional().openapi({ example: 'John' }),
+    lastName: z.string().exactOptional().openapi({ example: 'James' }),
+    email: z.string().exactOptional().openapi({ example: 'john@email.com' }),
+    password: z.string().exactOptional().openapi({ example: '12345' }),
+    phone: z.string().exactOptional().openapi({ example: '12345' }),
+    userStatus: z.int32().exactOptional().openapi({ description: 'User Status', example: 1 }),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      id: { type: 'integer', format: 'int64', example: 10 },
-      username: { type: 'string', example: 'theUser' },
-      firstName: { type: 'string', example: 'John' },
-      lastName: { type: 'string', example: 'James' },
-      email: { type: 'string', example: 'john@email.com' },
-      password: { type: 'string', example: '12345' },
-      phone: { type: 'string', example: '12345' },
-      userStatus: { type: 'integer', description: 'User Status', format: 'int32', example: 1 },
-    },
-    xml: { name: 'user' },
-  })
+  .openapi({ xml: { name: 'user' } })
   .openapi('User')
 
 const TagSchema = z
-  .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: { id: { type: 'integer', format: 'int64' }, name: { type: 'string' } },
-    xml: { name: 'tag' },
-  })
+  .object({ id: z.int64().exactOptional(), name: z.string().exactOptional() })
+  .openapi({ xml: { name: 'tag' } })
   .openapi('Tag')
 
 const PetSchema = z
   .object({
-    id: z.int64().exactOptional().openapi({ type: 'integer', format: 'int64', example: 10 }),
-    name: z.string().openapi({ type: 'string', example: 'doggie' }),
+    id: z.int64().exactOptional().openapi({ example: 10 }),
+    name: z.string().openapi({ example: 'doggie' }),
     category: CategorySchema.exactOptional(),
     photoUrls: z
-      .array(z.string().openapi({ type: 'string', xml: { name: 'photoUrl' } }))
-      .openapi({
-        type: 'array',
-        xml: { wrapped: true },
-        items: { type: 'string', xml: { name: 'photoUrl' } },
-      }),
+      .array(z.string().openapi({ xml: { name: 'photoUrl' } }))
+      .openapi({ xml: { wrapped: true } }),
     tags: z
       .array(TagSchema)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        xml: { wrapped: true },
-        items: { $ref: '#/components/schemas/Tag' },
-      }),
+      .openapi({ xml: { wrapped: true } }),
     status: z
       .enum(['available', 'pending', 'sold'])
       .exactOptional()
-      .openapi({
-        type: 'string',
-        description: 'pet status in the store',
-        enum: ['available', 'pending', 'sold'],
-      }),
+      .openapi({ description: 'pet status in the store' }),
   })
-  .openapi({
-    required: ['name', 'photoUrls'],
-    type: 'object',
-    properties: {
-      id: { type: 'integer', format: 'int64', example: 10 },
-      name: { type: 'string', example: 'doggie' },
-      category: { $ref: '#/components/schemas/Category' },
-      photoUrls: {
-        type: 'array',
-        xml: { wrapped: true },
-        items: { type: 'string', xml: { name: 'photoUrl' } },
-      },
-      tags: { type: 'array', xml: { wrapped: true }, items: { $ref: '#/components/schemas/Tag' } },
-      status: {
-        type: 'string',
-        description: 'pet status in the store',
-        enum: ['available', 'pending', 'sold'],
-      },
-    },
-    xml: { name: 'pet' },
-  })
+  .openapi({ required: ['name', 'photoUrls'], xml: { name: 'pet' } })
   .openapi('Pet')
 
 const ApiResponseSchema = z
   .object({
-    code: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32' }),
-    type: z.string().exactOptional().openapi({ type: 'string' }),
-    message: z.string().exactOptional().openapi({ type: 'string' }),
+    code: z.int32().exactOptional(),
+    type: z.string().exactOptional(),
+    message: z.string().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      code: { type: 'integer', format: 'int32' },
-      type: { type: 'string' },
-      message: { type: 'string' },
-    },
-    xml: { name: '##default' },
-  })
+  .openapi({ xml: { name: '##default' } })
   .openapi('ApiResponse')
 
 const PetstoreAuthSecurityScheme = {
@@ -228,13 +112,7 @@ const PetRequestBody = {
 
 const UserArrayRequestBody = {
   description: 'List of user object',
-  content: {
-    'application/json': {
-      schema: z
-        .array(UserSchema)
-        .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-    },
-  },
+  content: { 'application/json': { schema: z.array(UserSchema) } },
 }
 
 export const putPetRoute = createRoute({
@@ -328,9 +206,6 @@ export const getPetFindByStatusRoute = createRoute({
               enum: ['available', 'pending', 'sold'],
             },
           },
-          type: 'string',
-          default: 'available',
-          enum: ['available', 'pending', 'sold'],
         }),
     }),
   },
@@ -338,16 +213,8 @@ export const getPetFindByStatusRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': {
-          schema: z
-            .array(PetSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
-        },
-        'application/xml': {
-          schema: z
-            .array(PetSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
-        },
+        'application/json': { schema: z.array(PetSchema) },
+        'application/xml': { schema: z.array(PetSchema) },
       },
     },
     400: { description: 'Invalid status value' },
@@ -379,7 +246,6 @@ export const getPetFindByTagsRoute = createRoute({
                 explode: true,
                 schema: { type: 'array', items: { type: 'string' } },
               },
-              type: 'string',
             }),
         )
         .exactOptional()
@@ -392,8 +258,6 @@ export const getPetFindByTagsRoute = createRoute({
             explode: true,
             schema: { type: 'array', items: { type: 'string' } },
           },
-          type: 'array',
-          items: { type: 'string' },
         }),
     }),
   },
@@ -401,16 +265,8 @@ export const getPetFindByTagsRoute = createRoute({
     200: {
       description: 'successful operation',
       content: {
-        'application/json': {
-          schema: z
-            .array(PetSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
-        },
-        'application/xml': {
-          schema: z
-            .array(PetSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/Pet' } }),
-        },
+        'application/json': { schema: z.array(PetSchema) },
+        'application/xml': { schema: z.array(PetSchema) },
       },
     },
     400: { description: 'Invalid tag value' },
@@ -437,8 +293,6 @@ export const getPetPetIdRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
   },
@@ -474,8 +328,6 @@ export const postPetPetIdRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
     query: z.object({
@@ -489,7 +341,6 @@ export const postPetPetIdRoute = createRoute({
             description: 'Name of pet that needs to be updated',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       status: z
         .string()
@@ -501,7 +352,6 @@ export const postPetPetIdRoute = createRoute({
             description: 'Status of pet that needs to be updated',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
@@ -529,7 +379,6 @@ export const deletePetPetIdRoute = createRoute({
             required: false,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
     params: z.object({
@@ -543,8 +392,6 @@ export const deletePetPetIdRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
   },
@@ -570,8 +417,6 @@ export const postPetPetIdUploadImageRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
     query: z.object({
@@ -586,16 +431,9 @@ export const postPetPetIdUploadImageRoute = createRoute({
             required: false,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
-    body: {
-      content: {
-        'application/octet-stream': {
-          schema: z.file().openapi({ type: 'string', format: 'binary' }),
-        },
-      },
-    },
+    body: { content: { 'application/octet-stream': { schema: z.file() } } },
   },
   responses: {
     200: {
@@ -616,16 +454,7 @@ export const getStoreInventoryRoute = createRoute({
   responses: {
     200: {
       description: 'successful operation',
-      content: {
-        'application/json': {
-          schema: z
-            .record(z.string(), z.int32().openapi({ type: 'integer', format: 'int32' }))
-            .openapi({
-              type: 'object',
-              additionalProperties: { type: 'integer', format: 'int32' },
-            }),
-        },
-      },
+      content: { 'application/json': { schema: z.record(z.string(), z.int32()) } },
     },
   },
   security: [{ api_key: [] }],
@@ -677,8 +506,6 @@ export const getStoreOrderOrderIdRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
   },
@@ -715,8 +542,6 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
             required: true,
             schema: { type: 'integer', format: 'int64' },
           },
-          type: 'integer',
-          format: 'int64',
         }),
     }),
   },
@@ -761,17 +586,7 @@ export const postUserCreateWithListRoute = createRoute({
   summary: 'Creates list of users with given input array',
   description: 'Creates list of users with given input array',
   operationId: 'createUsersWithListInput',
-  request: {
-    body: {
-      content: {
-        'application/json': {
-          schema: z
-            .array(UserSchema)
-            .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-        },
-      },
-    },
-  },
+  request: { body: { content: { 'application/json': { schema: z.array(UserSchema) } } } },
   responses: {
     200: {
       description: 'Successful operation',
@@ -803,7 +618,6 @@ export const getUserLoginRoute = createRoute({
             required: false,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       password: z
         .string()
@@ -816,7 +630,6 @@ export const getUserLoginRoute = createRoute({
             required: false,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
@@ -829,27 +642,19 @@ export const getUserLoginRoute = createRoute({
           schema: z
             .int32()
             .exactOptional()
-            .openapi({
-              description: 'calls per hour allowed by the user',
-              type: 'integer',
-              format: 'int32',
-            }),
+            .openapi({ description: 'calls per hour allowed by the user' }),
         },
         'X-Expires-After': {
           description: 'date in UTC when token expires',
           schema: z.iso
             .datetime()
             .exactOptional()
-            .openapi({
-              description: 'date in UTC when token expires',
-              type: 'string',
-              format: 'date-time',
-            }),
+            .openapi({ description: 'date in UTC when token expires' }),
         },
       }),
       content: {
-        'application/xml': { schema: z.string().openapi({ type: 'string' }) },
-        'application/json': { schema: z.string().openapi({ type: 'string' }) },
+        'application/xml': { schema: z.string() },
+        'application/json': { schema: z.string() },
       },
     },
     400: { description: 'Invalid username/password supplied' },
@@ -883,7 +688,6 @@ export const getUserUsernameRoute = createRoute({
             required: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },
@@ -919,7 +723,6 @@ export const putUserUsernameRoute = createRoute({
             required: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
     body: {
@@ -953,7 +756,6 @@ export const deleteUserUsernameRoute = createRoute({
             required: true,
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
     }),
   },

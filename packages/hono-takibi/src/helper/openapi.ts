@@ -14,7 +14,12 @@ import type {
   Responses,
   Schema,
 } from '../openapi/index.js'
-import { getToSafeIdentifier, requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  getToSafeIdentifier,
+  requestParamsArray,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
 /**
  * generates a reference to the given $ref string.
@@ -27,41 +32,44 @@ export function makeRef($ref: string): string {
   // The OpenAPI $ref is preserved in the .openapi() metadata for runtime accuracy
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
-    const schemaName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-    const parentSchema = schemaName.endsWith('Schema') ? schemaName : `${schemaName}Schema`
+    // Use the same transformation as definition side: ensureSuffix first, then toIdentifierPascalCase
+    const parentSchema = toIdentifierPascalCase(
+      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
+    )
     return `z.lazy(() => ${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
-  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  const decodedRef = decodeURIComponent(rawRef)
+  // Use the same transformation as definition side for each component type
   if ($ref.startsWith('#/components/schemas/')) {
-    return refName.endsWith('Schema') ? refName : `${refName}Schema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
   }
   if ($ref.startsWith('#/components/parameters/')) {
-    return refName.endsWith('ParamsSchema') ? refName : `${refName}ParamsSchema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'ParamsSchema'))
   }
   if ($ref.startsWith('#/components/headers/')) {
-    return refName.endsWith('HeaderSchema') ? refName : `${refName}HeaderSchema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'HeaderSchema'))
   }
   if ($ref.startsWith('#/components/securitySchemes/')) {
-    return refName.endsWith('SecurityScheme') ? refName : `${refName}SecurityScheme`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'SecurityScheme'))
   }
   if ($ref.startsWith('#/components/requestBodies/')) {
-    return refName.endsWith('RequestBody') ? refName : `${refName}RequestBody`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'RequestBody'))
   }
   if ($ref.startsWith('#/components/responses/')) {
-    return refName.endsWith('Response') ? refName : `${refName}Response`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Response'))
   }
   if ($ref.startsWith('#/components/examples/')) {
-    return refName.endsWith('Example') ? refName : `${refName}Example`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Example'))
   }
   if ($ref.startsWith('#/components/links/')) {
-    return refName.endsWith('Link') ? refName : `${refName}Link`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Link'))
   }
   if ($ref.startsWith('#/components/callbacks/')) {
-    return refName.endsWith('Callback') ? refName : `${refName}Callback`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Callback'))
   }
-  return `${refName}Schema`
+  return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
 }
 
 /**
@@ -376,7 +384,7 @@ export function makeContent(
 
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
-      // Reference
+      // Referenc
       if (isReference(mediaOrRef) && mediaOrRef.$ref) {
         return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
       }
@@ -508,55 +516,40 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
  * - Applies coercion for query parameters with number/boolean/date types.
  */
 export function makeParameters(parameters: readonly Parameter[]): {
-  [section: string]: { [k: string]: string }
+  [section: string]: { readonly [k: string]: string }
 } {
-  return parameters.reduce(
-    (
-      acc: {
-        [section: string]: { [k: string]: string }
-      },
-      param,
-    ) => {
-      if (param.$ref !== undefined) {
-        if (!acc[param.in]) acc[param.in] = {}
-        if (param.$ref) {
-          acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
-        }
-        return acc
-      }
+  return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
+    // Initialize section if needed
+    if (!acc[param.in]) acc[param.in] = {}
 
-      // Handle parameters with content instead of schema (OpenAPI 3.x)
-      const schema = param.schema ?? getSchemaFromContent(param.content)
-      if (!schema) {
-        // Skip parameters without schema
-        if (!acc[param.in]) acc[param.in] = {}
-        acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
-        return acc
-      }
-
-      const baseSchema = zodToOpenAPI(schema, {
-        parameters: param,
-      })
-      // Initialize section if it doesn't exist
-      if (!acc[param.in]) {
-        acc[param.in] = {}
-      }
-      // queryParameter check
-      const z =
-        param.in === 'query' && schema.type === 'number'
-          ? `z.coerce.${baseSchema.replace('z.', '')}`
-          : param.in === 'query' && schema.type === 'boolean'
-            ? baseSchema.replace('boolean', 'stringbool')
-            : param.in === 'query' && schema.type === 'date'
-              ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : baseSchema
-
-      // Add parameter to its section
-      acc[param.in][getToSafeIdentifier(param.name)] = z
+    // Handle $ref
+    if (param.$ref) {
+      acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
       return acc
-    },
-    {},
-  )
+    }
+
+    // Handle parameters with content instead of schema (OpenAPI 3.x)
+    const schema = param.schema ?? getSchemaFromContent(param.content)
+    if (!schema) {
+      acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
+      return acc
+    }
+
+    const baseSchema = zodToOpenAPI(schema, { parameters: param })
+
+    // Apply coercion for query parameters
+    const z =
+      param.in === 'query' && schema.type === 'number'
+        ? `z.coerce.${baseSchema.replace('z.', '')}`
+        : param.in === 'query' && schema.type === 'boolean'
+          ? baseSchema.replace('boolean', 'stringbool')
+          : param.in === 'query' && schema.type === 'date'
+            ? `z.coerce.${baseSchema.replace('z.', '')}`
+            : baseSchema
+
+    acc[param.in][getToSafeIdentifier(param.name)] = z
+    return acc
+  }, {})
 }
 
 export function makeRequestParams(parameters: readonly Parameter[]) {

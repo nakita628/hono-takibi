@@ -2,71 +2,23 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    name: z.string().openapi({ type: 'string' }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-    price: z
-      .float64()
-      .min(0)
-      .exactOptional()
-      .openapi({ type: 'number', format: 'float64', minimum: 0 }),
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
+    id: z.uuid(),
+    name: z.string(),
+    description: z.string().exactOptional(),
+    price: z.float64().min(0).exactOptional(),
+    tags: z.array(z.string()).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'name'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      name: { type: 'string' },
-      description: { type: 'string' },
-      price: { type: 'number', format: 'float64', minimum: 0 },
-      tags: { type: 'array', items: { type: 'string' } },
-    },
-  })
+  .openapi({ required: ['id', 'name'] })
   .openapi('Item')
 
 const ItemListSchema = z
-  .object({
-    items: z
-      .array(ItemSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Item' } }),
-    total: z.int64().openapi({ type: 'integer', format: 'int64' }),
-    page: z.int32().openapi({ type: 'integer', format: 'int32' }),
-    limit: z.int32().openapi({ type: 'integer', format: 'int32' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['items', 'total', 'page', 'limit'],
-    properties: {
-      items: { type: 'array', items: { $ref: '#/components/schemas/Item' } },
-      total: { type: 'integer', format: 'int64' },
-      page: { type: 'integer', format: 'int32' },
-      limit: { type: 'integer', format: 'int32' },
-    },
-  })
+  .object({ items: z.array(ItemSchema), total: z.int64(), page: z.int32(), limit: z.int32() })
+  .openapi({ required: ['items', 'total', 'page', 'limit'] })
   .openapi('ItemList')
 
 const ErrorSchema = z
-  .object({
-    code: z.string().openapi({ type: 'string' }),
-    message: z.string().openapi({ type: 'string' }),
-    details: z
-      .looseObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: true }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: {
-      code: { type: 'string' },
-      message: { type: 'string' },
-      details: { type: 'object', additionalProperties: true },
-    },
-  })
+  .object({ code: z.string(), message: z.string(), details: z.looseObject({}).exactOptional() })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const PageParamParamsSchema = z
@@ -82,10 +34,6 @@ const PageParamParamsSchema = z
       required: false,
       schema: { type: 'integer', format: 'int32', minimum: 1, default: 1 },
     },
-    type: 'integer',
-    format: 'int32',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -102,11 +50,6 @@ const LimitParamParamsSchema = z
       required: false,
       schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    format: 'int32',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const SortParamParamsSchema = z
@@ -121,8 +64,6 @@ const SortParamParamsSchema = z
       required: false,
       schema: { type: 'string', pattern: '^[a-zA-Z_]+:(asc|desc)$' },
     },
-    type: 'string',
-    pattern: '^[a-zA-Z_]+:(asc|desc)$',
   })
 
 const ItemIdPathParamsSchema = z
@@ -135,8 +76,6 @@ const ItemIdPathParamsSchema = z
       required: true,
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const IfMatchHeaderParamsSchema = z
@@ -150,7 +89,6 @@ const IfMatchHeaderParamsSchema = z
       required: false,
       schema: { type: 'string' },
     },
-    type: 'string',
   })
 
 const BadRequestResponse = {

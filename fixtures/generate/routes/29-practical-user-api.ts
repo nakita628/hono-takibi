@@ -2,247 +2,86 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const UserSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid', description: 'ユーザーID' }),
-    email: z.email().openapi({ type: 'string', format: 'email', description: 'メールアドレス' }),
-    name: z.string().openapi({ type: 'string', description: '表示名' }),
-    avatarUrl: z
-      .url()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'uri', description: 'アバター画像URL' }),
-    status: z
-      .enum(['active', 'inactive', 'suspended'])
-      .openapi({
-        type: 'string',
-        enum: ['active', 'inactive', 'suspended'],
-        description: 'ステータス',
-      }),
+    id: z.uuid().openapi({ description: 'ユーザーID' }),
+    email: z.email().openapi({ description: 'メールアドレス' }),
+    name: z.string().openapi({ description: '表示名' }),
+    avatarUrl: z.url().exactOptional().openapi({ description: 'アバター画像URL' }),
+    status: z.enum(['active', 'inactive', 'suspended']).openapi({ description: 'ステータス' }),
     role: z
       .enum(['user', 'admin'])
       .default('user')
       .exactOptional()
-      .openapi({ type: 'string', enum: ['user', 'admin'], default: 'user', description: 'ロール' }),
-    lastLoginAt: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time', description: '最終ログイン日時' }),
-    createdAt: z.iso
-      .datetime()
-      .openapi({ type: 'string', format: 'date-time', description: '作成日時' }),
-    updatedAt: z.iso
-      .datetime()
-      .exactOptional()
-      .openapi({ type: 'string', format: 'date-time', description: '更新日時' }),
+      .openapi({ description: 'ロール' }),
+    lastLoginAt: z.iso.datetime().exactOptional().openapi({ description: '最終ログイン日時' }),
+    createdAt: z.iso.datetime().openapi({ description: '作成日時' }),
+    updatedAt: z.iso.datetime().exactOptional().openapi({ description: '更新日時' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'email', 'name', 'status', 'createdAt'],
-    properties: {
-      id: { type: 'string', format: 'uuid', description: 'ユーザーID' },
-      email: { type: 'string', format: 'email', description: 'メールアドレス' },
-      name: { type: 'string', description: '表示名' },
-      avatarUrl: { type: 'string', format: 'uri', description: 'アバター画像URL' },
-      status: {
-        type: 'string',
-        enum: ['active', 'inactive', 'suspended'],
-        description: 'ステータス',
-      },
-      role: { type: 'string', enum: ['user', 'admin'], default: 'user', description: 'ロール' },
-      lastLoginAt: { type: 'string', format: 'date-time', description: '最終ログイン日時' },
-      createdAt: { type: 'string', format: 'date-time', description: '作成日時' },
-      updatedAt: { type: 'string', format: 'date-time', description: '更新日時' },
-    },
-  })
+  .openapi({ required: ['id', 'email', 'name', 'status', 'createdAt'] })
   .openapi('User')
 
 const RegisterRequestSchema = z
   .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    password: z
-      .string()
-      .min(8)
-      .openapi({
-        type: 'string',
-        format: 'password',
-        minLength: 8,
-        description: '8文字以上、大文字・小文字・数字を含む',
-      }),
-    name: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
+    email: z.email(),
+    password: z.string().min(8).openapi({ description: '8文字以上、大文字・小文字・数字を含む' }),
+    name: z.string().min(1).max(100),
   })
-  .openapi({
-    type: 'object',
-    required: ['email', 'password', 'name'],
-    properties: {
-      email: { type: 'string', format: 'email' },
-      password: {
-        type: 'string',
-        format: 'password',
-        minLength: 8,
-        description: '8文字以上、大文字・小文字・数字を含む',
-      },
-      name: { type: 'string', minLength: 1, maxLength: 100 },
-    },
-  })
+  .openapi({ required: ['email', 'password', 'name'] })
   .openapi('RegisterRequest')
 
 const LoginRequestSchema = z
-  .object({
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    password: z.string().openapi({ type: 'string', format: 'password' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['email', 'password'],
-    properties: {
-      email: { type: 'string', format: 'email' },
-      password: { type: 'string', format: 'password' },
-    },
-  })
+  .object({ email: z.email(), password: z.string() })
+  .openapi({ required: ['email', 'password'] })
   .openapi('LoginRequest')
 
 const AuthResponseSchema = z
   .object({
-    accessToken: z.string().openapi({ type: 'string', description: 'JWTアクセストークン' }),
-    refreshToken: z.string().openapi({ type: 'string', description: 'リフレッシュトークン' }),
+    accessToken: z.string().openapi({ description: 'JWTアクセストークン' }),
+    refreshToken: z.string().openapi({ description: 'リフレッシュトークン' }),
     expiresIn: z
       .int()
       .exactOptional()
-      .openapi({ type: 'integer', description: 'アクセストークンの有効期限（秒）', example: 3600 }),
+      .openapi({ description: 'アクセストークンの有効期限（秒）', example: 3600 }),
     user: UserSchema,
   })
-  .openapi({
-    type: 'object',
-    required: ['accessToken', 'refreshToken', 'user'],
-    properties: {
-      accessToken: { type: 'string', description: 'JWTアクセストークン' },
-      refreshToken: { type: 'string', description: 'リフレッシュトークン' },
-      expiresIn: {
-        type: 'integer',
-        description: 'アクセストークンの有効期限（秒）',
-        example: 3600,
-      },
-      user: { $ref: '#/components/schemas/User' },
-    },
-  })
+  .openapi({ required: ['accessToken', 'refreshToken', 'user'] })
   .openapi('AuthResponse')
 
 const UpdateUserRequestSchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-    status: z
-      .enum(['active', 'inactive', 'suspended'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['active', 'inactive', 'suspended'] }),
-    role: z
-      .enum(['user', 'admin'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['user', 'admin'] }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      name: { type: 'string', minLength: 1, maxLength: 100 },
-      status: { type: 'string', enum: ['active', 'inactive', 'suspended'] },
-      role: { type: 'string', enum: ['user', 'admin'] },
-    },
+    name: z.string().min(1).max(100).exactOptional(),
+    status: z.enum(['active', 'inactive', 'suspended']).exactOptional(),
+    role: z.enum(['user', 'admin']).exactOptional(),
   })
   .openapi('UpdateUserRequest')
 
 const UpdateProfileRequestSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-  })
-  .openapi({
-    type: 'object',
-    properties: { name: { type: 'string', minLength: 1, maxLength: 100 } },
-  })
+  .object({ name: z.string().min(1).max(100).exactOptional() })
   .openapi('UpdateProfileRequest')
 
 const PaginationSchema = z
   .object({
-    page: z.int().openapi({ type: 'integer', description: '現在のページ' }),
-    limit: z.int().openapi({ type: 'integer', description: '1ページあたりの件数' }),
-    total: z.int().openapi({ type: 'integer', description: '総件数' }),
-    totalPages: z.int().openapi({ type: 'integer', description: '総ページ数' }),
+    page: z.int().openapi({ description: '現在のページ' }),
+    limit: z.int().openapi({ description: '1ページあたりの件数' }),
+    total: z.int().openapi({ description: '総件数' }),
+    totalPages: z.int().openapi({ description: '総ページ数' }),
   })
-  .openapi({
-    type: 'object',
-    required: ['page', 'limit', 'total', 'totalPages'],
-    properties: {
-      page: { type: 'integer', description: '現在のページ' },
-      limit: { type: 'integer', description: '1ページあたりの件数' },
-      total: { type: 'integer', description: '総件数' },
-      totalPages: { type: 'integer', description: '総ページ数' },
-    },
-  })
+  .openapi({ required: ['page', 'limit', 'total', 'totalPages'] })
   .openapi('Pagination')
 
 const UserListResponseSchema = z
-  .object({
-    data: z
-      .array(UserSchema)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/User' } }),
-    pagination: PaginationSchema,
-  })
-  .openapi({
-    type: 'object',
-    required: ['data', 'pagination'],
-    properties: {
-      data: { type: 'array', items: { $ref: '#/components/schemas/User' } },
-      pagination: { $ref: '#/components/schemas/Pagination' },
-    },
-  })
+  .object({ data: z.array(UserSchema), pagination: PaginationSchema })
+  .openapi({ required: ['data', 'pagination'] })
   .openapi('UserListResponse')
 
 const ErrorSchema = z
   .object({
-    code: z.string().openapi({ type: 'string', description: 'エラーコード' }),
-    message: z.string().openapi({ type: 'string', description: 'エラーメッセージ' }),
+    code: z.string().openapi({ description: 'エラーコード' }),
+    message: z.string().openapi({ description: 'エラーメッセージ' }),
     details: z
-      .array(
-        z
-          .object({
-            field: z.string().exactOptional().openapi({ type: 'string' }),
-            message: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: { field: { type: 'string' }, message: { type: 'string' } },
-          }),
-      )
-      .exactOptional()
-      .openapi({
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { field: { type: 'string' }, message: { type: 'string' } },
-        },
-      }),
+      .array(z.object({ field: z.string().exactOptional(), message: z.string().exactOptional() }))
+      .exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['code', 'message'],
-    properties: {
-      code: { type: 'string', description: 'エラーコード' },
-      message: { type: 'string', description: 'エラーメッセージ' },
-      details: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: { field: { type: 'string' }, message: { type: 'string' } },
-        },
-      },
-    },
-  })
+  .openapi({ required: ['code', 'message'] })
   .openapi('Error')
 
 const UserIdParamParamsSchema = z
@@ -255,8 +94,6 @@ const UserIdParamParamsSchema = z
       description: 'ユーザーID',
       schema: { type: 'string', format: 'uuid' },
     },
-    type: 'string',
-    format: 'uuid',
   })
 
 const PageParamParamsSchema = z
@@ -271,9 +108,6 @@ const PageParamParamsSchema = z
       description: 'ページ番号',
       schema: { type: 'integer', minimum: 1, default: 1 },
     },
-    type: 'integer',
-    minimum: 1,
-    default: 1,
   })
 
 const LimitParamParamsSchema = z
@@ -289,10 +123,6 @@ const LimitParamParamsSchema = z
       description: '1ページあたりの件数',
       schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
     },
-    type: 'integer',
-    minimum: 1,
-    maximum: 100,
-    default: 20,
   })
 
 const SortParamParamsSchema = z
@@ -305,7 +135,6 @@ const SortParamParamsSchema = z
       description: 'ソート順（例：createdAt:desc, name:asc）',
       schema: { type: 'string' },
     },
-    type: 'string',
   })
 
 const BearerAuthSecurityScheme = {
@@ -416,13 +245,7 @@ export const postAuthRefreshRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ refreshToken: z.string().openapi({ type: 'string' }) })
-            .openapi({
-              type: 'object',
-              required: ['refreshToken'],
-              properties: { refreshToken: { type: 'string' } },
-            }),
+          schema: z.object({ refreshToken: z.string() }).openapi({ required: ['refreshToken'] }),
         },
       },
       required: true,
@@ -458,13 +281,7 @@ export const postAuthPasswordForgotRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z
-            .object({ email: z.email().openapi({ type: 'string', format: 'email' }) })
-            .openapi({
-              type: 'object',
-              required: ['email'],
-              properties: { email: { type: 'string', format: 'email' } },
-            }),
+          schema: z.object({ email: z.email() }).openapi({ required: ['email'] }),
         },
       },
       required: true,
@@ -475,19 +292,12 @@ export const postAuthPasswordForgotRoute = createRoute({
       description: 'リセットメール送信成功',
       content: {
         'application/json': {
-          schema: z
-            .object({
-              message: z
-                .string()
-                .exactOptional()
-                .openapi({ type: 'string', example: 'パスワードリセット用のメールを送信しました' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: {
-                message: { type: 'string', example: 'パスワードリセット用のメールを送信しました' },
-              },
-            }),
+          schema: z.object({
+            message: z
+              .string()
+              .exactOptional()
+              .openapi({ example: 'パスワードリセット用のメールを送信しました' }),
+          }),
         },
       },
     },
@@ -506,20 +316,10 @@ export const postAuthPasswordResetRoute = createRoute({
         'application/json': {
           schema: z
             .object({
-              token: z.string().openapi({ type: 'string', description: 'リセットトークン' }),
-              password: z
-                .string()
-                .min(8)
-                .openapi({ type: 'string', format: 'password', minLength: 8 }),
+              token: z.string().openapi({ description: 'リセットトークン' }),
+              password: z.string().min(8),
             })
-            .openapi({
-              type: 'object',
-              required: ['token', 'password'],
-              properties: {
-                token: { type: 'string', description: 'リセットトークン' },
-                password: { type: 'string', format: 'password', minLength: 8 },
-              },
-            }),
+            .openapi({ required: ['token', 'password'] }),
         },
       },
       required: true,
@@ -550,7 +350,6 @@ export const getUsersRoute = createRoute({
             description: '名前またはメールで検索',
             schema: { type: 'string' },
           },
-          type: 'string',
         }),
       status: z
         .enum(['active', 'inactive', 'suspended'])
@@ -562,8 +361,6 @@ export const getUsersRoute = createRoute({
             description: 'ステータスでフィルタ',
             schema: { type: 'string', enum: ['active', 'inactive', 'suspended'] },
           },
-          type: 'string',
-          enum: ['active', 'inactive', 'suspended'],
         }),
     }),
   },
@@ -668,21 +465,8 @@ export const putUsersMePasswordRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              currentPassword: z.string().openapi({ type: 'string', format: 'password' }),
-              newPassword: z
-                .string()
-                .min(8)
-                .openapi({ type: 'string', format: 'password', minLength: 8 }),
-            })
-            .openapi({
-              type: 'object',
-              required: ['currentPassword', 'newPassword'],
-              properties: {
-                currentPassword: { type: 'string', format: 'password' },
-                newPassword: { type: 'string', format: 'password', minLength: 8 },
-              },
-            }),
+            .object({ currentPassword: z.string(), newPassword: z.string().min(8) })
+            .openapi({ required: ['currentPassword', 'newPassword'] }),
         },
       },
       required: true,
@@ -708,25 +492,9 @@ export const putUsersMeAvatarRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({
-              file: z
-                .file()
-                .openapi({
-                  type: 'string',
-                  format: 'binary',
-                  description: '画像ファイル（JPEG, PNG, GIF、最大5MB）',
-                }),
+              file: z.file().openapi({ description: '画像ファイル（JPEG, PNG, GIF、最大5MB）' }),
             })
-            .openapi({
-              type: 'object',
-              required: ['file'],
-              properties: {
-                file: {
-                  type: 'string',
-                  format: 'binary',
-                  description: '画像ファイル（JPEG, PNG, GIF、最大5MB）',
-                },
-              },
-            }),
+            .openapi({ required: ['file'] }),
         },
       },
       required: true,
@@ -735,18 +503,7 @@ export const putUsersMeAvatarRoute = createRoute({
   responses: {
     200: {
       description: 'アップロード成功',
-      content: {
-        'application/json': {
-          schema: z
-            .object({
-              avatarUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { avatarUrl: { type: 'string', format: 'uri' } },
-            }),
-        },
-      },
+      content: { 'application/json': { schema: z.object({ avatarUrl: z.url().exactOptional() }) } },
     },
     400: BadRequestResponse,
     401: UnauthorizedResponse,

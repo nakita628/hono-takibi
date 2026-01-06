@@ -1,4 +1,4 @@
-import { sortByDependencies } from '../../../../helper/sort-by-dependencies.js'
+import { sortByDependencies } from '../../../../helper/ast.js'
 import type { Components } from '../../../../openapi/index.js'
 import { callbacksCode } from './callbacks.js'
 import { examplesCode } from './examples.js'

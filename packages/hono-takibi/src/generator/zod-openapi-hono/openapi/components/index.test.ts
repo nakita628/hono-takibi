@@ -36,9 +36,9 @@ describe('componentsCode Test', () => {
       exportLinks: false,
       exportCallbacks: false,
     })
-    const expected = `export const TestSchema = z.object({test:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["test"],"properties":{"test":{"type":"string"}}}).openapi('Test')
+    const expected = `export const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
-export type Test = z.infer<typeof TestSchema>`
+export type Test=z.infer<typeof TestSchema>`
     expect(result).toBe(expected)
   })
   // #2: exportSchemasTypes=true, exportSchemas=false
@@ -57,9 +57,9 @@ export type Test = z.infer<typeof TestSchema>`
       exportLinks: false,
       exportCallbacks: false,
     })
-    const expected = `const TestSchema = z.object({test:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["test"],"properties":{"test":{"type":"string"}}}).openapi('Test')
+    const expected = `const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
-export type Test = z.infer<typeof TestSchema>`
+export type Test=z.infer<typeof TestSchema>`
     expect(result).toBe(expected)
   })
   // #3: exportSchemasTypes=false, exportSchemas=true
@@ -78,7 +78,7 @@ export type Test = z.infer<typeof TestSchema>`
       exportLinks: false,
       exportCallbacks: false,
     })
-    const expected = `export const TestSchema = z.object({test:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["test"],"properties":{"test":{"type":"string"}}}).openapi('Test')`
+    const expected = `export const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')`
     expect(result).toBe(expected)
   })
   // #4: exportSchemasTypes=false, exportSchemas=false
@@ -97,7 +97,7 @@ export type Test = z.infer<typeof TestSchema>`
       exportLinks: false,
       exportCallbacks: false,
     })
-    const expected = `const TestSchema = z.object({test:z.string().openapi({"type":"string"})}).openapi({"type":"object","required":["test"],"properties":{"test":{"type":"string"}}}).openapi('Test')`
+    const expected = `const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')`
     expect(result).toBe(expected)
   })
 })

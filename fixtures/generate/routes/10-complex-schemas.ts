@@ -2,182 +2,94 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 const BaseEventSchema = z
   .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    eventType: z.string().openapi({ type: 'string' }),
-    timestamp: z.iso.datetime().openapi({ type: 'string', format: 'date-time' }),
-    metadata: z
-      .looseObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: true }),
+    id: z.uuid(),
+    eventType: z.string(),
+    timestamp: z.iso.datetime(),
+    metadata: z.looseObject({}).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['id', 'eventType', 'timestamp'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      eventType: { type: 'string' },
-      timestamp: { type: 'string', format: 'date-time' },
-      metadata: { type: 'object', additionalProperties: true },
-    },
-  })
+  .openapi({ required: ['id', 'eventType', 'timestamp'] })
   .openapi('BaseEvent')
 
 const UserEventSchema = BaseEventSchema.and(
   z
     .object({
-      eventType: z
-        .enum(['user.created', 'user.updated', 'user.deleted'])
-        .exactOptional()
-        .openapi({ type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] }),
-      userId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+      eventType: z.enum(['user.created', 'user.updated', 'user.deleted']).exactOptional(),
+      userId: z.uuid(),
       userData: z
-        .object({
-          email: z.email().exactOptional().openapi({ type: 'string', format: 'email' }),
-          name: z.string().exactOptional().openapi({ type: 'string' }),
-        })
-        .exactOptional()
-        .openapi({
-          type: 'object',
-          properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-        }),
+        .object({ email: z.email().exactOptional(), name: z.string().exactOptional() })
+        .exactOptional(),
     })
-    .openapi({
-      type: 'object',
-      required: ['userId'],
-      properties: {
-        eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
-        userId: { type: 'string', format: 'uuid' },
-        userData: {
-          type: 'object',
-          properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-        },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseEvent' },
-      {
-        type: 'object',
-        required: ['userId'],
-        properties: {
-          eventType: { type: 'string', enum: ['user.created', 'user.updated', 'user.deleted'] },
-          userId: { type: 'string', format: 'uuid' },
-          userData: {
-            type: 'object',
-            properties: { email: { type: 'string', format: 'email' }, name: { type: 'string' } },
-          },
-        },
-      },
-    ],
-  })
-  .openapi('UserEvent')
+    .openapi({ required: ['userId'] }),
+).openapi('UserEvent')
 
 const OrderEventSchema = BaseEventSchema.and(
   z
     .object({
-      eventType: z
-        .enum(['order.placed', 'order.shipped', 'order.delivered'])
-        .exactOptional()
-        .openapi({ type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] }),
-      orderId: z.uuid().openapi({ type: 'string', format: 'uuid' }),
+      eventType: z.enum(['order.placed', 'order.shipped', 'order.delivered']).exactOptional(),
+      orderId: z.uuid(),
       orderData: z
-        .object({
-          total: z.float64().exactOptional().openapi({ type: 'number', format: 'float64' }),
-          items: z.int().exactOptional().openapi({ type: 'integer' }),
-        })
-        .exactOptional()
-        .openapi({
-          type: 'object',
-          properties: { total: { type: 'number', format: 'float64' }, items: { type: 'integer' } },
-        }),
+        .object({ total: z.float64().exactOptional(), items: z.int().exactOptional() })
+        .exactOptional(),
     })
-    .openapi({
-      type: 'object',
-      required: ['orderId'],
-      properties: {
-        eventType: { type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] },
-        orderId: { type: 'string', format: 'uuid' },
-        orderData: {
-          type: 'object',
-          properties: { total: { type: 'number', format: 'float64' }, items: { type: 'integer' } },
-        },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseEvent' },
-      {
-        type: 'object',
-        required: ['orderId'],
-        properties: {
-          eventType: { type: 'string', enum: ['order.placed', 'order.shipped', 'order.delivered'] },
-          orderId: { type: 'string', format: 'uuid' },
-          orderData: {
-            type: 'object',
-            properties: {
-              total: { type: 'number', format: 'float64' },
-              items: { type: 'integer' },
-            },
-          },
-        },
-      },
-    ],
-  })
-  .openapi('OrderEvent')
+    .openapi({ required: ['orderId'] }),
+).openapi('OrderEvent')
 
 const SystemEventSchema = BaseEventSchema.and(
   z
     .object({
-      eventType: z
-        .enum(['system.startup', 'system.shutdown'])
-        .exactOptional()
-        .openapi({ type: 'string', enum: ['system.startup', 'system.shutdown'] }),
-      component: z.string().openapi({ type: 'string' }),
-      details: z.string().exactOptional().openapi({ type: 'string' }),
+      eventType: z.enum(['system.startup', 'system.shutdown']).exactOptional(),
+      component: z.string(),
+      details: z.string().exactOptional(),
     })
-    .openapi({
-      type: 'object',
-      required: ['component'],
-      properties: {
-        eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
-        component: { type: 'string' },
-        details: { type: 'string' },
-      },
-    }),
-)
-  .openapi({
-    allOf: [
-      { $ref: '#/components/schemas/BaseEvent' },
-      {
-        type: 'object',
-        required: ['component'],
-        properties: {
-          eventType: { type: 'string', enum: ['system.startup', 'system.shutdown'] },
-          component: { type: 'string' },
-          details: { type: 'string' },
-        },
-      },
-    ],
-  })
-  .openapi('SystemEvent')
+    .openapi({ required: ['component'] }),
+).openapi('SystemEvent')
 
 type EventType =
   | z.infer<typeof UserEventSchema>
   | z.infer<typeof OrderEventSchema>
   | z.infer<typeof SystemEventSchema>
 
+const BaseDocumentSchema = z
+  .object({
+    id: z.uuid(),
+    title: z.string().min(1).max(200),
+    description: z.string().exactOptional(),
+  })
+  .openapi({ required: ['id', 'title'] })
+  .openapi('BaseDocument')
+
+const AuditableSchema = z
+  .object({
+    createdAt: z.iso.datetime().exactOptional(),
+    createdBy: z.string().exactOptional(),
+    updatedAt: z.iso.datetime().exactOptional(),
+    updatedBy: z.string().exactOptional(),
+    version: z.int32().exactOptional(),
+  })
+  .openapi('Auditable')
+
+const TaggableSchema = z
+  .object({
+    tags: z.array(z.string()).exactOptional(),
+    categories: z.array(z.string()).exactOptional(),
+  })
+  .openapi('Taggable')
+
+type DocumentType = z.infer<typeof BaseDocumentSchema> &
+  z.infer<typeof AuditableSchema> &
+  z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
+
+type MixedContentType = {
+  value: string | number | boolean | MixedContentType[] | { [key: string]: MixedContentType }
+  notNull?: { [key: string]: unknown }
+  restrictedValue?: string & { [key: string]: unknown }
+}
+
 const EventSchema: z.ZodType<EventType> = z
   .lazy(() =>
     z
-      .discriminatedUnion('eventType', [UserEventSchema, OrderEventSchema, SystemEventSchema])
+      .xor([UserEventSchema, OrderEventSchema, SystemEventSchema])
       .openapi({
-        oneOf: [
-          { $ref: '#/components/schemas/UserEvent' },
-          { $ref: '#/components/schemas/OrderEvent' },
-          { $ref: '#/components/schemas/SystemEvent' },
-        ],
         discriminator: {
           propertyName: 'eventType',
           mapping: {
@@ -196,484 +108,151 @@ const EventSchema: z.ZodType<EventType> = z
   .openapi('Event')
 
 const EmailRecipientSchema = z
-  .object({
-    type: z.literal('email').openapi({ type: 'string' }),
-    email: z.email().openapi({ type: 'string', format: 'email' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'email'],
-    properties: {
-      type: { type: 'string', const: 'email' },
-      email: { type: 'string', format: 'email' },
-      name: { type: 'string' },
-    },
-  })
+  .object({ type: z.literal('email'), email: z.email(), name: z.string().exactOptional() })
+  .openapi({ required: ['type', 'email'] })
   .openapi('EmailRecipient')
 
 const SmsRecipientSchema = z
-  .object({
-    type: z.literal('sms').openapi({ type: 'string' }),
-    phoneNumber: z
-      .string()
-      .regex(/^\+[1-9]\d{1,14}$/)
-      .openapi({ type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['type', 'phoneNumber'],
-    properties: {
-      type: { type: 'string', const: 'sms' },
-      phoneNumber: { type: 'string', pattern: '^\\+[1-9]\\d{1,14}$' },
-    },
-  })
+  .object({ type: z.literal('sms'), phoneNumber: z.string().regex(/^\+[1-9]\d{1,14}$/) })
+  .openapi({ required: ['type', 'phoneNumber'] })
   .openapi('SmsRecipient')
 
 const PushRecipientSchema = z
   .object({
-    type: z.literal('push').openapi({ type: 'string' }),
-    deviceToken: z.string().openapi({ type: 'string' }),
-    platform: z
-      .enum(['ios', 'android', 'web'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['ios', 'android', 'web'] }),
+    type: z.literal('push'),
+    deviceToken: z.string(),
+    platform: z.enum(['ios', 'android', 'web']).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'deviceToken'],
-    properties: {
-      type: { type: 'string', const: 'push' },
-      deviceToken: { type: 'string' },
-      platform: { type: 'string', enum: ['ios', 'android', 'web'] },
-    },
-  })
+  .openapi({ required: ['type', 'deviceToken'] })
   .openapi('PushRecipient')
 
 const MultiRecipientSchema = z
   .object({
-    type: z.literal('multi').openapi({ type: 'string' }),
+    type: z.literal('multi'),
     recipients: z
-      .array(
-        z
-          .union([EmailRecipientSchema, SmsRecipientSchema, PushRecipientSchema])
-          .openapi({
-            anyOf: [
-              { $ref: '#/components/schemas/EmailRecipient' },
-              { $ref: '#/components/schemas/SmsRecipient' },
-              { $ref: '#/components/schemas/PushRecipient' },
-            ],
-          }),
-      )
+      .array(z.union([EmailRecipientSchema, SmsRecipientSchema, PushRecipientSchema]))
       .min(1)
-      .openapi({
-        type: 'array',
-        minItems: 1,
-        items: {
-          anyOf: [
-            { $ref: '#/components/schemas/EmailRecipient' },
-            { $ref: '#/components/schemas/SmsRecipient' },
-            { $ref: '#/components/schemas/PushRecipient' },
-          ],
-        },
-      }),
+      .openapi({ minItems: 1 }),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'recipients'],
-    properties: {
-      type: { type: 'string', const: 'multi' },
-      recipients: {
-        type: 'array',
-        minItems: 1,
-        items: {
-          anyOf: [
-            { $ref: '#/components/schemas/EmailRecipient' },
-            { $ref: '#/components/schemas/SmsRecipient' },
-            { $ref: '#/components/schemas/PushRecipient' },
-          ],
-        },
-      },
-    },
-  })
+  .openapi({ required: ['type', 'recipients'] })
   .openapi('MultiRecipient')
 
 const NotificationContentSchema = z
   .object({
-    title: z.string().max(100).openapi({ type: 'string', maxLength: 100 }),
-    body: z.string().max(1000).openapi({ type: 'string', maxLength: 1000 }),
-    imageUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
-    actionUrl: z.url().exactOptional().openapi({ type: 'string', format: 'uri' }),
+    title: z.string().max(100),
+    body: z.string().max(1000),
+    imageUrl: z.url().exactOptional(),
+    actionUrl: z.url().exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['title', 'body'],
-    properties: {
-      title: { type: 'string', maxLength: 100 },
-      body: { type: 'string', maxLength: 1000 },
-      imageUrl: { type: 'string', format: 'uri' },
-      actionUrl: { type: 'string', format: 'uri' },
-    },
-  })
+  .openapi({ required: ['title', 'body'] })
   .openapi('NotificationContent')
 
 const NotificationSchema = z
   .object({
-    recipient: z
-      .union([EmailRecipientSchema, SmsRecipientSchema, PushRecipientSchema, MultiRecipientSchema])
-      .openapi({
-        anyOf: [
-          { $ref: '#/components/schemas/EmailRecipient' },
-          { $ref: '#/components/schemas/SmsRecipient' },
-          { $ref: '#/components/schemas/PushRecipient' },
-          { $ref: '#/components/schemas/MultiRecipient' },
-        ],
-      }),
+    recipient: z.union([
+      EmailRecipientSchema,
+      SmsRecipientSchema,
+      PushRecipientSchema,
+      MultiRecipientSchema,
+    ]),
     content: NotificationContentSchema,
-    priority: z
-      .enum(['low', 'normal', 'high', 'urgent'])
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['low', 'normal', 'high', 'urgent'] }),
+    priority: z.enum(['low', 'normal', 'high', 'urgent']).exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['recipient', 'content'],
-    properties: {
-      recipient: {
-        anyOf: [
-          { $ref: '#/components/schemas/EmailRecipient' },
-          { $ref: '#/components/schemas/SmsRecipient' },
-          { $ref: '#/components/schemas/PushRecipient' },
-          { $ref: '#/components/schemas/MultiRecipient' },
-        ],
-      },
-      content: { $ref: '#/components/schemas/NotificationContent' },
-      priority: { type: 'string', enum: ['low', 'normal', 'high', 'urgent'] },
-    },
-  })
+  .openapi({ required: ['recipient', 'content'] })
   .openapi('Notification')
 
 const PointSchema = z
-  .object({
-    x: z.float64().openapi({ type: 'number', format: 'float64' }),
-    y: z.float64().openapi({ type: 'number', format: 'float64' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['x', 'y'],
-    properties: {
-      x: { type: 'number', format: 'float64' },
-      y: { type: 'number', format: 'float64' },
-    },
-  })
+  .object({ x: z.float64(), y: z.float64() })
+  .openapi({ required: ['x', 'y'] })
   .openapi('Point')
 
 const CircleSchema = z
   .object({
-    type: z.literal('circle').openapi({ type: 'string' }),
-    radius: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
+    type: z.literal('circle'),
+    radius: z.float64().gt(0),
     center: PointSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'radius'],
-    properties: {
-      type: { type: 'string', const: 'circle' },
-      radius: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      center: { $ref: '#/components/schemas/Point' },
-    },
-  })
+  .openapi({ required: ['type', 'radius'] })
   .openapi('Circle')
 
 const RectangleSchema = z
   .object({
-    type: z.literal('rectangle').openapi({ type: 'string' }),
-    width: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
-    height: z.float64().gt(0).openapi({ type: 'number', format: 'float64', exclusiveMinimum: 0 }),
+    type: z.literal('rectangle'),
+    width: z.float64().gt(0),
+    height: z.float64().gt(0),
     topLeft: PointSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'width', 'height'],
-    properties: {
-      type: { type: 'string', const: 'rectangle' },
-      width: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      height: { type: 'number', format: 'float64', exclusiveMinimum: 0 },
-      topLeft: { $ref: '#/components/schemas/Point' },
-    },
-  })
+  .openapi({ required: ['type', 'width', 'height'] })
   .openapi('Rectangle')
 
 const TriangleSchema = z
   .object({
-    type: z.literal('triangle').openapi({ type: 'string' }),
-    vertices: z
-      .array(PointSchema)
-      .length(3)
-      .openapi({
-        type: 'array',
-        items: { $ref: '#/components/schemas/Point' },
-        minItems: 3,
-        maxItems: 3,
-      }),
+    type: z.literal('triangle'),
+    vertices: z.array(PointSchema).length(3).openapi({ minItems: 3, maxItems: 3 }),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'vertices'],
-    properties: {
-      type: { type: 'string', const: 'triangle' },
-      vertices: {
-        type: 'array',
-        items: { $ref: '#/components/schemas/Point' },
-        minItems: 3,
-        maxItems: 3,
-      },
-    },
-  })
+  .openapi({ required: ['type', 'vertices'] })
   .openapi('Triangle')
 
 const PolygonSchema = z
   .object({
-    type: z.literal('polygon').openapi({ type: 'string' }),
-    vertices: z
-      .array(PointSchema)
-      .min(3)
-      .openapi({ type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 }),
+    type: z.literal('polygon'),
+    vertices: z.array(PointSchema).min(3).openapi({ minItems: 3 }),
   })
-  .openapi({
-    type: 'object',
-    required: ['type', 'vertices'],
-    properties: {
-      type: { type: 'string', const: 'polygon' },
-      vertices: { type: 'array', items: { $ref: '#/components/schemas/Point' }, minItems: 3 },
-    },
-  })
+  .openapi({ required: ['type', 'vertices'] })
   .openapi('Polygon')
 
 const ShapeSchema = z
   .xor([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
-  .openapi({
-    oneOf: [
-      { $ref: '#/components/schemas/Circle' },
-      { $ref: '#/components/schemas/Rectangle' },
-      { $ref: '#/components/schemas/Triangle' },
-      { $ref: '#/components/schemas/Polygon' },
-    ],
-  })
   .openapi('Shape')
-
-const BaseDocumentSchema = z
-  .object({
-    id: z.uuid().openapi({ type: 'string', format: 'uuid' }),
-    title: z.string().min(1).max(200).openapi({ type: 'string', minLength: 1, maxLength: 200 }),
-    description: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['id', 'title'],
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      title: { type: 'string', minLength: 1, maxLength: 200 },
-      description: { type: 'string' },
-    },
-  })
-  .openapi('BaseDocument')
-
-const AuditableSchema = z
-  .object({
-    createdAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    createdBy: z.string().exactOptional().openapi({ type: 'string' }),
-    updatedAt: z.iso.datetime().exactOptional().openapi({ type: 'string', format: 'date-time' }),
-    updatedBy: z.string().exactOptional().openapi({ type: 'string' }),
-    version: z.int32().exactOptional().openapi({ type: 'integer', format: 'int32' }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      createdAt: { type: 'string', format: 'date-time' },
-      createdBy: { type: 'string' },
-      updatedAt: { type: 'string', format: 'date-time' },
-      updatedBy: { type: 'string' },
-      version: { type: 'integer', format: 'int32' },
-    },
-  })
-  .openapi('Auditable')
-
-const TaggableSchema = z
-  .object({
-    tags: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' }, uniqueItems: true }),
-    categories: z
-      .array(z.string().openapi({ type: 'string' }))
-      .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' } }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      tags: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-      categories: { type: 'array', items: { type: 'string' } },
-    },
-  })
-  .openapi('Taggable')
-
-type DocumentType = z.infer<typeof BaseDocumentSchema> &
-  z.infer<typeof AuditableSchema> &
-  z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
 
 const DocumentSchema: z.ZodType<DocumentType> = z
   .lazy(() =>
     BaseDocumentSchema.and(AuditableSchema)
       .and(TaggableSchema)
       .and(
-        z
-          .object({
-            content: z.string().exactOptional().openapi({ type: 'string' }),
-            format: z
-              .enum(['markdown', 'html', 'plain'])
-              .exactOptional()
-              .openapi({ type: 'string', enum: ['markdown', 'html', 'plain'] }),
-          })
-          .openapi({
-            type: 'object',
-            properties: {
-              content: { type: 'string' },
-              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
-            },
-          }),
-      )
-      .openapi({
-        allOf: [
-          { $ref: '#/components/schemas/BaseDocument' },
-          { $ref: '#/components/schemas/Auditable' },
-          { $ref: '#/components/schemas/Taggable' },
-          {
-            type: 'object',
-            properties: {
-              content: { type: 'string' },
-              format: { type: 'string', enum: ['markdown', 'html', 'plain'] },
-            },
-          },
-        ],
-      }),
+        z.object({
+          content: z.string().exactOptional(),
+          format: z.enum(['markdown', 'html', 'plain']).exactOptional(),
+        }),
+      ),
   )
   .openapi('Document')
-
-type MixedContentType = {
-  value: string | number | boolean | MixedContentType[] | Record<string, MixedContentType>
-  notNull?: Record<string, unknown>
-  restrictedValue?: string & Record<string, unknown>
-}
 
 const MixedContentSchema: z.ZodType<MixedContentType> = z
   .lazy(() =>
     z
       .object({
-        value: z
-          .xor([
-            z.string().openapi({ type: 'string' }),
-            z.number().openapi({ type: 'number' }),
-            z.boolean().openapi({ type: 'boolean' }),
-            z
-              .array(MixedContentSchema)
-              .openapi({ type: 'array', items: { $ref: '#/components/schemas/MixedContent' } }),
-            z
-              .record(z.string(), MixedContentSchema)
-              .openapi({
-                type: 'object',
-                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
-              }),
-          ])
-          .openapi({
-            oneOf: [
-              { type: 'string' },
-              { type: 'number' },
-              { type: 'boolean' },
-              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-              {
-                type: 'object',
-                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
-              },
-            ],
-          }),
+        value: z.xor([
+          z.string(),
+          z.number(),
+          z.boolean(),
+          z.array(MixedContentSchema),
+          z.record(z.string(), MixedContentSchema),
+        ]),
         notNull: z
           .any()
           .refine((v) => v !== null)
           .exactOptional()
           .openapi({ not: { type: 'null' } }),
-        restrictedValue: z
-          .string()
-          .openapi({ type: 'string' })
-          .and(
-            z
-              .any()
-              .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
-              .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
-          )
-          .exactOptional()
-          .openapi({
-            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-          }),
+        restrictedValue: z.string().and(
+          z
+            .any()
+            .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
+            .exactOptional()
+            .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
+        ),
       })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: {
-            oneOf: [
-              { type: 'string' },
-              { type: 'number' },
-              { type: 'boolean' },
-              { type: 'array', items: { $ref: '#/components/schemas/MixedContent' } },
-              {
-                type: 'object',
-                additionalProperties: { $ref: '#/components/schemas/MixedContent' },
-              },
-            ],
-          },
-          notNull: { not: { type: 'null' } },
-          restrictedValue: {
-            allOf: [{ type: 'string' }, { not: { enum: ['forbidden', 'restricted', 'banned'] } }],
-          },
-        },
-      }),
+      .openapi({ required: ['value'] }),
   )
   .openapi('MixedContent')
 
 const NullableTypesSchema = z
   .object({
-    nullableString: z
-      .string()
-      .nullable()
-      .exactOptional()
-      .openapi({ type: ['string', 'null'] }),
-    nullableNumber: z
-      .number()
-      .nullable()
-      .exactOptional()
-      .openapi({ type: ['number', 'null'] }),
-    nullableArray: z
-      .array(z.string().openapi({ type: 'string' }))
-      .nullable()
-      .exactOptional()
-      .openapi({ type: ['array', 'null'], items: { type: 'string' } }),
-    multiType: z
-      .string()
-      .exactOptional()
-      .openapi({ type: ['string', 'number', 'boolean'] }),
-    deprecated: z.string().exactOptional().openapi({ type: 'string', deprecated: true }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      nullableString: { type: ['string', 'null'] },
-      nullableNumber: { type: ['number', 'null'] },
-      nullableArray: { type: ['array', 'null'], items: { type: 'string' } },
-      multiType: { type: ['string', 'number', 'boolean'] },
-      deprecated: { type: 'string', deprecated: true },
-    },
+    nullableString: z.string().nullable().exactOptional(),
+    nullableNumber: z.number().nullable().exactOptional(),
+    nullableArray: z.array(z.string()).nullable().exactOptional(),
+    multiType: z.string().exactOptional(),
+    deprecated: z.string().exactOptional().openapi({ deprecated: true }),
   })
   .openapi('NullableTypes')
 

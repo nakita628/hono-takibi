@@ -1,134 +1,78 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type RecursiveCType = { value?: boolean; refA?: RecursiveAType }
+
+type RecursiveBType = { value?: number; refC?: RecursiveCType }
+
+type RecursiveAType = { value?: string; refB?: RecursiveBType }
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().min(1).max(100),
+        children: z.array(ConstrainedTreeSchema).max(10).exactOptional().openapi({ maxItems: 10 }),
+        parent: ConstrainedTreeSchema.exactOptional(),
+        siblings: z.array(ConstrainedTreeSchema).exactOptional(),
+      })
+      .openapi({ required: ['value'] }),
+  )
+  .openapi('ConstrainedTree')
+
+type RecursiveNightmaresType = {
+  mutuallyRecursive?: RecursiveAType
+  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
+  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
+  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
+  recursiveMap?: { [key: string]: RecursiveNightmaresType }
+  recursiveArray?: unknown[]
+}
+
+type ConstrainedTreeType = {
+  value: string
+  children?: ConstrainedTreeType[]
+  parent?: ConstrainedTreeType
+  siblings?: ConstrainedTreeType[]
+}
+
 const ContradictionsSchema = z
   .object({
-    impossibleLength: z
-      .string()
-      .min(100)
-      .max(10)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 100, maxLength: 10 }),
-    impossibleRange: z
-      .number()
-      .min(100)
-      .max(10)
-      .exactOptional()
-      .openapi({ type: 'number', minimum: 100, maximum: 10 }),
-    noValidInteger: z
-      .int()
-      .gt(5)
-      .lt(6)
-      .exactOptional()
-      .openapi({ type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 }),
+    impossibleLength: z.string().min(100).max(10).exactOptional(),
+    impossibleRange: z.number().min(100).max(10).exactOptional(),
+    noValidInteger: z.int().gt(5).lt(6).exactOptional(),
     impossibleArray: z
-      .array(z.string().openapi({ type: 'string' }))
+      .array(z.string())
       .min(10)
       .max(5)
       .exactOptional()
-      .openapi({ type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 }),
-    impossibleObject: z
-      .object({})
-      .exactOptional()
-      .openapi({ type: 'object', minProperties: 10, maxProperties: 5 }),
+      .openapi({ minItems: 10, maxItems: 5 }),
+    impossibleObject: z.object({}).exactOptional().openapi({ minProperties: 10, maxProperties: 5 }),
     missingRequired: z
-      .object({ existingProperty: z.string().exactOptional().openapi({ type: 'string' }) })
+      .object({ existingProperty: z.string().exactOptional() })
       .exactOptional()
-      .openapi({
-        type: 'object',
-        required: ['nonExistentProperty'],
-        properties: { existingProperty: { type: 'string' } },
-      }),
-    constEnumConflict: z
-      .literal('fixed')
-      .exactOptional()
-      .openapi({ type: 'string', enum: ['other1', 'other2'] }),
-    typeConflictAllOf: z
-      .string()
-      .openapi({ type: 'string' })
-      .and(z.number().openapi({ type: 'number' }))
-      .exactOptional()
-      .openapi({ allOf: [{ type: 'string' }, { type: 'number' }] }),
-    formatTypeMismatch: z.int().exactOptional().openapi({ type: 'integer', format: 'email' }),
-    multipleConst: z
-      .literal('value1')
-      .and(z.literal('value2'))
-      .exactOptional()
-      .openapi({ allOf: [{ const: 'value1' }, { const: 'value2' }] }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      impossibleLength: { type: 'string', minLength: 100, maxLength: 10 },
-      impossibleRange: { type: 'number', minimum: 100, maximum: 10 },
-      noValidInteger: { type: 'integer', exclusiveMinimum: 5, exclusiveMaximum: 6 },
-      impossibleArray: { type: 'array', items: { type: 'string' }, minItems: 10, maxItems: 5 },
-      impossibleObject: { type: 'object', minProperties: 10, maxProperties: 5 },
-      missingRequired: {
-        type: 'object',
-        required: ['nonExistentProperty'],
-        properties: { existingProperty: { type: 'string' } },
-      },
-      constEnumConflict: { type: 'string', const: 'fixed', enum: ['other1', 'other2'] },
-      typeConflictAllOf: { allOf: [{ type: 'string' }, { type: 'number' }] },
-      formatTypeMismatch: { type: 'integer', format: 'email' },
-      multipleConst: { allOf: [{ const: 'value1' }, { const: 'value2' }] },
-    },
+      .openapi({ required: ['nonExistentProperty'] }),
+    constEnumConflict: z.literal('fixed').exactOptional(),
+    typeConflictAllOf: z.string().and(z.number()).exactOptional(),
+    formatTypeMismatch: z.int().exactOptional(),
+    multipleConst: z.literal('value1').and(z.literal('value2')).exactOptional(),
   })
   .openapi('Contradictions')
 
 const ImpossibleSchemasSchema = z
   .object({
     alwaysFalse: z.any().exactOptional().openapi({ not: {} }),
-    emptyOneOf: z.any().exactOptional().openapi({ oneOf: [] }),
-    emptyAnyOf: z.any().exactOptional().openapi({ anyOf: [] }),
+    emptyOneOf: z.any().exactOptional(),
+    emptyAnyOf: z.any().exactOptional(),
     impossibleAllOf: z
       .string()
-      .openapi({ type: 'string' })
-      .and(z.array(z.any()).openapi({ type: 'array' }))
-      .and(z.object({}).openapi({ type: 'object' }))
-      .and(z.number().openapi({ type: 'number' }))
-      .exactOptional()
-      .openapi({
-        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
-      }),
-    emptyEnum: z.any().exactOptional().openapi({ type: 'string', enum: [] }),
-    impossiblePattern: z
-      .string()
-      .regex(/^$/)
-      .min(1)
-      .exactOptional()
-      .openapi({ type: 'string', minLength: 1, pattern: '^$' }),
-    integerDecimal: z
-      .int()
-      .gt(0)
-      .lt(0.5)
-      .multipleOf(0.1)
-      .exactOptional()
-      .openapi({ type: 'integer', multipleOf: 0.1, exclusiveMinimum: 0, exclusiveMaximum: 0.5 }),
-    closedEmpty: z
-      .strictObject({})
-      .exactOptional()
-      .openapi({ type: 'object', additionalProperties: false, minProperties: 1 }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      alwaysFalse: { not: {} },
-      emptyOneOf: { oneOf: [] },
-      emptyAnyOf: { anyOf: [] },
-      impossibleAllOf: {
-        allOf: [{ type: 'string' }, { type: 'array' }, { type: 'object' }, { type: 'number' }],
-      },
-      emptyEnum: { type: 'string', enum: [] },
-      impossiblePattern: { type: 'string', minLength: 1, pattern: '^$' },
-      integerDecimal: {
-        type: 'integer',
-        multipleOf: 0.1,
-        exclusiveMinimum: 0,
-        exclusiveMaximum: 0.5,
-      },
-      closedEmpty: { type: 'object', additionalProperties: false, minProperties: 1 },
-    },
+      .and(z.array(z.any()))
+      .and(z.object({}))
+      .and(z.number())
+      .exactOptional(),
+    emptyEnum: z.any().exactOptional(),
+    impossiblePattern: z.string().regex(/^$/).min(1).exactOptional(),
+    integerDecimal: z.int().gt(0).lt(0.5).multipleOf(0.1).exactOptional(),
+    closedEmpty: z.strictObject({}).exactOptional().openapi({ minProperties: 1 }),
   })
   .openapi('ImpossibleSchemas')
 
@@ -138,107 +82,29 @@ const AmbiguousSchemasSchema = z
     empty: z.any().exactOptional(),
     justFalse: z.any().exactOptional(),
     justTrue: z.any().exactOptional(),
-    deepAny: z
-      .union([
-        z
-          .union([
-            z
-              .union([z.union([z.any()]).openapi({ anyOf: [{}] })])
-              .openapi({ anyOf: [{ anyOf: [{}] }] }),
-          ])
-          .openapi({ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }),
-      ])
-      .exactOptional()
-      .openapi({ anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] }),
+    deepAny: z.union([z.union([z.union([z.union([z.any()])])])]).exactOptional(),
     overlappingOneOf: z
       .xor([
-        z
-          .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { a: { type: 'string' } } }),
-        z
-          .object({
-            a: z.string().exactOptional().openapi({ type: 'string' }),
-            b: z.string().exactOptional().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          }),
-        z.looseObject({}).openapi({ type: 'object', additionalProperties: true }),
+        z.object({ a: z.string().exactOptional() }),
+        z.object({ a: z.string().exactOptional(), b: z.string().exactOptional() }),
+        z.looseObject({}),
       ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
-          { type: 'object', additionalProperties: true },
-        ],
-      }),
+      .exactOptional(),
     ambiguousAnyOf: z
       .union([
-        z.number().openapi({ type: 'number' }),
-        z.int().openapi({ type: 'integer' }),
-        z.union([z.literal(1), z.literal(2), z.literal(3)]).openapi({ enum: [1, 2, 3] }),
+        z.number(),
+        z.int(),
+        z.union([z.literal(1), z.literal(2), z.literal(3)]),
         z.literal(2),
       ])
-      .exactOptional()
-      .openapi({
-        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
-      }),
+      .exactOptional(),
     ambiguousDiscriminator: z
       .discriminatedUnion('type', [
-        z
-          .object({
-            type: z
-              .enum(['a', 'b'])
-              .exactOptional()
-              .openapi({ enum: ['a', 'b'] }),
-          })
-          .openapi({ type: 'object', properties: { type: { enum: ['a', 'b'] } } }),
-        z
-          .object({
-            type: z
-              .enum(['b', 'c'])
-              .exactOptional()
-              .openapi({ enum: ['b', 'c'] }),
-          })
-          .openapi({ type: 'object', properties: { type: { enum: ['b', 'c'] } } }),
+        z.object({ type: z.enum(['a', 'b']).exactOptional() }),
+        z.object({ type: z.enum(['b', 'c']).exactOptional() }),
       ])
       .exactOptional()
-      .openapi({
-        oneOf: [
-          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
-          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
-        ],
-        discriminator: { propertyName: 'type' },
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      noType: { description: 'Schema with no type constraint' },
-      empty: {},
-      justFalse: {},
-      justTrue: {},
-      deepAny: { anyOf: [{ anyOf: [{ anyOf: [{ anyOf: [{}] }] }] }] },
-      overlappingOneOf: {
-        oneOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
-          { type: 'object', additionalProperties: true },
-        ],
-      },
-      ambiguousAnyOf: {
-        anyOf: [{ type: 'number' }, { type: 'integer' }, { enum: [1, 2, 3] }, { const: 2 }],
-      },
-      ambiguousDiscriminator: {
-        oneOf: [
-          { type: 'object', properties: { type: { enum: ['a', 'b'] } } },
-          { type: 'object', properties: { type: { enum: ['b', 'c'] } } },
-        ],
-        discriminator: { propertyName: 'type' },
-      },
-    },
+      .openapi({ discriminator: { propertyName: 'type' } }),
   })
   .openapi('AmbiguousSchemas')
 
@@ -263,431 +129,105 @@ const EdgeCasesSchema = z
                                     l8: z
                                       .object({
                                         l9: z
-                                          .object({
-                                            l10: z
-                                              .string()
-                                              .exactOptional()
-                                              .openapi({ type: 'string' }),
-                                          })
-                                          .exactOptional()
-                                          .openapi({
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          }),
+                                          .object({ l10: z.string().exactOptional() })
+                                          .exactOptional(),
                                       })
-                                      .exactOptional()
-                                      .openapi({
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      }),
+                                      .exactOptional(),
                                   })
-                                  .exactOptional()
-                                  .openapi({
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  }),
+                                  .exactOptional(),
                               })
-                              .exactOptional()
-                              .openapi({
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              }),
+                              .exactOptional(),
                           })
-                          .exactOptional()
-                          .openapi({
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          }),
+                          .exactOptional(),
                       })
-                      .exactOptional()
-                      .openapi({
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      }),
+                      .exactOptional(),
                   })
-                  .exactOptional()
-                  .openapi({
-                    type: 'object',
-                    properties: {
-                      l4: {
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }),
+                  .exactOptional(),
               })
-              .exactOptional()
-              .openapi({
-                type: 'object',
-                properties: {
-                  l3: {
-                    type: 'object',
-                    properties: {
-                      l4: {
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              }),
+              .exactOptional(),
           })
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            properties: {
-              l2: {
-                type: 'object',
-                properties: {
-                  l3: {
-                    type: 'object',
-                    properties: {
-                      l4: {
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          }),
+          .exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          l1: {
-            type: 'object',
-            properties: {
-              l2: {
-                type: 'object',
-                properties: {
-                  l3: {
-                    type: 'object',
-                    properties: {
-                      l4: {
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      }),
+      .exactOptional(),
     wideObject: z
       .object({
-        p001: z.string().exactOptional().openapi({ type: 'string' }),
-        p002: z.string().exactOptional().openapi({ type: 'string' }),
-        p003: z.string().exactOptional().openapi({ type: 'string' }),
-        p004: z.string().exactOptional().openapi({ type: 'string' }),
-        p005: z.string().exactOptional().openapi({ type: 'string' }),
-        p006: z.string().exactOptional().openapi({ type: 'string' }),
-        p007: z.string().exactOptional().openapi({ type: 'string' }),
-        p008: z.string().exactOptional().openapi({ type: 'string' }),
-        p009: z.string().exactOptional().openapi({ type: 'string' }),
-        p010: z.string().exactOptional().openapi({ type: 'string' }),
-        p011: z.string().exactOptional().openapi({ type: 'string' }),
-        p012: z.string().exactOptional().openapi({ type: 'string' }),
-        p013: z.string().exactOptional().openapi({ type: 'string' }),
-        p014: z.string().exactOptional().openapi({ type: 'string' }),
-        p015: z.string().exactOptional().openapi({ type: 'string' }),
-        p016: z.string().exactOptional().openapi({ type: 'string' }),
-        p017: z.string().exactOptional().openapi({ type: 'string' }),
-        p018: z.string().exactOptional().openapi({ type: 'string' }),
-        p019: z.string().exactOptional().openapi({ type: 'string' }),
-        p020: z.string().exactOptional().openapi({ type: 'string' }),
-        p021: z.string().exactOptional().openapi({ type: 'string' }),
-        p022: z.string().exactOptional().openapi({ type: 'string' }),
-        p023: z.string().exactOptional().openapi({ type: 'string' }),
-        p024: z.string().exactOptional().openapi({ type: 'string' }),
-        p025: z.string().exactOptional().openapi({ type: 'string' }),
-        p026: z.string().exactOptional().openapi({ type: 'string' }),
-        p027: z.string().exactOptional().openapi({ type: 'string' }),
-        p028: z.string().exactOptional().openapi({ type: 'string' }),
-        p029: z.string().exactOptional().openapi({ type: 'string' }),
-        p030: z.string().exactOptional().openapi({ type: 'string' }),
-        p031: z.string().exactOptional().openapi({ type: 'string' }),
-        p032: z.string().exactOptional().openapi({ type: 'string' }),
-        p033: z.string().exactOptional().openapi({ type: 'string' }),
-        p034: z.string().exactOptional().openapi({ type: 'string' }),
-        p035: z.string().exactOptional().openapi({ type: 'string' }),
-        p036: z.string().exactOptional().openapi({ type: 'string' }),
-        p037: z.string().exactOptional().openapi({ type: 'string' }),
-        p038: z.string().exactOptional().openapi({ type: 'string' }),
-        p039: z.string().exactOptional().openapi({ type: 'string' }),
-        p040: z.string().exactOptional().openapi({ type: 'string' }),
-        p041: z.string().exactOptional().openapi({ type: 'string' }),
-        p042: z.string().exactOptional().openapi({ type: 'string' }),
-        p043: z.string().exactOptional().openapi({ type: 'string' }),
-        p044: z.string().exactOptional().openapi({ type: 'string' }),
-        p045: z.string().exactOptional().openapi({ type: 'string' }),
-        p046: z.string().exactOptional().openapi({ type: 'string' }),
-        p047: z.string().exactOptional().openapi({ type: 'string' }),
-        p048: z.string().exactOptional().openapi({ type: 'string' }),
-        p049: z.string().exactOptional().openapi({ type: 'string' }),
-        p050: z.string().exactOptional().openapi({ type: 'string' }),
+        p001: z.string().exactOptional(),
+        p002: z.string().exactOptional(),
+        p003: z.string().exactOptional(),
+        p004: z.string().exactOptional(),
+        p005: z.string().exactOptional(),
+        p006: z.string().exactOptional(),
+        p007: z.string().exactOptional(),
+        p008: z.string().exactOptional(),
+        p009: z.string().exactOptional(),
+        p010: z.string().exactOptional(),
+        p011: z.string().exactOptional(),
+        p012: z.string().exactOptional(),
+        p013: z.string().exactOptional(),
+        p014: z.string().exactOptional(),
+        p015: z.string().exactOptional(),
+        p016: z.string().exactOptional(),
+        p017: z.string().exactOptional(),
+        p018: z.string().exactOptional(),
+        p019: z.string().exactOptional(),
+        p020: z.string().exactOptional(),
+        p021: z.string().exactOptional(),
+        p022: z.string().exactOptional(),
+        p023: z.string().exactOptional(),
+        p024: z.string().exactOptional(),
+        p025: z.string().exactOptional(),
+        p026: z.string().exactOptional(),
+        p027: z.string().exactOptional(),
+        p028: z.string().exactOptional(),
+        p029: z.string().exactOptional(),
+        p030: z.string().exactOptional(),
+        p031: z.string().exactOptional(),
+        p032: z.string().exactOptional(),
+        p033: z.string().exactOptional(),
+        p034: z.string().exactOptional(),
+        p035: z.string().exactOptional(),
+        p036: z.string().exactOptional(),
+        p037: z.string().exactOptional(),
+        p038: z.string().exactOptional(),
+        p039: z.string().exactOptional(),
+        p040: z.string().exactOptional(),
+        p041: z.string().exactOptional(),
+        p042: z.string().exactOptional(),
+        p043: z.string().exactOptional(),
+        p044: z.string().exactOptional(),
+        p045: z.string().exactOptional(),
+        p046: z.string().exactOptional(),
+        p047: z.string().exactOptional(),
+        p048: z.string().exactOptional(),
+        p049: z.string().exactOptional(),
+        p050: z.string().exactOptional(),
       })
-      .exactOptional()
-      .openapi({
-        type: 'object',
-        properties: {
-          p001: { type: 'string' },
-          p002: { type: 'string' },
-          p003: { type: 'string' },
-          p004: { type: 'string' },
-          p005: { type: 'string' },
-          p006: { type: 'string' },
-          p007: { type: 'string' },
-          p008: { type: 'string' },
-          p009: { type: 'string' },
-          p010: { type: 'string' },
-          p011: { type: 'string' },
-          p012: { type: 'string' },
-          p013: { type: 'string' },
-          p014: { type: 'string' },
-          p015: { type: 'string' },
-          p016: { type: 'string' },
-          p017: { type: 'string' },
-          p018: { type: 'string' },
-          p019: { type: 'string' },
-          p020: { type: 'string' },
-          p021: { type: 'string' },
-          p022: { type: 'string' },
-          p023: { type: 'string' },
-          p024: { type: 'string' },
-          p025: { type: 'string' },
-          p026: { type: 'string' },
-          p027: { type: 'string' },
-          p028: { type: 'string' },
-          p029: { type: 'string' },
-          p030: { type: 'string' },
-          p031: { type: 'string' },
-          p032: { type: 'string' },
-          p033: { type: 'string' },
-          p034: { type: 'string' },
-          p035: { type: 'string' },
-          p036: { type: 'string' },
-          p037: { type: 'string' },
-          p038: { type: 'string' },
-          p039: { type: 'string' },
-          p040: { type: 'string' },
-          p041: { type: 'string' },
-          p042: { type: 'string' },
-          p043: { type: 'string' },
-          p044: { type: 'string' },
-          p045: { type: 'string' },
-          p046: { type: 'string' },
-          p047: { type: 'string' },
-          p048: { type: 'string' },
-          p049: { type: 'string' },
-          p050: { type: 'string' },
-        },
-      }),
+      .exactOptional(),
     manyRequired: z
       .object({
-        r01: z.string().openapi({ type: 'string' }),
-        r02: z.string().openapi({ type: 'string' }),
-        r03: z.string().openapi({ type: 'string' }),
-        r04: z.string().openapi({ type: 'string' }),
-        r05: z.string().openapi({ type: 'string' }),
-        r06: z.string().openapi({ type: 'string' }),
-        r07: z.string().openapi({ type: 'string' }),
-        r08: z.string().openapi({ type: 'string' }),
-        r09: z.string().openapi({ type: 'string' }),
-        r10: z.string().openapi({ type: 'string' }),
-        r11: z.string().openapi({ type: 'string' }),
-        r12: z.string().openapi({ type: 'string' }),
-        r13: z.string().openapi({ type: 'string' }),
-        r14: z.string().openapi({ type: 'string' }),
-        r15: z.string().openapi({ type: 'string' }),
-        r16: z.string().openapi({ type: 'string' }),
-        r17: z.string().openapi({ type: 'string' }),
-        r18: z.string().openapi({ type: 'string' }),
-        r19: z.string().openapi({ type: 'string' }),
-        r20: z.string().openapi({ type: 'string' }),
+        r01: z.string(),
+        r02: z.string(),
+        r03: z.string(),
+        r04: z.string(),
+        r05: z.string(),
+        r06: z.string(),
+        r07: z.string(),
+        r08: z.string(),
+        r09: z.string(),
+        r10: z.string(),
+        r11: z.string(),
+        r12: z.string(),
+        r13: z.string(),
+        r14: z.string(),
+        r15: z.string(),
+        r16: z.string(),
+        r17: z.string(),
+        r18: z.string(),
+        r19: z.string(),
+        r20: z.string(),
       })
       .exactOptional()
       .openapi({
-        type: 'object',
         required: [
           'r01',
           'r02',
@@ -710,572 +250,91 @@ const EdgeCasesSchema = z
           'r19',
           'r20',
         ],
-        properties: {
-          r01: { type: 'string' },
-          r02: { type: 'string' },
-          r03: { type: 'string' },
-          r04: { type: 'string' },
-          r05: { type: 'string' },
-          r06: { type: 'string' },
-          r07: { type: 'string' },
-          r08: { type: 'string' },
-          r09: { type: 'string' },
-          r10: { type: 'string' },
-          r11: { type: 'string' },
-          r12: { type: 'string' },
-          r13: { type: 'string' },
-          r14: { type: 'string' },
-          r15: { type: 'string' },
-          r16: { type: 'string' },
-          r17: { type: 'string' },
-          r18: { type: 'string' },
-          r19: { type: 'string' },
-          r20: { type: 'string' },
-        },
       }),
-    onlyFalse: z.literal(false).exactOptional().openapi({ type: 'boolean' }),
-    onlyTrue: z.literal(true).exactOptional().openapi({ type: 'boolean' }),
-    onlyNull: z.null().nullable().exactOptional().openapi({ type: 'null' }),
+    onlyFalse: z.literal(false).exactOptional(),
+    onlyTrue: z.literal(true).exactOptional(),
+    onlyNull: z.null().nullable().exactOptional(),
     exactlyOne: z
-      .record(z.string(), z.string().openapi({ type: 'string' }))
+      .record(z.string(), z.string())
       .exactOptional()
-      .openapi({
-        type: 'object',
-        minProperties: 1,
-        maxProperties: 1,
-        additionalProperties: { type: 'string' },
-      }),
+      .openapi({ minProperties: 1, maxProperties: 1 }),
     exactlyOneItem: z
-      .array(
-        z
-          .object({ id: z.string().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', required: ['id'], properties: { id: { type: 'string' } } }),
-      )
+      .array(z.object({ id: z.string() }).openapi({ required: ['id'] }))
       .length(1)
       .exactOptional()
-      .openapi({
-        type: 'array',
-        items: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
-        minItems: 1,
-        maxItems: 1,
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      deepNesting: {
-        type: 'object',
-        properties: {
-          l1: {
-            type: 'object',
-            properties: {
-              l2: {
-                type: 'object',
-                properties: {
-                  l3: {
-                    type: 'object',
-                    properties: {
-                      l4: {
-                        type: 'object',
-                        properties: {
-                          l5: {
-                            type: 'object',
-                            properties: {
-                              l6: {
-                                type: 'object',
-                                properties: {
-                                  l7: {
-                                    type: 'object',
-                                    properties: {
-                                      l8: {
-                                        type: 'object',
-                                        properties: {
-                                          l9: {
-                                            type: 'object',
-                                            properties: { l10: { type: 'string' } },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      wideObject: {
-        type: 'object',
-        properties: {
-          p001: { type: 'string' },
-          p002: { type: 'string' },
-          p003: { type: 'string' },
-          p004: { type: 'string' },
-          p005: { type: 'string' },
-          p006: { type: 'string' },
-          p007: { type: 'string' },
-          p008: { type: 'string' },
-          p009: { type: 'string' },
-          p010: { type: 'string' },
-          p011: { type: 'string' },
-          p012: { type: 'string' },
-          p013: { type: 'string' },
-          p014: { type: 'string' },
-          p015: { type: 'string' },
-          p016: { type: 'string' },
-          p017: { type: 'string' },
-          p018: { type: 'string' },
-          p019: { type: 'string' },
-          p020: { type: 'string' },
-          p021: { type: 'string' },
-          p022: { type: 'string' },
-          p023: { type: 'string' },
-          p024: { type: 'string' },
-          p025: { type: 'string' },
-          p026: { type: 'string' },
-          p027: { type: 'string' },
-          p028: { type: 'string' },
-          p029: { type: 'string' },
-          p030: { type: 'string' },
-          p031: { type: 'string' },
-          p032: { type: 'string' },
-          p033: { type: 'string' },
-          p034: { type: 'string' },
-          p035: { type: 'string' },
-          p036: { type: 'string' },
-          p037: { type: 'string' },
-          p038: { type: 'string' },
-          p039: { type: 'string' },
-          p040: { type: 'string' },
-          p041: { type: 'string' },
-          p042: { type: 'string' },
-          p043: { type: 'string' },
-          p044: { type: 'string' },
-          p045: { type: 'string' },
-          p046: { type: 'string' },
-          p047: { type: 'string' },
-          p048: { type: 'string' },
-          p049: { type: 'string' },
-          p050: { type: 'string' },
-        },
-      },
-      manyRequired: {
-        type: 'object',
-        required: [
-          'r01',
-          'r02',
-          'r03',
-          'r04',
-          'r05',
-          'r06',
-          'r07',
-          'r08',
-          'r09',
-          'r10',
-          'r11',
-          'r12',
-          'r13',
-          'r14',
-          'r15',
-          'r16',
-          'r17',
-          'r18',
-          'r19',
-          'r20',
-        ],
-        properties: {
-          r01: { type: 'string' },
-          r02: { type: 'string' },
-          r03: { type: 'string' },
-          r04: { type: 'string' },
-          r05: { type: 'string' },
-          r06: { type: 'string' },
-          r07: { type: 'string' },
-          r08: { type: 'string' },
-          r09: { type: 'string' },
-          r10: { type: 'string' },
-          r11: { type: 'string' },
-          r12: { type: 'string' },
-          r13: { type: 'string' },
-          r14: { type: 'string' },
-          r15: { type: 'string' },
-          r16: { type: 'string' },
-          r17: { type: 'string' },
-          r18: { type: 'string' },
-          r19: { type: 'string' },
-          r20: { type: 'string' },
-        },
-      },
-      onlyFalse: { type: 'boolean', const: false },
-      onlyTrue: { type: 'boolean', const: true },
-      onlyNull: { type: 'null' },
-      exactlyOne: {
-        type: 'object',
-        minProperties: 1,
-        maxProperties: 1,
-        additionalProperties: { type: 'string' },
-      },
-      exactlyOneItem: {
-        type: 'array',
-        items: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
-        minItems: 1,
-        maxItems: 1,
-      },
-    },
+      .openapi({ minItems: 1, maxItems: 1 }),
   })
   .openapi('EdgeCases')
 
 const RecursiveNightmaresSchema: z.ZodType<RecursiveNightmaresType> = z
   .lazy(() =>
-    z
-      .object({
-        mutuallyRecursive: RecursiveASchema.exactOptional(),
-        constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
-        recursiveInAllOf: z
-          .object({ value: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { value: { type: 'string' } } })
-          .and(
-            z
-              .object({ child: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
-              .openapi({
-                type: 'object',
-                properties: {
-                  child: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-                  },
-                },
-              }),
-          )
-          .exactOptional()
-          .openapi({
-            allOf: [
-              { type: 'object', properties: { value: { type: 'string' } } },
-              {
-                type: 'object',
-                properties: {
-                  child: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-                  },
-                },
-              },
-            ],
-          }),
-        recursiveInOneOf: z
-          .xor([
-            z.string().openapi({ type: 'string' }),
-            z
-              .object({ nested: z.lazy(() => RecursiveNightmaresSchema).exactOptional() })
-              .openapi({
-                type: 'object',
-                properties: {
-                  nested: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-                  },
-                },
-              }),
-          ])
-          .exactOptional()
-          .openapi({
-            oneOf: [
-              { type: 'string' },
-              {
-                type: 'object',
-                properties: {
-                  nested: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-                  },
-                },
-              },
-            ],
-          }),
-        recursiveMap: z
-          .record(
-            z.string(),
-            z.lazy(() => RecursiveNightmaresSchema),
-          )
-          .exactOptional()
-          .openapi({
-            type: 'object',
-            additionalProperties: {
-              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-            },
-          }),
-        recursiveArray: z
-          .array(
-            z
-              .array(z.lazy(() => RecursiveNightmaresSchema))
-              .openapi({
-                type: 'array',
-                items: {
-                  $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray',
-                },
-              }),
-          )
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            items: {
-              type: 'array',
-              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-            },
-          }),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          mutuallyRecursive: { $ref: '#/components/schemas/RecursiveA' },
-          constrainedRecursive: { $ref: '#/components/schemas/ConstrainedTree' },
-          recursiveInAllOf: {
-            allOf: [
-              { type: 'object', properties: { value: { type: 'string' } } },
-              {
-                type: 'object',
-                properties: {
-                  child: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInAllOf',
-                  },
-                },
-              },
-            ],
-          },
-          recursiveInOneOf: {
-            oneOf: [
-              { type: 'string' },
-              {
-                type: 'object',
-                properties: {
-                  nested: {
-                    $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveInOneOf',
-                  },
-                },
-              },
-            ],
-          },
-          recursiveMap: {
-            type: 'object',
-            additionalProperties: {
-              $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveMap',
-            },
-          },
-          recursiveArray: {
-            type: 'array',
-            items: {
-              type: 'array',
-              items: { $ref: '#/components/schemas/RecursiveNightmares/properties/recursiveArray' },
-            },
-          },
-        },
-      }),
+    z.object({
+      mutuallyRecursive: RecursiveASchema.exactOptional(),
+      constrainedRecursive: ConstrainedTreeSchema.exactOptional(),
+      recursiveInAllOf: z
+        .object({ value: z.string().exactOptional() })
+        .and(z.object({ child: z.lazy(() => RecursiveNightmaresSchema).exactOptional() }))
+        .exactOptional(),
+      recursiveInOneOf: z
+        .xor([
+          z.string(),
+          z.object({ nested: z.lazy(() => RecursiveNightmaresSchema).exactOptional() }),
+        ])
+        .exactOptional(),
+      recursiveMap: z
+        .record(
+          z.string(),
+          z.lazy(() => RecursiveNightmaresSchema),
+        )
+        .exactOptional(),
+      recursiveArray: z.array(z.array(z.lazy(() => RecursiveNightmaresSchema))).exactOptional(),
+    }),
   )
   .openapi('RecursiveNightmares')
 
 const DiscrimASchema = z
-  .object({
-    kind: z.literal('typeA'),
-    valueA: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeA' }, valueA: { type: 'string' } },
-  })
+  .object({ kind: z.literal('typeA'), valueA: z.string().exactOptional() })
+  .openapi({ required: ['kind'] })
   .openapi('DiscrimA')
 
 const DiscrimBSchema = z
-  .object({
-    kind: z.literal('typeB'),
-    valueB: z.number().exactOptional().openapi({ type: 'number' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeB' }, valueB: { type: 'number' } },
-  })
+  .object({ kind: z.literal('typeB'), valueB: z.number().exactOptional() })
+  .openapi({ required: ['kind'] })
   .openapi('DiscrimB')
 
 const DiscrimCSchema = z
-  .object({
-    kind: z.literal('typeC'),
-    valueC: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-  })
-  .openapi({
-    type: 'object',
-    required: ['kind'],
-    properties: { kind: { const: 'typeC' }, valueC: { type: 'boolean' } },
-  })
+  .object({ kind: z.literal('typeC'), valueC: z.boolean().exactOptional() })
+  .openapi({ required: ['kind'] })
   .openapi('DiscrimC')
 
 const CompositionHellSchema = z
   .object({
     nestedAllOf: z
-      .object({ a: z.string().exactOptional().openapi({ type: 'string' }) })
-      .openapi({ type: 'object', properties: { a: { type: 'string' } } })
-      .and(
-        z
-          .object({ b: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { b: { type: 'string' } } }),
-      )
-      .openapi({
-        allOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { b: { type: 'string' } } },
-        ],
-      })
-      .and(
-        z
-          .object({ c: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { c: { type: 'string' } } }),
-      )
-      .openapi({
-        allOf: [
-          {
-            allOf: [
-              { type: 'object', properties: { a: { type: 'string' } } },
-              { type: 'object', properties: { b: { type: 'string' } } },
-            ],
-          },
-          { type: 'object', properties: { c: { type: 'string' } } },
-        ],
-      })
-      .and(
-        z
-          .object({ d: z.string().exactOptional().openapi({ type: 'string' }) })
-          .openapi({ type: 'object', properties: { d: { type: 'string' } } }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          {
-            allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
-            ],
-          },
-          { type: 'object', properties: { d: { type: 'string' } } },
-        ],
-      }),
+      .object({ a: z.string().exactOptional() })
+      .and(z.object({ b: z.string().exactOptional() }))
+      .and(z.object({ c: z.string().exactOptional() }))
+      .and(z.object({ d: z.string().exactOptional() }))
+      .exactOptional(),
     nestedOneOf: z
-      .xor([
-        z
-          .xor([
-            z.literal('deep1').openapi({ type: 'string' }),
-            z.literal('deep2').openapi({ type: 'string' }),
-          ])
-          .openapi({
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          }),
-        z
-          .xor([z.literal(1).openapi({ type: 'number' }), z.literal(2).openapi({ type: 'number' })])
-          .openapi({
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          {
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          },
-          {
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          },
-        ],
-      }),
+      .xor([z.xor([z.literal('deep1'), z.literal('deep2')]), z.xor([z.literal(1), z.literal(2)])])
+      .exactOptional(),
     nestedAnyOf: z
-      .union([
-        z
-          .union([z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' })])
-          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-        z
-          .union([
-            z.boolean().openapi({ type: 'boolean' }),
-            z.null().nullable().openapi({ type: 'null' }),
-          ])
-          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
-      ])
-      .exactOptional()
-      .openapi({
-        anyOf: [
-          { anyOf: [{ type: 'string' }, { type: 'number' }] },
-          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-        ],
-      }),
+      .union([z.union([z.string(), z.number()]), z.union([z.boolean(), z.null().nullable()])])
+      .exactOptional(),
     allMixed: z
-      .xor([
-        z
-          .union([z.string().openapi({ type: 'string' }), z.number().openapi({ type: 'number' })])
-          .openapi({ anyOf: [{ type: 'string' }, { type: 'number' }] }),
-        z
-          .union([
-            z.boolean().openapi({ type: 'boolean' }),
-            z.null().nullable().openapi({ type: 'null' }),
-          ])
-          .openapi({ anyOf: [{ type: 'boolean' }, { type: 'null' }] }),
-      ])
-      .openapi({
-        oneOf: [
-          { anyOf: [{ type: 'string' }, { type: 'number' }] },
-          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-        ],
-      })
+      .xor([z.union([z.string(), z.number()]), z.union([z.boolean(), z.null().nullable()])])
       .and(
         z
           .any()
           .refine((v) => v !== null)
+          .exactOptional()
           .openapi({ not: { const: null } }),
-      )
-      .exactOptional()
-      .openapi({
-        allOf: [
-          {
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          },
-          { not: { const: null } },
-        ],
-      }),
-    conditionalInAllOf: z
-      .object({ type: z.string().exactOptional().openapi({ type: 'string' }) })
-      .openapi({ type: 'object', properties: { type: { type: 'string' } } })
-      .and(z.any())
-      .exactOptional()
-      .openapi({ allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}] }),
+      ),
+    conditionalInAllOf: z.object({ type: z.string().exactOptional() }).and(z.any()).exactOptional(),
     multiDiscriminator: z
-      .discriminatedUnion('kind', [DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
+      .xor([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
       .exactOptional()
       .openapi({
-        oneOf: [
-          { $ref: '#/components/schemas/DiscrimA' },
-          { $ref: '#/components/schemas/DiscrimB' },
-          { $ref: '#/components/schemas/DiscrimC' },
-        ],
         discriminator: {
           propertyName: 'kind',
           mapping: {
@@ -1286,188 +345,24 @@ const CompositionHellSchema = z
         },
       }),
     conflictingRequired: z
-      .object({ fieldA: z.string().openapi({ type: 'string' }) })
-      .openapi({ type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } })
+      .object({ fieldA: z.string() })
+      .openapi({ required: ['fieldA'] })
+      .and(z.object({ fieldB: z.string() }).openapi({ required: ['fieldB'] }))
       .and(
         z
-          .object({ fieldB: z.string().openapi({ type: 'string' }) })
-          .openapi({
-            type: 'object',
-            required: ['fieldB'],
-            properties: { fieldB: { type: 'string' } },
-          }),
+          .object({ fieldC: z.string() })
+          .exactOptional()
+          .openapi({ required: ['fieldC'] }),
       )
-      .and(
-        z
-          .object({ fieldC: z.string().openapi({ type: 'string' }) })
-          .openapi({
-            type: 'object',
-            required: ['fieldC'],
-            properties: { fieldC: { type: 'string' } },
-          }),
-      )
-      .and(z.strictObject({}).openapi({ type: 'object', additionalProperties: false }))
-      .exactOptional()
-      .openapi({
-        allOf: [
-          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
-          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
-          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
-          { type: 'object', additionalProperties: false },
-        ],
-      }),
-    overlappingSchemas: z
-      .xor([
-        z
-          .object({
-            a: z.string().openapi({ type: 'string' }),
-            b: z.string().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['a', 'b'],
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          }),
-        z
-          .object({
-            a: z.string().openapi({ type: 'string' }),
-            c: z.string().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          }),
-        z
-          .object({
-            b: z.string().openapi({ type: 'string' }),
-            c: z.string().openapi({ type: 'string' }),
-          })
-          .openapi({
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          }),
-      ])
-      .exactOptional()
-      .openapi({
-        oneOf: [
-          {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          },
-        ],
-      }),
-  })
-  .openapi({
-    type: 'object',
-    properties: {
-      nestedAllOf: {
-        allOf: [
-          {
-            allOf: [
-              {
-                allOf: [
-                  { type: 'object', properties: { a: { type: 'string' } } },
-                  { type: 'object', properties: { b: { type: 'string' } } },
-                ],
-              },
-              { type: 'object', properties: { c: { type: 'string' } } },
-            ],
-          },
-          { type: 'object', properties: { d: { type: 'string' } } },
-        ],
-      },
-      nestedOneOf: {
-        oneOf: [
-          {
-            oneOf: [
-              { type: 'string', const: 'deep1' },
-              { type: 'string', const: 'deep2' },
-            ],
-          },
-          {
-            oneOf: [
-              { type: 'number', const: 1 },
-              { type: 'number', const: 2 },
-            ],
-          },
-        ],
-      },
-      nestedAnyOf: {
-        anyOf: [
-          { anyOf: [{ type: 'string' }, { type: 'number' }] },
-          { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-        ],
-      },
-      allMixed: {
-        allOf: [
-          {
-            oneOf: [
-              { anyOf: [{ type: 'string' }, { type: 'number' }] },
-              { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-            ],
-          },
-          { not: { const: null } },
-        ],
-      },
-      conditionalInAllOf: {
-        allOf: [{ type: 'object', properties: { type: { type: 'string' } } }, {}],
-      },
-      multiDiscriminator: {
-        oneOf: [
-          { $ref: '#/components/schemas/DiscrimA' },
-          { $ref: '#/components/schemas/DiscrimB' },
-          { $ref: '#/components/schemas/DiscrimC' },
-        ],
-        discriminator: {
-          propertyName: 'kind',
-          mapping: {
-            typeA: '#/components/schemas/DiscrimA',
-            typeB: '#/components/schemas/DiscrimB',
-            typeC: '#/components/schemas/DiscrimC',
-          },
-        },
-      },
-      conflictingRequired: {
-        allOf: [
-          { type: 'object', required: ['fieldA'], properties: { fieldA: { type: 'string' } } },
-          { type: 'object', required: ['fieldB'], properties: { fieldB: { type: 'string' } } },
-          { type: 'object', required: ['fieldC'], properties: { fieldC: { type: 'string' } } },
-          { type: 'object', additionalProperties: false },
-        ],
-      },
-      overlappingSchemas: {
-        oneOf: [
-          {
-            type: 'object',
-            required: ['a', 'b'],
-            properties: { a: { type: 'string' }, b: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['a', 'c'],
-            properties: { a: { type: 'string' }, c: { type: 'string' } },
-          },
-          {
-            type: 'object',
-            required: ['b', 'c'],
-            properties: { b: { type: 'string' }, c: { type: 'string' } },
-          },
-        ],
-      },
-    },
+      .and(z.strictObject({})),
+    overlappingSchemas: z.xor([
+      z.object({ a: z.string(), b: z.string() }).openapi({ required: ['a', 'b'] }),
+      z.object({ a: z.string(), c: z.string() }).openapi({ required: ['a', 'c'] }),
+      z
+        .object({ b: z.string(), c: z.string() })
+        .exactOptional()
+        .openapi({ required: ['b', 'c'] }),
+    ]),
   })
   .openapi('CompositionHell')
 
@@ -1480,136 +375,25 @@ const PathologicalRootSchema = z
     recursive: RecursiveNightmaresSchema.exactOptional(),
     composition: CompositionHellSchema.exactOptional(),
   })
-  .openapi({
-    type: 'object',
-    properties: {
-      contradictions: { $ref: '#/components/schemas/Contradictions' },
-      impossible: { $ref: '#/components/schemas/ImpossibleSchemas' },
-      ambiguous: { $ref: '#/components/schemas/AmbiguousSchemas' },
-      edgeCases: { $ref: '#/components/schemas/EdgeCases' },
-      recursive: { $ref: '#/components/schemas/RecursiveNightmares' },
-      composition: { $ref: '#/components/schemas/CompositionHell' },
-    },
-  })
   .openapi('PathologicalRoot')
 
 const RecursiveASchema: z.ZodType<RecursiveAType> = z
   .lazy(() =>
-    z
-      .object({
-        value: z.string().exactOptional().openapi({ type: 'string' }),
-        refB: RecursiveBSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          value: { type: 'string' },
-          refB: { $ref: '#/components/schemas/RecursiveB' },
-        },
-      }),
+    z.object({ value: z.string().exactOptional(), refB: RecursiveBSchema.exactOptional() }),
   )
   .openapi('RecursiveA')
 
-const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100).openapi({ type: 'string', minLength: 1, maxLength: 100 }),
-        children: z
-          .array(ConstrainedTreeSchema)
-          .max(10)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          }),
-        parent: ConstrainedTreeSchema.exactOptional(),
-        siblings: z
-          .array(ConstrainedTreeSchema)
-          .exactOptional()
-          .openapi({
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          }),
-      })
-      .openapi({
-        type: 'object',
-        required: ['value'],
-        properties: {
-          value: { type: 'string', minLength: 1, maxLength: 100 },
-          children: {
-            type: 'array',
-            maxItems: 10,
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-          },
-          parent: { $ref: '#/components/schemas/ConstrainedTree' },
-          siblings: {
-            type: 'array',
-            items: { $ref: '#/components/schemas/ConstrainedTree' },
-            uniqueItems: true,
-          },
-        },
-      }),
-  )
-  .openapi('ConstrainedTree')
-
-type RecursiveNightmaresType = {
-  mutuallyRecursive?: z.infer<typeof RecursiveASchema>
-  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
-  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
-  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
-  recursiveMap?: Record<string, RecursiveNightmaresType>
-  recursiveArray?: unknown[]
-}
-
 const RecursiveBSchema: z.ZodType<RecursiveBType> = z
   .lazy(() =>
-    z
-      .object({
-        value: z.number().exactOptional().openapi({ type: 'number' }),
-        refC: RecursiveCSchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          value: { type: 'number' },
-          refC: { $ref: '#/components/schemas/RecursiveC' },
-        },
-      }),
+    z.object({ value: z.number().exactOptional(), refC: RecursiveCSchema.exactOptional() }),
   )
   .openapi('RecursiveB')
 
-type RecursiveAType = { value?: string; refB?: z.infer<typeof RecursiveBSchema> }
-
 const RecursiveCSchema: z.ZodType<RecursiveCType> = z
   .lazy(() =>
-    z
-      .object({
-        value: z.boolean().exactOptional().openapi({ type: 'boolean' }),
-        refA: RecursiveASchema.exactOptional(),
-      })
-      .openapi({
-        type: 'object',
-        properties: {
-          value: { type: 'boolean' },
-          refA: { $ref: '#/components/schemas/RecursiveA' },
-        },
-      }),
+    z.object({ value: z.boolean().exactOptional(), refA: RecursiveASchema.exactOptional() }),
   )
   .openapi('RecursiveC')
-
-type RecursiveBType = { value?: number; refC?: z.infer<typeof RecursiveCSchema> }
-
-type RecursiveCType = { value?: boolean; refA?: z.infer<typeof RecursiveASchema> }
-
-type ConstrainedTreeType = {
-  value: string
-  children?: ConstrainedTreeType[]
-  parent?: ConstrainedTreeType
-  siblings?: ConstrainedTreeType[]
-}
 
 export const postPathologicalRoute = createRoute({
   method: 'post',
