@@ -813,13 +813,13 @@ export function zodToOpenAPISchema(
   notComponentSchema?: boolean,
 ): string {
   const schemaCode = exportSchema
-    ? `export const ${schemaName} = ${zodSchema}`
-    : `const ${schemaName} = ${zodSchema}`
+    ? `export const ${schemaName}=${zodSchema}`
+    : `const ${schemaName}=${zodSchema}`
 
   // schema code
   const componentSchemaCode = exportSchema
-    ? `export const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
-    : `const ${schemaName} = ${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    ? `export const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    : `const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
   // zod infer code
   const zodInferCode = exportType
     ? `\n\nexport type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>`

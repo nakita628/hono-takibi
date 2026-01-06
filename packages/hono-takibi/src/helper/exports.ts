@@ -32,7 +32,7 @@ export async function makeExports(
     ...keys.map((key) => {
       const v = value[key]
       const name = toIdentifierPascalCase(ensureSuffix(key, suffix))
-      const body = `export const ${name} = ${JSON.stringify(v ?? {})}\n`
+      const body = `export const ${name}=${JSON.stringify(v ?? {})}\n`
       const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
       return core(body, path.dirname(filePath), filePath)
     }),

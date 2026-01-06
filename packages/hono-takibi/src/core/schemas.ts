@@ -207,12 +207,12 @@ export async function schemas(
         const typeDefinition = needsTypeDef
           ? `${zodType(schema, safeSchemaName, cyclicGroupPascal)}\n\n`
           : ''
-        const zExpr = needsLazy ? `z.lazy(() => ${z})` : z
+        const zExpr = needsLazy ? `z.lazy(()=>${z})` : z
         const returnType = needsTypeDef ? `:z.ZodType<${safeSchemaName}Type>` : ''
 
-        const schemaCode = `export const ${variableName}${returnType} = ${zExpr}.openapi('${safeSchemaName}')`
+        const schemaCode = `export const ${variableName}${returnType}=${zExpr}.openapi('${safeSchemaName}')`
         const zodInferCode = exportType
-          ? `\n\nexport type ${safeSchemaName} = z.infer<typeof ${variableName}>`
+          ? `\n\nexport type ${safeSchemaName}=z.infer<typeof ${variableName}>`
           : ''
         const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
 

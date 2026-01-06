@@ -83,7 +83,7 @@ const buildExtraImports = (
 
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
   const name = toIdentifierPascalCase(ensureSuffix(text, suffix))
-  return exportVariable ? `export const ${name} = ` : `const ${name} = `
+  return exportVariable ? `export const ${name}=` : `const ${name}=`
 }
 
 /**
@@ -142,7 +142,7 @@ export function makeExportConst(value: { readonly [k: string]: unknown }, suffix
   return Object.keys(value)
     .map(
       (key) =>
-        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))} = ${JSON.stringify(value[key])}`,
+        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}`,
     )
     .join('\n\n')
 }

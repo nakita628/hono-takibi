@@ -384,7 +384,7 @@ export function makeContent(
 
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
-      // Reference
+      // Referenc
       if (isReference(mediaOrRef) && mediaOrRef.$ref) {
         return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
       }

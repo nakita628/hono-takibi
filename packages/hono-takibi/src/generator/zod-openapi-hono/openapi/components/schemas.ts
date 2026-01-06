@@ -236,8 +236,8 @@ export function schemasCode(
     const returnValue = `:z.ZodType<${safeSchemaName}Type>`
 
     const schemaCode = exportSchemas
-      ? `export const ${variableName}${needsTypeAnnotation ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
-      : `const ${variableName}${needsTypeAnnotation ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
+      ? `export const ${variableName}${needsTypeAnnotation ? returnValue : ''}=${z}.openapi('${safeSchemaName}')`
+      : `const ${variableName}${needsTypeAnnotation ? returnValue : ''}=${z}.openapi('${safeSchemaName}')`
 
     const zodInferCode = exportSchemasTypes
       ? `\n\nexport type ${toIdentifierPascalCase(schemaName)} = z.infer<typeof ${variableName}>`

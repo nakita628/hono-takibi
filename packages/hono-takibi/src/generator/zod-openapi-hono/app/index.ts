@@ -60,11 +60,11 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
 
   const appInit =
     basePath !== '/'
-      ? `const app = new OpenAPIHono().basePath('${basePath}')`
-      : 'const app = new OpenAPIHono()'
+      ? `const app=new OpenAPIHono().basePath('${basePath}')`
+      : 'const app=new OpenAPIHono()'
 
   const apiInit =
-    'export const api = app' +
+    'export const api=app' +
     routeMappings
       .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
       .join('\n')

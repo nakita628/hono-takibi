@@ -102,9 +102,9 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { getHonoRouteHandler,getHonoXRouteHandler,getZodOpenapiHonoRouteHandler } from './handlers'
 import { getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute } from './app'
 
-const app = new OpenAPIHono().basePath('/api')
+const app=new OpenAPIHono().basePath('/api')
 
-export const api = app.openapi(getHonoRoute,getHonoRouteHandler)
+export const api=app.openapi(getHonoRoute,getHonoRouteHandler)
 .openapi(getHonoXRoute,getHonoXRouteHandler)
 .openapi(getZodOpenapiHonoRoute,getZodOpenapiHonoRouteHandler)
 
