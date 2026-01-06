@@ -23,7 +23,7 @@ type MessageType =
 const MessageSchema: z.ZodType<MessageType> = z
   .lazy(() =>
     z
-      .discriminatedUnion('type', [TextMessageSchema, ImageMessageSchema, VideoMessageSchema])
+      .xor([TextMessageSchema, ImageMessageSchema, VideoMessageSchema])
       .openapi({
         discriminator: {
           propertyName: 'type',

@@ -166,6 +166,12 @@ const PostSchema: z.ZodType<PostType> = z
   )
   .openapi('Post')
 
+type PostThreadType = {
+  post: z.infer<typeof PostSchema>
+  ancestors?: z.infer<typeof PostSchema>[]
+  replies?: PostThreadType[]
+}
+
 const CreatePostRequestSchema = z
   .object({
     text: z.string().min(1).max(280),
@@ -186,12 +192,6 @@ const CreatePostRequestSchema = z
   })
   .openapi({ required: ['text'] })
   .openapi('CreatePostRequest')
-
-type PostThreadType = {
-  post: z.infer<typeof PostSchema>
-  ancestors?: z.infer<typeof PostSchema>[]
-  replies?: PostThreadType[]
-}
 
 const PostThreadSchema: z.ZodType<PostThreadType> = z
   .lazy(() =>

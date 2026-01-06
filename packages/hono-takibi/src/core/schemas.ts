@@ -171,6 +171,26 @@ export async function schemas(
     // Detect circular references
     const cyclicSchemas = detectCircularSchemas(schemaNames, depsMap)
 
+    // Extend cyclic group to include all schemas referenced by cyclic schemas
+    const varNameToName = new Map<string, string>()
+    for (const name of schemaNames) {
+      const varName = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
+      varNameToName.set(varName, name)
+    }
+    const extendedCyclicSchemas = new Set(cyclicSchemas)
+    for (const schemaName of cyclicSchemas) {
+      const deps = depsMap.get(schemaName) ?? []
+      for (const depVarName of deps) {
+        const depName = varNameToName.get(depVarName)
+        if (depName) extendedCyclicSchemas.add(depName)
+      }
+    }
+
+    // Create PascalCase set for cyclic group (for type generation)
+    const cyclicGroupPascal = new Set(
+      Array.from(extendedCyclicSchemas).map((name) => toIdentifierPascalCase(name)),
+    )
+
     const allResults = await Promise.all([
       ...schemaNames.map((schemaName) => {
         const schema = schemas[schemaName] as Schema
@@ -179,12 +199,16 @@ export async function schemas(
         const safeSchemaName = toIdentifierPascalCase(schemaName)
 
         const isCircular = cyclicSchemas.has(schemaName)
+        const isExtendedCircular = extendedCyclicSchemas.has(schemaName)
         const isSelfReferencing = z.includes(variableName)
         const needsLazy = isCircular || isSelfReferencing
+        const needsTypeDef = needsLazy || isExtendedCircular
 
-        const typeDefinition = needsLazy ? `${zodType(schema, safeSchemaName)}\n\n` : ''
+        const typeDefinition = needsTypeDef
+          ? `${zodType(schema, safeSchemaName, cyclicGroupPascal)}\n\n`
+          : ''
         const zExpr = needsLazy ? `z.lazy(() => ${z})` : z
-        const returnType = needsLazy ? `:z.ZodType<${safeSchemaName}Type>` : ''
+        const returnType = needsTypeDef ? `:z.ZodType<${safeSchemaName}Type>` : ''
 
         const schemaCode = `export const ${variableName}${returnType} = ${zExpr}.openapi('${safeSchemaName}')`
         const zodInferCode = exportType

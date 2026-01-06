@@ -1,5 +1,32 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type ExtremeCompositionsType = {
+  manyOneOf?:
+    | 'type1'
+    | 'type2'
+    | 'type3'
+    | 'type4'
+    | 'type5'
+    | 'type6'
+    | 'type7'
+    | 'type8'
+    | 'type9'
+    | 'type10'
+    | number
+    | boolean
+    | unknown[]
+    | { [key: string]: unknown }
+    | ({ [key: string]: unknown } | null)
+  deeplyNestedComposition?: (
+    | (({ a?: string } & { b?: number }) | { c?: boolean })
+    | { d?: number }
+  ) & { e?: string }
+  complexNot?: { value?: string } & { [key: string]: unknown }
+  conditionalChain?: { [key: string]: unknown }
+  conflictingAllOf?: { shared?: string } & { shared?: string } & { shared?: string }
+  recursiveConstrained?: { value?: string; children?: ExtremeCompositionsType[] }
+}
+
 const ExtremeStringsSchema = z
   .object({
     emptyOnly: z.string().length(0).exactOptional(),
@@ -282,33 +309,6 @@ const ExtremeValidationSchema = z
     extremeCompositions: ExtremeCompositionsSchema.exactOptional(),
   })
   .openapi('ExtremeValidation')
-
-type ExtremeCompositionsType = {
-  manyOneOf?:
-    | 'type1'
-    | 'type2'
-    | 'type3'
-    | 'type4'
-    | 'type5'
-    | 'type6'
-    | 'type7'
-    | 'type8'
-    | 'type9'
-    | 'type10'
-    | number
-    | boolean
-    | unknown[]
-    | Record<string, unknown>
-    | (Record<string, unknown> | null)
-  deeplyNestedComposition?: (
-    | (({ a?: string } & { b?: number }) | { c?: boolean })
-    | { d?: number }
-  ) & { e?: string }
-  complexNot?: { value?: string } & Record<string, unknown>
-  conditionalChain?: Record<string, unknown>
-  conflictingAllOf?: { shared?: string } & { shared?: string } & { shared?: string }
-  recursiveConstrained?: { value?: string; children?: ExtremeCompositionsType[] }
-}
 
 const EnumEdgeCasesSchema = z
   .object({

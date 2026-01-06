@@ -1,5 +1,17 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type CommentType = {
+  id: string
+  content: string
+  authorName: string
+  authorEmail?: string
+  authorUrl?: string
+  status: 'pending' | 'approved' | 'spam'
+  parentId?: string
+  replies?: CommentType[]
+  createdAt: string
+}
+
 const MediaSchema = z
   .object({
     id: z.uuid(),
@@ -99,18 +111,6 @@ const PostSchema = z
   })
   .openapi({ required: ['id', 'title', 'slug', 'status', 'author', 'createdAt'] })
   .openapi('Post')
-
-type CommentType = {
-  id: string
-  content: string
-  authorName: string
-  authorEmail?: string
-  authorUrl?: string
-  status: 'pending' | 'approved' | 'spam'
-  parentId?: string
-  replies?: CommentType[]
-  createdAt: string
-}
 
 const CommentSchema: z.ZodType<CommentType> = z
   .lazy(() =>

@@ -11,10 +11,9 @@ const UlidSchema = z
   .openapi({ examples: ['01J1K9N3E6R6ZK7Z6B0Q9Q3H3J'] })
   .openapi('Ulid')
 
-const IdSchema = z
-  .xor([UuidSchema, UlidSchema])
-  .openapi({ description: 'Primary identifier (uuid or ulid) - used everywhere' })
-  .openapi('Id')
+type IdType = z.infer<typeof UuidSchema> | z.infer<typeof UlidSchema>
+
+type LocaleType = string
 
 const TraceIdSchema = z
   .string()
@@ -23,12 +22,180 @@ const TraceIdSchema = z
   .openapi({ description: 'Correlation id for tracing; also appears as header/parameter/example' })
   .openapi('TraceId')
 
+type TraceContextType = {
+  traceId: z.infer<typeof TraceIdSchema>
+  parent?: TraceContextType
+  baggage?: { [key: string]: string }
+}
+
+type LinkType = { href: string; rel?: string; meta?: MetaType; next?: LinkType }
+
+interface ResourceLinksType {
+  [key: string]: LinkType
+}
+
+type MetaType = {
+  createdAt: string
+  updatedAt?: string
+  trace?: TraceContextType
+  links?: ResourceLinksType
+}
+
+type EntityType = { id: IdType; meta: MetaType }
+
+type GraphEdgeType = { to: GraphNodeType; weight?: number; meta?: MetaType }
+
+type PersonType = EntityType & {
+  displayName: string
+  employer?: CompanyType
+  homeAddress?: AddressType
+  friends?: PersonType[]
+}
+
+type AddressType = {
+  line1: string
+  line2?: string
+  city: string
+  country?: string
+  geo?: GeoPointType
+  resident?: UserType | PersonType
+}
+
+type CompanyType = EntityType & {
+  name: string
+  headquarters?: AddressType
+  parent?: CompanyType
+  subsidiaries?: CompanyType[]
+  employees?: UserType[]
+  primaryContact?: PersonType
+}
+
+type UserPreferencesType = {
+  locale?: LocaleType
+  marketingOptIn?: boolean
+  theme?: 'light' | 'dark' | 'system'
+  shadowProfile?: UserType
+}
+
+type OrderStatusType = 'pending' | 'paid' | 'shipped' | 'cancelled'
+
+const CurrencySchema = z.enum(['JPY', 'USD', 'EUR']).openapi('Currency')
+
+type MoneyType = {
+  currency: z.infer<typeof CurrencySchema>
+  amount: number
+  trace?: TraceContextType
+}
+
+type ProductType = EntityType & {
+  name: string
+  supplier?: CompanyType
+  relatedProducts?: ProductType[]
+  price?: MoneyType
+}
+
+type OrderItemType = { product: ProductType; quantity: number; unitPrice?: MoneyType }
+
+type EventTypeType =
+  | 'user.created'
+  | 'user.updated'
+  | 'order.created'
+  | 'order.shipped'
+  | 'system.alert'
+
+type UserEventPayloadType = { user: UserType; previous?: UserType }
+
+type OrderEventPayloadType = { order: OrderType; previousStatus?: OrderStatusType }
+
+type SystemEventPayloadType = { message: string; related?: EntityRefType }
+
+type EventType = {
+  type: EventTypeType
+  payload: UserEventPayloadType | OrderEventPayloadType | SystemEventPayloadType
+  causedBy?: EventType[]
+  trace?: TraceContextType
+}
+
+type AuditLogType = { entity: EntityRefType; event: EventType; meta?: MetaType }
+
+type OrderType = EntityType & {
+  buyer: UserType
+  status: OrderStatusType
+  items: OrderItemType[]
+  shippingAddress?: AddressType
+  billingAddress?: AddressType
+  auditTrail?: AuditLogType[]
+  links?: ResourceLinksType
+}
+
+type UserType = EntityType & {
+  name: string
+  email: string
+  company?: CompanyType
+  manager?: UserType
+  reports?: UserType[]
+  addresses?: AddressType[]
+  preferences?: UserPreferencesType
+  recentOrders?: OrderType[]
+  links?: ResourceLinksType
+}
+
+type EntityRefType = UserType | CompanyType | OrderType | ProductType | PersonType
+
+type GraphNodeType = { id: IdType; edges?: GraphEdgeType[]; entity?: EntityRefType }
+
+type GeoGraphType = { nodes: GraphNodeType[] }
+
+type GeoPointType = { lat: number; lng: number; graph?: GeoGraphType }
+
+type SecretRefType = { secretId: string; rotation?: SecretRotationType }
+
+type SecretRotationType = { next?: SecretRefType; previous?: SecretRefType; meta?: MetaType }
+
+type ProblemDetailsType = {
+  type: string
+  title: string
+  status: number
+  detail?: string
+  instance?: string
+  traceId?: z.infer<typeof TraceIdSchema>
+  causes?: ProblemDetailsType[]
+}
+
+const ProblemDetailsSchema: z.ZodType<ProblemDetailsType> = z
+  .lazy(() =>
+    z
+      .object({
+        type: z.url(),
+        title: z.string(),
+        status: z.int(),
+        detail: z.string().exactOptional(),
+        instance: z.string().exactOptional(),
+        traceId: TraceIdSchema.exactOptional(),
+        causes: z.array(ProblemDetailsSchema).exactOptional(),
+      })
+      .openapi({ required: ['type', 'title', 'status'] }),
+  )
+  .openapi('ProblemDetails')
+
+type FieldErrorType = {
+  path: string
+  message: string
+  nested?: FieldErrorType
+  problem?: z.infer<typeof ProblemDetailsSchema>
+}
+
+const IdSchema: z.ZodType<IdType> = z
+  .xor([UuidSchema, UlidSchema])
+  .openapi({ description: 'Primary identifier (uuid or ulid) - used everywhere' })
+  .openapi('Id')
+
 const CursorSchema = z
   .string()
   .openapi({ description: 'Pagination cursor (opaque)' })
   .openapi('Cursor')
 
-const LocaleSchema = z
+const LocaleSchema: z.ZodType<LocaleType> = z
   .string()
   .regex(/^[a-z]{2}(-[A-Z]{2})?$/)
   .openapi({ examples: ['ja-JP', 'en-US'] })
@@ -47,7 +214,7 @@ const MetaSchema: z.ZodType<MetaType> = z
   )
   .openapi('Meta')
 
-const EntitySchema = z
+const EntitySchema: z.ZodType<EntityType> = z
   .object({ id: IdSchema, meta: MetaSchema })
   .openapi({ required: ['id', 'meta'] })
   .openapi('Entity')
@@ -68,19 +235,6 @@ const ResourceLinksSchema: z.ZodType<ResourceLinksType> = z
   .lazy(() => z.record(z.string(), LinkSchema))
   .openapi('ResourceLinks')
 
-type MetaType = {
-  createdAt: string
-  updatedAt?: string
-  trace?: z.infer<typeof TraceContextSchema>
-  links?: z.infer<typeof ResourceLinksSchema>
-}
-
-type TraceContextType = {
-  traceId: z.infer<typeof TraceIdSchema>
-  parent?: TraceContextType
-  baggage?: Record<string, string>
-}
-
 const LinkSchema: z.ZodType<LinkType> = z
   .lazy(() =>
     z
@@ -94,16 +248,6 @@ const LinkSchema: z.ZodType<LinkType> = z
   )
   .openapi('Link')
 
-type ResourceLinksType = Record<string, z.infer<typeof LinkSchema>>
-
-type LinkType = { href: string; rel?: string; meta?: z.infer<typeof MetaSchema>; next?: LinkType }
-
-const GeoGraphSchema: z.ZodType<GeoGraphType> = z
-  .lazy(() => z.object({ nodes: z.array(GraphNodeSchema) }).openapi({ required: ['nodes'] }))
-  .openapi('GeoGraph')
-
-type GeoPointType = { lat: number; lng: number; graph?: z.infer<typeof GeoGraphSchema> }
-
 const GeoPointSchema: z.ZodType<GeoPointType> = z
   .lazy(() =>
     z
@@ -115,6 +259,10 @@ const GeoPointSchema: z.ZodType<GeoPointType> = z
       .openapi({ required: ['lat', 'lng'] }),
   )
   .openapi('GeoPoint')
+
+const GeoGraphSchema: z.ZodType<GeoGraphType> = z
+  .lazy(() => z.object({ nodes: z.array(GraphNodeSchema) }).openapi({ required: ['nodes'] }))
+  .openapi('GeoGraph')
 
 const GraphNodeSchema: z.ZodType<GraphNodeType> = z
   .lazy(() =>
@@ -128,8 +276,6 @@ const GraphNodeSchema: z.ZodType<GraphNodeType> = z
   )
   .openapi('GraphNode')
 
-type GeoGraphType = { nodes: z.infer<typeof GraphNodeSchema>[] }
-
 const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   .lazy(() =>
     z
@@ -142,29 +288,7 @@ const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   )
   .openapi('GraphEdge')
 
-const EntityRefSchema: z.ZodType<EntityRefType> = z
-  .lazy(() =>
-    z
-      .xor([UserSchema, CompanySchema, OrderSchema, ProductSchema, PersonSchema])
-      .openapi({ description: 'A union that can point back to everything (more hell)' }),
-  )
-  .openapi('EntityRef')
-
-type GraphNodeType = {
-  id: z.infer<typeof IdSchema>
-  edges?: z.infer<typeof GraphEdgeSchema>[]
-  entity?: z.infer<typeof EntityRefSchema>
-}
-
-type GraphEdgeType = {
-  to: z.infer<typeof GraphNodeSchema>
-  weight?: number
-  meta?: z.infer<typeof MetaSchema>
-}
-
-const CurrencySchema = z.enum(['JPY', 'USD', 'EUR']).openapi('Currency')
-
-const MoneySchema = z
+const MoneySchema: z.ZodType<MoneyType> = z
   .object({
     currency: CurrencySchema,
     amount: z.number().multipleOf(0.01),
@@ -172,6 +296,85 @@ const MoneySchema = z
   })
   .openapi({ required: ['currency', 'amount'] })
   .openapi('Money')
+
+const ProductSchema: z.ZodType<ProductType> = z
+  .lazy(() =>
+    EntitySchema.and(
+      z
+        .object({
+          name: z.string(),
+          supplier: CompanySchema.exactOptional(),
+          relatedProducts: z.array(ProductSchema).exactOptional(),
+          price: MoneySchema.exactOptional(),
+        })
+        .openapi({ required: ['name'] }),
+    ),
+  )
+  .openapi('Product')
+
+const OrderItemSchema: z.ZodType<OrderItemType> = z
+  .lazy(() =>
+    z
+      .object({
+        product: ProductSchema,
+        quantity: z.int().min(1),
+        unitPrice: MoneySchema.exactOptional(),
+      })
+      .openapi({ required: ['product', 'quantity'] }),
+  )
+  .openapi('OrderItem')
+
+const OrderStatusSchema: z.ZodType<OrderStatusType> = z
+  .enum(['pending', 'paid', 'shipped', 'cancelled'])
+  .openapi('OrderStatus')
+
+const OrderSchema: z.ZodType<OrderType> = z
+  .lazy(() =>
+    EntitySchema.and(
+      z
+        .object({
+          buyer: UserSchema,
+          status: OrderStatusSchema,
+          items: z.array(OrderItemSchema),
+          shippingAddress: AddressSchema.exactOptional(),
+          billingAddress: AddressSchema.exactOptional(),
+          auditTrail: z.array(AuditLogSchema).exactOptional(),
+          links: ResourceLinksSchema.exactOptional(),
+        })
+        .openapi({ required: ['buyer', 'status', 'items'] }),
+    ),
+  )
+  .openapi('Order')
+
+const AddressSchema: z.ZodType<AddressType> = z
+  .lazy(() =>
+    z
+      .object({
+        line1: z.string(),
+        line2: z.string().exactOptional(),
+        city: z.string(),
+        country: z.string().exactOptional(),
+        geo: GeoPointSchema.exactOptional(),
+        resident: z.xor([UserSchema, PersonSchema]).exactOptional(),
+      })
+      .openapi({ required: ['line1', 'city'] }),
+  )
+  .openapi('Address')
+
+const PersonSchema: z.ZodType<PersonType> = z
+  .lazy(() =>
+    EntitySchema.and(
+      z
+        .object({
+          displayName: z.string(),
+          employer: CompanySchema.exactOptional(),
+          homeAddress: AddressSchema.exactOptional(),
+          friends: z.array(PersonSchema).exactOptional(),
+        })
+        .openapi({ required: ['displayName'] }),
+    ),
+  )
+  .openapi('Person')
 
 const CompanySchema: z.ZodType<CompanyType> = z
   .lazy(() =>
@@ -190,47 +393,16 @@ const CompanySchema: z.ZodType<CompanyType> = z
   )
   .openapi('Company')
 
-type ProductType = z.infer<typeof EntitySchema> & {
-  name: string
-  supplier?: z.infer<typeof CompanySchema>
-  relatedProducts?: ProductType[]
-  price?: z.infer<typeof MoneySchema>
-}
-
-const ProductSchema: z.ZodType<ProductType> = z
+const UserPreferencesSchema: z.ZodType<UserPreferencesType> = z
   .lazy(() =>
-    EntitySchema.and(
-      z
-        .object({
-          name: z.string(),
-          supplier: CompanySchema.exactOptional(),
-          relatedProducts: z.array(ProductSchema).exactOptional(),
-          price: MoneySchema.exactOptional(),
-        })
-        .openapi({ required: ['name'] }),
-    ),
+    z.object({
+      locale: LocaleSchema.exactOptional(),
+      marketingOptIn: z.boolean().exactOptional(),
+      theme: z.enum(['light', 'dark', 'system']).exactOptional(),
+      shadowProfile: UserSchema.exactOptional(),
+    }),
   )
-  .openapi('Product')
-
-type OrderItemType = {
-  product: z.infer<typeof ProductSchema>
-  quantity: number
-  unitPrice?: z.infer<typeof MoneySchema>
-}
-
-const OrderItemSchema: z.ZodType<OrderItemType> = z
-  .lazy(() =>
-    z
-      .object({
-        product: ProductSchema,
-        quantity: z.int().min(1),
-        unitPrice: MoneySchema.exactOptional(),
-      })
-      .openapi({ required: ['product', 'quantity'] }),
-  )
-  .openapi('OrderItem')
-
-const OrderStatusSchema = z.enum(['pending', 'paid', 'shipped', 'cancelled']).openapi('OrderStatus')
+  .openapi('UserPreferences')
 
 const UserSchema: z.ZodType<UserType> = z
   .lazy(() =>
@@ -252,137 +424,30 @@ const UserSchema: z.ZodType<UserType> = z
   )
   .openapi('User')
 
-const AddressSchema: z.ZodType<AddressType> = z
+const EntityRefSchema: z.ZodType<EntityRefType> = z
+  .lazy(() =>
+    z
+      .xor([UserSchema, CompanySchema, OrderSchema, ProductSchema, PersonSchema])
+      .openapi({ description: 'A union that can point back to everything (more hell)' }),
+  )
+  .openapi('EntityRef')
+
+const EventTypeSchema: z.ZodType<EventTypeType> = z
+  .enum(['user.created', 'user.updated', 'order.created', 'order.shipped', 'system.alert'])
+  .openapi('EventType')
+
+const EventSchema: z.ZodType<EventType> = z
   .lazy(() =>
     z
       .object({
-        line1: z.string(),
-        line2: z.string().exactOptional(),
-        city: z.string(),
-        country: z.string().exactOptional(),
-        geo: GeoPointSchema.exactOptional(),
-        resident: z.xor([UserSchema, PersonSchema]).exactOptional(),
+        type: EventTypeSchema,
+        payload: z.xor([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema]),
+        causedBy: z.array(EventSchema).exactOptional(),
+        trace: TraceContextSchema.exactOptional(),
       })
-      .openapi({ required: ['line1', 'city'] }),
+      .openapi({ required: ['type', 'payload'] }),
   )
-  .openapi('Address')
-
-const AuditLogSchema: z.ZodType<AuditLogType> = z
-  .lazy(() =>
-    z
-      .object({ entity: EntityRefSchema, event: EventSchema, meta: MetaSchema.exactOptional() })
-      .openapi({ required: ['entity', 'event'] }),
-  )
-  .openapi('AuditLog')
-
-type OrderType = z.infer<typeof EntitySchema> & {
-  buyer: z.infer<typeof UserSchema>
-  status: z.infer<typeof OrderStatusSchema>
-  items: z.infer<typeof OrderItemSchema>[]
-  shippingAddress?: z.infer<typeof AddressSchema>
-  billingAddress?: z.infer<typeof AddressSchema>
-  auditTrail?: z.infer<typeof AuditLogSchema>[]
-  links?: z.infer<typeof ResourceLinksSchema>
-}
-
-const OrderSchema: z.ZodType<OrderType> = z
-  .lazy(() =>
-    EntitySchema.and(
-      z
-        .object({
-          buyer: UserSchema,
-          status: OrderStatusSchema,
-          items: z.array(OrderItemSchema),
-          shippingAddress: AddressSchema.exactOptional(),
-          billingAddress: AddressSchema.exactOptional(),
-          auditTrail: z.array(AuditLogSchema).exactOptional(),
-          links: ResourceLinksSchema.exactOptional(),
-        })
-        .openapi({ required: ['buyer', 'status', 'items'] }),
-    ),
-  )
-  .openapi('Order')
-
-const PersonSchema: z.ZodType<PersonType> = z
-  .lazy(() =>
-    EntitySchema.and(
-      z
-        .object({
-          displayName: z.string(),
-          employer: CompanySchema.exactOptional(),
-          homeAddress: AddressSchema.exactOptional(),
-          friends: z.array(PersonSchema).exactOptional(),
-        })
-        .openapi({ required: ['displayName'] }),
-    ),
-  )
-  .openapi('Person')
-
-type AddressType = {
-  line1: string
-  line2?: string
-  city: string
-  country?: string
-  geo?: z.infer<typeof GeoPointSchema>
-  resident?: z.infer<typeof UserSchema> | z.infer<typeof PersonSchema>
-}
-
-type PersonType = z.infer<typeof EntitySchema> & {
-  displayName: string
-  employer?: z.infer<typeof CompanySchema>
-  homeAddress?: z.infer<typeof AddressSchema>
-  friends?: PersonType[]
-}
-
-type CompanyType = z.infer<typeof EntitySchema> & {
-  name: string
-  headquarters?: z.infer<typeof AddressSchema>
-  parent?: CompanyType
-  subsidiaries?: CompanyType[]
-  employees?: z.infer<typeof UserSchema>[]
-  primaryContact?: z.infer<typeof PersonSchema>
-}
-
-type UserPreferencesType = {
-  locale?: z.infer<typeof LocaleSchema>
-  marketingOptIn?: boolean
-  theme?: 'light' | 'dark' | 'system'
-  shadowProfile?: z.infer<typeof UserSchema>
-}
-
-const UserPreferencesSchema: z.ZodType<UserPreferencesType> = z
-  .lazy(() =>
-    z.object({
-      locale: LocaleSchema.exactOptional(),
-      marketingOptIn: z.boolean().exactOptional(),
-      theme: z.enum(['light', 'dark', 'system']).exactOptional(),
-      shadowProfile: UserSchema.exactOptional(),
-    }),
-  )
-  .openapi('UserPreferences')
-
-type UserType = z.infer<typeof EntitySchema> & {
-  name: string
-  email: string
-  company?: z.infer<typeof CompanySchema>
-  manager?: UserType
-  reports?: UserType[]
-  addresses?: z.infer<typeof AddressSchema>[]
-  preferences?: z.infer<typeof UserPreferencesSchema>
-  recentOrders?: z.infer<typeof OrderSchema>[]
-  links?: z.infer<typeof ResourceLinksSchema>
-}
-
-type EntityRefType =
-  | z.infer<typeof UserSchema>
-  | z.infer<typeof CompanySchema>
-  | z.infer<typeof OrderSchema>
-  | z.infer<typeof ProductSchema>
-  | z.infer<typeof PersonSchema>
-
-const EventTypeSchema = z
-  .enum(['user.created', 'user.updated', 'order.created', 'order.shipped', 'system.alert'])
-  .openapi('EventType')
+  .openapi('Event')
 
 const UserEventPayloadSchema: z.ZodType<UserEventPayloadType> = z
   .lazy(() =>
@@ -408,46 +473,13 @@ const SystemEventPayloadSchema: z.ZodType<SystemEventPayloadType> = z
   )
   .openapi('SystemEventPayload')
 
-type EventType = {
-  type: z.infer<typeof EventTypeSchema>
-  payload:
-    | z.infer<typeof UserEventPayloadSchema>
-    | z.infer<typeof OrderEventPayloadSchema>
-    | z.infer<typeof SystemEventPayloadSchema>
-  causedBy?: EventType[]
-  trace?: z.infer<typeof TraceContextSchema>
-}
-
-const EventSchema: z.ZodType<EventType> = z
+const AuditLogSchema: z.ZodType<AuditLogType> = z
   .lazy(() =>
     z
-      .object({
-        type: EventTypeSchema,
-        payload: z.xor([UserEventPayloadSchema, OrderEventPayloadSchema, SystemEventPayloadSchema]),
-        causedBy: z.array(EventSchema).exactOptional(),
-        trace: TraceContextSchema.exactOptional(),
-      })
-      .openapi({ required: ['type', 'payload'] }),
+      .object({ entity: EntityRefSchema, event: EventSchema, meta: MetaSchema.exactOptional() })
+      .openapi({ required: ['entity', 'event'] }),
   )
-  .openapi('Event')
-
-type UserEventPayloadType = {
-  user: z.infer<typeof UserSchema>
-  previous?: z.infer<typeof UserSchema>
-}
-
-type OrderEventPayloadType = {
-  order: z.infer<typeof OrderSchema>
-  previousStatus?: z.infer<typeof OrderStatusSchema>
-}
-
-type SystemEventPayloadType = { message: string; related?: z.infer<typeof EntityRefSchema> }
-
-type AuditLogType = {
-  entity: z.infer<typeof EntityRefSchema>
-  event: z.infer<typeof EventSchema>
-  meta?: z.infer<typeof MetaSchema>
-}
+  .openapi('AuditLog')
 
 const FileSchema = EntitySchema.and(
   z
@@ -461,20 +493,6 @@ const FileSchema = EntitySchema.and(
     .openapi({ required: ['name', 'size'] }),
 ).openapi('File')
 
-const SecretRefSchema: z.ZodType<SecretRefType> = z
-  .lazy(() =>
-    z
-      .object({ secretId: z.string(), rotation: SecretRotationSchema.exactOptional() })
-      .openapi({ required: ['secretId'] }),
-  )
-  .openapi('SecretRef')
-
-type SecretRotationType = {
-  next?: z.infer<typeof SecretRefSchema>
-  previous?: z.infer<typeof SecretRefSchema>
-  meta?: z.infer<typeof MetaSchema>
-}
-
 const SecretRotationSchema: z.ZodType<SecretRotationType> = z
   .lazy(() =>
     z.object({
@@ -485,7 +503,13 @@ const SecretRotationSchema: z.ZodType<SecretRotationType> = z
   )
   .openapi('SecretRotation')
 
-type SecretRefType = { secretId: string; rotation?: z.infer<typeof SecretRotationSchema> }
+const SecretRefSchema: z.ZodType<SecretRefType> = z
+  .lazy(() =>
+    z
+      .object({ secretId: z.string(), rotation: SecretRotationSchema.exactOptional() })
+      .openapi({ required: ['secretId'] }),
+  )
+  .openapi('SecretRef')
 
 const WebhookSubscriptionSchema = EntitySchema.and(
   z
@@ -525,39 +549,6 @@ const TokenResponseSchema = z
   })
   .openapi({ required: ['accessToken', 'tokenType'] })
   .openapi('TokenResponse')
-
-type ProblemDetailsType = {
-  type: string
-  title: string
-  status: number
-  detail?: string
-  instance?: string
-  traceId?: z.infer<typeof TraceIdSchema>
-  causes?: ProblemDetailsType[]
-}
-
-const ProblemDetailsSchema: z.ZodType<ProblemDetailsType> = z
-  .lazy(() =>
-    z
-      .object({
-        type: z.url(),
-        title: z.string(),
-        status: z.int(),
-        detail: z.string().exactOptional(),
-        instance: z.string().exactOptional(),
-        traceId: TraceIdSchema.exactOptional(),
-        causes: z.array(ProblemDetailsSchema).exactOptional(),
-      })
-      .openapi({ required: ['type', 'title', 'status'] }),
-  )
-  .openapi('ProblemDetails')
-
-type FieldErrorType = {
-  path: string
-  message: string
-  nested?: FieldErrorType
-  problem?: z.infer<typeof ProblemDetailsSchema>
-}
 
 const FieldErrorSchema: z.ZodType<FieldErrorType> = z
   .lazy(() =>
@@ -606,7 +597,7 @@ const CompanyFilterSchema = z
   .openapi('CompanyFilter')
 
 const SearchFilterSchema = z
-  .discriminatedUnion('kind', [UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])
+  .xor([UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])
   .openapi({
     description: 'Query filter represented as JSON in a query param (evil)',
     discriminator: {

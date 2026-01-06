@@ -1,5 +1,30 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+interface NestedCustomFieldType {
+  [key: string]: CustomFieldValueType
+}
+
+type CustomFieldValueType = string | number | boolean | unknown[] | NestedCustomFieldType
+
+type FilterExpressionType = {
+  field?: string
+  operator?:
+    | 'eq'
+    | 'ne'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'nin'
+    | 'contains'
+    | 'startsWith'
+    | 'endsWith'
+  value?: string | number | boolean | unknown[]
+  and?: FilterExpressionType[]
+  or?: FilterExpressionType[]
+}
+
 const EntityIdSchema = z
   .uuid()
   .openapi({ description: 'Unique entity identifier' })
@@ -115,15 +140,6 @@ const EntitySchema = z
 const NestedCustomFieldSchema: z.ZodType<NestedCustomFieldType> = z
   .lazy(() => z.record(z.string(), CustomFieldValueSchema))
   .openapi('NestedCustomField')
-
-type CustomFieldValueType =
-  | string
-  | number
-  | boolean
-  | unknown[]
-  | z.infer<typeof NestedCustomFieldSchema>
-
-type NestedCustomFieldType = Record<string, z.infer<typeof CustomFieldValueSchema>>
 
 const ListMetaSchema = z
   .object({
@@ -268,25 +284,6 @@ const WebhookPayloadSchema = z
   })
   .openapi({ required: ['event', 'data', 'timestamp'] })
   .openapi('WebhookPayload')
-
-type FilterExpressionType = {
-  field?: string
-  operator?:
-    | 'eq'
-    | 'ne'
-    | 'gt'
-    | 'gte'
-    | 'lt'
-    | 'lte'
-    | 'in'
-    | 'nin'
-    | 'contains'
-    | 'startsWith'
-    | 'endsWith'
-  value?: string | number | boolean | unknown[]
-  and?: FilterExpressionType[]
-  or?: FilterExpressionType[]
-}
 
 const FilterExpressionSchema: z.ZodType<FilterExpressionType> = z
   .lazy(() =>

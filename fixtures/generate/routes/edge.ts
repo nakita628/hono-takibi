@@ -27,7 +27,7 @@ export const postPolymorphicRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .discriminatedUnion('type', [CatSchema, DogSchema])
+            .xor([CatSchema, DogSchema])
             .openapi({
               discriminator: {
                 propertyName: 'type',

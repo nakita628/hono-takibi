@@ -49,10 +49,46 @@ type EventType =
   | z.infer<typeof OrderEventSchema>
   | z.infer<typeof SystemEventSchema>
 
+const BaseDocumentSchema = z
+  .object({
+    id: z.uuid(),
+    title: z.string().min(1).max(200),
+    description: z.string().exactOptional(),
+  })
+  .openapi({ required: ['id', 'title'] })
+  .openapi('BaseDocument')
+
+const AuditableSchema = z
+  .object({
+    createdAt: z.iso.datetime().exactOptional(),
+    createdBy: z.string().exactOptional(),
+    updatedAt: z.iso.datetime().exactOptional(),
+    updatedBy: z.string().exactOptional(),
+    version: z.int32().exactOptional(),
+  })
+  .openapi('Auditable')
+
+const TaggableSchema = z
+  .object({
+    tags: z.array(z.string()).exactOptional(),
+    categories: z.array(z.string()).exactOptional(),
+  })
+  .openapi('Taggable')
+
+type DocumentType = z.infer<typeof BaseDocumentSchema> &
+  z.infer<typeof AuditableSchema> &
+  z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
+
+type MixedContentType = {
+  value: string | number | boolean | MixedContentType[] | { [key: string]: MixedContentType }
+  notNull?: { [key: string]: unknown }
+  restrictedValue?: string & { [key: string]: unknown }
+}
+
 const EventSchema: z.ZodType<EventType> = z
   .lazy(() =>
     z
-      .discriminatedUnion('eventType', [UserEventSchema, OrderEventSchema, SystemEventSchema])
+      .xor([UserEventSchema, OrderEventSchema, SystemEventSchema])
       .openapi({
         discriminator: {
           propertyName: 'eventType',
@@ -169,36 +205,6 @@ const ShapeSchema = z
   .xor([CircleSchema, RectangleSchema, TriangleSchema, PolygonSchema])
   .openapi('Shape')
 
-const BaseDocumentSchema = z
-  .object({
-    id: z.uuid(),
-    title: z.string().min(1).max(200),
-    description: z.string().exactOptional(),
-  })
-  .openapi({ required: ['id', 'title'] })
-  .openapi('BaseDocument')
-
-const AuditableSchema = z
-  .object({
-    createdAt: z.iso.datetime().exactOptional(),
-    createdBy: z.string().exactOptional(),
-    updatedAt: z.iso.datetime().exactOptional(),
-    updatedBy: z.string().exactOptional(),
-    version: z.int32().exactOptional(),
-  })
-  .openapi('Auditable')
-
-const TaggableSchema = z
-  .object({
-    tags: z.array(z.string()).exactOptional(),
-    categories: z.array(z.string()).exactOptional(),
-  })
-  .openapi('Taggable')
-
-type DocumentType = z.infer<typeof BaseDocumentSchema> &
-  z.infer<typeof AuditableSchema> &
-  z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
-
 const DocumentSchema: z.ZodType<DocumentType> = z
   .lazy(() =>
     BaseDocumentSchema.and(AuditableSchema)
@@ -211,12 +217,6 @@ const DocumentSchema: z.ZodType<DocumentType> = z
       ),
   )
   .openapi('Document')
-
-type MixedContentType = {
-  value: string | number | boolean | MixedContentType[] | Record<string, MixedContentType>
-  notNull?: Record<string, unknown>
-  restrictedValue?: string & Record<string, unknown>
-}
 
 const MixedContentSchema: z.ZodType<MixedContentType> = z
   .lazy(() =>

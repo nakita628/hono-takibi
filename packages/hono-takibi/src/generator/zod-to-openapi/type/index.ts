@@ -1,11 +1,38 @@
 import type { Schema } from '../../../openapi/index.js'
 import { toIdentifierPascalCase } from '../../../utils/index.js'
 
-export function zodType(schema: Schema, typeName: string): string {
-  return `type ${typeName}Type=${schemaToTypeString(schema, typeName)}`
+export function zodType(
+  schema: Schema,
+  typeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  // Check if this is a Record-like type (object with only additionalProperties)
+  // For cyclic groups, use interface to support circular references
+  const typeIsObject = Array.isArray(schema.type)
+    ? schema.type.includes('object')
+    : schema.type === 'object'
+  const isRecordLike =
+    typeIsObject &&
+    schema.additionalProperties &&
+    (!schema.properties || Object.keys(schema.properties).length === 0)
+
+  if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
+    const valueType = schemaToTypeString(
+      typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {},
+      typeName,
+      cyclicGroup,
+    )
+    return `interface ${typeName}Type{[key:string]:${valueType}}`
+  }
+
+  return `type ${typeName}Type=${schemaToTypeString(schema, typeName, cyclicGroup)}`
 }
 
-function schemaToTypeString(schema: Schema, selfTypeName: string): string {
+function schemaToTypeString(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
   if (!schema) return 'unknown'
 
   if (schema.$ref) {
@@ -14,28 +41,39 @@ function schemaToTypeString(schema: Schema, selfTypeName: string): string {
     const propertiesMatch = schema.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-      return parentName === selfTypeName
-        ? `${parentName}Type`
-        : `z.infer<typeof ${parentName}Schema>`
+      // Use Type suffix for self-reference or cyclic group members
+      if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+        return `${parentName}Type`
+      }
+      return `z.infer<typeof ${parentName}Schema>`
     }
     const rawRef = schema.$ref.split('/').pop() ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-    // Self-reference uses Type suffix, others use z.infer
-    return refName === selfTypeName ? `${refName}Type` : `z.infer<typeof ${refName}Schema>`
+    // Use Type suffix for self-reference or cyclic group members
+    if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+      return `${refName}Type`
+    }
+    return `z.infer<typeof ${refName}Schema>`
   }
 
   if (schema.oneOf && schema.oneOf.length > 0) {
-    const types = schema.oneOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    const types = schema.oneOf
+      .filter(Boolean)
+      .map((s) => schemaToTypeString(s, selfTypeName, cyclicGroup))
     return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('|')})`
   }
 
   if (schema.anyOf && schema.anyOf.length > 0) {
-    const types = schema.anyOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    const types = schema.anyOf
+      .filter(Boolean)
+      .map((s) => schemaToTypeString(s, selfTypeName, cyclicGroup))
     return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('|')})`
   }
 
   if (schema.allOf && schema.allOf.length > 0) {
-    const types = schema.allOf.filter(Boolean).map((s) => schemaToTypeString(s, selfTypeName))
+    const types = schema.allOf
+      .filter(Boolean)
+      .map((s) => schemaToTypeString(s, selfTypeName, cyclicGroup))
     return types.length === 0 ? 'unknown' : types.length === 1 ? types[0] : `(${types.join('&')})`
   }
 
@@ -50,7 +88,7 @@ function schemaToTypeString(schema: Schema, selfTypeName: string): string {
   const types = normalizeType(schema)
   const isNullable = schema.nullable === true || types.includes('null')
   const nonNullTypes = types.filter((t) => t !== 'null')
-  const baseType = generateBaseType(schema, nonNullTypes, selfTypeName)
+  const baseType = generateBaseType(schema, nonNullTypes, selfTypeName, cyclicGroup)
 
   return isNullable ? `(${baseType}|null)` : baseType
 }
@@ -60,14 +98,24 @@ function normalizeType(schema: Schema): string[] {
   return Array.isArray(schema.type) ? [...schema.type] : [schema.type]
 }
 
-function generateBaseType(schema: Schema, types: string[], selfTypeName: string): string {
+function generateBaseType(
+  schema: Schema,
+  types: string[],
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
   if (types.length > 1) {
-    return types.map((t) => generateSingleType(schema, t, selfTypeName)).join('|')
+    return types.map((t) => generateSingleType(schema, t, selfTypeName, cyclicGroup)).join('|')
   }
-  return generateSingleType(schema, types[0] ?? 'object', selfTypeName)
+  return generateSingleType(schema, types[0] ?? 'object', selfTypeName, cyclicGroup)
 }
 
-function generateSingleType(schema: Schema, type: string, selfTypeName: string): string {
+function generateSingleType(
+  schema: Schema,
+  type: string,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
   switch (type) {
     case 'string':
       return 'string'
@@ -79,15 +127,19 @@ function generateSingleType(schema: Schema, type: string, selfTypeName: string):
     case 'null':
       return 'null'
     case 'array':
-      return generateArrayType(schema, selfTypeName)
+      return generateArrayType(schema, selfTypeName, cyclicGroup)
     case 'object':
-      return generateObjectType(schema, selfTypeName)
+      return generateObjectType(schema, selfTypeName, cyclicGroup)
     default:
       return 'unknown'
   }
 }
 
-function generateArrayType(schema: Schema, selfTypeName: string): string {
+function generateArrayType(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
   if (!schema.items) return 'unknown[]'
 
   const items = schema.items
@@ -97,13 +149,13 @@ function generateArrayType(schema: Schema, selfTypeName: string): string {
   if (items.length > 1) {
     return `[${items
       .filter(Boolean)
-      .map((item) => schemaToTypeString(item, selfTypeName))
+      .map((item) => schemaToTypeString(item, selfTypeName, cyclicGroup))
       .join(',')}]`
   }
 
   // Single element array
   if (firstItem !== undefined) {
-    return `${schemaToTypeString(firstItem, selfTypeName)}[]`
+    return `${schemaToTypeString(firstItem, selfTypeName, cyclicGroup)}[]`
   }
 
   // items[0] is undefined = items might be a Schema object (not an array)
@@ -115,42 +167,53 @@ function generateArrayType(schema: Schema, selfTypeName: string): string {
     const propertiesMatch = refValue.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-      return parentName === selfTypeName
-        ? `${parentName}Type[]`
-        : `z.infer<typeof ${parentName}Schema>[]`
+      // Use Type suffix for self-reference or cyclic group members
+      if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+        return `${parentName}Type[]`
+      }
+      return `z.infer<typeof ${parentName}Schema>[]`
     }
     const rawRef = refValue.split('/').pop() ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-    return refName === selfTypeName ? `${refName}Type[]` : `z.infer<typeof ${refName}Schema>[]`
+    // Use Type suffix for self-reference or cyclic group members
+    if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+      return `${refName}Type[]`
+    }
+    return `z.infer<typeof ${refName}Schema>[]`
   }
 
   return 'unknown[]'
 }
 
-function generateObjectType(schema: Schema, selfTypeName: string): string {
+function generateObjectType(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
   const { properties, additionalProperties, required } = schema
 
   if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === true) return 'Record<string,unknown>'
+    if (additionalProperties === true) return '{[key:string]:unknown}'
     if (typeof additionalProperties === 'object') {
-      return `Record<string,${schemaToTypeString(additionalProperties, selfTypeName)}>`
+      return `{[key:string]:${schemaToTypeString(additionalProperties, selfTypeName, cyclicGroup)}}`
     }
-    return 'Record<string,unknown>'
+    return '{[key:string]:unknown}'
   }
 
   const requiredSet = new Set(Array.isArray(required) ? required : [])
 
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = schemaToTypeString(propSchema, selfTypeName)
+    const propType = schemaToTypeString(propSchema, selfTypeName, cyclicGroup)
     const isRequired = requiredSet.has(key)
     const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
     return `${safeKey}${isRequired ? '' : '?'}:${propType}`
   })
 
-  if (additionalProperties === true) {
-    propertyStrings.push('[key:string]:unknown')
-  } else if (typeof additionalProperties === 'object') {
-    propertyStrings.push(`[key:string]:${schemaToTypeString(additionalProperties, selfTypeName)}`)
+  // Note: Index signatures on interfaces with other properties need careful handling
+  // For simplicity, we don't add them here as they conflict with typed properties
+  if (additionalProperties === true || typeof additionalProperties === 'object') {
+    // Skip adding index signature when there are typed properties
+    // as it creates TypeScript compatibility issues
   }
 
   return `{${propertyStrings.join(';')}}`

@@ -15,7 +15,7 @@ interface SchemaBlock {
  * Collects all declaration names from TypeScript code.
  *
  * @param sourceFile - The parsed TypeScript source file.
- * @returns A set of all declared variable and type alias names.
+ * @returns A set of all declared variable, type alias, and interface names.
  */
 function collectDeclaredNames(sourceFile: ts.SourceFile): ReadonlySet<string> {
   const names = new Set<string>()
@@ -29,6 +29,8 @@ function collectDeclaredNames(sourceFile: ts.SourceFile): ReadonlySet<string> {
       }
     } else if (ts.isTypeAliasDeclaration(node)) {
       names.add(node.name.text)
+    } else if (ts.isInterfaceDeclaration(node)) {
+      names.add(node.name.text)
     }
     ts.forEachChild(node, visit)
   }
@@ -38,7 +40,7 @@ function collectDeclaredNames(sourceFile: ts.SourceFile): ReadonlySet<string> {
 }
 
 /**
- * Parses TypeScript code and extracts variable and type alias declarations with their references.
+ * Parses TypeScript code and extracts variable, type alias, and interface declarations with their references.
  *
  * @param code - The TypeScript code to parse.
  * @returns An array of declarations with their names, full text, and references.
@@ -62,6 +64,11 @@ function parseDeclarations(code: string): readonly Declaration[] {
       const name = node.name.text
       const fullText = node.getFullText(sourceFile).trim()
       const references = extractTypeReferences(node, name, declaredNames)
+      declarations.push({ name, fullText, references })
+    } else if (ts.isInterfaceDeclaration(node)) {
+      const name = node.name.text
+      const fullText = node.getFullText(sourceFile).trim()
+      const references = extractInterfaceReferences(node, name, declaredNames)
       declarations.push({ name, fullText, references })
     }
     ts.forEachChild(node, visit)
@@ -150,6 +157,38 @@ function extractTypeReferences(
   }
 
   visit(node.type)
+
+  return Array.from(refs)
+}
+
+/**
+ * Extracts references from an interface declaration.
+ *
+ * @param node - The interface declaration node.
+ * @param selfName - The name of the current declaration (to exclude self-references).
+ * @param declaredNames - Set of all declared names in the code.
+ * @returns An array of referenced names.
+ */
+function extractInterfaceReferences(
+  node: ts.InterfaceDeclaration,
+  selfName: string,
+  declaredNames: ReadonlySet<string>,
+): readonly string[] {
+  const refs = new Set<string>()
+
+  const visit = (n: ts.Node): void => {
+    if (ts.isIdentifier(n)) {
+      const name = n.text
+      if (name !== selfName && declaredNames.has(name)) {
+        refs.add(name)
+      }
+    }
+    ts.forEachChild(n, visit)
+  }
+
+  for (const member of node.members) {
+    visit(member)
+  }
 
   return Array.from(refs)
 }

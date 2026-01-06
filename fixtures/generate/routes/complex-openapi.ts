@@ -85,7 +85,7 @@ const PaypalPaymentSchema = z
   .openapi('PaypalPayment')
 
 const PaymentMethodSchema = z
-  .discriminatedUnion('method', [CreditCardPaymentSchema, PaypalPaymentSchema])
+  .xor([CreditCardPaymentSchema, PaypalPaymentSchema])
   .openapi({
     description: 'A polymorphic payment method',
     discriminator: { propertyName: 'method' },

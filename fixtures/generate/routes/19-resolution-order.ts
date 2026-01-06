@@ -1,5 +1,57 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type ConfigValueType =
+  | string
+  | number
+  | boolean
+  | ConfigValueType[]
+  | { [key: string]: ConfigValueType }
+
+const ConfigValueSchema: z.ZodType<ConfigValueType> = z
+  .lazy(() =>
+    z.xor([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.array(ConfigValueSchema),
+      z.record(z.string(), ConfigValueSchema),
+    ]),
+  )
+  .openapi('ConfigValue')
+
+const FieldValidationSchema = z
+  .object({
+    required: z.boolean().exactOptional(),
+    pattern: z.string().exactOptional(),
+    min: z.number().exactOptional(),
+    max: z.number().exactOptional(),
+    enum: z.array(z.string()).exactOptional(),
+  })
+  .openapi('FieldValidation')
+
+const FieldDefinitionSchema = z
+  .object({
+    name: z.string(),
+    type: z.string(),
+    nullable: z.boolean().exactOptional(),
+    default: ConfigValueSchema.exactOptional(),
+    validation: FieldValidationSchema.exactOptional(),
+  })
+  .openapi({ required: ['name', 'type'] })
+  .openapi('FieldDefinition')
+
+type DataSchemaType = {
+  name?: string
+  fields?: z.infer<typeof FieldDefinitionSchema>[]
+  nested?: { [key: string]: DataSchemaType }
+}
+
+type SimpleConditionType = { field: string; operator: string; value: { [key: string]: unknown } }
+
+type CompoundConditionType = { and?: ConditionType[]; or?: ConditionType[]; not?: ConditionType }
+
+type ConditionType = SimpleConditionType | CompoundConditionType
+
 const EntityTypeSchema = z
   .enum(['service', 'database', 'cache', 'queue', 'gateway'])
   .openapi('EntityType')
@@ -81,18 +133,6 @@ const EntityDetailsSchema = z
     tags: z.array(TagSchema).exactOptional(),
   })
   .openapi('EntityDetails')
-
-const ConfigValueSchema: z.ZodType<ConfigValueType> = z
-  .lazy(() =>
-    z.xor([
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.array(ConfigValueSchema),
-      z.record(z.string(), ConfigValueSchema),
-    ]),
-  )
-  .openapi('ConfigValue')
 
 const SecretReferenceSchema = z
   .object({ name: z.string(), source: z.string(), version: z.string().exactOptional() })
@@ -186,13 +226,6 @@ const EntityMetricsSchema = z
 const EntityFullSchema = EntityCoreSchema.and(EntityRelationsSchema)
   .and(EntityMetricsSchema)
   .openapi('EntityFull')
-
-type ConfigValueType =
-  | string
-  | number
-  | boolean
-  | ConfigValueType[]
-  | Record<string, ConfigValueType>
 
 const DataSchema: z.ZodType<DataSchemaType> = z
   .lazy(() =>
@@ -348,34 +381,7 @@ const ProcessRequestSchema = z
   .openapi({ required: ['input', 'pipeline'] })
   .openapi('ProcessRequest')
 
-const FieldValidationSchema = z
-  .object({
-    required: z.boolean().exactOptional(),
-    pattern: z.string().exactOptional(),
-    min: z.number().exactOptional(),
-    max: z.number().exactOptional(),
-    enum: z.array(z.string()).exactOptional(),
-  })
-  .openapi('FieldValidation')
-
-const FieldDefinitionSchema = z
-  .object({
-    name: z.string(),
-    type: z.string(),
-    nullable: z.boolean().exactOptional(),
-    default: ConfigValueSchema.exactOptional(),
-    validation: FieldValidationSchema.exactOptional(),
-  })
-  .openapi({ required: ['name', 'type'] })
-  .openapi('FieldDefinition')
-
-type DataSchemaType = {
-  name?: string
-  fields?: z.infer<typeof FieldDefinitionSchema>[]
-  nested?: Record<string, DataSchemaType>
-}
-
-const SimpleConditionSchema = z
+const SimpleConditionSchema: z.ZodType<SimpleConditionType> = z
   .object({ field: z.string(), operator: z.string(), value: z.any() })
   .openapi({ required: ['field', 'operator', 'value'] })
   .openapi('SimpleCondition')
@@ -389,14 +395,6 @@ const CompoundConditionSchema: z.ZodType<CompoundConditionType> = z
     }),
   )
   .openapi('CompoundCondition')
-
-type ConditionType = z.infer<typeof SimpleConditionSchema> | z.infer<typeof CompoundConditionSchema>
-
-type CompoundConditionType = {
-  and?: z.infer<typeof ConditionSchema>[]
-  or?: z.infer<typeof ConditionSchema>[]
-  not?: z.infer<typeof ConditionSchema>
-}
 
 const ProcessErrorSchema = z
   .object({

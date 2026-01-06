@@ -109,7 +109,7 @@ const BirdSchema = PetSchema.and(
 ).openapi('Bird')
 
 const DiscriminatedUnionSchema = z
-  .discriminatedUnion('petType', [DogSchema, CatSchema, BirdSchema])
+  .xor([DogSchema, CatSchema, BirdSchema])
   .openapi({
     discriminator: {
       propertyName: 'petType',

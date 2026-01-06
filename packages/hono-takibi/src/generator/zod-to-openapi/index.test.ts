@@ -95,7 +95,8 @@ describe('zodToOpenAPI', () => {
             oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
             discriminator: { propertyName: 'type' },
           },
-          `z.discriminatedUnion('type',[ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`,
+          // $ref schemas might use allOf (ZodIntersection), so use z.xor instead of discriminatedUnion
+          `z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`,
         ],
       ])('zodToOpenAPI(%o) → %s', (input, expected) => {
         expect(zodToOpenAPI(input)).toBe(expected)

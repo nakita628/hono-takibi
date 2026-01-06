@@ -20,11 +20,281 @@ const VersionableSchema = z
   .object({ version: z.int().exactOptional(), etag: z.string().exactOptional() })
   .openapi('Versionable')
 
-const BaseEntitySchema = IdentifiableSchema.and(AuditableSchema)
+type BaseEntityType = z.infer<typeof IdentifiableSchema> &
+  z.infer<typeof AuditableSchema> &
+  z.infer<typeof VersionableSchema>
+
+type ExtendedEntityType = BaseEntityType & { name: string; description?: string; tags?: unknown[] }
+
+type ParticipantType = z.infer<typeof IdentifiableSchema> & { name: string; avatar?: string }
+
+type MessageMetadataType = {
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  expiresAt?: string
+  replyTo?: MessageType
+}
+
+type BaseMessageType = BaseEntityType & {
+  type: string
+  sender: ParticipantType
+  recipient: ParticipantType
+  metadata?: MessageMetadataType
+}
+
+const TextRangeSchema = z
+  .object({ start: z.int(), end: z.int() })
+  .openapi({ required: ['start', 'end'] })
+  .openapi('TextRange')
+
+const LinkRangeSchema = TextRangeSchema.and(
+  z.object({ url: z.url() }).openapi({ required: ['url'] }),
+).openapi('LinkRange')
+
+type TextFormattingType = {
+  bold?: z.infer<typeof TextRangeSchema>[]
+  italic?: z.infer<typeof TextRangeSchema>[]
+  links?: z.infer<typeof LinkRangeSchema>[]
+}
+
+type TextMessageType = BaseMessageType & {
+  type?: 'text'
+  content: string
+  formatting?: TextFormattingType
+}
+
+type MediaContentType = { url: string; mimeType: string; size: number; checksum?: string }
+
+type DimensionsType = { width: number; height: number }
+
+type ImageMessageType = BaseMessageType &
+  MediaContentType & { type?: 'image'; dimensions?: DimensionsType; alt?: string }
+
+type VideoMessageType = BaseMessageType &
+  MediaContentType & { type?: 'video'; duration?: number; thumbnail?: ImageMessageType }
+
+type DocumentMessageType = BaseMessageType &
+  MediaContentType & { type?: 'document'; pageCount?: number; preview?: ImageMessageType }
+
+type CompositeMessageType = BaseMessageType & { type?: 'composite'; parts: MessageType[] }
+
+type MessageType =
+  | TextMessageType
+  | ImageMessageType
+  | VideoMessageType
+  | DocumentMessageType
+  | CompositeMessageType
+
+const BaseEventPayloadSchema = z
+  .object({
+    timestamp: z.iso.datetime().exactOptional(),
+    source: z.string().exactOptional(),
+    correlationId: z.string().exactOptional(),
+  })
+  .openapi('BaseEventPayload')
+
+const UserStateSchema = z
+  .object({
+    status: z.string().exactOptional(),
+    roles: z.array(z.string()).exactOptional(),
+    preferences: z.object({}).exactOptional(),
+  })
+  .openapi('UserState')
+
+const UserEventPayloadSchema = BaseEventPayloadSchema.and(
+  z
+    .object({
+      userId: z.uuid(),
+      userAction: z.enum(['login', 'logout', 'register', 'update', 'delete']).exactOptional(),
+      previousState: UserStateSchema.exactOptional(),
+      newState: UserStateSchema.exactOptional(),
+    })
+    .openapi({ required: ['userId'] }),
+).openapi('UserEventPayload')
+
+const OrderItemSchema = z
+  .object({ productId: z.string(), quantity: z.int(), price: z.number().exactOptional() })
+  .openapi({ required: ['productId', 'quantity'] })
+  .openapi('OrderItem')
+
+const OrderEventPayloadSchema = BaseEventPayloadSchema.and(
+  z
+    .object({
+      orderId: z.string(),
+      orderAction: z.enum(['created', 'updated', 'cancelled', 'completed']).exactOptional(),
+      items: z.array(OrderItemSchema).exactOptional(),
+    })
+    .openapi({ required: ['orderId'] }),
+).openapi('OrderEventPayload')
+
+const SystemEventPayloadSchema = BaseEventPayloadSchema.and(
+  z
+    .object({
+      component: z.string(),
+      severity: z.enum(['info', 'warning', 'error', 'critical']),
+      metrics: z.record(z.string(), z.number()).exactOptional(),
+    })
+    .openapi({ required: ['component', 'severity'] }),
+).openapi('SystemEventPayload')
+
+const CustomEventPayloadSchema = BaseEventPayloadSchema.and(
+  z.object({ customType: z.string().exactOptional(), data: z.looseObject({}).exactOptional() }),
+).openapi('CustomEventPayload')
+
+type EventPayloadType =
+  | z.infer<typeof UserEventPayloadSchema>
+  | z.infer<typeof OrderEventPayloadSchema>
+  | z.infer<typeof SystemEventPayloadSchema>
+  | z.infer<typeof CustomEventPayloadSchema>
+
+const UserConditionSchema = z
+  .object({ type: z.literal('user'), userIds: z.array(z.string()) })
+  .openapi({ required: ['type', 'userIds'] })
+  .openapi('UserCondition')
+
+const TimeConditionSchema = z
+  .object({
+    type: z.literal('time'),
+    startTime: z.iso.datetime().exactOptional(),
+    endTime: z.iso.datetime().exactOptional(),
+  })
+  .openapi({ required: ['type'] })
+  .openapi('TimeCondition')
+
+const GeoConditionSchema = z
+  .object({ type: z.literal('geo'), regions: z.array(z.string()) })
+  .openapi({ required: ['type', 'regions'] })
+  .openapi('GeoCondition')
+
+const FeatureConditionSchema = z
+  .union([UserConditionSchema, TimeConditionSchema, GeoConditionSchema])
+  .openapi('FeatureCondition')
+
+const ConditionalFeatureFlagSchema = z
+  .object({
+    enabled: z.boolean(),
+    conditions: z.array(FeatureConditionSchema).exactOptional(),
+    rolloutPercentage: z.int().min(0).max(100).exactOptional(),
+  })
+  .openapi({ required: ['enabled'] })
+  .openapi('ConditionalFeatureFlag')
+
+type FeatureFlagType = boolean | z.infer<typeof ConditionalFeatureFlagSchema>
+
+type ConfigValueType =
+  | string
+  | number
+  | boolean
+  | ConfigValueType[]
+  | { [key: string]: ConfigValueType }
+
+type ResourceStatusType = {
+  state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
+  health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'
+  lastChecked?: string
+}
+
+type ResourceDependencyType = { resourceId: string; type: 'hard' | 'soft'; resource?: ResourceType }
+
+type ResourceCostType = { hourly?: number; monthly?: number; currency?: string }
+
+type BaseResourceType = ExtendedEntityType & {
+  resourceType: string
+  status: ResourceStatusType
+  dependencies?: ResourceDependencyType[]
+  cost?: ResourceCostType
+}
+
+type CpuSpecType = { cores: number; architecture?: string }
+
+type MemorySpecType = { size: number; unit?: 'MB' | 'GB' | 'TB' }
+
+type StorageResourceType = BaseResourceType & {
+  resourceType?: 'storage'
+  size: number
+  storageType: 'ssd' | 'hdd' | 'nvme'
+  iops?: number
+  attachedTo?: ComputeResourceType
+}
+
+type ComputeResourceType = BaseResourceType & {
+  resourceType?: 'compute'
+  cpu: CpuSpecType
+  memory: MemorySpecType
+  storage?: StorageResourceType[]
+}
+
+type NetworkResourceType = BaseResourceType & {
+  resourceType?: 'network'
+  cidr: string
+  subnets?: NetworkResourceType[]
+  parentNetwork?: NetworkResourceType
+  connectedResources?: unknown[]
+}
+
+const ConfigValueSchema: z.ZodType<ConfigValueType> = z
+  .lazy(() =>
+    z.xor([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.array(ConfigValueSchema),
+      z.record(z.string(), ConfigValueSchema),
+    ]),
+  )
+  .openapi('ConfigValue')
+
+type ResourceTemplateType = {
+  name?: string
+  version?: string
+  parameters?: { [key: string]: z.infer<typeof ConfigValueSchema> }
+}
+
+type CompositeResourceType = BaseResourceType & {
+  resourceType?: 'composite'
+  components: ResourceType[]
+  template?: ResourceTemplateType
+}
+
+type ResourceType =
+  | ComputeResourceType
+  | StorageResourceType
+  | NetworkResourceType
+  | CompositeResourceType
+
+const SchemaValidationRuleSchema = z
+  .object({ ruleType: z.literal('schema').exactOptional(), schema: z.object({}) })
+  .openapi({ required: ['schema'] })
+  .openapi('SchemaValidationRule')
+
+const BusinessValidationRuleSchema = z
+  .object({
+    ruleType: z.literal('business').exactOptional(),
+    expression: z.string(),
+    parameters: z.object({}).exactOptional(),
+  })
+  .openapi({ required: ['expression'] })
+  .openapi('BusinessValidationRule')
+
+const CustomValidationRuleSchema = z
+  .object({
+    ruleType: z.literal('custom').exactOptional(),
+    handler: z.string(),
+    config: z.object({}).exactOptional(),
+  })
+  .openapi({ required: ['handler'] })
+  .openapi('CustomValidationRule')
+
+type ValidationRuleType = { ruleType: string; severity?: 'error' | 'warning' | 'info' } & (
+  | z.infer<typeof SchemaValidationRuleSchema>
+  | z.infer<typeof BusinessValidationRuleSchema>
+  | z.infer<typeof CustomValidationRuleSchema>
+)
+
+const BaseEntitySchema: z.ZodType<BaseEntityType> = IdentifiableSchema.and(AuditableSchema)
   .and(VersionableSchema)
   .openapi('BaseEntity')
 
-const ExtendedEntitySchema = BaseEntitySchema.and(
+const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = BaseEntitySchema.and(
   z
     .object({
       name: z.string(),
@@ -33,6 +303,60 @@ const ExtendedEntitySchema = BaseEntitySchema.and(
     })
     .openapi({ required: ['name'] }),
 ).openapi('ExtendedEntity')
+
+const MessageSchema: z.ZodType<MessageType> = z
+  .lazy(() =>
+    z
+      .xor([
+        TextMessageSchema,
+        ImageMessageSchema,
+        VideoMessageSchema,
+        DocumentMessageSchema,
+        CompositeMessageSchema,
+      ])
+      .openapi({
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            text: '#/components/schemas/TextMessage',
+            image: '#/components/schemas/ImageMessage',
+            video: '#/components/schemas/VideoMessage',
+            document: '#/components/schemas/DocumentMessage',
+            composite: '#/components/schemas/CompositeMessage',
+          },
+        },
+      }),
+  )
+  .openapi('Message')
+
+const BaseMessageSchema: z.ZodType<BaseMessageType> = z
+  .lazy(() =>
+    BaseEntitySchema.and(
+      z
+        .object({
+          type: z.string(),
+          sender: ParticipantSchema,
+          recipient: ParticipantSchema,
+          metadata: MessageMetadataSchema.exactOptional(),
+        })
+        .openapi({ required: ['type', 'sender', 'recipient'] }),
+    ),
+  )
+  .openapi('BaseMessage')
+
+const ParticipantSchema: z.ZodType<ParticipantType> = IdentifiableSchema.and(
+  z.object({ name: z.string(), avatar: z.url().exactOptional() }).openapi({ required: ['name'] }),
+).openapi('Participant')
+
+const MessageMetadataSchema: z.ZodType<MessageMetadataType> = z
+  .lazy(() =>
+    z.object({
+      priority: z.enum(['low', 'normal', 'high', 'urgent']).exactOptional(),
+      expiresAt: z.iso.datetime().exactOptional(),
+      replyTo: MessageSchema.exactOptional(),
+    }),
+  )
+  .openapi('MessageMetadata')
 
 const TextMessageSchema: z.ZodType<TextMessageType> = z
   .lazy(() =>
@@ -47,6 +371,14 @@ const TextMessageSchema: z.ZodType<TextMessageType> = z
     ),
   )
   .openapi('TextMessage')
+
+const TextFormattingSchema: z.ZodType<TextFormattingType> = z
+  .object({
+    bold: z.array(TextRangeSchema).exactOptional(),
+    italic: z.array(TextRangeSchema).exactOptional(),
+    links: z.array(LinkRangeSchema).exactOptional(),
+  })
+  .openapi('TextFormatting')
 
 const ImageMessageSchema: z.ZodType<ImageMessageType> = z
   .lazy(() =>
@@ -84,6 +416,21 @@ const DocumentMessageSchema: z.ZodType<DocumentMessageType> = z
   )
   .openapi('DocumentMessage')
 
+const MediaContentSchema: z.ZodType<MediaContentType> = z
+  .object({
+    url: z.url(),
+    mimeType: z.string(),
+    size: z.int(),
+    checksum: z.string().exactOptional(),
+  })
+  .openapi({ required: ['url', 'mimeType', 'size'] })
+  .openapi('MediaContent')
+
+const DimensionsSchema: z.ZodType<DimensionsType> = z
+  .object({ width: z.int(), height: z.int() })
+  .openapi({ required: ['width', 'height'] })
+  .openapi('Dimensions')
+
 const CompositeMessageSchema: z.ZodType<CompositeMessageType> = z
   .lazy(() =>
     BaseMessageSchema.and(
@@ -96,144 +443,6 @@ const CompositeMessageSchema: z.ZodType<CompositeMessageType> = z
     ),
   )
   .openapi('CompositeMessage')
-
-type MessageType =
-  | z.infer<typeof TextMessageSchema>
-  | z.infer<typeof ImageMessageSchema>
-  | z.infer<typeof VideoMessageSchema>
-  | z.infer<typeof DocumentMessageSchema>
-  | z.infer<typeof CompositeMessageSchema>
-
-const MessageSchema: z.ZodType<MessageType> = z
-  .lazy(() =>
-    z
-      .discriminatedUnion('type', [
-        TextMessageSchema,
-        ImageMessageSchema,
-        VideoMessageSchema,
-        DocumentMessageSchema,
-        CompositeMessageSchema,
-      ])
-      .openapi({
-        discriminator: {
-          propertyName: 'type',
-          mapping: {
-            text: '#/components/schemas/TextMessage',
-            image: '#/components/schemas/ImageMessage',
-            video: '#/components/schemas/VideoMessage',
-            document: '#/components/schemas/DocumentMessage',
-            composite: '#/components/schemas/CompositeMessage',
-          },
-        },
-      }),
-  )
-  .openapi('Message')
-
-const ParticipantSchema = IdentifiableSchema.and(
-  z.object({ name: z.string(), avatar: z.url().exactOptional() }).openapi({ required: ['name'] }),
-).openapi('Participant')
-
-const MessageMetadataSchema: z.ZodType<MessageMetadataType> = z
-  .lazy(() =>
-    z.object({
-      priority: z.enum(['low', 'normal', 'high', 'urgent']).exactOptional(),
-      expiresAt: z.iso.datetime().exactOptional(),
-      replyTo: MessageSchema.exactOptional(),
-    }),
-  )
-  .openapi('MessageMetadata')
-
-type BaseMessageType = z.infer<typeof BaseEntitySchema> & {
-  type: string
-  sender: z.infer<typeof ParticipantSchema>
-  recipient: z.infer<typeof ParticipantSchema>
-  metadata?: z.infer<typeof MessageMetadataSchema>
-}
-
-const BaseMessageSchema: z.ZodType<BaseMessageType> = z
-  .lazy(() =>
-    BaseEntitySchema.and(
-      z
-        .object({
-          type: z.string(),
-          sender: ParticipantSchema,
-          recipient: ParticipantSchema,
-          metadata: MessageMetadataSchema.exactOptional(),
-        })
-        .openapi({ required: ['type', 'sender', 'recipient'] }),
-    ),
-  )
-  .openapi('BaseMessage')
-
-type MessageMetadataType = {
-  priority?: 'low' | 'normal' | 'high' | 'urgent'
-  expiresAt?: string
-  replyTo?: z.infer<typeof MessageSchema>
-}
-
-const TextRangeSchema = z
-  .object({ start: z.int(), end: z.int() })
-  .openapi({ required: ['start', 'end'] })
-  .openapi('TextRange')
-
-const LinkRangeSchema = TextRangeSchema.and(
-  z.object({ url: z.url() }).openapi({ required: ['url'] }),
-).openapi('LinkRange')
-
-const TextFormattingSchema = z
-  .object({
-    bold: z.array(TextRangeSchema).exactOptional(),
-    italic: z.array(TextRangeSchema).exactOptional(),
-    links: z.array(LinkRangeSchema).exactOptional(),
-  })
-  .openapi('TextFormatting')
-
-type TextMessageType = z.infer<typeof BaseMessageSchema> & {
-  type?: 'text'
-  content: string
-  formatting?: z.infer<typeof TextFormattingSchema>
-}
-
-const MediaContentSchema = z
-  .object({
-    url: z.url(),
-    mimeType: z.string(),
-    size: z.int(),
-    checksum: z.string().exactOptional(),
-  })
-  .openapi({ required: ['url', 'mimeType', 'size'] })
-  .openapi('MediaContent')
-
-const DimensionsSchema = z
-  .object({ width: z.int(), height: z.int() })
-  .openapi({ required: ['width', 'height'] })
-  .openapi('Dimensions')
-
-type ImageMessageType = z.infer<typeof BaseMessageSchema> &
-  z.infer<typeof MediaContentSchema> & {
-    type?: 'image'
-    dimensions?: z.infer<typeof DimensionsSchema>
-    alt?: string
-  }
-
-type VideoMessageType = z.infer<typeof BaseMessageSchema> &
-  z.infer<typeof MediaContentSchema> & {
-    type?: 'video'
-    duration?: number
-    thumbnail?: z.infer<typeof ImageMessageSchema>
-  }
-
-type DocumentMessageType = z.infer<typeof BaseMessageSchema> &
-  z.infer<typeof MediaContentSchema> & {
-    type?: 'document'
-    pageCount?: number
-    preview?: z.infer<typeof ImageMessageSchema>
-  }
-
-type CompositeMessageType = z.infer<typeof BaseMessageSchema> & {
-  type?: 'composite'
-  parts: z.infer<typeof MessageSchema>[]
-}
 
 const DeliveryStatusSchema = z
   .object({
@@ -302,85 +511,11 @@ const EventSchema = z
   .openapi({ required: ['eventType', 'payload'] })
   .openapi('Event')
 
-const BaseEventPayloadSchema = z
-  .object({
-    timestamp: z.iso.datetime().exactOptional(),
-    source: z.string().exactOptional(),
-    correlationId: z.string().exactOptional(),
-  })
-  .openapi('BaseEventPayload')
-
-const UserStateSchema = z
-  .object({
-    status: z.string().exactOptional(),
-    roles: z.array(z.string()).exactOptional(),
-    preferences: z.object({}).exactOptional(),
-  })
-  .openapi('UserState')
-
-const UserEventPayloadSchema = BaseEventPayloadSchema.and(
-  z
-    .object({
-      userId: z.uuid(),
-      userAction: z.enum(['login', 'logout', 'register', 'update', 'delete']).exactOptional(),
-      previousState: UserStateSchema.exactOptional(),
-      newState: UserStateSchema.exactOptional(),
-    })
-    .openapi({ required: ['userId'] }),
-).openapi('UserEventPayload')
-
-const OrderItemSchema = z
-  .object({ productId: z.string(), quantity: z.int(), price: z.number().exactOptional() })
-  .openapi({ required: ['productId', 'quantity'] })
-  .openapi('OrderItem')
-
-const OrderEventPayloadSchema = BaseEventPayloadSchema.and(
-  z
-    .object({
-      orderId: z.string(),
-      orderAction: z.enum(['created', 'updated', 'cancelled', 'completed']).exactOptional(),
-      items: z.array(OrderItemSchema).exactOptional(),
-    })
-    .openapi({ required: ['orderId'] }),
-).openapi('OrderEventPayload')
-
-const SystemEventPayloadSchema = BaseEventPayloadSchema.and(
-  z
-    .object({
-      component: z.string(),
-      severity: z.enum(['info', 'warning', 'error', 'critical']),
-      metrics: z.record(z.string(), z.number()).exactOptional(),
-    })
-    .openapi({ required: ['component', 'severity'] }),
-).openapi('SystemEventPayload')
-
-const CustomEventPayloadSchema = BaseEventPayloadSchema.and(
-  z.object({ customType: z.string().exactOptional(), data: z.looseObject({}).exactOptional() }),
-).openapi('CustomEventPayload')
-
-type EventPayloadType =
-  | z.infer<typeof UserEventPayloadSchema>
-  | z.infer<typeof OrderEventPayloadSchema>
-  | z.infer<typeof SystemEventPayloadSchema>
-  | z.infer<typeof CustomEventPayloadSchema>
-
 const ConfigSectionSchema = z
   .object({ enabled: z.boolean().exactOptional(), description: z.string().exactOptional() })
   .openapi('ConfigSection')
 
 const ConfigSettingsSchema = z.record(z.string(), ConfigSectionSchema).openapi('ConfigSettings')
-
-const ConfigValueSchema: z.ZodType<ConfigValueType> = z
-  .lazy(() =>
-    z.xor([
-      z.string(),
-      z.number(),
-      z.boolean(),
-      z.array(ConfigValueSchema),
-      z.record(z.string(), ConfigValueSchema),
-    ]),
-  )
-  .openapi('ConfigValue')
 
 const ConfigurationSchema = BaseEntitySchema.and(
   z
@@ -407,40 +542,6 @@ const FeatureFlagsSchema = ConfigSectionSchema.and(z.record(z.string(), FeatureF
   'FeatureFlags',
 )
 
-const UserConditionSchema = z
-  .object({ type: z.literal('user'), userIds: z.array(z.string()) })
-  .openapi({ required: ['type', 'userIds'] })
-  .openapi('UserCondition')
-
-const TimeConditionSchema = z
-  .object({
-    type: z.literal('time'),
-    startTime: z.iso.datetime().exactOptional(),
-    endTime: z.iso.datetime().exactOptional(),
-  })
-  .openapi({ required: ['type'] })
-  .openapi('TimeCondition')
-
-const GeoConditionSchema = z
-  .object({ type: z.literal('geo'), regions: z.array(z.string()) })
-  .openapi({ required: ['type', 'regions'] })
-  .openapi('GeoCondition')
-
-const FeatureConditionSchema = z
-  .union([UserConditionSchema, TimeConditionSchema, GeoConditionSchema])
-  .openapi('FeatureCondition')
-
-const ConditionalFeatureFlagSchema = z
-  .object({
-    enabled: z.boolean(),
-    conditions: z.array(FeatureConditionSchema).exactOptional(),
-    rolloutPercentage: z.int().min(0).max(100).exactOptional(),
-  })
-  .openapi({ required: ['enabled'] })
-  .openapi('ConditionalFeatureFlag')
-
-type FeatureFlagType = boolean | z.infer<typeof ConditionalFeatureFlagSchema>
-
 const RateLimitSchema = z
   .object({ limit: z.int(), window: z.int(), burstLimit: z.int().exactOptional() })
   .openapi({ required: ['limit', 'window'] })
@@ -450,13 +551,6 @@ const RateLimitsSchema = ConfigSectionSchema.and(z.record(z.string(), RateLimitS
   'RateLimits',
 )
 
-type ConfigValueType =
-  | string
-  | number
-  | boolean
-  | ConfigValueType[]
-  | Record<string, ConfigValueType>
-
 const ConfigurationUpdateSchema = z
   .object({
     settings: ConfigSettingsSchema.exactOptional(),
@@ -464,6 +558,73 @@ const ConfigurationUpdateSchema = z
   })
   .and(VersionableSchema)
   .openapi('ConfigurationUpdate')
+
+const ResourceSchema: z.ZodType<ResourceType> = z
+  .lazy(() =>
+    z
+      .xor([
+        ComputeResourceSchema,
+        StorageResourceSchema,
+        NetworkResourceSchema,
+        CompositeResourceSchema,
+      ])
+      .openapi({
+        discriminator: {
+          propertyName: 'resourceType',
+          mapping: {
+            compute: '#/components/schemas/ComputeResource',
+            storage: '#/components/schemas/StorageResource',
+            network: '#/components/schemas/NetworkResource',
+            composite: '#/components/schemas/CompositeResource',
+          },
+        },
+      }),
+  )
+  .openapi('Resource')
+
+const BaseResourceSchema: z.ZodType<BaseResourceType> = z
+  .lazy(() =>
+    ExtendedEntitySchema.and(
+      z
+        .object({
+          resourceType: z.string(),
+          status: ResourceStatusSchema,
+          dependencies: z.array(ResourceDependencySchema).exactOptional(),
+          cost: ResourceCostSchema.exactOptional(),
+        })
+        .openapi({ required: ['resourceType', 'status'] }),
+    ),
+  )
+  .openapi('BaseResource')
+
+const ResourceStatusSchema: z.ZodType<ResourceStatusType> = z
+  .object({
+    state: z.enum(['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated']),
+    health: z.enum(['healthy', 'degraded', 'unhealthy', 'unknown']).exactOptional(),
+    lastChecked: z.iso.datetime().exactOptional(),
+  })
+  .openapi({ required: ['state'] })
+  .openapi('ResourceStatus')
+
+const ResourceDependencySchema: z.ZodType<ResourceDependencyType> = z
+  .lazy(() =>
+    z
+      .object({
+        resourceId: z.string(),
+        type: z.enum(['hard', 'soft']),
+        resource: ResourceSchema.exactOptional(),
+      })
+      .openapi({ required: ['resourceId', 'type'] }),
+  )
+  .openapi('ResourceDependency')
+
+const ResourceCostSchema: z.ZodType<ResourceCostType> = z
+  .object({
+    hourly: z.number().exactOptional(),
+    monthly: z.number().exactOptional(),
+    currency: z.string().exactOptional(),
+  })
+  .openapi('ResourceCost')
 
 const ComputeResourceSchema: z.ZodType<ComputeResourceType> = z
   .lazy(() =>
@@ -479,6 +640,16 @@ const ComputeResourceSchema: z.ZodType<ComputeResourceType> = z
     ),
   )
   .openapi('ComputeResource')
+
+const CpuSpecSchema: z.ZodType<CpuSpecType> = z
+  .object({ cores: z.int(), architecture: z.string().exactOptional() })
+  .openapi({ required: ['cores'] })
+  .openapi('CpuSpec')
+
+const MemorySpecSchema: z.ZodType<MemorySpecType> = z
+  .object({ size: z.int(), unit: z.enum(['MB', 'GB', 'TB']).exactOptional() })
+  .openapi({ required: ['size'] })
+  .openapi('MemorySpec')
 
 const StorageResourceSchema: z.ZodType<StorageResourceType> = z
   .lazy(() =>
@@ -528,138 +699,13 @@ const CompositeResourceSchema: z.ZodType<CompositeResourceType> = z
   )
   .openapi('CompositeResource')
 
-type ResourceType =
-  | z.infer<typeof ComputeResourceSchema>
-  | z.infer<typeof StorageResourceSchema>
-  | z.infer<typeof NetworkResourceSchema>
-  | z.infer<typeof CompositeResourceSchema>
-
-const ResourceSchema: z.ZodType<ResourceType> = z
-  .lazy(() =>
-    z
-      .discriminatedUnion('resourceType', [
-        ComputeResourceSchema,
-        StorageResourceSchema,
-        NetworkResourceSchema,
-        CompositeResourceSchema,
-      ])
-      .openapi({
-        discriminator: {
-          propertyName: 'resourceType',
-          mapping: {
-            compute: '#/components/schemas/ComputeResource',
-            storage: '#/components/schemas/StorageResource',
-            network: '#/components/schemas/NetworkResource',
-            composite: '#/components/schemas/CompositeResource',
-          },
-        },
-      }),
-  )
-  .openapi('Resource')
-
-const ResourceStatusSchema = z
-  .object({
-    state: z.enum(['pending', 'provisioning', 'running', 'stopped', 'failed', 'terminated']),
-    health: z.enum(['healthy', 'degraded', 'unhealthy', 'unknown']).exactOptional(),
-    lastChecked: z.iso.datetime().exactOptional(),
-  })
-  .openapi({ required: ['state'] })
-  .openapi('ResourceStatus')
-
-const ResourceDependencySchema: z.ZodType<ResourceDependencyType> = z
-  .lazy(() =>
-    z
-      .object({
-        resourceId: z.string(),
-        type: z.enum(['hard', 'soft']),
-        resource: ResourceSchema.exactOptional(),
-      })
-      .openapi({ required: ['resourceId', 'type'] }),
-  )
-  .openapi('ResourceDependency')
-
-const ResourceCostSchema = z
-  .object({
-    hourly: z.number().exactOptional(),
-    monthly: z.number().exactOptional(),
-    currency: z.string().exactOptional(),
-  })
-  .openapi('ResourceCost')
-
-type BaseResourceType = z.infer<typeof ExtendedEntitySchema> & {
-  resourceType: string
-  status: z.infer<typeof ResourceStatusSchema>
-  dependencies?: z.infer<typeof ResourceDependencySchema>[]
-  cost?: z.infer<typeof ResourceCostSchema>
-}
-
-const BaseResourceSchema: z.ZodType<BaseResourceType> = z
-  .lazy(() =>
-    ExtendedEntitySchema.and(
-      z
-        .object({
-          resourceType: z.string(),
-          status: ResourceStatusSchema,
-          dependencies: z.array(ResourceDependencySchema).exactOptional(),
-          cost: ResourceCostSchema.exactOptional(),
-        })
-        .openapi({ required: ['resourceType', 'status'] }),
-    ),
-  )
-  .openapi('BaseResource')
-
-type ResourceDependencyType = {
-  resourceId: string
-  type: 'hard' | 'soft'
-  resource?: z.infer<typeof ResourceSchema>
-}
-
-const CpuSpecSchema = z
-  .object({ cores: z.int(), architecture: z.string().exactOptional() })
-  .openapi({ required: ['cores'] })
-  .openapi('CpuSpec')
-
-const MemorySpecSchema = z
-  .object({ size: z.int(), unit: z.enum(['MB', 'GB', 'TB']).exactOptional() })
-  .openapi({ required: ['size'] })
-  .openapi('MemorySpec')
-
-type ComputeResourceType = z.infer<typeof BaseResourceSchema> & {
-  resourceType?: 'compute'
-  cpu: z.infer<typeof CpuSpecSchema>
-  memory: z.infer<typeof MemorySpecSchema>
-  storage?: z.infer<typeof StorageResourceSchema>[]
-}
-
-type StorageResourceType = z.infer<typeof BaseResourceSchema> & {
-  resourceType?: 'storage'
-  size: number
-  storageType: 'ssd' | 'hdd' | 'nvme'
-  iops?: number
-  attachedTo?: z.infer<typeof ComputeResourceSchema>
-}
-
-type NetworkResourceType = z.infer<typeof BaseResourceSchema> & {
-  resourceType?: 'network'
-  cidr: string
-  subnets?: NetworkResourceType[]
-  parentNetwork?: NetworkResourceType
-  connectedResources?: unknown[]
-}
-
-const ResourceTemplateSchema = z
+const ResourceTemplateSchema: z.ZodType<ResourceTemplateType> = z
   .object({
     name: z.string().exactOptional(),
     version: z.string().exactOptional(),
     parameters: z.record(z.string(), ConfigValueSchema).exactOptional(),
   })
   .openapi('ResourceTemplate')
-
-type CompositeResourceType = z.infer<typeof BaseResourceSchema> & {
-  resourceType?: 'composite'
-  components: z.infer<typeof ResourceSchema>[]
-  template?: z.infer<typeof ResourceTemplateSchema>
-}
 
 const ValidationTargetSchema = z
   .xor([ResourceSchema, ConfigurationSchema, MessageSchema])
@@ -687,35 +733,6 @@ const ValidationRequestSchema = z
   .object({ target: ValidationTargetSchema, rules: z.array(ValidationRuleSchema) })
   .openapi({ required: ['target', 'rules'] })
   .openapi('ValidationRequest')
-
-const SchemaValidationRuleSchema = z
-  .object({ ruleType: z.literal('schema').exactOptional(), schema: z.object({}) })
-  .openapi({ required: ['schema'] })
-  .openapi('SchemaValidationRule')
-
-const BusinessValidationRuleSchema = z
-  .object({
-    ruleType: z.literal('business').exactOptional(),
-    expression: z.string(),
-    parameters: z.object({}).exactOptional(),
-  })
-  .openapi({ required: ['expression'] })
-  .openapi('BusinessValidationRule')
-
-const CustomValidationRuleSchema = z
-  .object({
-    ruleType: z.literal('custom').exactOptional(),
-    handler: z.string(),
-    config: z.object({}).exactOptional(),
-  })
-  .openapi({ required: ['handler'] })
-  .openapi('CustomValidationRule')
-
-type ValidationRuleType = { ruleType: string; severity?: 'error' | 'warning' | 'info' } & (
-  | z.infer<typeof SchemaValidationRuleSchema>
-  | z.infer<typeof BusinessValidationRuleSchema>
-  | z.infer<typeof CustomValidationRuleSchema>
-)
 
 const SchemaIssueSchema = z
   .object({

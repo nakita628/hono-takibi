@@ -150,7 +150,74 @@ export function schemasCode(
   // 4. Detect circular references
   const cyclicSchemas = detectCircularSchemas(schemaNames, depsMap)
 
-  // 5. generate code blocks for each schema
+  // 4.5. Extend cyclic group to include all schemas referenced by cyclic schemas
+  // This ensures that when a cyclic schema references another schema,
+  // that schema also gets a type definition generated
+  const varNameToName = new Map<string, string>()
+  for (const name of schemaNames) {
+    const varName = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
+    varNameToName.set(varName, name)
+  }
+  const extendedCyclicSchemas = new Set(cyclicSchemas)
+  for (const schemaName of cyclicSchemas) {
+    const deps = depsMap.get(schemaName) ?? []
+    for (const depVarName of deps) {
+      const depName = varNameToName.get(depVarName)
+      if (depName) extendedCyclicSchemas.add(depName)
+    }
+  }
+
+  // 5. Create PascalCase set for cyclic group (for type generation)
+  const cyclicGroupPascal = new Set(
+    Array.from(extendedCyclicSchemas).map((name) => toIdentifierPascalCase(name)),
+  )
+
+  // 6. Generate type definitions for cyclic schemas first (all together)
+  // Use extendedCyclicSchemas to include schemas referenced by cyclic schemas
+  const cyclicTypeDefinitions: string[] = []
+  const generatedTypeNames = new Set<string>()
+
+  for (const schemaName of schemaNames) {
+    const schema = schemas[schemaName]
+    const zSchema = zSchemaMap.get(schemaName) ?? zodToOpenAPI(schema)
+    const safeSchemaName = toIdentifierPascalCase(schemaName)
+    const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
+
+    const isCircular = cyclicSchemas.has(schemaName)
+    const isExtendedCircular = extendedCyclicSchemas.has(schemaName)
+    const isSelfReferencing = zSchema.includes(variableName)
+    const needsLazy = isCircular || isSelfReferencing
+    const needsTypeDef = needsLazy || isExtendedCircular
+
+    if (needsTypeDef) {
+      cyclicTypeDefinitions.push(zodType(schema, safeSchemaName, cyclicGroupPascal))
+      generatedTypeNames.add(`${safeSchemaName}Type`)
+    }
+  }
+
+  // 6.5. Check for missing type definitions (referenced but not defined)
+  // This handles cases where circular detection may have missed some schemas
+  const referencedTypes = new Set<string>()
+  for (const typeDef of cyclicTypeDefinitions) {
+    const matches = typeDef.matchAll(/(\w+Type)\b/g)
+    for (const match of matches) {
+      if (match[1]) referencedTypes.add(match[1])
+    }
+  }
+
+  // Add missing type definitions
+  for (const refType of referencedTypes) {
+    if (!generatedTypeNames.has(refType)) {
+      const schemaName = refType.replace(/Type$/, '')
+      const schema = schemas[schemaName]
+      if (schema) {
+        cyclicTypeDefinitions.push(zodType(schema, schemaName, cyclicGroupPascal))
+        generatedTypeNames.add(refType)
+      }
+    }
+  }
+
+  // 7. Generate code blocks for each schema
   const schemaBlocks = schemaNames.map((schemaName) => {
     const schema = schemas[schemaName]
     const zSchema = zSchemaMap.get(schemaName) ?? zodToOpenAPI(schema)
@@ -159,24 +226,29 @@ export function schemasCode(
 
     // Check if this schema is part of a circular reference
     const isCircular = cyclicSchemas.has(schemaName)
+    const isExtendedCircular = extendedCyclicSchemas.has(schemaName)
     const isSelfReferencing = zSchema.includes(variableName)
     const needsLazy = isCircular || isSelfReferencing
-
-    const typeDefinition = needsLazy ? `${zodType(schema, safeSchemaName)}\n\n` : ''
+    // Use z.lazy for circular schemas, and add type annotation for extended circular schemas
+    const needsTypeAnnotation = needsLazy || isExtendedCircular
 
     const z = needsLazy ? `z.lazy(() => ${zSchema})` : zSchema
     const returnValue = `:z.ZodType<${safeSchemaName}Type>`
 
     const schemaCode = exportSchemas
-      ? `export const ${variableName}${needsLazy ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
-      : `const ${variableName}${needsLazy ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
+      ? `export const ${variableName}${needsTypeAnnotation ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
+      : `const ${variableName}${needsTypeAnnotation ? returnValue : ''} = ${z}.openapi('${safeSchemaName}')`
 
     const zodInferCode = exportSchemasTypes
       ? `\n\nexport type ${toIdentifierPascalCase(schemaName)} = z.infer<typeof ${variableName}>`
       : ''
 
-    return `${typeDefinition}${schemaCode}${zodInferCode}`
+    return `${schemaCode}${zodInferCode}`
   })
-  // 6. return code
-  return schemaBlocks.join('\n\n')
+
+  // 8. Combine type definitions and schema blocks
+  const typeDefsBlock = cyclicTypeDefinitions.length > 0 ? cyclicTypeDefinitions.join('\n\n') : ''
+  const schemasBlock = schemaBlocks.join('\n\n')
+
+  return typeDefsBlock ? `${typeDefsBlock}\n\n${schemasBlock}` : schemasBlock
 }

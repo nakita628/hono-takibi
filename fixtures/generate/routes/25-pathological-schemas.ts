@@ -1,5 +1,40 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type RecursiveCType = { value?: boolean; refA?: RecursiveAType }
+
+type RecursiveBType = { value?: number; refC?: RecursiveCType }
+
+type RecursiveAType = { value?: string; refB?: RecursiveBType }
+
+const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
+  .lazy(() =>
+    z
+      .object({
+        value: z.string().min(1).max(100),
+        children: z.array(ConstrainedTreeSchema).max(10).exactOptional().openapi({ maxItems: 10 }),
+        parent: ConstrainedTreeSchema.exactOptional(),
+        siblings: z.array(ConstrainedTreeSchema).exactOptional(),
+      })
+      .openapi({ required: ['value'] }),
+  )
+  .openapi('ConstrainedTree')
+
+type RecursiveNightmaresType = {
+  mutuallyRecursive?: RecursiveAType
+  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
+  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
+  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
+  recursiveMap?: { [key: string]: RecursiveNightmaresType }
+  recursiveArray?: unknown[]
+}
+
+type ConstrainedTreeType = {
+  value: string
+  children?: ConstrainedTreeType[]
+  parent?: ConstrainedTreeType
+  siblings?: ConstrainedTreeType[]
+}
+
 const ContradictionsSchema = z
   .object({
     impossibleLength: z.string().min(100).max(10).exactOptional(),
@@ -297,7 +332,7 @@ const CompositionHellSchema = z
       ),
     conditionalInAllOf: z.object({ type: z.string().exactOptional() }).and(z.any()).exactOptional(),
     multiDiscriminator: z
-      .discriminatedUnion('kind', [DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
+      .xor([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
       .exactOptional()
       .openapi({
         discriminator: {
@@ -348,52 +383,17 @@ const RecursiveASchema: z.ZodType<RecursiveAType> = z
   )
   .openapi('RecursiveA')
 
-const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
-  .lazy(() =>
-    z
-      .object({
-        value: z.string().min(1).max(100),
-        children: z.array(ConstrainedTreeSchema).max(10).exactOptional().openapi({ maxItems: 10 }),
-        parent: ConstrainedTreeSchema.exactOptional(),
-        siblings: z.array(ConstrainedTreeSchema).exactOptional(),
-      })
-      .openapi({ required: ['value'] }),
-  )
-  .openapi('ConstrainedTree')
-
-type RecursiveNightmaresType = {
-  mutuallyRecursive?: z.infer<typeof RecursiveASchema>
-  constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
-  recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
-  recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
-  recursiveMap?: Record<string, RecursiveNightmaresType>
-  recursiveArray?: unknown[]
-}
-
 const RecursiveBSchema: z.ZodType<RecursiveBType> = z
   .lazy(() =>
     z.object({ value: z.number().exactOptional(), refC: RecursiveCSchema.exactOptional() }),
   )
   .openapi('RecursiveB')
 
-type RecursiveAType = { value?: string; refB?: z.infer<typeof RecursiveBSchema> }
-
 const RecursiveCSchema: z.ZodType<RecursiveCType> = z
   .lazy(() =>
     z.object({ value: z.boolean().exactOptional(), refA: RecursiveASchema.exactOptional() }),
   )
   .openapi('RecursiveC')
-
-type RecursiveBType = { value?: number; refC?: z.infer<typeof RecursiveCSchema> }
-
-type RecursiveCType = { value?: boolean; refA?: z.infer<typeof RecursiveASchema> }
-
-type ConstrainedTreeType = {
-  value: string
-  children?: ConstrainedTreeType[]
-  parent?: ConstrainedTreeType
-  siblings?: ConstrainedTreeType[]
-}
 
 export const postPathologicalRoute = createRoute({
   method: 'post',

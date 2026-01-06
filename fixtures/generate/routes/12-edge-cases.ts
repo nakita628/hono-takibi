@@ -1,5 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
+type TreeNodeType = { value?: string; children?: TreeNodeType[]; parent?: TreeNodeType }
+
+type CompanyType = { name?: string; employees?: PersonType[] }
+
+type PersonType = { name?: string; company?: CompanyType }
+
 const EmptyObjectSchema = z.object({}).openapi('EmptyObject')
 
 const FreeFormObjectSchema = z.looseObject({}).openapi('FreeFormObject')
@@ -111,8 +117,6 @@ const ReadWriteOnlySchema = z
   })
   .openapi('ReadWriteOnly')
 
-type TreeNodeType = { value?: string; children?: TreeNodeType[]; parent?: TreeNodeType }
-
 const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   .lazy(() =>
     z.object({
@@ -123,6 +127,12 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
+const PersonSchema: z.ZodType<PersonType> = z
+  .lazy(() =>
+    z.object({ name: z.string().exactOptional(), company: CompanySchema.exactOptional() }),
+  )
+  .openapi('Person')
+
 const CompanySchema: z.ZodType<CompanyType> = z
   .lazy(() =>
     z.object({
@@ -131,16 +141,6 @@ const CompanySchema: z.ZodType<CompanyType> = z
     }),
   )
   .openapi('Company')
-
-type PersonType = { name?: string; company?: z.infer<typeof CompanySchema> }
-
-const PersonSchema: z.ZodType<PersonType> = z
-  .lazy(() =>
-    z.object({ name: z.string().exactOptional(), company: CompanySchema.exactOptional() }),
-  )
-  .openapi('Person')
-
-type CompanyType = { name?: string; employees?: z.infer<typeof PersonSchema>[] }
 
 const DeepNestedSchema = z
   .object({

@@ -336,7 +336,11 @@ const simpleOpenapi: OpenAPI = {
             description: 'OK',
             content: {
               'application/json': {
-                schema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'string' } },
+                  required: ['id'],
+                },
               },
             },
           },

@@ -5,7 +5,207 @@ type TreeNodeType = {
   value: string
   parent?: TreeNodeType
   children?: TreeNodeType[]
-  metadata?: Record<string, TreeNodeType>
+  metadata?: { [key: string]: TreeNodeType }
+}
+
+type LinkedListType = { head?: LinkedListNodeType; tail?: LinkedListNodeType; length?: number }
+
+type LinkedListNodeType = {
+  value: string
+  prev?: LinkedListNodeType
+  next?: LinkedListNodeType
+  list?: LinkedListType
+}
+
+type EdgeMetadataType = { label?: string; relatedEdges?: GraphEdgeType[] }
+
+type GraphEdgeType = {
+  id?: string
+  source: GraphNodeType
+  target: GraphNodeType
+  weight?: number
+  metadata?: EdgeMetadataType
+}
+
+type GraphNodeType = {
+  id: string
+  data?: { [key: string]: unknown }
+  edges?: GraphEdgeType[]
+  graph?: GraphType
+}
+
+type GraphMetadataType = { name?: string; rootNode?: GraphNodeType }
+
+type GraphType = { id?: string; nodes: GraphNodeType[]; metadata?: GraphMetadataType }
+
+type ProfileSettingsType = { privacy?: string; notifications?: boolean; profile?: UserProfileType }
+
+type UserProfileType = {
+  bio?: string
+  avatar?: string
+  user?: SocialUserType
+  settings?: ProfileSettingsType
+}
+
+type PostType = {
+  id: string
+  content: string
+  author: SocialUserType
+  likes?: SocialUserType[]
+  reposts?: PostType[]
+  replyTo?: PostType
+  replies?: PostType[]
+  mentions?: SocialUserType[]
+}
+
+type SocialUserType = {
+  id: string
+  username: string
+  profile?: UserProfileType
+  followers?: SocialUserType[]
+  following?: SocialUserType[]
+  posts?: PostType[]
+  blockedUsers?: SocialUserType[]
+}
+
+type FileOwnerType = {
+  id?: string
+  name?: string
+  ownedFiles?: FileSystemEntryType[]
+  homeDirectory?: FileSystemEntryType
+}
+
+type AccessControlEntryType = {
+  principal?: FileOwnerType
+  permissions?: FilePermissionsType
+  entry?: FileSystemEntryType
+}
+
+type FilePermissionsType = {
+  read?: boolean
+  write?: boolean
+  execute?: boolean
+  acl?: AccessControlEntryType[]
+}
+
+type FileSystemEntryType = {
+  name: string
+  type: 'file' | 'directory' | 'symlink'
+  permissions?: FilePermissionsType
+  owner?: FileOwnerType
+}
+
+type CommentAuthorType = { id?: string; name?: string; recentComments?: CommentType[] }
+
+type CommentThreadType = { id?: string; rootComment?: CommentType; allComments?: CommentType[] }
+
+type CommentType = {
+  id: string
+  content: string
+  author?: CommentAuthorType
+  parent?: CommentType
+  replies?: CommentType[]
+  thread?: CommentThreadType
+  quotedComment?: CommentType
+}
+
+type LiteralExpressionType = { type: 'literal'; value: string | number | boolean }
+
+type BinaryExpressionType = {
+  type: 'binary'
+  operator: '+' | '-' | '*' | '/' | '==' | '!=' | '<' | '>' | '&&' | '||'
+  left: ExpressionType
+  right: ExpressionType
+}
+
+type UnaryExpressionType = { type: 'unary'; operator: '-' | '!' | '~'; operand: ExpressionType }
+
+type ConditionalExpressionType = {
+  type: 'conditional'
+  condition: ExpressionType
+  consequent: ExpressionType
+  alternate: ExpressionType
+}
+
+type FunctionCallExpressionType = {
+  type: 'call'
+  callee: ExpressionType
+  arguments: ExpressionType[]
+}
+
+type ExpressionType =
+  | LiteralExpressionType
+  | BinaryExpressionType
+  | UnaryExpressionType
+  | ConditionalExpressionType
+  | FunctionCallExpressionType
+
+type CategorizedProductType = {
+  id?: string
+  name?: string
+  primaryCategory?: CategoryType
+  secondaryCategories?: CategoryType[]
+}
+
+type CategoryType = {
+  id: string
+  name: string
+  parent?: CategoryType
+  children?: CategoryType[]
+  ancestors?: CategoryType[]
+  descendants?: CategoryType[]
+  relatedCategories?: { [key: string]: CategoryType }
+  products?: CategorizedProductType[]
+}
+
+type TransitionGuardType = { condition?: string; relatedTransitions?: StateTransitionType[] }
+
+type WorkflowActionType = {
+  type?: string
+  config?: { [key: string]: unknown }
+  nextAction?: WorkflowActionType
+  fallbackAction?: WorkflowActionType
+  triggerTransition?: StateTransitionType
+}
+
+type StateTransitionType = {
+  event: string
+  sourceState?: WorkflowStateType
+  targetState: WorkflowStateType
+  guard?: TransitionGuardType
+  actions?: WorkflowActionType[]
+}
+
+type WorkflowStateType = {
+  id: string
+  name: string
+  description?: string
+  transitions?: StateTransitionType[]
+  entryActions?: WorkflowActionType[]
+  exitActions?: WorkflowActionType[]
+  parentState?: WorkflowStateType
+  childStates?: WorkflowStateType[]
+}
+
+type ExtendedEntityType = BaseEntityType & {
+  name?: string
+  parent?: ExtendedEntityType
+  baseReference?: BaseEntityType
+}
+
+type BaseEntityType = { id?: string; relatedEntity?: ExtendedEntityType }
+
+type RecursiveMapType = {
+  key?: string
+  value?: string
+  nested?: { [key: string]: RecursiveMapType }
+  items?: RecursiveMapType[]
+}
+
+type NullableCircularType = {
+  id?: string
+  next?: NullableCircularType | ({ [key: string]: unknown } | null)
+  prev?: { id?: string; next?: NullableCircularType } | null
 }
 
 const TreeNodeSchema: z.ZodType<TreeNodeType> = z
@@ -22,23 +222,6 @@ const TreeNodeSchema: z.ZodType<TreeNodeType> = z
   )
   .openapi('TreeNode')
 
-const LinkedListSchema: z.ZodType<LinkedListType> = z
-  .lazy(() =>
-    z.object({
-      head: LinkedListNodeSchema.exactOptional(),
-      tail: LinkedListNodeSchema.exactOptional(),
-      length: z.int().exactOptional(),
-    }),
-  )
-  .openapi('LinkedList')
-
-type LinkedListNodeType = {
-  value: string
-  prev?: LinkedListNodeType
-  next?: LinkedListNodeType
-  list?: z.infer<typeof LinkedListSchema>
-}
-
 const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
   .lazy(() =>
     z
@@ -52,11 +235,27 @@ const LinkedListNodeSchema: z.ZodType<LinkedListNodeType> = z
   )
   .openapi('LinkedListNode')
 
-type LinkedListType = {
-  head?: z.infer<typeof LinkedListNodeSchema>
-  tail?: z.infer<typeof LinkedListNodeSchema>
-  length?: number
-}
+const LinkedListSchema: z.ZodType<LinkedListType> = z
+  .lazy(() =>
+    z.object({
+      head: LinkedListNodeSchema.exactOptional(),
+      tail: LinkedListNodeSchema.exactOptional(),
+      length: z.int().exactOptional(),
+    }),
+  )
+  .openapi('LinkedList')
+
+const GraphSchema: z.ZodType<GraphType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.string().exactOptional(),
+        nodes: z.array(GraphNodeSchema),
+        metadata: GraphMetadataSchema.exactOptional(),
+      })
+      .openapi({ required: ['nodes'] }),
+  )
+  .openapi('Graph')
 
 const GraphNodeSchema: z.ZodType<GraphNodeType> = z
   .lazy(() =>
@@ -70,30 +269,6 @@ const GraphNodeSchema: z.ZodType<GraphNodeType> = z
       .openapi({ required: ['id'] }),
   )
   .openapi('GraphNode')
-
-const GraphMetadataSchema: z.ZodType<GraphMetadataType> = z
-  .lazy(() =>
-    z.object({ name: z.string().exactOptional(), rootNode: GraphNodeSchema.exactOptional() }),
-  )
-  .openapi('GraphMetadata')
-
-type GraphType = {
-  id?: string
-  nodes: z.infer<typeof GraphNodeSchema>[]
-  metadata?: z.infer<typeof GraphMetadataSchema>
-}
-
-const GraphSchema: z.ZodType<GraphType> = z
-  .lazy(() =>
-    z
-      .object({
-        id: z.string().exactOptional(),
-        nodes: z.array(GraphNodeSchema),
-        metadata: GraphMetadataSchema.exactOptional(),
-      })
-      .openapi({ required: ['nodes'] }),
-  )
-  .openapi('Graph')
 
 const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   .lazy(() =>
@@ -109,12 +284,11 @@ const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   )
   .openapi('GraphEdge')
 
-type GraphNodeType = {
-  id: string
-  data?: Record<string, unknown>
-  edges?: z.infer<typeof GraphEdgeSchema>[]
-  graph?: z.infer<typeof GraphSchema>
-}
+const GraphMetadataSchema: z.ZodType<GraphMetadataType> = z
+  .lazy(() =>
+    z.object({ name: z.string().exactOptional(), rootNode: GraphNodeSchema.exactOptional() }),
+  )
+  .openapi('GraphMetadata')
 
 const EdgeMetadataSchema: z.ZodType<EdgeMetadataType> = z
   .lazy(() =>
@@ -125,17 +299,21 @@ const EdgeMetadataSchema: z.ZodType<EdgeMetadataType> = z
   )
   .openapi('EdgeMetadata')
 
-type GraphEdgeType = {
-  id?: string
-  source: z.infer<typeof GraphNodeSchema>
-  target: z.infer<typeof GraphNodeSchema>
-  weight?: number
-  metadata?: z.infer<typeof EdgeMetadataSchema>
-}
-
-type GraphMetadataType = { name?: string; rootNode?: z.infer<typeof GraphNodeSchema> }
-
-type EdgeMetadataType = { label?: string; relatedEdges?: z.infer<typeof GraphEdgeSchema>[] }
+const SocialUserSchema: z.ZodType<SocialUserType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.uuid(),
+        username: z.string(),
+        profile: UserProfileSchema.exactOptional(),
+        followers: z.array(SocialUserSchema).exactOptional(),
+        following: z.array(SocialUserSchema).exactOptional(),
+        posts: z.array(PostSchema).exactOptional(),
+        blockedUsers: z.array(SocialUserSchema).exactOptional(),
+      })
+      .openapi({ required: ['id', 'username'] }),
+  )
+  .openapi('SocialUser')
 
 const UserProfileSchema: z.ZodType<UserProfileType> = z
   .lazy(() =>
@@ -147,6 +325,16 @@ const UserProfileSchema: z.ZodType<UserProfileType> = z
     }),
   )
   .openapi('UserProfile')
+
+const ProfileSettingsSchema: z.ZodType<ProfileSettingsType> = z
+  .lazy(() =>
+    z.object({
+      privacy: z.string().exactOptional(),
+      notifications: z.boolean().exactOptional(),
+      profile: UserProfileSchema.exactOptional(),
+    }),
+  )
+  .openapi('ProfileSettings')
 
 const PostSchema: z.ZodType<PostType> = z
   .lazy(() =>
@@ -165,95 +353,6 @@ const PostSchema: z.ZodType<PostType> = z
   )
   .openapi('Post')
 
-type SocialUserType = {
-  id: string
-  username: string
-  profile?: z.infer<typeof UserProfileSchema>
-  followers?: SocialUserType[]
-  following?: SocialUserType[]
-  posts?: z.infer<typeof PostSchema>[]
-  blockedUsers?: SocialUserType[]
-}
-
-const SocialUserSchema: z.ZodType<SocialUserType> = z
-  .lazy(() =>
-    z
-      .object({
-        id: z.uuid(),
-        username: z.string(),
-        profile: UserProfileSchema.exactOptional(),
-        followers: z.array(SocialUserSchema).exactOptional(),
-        following: z.array(SocialUserSchema).exactOptional(),
-        posts: z.array(PostSchema).exactOptional(),
-        blockedUsers: z.array(SocialUserSchema).exactOptional(),
-      })
-      .openapi({ required: ['id', 'username'] }),
-  )
-  .openapi('SocialUser')
-
-const ProfileSettingsSchema: z.ZodType<ProfileSettingsType> = z
-  .lazy(() =>
-    z.object({
-      privacy: z.string().exactOptional(),
-      notifications: z.boolean().exactOptional(),
-      profile: UserProfileSchema.exactOptional(),
-    }),
-  )
-  .openapi('ProfileSettings')
-
-type UserProfileType = {
-  bio?: string
-  avatar?: string
-  user?: z.infer<typeof SocialUserSchema>
-  settings?: z.infer<typeof ProfileSettingsSchema>
-}
-
-type ProfileSettingsType = {
-  privacy?: string
-  notifications?: boolean
-  profile?: z.infer<typeof UserProfileSchema>
-}
-
-type PostType = {
-  id: string
-  content: string
-  author: z.infer<typeof SocialUserSchema>
-  likes?: z.infer<typeof SocialUserSchema>[]
-  reposts?: PostType[]
-  replyTo?: PostType
-  replies?: PostType[]
-  mentions?: z.infer<typeof SocialUserSchema>[]
-}
-
-const FilePermissionsSchema: z.ZodType<FilePermissionsType> = z
-  .lazy(() =>
-    z.object({
-      read: z.boolean().exactOptional(),
-      write: z.boolean().exactOptional(),
-      execute: z.boolean().exactOptional(),
-      acl: z.array(AccessControlEntrySchema).exactOptional(),
-    }),
-  )
-  .openapi('FilePermissions')
-
-const FileOwnerSchema: z.ZodType<FileOwnerType> = z
-  .lazy(() =>
-    z.object({
-      id: z.string().exactOptional(),
-      name: z.string().exactOptional(),
-      ownedFiles: z.array(FileSystemEntrySchema).exactOptional(),
-      homeDirectory: FileSystemEntrySchema.exactOptional(),
-    }),
-  )
-  .openapi('FileOwner')
-
-type FileSystemEntryType = {
-  name: string
-  type: 'file' | 'directory' | 'symlink'
-  permissions?: z.infer<typeof FilePermissionsSchema>
-  owner?: z.infer<typeof FileOwnerSchema>
-}
-
 const FileSystemEntrySchema: z.ZodType<FileSystemEntryType> = z
   .lazy(() =>
     z
@@ -267,6 +366,17 @@ const FileSystemEntrySchema: z.ZodType<FileSystemEntryType> = z
   )
   .openapi('FileSystemEntry')
 
+const FilePermissionsSchema: z.ZodType<FilePermissionsType> = z
+  .lazy(() =>
+    z.object({
+      read: z.boolean().exactOptional(),
+      write: z.boolean().exactOptional(),
+      execute: z.boolean().exactOptional(),
+      acl: z.array(AccessControlEntrySchema).exactOptional(),
+    }),
+  )
+  .openapi('FilePermissions')
+
 const AccessControlEntrySchema: z.ZodType<AccessControlEntryType> = z
   .lazy(() =>
     z.object({
@@ -277,25 +387,32 @@ const AccessControlEntrySchema: z.ZodType<AccessControlEntryType> = z
   )
   .openapi('AccessControlEntry')
 
-type FilePermissionsType = {
-  read?: boolean
-  write?: boolean
-  execute?: boolean
-  acl?: z.infer<typeof AccessControlEntrySchema>[]
-}
+const FileOwnerSchema: z.ZodType<FileOwnerType> = z
+  .lazy(() =>
+    z.object({
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      ownedFiles: z.array(FileSystemEntrySchema).exactOptional(),
+      homeDirectory: FileSystemEntrySchema.exactOptional(),
+    }),
+  )
+  .openapi('FileOwner')
 
-type AccessControlEntryType = {
-  principal?: z.infer<typeof FileOwnerSchema>
-  permissions?: z.infer<typeof FilePermissionsSchema>
-  entry?: z.infer<typeof FileSystemEntrySchema>
-}
-
-type FileOwnerType = {
-  id?: string
-  name?: string
-  ownedFiles?: z.infer<typeof FileSystemEntrySchema>[]
-  homeDirectory?: z.infer<typeof FileSystemEntrySchema>
-}
+const CommentSchema: z.ZodType<CommentType> = z
+  .lazy(() =>
+    z
+      .object({
+        id: z.uuid(),
+        content: z.string(),
+        author: CommentAuthorSchema.exactOptional(),
+        parent: CommentSchema.exactOptional(),
+        replies: z.array(CommentSchema).exactOptional(),
+        thread: CommentThreadSchema.exactOptional(),
+        quotedComment: CommentSchema.exactOptional(),
+      })
+      .openapi({ required: ['id', 'content'] }),
+  )
+  .openapi('Comment')
 
 const CommentAuthorSchema: z.ZodType<CommentAuthorType> = z
   .lazy(() =>
@@ -317,45 +434,19 @@ const CommentThreadSchema: z.ZodType<CommentThreadType> = z
   )
   .openapi('CommentThread')
 
-type CommentType = {
-  id: string
-  content: string
-  author?: z.infer<typeof CommentAuthorSchema>
-  parent?: CommentType
-  replies?: CommentType[]
-  thread?: z.infer<typeof CommentThreadSchema>
-  quotedComment?: CommentType
-}
-
-const CommentSchema: z.ZodType<CommentType> = z
+const ExpressionSchema: z.ZodType<ExpressionType> = z
   .lazy(() =>
-    z
-      .object({
-        id: z.uuid(),
-        content: z.string(),
-        author: CommentAuthorSchema.exactOptional(),
-        parent: CommentSchema.exactOptional(),
-        replies: z.array(CommentSchema).exactOptional(),
-        thread: CommentThreadSchema.exactOptional(),
-        quotedComment: CommentSchema.exactOptional(),
-      })
-      .openapi({ required: ['id', 'content'] }),
+    z.xor([
+      LiteralExpressionSchema,
+      BinaryExpressionSchema,
+      UnaryExpressionSchema,
+      ConditionalExpressionSchema,
+      FunctionCallExpressionSchema,
+    ]),
   )
-  .openapi('Comment')
+  .openapi('Expression')
 
-type CommentAuthorType = {
-  id?: string
-  name?: string
-  recentComments?: z.infer<typeof CommentSchema>[]
-}
-
-type CommentThreadType = {
-  id?: string
-  rootComment?: z.infer<typeof CommentSchema>
-  allComments?: z.infer<typeof CommentSchema>[]
-}
-
-const LiteralExpressionSchema = z
+const LiteralExpressionSchema: z.ZodType<LiteralExpressionType> = z
   .object({ type: z.literal('literal'), value: z.xor([z.string(), z.number(), z.boolean()]) })
   .openapi({ required: ['type', 'value'] })
   .openapi('LiteralExpression')
@@ -410,73 +501,6 @@ const FunctionCallExpressionSchema: z.ZodType<FunctionCallExpressionType> = z
   )
   .openapi('FunctionCallExpression')
 
-type ExpressionType =
-  | z.infer<typeof LiteralExpressionSchema>
-  | z.infer<typeof BinaryExpressionSchema>
-  | z.infer<typeof UnaryExpressionSchema>
-  | z.infer<typeof ConditionalExpressionSchema>
-  | z.infer<typeof FunctionCallExpressionSchema>
-
-const ExpressionSchema: z.ZodType<ExpressionType> = z
-  .lazy(() =>
-    z.xor([
-      LiteralExpressionSchema,
-      BinaryExpressionSchema,
-      UnaryExpressionSchema,
-      ConditionalExpressionSchema,
-      FunctionCallExpressionSchema,
-    ]),
-  )
-  .openapi('Expression')
-
-type BinaryExpressionType = {
-  type: 'binary'
-  operator: '+' | '-' | '*' | '/' | '==' | '!=' | '<' | '>' | '&&' | '||'
-  left: z.infer<typeof ExpressionSchema>
-  right: z.infer<typeof ExpressionSchema>
-}
-
-type UnaryExpressionType = {
-  type: 'unary'
-  operator: '-' | '!' | '~'
-  operand: z.infer<typeof ExpressionSchema>
-}
-
-type ConditionalExpressionType = {
-  type: 'conditional'
-  condition: z.infer<typeof ExpressionSchema>
-  consequent: z.infer<typeof ExpressionSchema>
-  alternate: z.infer<typeof ExpressionSchema>
-}
-
-type FunctionCallExpressionType = {
-  type: 'call'
-  callee: z.infer<typeof ExpressionSchema>
-  arguments: z.infer<typeof ExpressionSchema>[]
-}
-
-const CategorizedProductSchema: z.ZodType<CategorizedProductType> = z
-  .lazy(() =>
-    z.object({
-      id: z.string().exactOptional(),
-      name: z.string().exactOptional(),
-      primaryCategory: CategorySchema.exactOptional(),
-      secondaryCategories: z.array(CategorySchema).exactOptional(),
-    }),
-  )
-  .openapi('CategorizedProduct')
-
-type CategoryType = {
-  id: string
-  name: string
-  parent?: CategoryType
-  children?: CategoryType[]
-  ancestors?: CategoryType[]
-  descendants?: CategoryType[]
-  relatedCategories?: Record<string, CategoryType>
-  products?: z.infer<typeof CategorizedProductSchema>[]
-}
-
 const CategorySchema: z.ZodType<CategoryType> = z
   .lazy(() =>
     z
@@ -494,49 +518,16 @@ const CategorySchema: z.ZodType<CategoryType> = z
   )
   .openapi('Category')
 
-type CategorizedProductType = {
-  id?: string
-  name?: string
-  primaryCategory?: z.infer<typeof CategorySchema>
-  secondaryCategories?: z.infer<typeof CategorySchema>[]
-}
-
-const StateTransitionSchema: z.ZodType<StateTransitionType> = z
-  .lazy(() =>
-    z
-      .object({
-        event: z.string(),
-        sourceState: WorkflowStateSchema.exactOptional(),
-        targetState: WorkflowStateSchema,
-        guard: TransitionGuardSchema.exactOptional(),
-        actions: z.array(WorkflowActionSchema).exactOptional(),
-      })
-      .openapi({ required: ['event', 'targetState'] }),
-  )
-  .openapi('StateTransition')
-
-const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
+const CategorizedProductSchema: z.ZodType<CategorizedProductType> = z
   .lazy(() =>
     z.object({
-      type: z.string().exactOptional(),
-      config: z.object({}).exactOptional(),
-      nextAction: WorkflowActionSchema.exactOptional(),
-      fallbackAction: WorkflowActionSchema.exactOptional(),
-      triggerTransition: StateTransitionSchema.exactOptional(),
+      id: z.string().exactOptional(),
+      name: z.string().exactOptional(),
+      primaryCategory: CategorySchema.exactOptional(),
+      secondaryCategories: z.array(CategorySchema).exactOptional(),
     }),
   )
-  .openapi('WorkflowAction')
-
-type WorkflowStateType = {
-  id: string
-  name: string
-  description?: string
-  transitions?: z.infer<typeof StateTransitionSchema>[]
-  entryActions?: z.infer<typeof WorkflowActionSchema>[]
-  exitActions?: z.infer<typeof WorkflowActionSchema>[]
-  parentState?: WorkflowStateType
-  childStates?: WorkflowStateType[]
-}
+  .openapi('CategorizedProduct')
 
 const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
   .lazy(() =>
@@ -555,6 +546,20 @@ const WorkflowStateSchema: z.ZodType<WorkflowStateType> = z
   )
   .openapi('WorkflowState')
 
+const StateTransitionSchema: z.ZodType<StateTransitionType> = z
+  .lazy(() =>
+    z
+      .object({
+        event: z.string(),
+        sourceState: WorkflowStateSchema.exactOptional(),
+        targetState: WorkflowStateSchema,
+        guard: TransitionGuardSchema.exactOptional(),
+        actions: z.array(WorkflowActionSchema).exactOptional(),
+      })
+      .openapi({ required: ['event', 'targetState'] }),
+  )
+  .openapi('StateTransition')
+
 const TransitionGuardSchema: z.ZodType<TransitionGuardType> = z
   .lazy(() =>
     z.object({
@@ -564,26 +569,26 @@ const TransitionGuardSchema: z.ZodType<TransitionGuardType> = z
   )
   .openapi('TransitionGuard')
 
-type StateTransitionType = {
-  event: string
-  sourceState?: z.infer<typeof WorkflowStateSchema>
-  targetState: z.infer<typeof WorkflowStateSchema>
-  guard?: z.infer<typeof TransitionGuardSchema>
-  actions?: z.infer<typeof WorkflowActionSchema>[]
-}
+const WorkflowActionSchema: z.ZodType<WorkflowActionType> = z
+  .lazy(() =>
+    z.object({
+      type: z.string().exactOptional(),
+      config: z.object({}).exactOptional(),
+      nextAction: WorkflowActionSchema.exactOptional(),
+      fallbackAction: WorkflowActionSchema.exactOptional(),
+      triggerTransition: StateTransitionSchema.exactOptional(),
+    }),
+  )
+  .openapi('WorkflowAction')
 
-type TransitionGuardType = {
-  condition?: string
-  relatedTransitions?: z.infer<typeof StateTransitionSchema>[]
-}
-
-type WorkflowActionType = {
-  type?: string
-  config?: Record<string, unknown>
-  nextAction?: WorkflowActionType
-  fallbackAction?: WorkflowActionType
-  triggerTransition?: z.infer<typeof StateTransitionSchema>
-}
+const BaseEntitySchema: z.ZodType<BaseEntityType> = z
+  .lazy(() =>
+    z.object({
+      id: z.string().exactOptional(),
+      relatedEntity: ExtendedEntitySchema.exactOptional(),
+    }),
+  )
+  .openapi('BaseEntity')
 
 const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   .lazy(() =>
@@ -597,30 +602,6 @@ const ExtendedEntitySchema: z.ZodType<ExtendedEntityType> = z
   )
   .openapi('ExtendedEntity')
 
-type BaseEntityType = { id?: string; relatedEntity?: z.infer<typeof ExtendedEntitySchema> }
-
-const BaseEntitySchema: z.ZodType<BaseEntityType> = z
-  .lazy(() =>
-    z.object({
-      id: z.string().exactOptional(),
-      relatedEntity: ExtendedEntitySchema.exactOptional(),
-    }),
-  )
-  .openapi('BaseEntity')
-
-type ExtendedEntityType = z.infer<typeof BaseEntitySchema> & {
-  name?: string
-  parent?: ExtendedEntityType
-  baseReference?: z.infer<typeof BaseEntitySchema>
-}
-
-type RecursiveMapType = {
-  key?: string
-  value?: string
-  nested?: Record<string, RecursiveMapType>
-  items?: RecursiveMapType[]
-}
-
 const RecursiveMapSchema: z.ZodType<RecursiveMapType> = z
   .lazy(() =>
     z.object({
@@ -631,12 +612,6 @@ const RecursiveMapSchema: z.ZodType<RecursiveMapType> = z
     }),
   )
   .openapi('RecursiveMap')
-
-type NullableCircularType = {
-  id?: string
-  next?: NullableCircularType | (Record<string, unknown> | null)
-  prev?: { id?: string; next?: NullableCircularType } | null
-}
 
 const NullableCircularSchema: z.ZodType<NullableCircularType> = z
   .lazy(() =>
