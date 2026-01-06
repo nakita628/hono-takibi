@@ -66,14 +66,22 @@ export function makeImports(
     return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${prefix}/${key}`)
   }
 
+  // Find locally defined exports to exclude from imports
+  const defined = new Set(
+    Array.from(
+      code.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=/g),
+      (m) => m[1] ?? '',
+    ).filter(Boolean),
+  )
+
   const buildImport = (suffix: string, key: string): string => {
-    const tokens = [...findTokensBySuffix(code, suffix)].sort()
+    const tokens = [...findTokensBySuffix(code, suffix)].filter((t) => !defined.has(t)).sort()
     return tokens.length > 0 ? renderNamedImport(tokens, resolvePath(key)) : ''
   }
 
   // Schema tokens: all *Schema except *ParamsSchema and *HeaderSchema
   const schemas = findSchema(code)
-    .filter((t) => !(t.endsWith('ParamsSchema') || t.endsWith('HeaderSchema')))
+    .filter((t) => !(defined.has(t) || t.endsWith('ParamsSchema') || t.endsWith('HeaderSchema')))
     .sort()
   const schemaImport = schemas.length > 0 ? renderNamedImport(schemas, resolvePath('schemas')) : ''
 

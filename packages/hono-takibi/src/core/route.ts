@@ -5,21 +5,6 @@ import { core, makeBarell, makeImports } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { lowerFirst } from '../utils/index.js'
 
-// Extract route blocks from source code
-const extractRouteBlocks = (
-  src: string,
-): readonly { readonly name: string; readonly block: string }[] => {
-  const re = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g
-  const hits = Array.from(src.matchAll(re))
-    .map((m) => ({ name: (m[1] ?? '').trim(), start: m.index ?? 0 }))
-    .filter((h) => h.name.length > 0)
-
-  return hits.map((h, i) => ({
-    name: h.name,
-    block: src.slice(h.start, hits[i + 1]?.start ?? src.length).trim(),
-  }))
-}
-
 export async function route(
   openAPI: OpenAPI,
   routes?: {
@@ -36,27 +21,30 @@ export async function route(
   const routesSrc = routeCode(openAPI)
 
   // Write a single route file
-  const writeFile = async (
-    filePath: string,
-    src: string,
-  ): Promise<
-    { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-  > => {
+  const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, components, true)
     const result = await core(code, path.dirname(filePath), filePath)
-    return result.ok ? { ok: true, value: filePath } : { ok: false, error: result.error }
+    return result.ok ? { ok: true as const, value: filePath } : result
   }
 
   // Non-split mode: single file
   if (!split) {
-    const result = await writeFile(String(output), routesSrc)
+    const result = await writeFile(output, routesSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` }
   }
 
-  // Split mode
+  // Split mode: extract route blocks from source
   const outDir = output.replace(/\.ts$/, '')
-  const blocks = extractRouteBlocks(routesSrc)
+  const hits = Array.from(
+    routesSrc.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g),
+  )
+    .map((m) => ({ name: (m[1] ?? '').trim(), start: m.index ?? 0 }))
+    .filter((h) => h.name.length > 0)
+  const blocks = hits.map((h, i) => ({
+    name: h.name,
+    block: routesSrc.slice(h.start, hits[i + 1]?.start ?? routesSrc.length).trim(),
+  }))
 
   // No blocks found: write as single file
   if (blocks.length === 0) {
