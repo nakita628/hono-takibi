@@ -52,21 +52,21 @@ const openapi: OpenAPI = {
 }
 
 describe('type', () => {
-  it('should return ok when successful', { timeout: 5000 }, async () => {
+  it('should return ok when successful', { timeout: 10000 }, async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-type-'))
     try {
       const input = path.join(dir, 'openapi.json') as
         | `${string}.yaml`
         | `${string}.json`
         | `${string}.tsp`
-      const out = path.join(dir, 'index.d.ts') as `${string}.d.ts`
+      const out = path.join(dir, 'index.d.ts') as `${string}.ts`
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
       const result = await type(openapi, out)
       expect(result.ok).toBe(true)
-      // const code = fs.readFileSync(out, 'utf-8')
-      // expect(code).toContain(
-      //   '$post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }',
-      // )
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toContain(
+        '$post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }',
+      )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

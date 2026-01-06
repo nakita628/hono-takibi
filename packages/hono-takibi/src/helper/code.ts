@@ -1,11 +1,5 @@
 import path from 'node:path'
-import {
-  ensureSuffix,
-  findSchema,
-  findTokensBySuffix,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../utils/index.js'
 
 export type ImportTarget = {
   readonly output: string | `${string}.ts`
@@ -49,6 +43,19 @@ export function makeExportConst(value: { readonly [k: string]: unknown }, suffix
     .join('\n\n')
 }
 
+// Regex patterns for each OpenAPI component type
+// Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
+const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*(?<!Params)(?<!Header)Schema)\b/g, key: 'schemas' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*ParamsSchema)\b/g, key: 'parameters' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*RequestBody)\b/g, key: 'requestBodies' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Response)\b/g, key: 'responses' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*HeaderSchema)\b/g, key: 'headers' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Example)\b/g, key: 'examples' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Link)\b/g, key: 'links' },
+  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Callback)\b/g, key: 'callbacks' },
+]
+
 /**
  * Universal import generator.
  * @param isRoute - true for route files (createRoute), false for components (z only)
@@ -74,17 +81,6 @@ export function makeImports(
     ).filter(Boolean),
   )
 
-  const buildImport = (suffix: string, key: string): string => {
-    const tokens = [...findTokensBySuffix(code, suffix)].filter((t) => !defined.has(t)).sort()
-    return tokens.length > 0 ? renderNamedImport(tokens, resolvePath(key)) : ''
-  }
-
-  // Schema tokens: all *Schema except *ParamsSchema and *HeaderSchema
-  const schemas = findSchema(code)
-    .filter((t) => !(defined.has(t) || t.endsWith('ParamsSchema') || t.endsWith('HeaderSchema')))
-    .sort()
-  const schemaImport = schemas.length > 0 ? renderNamedImport(schemas, resolvePath('schemas')) : ''
-
   // Build hono import
   const needsZ = code.includes('z.')
   const honoLine = isRoute
@@ -93,17 +89,13 @@ export function makeImports(
       ? `import{z}from'@hono/zod-openapi'`
       : ''
 
-  // Build component imports in OpenAPI order
-  const imports = [
-    schemaImport,
-    buildImport('ParamsSchema', 'parameters'),
-    buildImport('RequestBody', 'requestBodies'),
-    buildImport('Response', 'responses'),
-    buildImport('HeaderSchema', 'headers'),
-    buildImport('Example', 'examples'),
-    buildImport('Link', 'links'),
-    buildImport('Callback', 'callbacks'),
-  ].filter(Boolean)
+  // Build component imports in OpenAPI order using regex patterns
+  const imports = IMPORT_PATTERNS.map(({ pattern, key }) => {
+    const tokens = Array.from(new Set(Array.from(code.matchAll(pattern), (m) => m[1] ?? '')))
+      .filter((t) => t && !defined.has(t))
+      .sort()
+    return tokens.length > 0 ? renderNamedImport(tokens, resolvePath(key)) : ''
+  }).filter(Boolean)
 
   return [honoLine, ...imports, '\n', code, ''].filter(Boolean).join('\n')
 }
