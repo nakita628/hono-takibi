@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { route } from './route'
+import { createRoute } from './create-route'
 
 // Test run
 // pnpm vitest run ./src/generator/zod-openapi-hono/openapi/routes/route.test.ts
 
 describe('route', () => {
-  it.concurrent('route Test', () => {
-    const result = route('/posts', 'post', {
+  it.concurrent('createRoute Test', () => {
+    const result = createRoute('/posts', 'post', {
       operationId: 'updatePost',
       tags: ['Hono'],
       description: undefined,

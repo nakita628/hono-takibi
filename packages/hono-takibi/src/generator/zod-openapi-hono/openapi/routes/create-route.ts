@@ -19,7 +19,7 @@ import { methodPath } from '../../../../utils/index.js'
  * - Escapes all string literals.
  * - Produces a complete `.openapi()` route definition with validation.
  */
-export function route(path: string, method: string, operation: Operation): string {
+export function createRoute(path: string, method: string, operation: Operation): string {
   const properties = [
     `method:'${method}'`,
     `path:'${path}'`,
