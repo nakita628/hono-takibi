@@ -101,10 +101,7 @@ Options:
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const ItemSchema = z
-  .object({ id: z.int().exactOptional().openapi({ type: 'integer' }) })
-  .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
-  .openapi('Item')
+export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -154,10 +151,7 @@ export const getItemsRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-const ItemSchema = z
-  .object({ id: z.int().exactOptional().openapi({ type: 'integer' }) })
-  .openapi({ type: 'object', properties: { id: { type: 'integer' } } })
-  .openapi('Item')
+const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
 
 export type Item = z.infer<typeof ItemSchema>
 
@@ -205,10 +199,7 @@ export const getItemsRoute = createRoute({
 
 export const ItemIdParamsSchema = z
   .string()
-  .openapi({
-    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-    type: 'string',
-  })
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export const getItemsIdRoute = createRoute({
   method: 'get',
@@ -253,10 +244,7 @@ export const getItemsIdRoute = createRoute({
 
 const ItemIdParamsSchema = z
   .string()
-  .openapi({
-    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-    type: 'string',
-  })
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
@@ -345,13 +333,7 @@ export const getSecureRoute = createRoute({
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const UserBodyRequestBody = {
-  content: {
-    'application/json': {
-      schema: z
-        .object({ name: z.string().exactOptional().openapi({ type: 'string' }) })
-        .openapi({ type: 'object', properties: { name: { type: 'string' } } }),
-    },
-  },
+  content: { 'application/json': { schema: z.object({ name: z.string().exactOptional() }) } },
   required: true,
 }
 
@@ -399,13 +381,7 @@ export const postUsersRoute = createRoute({
 
 export const UserListResponse = {
   description: 'List of users',
-  content: {
-    'application/json': {
-      schema: z
-        .array(z.object({}).openapi({ type: 'object' }))
-        .openapi({ type: 'array', items: { type: 'object' } }),
-    },
-  },
+  content: { 'application/json': { schema: z.array(z.object({})) } },
 }
 
 export const getUsersRoute = createRoute({
@@ -450,10 +426,7 @@ export const getUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const RateLimitHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit', type: 'integer' })
+export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -499,10 +472,7 @@ export const getUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-const RateLimitHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit', type: 'integer' })
+const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
 
 export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
 
@@ -565,10 +535,7 @@ export const getUsersRoute = createRoute({
     200: {
       description: 'Success',
       content: {
-        'application/json': {
-          schema: z.object({}).openapi({ type: 'object' }),
-          examples: { UserExample: UserExample },
-        },
+        'application/json': { schema: z.object({}), examples: { UserExample: UserExample } },
       },
     },
   },
@@ -623,10 +590,7 @@ export const getUsersIdRoute = createRoute({
     params: z.object({
       id: z
         .string()
-        .openapi({
-          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-          type: 'string',
-        }),
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
   },
   responses: { 200: { description: 'Success', links: { GetUserPosts: GetUserPostsLink } } },
@@ -679,9 +643,7 @@ export const getUsersIdRoute = createRoute({
 export const OnEventCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
-      requestBody: {
-        content: { 'application/json': { schema: z.object({}).openapi({ type: 'object' }) } },
-      },
+      requestBody: { content: { 'application/json': { schema: z.object({}) } } },
       responses: { 200: { description: 'OK' } },
     },
   },
@@ -694,11 +656,7 @@ export const postSubscribeRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': {
-          schema: z
-            .object({ callbackUrl: z.string().exactOptional().openapi({ type: 'string' }) })
-            .openapi({ type: 'object', properties: { callbackUrl: { type: 'string' } } }),
-        },
+        'application/json': { schema: z.object({ callbackUrl: z.string().exactOptional() }) },
       },
     },
   },
@@ -781,21 +739,14 @@ export const postSubscribeRoute = createRoute({
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const ItemSchema = z
-  .object({
-    id: z.int().exactOptional().openapi({ type: 'integer' }),
-    name: z.string().exactOptional().openapi({ type: 'string' }),
-  })
-  .openapi({ type: 'object', properties: { id: { type: 'integer' }, name: { type: 'string' } } })
+  .object({ id: z.int().exactOptional(), name: z.string().exactOptional() })
   .openapi('Item')
 
 export type Item = z.infer<typeof ItemSchema>
 
 export const ItemIdParamsSchema = z
   .string()
-  .openapi({
-    param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-    type: 'string',
-  })
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
@@ -806,10 +757,7 @@ export const ItemBodyRequestBody = {
   required: true,
 }
 
-export const RateLimitHeaderSchema = z
-  .int()
-  .exactOptional()
-  .openapi({ description: 'Rate limit', type: 'integer' })
+export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
 
 export const GetRelatedLink = {
   operationId: 'getRelated',

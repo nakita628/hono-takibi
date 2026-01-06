@@ -162,7 +162,6 @@ export function parseConfig(config: {
           error: `Invalid exportTypes format for components.${k}: ${String(exportTypesValue)}`,
         }
       }
-      const exportTypes = exportTypesValue ?? false
     }
 
     const splitValue = v.split
@@ -215,7 +214,6 @@ export function parseConfig(config: {
         error: `Invalid exportSchemasTypes format for zod-openapi: ${String(zo.exportSchemasTypes)}`,
       }
     }
-    const exportSchemasTypes = zo.exportSchemasTypes ?? false
 
     if (zo.exportSchemas !== undefined && typeof zo.exportSchemas !== 'boolean') {
       return {
@@ -231,7 +229,6 @@ export function parseConfig(config: {
         error: `Invalid exportParametersTypes format for zod-openapi: ${String(zo.exportParametersTypes)}`,
       }
     }
-    const exportParametersTypes = zo.exportParametersTypes ?? false
 
     if (zo.exportParameters !== undefined && typeof zo.exportParameters !== 'boolean') {
       return {
@@ -249,7 +246,6 @@ export function parseConfig(config: {
         )}`,
       }
     }
-    const exportSecuritySchemes = zo.exportSecuritySchemes ?? false
 
     if (zo.exportRequestBodies !== undefined && typeof zo.exportRequestBodies !== 'boolean') {
       return {
@@ -259,8 +255,6 @@ export function parseConfig(config: {
         )}`,
       }
     }
-    const exportRequestBodies = zo.exportRequestBodies ?? false
-
     if (zo.exportResponses !== undefined && typeof zo.exportResponses !== 'boolean') {
       return {
         ok: false,
@@ -275,7 +269,6 @@ export function parseConfig(config: {
         error: `Invalid exportHeadersTypes format for zod-openapi: ${String(zo.exportHeadersTypes)}`,
       }
     }
-    const exportHeadersTypes = zo.exportHeadersTypes ?? false
 
     if (zo.exportHeaders !== undefined && typeof zo.exportHeaders !== 'boolean') {
       return {
@@ -283,7 +276,6 @@ export function parseConfig(config: {
         error: `Invalid exportHeaders format for zod-openapi: ${String(zo.exportHeaders)}`,
       }
     }
-    const exportHeaders = zo.exportHeaders ?? false
 
     if (zo.exportExamples !== undefined && typeof zo.exportExamples !== 'boolean') {
       return {
@@ -291,7 +283,6 @@ export function parseConfig(config: {
         error: `Invalid exportExamples format for zod-openapi: ${String(zo.exportExamples)}`,
       }
     }
-    const exportExamples = zo.exportExamples ?? false
 
     if (zo.exportLinks !== undefined && typeof zo.exportLinks !== 'boolean') {
       return {
@@ -299,15 +290,12 @@ export function parseConfig(config: {
         error: `Invalid exportLinks format for zod-openapi: ${String(zo.exportLinks)}`,
       }
     }
-    const exportLinks = zo.exportLinks ?? false
-
     if (zo.exportCallbacks !== undefined && typeof zo.exportCallbacks !== 'boolean') {
       return {
         ok: false,
         error: `Invalid exportCallbacks format for zod-openapi: ${String(zo.exportCallbacks)}`,
       }
     }
-    const exportCallbacks = zo.exportCallbacks ?? false
   }
 
   const routes = zo?.routes
@@ -722,11 +710,26 @@ export function getToSafeIdentifier(text: string): string {
 }
 
 export function toIdentifierPascalCase(text: string): string {
-  return text
+  // Check if text contains non-ASCII characters (char code > 127)
+  const hasNonAscii = Array.from(text).some((c) => c.charCodeAt(0) > 127)
+  const result = text
     .replace(/[^A-Za-z0-9_$]/g, '_') // invalid character to _
+    .replace(/_+/g, '_') // collapse consecutive underscores to one
+    .replace(/^_+|_+$/g, '') // trim leading/trailing underscores
     .replace(/^([0-9])/, '_$1') // if starts with number, add _
     .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase()) // _letter to uppercase (e.g. _letter -> Letter)
     .replace(/^([a-z])/, (_, c) => c.toUpperCase()) // first letter to uppercase (e.g. letter -> Letter)
+  // Fallback if result is empty or only underscores (e.g. all non-ASCII input like Japanese)
+  if (!result || /^_+$/.test(result)) {
+    const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    return `Unnamed${hash}`
+  }
+  // If text contained non-ASCII, append hash for uniqueness
+  if (hasNonAscii) {
+    const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    return `${result}${hash}`
+  }
+  return result
 }
 
 /**

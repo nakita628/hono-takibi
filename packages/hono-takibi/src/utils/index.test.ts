@@ -670,7 +670,7 @@ describe('utils', () => {
       ['foo-bar', 'FooBar'],
       ['foo@bar!baz', 'FooBarBaz'],
       ['post.title', 'PostTitle'],
-      ['テスト', '___'],
+      ['テスト', 'Unnamed37447'],
       ['123startWithNumber', '_123startWithNumber'],
     ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
       expect(toIdentifierPascalCase(input)).toBe(expected)

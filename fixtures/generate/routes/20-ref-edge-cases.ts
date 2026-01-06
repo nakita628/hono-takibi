@@ -94,15 +94,25 @@ const AnyValueSchema = z.any().openapi('AnyValue')
 
 const NullOnlySchema = z.null().nullable().openapi('NullOnly')
 
-type _______Type = { 名前?: string; 値?: number; 子要素?: _______Type[] }
+type Unnamed137967Type = { 名前?: string; 値?: number; 子要素?: Unnamed137967Type[] }
 
-const Schema = z
-  .object({ имя: z.string().exactOptional(), значение: z.number().exactOptional() })
-  .openapi('_____________')
+const Schema138560: z.ZodType<Unnamed137967Type> = z
+  .lazy(() =>
+    z.object({
+      名前: z.string().exactOptional(),
+      値: z.number().exactOptional(),
+      子要素: z.array(Schema138560).exactOptional(),
+    }),
+  )
+  .openapi('Unnamed137967')
 
-const SchMaFranAisSchema = z
+const SchMaFranAisSchema2352 = z
   .object({ prénom: z.string().exactOptional(), nom: z.string().exactOptional() })
-  .openapi('SchMaFranAis')
+  .openapi('SchMaFranAis1759')
+
+const Schema13639 = z
+  .object({ имя: z.string().exactOptional(), значение: z.number().exactOptional() })
+  .openapi('Unnamed13046')
 
 const SchemaWithUnderscoresSchema = z
   .object({ field_one: z.string().exactOptional(), field_two: z.string().exactOptional() })
@@ -379,7 +389,7 @@ export const getUnicodeRefsRoute = createRoute({
   path: '/unicode-refs',
   operationId: 'getUnicodeRefs',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: _______Schema } } },
+    200: { description: 'OK', content: { 'application/json': { schema: Schema138560 } } },
   },
 })
 

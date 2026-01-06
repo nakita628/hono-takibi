@@ -128,12 +128,8 @@ export const getHonoRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ message: z.string().openapi({ type: 'string', example: 'Hono🔥' }) })
-            .openapi({
-              type: 'object',
-              properties: { message: { type: 'string', example: 'Hono🔥' } },
-              required: ['message'],
-            }),
+            .object({ message: z.string().openapi({ example: 'Hono🔥' }) })
+            .openapi({ required: ['message'] }),
         },
       },
     },
@@ -152,12 +148,8 @@ export const getHonoXRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ message: z.string().openapi({ type: 'string', example: 'HonoX🔥' }) })
-            .openapi({
-              type: 'object',
-              properties: { message: { type: 'string', example: 'HonoX🔥' } },
-              required: ['message'],
-            }),
+            .object({ message: z.string().openapi({ example: 'HonoX🔥' }) })
+            .openapi({ required: ['message'] }),
         },
       },
     },
@@ -176,14 +168,8 @@ export const getZodOpenapiHonoRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              message: z.string().openapi({ type: 'string', example: 'ZodOpenAPIHono🔥' }),
-            })
-            .openapi({
-              type: 'object',
-              properties: { message: { type: 'string', example: 'ZodOpenAPIHono🔥' } },
-              required: ['message'],
-            }),
+            .object({ message: z.string().openapi({ example: 'ZodOpenAPIHono🔥' }) })
+            .openapi({ required: ['message'] }),
         },
       },
     },

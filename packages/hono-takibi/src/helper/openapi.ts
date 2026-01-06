@@ -14,7 +14,12 @@ import type {
   Responses,
   Schema,
 } from '../openapi/index.js'
-import { getToSafeIdentifier, requestParamsArray, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  getToSafeIdentifier,
+  requestParamsArray,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 
 /**
  * generates a reference to the given $ref string.
@@ -27,41 +32,44 @@ export function makeRef($ref: string): string {
   // The OpenAPI $ref is preserved in the .openapi() metadata for runtime accuracy
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
-    const schemaName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-    const parentSchema = schemaName.endsWith('Schema') ? schemaName : `${schemaName}Schema`
+    // Use the same transformation as definition side: ensureSuffix first, then toIdentifierPascalCase
+    const parentSchema = toIdentifierPascalCase(
+      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
+    )
     return `z.lazy(() => ${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
-  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  const decodedRef = decodeURIComponent(rawRef)
+  // Use the same transformation as definition side for each component type
   if ($ref.startsWith('#/components/schemas/')) {
-    return refName.endsWith('Schema') ? refName : `${refName}Schema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
   }
   if ($ref.startsWith('#/components/parameters/')) {
-    return refName.endsWith('ParamsSchema') ? refName : `${refName}ParamsSchema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'ParamsSchema'))
   }
   if ($ref.startsWith('#/components/headers/')) {
-    return refName.endsWith('HeaderSchema') ? refName : `${refName}HeaderSchema`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'HeaderSchema'))
   }
   if ($ref.startsWith('#/components/securitySchemes/')) {
-    return refName.endsWith('SecurityScheme') ? refName : `${refName}SecurityScheme`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'SecurityScheme'))
   }
   if ($ref.startsWith('#/components/requestBodies/')) {
-    return refName.endsWith('RequestBody') ? refName : `${refName}RequestBody`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'RequestBody'))
   }
   if ($ref.startsWith('#/components/responses/')) {
-    return refName.endsWith('Response') ? refName : `${refName}Response`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Response'))
   }
   if ($ref.startsWith('#/components/examples/')) {
-    return refName.endsWith('Example') ? refName : `${refName}Example`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Example'))
   }
   if ($ref.startsWith('#/components/links/')) {
-    return refName.endsWith('Link') ? refName : `${refName}Link`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Link'))
   }
   if ($ref.startsWith('#/components/callbacks/')) {
-    return refName.endsWith('Callback') ? refName : `${refName}Callback`
+    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Callback'))
   }
-  return `${refName}Schema`
+  return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
 }
 
 /**
