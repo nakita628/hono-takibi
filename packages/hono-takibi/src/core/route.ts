@@ -45,7 +45,7 @@ const extractRouteBlocks = (
 // Generate Hono import statement
 const makeHonoImport = (src: string): string => {
   const includeZ = src.includes('z.')
-  return `import { createRoute${includeZ ? ', z' : ''} } from '@hono/zod-openapi'`
+  return `import{createRoute${includeZ ? ',z' : ''}}from'@hono/zod-openapi'`
 }
 
 // Build complete source with imports

@@ -47,7 +47,7 @@ describe('headersCode', () => {
     expect(result).toBe(
       `export const XTokenHeaderSchema=z.string().exactOptional()
 
-export type XTokenHeader = z.infer<typeof XTokenHeaderSchema>`,
+export type XTokenHeader=z.infer<typeof XTokenHeaderSchema>`,
     )
   })
 })

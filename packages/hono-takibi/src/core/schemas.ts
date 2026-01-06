@@ -216,11 +216,11 @@ export async function schemas(
           : ''
         const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
 
-        const importZ = `import { z } from '@hono/zod-openapi'`
+        const importZ = `import{z}from'@hono/zod-openapi'`
         const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
         const depImports =
           deps.length > 0
-            ? deps.map((d) => `import { ${d}Schema } from './${lowerFirst(d)}'`).join('\n')
+            ? deps.map((d) => `import{${d}Schema}from'./${lowerFirst(d)}'`).join('\n')
             : ''
         const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
         const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
@@ -254,7 +254,7 @@ export async function schemas(
 
   const sortedBlocks = sortSchemaBlocks(schemaBlocks)
   const schemaDefinitions = sortedBlocks.map((block) => block.code).join('\n\n')
-  const importCode = `import { z } from '@hono/zod-openapi'`
+  const importCode = `import{z}from'@hono/zod-openapi'`
   const schemaDefinitionsCode = `${importCode}\n\n${schemaDefinitions}`
   const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

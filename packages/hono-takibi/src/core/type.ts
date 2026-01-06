@@ -60,12 +60,12 @@ export async function type(
     const routeMappings = getRouteMaps(openAPI)
 
     const appInit =
-      'export const api = app' +
+      'export const api=app' +
       routeMappings
         .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
         .join('')
 
-    const code = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'\n${hono}\nconst app = new OpenAPIHono()\n${routes.join('\n')}\n${appInit}\nexport type AddType = typeof api`
+    const code = `import{OpenAPIHono,type RouteHandler}from'@hono/zod-openapi'\n${hono}\nconst app=new OpenAPIHono()\n${routes.join('\n')}\n${appInit}\nexport type AddType=typeof api`
 
     const honoType = apiType(code)
 

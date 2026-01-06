@@ -38,7 +38,7 @@ describe('componentsCode Test', () => {
     })
     const expected = `export const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
-export type Test = z.infer<typeof TestSchema>`
+export type Test=z.infer<typeof TestSchema>`
     expect(result).toBe(expected)
   })
   // #2: exportSchemasTypes=true, exportSchemas=false
@@ -59,7 +59,7 @@ export type Test = z.infer<typeof TestSchema>`
     })
     const expected = `const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
-export type Test = z.infer<typeof TestSchema>`
+export type Test=z.infer<typeof TestSchema>`
     expect(result).toBe(expected)
   })
   // #3: exportSchemasTypes=false, exportSchemas=true

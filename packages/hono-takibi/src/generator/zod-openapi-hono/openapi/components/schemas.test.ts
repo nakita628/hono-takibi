@@ -33,7 +33,7 @@ describe('schemasCode', () => {
     expect(result).toBe(
       `export const UserSchema=z.object({id:z.int(),name:z.string()}).openapi({"required":["id","name"]}).openapi('User')
 
-export type User = z.infer<typeof UserSchema>`,
+export type User=z.infer<typeof UserSchema>`,
     )
   })
 
@@ -79,7 +79,7 @@ export type User = z.infer<typeof UserSchema>`,
     expect(result).toBe(
       `const TestSchema=z.string().openapi('Test')
 
-export type Test = z.infer<typeof TestSchema>`,
+export type Test=z.infer<typeof TestSchema>`,
     )
   })
 })

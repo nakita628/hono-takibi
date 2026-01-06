@@ -747,7 +747,7 @@ export function renderNamedImport(
 ): string {
   const unique = Array.from(new Set(names))
   const list = options?.sort ? [...unique].sort() : unique
-  return list.length > 0 ? `import { ${list.join(',')} } from '${spec}'` : ''
+  return list.length > 0 ? `import{${list.join(',')}}from'${spec}'` : ''
 }
 
 /**
@@ -822,7 +822,7 @@ export function zodToOpenAPISchema(
     : `const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
   // zod infer code
   const zodInferCode = exportType
-    ? `\n\nexport type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>`
+    ? `\n\nexport type ${schemaName.replace('Schema', '')}=z.infer<typeof ${schemaName}>`
     : ''
 
   if (notComponentSchema) return `${schemaCode}${zodInferCode}`

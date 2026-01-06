@@ -58,7 +58,7 @@ describe('parametersCode', () => {
     expect(result).toBe(
       `export const LimitParamsSchema=z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})
 
-export type LimitParams = z.infer<typeof LimitParamsSchema>`,
+export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 })

@@ -102,7 +102,7 @@ const makeFileCode = (
   schemaPath: string,
   extraImports: readonly ExtraImportConfig[],
 ): string => {
-  const importZ = code.includes('z.') ? `import { z } from '@hono/zod-openapi'` : ''
+  const importZ = code.includes('z.') ? `import{z}from'@hono/zod-openapi'` : ''
   const defined = findDefinedSchemas(code)
   const schemaTokens = findSchema(code).filter((t) => !defined.has(t))
   const importSchemas = schemaTokens.length > 0 ? renderNamedImport(schemaTokens, schemaPath) : ''

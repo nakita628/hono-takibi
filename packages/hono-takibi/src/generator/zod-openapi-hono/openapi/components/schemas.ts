@@ -240,7 +240,7 @@ export function schemasCode(
       : `const ${variableName}${needsTypeAnnotation ? returnValue : ''}=${z}.openapi('${safeSchemaName}')`
 
     const zodInferCode = exportSchemasTypes
-      ? `\n\nexport type ${toIdentifierPascalCase(schemaName)} = z.infer<typeof ${variableName}>`
+      ? `\n\nexport type ${toIdentifierPascalCase(schemaName)}=z.infer<typeof ${variableName}>`
       : ''
 
     return `${schemaCode}${zodInferCode}`
