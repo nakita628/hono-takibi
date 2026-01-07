@@ -3,21 +3,22 @@ import { headersCode } from '../generator/zod-openapi-hono/openapi/components/he
 import { parametersCode } from '../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { requestBodiesCode } from '../generator/zod-openapi-hono/openapi/components/request-bodies.js'
 import { responsesCode } from '../generator/zod-openapi-hono/openapi/components/responses.js'
+import { schemasCode } from '../generator/zod-openapi-hono/openapi/components/schemas.js'
 import type { ComponentImports } from '../helper/code.js'
-import { core, makeBarell, makeExportConst, makeExports, makeImports } from '../helper/index.js'
+import {
+  analyzeCircularSchemas,
+  ast,
+  core,
+  makeBarell,
+  makeExportConst,
+  makeExports,
+  makeImports,
+  makeSplitSchemaFile,
+} from '../helper/index.js'
 import type { Components } from '../openapi/index.js'
-import { lowerFirst } from '../utils/index.js'
+import { lowerFirst, renderNamedImport } from '../utils/index.js'
 
-const zodCodeGenerators: Readonly<
-  Record<string, (data: Components, exportConst: boolean, exportType: boolean) => string>
-> = {
-  Header: (data, exportConst, exportType) => headersCode(data, exportConst, exportType),
-  Parameter: (data, exportConst, exportType) => parametersCode(data, exportConst, exportType),
-  RequestBody: (data, exportConst) => requestBodiesCode(data, exportConst),
-  Response: (data, exportConst) => responsesCode(data, exportConst),
-}
-
-const componentKeyMap: Readonly<Record<string, keyof Components>> = {
+const componentKeyMap = {
   Schema: 'schemas',
   Parameter: 'parameters',
   SecurityScheme: 'securitySchemes',
@@ -27,20 +28,26 @@ const componentKeyMap: Readonly<Record<string, keyof Components>> = {
   Example: 'examples',
   Link: 'links',
   Callback: 'callbacks',
+} as const satisfies Readonly<Record<string, keyof Components>>
+
+const zodCodeGenerators: Readonly<
+  Partial<
+    Record<
+      keyof typeof componentKeyMap,
+      (data: Components, exportConst: boolean, exportType: boolean) => string
+    >
+  >
+> = {
+  Schema: (data, exportConst, exportType) => schemasCode(data, exportConst, exportType),
+  Header: (data, exportConst, exportType) => headersCode(data, exportConst, exportType),
+  Parameter: (data, exportConst, exportType) => parametersCode(data, exportConst, exportType),
+  RequestBody: (data, exportConst) => requestBodiesCode(data, exportConst),
+  Response: (data, exportConst) => responsesCode(data, exportConst),
 }
 
 export async function componentsCore(
   components: Components,
-  suffix:
-    | 'Schema'
-    | 'Parameter'
-    | 'SecurityScheme'
-    | 'RequestBody'
-    | 'Response'
-    | 'Header'
-    | 'Example'
-    | 'Link'
-    | 'Callback',
+  suffix: keyof typeof componentKeyMap,
   output: string | `${string}.ts`,
   split?: boolean,
   exportType?: boolean,
@@ -53,11 +60,61 @@ export async function componentsCore(
   const componentKey = componentKeyMap[suffix] ?? 'schemas'
   const generator = zodCodeGenerators[suffix]
 
-  // For Zod schema generation (Header, Parameter, RequestBody, Response)
+  // For Zod schema generation (Schema, Header, Parameter, RequestBody, Response)
   if (suffix in zodCodeGenerators && generator) {
     const prefix = split ? '..' : '.'
     const toFileCode = (code: string, filePath: string) =>
       makeImports(code, filePath, imports, false, prefix)
+
+    // Schema-specific split handling with dependency imports
+    if (suffix === 'Schema' && split) {
+      const schemas = components.schemas
+      if (!schemas) return { ok: false, error: 'No schemas found' }
+      const schemaNames = Object.keys(schemas)
+      if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' }
+
+      const outDir = String(output).replace(/\.ts$/, '')
+      const analysis = analyzeCircularSchemas(schemas, schemaNames)
+
+      const allResults = await Promise.all([
+        ...schemaNames.map((schemaName) => {
+          const fileCode = makeSplitSchemaFile(
+            schemaName,
+            schemas[schemaName],
+            schemas,
+            analysis,
+            exportType ?? false,
+          )
+          const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
+          return core(fileCode, path.dirname(filePath), filePath)
+        }),
+        core(makeBarell(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
+      ])
+
+      const firstError = allResults.find((r) => !r.ok)
+      if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
+
+      return {
+        ok: true,
+        value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
+      }
+    }
+
+    // Schema-specific non-split handling with sortByDependencies
+    if (suffix === 'Schema' && !split) {
+      const schemas = components.schemas
+      if (!schemas) return { ok: false, error: 'No schemas found' }
+      const schemaNames = Object.keys(schemas)
+      if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' }
+
+      const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
+      const schemaDefinitions = generator(components, true, exportType ?? false)
+      const sorted = ast(schemaDefinitions)
+      const schemaDefinitionsCode = `${importCode}\n\n${sorted}`
+      const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)
+      if (!coreResult.ok) return { ok: false, error: coreResult.error }
+      return { ok: true, value: `Generated schema code written to ${output}` }
+    }
 
     if (split) {
       const outDir = String(output).replace(/\.ts$/, '')

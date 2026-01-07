@@ -1,6 +1,11 @@
 import { zodType } from '../generator/zod-to-openapi/type/index.js'
 import type { Schema } from '../openapi/index.js'
-import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import {
+  ensureSuffix,
+  lowerFirst,
+  renderNamedImport,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 import type { CircularAnalysis } from './ast.js'
 
 export function makeSchemaInfo(
@@ -92,4 +97,40 @@ export function makeTypeDefinitions(
   }
 
   return typeDefs
+}
+
+export function findSchemaRefs(code: string, selfName: string): readonly string[] {
+  const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
+  const found = new Set<string>()
+  for (const m of code.matchAll(re)) {
+    const base = m[1] ?? ''
+    if (base && base !== selfName) found.add(base)
+  }
+  return [...found]
+}
+
+export function makeSplitSchemaFile(
+  schemaName: string,
+  schema: Schema,
+  schemas: Record<string, Schema>,
+  analysis: CircularAnalysis,
+  exportType: boolean,
+): string {
+  const info = makeSchemaInfo(schemaName, schema, analysis)
+
+  const typeDefinition = info.needsTypeDef
+    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal)}\n\n`
+    : ''
+
+  const schemaCode = makeSchemaCode(info, { exportKeyword: 'export ', exportType })
+  const content = `${typeDefinition}${schemaCode}`
+
+  const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)
+  const depImports =
+    deps.length > 0
+      ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${lowerFirst(d)}`)).join('\n')
+      : ''
+
+  const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
+  return [importZ, depImports, '\n', content].filter(Boolean).join('\n')
 }

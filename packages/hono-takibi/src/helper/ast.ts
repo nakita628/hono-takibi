@@ -268,5 +268,3 @@ export function ast(code: string): string {
     .map((d) => d.fullText)
     .join('\n\n')
 }
-
-export const sortByDependencies = ast

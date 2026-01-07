@@ -23,9 +23,11 @@ export {
   makeResponses,
 } from './openapi.js'
 export {
+  findSchemaRefs,
   makeSchemaCode,
   makeSchemaInfo,
   makeSchemaInfos,
+  makeSplitSchemaFile,
   makeTypeDefinition,
   makeTypeDefinitions,
 } from './schema.js'

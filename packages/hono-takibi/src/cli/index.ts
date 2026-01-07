@@ -4,7 +4,6 @@ import { config } from '../config/index.js'
 import { componentsCore } from '../core/index.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
-import { schemas } from '../core/schemas.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -96,11 +95,12 @@ export async function honoTakibi(): Promise<
         })
       : Promise.resolve(undefined),
     components?.schemas
-      ? schemas(
-          openAPI,
+      ? componentsCore(
+          { schemas: openAPI.components?.schemas ?? {} },
+          'Schema',
           components.schemas.output,
-          components.schemas.exportTypes ?? false,
           components.schemas.split ?? false,
+          components.schemas.exportTypes ?? false,
         )
       : Promise.resolve(undefined),
     components?.parameters
