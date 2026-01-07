@@ -10,18 +10,21 @@ import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 const createSourceFile = (code: string): ts.SourceFile =>
   ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
 
+const getChildren = (node: ts.Node): readonly ts.Node[] => {
+  const result: ts.Node[] = []
+  ts.forEachChild(node, (child) => {
+    result.push(child)
+  })
+  return result
+}
+
 const collectIdentifiers = (node: ts.Node): readonly string[] => {
-  const identifiers: string[] = []
-
-  const visit = (n: ts.Node): void => {
-    if (ts.isIdentifier(n)) {
-      identifiers.push(n.text)
-    }
-    ts.forEachChild(n, visit)
+  const visit = (n: ts.Node): readonly string[] => {
+    const current = ts.isIdentifier(n) ? [n.text] : []
+    const children = getChildren(n).flatMap(visit)
+    return [...current, ...children]
   }
-
-  visit(node)
-  return identifiers
+  return visit(node)
 }
 
 const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readonly string[] => {
@@ -36,12 +39,38 @@ const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readon
 // =============================================================================
 
 type TarjanState = {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: string[]
-  readonly sccs: string[][]
-  index: number
+  readonly indices: ReadonlyMap<string, number>
+  readonly lowLinks: ReadonlyMap<string, number>
+  readonly onStack: ReadonlySet<string>
+  readonly stack: readonly string[]
+  readonly sccs: readonly (readonly string[])[]
+  readonly index: number
+}
+
+const createInitialState = (): TarjanState => ({
+  indices: new Map(),
+  lowLinks: new Map(),
+  onStack: new Set(),
+  stack: [],
+  sccs: [],
+  index: 0,
+})
+
+const popStackUntil = (
+  stack: readonly string[],
+  onStack: ReadonlySet<string>,
+  name: string,
+): {
+  readonly scc: readonly string[]
+  readonly newStack: readonly string[]
+  readonly newOnStack: ReadonlySet<string>
+} => {
+  const idx = stack.lastIndexOf(name)
+  if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
+  const scc = stack.slice(idx)
+  const newStack = stack.slice(0, idx)
+  const newOnStack = new Set([...onStack].filter((n) => !scc.includes(n)))
+  return { scc, newStack, newOnStack }
 }
 
 const tarjanConnect = (
@@ -49,42 +78,57 @@ const tarjanConnect = (
   deps: ReadonlyMap<string, readonly string[]>,
   var2name: ReadonlyMap<string, string>,
   state: TarjanState,
-): void => {
-  const currentIndex = state.index++
-  state.indices.set(name, currentIndex)
-  state.lowLinks.set(name, currentIndex)
-  state.stack.push(name)
-  state.onStack.add(name)
+): TarjanState => {
+  const currentIndex = state.index
+  const indices: ReadonlyMap<string, number> = new Map(state.indices).set(name, currentIndex)
+  const lowLinks: ReadonlyMap<string, number> = new Map(state.lowLinks).set(name, currentIndex)
+  const stack: readonly string[] = [...state.stack, name]
+  const onStack: ReadonlySet<string> = new Set([...state.onStack, name])
 
-  for (const depVar of deps.get(name) ?? []) {
+  const initialState: TarjanState = {
+    ...state,
+    indices,
+    lowLinks,
+    stack,
+    onStack,
+    index: currentIndex + 1,
+  }
+
+  const afterDeps = (deps.get(name) ?? []).reduce<TarjanState>((s, depVar) => {
     const depName = var2name.get(depVar)
-    if (depName === undefined) continue
+    if (depName === undefined) return s
 
-    if (!state.indices.has(depName)) {
-      tarjanConnect(depName, deps, var2name, state)
-      state.lowLinks.set(
-        name,
-        Math.min(state.lowLinks.get(name) ?? 0, state.lowLinks.get(depName) ?? 0),
+    if (!s.indices.has(depName)) {
+      const afterConnect = tarjanConnect(depName, deps, var2name, s)
+      const newLowLink = Math.min(
+        afterConnect.lowLinks.get(name) ?? 0,
+        afterConnect.lowLinks.get(depName) ?? 0,
       )
-    } else if (state.onStack.has(depName)) {
-      state.lowLinks.set(
+      const updatedLowLinks: ReadonlyMap<string, number> = new Map(afterConnect.lowLinks).set(
         name,
-        Math.min(state.lowLinks.get(name) ?? 0, state.indices.get(depName) ?? 0),
+        newLowLink,
       )
+      return { ...afterConnect, lowLinks: updatedLowLinks }
+    }
+    if (s.onStack.has(depName)) {
+      const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
+      const updatedLowLinks: ReadonlyMap<string, number> = new Map(s.lowLinks).set(name, newLowLink)
+      return { ...s, lowLinks: updatedLowLinks }
+    }
+    return s
+  }, initialState)
+
+  if (afterDeps.lowLinks.get(name) === afterDeps.indices.get(name)) {
+    const { scc, newStack, newOnStack } = popStackUntil(afterDeps.stack, afterDeps.onStack, name)
+    return {
+      ...afterDeps,
+      stack: newStack,
+      onStack: newOnStack,
+      sccs: [...afterDeps.sccs, scc],
     }
   }
 
-  if (state.lowLinks.get(name) === state.indices.get(name)) {
-    const scc: string[] = []
-    for (;;) {
-      const node = state.stack.pop()
-      if (node === undefined) break
-      state.onStack.delete(node)
-      scc.push(node)
-      if (node === name) break
-    }
-    state.sccs.push(scc)
-  }
+  return afterDeps
 }
 
 const findCyclicSchemas = (
@@ -93,22 +137,15 @@ const findCyclicSchemas = (
 ): ReadonlySet<string> => {
   const name2var = new Map(names.map((n) => [n, toIdentifierPascalCase(ensureSuffix(n, 'Schema'))]))
   const var2name = new Map(names.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]))
-  const state: TarjanState = {
-    indices: new Map(),
-    lowLinks: new Map(),
-    onStack: new Set(),
-    stack: [],
-    sccs: [],
-    index: 0,
-  }
 
-  for (const n of names) {
-    if (!state.indices.has(n)) tarjanConnect(n, deps, var2name, state)
-  }
+  const finalState = names.reduce(
+    (state, n) => (state.indices.has(n) ? state : tarjanConnect(n, deps, var2name, state)),
+    createInitialState(),
+  )
 
   return new Set(
-    state.sccs.flatMap((scc) => {
-      if (scc.length > 1) return scc
+    finalState.sccs.flatMap((scc) => {
+      if (scc.length > 1) return [...scc]
       const single = scc[0]
       if (!single) return []
       const selfVar = name2var.get(single)
@@ -237,27 +274,32 @@ const parseStatements = (sourceFile: ts.SourceFile): readonly Declaration[] => {
 
 const topoSort = (decls: readonly Declaration[]): readonly Declaration[] => {
   const map = new Map(decls.map((d) => [d.name, d]))
-  const sorted: Declaration[] = []
-  const perm = new Set<string>()
-  const temp = new Set<string>()
 
-  const visit = (name: string): void => {
-    if (perm.has(name) || temp.has(name)) return
+  type State = {
+    readonly sorted: readonly Declaration[]
+    readonly perm: ReadonlySet<string>
+    readonly temp: ReadonlySet<string>
+  }
+
+  const visit = (name: string, state: State): State => {
+    if (state.perm.has(name) || state.temp.has(name)) return state
     const decl = map.get(name)
-    if (!decl) return
-    temp.add(name)
-    for (const ref of decl.refs) {
-      if (map.has(ref)) visit(ref)
+    if (!decl) return state
+
+    const withTemp: State = { ...state, temp: new Set([...state.temp, name]) }
+    const afterRefs = decl.refs
+      .filter((ref) => map.has(ref))
+      .reduce((s, ref) => visit(ref, s), withTemp)
+
+    return {
+      sorted: [...afterRefs.sorted, decl],
+      perm: new Set([...afterRefs.perm, name]),
+      temp: new Set([...afterRefs.temp].filter((t) => t !== name)),
     }
-    temp.delete(name)
-    perm.add(name)
-    sorted.push(decl)
   }
 
-  for (const d of decls) {
-    visit(d.name)
-  }
-  return sorted
+  const initial: State = { sorted: [], perm: new Set(), temp: new Set() }
+  return decls.reduce((state, d) => visit(d.name, state), initial).sorted
 }
 
 export function ast(code: string): string {

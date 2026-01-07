@@ -53,7 +53,7 @@ function makeRefTypeString(
     }
     return `z.infer<typeof ${parentName}Schema>`
   }
-  const rawRef = ref.split('/').pop() ?? ''
+  const rawRef = ref.split('/').at(-1) ?? ''
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
   if (refName === selfTypeName || cyclicGroup?.has(refName)) {
     return `${refName}Type`
@@ -109,6 +109,9 @@ function makeSingleTypeString(
   return 'unknown'
 }
 
+const isSchemaArray = (items: Schema | readonly Schema[]): items is readonly Schema[] =>
+  Array.isArray(items)
+
 function makeArrayTypeString(
   schema: Schema,
   selfTypeName: string,
@@ -117,22 +120,28 @@ function makeArrayTypeString(
   if (!schema.items) return 'unknown[]'
 
   const items = schema.items
-  const firstItem = items[0]
 
-  if (items.length > 1) {
-    return `[${items
-      .filter(Boolean)
-      .map((item) => makeTypeString(item, selfTypeName, cyclicGroup))
-      .join(',')}]`
+  // Handle array of Schemas (tuple style)
+  if (isSchemaArray(items)) {
+    const firstItem = items[0]
+
+    if (items.length > 1) {
+      return `[${items
+        .filter(Boolean)
+        .map((item) => makeTypeString(item, selfTypeName, cyclicGroup))
+        .join(',')}]`
+    }
+
+    if (firstItem !== undefined) {
+      return `${makeTypeString(firstItem, selfTypeName, cyclicGroup)}[]`
+    }
+
+    return 'unknown[]'
   }
 
-  if (firstItem !== undefined) {
-    return `${makeTypeString(firstItem, selfTypeName, cyclicGroup)}[]`
-  }
-
-  const refValue = Object.getOwnPropertyDescriptor(items, '$ref')?.value
-  if (typeof refValue === 'string') {
-    const propertiesMatch = refValue.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+  // Handle single Schema (OpenAPI 3.0+ style)
+  if (items.$ref) {
+    const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
       if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
@@ -140,15 +149,14 @@ function makeArrayTypeString(
       }
       return `z.infer<typeof ${parentName}Schema>[]`
     }
-    const rawRef = refValue.split('/').pop() ?? ''
+    const rawRef = items.$ref.split('/').at(-1) ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
     if (refName === selfTypeName || cyclicGroup?.has(refName)) {
       return `${refName}Type[]`
     }
     return `z.infer<typeof ${refName}Schema>[]`
   }
-
-  return 'unknown[]'
+  return `${makeTypeString(items, selfTypeName, cyclicGroup)}[]`
 }
 
 function makeObjectTypeString(

@@ -420,6 +420,7 @@ export type Schema = {
         }
       | Reference
   }
+  readonly title?: string
   readonly name?: string
   readonly description?: string
   readonly type?: Type | [Type, ...Type[]]
@@ -434,12 +435,13 @@ export type Schema = {
   readonly multipleOf?: number
   readonly minItems?: number
   readonly maxItems?: number
+  readonly uniqueItems?: boolean
   readonly default?: unknown
   readonly properties?: {
     readonly [k: string]: Schema
   }
   readonly required?: readonly string[]
-  readonly items?: readonly Schema[]
+  readonly items?: Schema | readonly Schema[]
   readonly enum?: readonly (
     | string
     | number
@@ -448,6 +450,9 @@ export type Schema = {
     | readonly (string | number | boolean | null)[]
   )[]
   readonly nullable?: boolean
+  readonly readOnly?: boolean
+  readonly writeOnly?: boolean
+  readonly deprecated?: boolean
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
   readonly security?: {

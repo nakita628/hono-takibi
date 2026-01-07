@@ -68,35 +68,31 @@ export function makeTypeDefinitions(
   schemas: Record<string, Schema>,
   cyclicGroupPascal: ReadonlySet<string>,
 ): readonly string[] {
-  const typeDefs: string[] = []
-  const generatedTypeNames = new Set<string>()
+  const initialTypeDefs = infos
+    .filter((info) => info.needsTypeDef)
+    .map((info) => makeTypeDefinition(info, cyclicGroupPascal))
 
-  for (const info of infos) {
-    if (info.needsTypeDef) {
-      typeDefs.push(makeTypeDefinition(info, cyclicGroupPascal))
-      generatedTypeNames.add(`${info.safeSchemaName}Type`)
-    }
-  }
+  const generatedTypeNames = new Set(
+    infos.filter((info) => info.needsTypeDef).map((info) => `${info.safeSchemaName}Type`),
+  )
 
-  const referencedTypes = new Set<string>()
-  for (const typeDef of typeDefs) {
-    for (const match of typeDef.matchAll(/(\w+Type)\b/g)) {
-      if (match[1]) referencedTypes.add(match[1])
-    }
-  }
+  const referencedTypes = new Set(
+    initialTypeDefs.flatMap((typeDef) =>
+      Array.from(typeDef.matchAll(/(\w+Type)\b/g), (match) => match[1]).filter(
+        (t): t is string => t !== undefined,
+      ),
+    ),
+  )
 
-  for (const refType of referencedTypes) {
-    if (!generatedTypeNames.has(refType)) {
+  const additionalTypeDefs = Array.from(referencedTypes)
+    .filter((refType) => !generatedTypeNames.has(refType))
+    .flatMap((refType) => {
       const schemaName = refType.replace(/Type$/, '')
       const schema = schemas[schemaName]
-      if (schema) {
-        typeDefs.push(zodType(schema, schemaName, cyclicGroupPascal))
-        generatedTypeNames.add(refType)
-      }
-    }
-  }
+      return schema ? [zodType(schema, schemaName, cyclicGroupPascal)] : []
+    })
 
-  return typeDefs
+  return [...initialTypeDefs, ...additionalTypeDefs]
 }
 
 export function findSchemaRefs(code: string, selfName: string): readonly string[] {
