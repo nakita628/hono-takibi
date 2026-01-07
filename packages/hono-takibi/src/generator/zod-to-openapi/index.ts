@@ -150,18 +150,14 @@ export function zodToOpenAPI(
   if (t.includes('boolean')) return wrap('z.boolean()', schema, meta)
   /* array */
   if (t.includes('array')) {
-    // Handle both array and single object items (runtime check for OpenAPI compatibility)
+    // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
     const rawItems = schema.items
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
-    const item = itemSchema?.$ref
+    const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
-        : itemSchema
-          ? zodToOpenAPI(itemSchema, meta)
-          : 'z.any()'
-      : itemSchema
-        ? zodToOpenAPI(itemSchema, meta)
-        : 'z.any()'
+        : zodToOpenAPI(itemSchema, meta)
+      : 'z.any()'
     const z = `z.array(${item})`
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems

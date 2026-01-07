@@ -113,6 +113,7 @@ const tarjanConnect = (
     if (s.onStack.has(depName)) {
       const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
       const updatedLowLinks: ReadonlyMap<string, number> = new Map(s.lowLinks).set(name, newLowLink)
+      // biome-ignore lint/performance/noAccumulatingSpread: Tarjan's algorithm requires immutable state updates; the graph size is typically small
       return { ...s, lowLinks: updatedLowLinks }
     }
     return s

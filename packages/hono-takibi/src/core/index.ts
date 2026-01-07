@@ -18,7 +18,18 @@ import {
 import type { Components } from '../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../utils/index.js'
 
-const componentKeyMap = {
+const componentKeyMap: {
+  readonly [K in
+    | 'Schema'
+    | 'Parameter'
+    | 'SecurityScheme'
+    | 'RequestBody'
+    | 'Response'
+    | 'Header'
+    | 'Example'
+    | 'Link'
+    | 'Callback']: keyof Components
+} = {
   Schema: 'schemas',
   Parameter: 'parameters',
   SecurityScheme: 'securitySchemes',
@@ -28,16 +39,15 @@ const componentKeyMap = {
   Example: 'examples',
   Link: 'links',
   Callback: 'callbacks',
-} as const satisfies Readonly<Record<string, keyof Components>>
+}
 
-const zodCodeGenerators: Readonly<
-  Partial<
-    Record<
-      keyof typeof componentKeyMap,
-      (data: Components, exportConst: boolean, exportType: boolean) => string
-    >
-  >
-> = {
+const zodCodeGenerators: {
+  readonly [K in keyof typeof componentKeyMap]?: (
+    data: Components,
+    exportConst: boolean,
+    exportType: boolean,
+  ) => string
+} = {
   Schema: (data, exportConst, exportType) => schemasCode(data, exportConst, exportType),
   Header: (data, exportConst, exportType) => headersCode(data, exportConst, exportType),
   Parameter: (data, exportConst, exportType) => parametersCode(data, exportConst, exportType),
@@ -100,7 +110,7 @@ export async function componentsCore(
       }
     }
 
-    // Schema-specific non-split handling with sortByDependencies
+    // Schema-specific non-split handling with ast (dependency sorting)
     if (suffix === 'Schema' && !split) {
       const schemas = components.schemas
       if (!schemas) return { ok: false, error: 'No schemas found' }

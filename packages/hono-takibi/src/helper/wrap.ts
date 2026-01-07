@@ -166,7 +166,10 @@ export function wrap(
     : []
 
   const openapiSchema = args ? JSON.stringify(args) : undefined
-  // {"type":"string"} → type:string
+  // Strip outer braces from JSON object to embed directly in openapi({...}) call
+  // e.g. '{"description":"foo"}' → '"description":"foo"'
+  // This allows seamless integration with other openapi props like param:...
+  // If empty object '{}' becomes '', which is filtered out below
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
