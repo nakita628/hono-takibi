@@ -116,16 +116,12 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
       const props = schema.properties ?? {}
       const fields = Object.entries(props).map(([k, v]) => {
         const opt = req.has(k) ? '' : '?'
-        const child = isRecord(v) ? (v as Schema) : undefined
+        const child = isRecord(v) ? v : undefined
         return `${k}${opt}:${tt(child, next)}`
       })
       const ap = schema.additionalProperties
       const addl =
-        ap === true
-          ? '[key:string]:unknown'
-          : isRecord(ap)
-            ? `[key:string]:${tt(ap as Schema, next)}`
-            : ''
+        ap === true ? '[key:string]:unknown' : isRecord(ap) ? `[key:string]:${tt(ap, next)}` : ''
       const members = [...fields, addl].filter(Boolean).join(',')
       const core = `{${members}}`
       return schema.nullable ? `${core}|null` : core
@@ -228,7 +224,7 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema as Schema
+    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema
   }
   return undefined
 }

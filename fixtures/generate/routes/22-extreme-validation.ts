@@ -15,14 +15,14 @@ type ExtremeCompositionsType = {
     | number
     | boolean
     | unknown[]
-    | { [key: string]: unknown }
-    | ({ [key: string]: unknown } | null)
+    | Record<string, unknown>
+    | (Record<string, unknown> | null)
   deeplyNestedComposition?: (
     | (({ a?: string } & { b?: number }) | { c?: boolean })
     | { d?: number }
   ) & { e?: string }
-  complexNot?: { value?: string } & { [key: string]: unknown }
-  conditionalChain?: { [key: string]: unknown }
+  complexNot?: { value?: string } & Record<string, unknown>
+  conditionalChain?: Record<string, unknown>
   conflictingAllOf?: { shared?: string } & { shared?: string } & { shared?: string }
   recursiveConstrained?: { value?: string; children?: ExtremeCompositionsType[] }
 }

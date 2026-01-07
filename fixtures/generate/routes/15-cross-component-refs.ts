@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-type NestedCustomFieldType = { [key: string]: CustomFieldValueType }
+type NestedCustomFieldType = Record<string, CustomFieldValueType>
 
 type CustomFieldValueType = string | number | boolean | unknown[] | NestedCustomFieldType
 

@@ -5,7 +5,7 @@ type TreeNodeType = {
   value: string
   parent?: TreeNodeType
   children?: TreeNodeType[]
-  metadata?: { [key: string]: TreeNodeType }
+  metadata?: Record<string, TreeNodeType>
 }
 
 type LinkedListType = { head?: LinkedListNodeType; tail?: LinkedListNodeType; length?: number }
@@ -29,7 +29,7 @@ type GraphEdgeType = {
 
 type GraphNodeType = {
   id: string
-  data?: { [key: string]: unknown }
+  data?: Record<string, unknown>
   edges?: GraphEdgeType[]
   graph?: GraphType
 }
@@ -154,7 +154,7 @@ type CategoryType = {
   children?: CategoryType[]
   ancestors?: CategoryType[]
   descendants?: CategoryType[]
-  relatedCategories?: { [key: string]: CategoryType }
+  relatedCategories?: Record<string, CategoryType>
   products?: CategorizedProductType[]
 }
 
@@ -162,7 +162,7 @@ type TransitionGuardType = { condition?: string; relatedTransitions?: StateTrans
 
 type WorkflowActionType = {
   type?: string
-  config?: { [key: string]: unknown }
+  config?: Record<string, unknown>
   nextAction?: WorkflowActionType
   fallbackAction?: WorkflowActionType
   triggerTransition?: StateTransitionType
@@ -198,13 +198,13 @@ type BaseEntityType = { id?: string; relatedEntity?: ExtendedEntityType }
 type RecursiveMapType = {
   key?: string
   value?: string
-  nested?: { [key: string]: RecursiveMapType }
+  nested?: Record<string, RecursiveMapType>
   items?: RecursiveMapType[]
 }
 
 type NullableCircularType = {
   id?: string
-  next?: NullableCircularType | ({ [key: string]: unknown } | null)
+  next?: NullableCircularType | (Record<string, unknown> | null)
   prev?: { id?: string; next?: NullableCircularType } | null
 }
 

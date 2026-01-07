@@ -1,4 +1,4 @@
-import { sortByDependencies } from '../../../../helper/ast.js'
+import { ast } from '../../../../helper/ast.js'
 import type { Components } from '../../../../openapi/index.js'
 import { callbacksCode } from './callbacks.js'
 import { examplesCode } from './examples.js'
@@ -53,5 +53,5 @@ export function componentsCode(
   ]
     .filter(Boolean)
     .join('\n\n')
-  return sortByDependencies(code)
+  return ast(code)
 }

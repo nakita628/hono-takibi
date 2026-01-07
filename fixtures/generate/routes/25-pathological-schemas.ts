@@ -24,7 +24,7 @@ type RecursiveNightmaresType = {
   constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
   recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
   recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
-  recursiveMap?: { [key: string]: RecursiveNightmaresType }
+  recursiveMap?: Record<string, RecursiveNightmaresType>
   recursiveArray?: unknown[]
 }
 

@@ -80,9 +80,9 @@ type DocumentType = z.infer<typeof BaseDocumentSchema> &
   z.infer<typeof TaggableSchema> & { content?: string; format?: 'markdown' | 'html' | 'plain' }
 
 type MixedContentType = {
-  value: string | number | boolean | MixedContentType[] | { [key: string]: MixedContentType }
-  notNull?: { [key: string]: unknown }
-  restrictedValue?: string & { [key: string]: unknown }
+  value: string | number | boolean | MixedContentType[] | Record<string, MixedContentType>
+  notNull?: Record<string, unknown>
+  restrictedValue?: string & Record<string, unknown>
 }
 
 const EventSchema: z.ZodType<EventType> = z

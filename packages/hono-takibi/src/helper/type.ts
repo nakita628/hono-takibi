@@ -1,0 +1,188 @@
+import type { Schema } from '../openapi/index.js'
+import { toIdentifierPascalCase } from '../utils/index.js'
+
+export function makeTypeString(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  if (!schema) return 'unknown'
+
+  if (schema.$ref) {
+    return makeRefTypeString(schema.$ref, selfTypeName, cyclicGroup)
+  }
+
+  if (schema.oneOf && schema.oneOf.length > 0) {
+    return makeUnionTypeString(schema.oneOf, selfTypeName, cyclicGroup, '|')
+  }
+
+  if (schema.anyOf && schema.anyOf.length > 0) {
+    return makeUnionTypeString(schema.anyOf, selfTypeName, cyclicGroup, '|')
+  }
+
+  if (schema.allOf && schema.allOf.length > 0) {
+    return makeUnionTypeString(schema.allOf, selfTypeName, cyclicGroup, '&')
+  }
+
+  if (schema.enum && schema.enum.length > 0) {
+    return schema.enum.map((v) => (typeof v === 'string' ? `'${v}'` : String(v))).join('|')
+  }
+
+  if (schema.const !== undefined) {
+    return typeof schema.const === 'string' ? `'${schema.const}'` : String(schema.const)
+  }
+
+  const types = normalizeType(schema)
+  const isNullable = schema.nullable === true || types.includes('null')
+  const nonNullTypes = types.filter((t) => t !== 'null')
+  const baseType = makeBaseTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup)
+
+  return isNullable ? `(${baseType}|null)` : baseType
+}
+
+function makeRefTypeString(
+  ref: string,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+  if (propertiesMatch) {
+    const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+    if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+      return `${parentName}Type`
+    }
+    return `z.infer<typeof ${parentName}Schema>`
+  }
+  const rawRef = ref.split('/').pop() ?? ''
+  const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+  if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+    return `${refName}Type`
+  }
+  return `z.infer<typeof ${refName}Schema>`
+}
+
+function makeUnionTypeString(
+  schemas: readonly Schema[],
+  selfTypeName: string,
+  cyclicGroup: ReadonlySet<string> | undefined,
+  separator: '|' | '&',
+): string {
+  const types = schemas.filter(Boolean).map((s) => makeTypeString(s, selfTypeName, cyclicGroup))
+  return types.length === 0
+    ? 'unknown'
+    : types.length === 1
+      ? types[0]
+      : `(${types.join(separator)})`
+}
+
+function normalizeType(schema: Schema): readonly string[] {
+  if (!schema.type) return ['object']
+  return Array.isArray(schema.type) ? schema.type : [schema.type]
+}
+
+function makeBaseTypeString(
+  schema: Schema,
+  types: readonly string[],
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  if (types.length > 1) {
+    return types.map((t) => makeSingleTypeString(schema, t, selfTypeName, cyclicGroup)).join('|')
+  }
+  return makeSingleTypeString(schema, types[0] ?? 'object', selfTypeName, cyclicGroup)
+}
+
+function makeSingleTypeString(
+  schema: Schema,
+  type: string,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  if (type === 'string') return 'string'
+  if (type === 'number') return 'number'
+  if (type === 'integer') return 'number'
+  if (type === 'boolean') return 'boolean'
+  if (type === 'null') return 'null'
+  if (type === 'array') return makeArrayTypeString(schema, selfTypeName, cyclicGroup)
+  if (type === 'object') return makeObjectTypeString(schema, selfTypeName, cyclicGroup)
+
+  return 'unknown'
+}
+
+function makeArrayTypeString(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  if (!schema.items) return 'unknown[]'
+
+  const items = schema.items
+  const firstItem = items[0]
+
+  if (items.length > 1) {
+    return `[${items
+      .filter(Boolean)
+      .map((item) => makeTypeString(item, selfTypeName, cyclicGroup))
+      .join(',')}]`
+  }
+
+  if (firstItem !== undefined) {
+    return `${makeTypeString(firstItem, selfTypeName, cyclicGroup)}[]`
+  }
+
+  const refValue = Object.getOwnPropertyDescriptor(items, '$ref')?.value
+  if (typeof refValue === 'string') {
+    const propertiesMatch = refValue.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+    if (propertiesMatch) {
+      const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
+      if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+        return `${parentName}Type[]`
+      }
+      return `z.infer<typeof ${parentName}Schema>[]`
+    }
+    const rawRef = refValue.split('/').pop() ?? ''
+    const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
+    if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+      return `${refName}Type[]`
+    }
+    return `z.infer<typeof ${refName}Schema>[]`
+  }
+
+  return 'unknown[]'
+}
+
+function makeObjectTypeString(
+  schema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  const { properties, additionalProperties, required } = schema
+
+  if (!properties || Object.keys(properties).length === 0) {
+    if (additionalProperties === true) return 'Record<string, unknown>'
+    if (typeof additionalProperties === 'object') {
+      return `Record<string, ${makeTypeString(additionalProperties, selfTypeName, cyclicGroup)}>`
+    }
+    return 'Record<string, unknown>'
+  }
+
+  const requiredSet = new Set(Array.isArray(required) ? required : [])
+
+  const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
+    const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup)
+    const isRequired = requiredSet.has(key)
+    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+    return `${safeKey}${isRequired ? '' : '?'}:${propType}`
+  })
+
+  return `{${propertyStrings.join(';')}}`
+}
+
+export function makeRecordTypeString(
+  valueSchema: Schema,
+  selfTypeName: string,
+  cyclicGroup?: ReadonlySet<string>,
+): string {
+  const valueType = makeTypeString(valueSchema, selfTypeName, cyclicGroup)
+  return `Record<string, ${valueType}>`
+}

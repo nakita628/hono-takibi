@@ -5,7 +5,7 @@ type ConfigValueType =
   | number
   | boolean
   | ConfigValueType[]
-  | { [key: string]: ConfigValueType }
+  | Record<string, ConfigValueType>
 
 const ConfigValueSchema: z.ZodType<ConfigValueType> = z
   .lazy(() =>
@@ -43,10 +43,10 @@ const FieldDefinitionSchema = z
 type DataSchemaType = {
   name?: string
   fields?: z.infer<typeof FieldDefinitionSchema>[]
-  nested?: { [key: string]: DataSchemaType }
+  nested?: Record<string, DataSchemaType>
 }
 
-type SimpleConditionType = { field: string; operator: string; value: { [key: string]: unknown } }
+type SimpleConditionType = { field: string; operator: string; value: Record<string, unknown> }
 
 type CompoundConditionType = { and?: ConditionType[]; or?: ConditionType[]; not?: ConditionType }
 

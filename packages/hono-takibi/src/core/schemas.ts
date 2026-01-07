@@ -1,24 +1,51 @@
 import path from 'node:path'
 import { schemasCode } from '../generator/zod-openapi-hono/openapi/components/schemas.js'
-import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { zodType } from '../generator/zod-to-openapi/type/index.js'
-import { analyzeCircularSchemas, core, makeBarell, sortByDependencies } from '../helper/index.js'
-import type { OpenAPI, Schema } from '../openapi/index.js'
 import {
-  ensureSuffix,
-  lowerFirst,
-  renderNamedImport,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+  analyzeCircularSchemas,
+  core,
+  makeBarell,
+  makeSchemaCode,
+  makeSchemaInfo,
+  makeTypeDefinition,
+  sortByDependencies,
+} from '../helper/index.js'
+import type { OpenAPI, Schema } from '../openapi/index.js'
+import { lowerFirst, renderNamedImport } from '../utils/index.js'
 
-const findSchemaRefs = (code: string, selfName: string): string[] => {
+function findSchemaRefs(code: string, selfName: string): readonly string[] {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
-  const out = new Set<string>()
+  const found = new Set<string>()
   for (const m of code.matchAll(re)) {
     const base = m[1] ?? ''
-    if (base !== selfName && base) out.add(base)
+    if (base && base !== selfName) found.add(base)
   }
-  return Array.from(out)
+  return [...found]
+}
+
+function makeSplitSchemaFile(
+  schemaName: string,
+  schema: Schema,
+  schemas: Record<string, Schema>,
+  analysis: ReturnType<typeof analyzeCircularSchemas>,
+  exportType: boolean,
+): string {
+  const info = makeSchemaInfo(schemaName, schema, analysis)
+
+  const typeDefinition = info.needsTypeDef
+    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal)}\n\n`
+    : ''
+
+  const schemaCode = makeSchemaCode(info, { exportKeyword: 'export ', exportType })
+  const content = `${typeDefinition}${schemaCode}`
+
+  const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)
+  const depImports =
+    deps.length > 0
+      ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${lowerFirst(d)}`)).join('\n')
+      : ''
+
+  const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
+  return [importZ, depImports, '\n', content].filter(Boolean).join('\n')
 }
 
 /**
@@ -38,41 +65,17 @@ export async function schemas(
 
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
-    const { zSchemaMap, cyclicSchemas, extendedCyclicSchemas, cyclicGroupPascal } =
-      analyzeCircularSchemas(schemas, schemaNames)
+    const analysis = analyzeCircularSchemas(schemas, schemaNames)
 
     const allResults = await Promise.all([
       ...schemaNames.map((schemaName) => {
-        const schema = schemas[schemaName] as Schema
-        const z = zSchemaMap.get(schemaName) ?? zodToOpenAPI(schema)
-        const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
-        const safeSchemaName = toIdentifierPascalCase(schemaName)
-
-        const isCircular = cyclicSchemas.has(schemaName)
-        const isExtendedCircular = extendedCyclicSchemas.has(schemaName)
-        const isSelfReferencing = z.includes(variableName)
-        const needsLazy = isCircular || isSelfReferencing
-        const needsTypeDef = needsLazy || isExtendedCircular
-
-        const typeDefinition = needsTypeDef
-          ? `${zodType(schema, safeSchemaName, cyclicGroupPascal)}\n\n`
-          : ''
-        const zExpr = needsLazy ? `z.lazy(()=>${z})` : z
-        const returnType = needsTypeDef ? `:z.ZodType<${safeSchemaName}Type>` : ''
-
-        const schemaCode = `export const ${variableName}${returnType}=${zExpr}.openapi('${safeSchemaName}')`
-        const zodInferCode = exportType
-          ? `\n\nexport type ${safeSchemaName}=z.infer<typeof ${variableName}>`
-          : ''
-        const zs = `${typeDefinition}${schemaCode}${zodInferCode}`
-
-        const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
-        const deps = findSchemaRefs(zs, schemaName).filter((d) => d in schemas)
-        const depImports =
-          deps.length > 0
-            ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${lowerFirst(d)}`)).join('\n')
-            : ''
-        const fileCode = [importZ, depImports, '\n', zs].filter(Boolean).join('\n')
+        const fileCode = makeSplitSchemaFile(
+          schemaName,
+          schemas[schemaName],
+          schemas,
+          analysis,
+          exportType,
+        )
         const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
         return core(fileCode, path.dirname(filePath), filePath)
       }),
