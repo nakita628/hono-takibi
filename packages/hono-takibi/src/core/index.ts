@@ -18,46 +18,19 @@ import {
 import type { Components } from '../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../utils/index.js'
 
-const componentKeyMap: {
-  readonly [K in
-    | 'Schema'
-    | 'Parameter'
-    | 'SecurityScheme'
-    | 'RequestBody'
-    | 'Response'
-    | 'Header'
-    | 'Example'
-    | 'Link'
-    | 'Callback']: keyof Components
-} = {
-  Schema: 'schemas',
-  Parameter: 'parameters',
-  SecurityScheme: 'securitySchemes',
-  RequestBody: 'requestBodies',
-  Response: 'responses',
-  Header: 'headers',
-  Example: 'examples',
-  Link: 'links',
-  Callback: 'callbacks',
-}
-
-const zodCodeGenerators: {
-  readonly [K in keyof typeof componentKeyMap]?: (
-    data: Components,
-    exportConst: boolean,
-    exportType: boolean,
-  ) => string
-} = {
-  Schema: (data, exportConst, exportType) => schemasCode(data, exportConst, exportType),
-  Header: (data, exportConst, exportType) => headersCode(data, exportConst, exportType),
-  Parameter: (data, exportConst, exportType) => parametersCode(data, exportConst, exportType),
-  RequestBody: (data, exportConst) => requestBodiesCode(data, exportConst),
-  Response: (data, exportConst) => responsesCode(data, exportConst),
-}
-
 export async function componentsCore(
   components: Components,
-  suffix: keyof typeof componentKeyMap,
+  suffix: keyof {
+    Schema: 'schemas'
+    Parameter: 'parameters'
+    SecurityScheme: 'securitySchemes'
+    RequestBody: 'requestBodies'
+    Response: 'responses'
+    Header: 'headers'
+    Example: 'examples'
+    Link: 'links'
+    Callback: 'callbacks'
+  },
   output: string | `${string}.ts`,
   split?: boolean,
   exportType?: boolean,
@@ -66,6 +39,32 @@ export async function componentsCore(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!components) return { ok: false, error: 'No components found' }
+
+  const componentKeyMap = {
+    Schema: 'schemas',
+    Parameter: 'parameters',
+    SecurityScheme: 'securitySchemes',
+    RequestBody: 'requestBodies',
+    Response: 'responses',
+    Header: 'headers',
+    Example: 'examples',
+    Link: 'links',
+    Callback: 'callbacks',
+  } as const satisfies { readonly [K: string]: keyof Components }
+
+  const zodCodeGenerators: {
+    readonly [K in keyof typeof componentKeyMap]?: (
+      data: Components,
+      exportConst: boolean,
+      exportType: boolean,
+    ) => string
+  } = {
+    Schema: (data, exportConst, exportType) => schemasCode(data, exportConst, exportType),
+    Header: (data, exportConst, exportType) => headersCode(data, exportConst, exportType),
+    Parameter: (data, exportConst, exportType) => parametersCode(data, exportConst, exportType),
+    RequestBody: (data, exportConst) => requestBodiesCode(data, exportConst),
+    Response: (data, exportConst) => responsesCode(data, exportConst),
+  }
 
   const componentKey = componentKeyMap[suffix] ?? 'schemas'
   const generator = zodCodeGenerators[suffix]
