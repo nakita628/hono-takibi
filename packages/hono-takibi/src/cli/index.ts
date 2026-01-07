@@ -1,10 +1,30 @@
+/**
+ * CLI module for hono-takibi.
+ *
+ * Provides the main entry point for the CLI tool that converts OpenAPI
+ * specifications to Hono routes with Zod validation.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["honoTakibi()"] --> B{"--help or -h?"}
+ *   B -->|Yes| C["Return HELP_TEXT"]
+ *   B -->|No| D{"hono-takibi.config.ts exists?"}
+ *   D -->|No| E["Parse CLI args"]
+ *   D -->|Yes| F["Load config file"]
+ *   E --> G["parseOpenAPI(input)"]
+ *   F --> G
+ *   G --> H["takibi() + components"]
+ *   H --> I["Return success/error"]
+ * ```
+ *
+ * @module cli
+ */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
 import { componentsCore } from '../core/index.js'
 import { route } from '../core/route.js'
 import { rpc } from '../core/rpc.js'
-import { schemas } from '../core/schemas.js'
 import { takibi } from '../core/takibi.js'
 import { type } from '../core/type.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -30,6 +50,42 @@ Options:
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`
 
+/**
+ * Main CLI entry point for hono-takibi.
+ *
+ * Processes command-line arguments or config file to generate TypeScript
+ * code from OpenAPI specifications. Supports both CLI mode and config file mode.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["Start"] --> B{"Args: --help/-h?"}
+ *   B -->|Yes| C["Return help text"]
+ *   B -->|No| D{"Config file exists?"}
+ *   D -->|No| E["CLI Mode"]
+ *   D -->|Yes| F["Config Mode"]
+ *   E --> G["parseCli(args)"]
+ *   G --> H["parseOpenAPI(input)"]
+ *   H --> I["takibi(openAPI, ...)"]
+ *   F --> J["config()"]
+ *   J --> K["parseOpenAPI(config.input)"]
+ *   K --> L["Generate all components"]
+ *   L --> M["Return results"]
+ *   I --> M
+ * ```
+ *
+ * @returns Promise resolving to success with output message or error
+ *
+ * @example
+ * ```ts
+ * // CLI usage
+ * const result = await honoTakibi()
+ * if (result.ok) {
+ *   console.log(result.value) // "Generated code written to routes.ts"
+ * } else {
+ *   console.error(result.error)
+ * }
+ * ```
+ */
 export async function honoTakibi(): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -61,9 +117,8 @@ export async function honoTakibi(): Promise<
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
 
-  const zo = c['zod-openapi']
-  const components = zo?.components
-  const schemaTarget = components?.schemas
+  const zodOpenAPI = c['zod-openapi']
+  const components = zodOpenAPI?.components
 
   const [
     takibiResult,
@@ -80,28 +135,29 @@ export async function honoTakibi(): Promise<
     typeResult,
     rpcResult,
   ] = await Promise.all([
-    zo?.output
-      ? takibi(openAPI, zo.output, false, false, '/', {
-          exportSchemasTypes: zo.exportSchemasTypes ?? false,
-          exportSchemas: zo.exportSchemas ?? false,
-          exportParametersTypes: zo.exportParametersTypes ?? false,
-          exportParameters: zo.exportParameters ?? false,
-          exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
-          exportRequestBodies: zo.exportRequestBodies ?? false,
-          exportResponses: zo.exportResponses ?? false,
-          exportHeadersTypes: zo.exportHeadersTypes ?? false,
-          exportHeaders: zo.exportHeaders ?? false,
-          exportExamples: zo.exportExamples ?? false,
-          exportLinks: zo.exportLinks ?? false,
-          exportCallbacks: zo.exportCallbacks ?? false,
+    zodOpenAPI?.output
+      ? takibi(openAPI, zodOpenAPI.output, false, false, '/', {
+          exportSchemasTypes: zodOpenAPI.exportSchemasTypes ?? false,
+          exportSchemas: zodOpenAPI.exportSchemas ?? false,
+          exportParametersTypes: zodOpenAPI.exportParametersTypes ?? false,
+          exportParameters: zodOpenAPI.exportParameters ?? false,
+          exportSecuritySchemes: zodOpenAPI.exportSecuritySchemes ?? false,
+          exportRequestBodies: zodOpenAPI.exportRequestBodies ?? false,
+          exportResponses: zodOpenAPI.exportResponses ?? false,
+          exportHeadersTypes: zodOpenAPI.exportHeadersTypes ?? false,
+          exportHeaders: zodOpenAPI.exportHeaders ?? false,
+          exportExamples: zodOpenAPI.exportExamples ?? false,
+          exportLinks: zodOpenAPI.exportLinks ?? false,
+          exportCallbacks: zodOpenAPI.exportCallbacks ?? false,
         })
       : Promise.resolve(undefined),
     components?.schemas
-      ? schemas(
-          openAPI,
+      ? componentsCore(
+          { schemas: openAPI.components?.schemas ?? {} },
+          'Schema',
           components.schemas.output,
-          components.schemas.exportTypes ?? false,
           components.schemas.split ?? false,
+          components.schemas.exportTypes ?? false,
         )
       : Promise.resolve(undefined),
     components?.parameters
@@ -111,7 +167,7 @@ export async function honoTakibi(): Promise<
           components.parameters.output,
           components.parameters.split ?? false,
           components.parameters.exportTypes ?? false,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.headers
@@ -121,7 +177,7 @@ export async function honoTakibi(): Promise<
           components.headers.output,
           components.headers.split ?? false,
           components.headers.exportTypes ?? false,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.examples
@@ -163,7 +219,7 @@ export async function honoTakibi(): Promise<
           components.requestBodies.output,
           components.requestBodies.split ?? false,
           undefined,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
     components?.responses
@@ -173,10 +229,10 @@ export async function honoTakibi(): Promise<
           components.responses.output,
           components.responses.split ?? false,
           undefined,
-          schemaTarget ? { schemas: schemaTarget } : undefined,
+          components?.schemas ? { schemas: components.schemas } : undefined,
         )
       : Promise.resolve(undefined),
-    zo?.routes ? route(openAPI, zo.routes, components) : Promise.resolve(undefined),
+    zodOpenAPI?.routes ? route(openAPI, zodOpenAPI.routes, components) : Promise.resolve(undefined),
     c.type ? type(openAPI, c.type.output) : Promise.resolve(undefined),
     c.rpc
       ? rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)

@@ -1,7 +1,38 @@
 /**
- * Parse the config object.
+ * Utility functions for hono-takibi.
  *
- * @param config - The config object to parse.
+ * Provides standalone helper functions for parsing, validation,
+ * and code generation. Each function is independent and does not
+ * depend on other utilities in this module.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   subgraph "Config & CLI"
+ *     A["parseConfig()"]
+ *     B["parseCli()"]
+ *   end
+ *   subgraph "Type Guards"
+ *     C["isRecord()"]
+ *     D["isRefObject()"]
+ *     E["isHttpMethod()"]
+ *   end
+ *   subgraph "String Utils"
+ *     F["escapeStringLiteral()"]
+ *     G["toIdentifierPascalCase()"]
+ *     H["methodPath()"]
+ *   end
+ * ```
+ *
+ * @module utils
+ */
+
+/**
+ * Parses and validates the configuration object.
+ *
+ * Validates input/output paths, component options, and split mode settings.
+ *
+ * @param config - The configuration object to parse
+ * @returns Validated config or error result
  */
 export function parseConfig(config: {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`

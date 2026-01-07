@@ -48,8 +48,7 @@ const CreateOrderInputSchema = z
           .object({ productId: z.uuid(), quantity: z.int().min(1) })
           .openapi({ required: ['productId', 'quantity'] }),
       )
-      .min(1)
-      .openapi({ minItems: 1 }),
+      .min(1),
   })
   .openapi({ required: ['customerId', 'items'] })
   .openapi('CreateOrderInput')

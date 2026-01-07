@@ -81,7 +81,7 @@ type PostType = {
   quotedPost?: PostType
   replyTo?: { postId?: string; author?: z.infer<typeof UserSummarySchema> }
   repostOf?: PostType
-  hashtags?: unknown[]
+  hashtags?: string[]
   mentions?: z.infer<typeof UserSummarySchema>[]
   urls?: z.infer<typeof UrlEntitySchema>[]
   card?: z.infer<typeof LinkCardSchema>
@@ -100,7 +100,7 @@ type PostType = {
   source?: string
   createdAt: string
   editedAt?: string
-  editHistory?: unknown[]
+  editHistory?: { text?: string; editedAt?: string }[]
 }
 
 const PostSchema: z.ZodType<PostType> = z
@@ -110,7 +110,7 @@ const PostSchema: z.ZodType<PostType> = z
         id: z.uuid(),
         author: UserSummarySchema,
         text: z.string().max(280),
-        media: z.array(MediaSchema).max(4).exactOptional().openapi({ maxItems: 4 }),
+        media: z.array(MediaSchema).max(4).exactOptional(),
         poll: PollSchema.exactOptional(),
         quotedPost: PostSchema.exactOptional().openapi({ description: '引用元投稿' }),
         replyTo: z
@@ -175,10 +175,10 @@ type PostThreadType = {
 const CreatePostRequestSchema = z
   .object({
     text: z.string().min(1).max(280),
-    mediaIds: z.array(z.uuid()).max(4).exactOptional().openapi({ maxItems: 4 }),
+    mediaIds: z.array(z.uuid()).max(4).exactOptional(),
     poll: z
       .object({
-        options: z.array(z.string().max(25)).min(2).max(4).openapi({ minItems: 2, maxItems: 4 }),
+        options: z.array(z.string().max(25)).min(2).max(4),
         duration: z.int().min(5).max(10080).openapi({ description: '投票期間（分）' }),
       })
       .exactOptional()
@@ -665,7 +665,7 @@ export const postPostsPostIdQuoteRoute = createRoute({
           schema: z
             .object({
               text: z.string().min(1).max(280),
-              mediaIds: z.array(z.uuid()).max(4).exactOptional().openapi({ maxItems: 4 }),
+              mediaIds: z.array(z.uuid()).max(4).exactOptional(),
             })
             .openapi({ required: ['text'] }),
         },

@@ -2,7 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi'
 
 type NestedCustomFieldType = { [key: string]: CustomFieldValueType }
 
-type CustomFieldValueType = string | number | boolean | unknown[] | NestedCustomFieldType
+type CustomFieldValueType = string | number | boolean | string[] | NestedCustomFieldType
 
 type FilterExpressionType = {
   field?: string
@@ -18,7 +18,7 @@ type FilterExpressionType = {
     | 'contains'
     | 'startsWith'
     | 'endsWith'
-  value?: string | number | boolean | unknown[]
+  value?: string | number | boolean | string[]
   and?: FilterExpressionType[]
   or?: FilterExpressionType[]
 }
@@ -508,13 +508,7 @@ const BatchOperationBodyRequestBody = {
   content: {
     'application/json': {
       schema: z
-        .object({
-          operations: z
-            .array(BatchOperationSchema)
-            .min(1)
-            .max(100)
-            .openapi({ minItems: 1, maxItems: 100 }),
-        })
+        .object({ operations: z.array(BatchOperationSchema).min(1).max(100) })
         .openapi({ required: ['operations'] }),
     },
   },

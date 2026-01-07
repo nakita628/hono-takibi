@@ -1,3 +1,27 @@
+/**
+ * OpenAPI code generation helpers.
+ *
+ * Provides functions for converting OpenAPI specification elements
+ * into TypeScript/Zod code strings.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   subgraph "Reference Handling"
+ *     A["makeRef($ref)"] --> B["Parse component type"]
+ *     B --> C["Return schema variable name"]
+ *   end
+ *   subgraph "Content Generation"
+ *     D["makeContent()"] --> E["Process each media type"]
+ *     E --> F["Generate Zod schema code"]
+ *   end
+ *   subgraph "Parameter Handling"
+ *     G["makeParameters()"] --> H["Group by location"]
+ *     H --> I["Generate Zod validators"]
+ *   end
+ * ```
+ *
+ * @module helper/openapi
+ */
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type {
   Callbacks,
@@ -22,9 +46,28 @@ import {
 } from '../utils/index.js'
 
 /**
- * generates a reference to the given $ref string.
- * @param $ref
- * @returns
+ * Generates a schema reference variable name from an OpenAPI $ref string.
+ *
+ * Converts OpenAPI $ref paths to their corresponding schema variable names
+ * with proper suffixes based on component type.
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["#/components/schemas/User"] --> B["makeRef()"]
+ *   B --> C["UserSchema"]
+ *   D["#/components/parameters/Id"] --> B
+ *   B --> E["IdParamsSchema"]
+ * ```
+ *
+ * @param $ref - OpenAPI $ref string (e.g., "#/components/schemas/User")
+ * @returns Schema variable name (e.g., "UserSchema")
+ *
+ * @example
+ * ```ts
+ * makeRef('#/components/schemas/User')      // → 'UserSchema'
+ * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
+ * makeRef('#/components/headers/Auth')      // → 'AuthHeaderSchema'
+ * ```
  */
 export function makeRef($ref: string): string {
   // Handle nested property references (e.g., #/components/schemas/X/properties/Y)

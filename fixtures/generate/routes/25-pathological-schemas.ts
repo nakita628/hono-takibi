@@ -11,7 +11,7 @@ const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
     z
       .object({
         value: z.string().min(1).max(100),
-        children: z.array(ConstrainedTreeSchema).max(10).exactOptional().openapi({ maxItems: 10 }),
+        children: z.array(ConstrainedTreeSchema).max(10).exactOptional(),
         parent: ConstrainedTreeSchema.exactOptional(),
         siblings: z.array(ConstrainedTreeSchema).exactOptional(),
       })
@@ -25,7 +25,7 @@ type RecursiveNightmaresType = {
   recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
   recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
   recursiveMap?: { [key: string]: RecursiveNightmaresType }
-  recursiveArray?: unknown[]
+  recursiveArray?: RecursiveNightmaresType[][]
 }
 
 type ConstrainedTreeType = {
@@ -40,12 +40,7 @@ const ContradictionsSchema = z
     impossibleLength: z.string().min(100).max(10).exactOptional(),
     impossibleRange: z.number().min(100).max(10).exactOptional(),
     noValidInteger: z.int().gt(5).lt(6).exactOptional(),
-    impossibleArray: z
-      .array(z.string())
-      .min(10)
-      .max(5)
-      .exactOptional()
-      .openapi({ minItems: 10, maxItems: 5 }),
+    impossibleArray: z.array(z.string()).min(10).max(5).exactOptional(),
     impossibleObject: z.object({}).exactOptional().openapi({ minProperties: 10, maxProperties: 5 }),
     missingRequired: z
       .object({ existingProperty: z.string().exactOptional() })
@@ -259,10 +254,13 @@ const EdgeCasesSchema = z
       .exactOptional()
       .openapi({ minProperties: 1, maxProperties: 1 }),
     exactlyOneItem: z
-      .array(z.object({ id: z.string() }).openapi({ required: ['id'] }))
-      .length(1)
-      .exactOptional()
-      .openapi({ minItems: 1, maxItems: 1 }),
+      .array(
+        z
+          .object({ id: z.string() })
+          .exactOptional()
+          .openapi({ required: ['id'] }),
+      )
+      .length(1),
   })
   .openapi('EdgeCases')
 

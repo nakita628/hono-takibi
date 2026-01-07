@@ -688,17 +688,14 @@ describe('zodToOpenAPI', () => {
             { type: ['array', 'null'], items: { type: 'string' } },
             'z.array(z.string()).nullable()',
           ],
-          [
-            { type: 'array', items: { type: 'string' }, minItems: 1 },
-            'z.array(z.string()).min(1).openapi({"minItems":1})',
-          ],
+          [{ type: 'array', items: { type: 'string' }, minItems: 1 }, 'z.array(z.string()).min(1)'],
           [
             { type: 'array', items: { type: 'string' }, maxItems: 10 },
-            'z.array(z.string()).max(10).openapi({"maxItems":10})',
+            'z.array(z.string()).max(10)',
           ],
           [
             { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 10 },
-            'z.array(z.string()).min(1).max(10).openapi({"minItems":1,"maxItems":10})',
+            'z.array(z.string()).min(1).max(10)',
           ],
           [{ type: 'array', items: { type: 'string' }, uniqueItems: true }, 'z.array(z.string())'],
           [

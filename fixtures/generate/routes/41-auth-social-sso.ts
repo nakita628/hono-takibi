@@ -207,7 +207,7 @@ const CreateEnterpriseSSORequestSchema = z
   .object({
     name: z.string().min(1).max(200),
     type: z.enum(['saml', 'oidc']),
-    domains: z.array(z.string()).min(1).openapi({ minItems: 1 }),
+    domains: z.array(z.string()).min(1),
     samlConfig: SAMLConfigSchema.exactOptional(),
     oidcConfig: OIDCConfigSchema.exactOptional(),
     userProvisioning: z.object({}).exactOptional(),

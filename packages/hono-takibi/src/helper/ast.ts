@@ -1,60 +1,87 @@
+/**
+ * AST-based utilities for schema dependency analysis and topological sorting.
+ *
+ * This module provides:
+ * - Circular dependency detection using Tarjan's algorithm
+ * - Topological sorting for schema declarations
+ * - AST-based identifier extraction
+ *
+ * ```mermaid
+ * flowchart TD
+ *   subgraph "Circular Analysis"
+ *     A["analyzeCircularSchemas(schemas, names)"] --> B["Generate zod code for each schema"]
+ *     B --> C["Extract identifier references"]
+ *     C --> D["Build dependency graph"]
+ *     D --> E["Run Tarjan's SCC algorithm"]
+ *     E --> F["Return CircularAnalysis"]
+ *   end
+ *   subgraph "Topological Sort"
+ *     G["ast(code)"] --> H["Parse TypeScript AST"]
+ *     H --> I["Extract declarations"]
+ *     I --> J["Analyze references"]
+ *     J --> K["Topological sort"]
+ *     K --> L["Return sorted code"]
+ *   end
+ * ```
+ *
+ * @module helper/ast
+ */
 import ts from 'typescript'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
 // =============================================================================
-// Core AST utilities
+// AST-based identifier extraction
 // =============================================================================
 
-/** Parse TypeScript code string into a SourceFile */
-export function parseSourceFile(code: string): ts.SourceFile {
-  return ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true)
+/**
+ * Creates a TypeScript source file from code string.
+ *
+ * @param code - TypeScript code to parse
+ * @returns Parsed TypeScript SourceFile
+ */
+const createSourceFile = (code: string): ts.SourceFile =>
+  ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+
+const getChildren = (node: ts.Node): readonly ts.Node[] => {
+  const result: ts.Node[] = []
+  ts.forEachChild(node, (child) => {
+    result.push(child)
+  })
+  return result
 }
 
-/** Collect all identifiers from TypeScript AST recursively */
-export function collectAllIdentifiers(node: ts.Node, result: Set<string>): void {
-  if (ts.isIdentifier(node)) {
-    result.add(node.text)
+const collectIdentifiers = (node: ts.Node): readonly string[] => {
+  const visit = (n: ts.Node): readonly string[] => {
+    const current = ts.isIdentifier(n) ? [n.text] : []
+    const children = getChildren(n).flatMap(visit)
+    return [...current, ...children]
   }
-  ts.forEachChild(node, (child) => collectAllIdentifiers(child, result))
+  return visit(node)
 }
 
-/** Extract identifiers from TypeScript code that match the given variable names */
-export function extractIdentifiers(code: string, varNames: ReadonlySet<string>): readonly string[] {
-  const sourceFile = parseSourceFile(code)
-  const identifiers = new Set<string>()
-  collectAllIdentifiers(sourceFile, identifiers)
-  return [...varNames].filter((v) => identifiers.has(v))
-}
-
-/** Extract schema references from code (identifiers ending with "Schema") */
-export function extractSchemaReferences(code: string, selfName: string): readonly string[] {
-  const sourceFile = parseSourceFile(code)
-  const identifiers = new Set<string>()
-  collectAllIdentifiers(sourceFile, identifiers)
-  return [...identifiers].filter((name) => name.endsWith('Schema') && name !== selfName)
+const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readonly string[] => {
+  const sourceFile = createSourceFile(code)
+  const allIdentifiers = collectIdentifiers(sourceFile)
+  const found = new Set(allIdentifiers.filter((id) => varNames.has(id)))
+  return [...found]
 }
 
 // =============================================================================
 // Circular dependency analysis (Tarjan's algorithm)
 // =============================================================================
 
-/** Convert schema name to variable name (e.g., "User" -> "UserSchema") */
-const toVarName = (name: string): string => toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
-
-/** Tarjan's algorithm state */
 type TarjanState = {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: string[]
-  readonly sccs: string[][]
-  index: number
+  readonly indices: ReadonlyMap<string, number>
+  readonly lowLinks: ReadonlyMap<string, number>
+  readonly onStack: ReadonlySet<string>
+  readonly stack: readonly string[]
+  readonly sccs: readonly (readonly string[])[]
+  readonly index: number
 }
 
-/** Create initial Tarjan state */
-const createTarjanState = (): TarjanState => ({
+const createInitialState = (): TarjanState => ({
   indices: new Map(),
   lowLinks: new Map(),
   onStack: new Set(),
@@ -63,104 +90,191 @@ const createTarjanState = (): TarjanState => ({
   index: 0,
 })
 
-/** Pop SCC from stack until reaching the root node */
-const popScc = (state: TarjanState, root: string): readonly string[] => {
-  const scc: string[] = []
-  let node: string | undefined
-  do {
-    node = state.stack.pop()
-    if (node !== undefined) {
-      state.onStack.delete(node)
-      scc.push(node)
-    }
-  } while (node !== root && node !== undefined)
-  return scc
+const popStackUntil = (
+  stack: readonly string[],
+  onStack: ReadonlySet<string>,
+  name: string,
+): {
+  readonly scc: readonly string[]
+  readonly newStack: readonly string[]
+  readonly newOnStack: ReadonlySet<string>
+} => {
+  const idx = stack.lastIndexOf(name)
+  if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
+  const scc = stack.slice(idx)
+  const newStack = stack.slice(0, idx)
+  const newOnStack = new Set([...onStack].filter((n) => !scc.includes(n)))
+  return { scc, newStack, newOnStack }
 }
 
-/** Tarjan's strongly connected components algorithm */
 const tarjanConnect = (
   name: string,
   deps: ReadonlyMap<string, readonly string[]>,
   var2name: ReadonlyMap<string, string>,
   state: TarjanState,
-): void => {
-  const currentIndex = state.index++
-  state.indices.set(name, currentIndex)
-  state.lowLinks.set(name, currentIndex)
-  state.stack.push(name)
-  state.onStack.add(name)
+): TarjanState => {
+  const currentIndex = state.index
+  const indices: ReadonlyMap<string, number> = new Map(state.indices).set(name, currentIndex)
+  const lowLinks: ReadonlyMap<string, number> = new Map(state.lowLinks).set(name, currentIndex)
+  const stack: readonly string[] = [...state.stack, name]
+  const onStack: ReadonlySet<string> = new Set([...state.onStack, name])
 
-  const dependencies = deps.get(name) ?? []
-  for (const depVar of dependencies) {
+  const initialState: TarjanState = {
+    ...state,
+    indices,
+    lowLinks,
+    stack,
+    onStack,
+    index: currentIndex + 1,
+  }
+
+  const afterDeps = (deps.get(name) ?? []).reduce<TarjanState>((s, depVar) => {
     const depName = var2name.get(depVar)
-    if (depName === undefined) continue
+    if (depName === undefined) return s
 
-    if (!state.indices.has(depName)) {
-      tarjanConnect(depName, deps, var2name, state)
-      const currentLow = state.lowLinks.get(name) ?? 0
-      const depLow = state.lowLinks.get(depName) ?? 0
-      state.lowLinks.set(name, Math.min(currentLow, depLow))
-    } else if (state.onStack.has(depName)) {
-      const currentLow = state.lowLinks.get(name) ?? 0
-      const depIndex = state.indices.get(depName) ?? 0
-      state.lowLinks.set(name, Math.min(currentLow, depIndex))
+    if (!s.indices.has(depName)) {
+      const afterConnect = tarjanConnect(depName, deps, var2name, s)
+      const newLowLink = Math.min(
+        afterConnect.lowLinks.get(name) ?? 0,
+        afterConnect.lowLinks.get(depName) ?? 0,
+      )
+      const updatedLowLinks: ReadonlyMap<string, number> = new Map(afterConnect.lowLinks).set(
+        name,
+        newLowLink,
+      )
+      return { ...afterConnect, lowLinks: updatedLowLinks }
+    }
+    if (s.onStack.has(depName)) {
+      const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
+      const updatedLowLinks: ReadonlyMap<string, number> = new Map(s.lowLinks).set(name, newLowLink)
+      // biome-ignore lint/performance/noAccumulatingSpread: Tarjan's algorithm requires immutable state updates; the graph size is typically small
+      return { ...s, lowLinks: updatedLowLinks }
+    }
+    return s
+  }, initialState)
+
+  if (afterDeps.lowLinks.get(name) === afterDeps.indices.get(name)) {
+    const { scc, newStack, newOnStack } = popStackUntil(afterDeps.stack, afterDeps.onStack, name)
+    return {
+      ...afterDeps,
+      stack: newStack,
+      onStack: newOnStack,
+      sccs: [...afterDeps.sccs, scc],
     }
   }
 
-  if (state.lowLinks.get(name) === state.indices.get(name)) {
-    state.sccs.push([...popScc(state, name)])
-  }
+  return afterDeps
 }
 
-/** Check if a single-node SCC has a self-reference */
-const hasSelfReference = (
-  name: string,
-  deps: ReadonlyMap<string, readonly string[]>,
-  name2var: ReadonlyMap<string, string>,
-): boolean => {
-  const selfVar = name2var.get(name)
-  return selfVar !== undefined && (deps.get(name) ?? []).includes(selfVar)
-}
-
-/** Extract cyclic schemas from SCCs */
-const extractCyclicFromSccs = (
-  sccs: readonly (readonly string[])[],
-  deps: ReadonlyMap<string, readonly string[]>,
-  name2var: ReadonlyMap<string, string>,
-): ReadonlySet<string> =>
-  new Set(
-    sccs.flatMap((scc) => {
-      if (scc.length > 1) return scc
-      const single = scc[0]
-      return single && hasSelfReference(single, deps, name2var) ? [single] : []
-    }),
-  )
-
-/** Find all cyclic schemas using Tarjan's algorithm */
 const findCyclicSchemas = (
   names: readonly string[],
   deps: ReadonlyMap<string, readonly string[]>,
 ): ReadonlySet<string> => {
-  const name2var = new Map(names.map((n) => [n, toVarName(n)]))
-  const var2name = new Map(names.map((n) => [toVarName(n), n]))
-  const state = createTarjanState()
+  const name2var = new Map(names.map((n) => [n, toIdentifierPascalCase(ensureSuffix(n, 'Schema'))]))
+  const var2name = new Map(names.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]))
 
-  for (const n of names) {
-    if (!state.indices.has(n)) {
-      tarjanConnect(n, deps, var2name, state)
-    }
-  }
+  const finalState = names.reduce(
+    (state, n) => (state.indices.has(n) ? state : tarjanConnect(n, deps, var2name, state)),
+    createInitialState(),
+  )
 
-  return extractCyclicFromSccs(state.sccs, deps, name2var)
+  return new Set(
+    finalState.sccs.flatMap((scc) => {
+      if (scc.length > 1) return [...scc]
+      const single = scc[0]
+      if (!single) return []
+      const selfVar = name2var.get(single)
+      return selfVar && (deps.get(single) ?? []).includes(selfVar) ? [single] : []
+    }),
+  )
 }
 
-/** Extend cyclic schemas to include their direct dependencies */
-const extendCyclicSchemas = (
-  cyclicSchemas: ReadonlySet<string>,
-  depsMap: ReadonlyMap<string, readonly string[]>,
-  varNameToName: ReadonlyMap<string, string>,
-): ReadonlySet<string> =>
-  new Set([
+/**
+ * Result of circular dependency analysis.
+ *
+ * ```mermaid
+ * classDiagram
+ *   class CircularAnalysis {
+ *     +zSchemaMap: Map~string, string~
+ *     +depsMap: Map~string, string[]~
+ *     +cyclicSchemas: Set~string~
+ *     +extendedCyclicSchemas: Set~string~
+ *     +cyclicGroupPascal: Set~string~
+ *     +varNameToName: Map~string, string~
+ *   }
+ * ```
+ */
+export interface CircularAnalysis {
+  /** Map from schema name to generated Zod code */
+  readonly zSchemaMap: ReadonlyMap<string, string>
+  /** Map from schema name to its dependency variable names */
+  readonly depsMap: ReadonlyMap<string, readonly string[]>
+  /** Set of schema names that are part of a cycle */
+  readonly cyclicSchemas: ReadonlySet<string>
+  /** Set of cyclic schemas plus their direct dependencies */
+  readonly extendedCyclicSchemas: ReadonlySet<string>
+  /** PascalCase versions of extended cyclic schemas */
+  readonly cyclicGroupPascal: ReadonlySet<string>
+  /** Map from variable name to original schema name */
+  readonly varNameToName: ReadonlyMap<string, string>
+}
+
+/**
+ * Analyzes OpenAPI schemas for circular dependencies using Tarjan's algorithm.
+ *
+ * This function:
+ * 1. Generates Zod code for each schema
+ * 2. Extracts identifier references from the code
+ * 3. Builds a dependency graph
+ * 4. Detects strongly connected components (cycles)
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["Schema A"] --> B["Schema B"]
+ *   B --> C["Schema C"]
+ *   C --> A
+ *   D["Schema D"] --> B
+ * ```
+ *
+ * In this example, A, B, C form a cycle. D depends on B but is not cyclic.
+ *
+ * @param schemas - Record of schema name to Schema definition
+ * @param schemaNames - Array of schema names to analyze
+ * @returns CircularAnalysis containing dependency information
+ *
+ * @example
+ * ```ts
+ * const schemas = {
+ *   User: { type: 'object', properties: { friend: { $ref: '#/components/schemas/User' } } }
+ * }
+ * const analysis = analyzeCircularSchemas(schemas, ['User'])
+ * // analysis.cyclicSchemas contains 'User' (self-referential)
+ * ```
+ */
+export function analyzeCircularSchemas(
+  schemas: Record<string, Schema>,
+  schemaNames: readonly string[],
+): CircularAnalysis {
+  const varNameSet = new Set(
+    schemaNames.map((n) => toIdentifierPascalCase(ensureSuffix(n, 'Schema'))),
+  )
+  const varNameToName = new Map(
+    schemaNames.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]),
+  )
+
+  const zSchemaMap = new Map(schemaNames.map((n) => [n, zodToOpenAPI(schemas[n])]))
+
+  const depsMap = new Map(
+    schemaNames.map((n) => {
+      const code = zSchemaMap.get(n) ?? ''
+      const selfVar = toIdentifierPascalCase(ensureSuffix(n, 'Schema'))
+      return [n, extractIdentifiers(code, varNameSet).filter((v) => v !== selfVar)]
+    }),
+  )
+
+  const cyclicSchemas = findCyclicSchemas(schemaNames, depsMap)
+
+  const extendedCyclicSchemas = new Set([
     ...cyclicSchemas,
     ...[...cyclicSchemas].flatMap((n) =>
       (depsMap.get(n) ?? [])
@@ -169,266 +283,150 @@ const extendCyclicSchemas = (
     ),
   ])
 
-export interface CircularAnalysis {
-  readonly zSchemaMap: ReadonlyMap<string, string>
-  readonly depsMap: ReadonlyMap<string, readonly string[]>
-  readonly cyclicSchemas: ReadonlySet<string>
-  readonly extendedCyclicSchemas: ReadonlySet<string>
-  readonly cyclicGroupPascal: ReadonlySet<string>
-  readonly varNameToName: ReadonlyMap<string, string>
-}
-
-/** Analyze schemas for circular references */
-export function analyzeCircularSchemas(
-  schemas: Record<string, Schema>,
-  schemaNames: readonly string[],
-): CircularAnalysis {
-  const varNameSet = new Set(schemaNames.map(toVarName))
-  const varNameToName = new Map(schemaNames.map((n) => [toVarName(n), n]))
-
-  const zSchemaMap = new Map(schemaNames.map((n) => [n, zodToOpenAPI(schemas[n])]))
-
-  const depsMap = new Map(
-    schemaNames.map((n) => {
-      const code = zSchemaMap.get(n) ?? ''
-      const selfVar = toVarName(n)
-      const refs = extractIdentifiers(code, varNameSet).filter((v) => v !== selfVar)
-      return [n, refs]
-    }),
-  )
-
-  const cyclicSchemas = findCyclicSchemas(schemaNames, depsMap)
-  const extendedCyclicSchemas = extendCyclicSchemas(cyclicSchemas, depsMap, varNameToName)
-  const cyclicGroupPascal = new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase))
-
   return {
     zSchemaMap,
     depsMap,
     cyclicSchemas,
     extendedCyclicSchemas,
-    cyclicGroupPascal,
+    cyclicGroupPascal: new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase)),
     varNameToName,
   }
 }
 
 // =============================================================================
-// Dependency sorting
+// AST-based dependency sorting
 // =============================================================================
 
 type Declaration = {
   readonly name: string
   readonly fullText: string
-  readonly references: readonly string[]
+  readonly refs: readonly string[]
 }
 
-type SchemaBlock = {
-  readonly name: string
-  readonly code: string
-}
-
-/** Collects all declaration names from TypeScript code */
-function collectDeclaredNames(sourceFile: ts.SourceFile): ReadonlySet<string> {
-  const names = new Set<string>()
-
-  const visit = (node: ts.Node): void => {
-    if (ts.isVariableStatement(node)) {
-      for (const decl of node.declarationList.declarations) {
-        if (ts.isIdentifier(decl.name)) {
-          names.add(decl.name.text)
-        }
-      }
-    } else if (ts.isTypeAliasDeclaration(node)) {
-      names.add(node.name.text)
-    } else if (ts.isInterfaceDeclaration(node)) {
-      names.add(node.name.text)
-    }
-    ts.forEachChild(node, visit)
+const getDeclarationName = (statement: ts.Statement): string | undefined => {
+  if (ts.isVariableStatement(statement)) {
+    const declaration = statement.declarationList.declarations[0]
+    return declaration && ts.isIdentifier(declaration.name) ? declaration.name.text : undefined
   }
-
-  visit(sourceFile)
-  return names
+  if (ts.isTypeAliasDeclaration(statement)) {
+    return statement.name.text
+  }
+  if (ts.isInterfaceDeclaration(statement)) {
+    return statement.name.text
+  }
+  return undefined
 }
 
-/** Checks if a variable declaration is wrapped with z.lazy() */
-function isLazyWrapped(decl: ts.VariableDeclaration): boolean {
-  if (!decl.initializer) return false
-  const initText = decl.initializer.getFullText().trimStart()
-  return initText.startsWith('z.lazy(') || initText.startsWith('z.lazy (')
+const isLazySchema = (statement: ts.Statement): boolean => {
+  if (!ts.isVariableStatement(statement)) return false
+  const declaration = statement.declarationList.declarations[0]
+  if (!declaration?.initializer) return false
+
+  const initText = declaration.initializer.getText()
+  return /^z\.lazy\s*\(/.test(initText)
 }
 
-/** Extracts references from a variable declaration */
-function extractReferences(
-  decl: ts.VariableDeclaration,
+const getStatementReferences = (
+  statement: ts.Statement,
+  declNames: ReadonlySet<string>,
   selfName: string,
-  declaredNames: ReadonlySet<string>,
-): readonly string[] {
-  if (isLazyWrapped(decl)) {
-    return []
-  }
+): readonly string[] => {
+  if (isLazySchema(statement)) return []
 
-  if (!decl.initializer) {
-    return []
-  }
-
-  const refs = new Set<string>()
-  collectAllIdentifiers(decl.initializer, refs)
-  return [...refs].filter((name) => name !== selfName && declaredNames.has(name))
+  const identifiers = collectIdentifiers(statement)
+  return [...new Set(identifiers.filter((id) => declNames.has(id) && id !== selfName))]
 }
 
-/** Extracts references from a type alias declaration */
-function extractTypeReferences(
-  node: ts.TypeAliasDeclaration,
-  selfName: string,
-  declaredNames: ReadonlySet<string>,
-): readonly string[] {
-  const refs = new Set<string>()
-  collectAllIdentifiers(node.type, refs)
-  return [...refs].filter((name) => name !== selfName && declaredNames.has(name))
+const parseStatements = (sourceFile: ts.SourceFile): readonly Declaration[] => {
+  const statements = sourceFile.statements.filter(
+    (s) =>
+      ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
+  )
+
+  const declNames = new Set(
+    statements.map(getDeclarationName).filter((n): n is string => n !== undefined),
+  )
+
+  return statements
+    .map((statement): Declaration | undefined => {
+      const name = getDeclarationName(statement)
+      if (!name) return undefined
+
+      const fullText = statement.getText(sourceFile)
+      const refs = getStatementReferences(statement, declNames, name)
+
+      return { name, fullText, refs }
+    })
+    .filter((d): d is Declaration => d !== undefined)
 }
 
-/** Extracts references from an interface declaration */
-function extractInterfaceReferences(
-  node: ts.InterfaceDeclaration,
-  selfName: string,
-  declaredNames: ReadonlySet<string>,
-): readonly string[] {
-  const refs = new Set<string>()
-  for (const member of node.members) {
-    collectAllIdentifiers(member, refs)
+const topoSort = (decls: readonly Declaration[]): readonly Declaration[] => {
+  const map = new Map(decls.map((d) => [d.name, d]))
+
+  type State = {
+    readonly sorted: readonly Declaration[]
+    readonly perm: ReadonlySet<string>
+    readonly temp: ReadonlySet<string>
   }
-  return [...refs].filter((name) => name !== selfName && declaredNames.has(name))
-}
 
-/** Parses TypeScript code and extracts declarations with their references */
-function parseDeclarations(code: string): readonly Declaration[] {
-  const sourceFile = parseSourceFile(code)
-  const declaredNames = collectDeclaredNames(sourceFile)
-  const declarations: Declaration[] = []
+  const visit = (name: string, state: State): State => {
+    if (state.perm.has(name) || state.temp.has(name)) return state
+    const decl = map.get(name)
+    if (!decl) return state
 
-  const visit = (node: ts.Node): void => {
-    if (ts.isVariableStatement(node)) {
-      for (const decl of node.declarationList.declarations) {
-        if (ts.isIdentifier(decl.name)) {
-          const name = decl.name.text
-          const fullText = node.getFullText(sourceFile).trim()
-          const references = extractReferences(decl, name, declaredNames)
-          declarations.push({ name, fullText, references })
-        }
-      }
-    } else if (ts.isTypeAliasDeclaration(node)) {
-      const name = node.name.text
-      const fullText = node.getFullText(sourceFile).trim()
-      const references = extractTypeReferences(node, name, declaredNames)
-      declarations.push({ name, fullText, references })
-    } else if (ts.isInterfaceDeclaration(node)) {
-      const name = node.name.text
-      const fullText = node.getFullText(sourceFile).trim()
-      const references = extractInterfaceReferences(node, name, declaredNames)
-      declarations.push({ name, fullText, references })
+    const withTemp: State = { ...state, temp: new Set([...state.temp, name]) }
+    const afterRefs = decl.refs
+      .filter((ref) => map.has(ref))
+      .reduce((s, ref) => visit(ref, s), withTemp)
+
+    return {
+      sorted: [...afterRefs.sorted, decl],
+      perm: new Set([...afterRefs.perm, name]),
+      temp: new Set([...afterRefs.temp].filter((t) => t !== name)),
     }
-    ts.forEachChild(node, visit)
   }
 
-  visit(sourceFile)
-  return declarations
-}
-
-/** Sorts declarations in topological order based on their dependencies */
-function topologicalSort(declarations: readonly Declaration[]): readonly Declaration[] {
-  const declMap = new Map<string, Declaration>()
-  for (const decl of declarations) {
-    declMap.set(decl.name, decl)
-  }
-
-  const sorted: Declaration[] = []
-  const perm = new Set<string>()
-  const temp = new Set<string>()
-
-  const visit = (name: string): void => {
-    if (perm.has(name)) return
-    if (temp.has(name)) return
-
-    const decl = declMap.get(name)
-    if (!decl) return
-
-    temp.add(name)
-    for (const ref of decl.references) {
-      if (declMap.has(ref)) {
-        visit(ref)
-      }
-    }
-    temp.delete(name)
-
-    perm.add(name)
-    sorted.push(decl)
-  }
-
-  for (const decl of declarations) {
-    visit(decl.name)
-  }
-
-  return sorted
+  const initial: State = { sorted: [], perm: new Set(), temp: new Set() }
+  return decls.reduce((state, d) => visit(d.name, state), initial).sorted
 }
 
 /**
- * Sorts TypeScript schema declarations by their dependencies using AST analysis.
+ * Sorts TypeScript declarations by dependency order using topological sort.
  *
- * This function parses the generated TypeScript code, extracts variable declarations,
+ * Parses the given TypeScript code, extracts variable/type/interface declarations,
  * analyzes their dependencies, and returns the code with declarations reordered
- * so that referenced schemas appear before the ones that depend on them.
- */
-export function sortByDependencies(code: string): string {
-  const declarations = parseDeclarations(code)
-  if (declarations.length === 0) return code
-
-  const sorted = topologicalSort(declarations)
-  return sorted.map((d) => d.fullText).join('\n\n')
-}
-
-/**
- * Sorts schema code blocks by their dependencies.
+ * so that dependencies appear before dependents.
  *
- * Each block contains the complete code for a schema (type definition, variable declaration, type inference).
- * The function extracts dependencies from each block and sorts them topologically.
+ * ```mermaid
+ * flowchart TD
+ *   A["Input: const B = A; const A = z.string();"] --> B["Parse AST"]
+ *   B --> C["Extract declarations: B, A"]
+ *   C --> D["Analyze refs: B depends on A"]
+ *   D --> E["Topological sort: A, B"]
+ *   E --> F["Output: const A = z.string(); const B = A;"]
+ * ```
+ *
+ * @param code - TypeScript source code containing declarations
+ * @returns Code with declarations sorted by dependency order
+ *
+ * @example
+ * ```ts
+ * const input = `
+ *   const UserSchema = z.object({ name: NameSchema })
+ *   const NameSchema = z.string()
+ * `
+ * const sorted = ast(input)
+ * // Result:
+ * // const NameSchema = z.string()
+ * //
+ * // const UserSchema = z.object({ name: NameSchema })
+ * ```
  */
-export function sortSchemaBlocks(blocks: readonly SchemaBlock[]): readonly SchemaBlock[] {
-  if (blocks.length === 0) return blocks
-
-  const blockMap = new Map<string, SchemaBlock>()
-  const depsMap = new Map<string, readonly string[]>()
-
-  for (const block of blocks) {
-    blockMap.set(block.name, block)
-    depsMap.set(block.name, extractSchemaReferences(block.code, block.name))
-  }
-
-  const sorted: SchemaBlock[] = []
-  const perm = new Set<string>()
-  const temp = new Set<string>()
-
-  const visit = (name: string): void => {
-    if (perm.has(name)) return
-    if (temp.has(name)) return
-
-    const block = blockMap.get(name)
-    if (!block) return
-
-    temp.add(name)
-    const deps = depsMap.get(name) ?? []
-    for (const dep of deps) {
-      if (blockMap.has(dep)) {
-        visit(dep)
-      }
-    }
-    temp.delete(name)
-
-    perm.add(name)
-    sorted.push(block)
-  }
-
-  for (const block of blocks) {
-    visit(block.name)
-  }
-
-  return sorted
+export function ast(code: string): string {
+  const sourceFile = createSourceFile(code)
+  const decls = parseStatements(sourceFile)
+  if (decls.length === 0) return code
+  return topoSort(decls)
+    .map((d) => d.fullText)
+    .join('\n\n')
 }

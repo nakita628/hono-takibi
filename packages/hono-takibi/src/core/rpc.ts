@@ -1,3 +1,21 @@
+/**
+ * RPC client wrapper generation module.
+ *
+ * Generates type-safe RPC client functions from OpenAPI specifications
+ * for use with Hono's RPC client.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["rpc(openAPI, output, importPath, split)"] --> B["Parse OpenAPI paths"]
+ *   B --> C["Build operation codes"]
+ *   C --> D{"split mode?"}
+ *   D -->|No| E["Write single file"]
+ *   D -->|Yes| F["Write per-operation files"]
+ *   F --> G["Write index.ts barrel"]
+ * ```
+ *
+ * @module core/rpc
+ */
 import path from 'node:path'
 import { core } from '../helper/index.js'
 import type { OpenAPI, OpenAPIPaths, Schema } from '../openapi/index.js'
@@ -12,6 +30,9 @@ const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   }
   return true
 }
+
+const isSingleSchema = (items: Schema | readonly Schema[] | undefined): items is Schema =>
+  items !== undefined && !Array.isArray(items)
 
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
@@ -104,7 +125,7 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
 
     // array (parentheses when inner contains union/intersection)
     if (types.includes('array')) {
-      const item = isRecord(schema.items) ? (schema.items as Schema) : undefined
+      const item = isSingleSchema(schema.items) ? schema.items : undefined
       const inner = tt(item, next)
       const needParens = /[|&]/.test(inner) && !/^\(.*\)$/.test(inner)
       const core = `${needParens ? `(${inner})` : inner}[]`
@@ -116,16 +137,12 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
       const props = schema.properties ?? {}
       const fields = Object.entries(props).map(([k, v]) => {
         const opt = req.has(k) ? '' : '?'
-        const child = isRecord(v) ? (v as Schema) : undefined
+        const child = isRecord(v) ? v : undefined
         return `${k}${opt}:${tt(child, next)}`
       })
       const ap = schema.additionalProperties
       const addl =
-        ap === true
-          ? '[key:string]:unknown'
-          : isRecord(ap)
-            ? `[key:string]:${tt(ap as Schema, next)}`
-            : ''
+        ap === true ? '[key:string]:unknown' : isRecord(ap) ? `[key:string]:${tt(ap, next)}` : ''
       const members = [...fields, addl].filter(Boolean).join(',')
       const core = `{${members}}`
       return schema.nullable ? `${core}|null` : core
@@ -228,7 +245,7 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   ]
   for (const k of order) {
     const media = isRecord(content[k]) ? content[k] : undefined
-    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema as Schema
+    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema
   }
   return undefined
 }
@@ -368,10 +385,38 @@ const resolveSplitOutDir = (output: string) => {
 /* ─────────────────────────────── Entry ─────────────────────────────── */
 
 /**
- * Generate RPC client wrappers from an OpenAPI/TypeSpec source.
+ * Generates RPC client wrapper functions from OpenAPI specification.
  *
- * - When `split=true`, writes one file per RPC function under `output` (directory) and an `index.ts` barrel.
- * - Otherwise, emits a single `.ts` file at `output`.
+ * Creates type-safe client functions that wrap Hono RPC client calls,
+ * with proper TypeScript types derived from OpenAPI schemas.
+ *
+ * ```mermaid
+ * flowchart LR
+ *   subgraph "Generated Code"
+ *     A["export async function getUsers(params) { return await client.users.$get(params) }"]
+ *   end
+ *   subgraph "Usage"
+ *     B["const users = await getUsers({ query: { limit: 10 } })"]
+ *   end
+ *   A --> B
+ * ```
+ *
+ * @param openAPI - Parsed OpenAPI specification
+ * @param output - Output file path or directory
+ * @param importPath - Import path for the Hono client
+ * @param split - Whether to split into multiple files (one per operation)
+ * @returns Promise resolving to success message or error
+ *
+ * @example
+ * ```ts
+ * // Single file output
+ * await rpc(openAPI, 'src/rpc.ts', './client')
+ * // Generates: src/rpc.ts with all RPC functions
+ *
+ * // Split mode output
+ * await rpc(openAPI, 'src/rpc', './client', true)
+ * // Generates: src/rpc/getUsers.ts, src/rpc/postUsers.ts, src/rpc/index.ts
+ * ```
  */
 export async function rpc(
   openAPI: OpenAPI,

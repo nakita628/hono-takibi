@@ -1,17 +1,61 @@
+/**
+ * OpenAPI specification types and parser.
+ *
+ * Provides TypeScript type definitions for OpenAPI 3.x specifications
+ * and a parser that supports both YAML/JSON and TypeSpec inputs.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["parseOpenAPI(input)"] --> B{"File extension?"}
+ *   B -->|.tsp| C["TypeSpec compile"]
+ *   B -->|.yaml/.json| D["SwaggerParser.bundle"]
+ *   C --> E["getOpenAPI3"]
+ *   E --> D
+ *   D --> F["Return OpenAPI object"]
+ * ```
+ *
+ * @module openapi
+ */
 import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { compile, NodeHost } from '@typespec/compiler'
 import { getOpenAPI3 } from '@typespec/openapi3'
 
 /**
- * Parses input into an OpenAPI document and returns `{ ok, value | error }`.
+ * Parses input into an OpenAPI document.
  *
- * - If `input` ends with `.tsp`, it is first converted from TypeSpec to OpenAPI.
- * - Otherwise, it is parsed directly as an OpenAPI YAML/JSON string.
+ * Supports multiple input formats:
+ * - `.yaml` / `.json`: Direct OpenAPI specification files
+ * - `.tsp`: TypeSpec files (compiled to OpenAPI first)
  *
- * Note: `SwaggerParser.parse` has a broad return type, so we assert
- * `as OpenAPI` after successful parsing to enable type-safe access
- * in downstream code.
+ * ```mermaid
+ * flowchart LR
+ *   subgraph Input
+ *     A["openapi.yaml"]
+ *     B["openapi.json"]
+ *     C["main.tsp"]
+ *   end
+ *   subgraph Output
+ *     D["OpenAPI Object"]
+ *   end
+ *   A --> D
+ *   B --> D
+ *   C --> D
+ * ```
+ *
+ * @param input - Path to OpenAPI file (.yaml, .json) or TypeSpec file (.tsp)
+ * @returns Result object with parsed OpenAPI or error message
+ *
+ * @example
+ * ```ts
+ * const result = await parseOpenAPI('api.yaml')
+ * if (result.ok) {
+ *   console.log(result.value.paths) // Access OpenAPI paths
+ * }
+ *
+ * // TypeSpec input
+ * const tspResult = await parseOpenAPI('main.tsp')
+ * ```
  */
 export async function parseOpenAPI(input: string): Promise<
   | {
@@ -420,6 +464,7 @@ export type Schema = {
         }
       | Reference
   }
+  readonly title?: string
   readonly name?: string
   readonly description?: string
   readonly type?: Type | [Type, ...Type[]]
@@ -434,12 +479,15 @@ export type Schema = {
   readonly multipleOf?: number
   readonly minItems?: number
   readonly maxItems?: number
+  readonly uniqueItems?: boolean
+  readonly minProperties?: number
+  readonly maxProperties?: number
   readonly default?: unknown
   readonly properties?: {
     readonly [k: string]: Schema
   }
   readonly required?: readonly string[]
-  readonly items?: readonly Schema[]
+  readonly items?: Schema | readonly Schema[]
   readonly enum?: readonly (
     | string
     | number
@@ -448,6 +496,9 @@ export type Schema = {
     | readonly (string | number | boolean | null)[]
   )[]
   readonly nullable?: boolean
+  readonly readOnly?: boolean
+  readonly writeOnly?: boolean
+  readonly deprecated?: boolean
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
   readonly security?: {

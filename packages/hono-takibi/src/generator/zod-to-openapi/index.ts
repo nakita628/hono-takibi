@@ -1,3 +1,31 @@
+/**
+ * OpenAPI Schema to Zod schema converter.
+ *
+ * Transforms OpenAPI/JSON Schema definitions into Zod validation schemas,
+ * supporting all common schema types and combinators.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["zodToOpenAPI(schema)"] --> B{"Has $ref?"}
+ *   B -->|Yes| C["makeRef()"]
+ *   B -->|No| D{"Has combinator?"}
+ *   D -->|allOf| E["z.intersection()"]
+ *   D -->|anyOf| F["z.union()"]
+ *   D -->|oneOf| G["z.discriminatedUnion() or z.xor()"]
+ *   D -->|not| H["z.any().refine()"]
+ *   D -->|No| I{"Check type"}
+ *   I -->|string| J["string()"]
+ *   I -->|number| K["number()"]
+ *   I -->|integer| L["integer()"]
+ *   I -->|boolean| M["z.boolean()"]
+ *   I -->|array| N["z.array()"]
+ *   I -->|object| O["object()"]
+ *   I -->|null| P["z.null()"]
+ *   I -->|unknown| Q["z.any()"]
+ * ```
+ *
+ * @module generator/zod-to-openapi
+ */
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
@@ -8,6 +36,46 @@ import { number } from './z/number.js'
 import { object } from './z/object.js'
 import { string } from './z/string.js'
 
+/**
+ * Converts an OpenAPI Schema to a Zod schema string.
+ *
+ * Supports all JSON Schema types and OpenAPI extensions:
+ * - Primitives: string, number, integer, boolean, null
+ * - Complex: object, array
+ * - Combinators: allOf, anyOf, oneOf, not
+ * - References: $ref
+ * - Modifiers: nullable, default, enum, const
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["OpenAPI Schema"] --> B["zodToOpenAPI()"]
+ *   B --> C["Zod Schema String"]
+ *   C --> D["e.g. z.object({...})"]
+ * ```
+ *
+ * @param schema - OpenAPI Schema object to convert
+ * @param meta - Optional parameter/header metadata for validation
+ * @returns Zod schema string representation
+ *
+ * @example
+ * ```ts
+ * // Simple string
+ * zodToOpenAPI({ type: 'string' })
+ * // → 'z.string()'
+ *
+ * // Object with properties
+ * zodToOpenAPI({
+ *   type: 'object',
+ *   properties: { name: { type: 'string' } },
+ *   required: ['name']
+ * })
+ * // → 'z.object({ name: z.string() })'
+ *
+ * // Reference
+ * zodToOpenAPI({ $ref: '#/components/schemas/User' })
+ * // → 'UserSchema'
+ * ```
+ */
 export function zodToOpenAPI(
   schema: Schema,
   meta?: {
@@ -150,18 +218,14 @@ export function zodToOpenAPI(
   if (t.includes('boolean')) return wrap('z.boolean()', schema, meta)
   /* array */
   if (t.includes('array')) {
-    // Handle both array and single object items (runtime check for OpenAPI compatibility)
+    // items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation)
     const rawItems = schema.items
     const itemSchema: Schema | undefined = Array.isArray(rawItems) ? rawItems[0] : rawItems
-    const item = itemSchema?.$ref
+    const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
-        : itemSchema
-          ? zodToOpenAPI(itemSchema, meta)
-          : 'z.any()'
-      : itemSchema
-        ? zodToOpenAPI(itemSchema, meta)
-        : 'z.any()'
+        : zodToOpenAPI(itemSchema, meta)
+      : 'z.any()'
     const z = `z.array(${item})`
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems

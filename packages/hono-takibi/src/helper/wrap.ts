@@ -1,6 +1,58 @@
+/**
+ * Zod schema wrapper with OpenAPI metadata.
+ *
+ * Wraps generated Zod schemas with OpenAPI-specific metadata
+ * like default values, nullable, and custom openapi() properties.
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["Base Zod schema"] --> B["wrap()"]
+ *   B --> C["Add .default()"]
+ *   C --> D["Add .nullable()"]
+ *   D --> E["Add .openapi({...})"]
+ *   E --> F["Final schema string"]
+ * ```
+ *
+ * @module helper/wrap
+ */
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
+/**
+ * Wraps a Zod schema string with OpenAPI metadata.
+ *
+ * Applies default values, nullable modifiers, and OpenAPI-specific
+ * properties to a base Zod schema string.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["wrap(zod, schema, meta)"] --> B{"Has default?"}
+ *   B -->|Yes| C["zod.default(value)"]
+ *   B -->|No| D["zod"]
+ *   C --> E{"Is nullable?"}
+ *   D --> E
+ *   E -->|Yes| F[".nullable()"]
+ *   E -->|No| G["(unchanged)"]
+ *   F --> H{"Has openapi props?"}
+ *   G --> H
+ *   H -->|Yes| I[".openapi({...})"]
+ *   H -->|No| J["Return as-is"]
+ * ```
+ *
+ * @param zod - Base Zod schema string (e.g., "z.string()")
+ * @param schema - OpenAPI schema with metadata
+ * @param meta - Optional parameter/header metadata
+ * @returns Wrapped Zod schema string with modifiers
+ *
+ * @example
+ * ```ts
+ * wrap('z.string()', { default: 'hello', nullable: true })
+ * // → 'z.string().default("hello").nullable()'
+ *
+ * wrap('z.number()', { description: 'User age' })
+ * // → 'z.number().openapi({description:"User age"})'
+ * ```
+ */
 export function wrap(
   zod: string,
   schema: Schema,
@@ -124,6 +176,8 @@ export function wrap(
     'pattern',
     'enum',
     'items',
+    'minItems',
+    'maxItems',
     'properties',
     'additionalProperties',
     'oneOf',
@@ -164,7 +218,10 @@ export function wrap(
     : []
 
   const openapiSchema = args ? JSON.stringify(args) : undefined
-  // {"type":"string"} → type:string
+  // Strip outer braces from JSON object to embed directly in openapi({...}) call
+  // e.g. '{"description":"foo"}' → '"description":"foo"'
+  // This allows seamless integration with other openapi props like param:...
+  // If empty object '{}' becomes '', which is filtered out below
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)

@@ -24,7 +24,7 @@ type BaseEntityType = z.infer<typeof IdentifiableSchema> &
   z.infer<typeof AuditableSchema> &
   z.infer<typeof VersionableSchema>
 
-type ExtendedEntityType = BaseEntityType & { name: string; description?: string; tags?: unknown[] }
+type ExtendedEntityType = BaseEntityType & { name: string; description?: string; tags?: string[] }
 
 type ParticipantType = z.infer<typeof IdentifiableSchema> & { name: string; avatar?: string }
 
@@ -228,7 +228,7 @@ type NetworkResourceType = BaseResourceType & {
   cidr: string
   subnets?: NetworkResourceType[]
   parentNetwork?: NetworkResourceType
-  connectedResources?: unknown[]
+  connectedResources?: (ComputeResourceType | StorageResourceType)[]
 }
 
 const ConfigValueSchema: z.ZodType<ConfigValueType> = z
@@ -437,7 +437,7 @@ const CompositeMessageSchema: z.ZodType<CompositeMessageType> = z
       z
         .object({
           type: z.literal('composite').exactOptional(),
-          parts: z.array(MessageSchema).min(2).openapi({ minItems: 2 }),
+          parts: z.array(MessageSchema).min(2),
         })
         .openapi({ required: ['parts'] }),
     ),

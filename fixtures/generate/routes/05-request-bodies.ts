@@ -84,13 +84,7 @@ const FileUploadRequestBody = {
 const BulkCreateUsersRequestBody = {
   description: 'Bulk user creation request',
   content: {
-    'application/json': {
-      schema: z
-        .array(CreateUserInputSchema)
-        .min(1)
-        .max(100)
-        .openapi({ minItems: 1, maxItems: 100 }),
-    },
+    'application/json': { schema: z.array(CreateUserInputSchema).min(1).max(100) },
     'application/x-ndjson': { schema: CreateUserInputSchema },
   },
   required: true,

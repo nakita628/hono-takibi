@@ -21,7 +21,7 @@ const SendMessageRequestSchema = z
     channel: z.enum(['email', 'sms', 'push', 'in_app']),
     to: z.xor([
       z.string().openapi({ description: 'メールアドレス、電話番号、またはユーザーID' }),
-      z.array(z.string()).max(100).openapi({ maxItems: 100 }),
+      z.array(z.string()).max(100),
     ]),
     templateId: z.uuid().exactOptional(),
     subject: z.string().exactOptional().openapi({ description: 'メールの場合の件名' }),
@@ -261,8 +261,7 @@ const CreateWebhookRequestSchema = z
           'message.bounced',
         ]),
       )
-      .min(1)
-      .openapi({ minItems: 1 }),
+      .min(1),
     headers: z.record(z.string(), z.string()).exactOptional(),
   })
   .openapi({ required: ['url', 'events'] })
@@ -284,8 +283,7 @@ const UpdateWebhookRequestSchema = z
         ]),
       )
       .min(1)
-      .exactOptional()
-      .openapi({ minItems: 1 }),
+      .exactOptional(),
     active: z.boolean().exactOptional(),
     headers: z.record(z.string(), z.string()).exactOptional(),
   })
@@ -540,9 +538,7 @@ export const postMessagesSendBatchRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({
-              messages: z.array(SendMessageRequestSchema).max(1000).openapi({ maxItems: 1000 }),
-            })
+            .object({ messages: z.array(SendMessageRequestSchema).max(1000) })
             .openapi({ required: ['messages'] }),
         },
       },
