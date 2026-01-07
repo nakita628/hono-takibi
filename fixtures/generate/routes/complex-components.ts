@@ -25,14 +25,12 @@ const TraceIdSchema = z
 type TraceContextType = {
   traceId: z.infer<typeof TraceIdSchema>
   parent?: TraceContextType
-  baggage?: Record<string, string>
+  baggage?: { [key: string]: string }
 }
 
 type LinkType = { href: string; rel?: string; meta?: MetaType; next?: LinkType }
 
-interface ResourceLinksType {
-  [key: string]: LinkType
-}
+type ResourceLinksType = { [key: string]: LinkType }
 
 type MetaType = {
   createdAt: string

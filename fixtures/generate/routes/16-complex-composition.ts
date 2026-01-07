@@ -185,7 +185,7 @@ type ConfigValueType =
   | number
   | boolean
   | ConfigValueType[]
-  | Record<string, ConfigValueType>
+  | { [key: string]: ConfigValueType }
 
 type ResourceStatusType = {
   state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
@@ -246,7 +246,7 @@ const ConfigValueSchema: z.ZodType<ConfigValueType> = z
 type ResourceTemplateType = {
   name?: string
   version?: string
-  parameters?: Record<string, z.infer<typeof ConfigValueSchema>>
+  parameters?: { [key: string]: z.infer<typeof ConfigValueSchema> }
 }
 
 type CompositeResourceType = BaseResourceType & {

@@ -167,11 +167,12 @@ function makeObjectTypeString(
   const { properties, additionalProperties, required } = schema
 
   if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === true) return 'Record<string,unknown>'
+    if (additionalProperties === true) return '{[key:string]:unknown}'
     if (typeof additionalProperties === 'object') {
-      return `Record<string,${makeTypeString(additionalProperties, selfTypeName, cyclicGroup)}>`
+      const valueType = makeTypeString(additionalProperties, selfTypeName, cyclicGroup)
+      return `{[key:string]:${valueType}}`
     }
-    return 'Record<string,unknown>'
+    return '{[key:string]:unknown}'
   }
 
   const requiredSet = new Set(Array.isArray(required) ? required : [])
@@ -192,5 +193,5 @@ export function makeRecordTypeString(
   cyclicGroup?: ReadonlySet<string>,
 ): string {
   const valueType = makeTypeString(valueSchema, selfTypeName, cyclicGroup)
-  return `Record<string, ${valueType}>`
+  return `{[key:string]:${valueType}}`
 }

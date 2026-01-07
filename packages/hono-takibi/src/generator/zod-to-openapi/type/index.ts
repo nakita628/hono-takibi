@@ -14,12 +14,13 @@ export function zodType(
     schema.additionalProperties &&
     (!schema.properties || Object.keys(schema.properties).length === 0)
 
-  // Use interface for record-like types in cyclic groups to allow circular references
+  // Use inline index signature for record-like types in cyclic groups to avoid TS2456
+  // TypeScript doesn't allow Record<string,T> in cyclic type references
   if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
     const valueSchema =
       typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {}
     const valueType = makeTypeString(valueSchema, typeName, cyclicGroup)
-    return `interface ${typeName}Type{[key:string]:${valueType}}`
+    return `type ${typeName}Type = {[key:string]:${valueType}}`
   }
 
   return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup)}`
