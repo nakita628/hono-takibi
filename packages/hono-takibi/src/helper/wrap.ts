@@ -124,6 +124,8 @@ export function wrap(
     'pattern',
     'enum',
     'items',
+    'minItems',
+    'maxItems',
     'properties',
     'additionalProperties',
     'oneOf',

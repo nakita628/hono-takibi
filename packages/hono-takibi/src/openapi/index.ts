@@ -436,6 +436,8 @@ export type Schema = {
   readonly minItems?: number
   readonly maxItems?: number
   readonly uniqueItems?: boolean
+  readonly minProperties?: number
+  readonly maxProperties?: number
   readonly default?: unknown
   readonly properties?: {
     readonly [k: string]: Schema

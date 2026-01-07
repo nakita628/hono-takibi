@@ -13,6 +13,9 @@ const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   return true
 }
 
+const isSingleSchema = (items: Schema | readonly Schema[] | undefined): items is Schema =>
+  items !== undefined && !Array.isArray(items)
+
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
 const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
@@ -104,7 +107,7 @@ const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined
 
     // array (parentheses when inner contains union/intersection)
     if (types.includes('array')) {
-      const item = isRecord(schema.items) ? (schema.items as Schema) : undefined
+      const item = isSingleSchema(schema.items) ? schema.items : undefined
       const inner = tt(item, next)
       const needParens = /[|&]/.test(inner) && !/^\(.*\)$/.test(inner)
       const core = `${needParens ? `(${inner})` : inner}[]`
