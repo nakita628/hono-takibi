@@ -159,11 +159,11 @@ function makeObjectTypeString(
   const { properties, additionalProperties, required } = schema
 
   if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === true) return 'Record<string, unknown>'
+    if (additionalProperties === true) return 'Record<string,unknown>'
     if (typeof additionalProperties === 'object') {
-      return `Record<string, ${makeTypeString(additionalProperties, selfTypeName, cyclicGroup)}>`
+      return `Record<string,${makeTypeString(additionalProperties, selfTypeName, cyclicGroup)}>`
     }
-    return 'Record<string, unknown>'
+    return 'Record<string,unknown>'
   }
 
   const requiredSet = new Set(Array.isArray(required) ? required : [])
