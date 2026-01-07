@@ -1,4 +1,4 @@
-import { makeRecordTypeString, makeTypeString } from '../../../helper/index.js'
+import { makeTypeString } from '../../../helper/index.js'
 import type { Schema } from '../../../openapi/index.js'
 
 export function zodType(
@@ -14,10 +14,12 @@ export function zodType(
     schema.additionalProperties &&
     (!schema.properties || Object.keys(schema.properties).length === 0)
 
+  // Use interface for record-like types in cyclic groups to allow circular references
   if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
     const valueSchema =
       typeof schema.additionalProperties === 'object' ? schema.additionalProperties : {}
-    return `type ${typeName}Type=${makeRecordTypeString(valueSchema, typeName, cyclicGroup)}`
+    const valueType = makeTypeString(valueSchema, typeName, cyclicGroup)
+    return `interface ${typeName}Type{[key:string]:${valueType}}`
   }
 
   return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup)}`

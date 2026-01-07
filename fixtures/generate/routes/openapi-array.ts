@@ -16,9 +16,9 @@ export const getArrayRoute = createRoute({
               equivalent: z.array(z.string()),
               string_optional_array: z.array(z.string()),
               string_array_optional: z.array(z.string()).exactOptional(),
-              nonempty: z.array(z.string()).min(1).openapi({ minItems: 1 }),
-              min5: z.array(z.string()).min(5).openapi({ minItems: 5 }),
-              max5: z.array(z.string()).max(5).openapi({ maxItems: 5 }),
+              nonempty: z.array(z.string()).min(1),
+              min5: z.array(z.string()).min(5),
+              max5: z.array(z.string()).max(5),
               length5: z.array(z.string()),
             })
             .openapi({

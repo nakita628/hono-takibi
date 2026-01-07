@@ -38,9 +38,9 @@ const ProductSchema = z
     description: z.string().max(5000).exactOptional(),
     price: MoneySchema,
     category: ProductCategorySchema,
-    tags: z.array(z.string()).max(10).exactOptional().openapi({ maxItems: 10 }),
+    tags: z.array(z.string()).max(10).exactOptional(),
     inventory: z.int32().min(0).exactOptional(),
-    images: z.array(z.url()).max(10).exactOptional().openapi({ maxItems: 10 }),
+    images: z.array(z.url()).max(10).exactOptional(),
     metadata: z.record(z.string(), z.string()).exactOptional(),
     status: z.enum(['draft', 'active', 'archived']).default('draft').exactOptional(),
     createdAt: z.iso.datetime().exactOptional().openapi({ readOnly: true }),
@@ -110,7 +110,7 @@ const OrderSchema = z
   .object({
     id: z.uuid(),
     customerId: z.uuid(),
-    items: z.array(OrderItemSchema).min(1).openapi({ minItems: 1 }),
+    items: z.array(OrderItemSchema).min(1),
     status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']),
     total: MoneySchema,
     shippingAddress: AddressSchema.exactOptional(),
@@ -129,8 +129,7 @@ const CreateOrderInputSchema = z
           .object({ productId: z.uuid(), quantity: z.int().min(1) })
           .openapi({ required: ['productId', 'quantity'] }),
       )
-      .min(1)
-      .openapi({ minItems: 1 }),
+      .min(1),
     shippingAddress: AddressSchema,
     billingAddress: AddressSchema.exactOptional(),
     callbackUrl: z.url().exactOptional().openapi({ description: 'URL for order status webhooks' }),

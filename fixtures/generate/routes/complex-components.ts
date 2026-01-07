@@ -30,7 +30,9 @@ type TraceContextType = {
 
 type LinkType = { href: string; rel?: string; meta?: MetaType; next?: LinkType }
 
-type ResourceLinksType = Record<string, LinkType>
+interface ResourceLinksType {
+  [key: string]: LinkType
+}
 
 type MetaType = {
   createdAt: string

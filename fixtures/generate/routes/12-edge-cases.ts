@@ -71,12 +71,7 @@ const AllValidationsSchema = z
     minMaxNumber: z.number().min(0).max(100).exactOptional(),
     exclusiveMinMax: z.number().gt(0).lt(100).exactOptional(),
     multipleOf: z.number().multipleOf(0.5).exactOptional(),
-    minMaxItems: z
-      .array(z.string())
-      .min(1)
-      .max(10)
-      .exactOptional()
-      .openapi({ minItems: 1, maxItems: 10 }),
+    minMaxItems: z.array(z.string()).min(1).max(10).exactOptional(),
     uniqueItems: z.array(z.string()).exactOptional(),
   })
   .openapi('AllValidations')
@@ -166,11 +161,7 @@ const DeepNestedSchema = z
 
 const MatrixDataSchema = z.array(z.array(z.array(z.number()))).openapi('MatrixData')
 
-const CoordinateSchema = z
-  .array(z.number())
-  .length(3)
-  .openapi({ minItems: 3, maxItems: 3 })
-  .openapi('Coordinate')
+const CoordinateSchema = z.array(z.number()).length(3).openapi('Coordinate')
 
 const ComplexUnionSchema = z
   .xor([z.string(), z.number(), z.array(z.string()), z.object({ key: z.string().exactOptional() })])

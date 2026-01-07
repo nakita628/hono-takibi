@@ -131,8 +131,7 @@ const MultiRecipientSchema = z
     type: z.literal('multi'),
     recipients: z
       .array(z.union([EmailRecipientSchema, SmsRecipientSchema, PushRecipientSchema]))
-      .min(1)
-      .openapi({ minItems: 1 }),
+      .min(1),
   })
   .openapi({ required: ['type', 'recipients'] })
   .openapi('MultiRecipient')
@@ -186,18 +185,12 @@ const RectangleSchema = z
   .openapi('Rectangle')
 
 const TriangleSchema = z
-  .object({
-    type: z.literal('triangle'),
-    vertices: z.array(PointSchema).length(3).openapi({ minItems: 3, maxItems: 3 }),
-  })
+  .object({ type: z.literal('triangle'), vertices: z.array(PointSchema).length(3) })
   .openapi({ required: ['type', 'vertices'] })
   .openapi('Triangle')
 
 const PolygonSchema = z
-  .object({
-    type: z.literal('polygon'),
-    vertices: z.array(PointSchema).min(3).openapi({ minItems: 3 }),
-  })
+  .object({ type: z.literal('polygon'), vertices: z.array(PointSchema).min(3) })
   .openapi({ required: ['type', 'vertices'] })
   .openapi('Polygon')
 

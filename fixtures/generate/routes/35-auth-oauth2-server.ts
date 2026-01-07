@@ -255,7 +255,7 @@ const CreateClientRequestSchema = z
   .object({
     clientName: z.string().min(1).max(200),
     clientType: z.enum(['public', 'confidential']).default('confidential').exactOptional(),
-    redirectUris: z.array(z.url()).min(1).openapi({ minItems: 1 }),
+    redirectUris: z.array(z.url()).min(1),
     grantTypes: z
       .array(
         z.enum([
@@ -284,7 +284,7 @@ const CreateClientRequestSchema = z
 const UpdateClientRequestSchema = z
   .object({
     clientName: z.string().min(1).max(200).exactOptional(),
-    redirectUris: z.array(z.url()).min(1).exactOptional().openapi({ minItems: 1 }),
+    redirectUris: z.array(z.url()).min(1).exactOptional(),
     grantTypes: z.array(z.string()).exactOptional(),
     responseTypes: z.array(z.string()).exactOptional(),
     scope: z.string().exactOptional(),

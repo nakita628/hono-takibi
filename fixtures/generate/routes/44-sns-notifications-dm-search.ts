@@ -423,7 +423,7 @@ export const postDmConversationsRoute = createRoute({
                 .array(z.uuid())
                 .min(1)
                 .max(50)
-                .openapi({ minItems: 1, maxItems: 50, description: '参加者のユーザーID' }),
+                .openapi({ description: '参加者のユーザーID' }),
               name: z
                 .string()
                 .max(50)

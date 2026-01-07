@@ -14,7 +14,7 @@ type ExtremeCompositionsType = {
     | 'type10'
     | number
     | boolean
-    | unknown[]
+    | string[]
     | Record<string, unknown>
     | (Record<string, unknown> | null)
   deeplyNestedComposition?: (
@@ -107,48 +107,33 @@ const ExtremeNumbersSchema = z
 
 const ExtremeArraysSchema = z
   .object({
-    emptyOnly: z.array(z.any()).length(0).exactOptional().openapi({ minItems: 0, maxItems: 0 }),
-    singleOnly: z.array(z.string()).length(1).exactOptional().openapi({ minItems: 1, maxItems: 1 }),
-    hugeArray: z
-      .array(z.string())
-      .min(1000000)
-      .max(10000000)
-      .exactOptional()
-      .openapi({ minItems: 1000000, maxItems: 10000000 }),
-    uniqueBooleans: z.array(z.boolean()).max(2).exactOptional().openapi({ maxItems: 2 }),
+    emptyOnly: z.array(z.any()).length(0).exactOptional(),
+    singleOnly: z.array(z.string()).length(1).exactOptional(),
+    hugeArray: z.array(z.string()).min(1000000).max(10000000).exactOptional(),
+    uniqueBooleans: z.array(z.boolean()).max(2).exactOptional(),
     uniqueEnum: z
       .array(z.enum(['a', 'b', 'c']))
       .length(3)
-      .exactOptional()
-      .openapi({ minItems: 3, maxItems: 3 }),
+      .exactOptional(),
     deeplyNested: z
       .array(
         z
           .array(
             z
-              .array(
-                z
-                  .array(z.string().min(1).max(10))
-                  .min(4)
-                  .max(6)
-                  .openapi({ minItems: 4, maxItems: 6 }),
-              )
+              .array(z.array(z.string().min(1).max(10)).min(4).max(6))
               .min(3)
-              .max(5)
-              .openapi({ minItems: 3, maxItems: 5 }),
+              .max(5),
           )
           .min(2)
-          .max(4)
-          .openapi({ minItems: 2, maxItems: 4 }),
+          .max(4),
       )
       .min(1)
       .max(3)
-      .exactOptional()
-      .openapi({ minItems: 1, maxItems: 3 }),
+      .exactOptional(),
     uniqueNested: z.array(z.array(z.int())).exactOptional(),
-    largeTuple: z.array(z.any()).length(10).exactOptional().openapi({ minItems: 10, maxItems: 10 }),
-    tupleWithAdditional: z.array(z.boolean()).min(5).exactOptional().openapi({ minItems: 5 }),
-    containsConstraint: z.array(z.any()).min(10).exactOptional().openapi({ minItems: 10 }),
+    largeTuple: z.array(z.any()).length(10).exactOptional(),
+    tupleWithAdditional: z.array(z.boolean()).min(5).exactOptional(),
+    containsConstraint: z.array(z.any()).min(10).exactOptional(),
   })
   .openapi('ExtremeArrays')
 
@@ -287,15 +272,15 @@ const ExtremeCompositionsSchema: z.ZodType<ExtremeCompositionsType> = z
           }),
         )
         .exactOptional(),
-      recursiveConstrained: z.object({
-        value: z.string().min(1).exactOptional(),
-        children: z
-          .array(z.lazy(() => ExtremeCompositionsSchema))
-          .max(5)
-          .exactOptional()
-          .exactOptional()
-          .openapi({ maxItems: 5 }),
-      }),
+      recursiveConstrained: z
+        .object({
+          value: z.string().min(1).exactOptional(),
+          children: z
+            .array(z.lazy(() => ExtremeCompositionsSchema))
+            .max(5)
+            .exactOptional(),
+        })
+        .exactOptional(),
     }),
   )
   .openapi('ExtremeCompositions')
