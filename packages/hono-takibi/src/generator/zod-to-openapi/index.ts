@@ -1,3 +1,31 @@
+/**
+ * OpenAPI Schema to Zod schema converter.
+ *
+ * Transforms OpenAPI/JSON Schema definitions into Zod validation schemas,
+ * supporting all common schema types and combinators.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["zodToOpenAPI(schema)"] --> B{"Has $ref?"}
+ *   B -->|Yes| C["makeRef()"]
+ *   B -->|No| D{"Has combinator?"}
+ *   D -->|allOf| E["z.intersection()"]
+ *   D -->|anyOf| F["z.union()"]
+ *   D -->|oneOf| G["z.discriminatedUnion() or z.xor()"]
+ *   D -->|not| H["z.any().refine()"]
+ *   D -->|No| I{"Check type"}
+ *   I -->|string| J["string()"]
+ *   I -->|number| K["number()"]
+ *   I -->|integer| L["integer()"]
+ *   I -->|boolean| M["z.boolean()"]
+ *   I -->|array| N["z.array()"]
+ *   I -->|object| O["object()"]
+ *   I -->|null| P["z.null()"]
+ *   I -->|unknown| Q["z.any()"]
+ * ```
+ *
+ * @module generator/zod-to-openapi
+ */
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
@@ -8,6 +36,46 @@ import { number } from './z/number.js'
 import { object } from './z/object.js'
 import { string } from './z/string.js'
 
+/**
+ * Converts an OpenAPI Schema to a Zod schema string.
+ *
+ * Supports all JSON Schema types and OpenAPI extensions:
+ * - Primitives: string, number, integer, boolean, null
+ * - Complex: object, array
+ * - Combinators: allOf, anyOf, oneOf, not
+ * - References: $ref
+ * - Modifiers: nullable, default, enum, const
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["OpenAPI Schema"] --> B["zodToOpenAPI()"]
+ *   B --> C["Zod Schema String"]
+ *   C --> D["e.g. z.object({...})"]
+ * ```
+ *
+ * @param schema - OpenAPI Schema object to convert
+ * @param meta - Optional parameter/header metadata for validation
+ * @returns Zod schema string representation
+ *
+ * @example
+ * ```ts
+ * // Simple string
+ * zodToOpenAPI({ type: 'string' })
+ * // → 'z.string()'
+ *
+ * // Object with properties
+ * zodToOpenAPI({
+ *   type: 'object',
+ *   properties: { name: { type: 'string' } },
+ *   required: ['name']
+ * })
+ * // → 'z.object({ name: z.string() })'
+ *
+ * // Reference
+ * zodToOpenAPI({ $ref: '#/components/schemas/User' })
+ * // → 'UserSchema'
+ * ```
+ */
 export function zodToOpenAPI(
   schema: Schema,
   meta?: {

@@ -1,3 +1,24 @@
+/**
+ * Core component generation module.
+ *
+ * Handles generation of OpenAPI components (schemas, parameters, headers, etc.)
+ * with support for split mode (one file per component) and single file mode.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["componentsCore(components, suffix, output, split)"] --> B{"suffix type?"}
+ *   B -->|Schema/Header/Parameter| C["Zod code generation"]
+ *   B -->|Example/Link/Callback| D["JSON export generation"]
+ *   C --> E{"split mode?"}
+ *   E -->|Yes| F["Generate individual files + index.ts"]
+ *   E -->|No| G["Generate single file"]
+ *   D --> H{"split mode?"}
+ *   H -->|Yes| I["makeExports()"]
+ *   H -->|No| J["makeExportConst()"]
+ * ```
+ *
+ * @module core
+ */
 import path from 'node:path'
 import { headersCode } from '../generator/zod-openapi-hono/openapi/components/headers.js'
 import { parametersCode } from '../generator/zod-openapi-hono/openapi/components/parameters.js'
@@ -18,6 +39,60 @@ import {
 import type { Components } from '../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../utils/index.js'
 
+/**
+ * Generates OpenAPI component code files.
+ *
+ * Supports multiple component types and output modes:
+ * - **Schema/Header/Parameter/RequestBody/Response**: Generates Zod validation schemas
+ * - **Example/Link/Callback/SecurityScheme**: Generates JSON export constants
+ *
+ * ```mermaid
+ * flowchart LR
+ *   subgraph Input
+ *     A["OpenAPI Components"]
+ *   end
+ *   subgraph Processing
+ *     B["componentsCore()"]
+ *   end
+ *   subgraph Output
+ *     C["Single .ts file"]
+ *     D["Multiple .ts files + index.ts"]
+ *   end
+ *   A --> B
+ *   B -->|split=false| C
+ *   B -->|split=true| D
+ * ```
+ *
+ * @param components - OpenAPI components object
+ * @param suffix - Component type suffix (Schema, Parameter, Header, etc.)
+ * @param output - Output file path or directory
+ * @param split - Whether to split into multiple files
+ * @param exportType - Whether to export TypeScript types
+ * @param imports - Import configuration for schema references
+ * @returns Promise resolving to success message or error
+ *
+ * @example
+ * ```ts
+ * // Generate schemas in single file
+ * await componentsCore(
+ *   { schemas: { User: { type: 'object', ... } } },
+ *   'Schema',
+ *   'src/schemas.ts',
+ *   false,
+ *   true
+ * )
+ *
+ * // Generate schemas in split mode
+ * await componentsCore(
+ *   { schemas: { User: {...}, Post: {...} } },
+ *   'Schema',
+ *   'src/schemas',
+ *   true,
+ *   true
+ * )
+ * // Creates: src/schemas/user.ts, src/schemas/post.ts, src/schemas/index.ts
+ * ```
+ */
 export async function componentsCore(
   components: Components,
   suffix: keyof {

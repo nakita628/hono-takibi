@@ -1,3 +1,31 @@
+/**
+ * AST-based utilities for schema dependency analysis and topological sorting.
+ *
+ * This module provides:
+ * - Circular dependency detection using Tarjan's algorithm
+ * - Topological sorting for schema declarations
+ * - AST-based identifier extraction
+ *
+ * ```mermaid
+ * flowchart TD
+ *   subgraph "Circular Analysis"
+ *     A["analyzeCircularSchemas(schemas, names)"] --> B["Generate zod code for each schema"]
+ *     B --> C["Extract identifier references"]
+ *     C --> D["Build dependency graph"]
+ *     D --> E["Run Tarjan's SCC algorithm"]
+ *     E --> F["Return CircularAnalysis"]
+ *   end
+ *   subgraph "Topological Sort"
+ *     G["ast(code)"] --> H["Parse TypeScript AST"]
+ *     H --> I["Extract declarations"]
+ *     I --> J["Analyze references"]
+ *     J --> K["Topological sort"]
+ *     K --> L["Return sorted code"]
+ *   end
+ * ```
+ *
+ * @module helper/ast
+ */
 import ts from 'typescript'
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
@@ -7,6 +35,12 @@ import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 // AST-based identifier extraction
 // =============================================================================
 
+/**
+ * Creates a TypeScript source file from code string.
+ *
+ * @param code - TypeScript code to parse
+ * @returns Parsed TypeScript SourceFile
+ */
 const createSourceFile = (code: string): ts.SourceFile =>
   ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
 
@@ -155,15 +189,68 @@ const findCyclicSchemas = (
   )
 }
 
+/**
+ * Result of circular dependency analysis.
+ *
+ * ```mermaid
+ * classDiagram
+ *   class CircularAnalysis {
+ *     +zSchemaMap: Map~string, string~
+ *     +depsMap: Map~string, string[]~
+ *     +cyclicSchemas: Set~string~
+ *     +extendedCyclicSchemas: Set~string~
+ *     +cyclicGroupPascal: Set~string~
+ *     +varNameToName: Map~string, string~
+ *   }
+ * ```
+ */
 export interface CircularAnalysis {
+  /** Map from schema name to generated Zod code */
   readonly zSchemaMap: ReadonlyMap<string, string>
+  /** Map from schema name to its dependency variable names */
   readonly depsMap: ReadonlyMap<string, readonly string[]>
+  /** Set of schema names that are part of a cycle */
   readonly cyclicSchemas: ReadonlySet<string>
+  /** Set of cyclic schemas plus their direct dependencies */
   readonly extendedCyclicSchemas: ReadonlySet<string>
+  /** PascalCase versions of extended cyclic schemas */
   readonly cyclicGroupPascal: ReadonlySet<string>
+  /** Map from variable name to original schema name */
   readonly varNameToName: ReadonlyMap<string, string>
 }
 
+/**
+ * Analyzes OpenAPI schemas for circular dependencies using Tarjan's algorithm.
+ *
+ * This function:
+ * 1. Generates Zod code for each schema
+ * 2. Extracts identifier references from the code
+ * 3. Builds a dependency graph
+ * 4. Detects strongly connected components (cycles)
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["Schema A"] --> B["Schema B"]
+ *   B --> C["Schema C"]
+ *   C --> A
+ *   D["Schema D"] --> B
+ * ```
+ *
+ * In this example, A, B, C form a cycle. D depends on B but is not cyclic.
+ *
+ * @param schemas - Record of schema name to Schema definition
+ * @param schemaNames - Array of schema names to analyze
+ * @returns CircularAnalysis containing dependency information
+ *
+ * @example
+ * ```ts
+ * const schemas = {
+ *   User: { type: 'object', properties: { friend: { $ref: '#/components/schemas/User' } } }
+ * }
+ * const analysis = analyzeCircularSchemas(schemas, ['User'])
+ * // analysis.cyclicSchemas contains 'User' (self-referential)
+ * ```
+ */
 export function analyzeCircularSchemas(
   schemas: Record<string, Schema>,
   schemaNames: readonly string[],
@@ -303,6 +390,38 @@ const topoSort = (decls: readonly Declaration[]): readonly Declaration[] => {
   return decls.reduce((state, d) => visit(d.name, state), initial).sorted
 }
 
+/**
+ * Sorts TypeScript declarations by dependency order using topological sort.
+ *
+ * Parses the given TypeScript code, extracts variable/type/interface declarations,
+ * analyzes their dependencies, and returns the code with declarations reordered
+ * so that dependencies appear before dependents.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["Input: const B = A; const A = z.string();"] --> B["Parse AST"]
+ *   B --> C["Extract declarations: B, A"]
+ *   C --> D["Analyze refs: B depends on A"]
+ *   D --> E["Topological sort: A, B"]
+ *   E --> F["Output: const A = z.string(); const B = A;"]
+ * ```
+ *
+ * @param code - TypeScript source code containing declarations
+ * @returns Code with declarations sorted by dependency order
+ *
+ * @example
+ * ```ts
+ * const input = `
+ *   const UserSchema = z.object({ name: NameSchema })
+ *   const NameSchema = z.string()
+ * `
+ * const sorted = ast(input)
+ * // Result:
+ * // const NameSchema = z.string()
+ * //
+ * // const UserSchema = z.object({ name: NameSchema })
+ * ```
+ */
 export function ast(code: string): string {
   const sourceFile = createSourceFile(code)
   const decls = parseStatements(sourceFile)

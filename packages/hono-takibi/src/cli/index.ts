@@ -1,3 +1,24 @@
+/**
+ * CLI module for hono-takibi.
+ *
+ * Provides the main entry point for the CLI tool that converts OpenAPI
+ * specifications to Hono routes with Zod validation.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["honoTakibi()"] --> B{"--help or -h?"}
+ *   B -->|Yes| C["Return HELP_TEXT"]
+ *   B -->|No| D{"hono-takibi.config.ts exists?"}
+ *   D -->|No| E["Parse CLI args"]
+ *   D -->|Yes| F["Load config file"]
+ *   E --> G["parseOpenAPI(input)"]
+ *   F --> G
+ *   G --> H["takibi() + components"]
+ *   H --> I["Return success/error"]
+ * ```
+ *
+ * @module cli
+ */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
@@ -29,6 +50,42 @@ Options:
   --base-path <path>          api prefix (default: /)
   -h, --help                  display help for command`
 
+/**
+ * Main CLI entry point for hono-takibi.
+ *
+ * Processes command-line arguments or config file to generate TypeScript
+ * code from OpenAPI specifications. Supports both CLI mode and config file mode.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["Start"] --> B{"Args: --help/-h?"}
+ *   B -->|Yes| C["Return help text"]
+ *   B -->|No| D{"Config file exists?"}
+ *   D -->|No| E["CLI Mode"]
+ *   D -->|Yes| F["Config Mode"]
+ *   E --> G["parseCli(args)"]
+ *   G --> H["parseOpenAPI(input)"]
+ *   H --> I["takibi(openAPI, ...)"]
+ *   F --> J["config()"]
+ *   J --> K["parseOpenAPI(config.input)"]
+ *   K --> L["Generate all components"]
+ *   L --> M["Return results"]
+ *   I --> M
+ * ```
+ *
+ * @returns Promise resolving to success with output message or error
+ *
+ * @example
+ * ```ts
+ * // CLI usage
+ * const result = await honoTakibi()
+ * if (result.ok) {
+ *   console.log(result.value) // "Generated code written to routes.ts"
+ * } else {
+ *   console.error(result.error)
+ * }
+ * ```
+ */
 export async function honoTakibi(): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

@@ -1,3 +1,20 @@
+/**
+ * TypeScript type generation module.
+ *
+ * Generates TypeScript type declarations from OpenAPI specifications
+ * using the TypeScript compiler API for type inference.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["type(openAPI, output)"] --> B["Generate Hono routes code"]
+ *   B --> C["Create virtual TypeScript file"]
+ *   C --> D["Use TS compiler to infer types"]
+ *   D --> E["Extract api type"]
+ *   E --> F["Write type declaration file"]
+ * ```
+ *
+ * @module core/type
+ */
 import path from 'node:path'
 import ts from 'typescript'
 import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
@@ -5,6 +22,37 @@ import { core } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
 
+/**
+ * Generates TypeScript type declarations from OpenAPI specification.
+ *
+ * Uses the TypeScript compiler API to infer the complete type
+ * of a Hono OpenAPI application, then outputs a declaration file.
+ *
+ * ```mermaid
+ * flowchart LR
+ *   subgraph "Type Inference"
+ *     A["OpenAPI Spec"] --> B["Generate routes"]
+ *     B --> C["TS Compiler"]
+ *     C --> D["Infer AddType"]
+ *   end
+ *   subgraph "Output"
+ *     E["declare const routes: {...}"]
+ *   end
+ *   D --> E
+ * ```
+ *
+ * @param openAPI - Parsed OpenAPI specification
+ * @param output - Output file path for type declarations
+ * @returns Promise resolving to success message or error
+ *
+ * @example
+ * ```ts
+ * await type(openAPI, 'src/api.d.ts')
+ * // Generates: src/api.d.ts
+ * // declare const routes: OpenAPIHono<...>
+ * // export default routes
+ * ```
+ */
 export async function type(
   openAPI: OpenAPI,
   output: `${string}.ts`,
