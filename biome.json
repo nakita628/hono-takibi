@@ -13,6 +13,8 @@
       "!**/*.js",
       "!**/routes",
       "!**/rpcs",
+      "!**/types",
+      "!**/clients",
       "!**/fixtures/vite/src/handlers",
       "!**/fixtures/vite/src/rpcs",
       "!**/fixtures/type/*.ts"

@@ -41,12 +41,12 @@
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
     },
     "./rpc": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js"
+      "types": "./dist/core/rpc/index.d.ts",
+      "import": "./dist/core/rpc/index.js"
     },
     "./type": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js"
+      "types": "./dist/core/type/index.d.ts",
+      "import": "./dist/core/type/index.js"
     }
   },
   "scripts": {
