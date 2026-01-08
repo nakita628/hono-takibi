@@ -1,48 +1,16 @@
 import { spawn } from 'node:child_process'
-import { readdir, writeFile } from 'node:fs/promises'
-import { availableParallelism } from 'node:os'
-import path, { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import SwaggerParser from '@apidevtools/swagger-parser'
-import { compile, NodeHost } from '@typespec/compiler'
-import { getOpenAPI3 } from '@typespec/openapi3'
+import { writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { rpc } from 'hono-takibi/rpc'
 import { type as generateType } from 'hono-takibi/type'
-
-type OpenAPI = Parameters<typeof generateType>[0]
-
-async function parseOpenAPI(
-  input: string,
-): Promise<
-  { readonly ok: true; readonly value: OpenAPI } | { readonly ok: false; readonly error: string }
-> {
-  try {
-    if (input.endsWith('.tsp')) {
-      const program = await compile(NodeHost, path.resolve(input), {
-        noEmit: true,
-      })
-      if (program.diagnostics.length) {
-        return {
-          ok: false,
-          error: 'TypeSpec compile failed',
-        }
-      }
-      const [record] = await getOpenAPI3(program)
-      const tsp = 'document' in record ? record.document : record.versions[0].document
-      const bundled = await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))
-      return { ok: true, value: bundled as unknown as OpenAPI }
-    }
-    const bundled = await SwaggerParser.bundle(input)
-    return { ok: true, value: bundled as unknown as OpenAPI }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
-}
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const WORKERS = availableParallelism()
-
-type Result = { file: string; success: true } | { file: string; success: false; stderr: string }
+import {
+  __dirname,
+  getOpenAPIFiles,
+  parseOpenAPI,
+  printFailures,
+  type Result,
+  WORKERS,
+} from './common'
 
 /* ─────────────────────────────── Route generation (spawn) ─────────────────────────────── */
 
@@ -70,9 +38,7 @@ const runRoute = (file: string): Promise<Result> =>
 /* ─────────────────────────────── Main ─────────────────────────────── */
 
 async function main() {
-  const files = (await readdir(join(__dirname, '../openapi'))).filter((f) =>
-    /\.(yaml|json|tsp)$/i.test(f),
-  )
+  const files = await getOpenAPIFiles()
 
   const queue = [...files]
   const routeResults: Result[] = []
@@ -92,12 +58,9 @@ async function main() {
     (r): r is Extract<Result, { success: false }> => !r.success,
   )
 
+  printFailures(routeFailures, routeResults.length, 'route files')
+
   if (routeFailures.length > 0) {
-    console.error(`\n${routeFailures.length}/${routeResults.length} route files failed:\n`)
-    for (const { file, stderr } of routeFailures) {
-      console.error(`--- ${file} ---`)
-      console.error(stderr || '(no stderr output)')
-    }
     process.exit(1)
   }
 
@@ -148,12 +111,9 @@ export const client = hc<typeof routes>('/')
     (r): r is { file: string; success: false; error: string } => !r.success,
   )
 
+  printFailures(genFailures, generateResults.length, 'type/rpc files')
+
   if (genFailures.length > 0) {
-    console.error(`\n${genFailures.length}/${generateResults.length} files failed:\n`)
-    for (const { file, error } of genFailures) {
-      console.error(`--- ${file} ---`)
-      console.error(error)
-    }
     process.exit(1)
   }
 
