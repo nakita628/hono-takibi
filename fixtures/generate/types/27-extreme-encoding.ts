@@ -1,4 +1,4 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.4/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
+declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
   import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
   {
     '/encoding-test': {
@@ -11,15 +11,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             objectForm?: { key1?: string | undefined; key2?: number | undefined } | undefined
             objectDeepObject?: { nested?: { deep?: string | undefined } | undefined } | undefined
             imageFile?:
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
               | undefined
             documentFile?:
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
               | undefined
             jsonString?: { data?: string | undefined } | undefined
             base64Data?: string | undefined
             multipleFiles?:
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File[]
+              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File[]
               | undefined
             complexNested?:
               | {
@@ -109,7 +109,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             output:
               | string
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
               | {
                   data?: Record<string, never> | undefined
                   meta?: Record<string, never> | undefined
@@ -142,7 +142,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json:
             | string
-            | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+            | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
             | {
                 data?: string | undefined
                 filename?: string | undefined
@@ -150,13 +150,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             | {
                 part1?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
                   | undefined
                 part2?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
                   | undefined
                 part3?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
                   | undefined
               }
         }

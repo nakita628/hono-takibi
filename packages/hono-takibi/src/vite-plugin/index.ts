@@ -1,3 +1,27 @@
+/**
+ * Vite plugin module for hono-takibi.
+ *
+ * Provides a Vite plugin that automatically regenerates TypeScript code
+ * from OpenAPI specifications during development. Watches for changes
+ * in the OpenAPI spec and config file, triggering hot reloads.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["honoTakibiVite()"] --> B["configureServer()"]
+ *   B --> C["loadConfigHot()"]
+ *   C --> D["parseOpenAPI(input)"]
+ *   D --> E["runAllWithConf()"]
+ *   E --> F["Generate schemas"]
+ *   E --> G["Generate routes"]
+ *   E --> H["Generate types/rpc"]
+ *   F --> I["Write files"]
+ *   G --> I
+ *   H --> I
+ *   I --> J["Hot reload"]
+ * ```
+ *
+ * @module vite-plugin
+ */
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import { parseConfig } from '../config/index.js'
@@ -19,9 +43,17 @@ import {
 import { parseOpenAPI } from '../openapi/index.js'
 import { isRecord } from '../utils/index.js'
 
+/**
+ * Parsed configuration type extracted from parseConfig result.
+ */
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
-// Minimal dev-server surface so we do not depend on Vite's types directly
+/**
+ * Minimal Vite dev-server interface.
+ *
+ * Defines only the surface area needed by this plugin, avoiding
+ * direct dependency on Vite's types for better compatibility.
+ */
 type DevServerLike = {
   watcher: {
     add: (paths: string | readonly string[]) => void
@@ -41,10 +73,39 @@ type DevServerLike = {
  * Small helpers (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Type guard for configuration objects.
+ *
+ * @param v - Value to check
+ * @returns True if value is a valid configuration object
+ */
 const isConf = (v: unknown): v is Conf => typeof v === 'object' && v !== null
+
+/**
+ * Converts a relative path to an absolute path.
+ *
+ * @param p - Relative path
+ * @returns Absolute path resolved from current working directory
+ */
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
+
+/**
+ * Type guard for TypeScript file paths.
+ *
+ * @param p - Path to check
+ * @returns True if path ends with .ts
+ */
 const isTsFile = (p: string): p is `${string}.ts` => p.endsWith('.ts')
 
+/**
+ * Hot-loads the hono-takibi configuration file.
+ *
+ * Invalidates the module cache and reloads the config file to pick up
+ * changes during development. Uses Vite's SSR module loading.
+ *
+ * @param server - Vite dev server instance
+ * @returns Promise resolving to parsed config or error
+ */
 const loadConfigHot = async (
   server: DevServerLike,
 ): Promise<{ ok: true; value: Conf } | { ok: false; error: string }> => {
@@ -73,6 +134,12 @@ const loadConfigHot = async (
  * Purge helpers (shallow .ts file cleanup)
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Lists TypeScript files in a directory (shallow, non-recursive).
+ *
+ * @param dir - Directory path to scan
+ * @returns Promise resolving to array of absolute file paths
+ */
 const listTsShallow = async (dir: string): Promise<string[]> =>
   fsp
     .stat(dir)
@@ -89,6 +156,14 @@ const listTsShallow = async (dir: string): Promise<string[]> =>
     )
     .catch((): string[] => [])
 
+/**
+ * Deletes all TypeScript files in a directory (shallow, non-recursive).
+ *
+ * Used to clean up stale generated files before regeneration.
+ *
+ * @param dir - Directory path to clean
+ * @returns Promise resolving to array of deleted file paths
+ */
 const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
   listTsShallow(dir).then((files) =>
     Promise.all(
@@ -101,6 +176,16 @@ const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
     ).then((res) => res.filter((x) => x !== null)),
   )
 
+/**
+ * Creates a debounced version of a function.
+ *
+ * Delays invocation until after the specified milliseconds have elapsed
+ * since the last call. Uses WeakMap for cleanup.
+ *
+ * @param ms - Delay in milliseconds
+ * @param fn - Function to debounce
+ * @returns Debounced function
+ */
 const debounce = (ms: number, fn: () => void): (() => void) => {
   const bucket = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
   const wrapped = (): void => {
@@ -115,6 +200,27 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
  * Run generation with current config
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Runs all code generation tasks based on the provided configuration.
+ *
+ * Executes generation tasks in parallel for optimal performance.
+ * Each task handles a specific component type (schemas, routes, etc.).
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["runAllWithConf"] --> B["parseOpenAPI"]
+ *   B --> C["Promise.all"]
+ *   C --> D["schemas"]
+ *   C --> E["routes"]
+ *   C --> F["parameters"]
+ *   C --> G["headers"]
+ *   C --> H["responses"]
+ *   C --> I["...others"]
+ * ```
+ *
+ * @param c - Parsed configuration object
+ * @returns Promise resolving to object containing log messages
+ */
 const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   const openAPIResult = await parseOpenAPI(c.input)
   if (!openAPIResult.ok) return { logs: [`✗ parseOpenAPI: ${openAPIResult.error}`] }
@@ -382,6 +488,15 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
  * Watch helpers
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Adds glob patterns to the Vite file watcher.
+ *
+ * Watches the input file and related files (.yaml, .json, .tsp) in the
+ * same directory for changes.
+ *
+ * @param server - Vite dev server instance
+ * @param absInput - Absolute path to the input OpenAPI file
+ */
 const addInputGlobs = (server: DevServerLike, absInput: string) => {
   const dir = path.dirname(absInput)
   const globs: string[] = [
@@ -397,6 +512,47 @@ const addInputGlobs = (server: DevServerLike, absInput: string) => {
  * Plugin
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Creates a Vite plugin for hono-takibi code generation.
+ *
+ * This plugin automatically regenerates TypeScript code from OpenAPI
+ * specifications during development. It watches for changes in:
+ * - The OpenAPI spec file (yaml/json/tsp)
+ * - The hono-takibi.config.ts configuration file
+ *
+ * ```mermaid
+ * sequenceDiagram
+ *   participant V as Vite
+ *   participant P as Plugin
+ *   participant C as Config
+ *   participant G as Generator
+ *
+ *   V->>P: configureServer()
+ *   P->>C: loadConfigHot()
+ *   C-->>P: config
+ *   P->>G: runAllWithConf()
+ *   G-->>P: logs
+ *   P->>V: hot reload
+ *
+ *   Note over V,G: On file change
+ *   V->>P: handleHotUpdate()
+ *   P->>G: runAllWithConf()
+ *   G-->>P: logs
+ *   P->>V: full-reload
+ * ```
+ *
+ * @returns Vite plugin object
+ *
+ * @example
+ * ```ts
+ * // vite.config.ts
+ * import { honoTakibiVite } from 'hono-takibi/vite-plugin'
+ *
+ * export default defineConfig({
+ *   plugins: [honoTakibiVite()]
+ * })
+ * ```
+ */
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
   const state: { current: Conf | null } = { current: null }

@@ -1,4 +1,4 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.4/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
+declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
   import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
   { '/all-methods': { $get: { input: {}; output: {}; outputFormat: string; status: 200 } } } & {
     '/all-methods': { $post: { input: {}; output: {}; outputFormat: string; status: 200 } }
@@ -64,7 +64,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | string
               | { data?: Record<string, never> | undefined }
               | { data?: string | undefined }
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
             outputFormat: 'text'
             status: 200
           }
@@ -77,7 +77,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | { data?: Record<string, never> | undefined }
             | {
                 file?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
                   | undefined
                 metadata?: string | undefined
               }
@@ -87,7 +87,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | { data?: Record<string, never> | undefined }
             | {
                 file?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.4/node_modules/zod/v4/core/schemas').File
+                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
                   | undefined
                 metadata?: string | undefined
               }

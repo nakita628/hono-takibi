@@ -1,0 +1,247 @@
+import { describe, expect, it } from 'vitest'
+import { makeRecordTypeString, makeTypeString } from './type.js'
+
+// Test run
+// pnpm vitest run ./src/helper/type.test.ts
+
+describe('makeTypeString', () => {
+  describe('primitive types', () => {
+    it('should handle string type', () => {
+      expect(makeTypeString({ type: 'string' }, 'Test')).toBe('string')
+    })
+
+    it('should handle number type', () => {
+      expect(makeTypeString({ type: 'number' }, 'Test')).toBe('number')
+    })
+
+    it('should handle integer type', () => {
+      expect(makeTypeString({ type: 'integer' }, 'Test')).toBe('number')
+    })
+
+    it('should handle boolean type', () => {
+      expect(makeTypeString({ type: 'boolean' }, 'Test')).toBe('boolean')
+    })
+
+    it('should handle null type', () => {
+      // null type alone is treated as nullable object
+      expect(makeTypeString({ type: 'null' }, 'Test')).toBe('({[key:string]:unknown}|null)')
+    })
+  })
+
+  describe('nullable types', () => {
+    it('should handle nullable string', () => {
+      expect(makeTypeString({ type: 'string', nullable: true }, 'Test')).toBe('(string|null)')
+    })
+
+    it('should handle type array with null', () => {
+      expect(makeTypeString({ type: ['string', 'null'] }, 'Test')).toBe('(string|null)')
+    })
+  })
+
+  describe('$ref types', () => {
+    it('should handle simple $ref', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/User' }, 'Test')).toBe(
+        'z.infer<typeof UserSchema>',
+      )
+    })
+
+    it('should handle self-reference', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/User' }, 'User')).toBe('UserType')
+    })
+
+    it('should handle cyclic group reference', () => {
+      const cyclicGroup = new Set(['Parent', 'Child'])
+      expect(makeTypeString({ $ref: '#/components/schemas/Parent' }, 'Child', cyclicGroup)).toBe(
+        'ParentType',
+      )
+    })
+
+    it('should handle properties $ref', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/User/properties/name' }, 'Test')).toBe(
+        'z.infer<typeof UserSchema>',
+      )
+    })
+  })
+
+  describe('union types', () => {
+    it('should handle oneOf', () => {
+      const result = makeTypeString(
+        {
+          oneOf: [{ type: 'string' }, { type: 'number' }],
+        },
+        'Test',
+      )
+      expect(result).toBe('(string|number)')
+    })
+
+    it('should handle anyOf', () => {
+      const result = makeTypeString(
+        {
+          anyOf: [{ type: 'string' }, { type: 'boolean' }],
+        },
+        'Test',
+      )
+      expect(result).toBe('(string|boolean)')
+    })
+
+    it('should handle allOf as intersection', () => {
+      const result = makeTypeString(
+        {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'integer' } } },
+            { type: 'object', properties: { name: { type: 'string' } } },
+          ],
+        },
+        'Test',
+      )
+      expect(result).toContain('&')
+    })
+
+    it('should handle single item union', () => {
+      const result = makeTypeString(
+        {
+          oneOf: [{ type: 'string' }],
+        },
+        'Test',
+      )
+      expect(result).toBe('string')
+    })
+  })
+
+  describe('enum types', () => {
+    it('should handle string enum', () => {
+      expect(makeTypeString({ enum: ['active', 'inactive'] }, 'Test')).toBe("'active'|'inactive'")
+    })
+
+    it('should handle numeric enum', () => {
+      expect(makeTypeString({ enum: [1, 2, 3] }, 'Test')).toBe('1|2|3')
+    })
+
+    it('should handle mixed enum', () => {
+      expect(makeTypeString({ enum: ['a', 1, 'b'] }, 'Test')).toBe("'a'|1|'b'")
+    })
+  })
+
+  describe('const types', () => {
+    it('should handle string const', () => {
+      expect(makeTypeString({ const: 'fixed' }, 'Test')).toBe("'fixed'")
+    })
+
+    it('should handle numeric const', () => {
+      expect(makeTypeString({ const: 42 }, 'Test')).toBe('42')
+    })
+
+    it('should handle boolean const', () => {
+      expect(makeTypeString({ const: true }, 'Test')).toBe('true')
+    })
+  })
+
+  describe('array types', () => {
+    it('should handle array of strings', () => {
+      expect(makeTypeString({ type: 'array', items: { type: 'string' } }, 'Test')).toBe('string[]')
+    })
+
+    it('should handle array of refs', () => {
+      expect(
+        makeTypeString({ type: 'array', items: { $ref: '#/components/schemas/User' } }, 'Test'),
+      ).toBe('z.infer<typeof UserSchema>[]')
+    })
+
+    it('should handle self-referencing array', () => {
+      expect(
+        makeTypeString({ type: 'array', items: { $ref: '#/components/schemas/Node' } }, 'Node'),
+      ).toBe('NodeType[]')
+    })
+
+    it('should handle array without items', () => {
+      expect(makeTypeString({ type: 'array' }, 'Test')).toBe('unknown[]')
+    })
+
+    it('should handle tuple array', () => {
+      const result = makeTypeString(
+        { type: 'array', items: [{ type: 'string' }, { type: 'number' }] },
+        'Test',
+      )
+      expect(result).toBe('[string,number]')
+    })
+  })
+
+  describe('object types', () => {
+    it('should handle object with properties', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+          required: ['id'],
+        },
+        'Test',
+      )
+      expect(result).toBe('{id:number;name?:string}')
+    })
+
+    it('should handle object with additionalProperties true', () => {
+      expect(makeTypeString({ type: 'object', additionalProperties: true }, 'Test')).toBe(
+        '{[key:string]:unknown}',
+      )
+    })
+
+    it('should handle object with typed additionalProperties', () => {
+      expect(
+        makeTypeString({ type: 'object', additionalProperties: { type: 'string' } }, 'Test'),
+      ).toBe('{[key:string]:string}')
+    })
+
+    it('should handle empty object', () => {
+      expect(makeTypeString({ type: 'object' }, 'Test')).toBe('{[key:string]:unknown}')
+    })
+
+    it('should handle property keys with special characters', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            'special-key': { type: 'string' },
+          },
+        },
+        'Test',
+      )
+      expect(result).toContain("'special-key'")
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should handle undefined schema', () => {
+      expect(makeTypeString(undefined as never, 'Test')).toBe('unknown')
+    })
+
+    it('should handle schema without type', () => {
+      expect(makeTypeString({}, 'Test')).toBe('{[key:string]:unknown}')
+    })
+
+    it('should handle multiple types', () => {
+      const result = makeTypeString({ type: ['string', 'number'] }, 'Test')
+      expect(result).toBe('string|number')
+    })
+  })
+})
+
+describe('makeRecordTypeString', () => {
+  it('should generate record type for string values', () => {
+    expect(makeRecordTypeString({ type: 'string' }, 'Test')).toBe('{[key:string]:string}')
+  })
+
+  it('should generate record type for complex values', () => {
+    expect(
+      makeRecordTypeString({ type: 'object', properties: { id: { type: 'integer' } } }, 'Test'),
+    ).toBe('{[key:string]:{id?:number}}')
+  })
+
+  it('should handle ref values', () => {
+    expect(makeRecordTypeString({ $ref: '#/components/schemas/User' }, 'Test')).toBe(
+      '{[key:string]:z.infer<typeof UserSchema>}',
+    )
+  })
+})
