@@ -21,7 +21,6 @@ import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.j
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { isHttpMethod, methodPath } from '../../utils/index.js'
-
 /**
  * Generates TypeScript type declarations from OpenAPI specification.
  *

@@ -3,10 +3,7 @@
  *
  * @module core
  */
-
-// Component generation functions
 export * from './components/index.js'
-
 // Generation functions
 export { route } from './route/index.js'
 export { rpc } from './rpc/index.js'
