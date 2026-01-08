@@ -93,7 +93,7 @@ type Config = {
   }
 }
 
-function parseConfig(
+export function parseConfig(
   config: Config,
 ): { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string } {
   const isYamlOrJsonOrTsp = (

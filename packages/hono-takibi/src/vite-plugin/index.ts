@@ -1,12 +1,23 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-import { componentsCore } from '../core/index.js'
-import { route } from '../core/route.js'
-import { rpc } from '../core/rpc.js'
-import { takibi } from '../core/takibi.js'
-import { type } from '../core/type.js'
+import { parseConfig } from '../config/index.js'
+import {
+  callbacks,
+  examples,
+  headers,
+  links,
+  parameters,
+  requestBodies,
+  responses,
+  route,
+  rpc,
+  schemas,
+  securitySchemes,
+  takibi,
+  type,
+} from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { isRecord, parseConfig } from '../utils/index.js'
+import { isRecord } from '../utils/index.js'
 
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -111,267 +122,255 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
 
   const jobs: Array<Promise<string>> = []
 
-  const zo = c['zod-openapi']
-  const components = zo?.components
+  const zodOpenAPI = c['zod-openapi']
+  const components = zodOpenAPI?.components
 
   // zod-openapi top-level output (non-split)
-  if (zo && !(components?.schemas || zo.routes) && zo.output) {
-    const out = toAbs(zo.output)
-    const runZo = async () => {
+  if (zodOpenAPI && !(components?.schemas || zodOpenAPI.routes) && zodOpenAPI.output) {
+    const out = toAbs(zodOpenAPI.output)
+    const runZodOpenAPI = async () => {
       if (!isTsFile(out)) return `✗ zod-openapi: Invalid output format: ${out}`
       const result = await takibi(openAPI, out, false, false, '/', {
-        exportSchemasTypes: zo.exportSchemasTypes ?? false,
-        exportSchemas: zo.exportSchemas ?? false,
-        exportParametersTypes: zo.exportParametersTypes ?? false,
-        exportParameters: zo.exportParameters ?? false,
-        exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
-        exportRequestBodies: zo.exportRequestBodies ?? false,
-        exportResponses: zo.exportResponses ?? false,
-        exportHeadersTypes: zo.exportHeadersTypes ?? false,
-        exportHeaders: zo.exportHeaders ?? false,
-        exportExamples: zo.exportExamples ?? false,
-        exportLinks: zo.exportLinks ?? false,
-        exportCallbacks: zo.exportCallbacks ?? false,
+        exportSchemasTypes: zodOpenAPI.exportSchemasTypes ?? false,
+        exportSchemas: zodOpenAPI.exportSchemas ?? false,
+        exportParametersTypes: zodOpenAPI.exportParametersTypes ?? false,
+        exportParameters: zodOpenAPI.exportParameters ?? false,
+        exportSecuritySchemes: zodOpenAPI.exportSecuritySchemes ?? false,
+        exportRequestBodies: zodOpenAPI.exportRequestBodies ?? false,
+        exportResponses: zodOpenAPI.exportResponses ?? false,
+        exportHeadersTypes: zodOpenAPI.exportHeadersTypes ?? false,
+        exportHeaders: zodOpenAPI.exportHeaders ?? false,
+        exportExamples: zodOpenAPI.exportExamples ?? false,
+        exportLinks: zodOpenAPI.exportLinks ?? false,
+        exportCallbacks: zodOpenAPI.exportCallbacks ?? false,
       })
       return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
     }
-    jobs.push(runZo())
+    jobs.push(runZodOpenAPI())
   }
 
   // components.schemas
   if (components?.schemas) {
-    const s = components.schemas
+    const schemasConfig = components.schemas
     const runSchema = async () => {
-      if (s.split === true) {
-        const outDir = toAbs(s.output)
+      if (schemasConfig.split === true) {
+        const outDir = toAbs(schemasConfig.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await componentsCore(
-          { schemas: openAPI.components?.schemas ?? {} },
-          'Schema',
+        const schemaResult = await schemas(
+          openAPI.components?.schemas,
           outDir,
           true,
-          s.exportTypes === true,
+          schemasConfig.exportTypes === true,
         )
-        if (!r.ok) return `✗ schemas(split): ${r.error}`
+        if (!schemaResult.ok) return `✗ schemas(split): ${schemaResult.error}`
         return removed.length > 0
           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ schemas(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(s.output)
-      const r = await componentsCore(
-        { schemas: openAPI.components?.schemas ?? {} },
-        'Schema',
+      const out = toAbs(schemasConfig.output)
+      const schemaResult = await schemas(
+        openAPI.components?.schemas,
         out,
         false,
-        s.exportTypes === true,
+        schemasConfig.exportTypes === true,
       )
-      return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
+      return schemaResult.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${schemaResult.error}`
     }
     jobs.push(runSchema())
   }
 
   // components.parameters
   if (components?.parameters) {
-    const p = components.parameters
+    const parametersConfig = components.parameters
     const runParameters = async () => {
-      const outDir = p.split === true ? toAbs(p.output) : toAbs(p.output)
-      if (p.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { parameters: openAPI.components?.parameters ?? {} },
-        'Parameter',
+      const outDir = toAbs(parametersConfig.output)
+      if (parametersConfig.split === true) await deleteAllTsShallow(outDir)
+      const parameterResult = await parameters(
+        openAPI.components?.parameters,
         outDir,
-        p.split === true,
-        p.exportTypes === true,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        parametersConfig.split === true,
+        parametersConfig.exportTypes === true,
+        components?.schemas,
       )
-      return r.ok
-        ? `✓ parameters${p.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ parameters: ${r.error}`
+      return parameterResult.ok
+        ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ parameters: ${parameterResult.error}`
     }
     jobs.push(runParameters())
   }
 
   // components.headers
   if (components?.headers) {
-    const h = components.headers
+    const headersConfig = components.headers
     const runHeaders = async () => {
-      const outDir = h.split === true ? toAbs(h.output) : toAbs(h.output)
-      if (h.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { headers: openAPI.components?.headers ?? {} },
-        'Header',
+      const outDir = toAbs(headersConfig.output)
+      if (headersConfig.split === true) await deleteAllTsShallow(outDir)
+      const headersResult = await headers(
+        openAPI.components?.headers,
         outDir,
-        h.split === true,
-        h.exportTypes === true,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        headersConfig.split === true,
+        headersConfig.exportTypes === true,
+        components?.schemas,
       )
-      return r.ok
-        ? `✓ headers${h.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ headers: ${r.error}`
+      return headersResult.ok
+        ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ headers: ${headersResult.error}`
     }
     jobs.push(runHeaders())
   }
 
   // components.examples
   if (components?.examples) {
-    const e = components.examples
+    const examplesConfig = components.examples
     const runExamples = async () => {
-      const outDir = e.split === true ? toAbs(e.output) : toAbs(e.output)
-      if (e.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { examples: openAPI.components?.examples ?? {} },
-        'Example',
+      const outDir = toAbs(examplesConfig.output)
+      if (examplesConfig.split === true) await deleteAllTsShallow(outDir)
+      const examplesResult = await examples(
+        openAPI.components?.examples,
         outDir,
-        e.split === true,
+        examplesConfig.split === true,
       )
-      return r.ok
-        ? `✓ examples${e.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ examples: ${r.error}`
+      return examplesResult.ok
+        ? `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ examples: ${examplesResult.error}`
     }
     jobs.push(runExamples())
   }
 
   // components.links
   if (components?.links) {
-    const l = components.links
+    const linksConfig = components.links
     const runLinks = async () => {
-      const outDir = l.split === true ? toAbs(l.output) : toAbs(l.output)
-      if (l.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { links: openAPI.components?.links ?? {} },
-        'Link',
-        outDir,
-        l.split === true,
-      )
-      return r.ok
-        ? `✓ links${l.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ links: ${r.error}`
+      const outDir = toAbs(linksConfig.output)
+      if (linksConfig.split === true) await deleteAllTsShallow(outDir)
+      const linksResult = await links(openAPI.components?.links, outDir, linksConfig.split === true)
+      return linksResult.ok
+        ? `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ links: ${linksResult.error}`
     }
     jobs.push(runLinks())
   }
 
   // components.callbacks
   if (components?.callbacks) {
-    const cb = components.callbacks
+    const callbacksConfig = components.callbacks
     const runCallbacks = async () => {
-      const outDir = cb.split === true ? toAbs(cb.output) : toAbs(cb.output)
-      if (cb.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { callbacks: openAPI.components?.callbacks ?? {} },
-        'Callback',
+      const outDir = toAbs(callbacksConfig.output)
+      if (callbacksConfig.split === true) await deleteAllTsShallow(outDir)
+      const callbacksResult = await callbacks(
+        openAPI.components?.callbacks,
         outDir,
-        cb.split === true,
+        callbacksConfig.split === true,
       )
-      return r.ok
-        ? `✓ callbacks${cb.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ callbacks: ${r.error}`
+      return callbacksResult.ok
+        ? `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ callbacks: ${callbacksResult.error}`
     }
     jobs.push(runCallbacks())
   }
 
   // components.securitySchemes
   if (components?.securitySchemes) {
-    const s = components.securitySchemes
+    const securitySchemesConfig = components.securitySchemes
     const runSecuritySchemes = async () => {
-      const outDir = s.split === true ? toAbs(s.output) : toAbs(s.output)
-      if (s.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { securitySchemes: openAPI.components?.securitySchemes ?? {} },
-        'SecurityScheme',
+      const outDir = toAbs(securitySchemesConfig.output)
+      if (securitySchemesConfig.split === true) await deleteAllTsShallow(outDir)
+      const securitySchemesResult = await securitySchemes(
+        openAPI.components?.securitySchemes,
         outDir,
-        s.split === true,
+        securitySchemesConfig.split === true,
       )
-      return r.ok
-        ? `✓ securitySchemes${s.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ securitySchemes: ${r.error}`
+      return securitySchemesResult.ok
+        ? `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ securitySchemes: ${securitySchemesResult.error}`
     }
     jobs.push(runSecuritySchemes())
   }
 
   // components.requestBodies
   if (components?.requestBodies) {
-    const b = components.requestBodies
+    const requestBodiesConfig = components.requestBodies
     const runRequestBodies = async () => {
-      const outDir = b.split === true ? toAbs(b.output) : toAbs(b.output)
-      if (b.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { requestBodies: openAPI.components?.requestBodies ?? {} },
-        'RequestBody',
+      const outDir = toAbs(requestBodiesConfig.output)
+      if (requestBodiesConfig.split === true) await deleteAllTsShallow(outDir)
+      const requestBodiesResult = await requestBodies(
+        openAPI.components?.requestBodies,
         outDir,
-        b.split === true,
-        undefined,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        requestBodiesConfig.split === true,
+        components?.schemas,
       )
-      return r.ok
-        ? `✓ requestBodies${b.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ requestBodies: ${r.error}`
+      return requestBodiesResult.ok
+        ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ requestBodies: ${requestBodiesResult.error}`
     }
     jobs.push(runRequestBodies())
   }
 
   // components.responses
   if (components?.responses) {
-    const resp = components.responses
+    const responsesConfig = components.responses
     const runResponses = async () => {
-      const outDir = resp.split === true ? toAbs(resp.output) : toAbs(resp.output)
-      if (resp.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { responses: openAPI.components?.responses ?? {} },
-        'Response',
+      const outDir = toAbs(responsesConfig.output)
+      if (responsesConfig.split === true) await deleteAllTsShallow(outDir)
+      const responsesResult = await responses(
+        openAPI.components?.responses,
         outDir,
-        resp.split === true,
-        undefined,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        responsesConfig.split === true,
+        components?.schemas,
       )
-      return r.ok
-        ? `✓ responses${resp.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ responses: ${r.error}`
+      return responsesResult.ok
+        ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ responses: ${responsesResult.error}`
     }
     jobs.push(runResponses())
   }
 
   // zod-openapi.routes
-  if (zo?.routes) {
-    const r = zo.routes
+  if (zodOpenAPI?.routes) {
+    const routesConfig = zodOpenAPI.routes
     const runRoutes = async () => {
-      const out = toAbs(r.output)
-      if (r.split === true) await deleteAllTsShallow(out)
-      const rr = await route(openAPI, { output: out, split: r.split ?? false }, components)
-      return rr.ok
-        ? `✓ routes${r.split === true ? '(split)' : ''} -> ${out}`
-        : `✗ routes: ${rr.error}`
+      const out = toAbs(routesConfig.output)
+      if (routesConfig.split === true) await deleteAllTsShallow(out)
+      const routeResult = await route(
+        openAPI,
+        { output: out, split: routesConfig.split ?? false },
+        components,
+      )
+      return routeResult.ok
+        ? `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${out}`
+        : `✗ routes: ${routeResult.error}`
     }
     jobs.push(runRoutes())
   }
 
   // type
   if (c.type) {
-    const t = c.type
-    const out = toAbs(t.output)
+    const typeConfig = c.type
+    const out = toAbs(typeConfig.output)
     const runType = async () => {
       if (!isTsFile(out)) return `✗ type: Invalid output format: ${out}`
-      const result = await type(openAPI, out)
-      return result.ok ? `✓ type -> ${out}` : `✗ type: ${result.error}`
+      const typeResult = await type(openAPI, out)
+      return typeResult.ok ? `✓ type -> ${out}` : `✗ type: ${typeResult.error}`
     }
     jobs.push(runType())
   }
 
   // rpc
   if (c.rpc) {
-    const r = c.rpc
+    const rpcConfig = c.rpc
     const runRpc = async () => {
-      if (r.split === true) {
-        const outDir = toAbs(r.output)
+      if (rpcConfig.split === true) {
+        const outDir = toAbs(rpcConfig.output)
         const removed = await deleteAllTsShallow(outDir)
-        const rr = await rpc(openAPI, outDir, r.import, true)
-        if (!rr.ok) return `✗ rpc(split): ${rr.error}`
+        const rpcResult = await rpc(openAPI, outDir, rpcConfig.import, true)
+        if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
         return removed.length > 0
           ? `✓ rpc(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ rpc(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(r.output)
-      const rr = await rpc(openAPI, out, r.import, false)
-      return rr.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rr.error}`
+      const out = toAbs(rpcConfig.output)
+      const rpcResult = await rpc(openAPI, out, rpcConfig.import, false)
+      return rpcResult.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rpcResult.error}`
     }
     jobs.push(runRpc())
   }

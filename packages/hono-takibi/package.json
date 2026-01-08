@@ -43,6 +43,10 @@
     "./rpc": {
       "types": "./dist/core/rpc.d.ts",
       "import": "./dist/core/rpc.js"
+    },
+    "./type": {
+      "types": "./dist/core/type.d.ts",
+      "import": "./dist/core/type.js"
     }
   },
   "scripts": {

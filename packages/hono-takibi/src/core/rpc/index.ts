@@ -17,9 +17,9 @@
  * @module core/rpc
  */
 import path from 'node:path'
-import { core } from '../helper/index.js'
-import type { OpenAPI, OpenAPIPaths, Schema } from '../openapi/index.js'
-import { isRecord, methodPath } from '../utils/index.js'
+import { core } from '../../helper/index.js'
+import type { OpenAPI, OpenAPIPaths, Schema } from '../../openapi/index.js'
+import { isRecord, methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
 

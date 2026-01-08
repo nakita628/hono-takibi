@@ -1,108 +1,7 @@
-import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
-import { app } from '../generator/zod-openapi-hono/app/index.js'
-import { zodOpenAPIHono } from '../generator/zod-openapi-hono/openapi/index.js'
-import { core } from '../helper/index.js'
-import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
+import type { OpenAPI } from '../openapi/index.js'
 import { isHttpMethod, methodPath } from '../utils/index.js'
-
-/**
- * Generates TypeScript code from an OpenAPI spec and optional templates.
- *
- * ```mermaid
- * flowchart TD
- *   A["takibi(input, output, flags)"] --> B["openAPIResult = parseOpenAPI(input)"]
- *   B --> C{"openAPIResult.ok ?"}
- *   C -->|No| D["return { ok:false, error: openAPIResult.error }"]
- *   C -->|Yes| E["openAPI = openAPIResult.value"]
- *   E --> F["honoResult = fmt(zodOpenAPIHono(openAPI, exportOptions))"]
- *   F --> G{"honoResult.ok ?"}
- *   G -->|No| H["return { ok:false, error: honoResult.error }"]
- *   G -->|Yes| I["mkdirResult = mkdir(dirname(output))"]
- *   I --> J{"mkdirResult.ok ?"}
- *   J -->|No| K["return { ok:false, error: mkdirResult.error }"]
- *   J -->|Yes| L["writeResult = writeFile(output, honoResult.value)"]
- *   L --> M{"writeResult.ok ?"}
- *   M -->|No| N["return { ok:false, error: writeResult.error }"]
- *   M -->|Yes| O{"template && output includes '/' ?"}
- *   O -->|No| P["return { ok:true, value: 'Generated code written to ' + output }"]
- *   O -->|Yes| Q["appResult = fmt(app(openAPI, output, basePath))"]
- *   Q --> R{"appResult.ok ?"}
- *   R -->|No| S["return { ok:false, error: appResult.error }"]
- *   R -->|Yes| T["dir = dirname(output)"]
- *   T --> U["readdirResult = readdir(dir)"]
- *   U --> V{"readdirResult.ok ?"}
- *   V -->|No| W["return { ok:false, error: readdirResult.error }"]
- *   V -->|Yes| X["files = readdirResult.value"]
- *   X --> Y["target = join(dir, files includes 'index.ts' ? 'main.ts' : 'index.ts')"]
- *   Y --> Z["writeResult2 = writeFile(target, appResult.value)"]
- *   Z --> ZA{"writeResult2.ok ?"}
- *   ZA -->|No| ZB["return { ok:false, error: writeResult2.error }"]
- *   ZA -->|Yes| ZC["zodOpenAPIHonoHandlerResult = zodOpenAPIHonoHandler(openAPI, output, test)"]
- *   ZC --> ZD{"zodOpenAPIHonoHandlerResult.ok ?"}
- *   ZD -->|No| ZE["return { ok:false, error: zodOpenAPIHonoHandlerResult.error }"]
- *   ZD -->|Yes| ZF["return { ok:true, value: 'Generated code and template files written' }"]
- * ```
- */
-export async function takibi(
-  openAPI: OpenAPI,
-  output: `${string}.ts`,
-  template: boolean,
-  test: boolean,
-  basePath: string,
-  componentsOptions: {
-    readonly exportSchemas: boolean
-    readonly exportSchemasTypes: boolean
-    readonly exportParameters: boolean
-    readonly exportParametersTypes: boolean
-    readonly exportSecuritySchemes: boolean
-    readonly exportRequestBodies: boolean
-    readonly exportResponses: boolean
-    readonly exportHeaders: boolean
-    readonly exportHeadersTypes: boolean
-    readonly exportExamples: boolean
-    readonly exportLinks: boolean
-    readonly exportCallbacks: boolean
-  },
-): Promise<
-  | {
-      readonly ok: true
-      readonly value: string
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    }
-> {
-  try {
-    const coreResult = await core(
-      zodOpenAPIHono(openAPI, componentsOptions),
-      path.dirname(output),
-      output,
-    )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    /** template */
-    if (template && output.includes('/')) {
-      const dir = path.dirname(output)
-      const target = path.join(dir, 'index.ts')
-      const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
-        core(app(openAPI, output, basePath), dir, target),
-        zodOpenAPIHonoHandler(openAPI, output, test),
-      ])
-      if (!appResult.ok) return { ok: false, error: appResult.error }
-      if (!zodOpenAPIHonoHandlerResult.ok)
-        return { ok: false, error: zodOpenAPIHonoHandlerResult.error }
-      return { ok: true, value: 'Generated code and template files written' }
-    }
-    return {
-      ok: true,
-      value: `Generated code written to ${output}`,
-    }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
-}
 
 /**
  * Generates route handler files for a Hono app using Zod and OpenAPI.
@@ -112,14 +11,14 @@ export async function takibi(
  * @param test - Whether to generate corresponding empty test files.
  * @returns A `Result` indicating success or error with message.
  */
-async function zodOpenAPIHonoHandler(
+export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
-  const paths: OpenAPIPaths = openapi.paths
+  const paths: OpenAPI['paths'] = openapi.paths
 
   const handlers: readonly {
     readonly fileName: `${string}.ts`

@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.1.5_hono@4.10.8_zod@4.1.13/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.10.8/node_modules/hono/dist/types/types').Env,
+declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.4/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
+  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
   {
     '/hono': { $get: { input: {}; output: { hono: 'Hono' }; outputFormat: 'json'; status: 200 } }
   } & {

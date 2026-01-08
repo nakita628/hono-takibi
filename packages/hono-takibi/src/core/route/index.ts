@@ -16,10 +16,10 @@
  * @module core/route
  */
 import path from 'node:path'
-import { routeCode } from '../generator/zod-openapi-hono/openapi/routes/index.js'
-import { core, makeBarell, makeImports } from '../helper/index.js'
-import type { OpenAPI } from '../openapi/index.js'
-import { lowerFirst } from '../utils/index.js'
+import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
+import { core, makeBarell, makeImports } from '../../helper/index.js'
+import type { OpenAPI } from '../../openapi/index.js'
+import { lowerFirst } from '../../utils/index.js'
 
 /**
  * Generates Hono route files from OpenAPI specification.

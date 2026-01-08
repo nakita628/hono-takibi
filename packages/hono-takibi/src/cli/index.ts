@@ -22,11 +22,21 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { config } from '../config/index.js'
-import { componentsCore } from '../core/index.js'
-import { route } from '../core/route.js'
-import { rpc } from '../core/rpc.js'
-import { takibi } from '../core/takibi.js'
-import { type } from '../core/type.js'
+import {
+  callbacks,
+  examples,
+  headers,
+  links,
+  parameters,
+  requestBodies,
+  responses,
+  route,
+  rpc,
+  schemas,
+  securitySchemes,
+  takibi,
+  type,
+} from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { parseCli } from '../utils/index.js'
 
@@ -152,84 +162,69 @@ export async function honoTakibi(): Promise<
         })
       : Promise.resolve(undefined),
     components?.schemas
-      ? componentsCore(
-          { schemas: openAPI.components?.schemas ?? {} },
-          'Schema',
+      ? schemas(
+          openAPI.components?.schemas,
           components.schemas.output,
           components.schemas.split ?? false,
           components.schemas.exportTypes ?? false,
         )
       : Promise.resolve(undefined),
     components?.parameters
-      ? componentsCore(
-          { parameters: openAPI.components?.parameters ?? {} },
-          'Parameter',
+      ? parameters(
+          openAPI.components?.parameters,
           components.parameters.output,
           components.parameters.split ?? false,
           components.parameters.exportTypes ?? false,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+          components?.schemas,
         )
       : Promise.resolve(undefined),
     components?.headers
-      ? componentsCore(
-          { headers: openAPI.components?.headers ?? {} },
-          'Header',
+      ? headers(
+          openAPI.components?.headers,
           components.headers.output,
           components.headers.split ?? false,
           components.headers.exportTypes ?? false,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+          components?.schemas,
         )
       : Promise.resolve(undefined),
     components?.examples
-      ? componentsCore(
-          { examples: openAPI.components?.examples ?? {} },
-          'Example',
+      ? examples(
+          openAPI.components?.examples,
           components.examples.output,
           components.examples.split ?? false,
         )
       : Promise.resolve(undefined),
     components?.links
-      ? componentsCore(
-          { links: openAPI.components?.links ?? {} },
-          'Link',
-          components.links.output,
-          components.links.split ?? false,
-        )
+      ? links(openAPI.components?.links, components.links.output, components.links.split ?? false)
       : Promise.resolve(undefined),
     components?.callbacks
-      ? componentsCore(
-          { callbacks: openAPI.components?.callbacks ?? {} },
-          'Callback',
+      ? callbacks(
+          openAPI.components?.callbacks,
           components.callbacks.output,
           components.callbacks.split ?? false,
         )
       : Promise.resolve(undefined),
     components?.securitySchemes
-      ? componentsCore(
-          { securitySchemes: openAPI.components?.securitySchemes ?? {} },
-          'SecurityScheme',
+      ? securitySchemes(
+          openAPI.components?.securitySchemes,
           components.securitySchemes.output,
           components.securitySchemes.split ?? false,
         )
       : Promise.resolve(undefined),
     components?.requestBodies
-      ? componentsCore(
-          { requestBodies: openAPI.components?.requestBodies ?? {} },
-          'RequestBody',
+      ? requestBodies(
+          openAPI.components?.requestBodies,
           components.requestBodies.output,
           components.requestBodies.split ?? false,
-          undefined,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+          components?.schemas,
         )
       : Promise.resolve(undefined),
     components?.responses
-      ? componentsCore(
-          { responses: openAPI.components?.responses ?? {} },
-          'Response',
+      ? responses(
+          openAPI.components?.responses,
           components.responses.output,
           components.responses.split ?? false,
-          undefined,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+          components?.schemas,
         )
       : Promise.resolve(undefined),
     zodOpenAPI?.routes ? route(openAPI, zodOpenAPI.routes, components) : Promise.resolve(undefined),

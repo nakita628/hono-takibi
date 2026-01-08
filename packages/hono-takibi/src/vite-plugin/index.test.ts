@@ -64,19 +64,21 @@ const makeDevServerMock = (conf: unknown) => {
 }
 
 vi.mock('../core/index.js', () => ({
-  componentsCore: vi.fn(async () => ({ ok: true })),
-}))
-vi.mock('../core/route.js', () => ({
-  route: vi.fn(async () => ({ ok: true })),
-}))
-vi.mock('../core/rpc.js', () => ({
-  rpc: vi.fn(async () => ({ ok: true })),
-}))
-vi.mock('../core/takibi.js', () => ({
-  takibi: vi.fn(async () => ({ ok: true })),
-}))
-vi.mock('../core/type.js', () => ({
-  type: vi.fn(async () => ({ ok: true })),
+  // Component functions
+  callbacks: vi.fn(async () => ({ ok: true, value: 'callbacks' })),
+  examples: vi.fn(async () => ({ ok: true, value: 'examples' })),
+  headers: vi.fn(async () => ({ ok: true, value: 'headers' })),
+  links: vi.fn(async () => ({ ok: true, value: 'links' })),
+  parameters: vi.fn(async () => ({ ok: true, value: 'parameters' })),
+  requestBodies: vi.fn(async () => ({ ok: true, value: 'requestBodies' })),
+  responses: vi.fn(async () => ({ ok: true, value: 'responses' })),
+  schemas: vi.fn(async () => ({ ok: true, value: 'schemas' })),
+  securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
+  // Generation functions
+  route: vi.fn(async () => ({ ok: true, value: 'route' })),
+  rpc: vi.fn(async () => ({ ok: true, value: 'rpc' })),
+  takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
+  type: vi.fn(async () => ({ ok: true, value: 'type' })),
 }))
 
 vi.mock('../openapi/index.js', () => ({
@@ -100,7 +102,7 @@ vi.mock('../fsp/index.js', () => ({
   writeFile: vi.fn(async () => ({ ok: true })),
 }))
 
-import { route } from '../core/route.js'
+import { route } from '../core/index.js'
 import { honoTakibiVite } from './index.js'
 
 const state: { cwdBefore: string; sandbox: string } = { cwdBefore: '', sandbox: '' }
