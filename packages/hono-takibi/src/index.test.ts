@@ -1585,15 +1585,16 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
 
     const securityIndex = fs.readFileSync(path.join(testDir, 'src/security/index.ts'), 'utf-8')
-    expect(securityIndex).toBe(`export * from './securitySchemes.ts'\n`)
+    expect(securityIndex).toBe(`export * from './bearerAuth.ts'\n`)
 
-    const securitySchemesFile = fs.readFileSync(
-      path.join(testDir, 'src/security/securitySchemes.ts'),
+    const bearerAuthFile = fs.readFileSync(
+      path.join(testDir, 'src/security/bearerAuth.ts'),
       'utf-8',
     )
-    expect(securitySchemesFile).toBe(
-      `export const SecuritySchemesSecurityScheme = { BearerAuth: { type: 'http', scheme: 'bearer' } }\n`,
-    )
+    expect(
+      bearerAuthFile,
+    ).toBe(`export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
+`)
 
     const getSecureRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSecure.ts'), 'utf-8')
     expect(getSecureRoute).toBe(`import { createRoute } from '@hono/zod-openapi'
@@ -1724,12 +1725,15 @@ export const postUsersRoute = createRoute({
     execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
 
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './examples.ts'\n`)
+    expect(examplesIndex).toBe(`export * from './userExample.ts'\n`)
 
-    const examplesFile = fs.readFileSync(path.join(testDir, 'src/examples/examples.ts'), 'utf-8')
-    expect(examplesFile).toBe(`export const ExamplesExample = {
-  UserExample: { summary: 'User example', value: { id: 1, name: 'John' } },
-}
+    const userExampleFile = fs.readFileSync(
+      path.join(testDir, 'src/examples/userExample.ts'),
+      'utf-8',
+    )
+    expect(
+      userExampleFile,
+    ).toBe(`export const UserExample = { summary: 'User example', value: { id: 1, name: 'John' } }
 `)
 
     const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
@@ -1796,11 +1800,15 @@ export const getUsersRoute = createRoute({
     execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
 
     const linksIndex = fs.readFileSync(path.join(testDir, 'src/links/index.ts'), 'utf-8')
-    expect(linksIndex).toBe(`export * from './links.ts'\n`)
+    expect(linksIndex).toBe(`export * from './getUserPosts.ts'\n`)
 
-    const linksFile = fs.readFileSync(path.join(testDir, 'src/links/links.ts'), 'utf-8')
-    expect(linksFile).toBe(`export const LinksLink = {
-  GetUserPosts: { operationId: 'getUserPosts', parameters: { userId: '$response.body#/id' } },
+    const getUserPostsFile = fs.readFileSync(
+      path.join(testDir, 'src/links/getUserPosts.ts'),
+      'utf-8',
+    )
+    expect(getUserPostsFile).toBe(`export const GetUserPostsLink = {
+  operationId: 'getUserPosts',
+  parameters: { userId: '$response.body#/id' },
 }
 `)
 
@@ -1876,16 +1884,14 @@ export const getUsersIdRoute = createRoute({
     execSync(`node ${path.resolve('dist/index.js')}`, { cwd: path.resolve(testDir) })
 
     const callbacksIndex = fs.readFileSync(path.join(testDir, 'src/callbacks/index.ts'), 'utf-8')
-    expect(callbacksIndex).toBe(`export * from './callbacks.ts'\n`)
+    expect(callbacksIndex).toBe(`export * from './onEvent.ts'\n`)
 
-    const callbacksFile = fs.readFileSync(path.join(testDir, 'src/callbacks/callbacks.ts'), 'utf-8')
-    expect(callbacksFile).toBe(`export const CallbacksCallback = {
-  OnEvent: {
-    '{$request.body#/callbackUrl}': {
-      post: {
-        requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
-        responses: { '200': { description: 'OK' } },
-      },
+    const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
+    expect(onEventFile).toBe(`export const OnEventCallback = {
+  '{$request.body#/callbackUrl}': {
+    post: {
+      requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+      responses: { '200': { description: 'OK' } },
     },
   },
 }

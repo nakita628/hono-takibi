@@ -9,15 +9,19 @@
   "devDependencies": {
     "@types/node": "^24.2.1",
     "@typescript/native-preview": "7.0.0-dev.20251229.1",
-    "@typespec/http": "^1.3.0",
-    "@typespec/rest": "^0.73.0",
-    "@typespec/versioning": "^0.73.0",
+    "@typespec/http": "^1.7.0",
+    "@typespec/rest": "^0.77.0",
+    "@typespec/versioning": "^0.77.0",
     "tsx": "^4.20.3"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
     "@hono/zod-openapi": "^1.1.0",
+    "@typespec/compiler": "^1.7.1",
+    "@typespec/openapi3": "^1.7.0",
     "hono": "^4.9.5",
     "hono-takibi": "workspace:^",
-    "swr": "^2.3.6"
+    "swr": "^2.3.6",
+    "typescript": "^5.9.3"
   }
 }

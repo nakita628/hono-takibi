@@ -1,134 +1,52 @@
-// import { exec } from 'node:child_process'
-// import type { Dirent } from 'node:fs'
-// import { readdir } from 'node:fs/promises'
-// import { dirname, join } from 'node:path'
-// import { fileURLToPath } from 'node:url'
-// import { rpc } from 'hono-takibi/rpc'
-
-// // import { honoSWRHooks } from '../../../packages/hono-takibi/src/generator/swr/index.js'
-
-// const __filename = fileURLToPath(import.meta.url)
-// const __dirname = dirname(__filename)
-
-// async function getOpenAPIFiles(): Promise<
-//   | {
-//       ok: true
-//       value: (`${string}.yaml` | `${string}.json` | `${string}.tsp`)[]
-//     }
-//   | {
-//       ok: false
-//       error: string
-//     }
-// > {
-//   try {
-//     const dir = join(__dirname, '../openapi')
-//     const dirents = await readdir(dir, { withFileTypes: true })
-//     const result = dirents
-//       .filter(
-//         (d): d is Dirent & { name: `${string}.yaml` | `${string}.json` | `${string}.tsp` } =>
-//           d.isFile() &&
-//           (d.name.endsWith('.yaml') || d.name.endsWith('.json') || d.name.endsWith('.tsp')),
-//       )
-//       .map((d) => d.name)
-//     return {
-//       ok: true,
-//       value: result,
-//     }
-//   } catch (e) {
-//     return {
-//       ok: false,
-//       error: e instanceof Error ? e.message : String(e),
-//     }
-//   }
-// }
-
-// async function honoTakibi(i: string) {
-//   const file = i.replace(/\.(yaml|json|tsp)$/i, '')
-//   const command = `hono-takibi openapi/${i} -o routes/${file}.ts`
-//   exec(command, (error, stdout) => {
-//     if (error) {
-//       console.error(`Error executing command: ${error}`)
-//       return
-//     }
-//     console.log(stdout)
-//   })
-// }
-
-// async function HonoTakibis() {
-//   const result = await getOpenAPIFiles()
-//   if (!result.ok) {
-//     console.error(`Error getting OpenAPI files: ${result.error}`)
-//     return
-//   }
-//   await Promise.all([...result.value.map(honoTakibi)])
-// }
-
-// async function honoRpcs() {
-//   const result = await getOpenAPIFiles()
-//   if (!result.ok) {
-//     console.error(`Error getting OpenAPI files: ${result.error}`)
-//     return
-//   }
-
-//   const isYamlOrJsonOrTsp = (
-//     i: string,
-//   ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-//     i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-
-//   const targets = result.value.filter(isYamlOrJsonOrTsp)
-
-//   await Promise.all(
-//     targets.map(async (name) => {
-//       console.log(`[START] Generating RPC for ${name}`)
-//       const file = name.replace(/\.(yaml|json|tsp)$/i, '')
-//       const result = await rpc(`openapi/${name}`, `rpcs/${file}.ts`, '../index.ts', false)
-//       if (!result.ok) {
-//         console.error(`Error generating RPC for ${name}: ${result.error}`)
-//         return
-//       }
-//       console.log(`[END] Generated RPC for ${name}`)
-//     }),
-//   )
-// }
-
-// // async function honoSwrs() {
-// //   const openapiFiles = await getOpenAPIFiles()
-// //   if (openapiFiles) {
-// //     for (const openapiFile of openapiFiles) {
-// //       const file = openapiFile.replace('.yaml', '').replace('.json', '').replace('.tsp', '')
-// //       const isYamlOrJsonOrTsp = (
-// //         i: string,
-// //       ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-// //         i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-// //       if (isYamlOrJsonOrTsp(openapiFile)) {
-// //         await core(
-// //           `openapi/${openapiFile}`,
-// //           `swrs/${file}.ts`,
-// //           "import { client } from '../index.ts'",
-// //           'Generated RPC code written to',
-// //           honoSWRHooks,
-// //         )
-// //       }
-// //     }
-// //   }
-// // }
-
-// await HonoTakibis()
-// await honoRpcs()
-// // honoSwrs()
-
 import { spawn } from 'node:child_process'
-import { readdir } from 'node:fs/promises'
+import { readdir, writeFile } from 'node:fs/promises'
 import { availableParallelism } from 'node:os'
-import { dirname, join } from 'node:path'
+import path, { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import { compile, NodeHost } from '@typespec/compiler'
+import { getOpenAPI3 } from '@typespec/openapi3'
+import { rpc } from 'hono-takibi/rpc'
+import { type as generateType } from 'hono-takibi/type'
+
+type OpenAPI = Parameters<typeof generateType>[0]
+
+async function parseOpenAPI(
+  input: string,
+): Promise<
+  { readonly ok: true; readonly value: OpenAPI } | { readonly ok: false; readonly error: string }
+> {
+  try {
+    if (input.endsWith('.tsp')) {
+      const program = await compile(NodeHost, path.resolve(input), {
+        noEmit: true,
+      })
+      if (program.diagnostics.length) {
+        return {
+          ok: false,
+          error: 'TypeSpec compile failed',
+        }
+      }
+      const [record] = await getOpenAPI3(program)
+      const tsp = 'document' in record ? record.document : record.versions[0].document
+      const bundled = await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))
+      return { ok: true, value: bundled as unknown as OpenAPI }
+    }
+    const bundled = await SwaggerParser.bundle(input)
+    return { ok: true, value: bundled as unknown as OpenAPI }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const WORKERS = availableParallelism()
 
 type Result = { file: string; success: true } | { file: string; success: false; stderr: string }
 
-const run = (file: string): Promise<Result> =>
+/* ─────────────────────────────── Route generation (spawn) ─────────────────────────────── */
+
+const runRoute = (file: string): Promise<Result> =>
   new Promise((resolve) => {
     const chunks: Buffer[] = []
     const child = spawn(
@@ -149,35 +67,97 @@ const run = (file: string): Promise<Result> =>
     })
   })
 
+/* ─────────────────────────────── Main ─────────────────────────────── */
+
 async function main() {
   const files = (await readdir(join(__dirname, '../openapi'))).filter((f) =>
     /\.(yaml|json|tsp)$/i.test(f),
   )
 
   const queue = [...files]
-  const results: Result[] = []
+  const routeResults: Result[] = []
 
+  // Route generation (parallel spawn)
+  console.log('Generating routes...')
   await Promise.all(
     Array.from({ length: Math.min(WORKERS, files.length) }, async () => {
       while (queue.length > 0) {
         const file = queue.pop()
-        if (file) results.push(await run(file))
+        if (file) routeResults.push(await runRoute(file))
       }
     }),
   )
 
-  const failures = results.filter((r): r is Extract<Result, { success: false }> => !r.success)
+  const routeFailures = routeResults.filter(
+    (r): r is Extract<Result, { success: false }> => !r.success,
+  )
 
-  if (failures.length > 0) {
-    console.error(`\n❌ ${failures.length}/${results.length} files failed:\n`)
-    for (const { file, stderr } of failures) {
+  if (routeFailures.length > 0) {
+    console.error(`\n${routeFailures.length}/${routeResults.length} route files failed:\n`)
+    for (const { file, stderr } of routeFailures) {
       console.error(`--- ${file} ---`)
       console.error(stderr || '(no stderr output)')
     }
     process.exit(1)
   }
 
-  console.log(`✅ ${results.length} files processed successfully`)
+  console.log(`${routeResults.length} routes generated successfully`)
+
+  // Type, Client, RPC generation (parallel)
+  console.log('Generating types, clients, and rpcs...')
+  const generateResults = await Promise.all(
+    files.map(async (file) => {
+      const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
+      const openAPIPath = join(__dirname, '../openapi', file)
+
+      const parseResult = await parseOpenAPI(openAPIPath)
+      if (!parseResult.ok) {
+        return { file, success: false, error: `Parse error: ${parseResult.error}` }
+      }
+
+      const openAPI = parseResult.value
+
+      // Generate type file using hono-takibi type function
+      const typeOutput = join(__dirname, '../types', `${baseName}.ts`) as `${string}.ts`
+      const typeResult = await generateType(openAPI, typeOutput)
+      if (!typeResult.ok) {
+        return { file, success: false, error: `Type generation error: ${typeResult.error}` }
+      }
+
+      // Generate RPC file
+      const rpcOutput = join(__dirname, '../rpcs', `${baseName}.ts`)
+      const rpcResult = await rpc(openAPI, rpcOutput, `../clients/${baseName}`, false)
+      if (!rpcResult.ok) {
+        return { file, success: false, error: `RPC generation error: ${rpcResult.error}` }
+      }
+
+      // Generate Client file
+      const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
+      const clientCode = `import { hc } from 'hono/client'
+import routes from '../types/${baseName}'
+
+export const client = hc<typeof routes>('/')
+`
+      await writeFile(clientOutput, clientCode)
+
+      return { file, success: true }
+    }),
+  )
+
+  const genFailures = generateResults.filter(
+    (r): r is { file: string; success: false; error: string } => !r.success,
+  )
+
+  if (genFailures.length > 0) {
+    console.error(`\n${genFailures.length}/${generateResults.length} files failed:\n`)
+    for (const { file, error } of genFailures) {
+      console.error(`--- ${file} ---`)
+      console.error(error)
+    }
+    process.exit(1)
+  }
+
+  console.log(`${generateResults.length} type/rpc sets generated successfully`)
 }
 
 main()
