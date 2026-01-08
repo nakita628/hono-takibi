@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -7,8 +8,10 @@ import { client } from '../clients/29-practical-user-api'
  *
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
-export async function postAuthRegister(body: { email: string; password: string; name: string }) {
-  return await client.auth.register.$post({ json: body })
+export async function postAuthRegister(
+  arg: InferRequestType<(typeof client)['auth']['register']['$post']>,
+) {
+  return await client['auth']['register']['$post'](arg)
 }
 
 /**
@@ -18,8 +21,10 @@ export async function postAuthRegister(body: { email: string; password: string; 
  *
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
-export async function postAuthLogin(body: { email: string; password: string }) {
-  return await client.auth.login.$post({ json: body })
+export async function postAuthLogin(
+  arg: InferRequestType<(typeof client)['auth']['login']['$post']>,
+) {
+  return await client['auth']['login']['$post'](arg)
 }
 
 /**
@@ -29,8 +34,10 @@ export async function postAuthLogin(body: { email: string; password: string }) {
  *
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
-export async function postAuthRefresh(body: { refreshToken: string }) {
-  return await client.auth.refresh.$post({ json: body })
+export async function postAuthRefresh(
+  arg: InferRequestType<(typeof client)['auth']['refresh']['$post']>,
+) {
+  return await client['auth']['refresh']['$post'](arg)
 }
 
 /**
@@ -39,7 +46,7 @@ export async function postAuthRefresh(body: { refreshToken: string }) {
  * ログアウト
  */
 export async function postAuthLogout() {
-  return await client.auth.logout.$post()
+  return await client['auth']['logout']['$post']()
 }
 
 /**
@@ -49,8 +56,10 @@ export async function postAuthLogout() {
  *
  * パスワードリセット用のメールを送信します
  */
-export async function postAuthPasswordForgot(body: { email: string }) {
-  return await client.auth.password.forgot.$post({ json: body })
+export async function postAuthPasswordForgot(
+  arg: InferRequestType<(typeof client)['auth']['password']['forgot']['$post']>,
+) {
+  return await client['auth']['password']['forgot']['$post'](arg)
 }
 
 /**
@@ -58,8 +67,10 @@ export async function postAuthPasswordForgot(body: { email: string }) {
  *
  * パスワードリセット実行
  */
-export async function postAuthPasswordReset(body: { token: string; password: string }) {
-  return await client.auth.password.reset.$post({ json: body })
+export async function postAuthPasswordReset(
+  arg: InferRequestType<(typeof client)['auth']['password']['reset']['$post']>,
+) {
+  return await client['auth']['password']['reset']['$post'](arg)
 }
 
 /**
@@ -69,16 +80,8 @@ export async function postAuthPasswordReset(body: { token: string; password: str
  *
  * ページネーション付きでユーザー一覧を取得します（管理者のみ）
  */
-export async function getUsers(params: {
-  query: {
-    page: number
-    limit: number
-    sort: string
-    search: string
-    status: 'active' | 'inactive' | 'suspended'
-  }
-}) {
-  return await client.users.$get({ query: params.query })
+export async function getUsers(arg: InferRequestType<typeof client.users.$get>) {
+  return await client.users.$get(arg)
 }
 
 /**
@@ -86,8 +89,10 @@ export async function getUsers(params: {
  *
  * ユーザー詳細取得
  */
-export async function getUsersUserId(params: { path: { userId: string } }) {
-  return await client.users[':userId'].$get({ param: params.path })
+export async function getUsersUserId(
+  arg: InferRequestType<(typeof client)['users'][':userId']['$get']>,
+) {
+  return await client['users'][':userId']['$get'](arg)
 }
 
 /**
@@ -95,8 +100,10 @@ export async function getUsersUserId(params: { path: { userId: string } }) {
  *
  * ユーザー削除
  */
-export async function deleteUsersUserId(params: { path: { userId: string } }) {
-  return await client.users[':userId'].$delete({ param: params.path })
+export async function deleteUsersUserId(
+  arg: InferRequestType<(typeof client)['users'][':userId']['$delete']>,
+) {
+  return await client['users'][':userId']['$delete'](arg)
 }
 
 /**
@@ -105,10 +112,9 @@ export async function deleteUsersUserId(params: { path: { userId: string } }) {
  * ユーザー情報更新
  */
 export async function patchUsersUserId(
-  params: { path: { userId: string } },
-  body: { name?: string; status?: 'active' | 'inactive' | 'suspended'; role?: 'user' | 'admin' },
+  arg: InferRequestType<(typeof client)['users'][':userId']['$patch']>,
 ) {
-  return await client.users[':userId'].$patch({ param: params.path, json: body })
+  return await client['users'][':userId']['$patch'](arg)
 }
 
 /**
@@ -117,7 +123,7 @@ export async function patchUsersUserId(
  * 現在のユーザー情報取得
  */
 export async function getUsersMe() {
-  return await client.users.me.$get()
+  return await client['users']['me']['$get']()
 }
 
 /**
@@ -125,8 +131,10 @@ export async function getUsersMe() {
  *
  * 現在のユーザー情報更新
  */
-export async function patchUsersMe(body: { name?: string }) {
-  return await client.users.me.$patch({ json: body })
+export async function patchUsersMe(
+  arg: InferRequestType<(typeof client)['users']['me']['$patch']>,
+) {
+  return await client['users']['me']['$patch'](arg)
 }
 
 /**
@@ -134,8 +142,10 @@ export async function patchUsersMe(body: { name?: string }) {
  *
  * パスワード変更
  */
-export async function putUsersMePassword(body: { currentPassword: string; newPassword: string }) {
-  return await client.users.me.password.$put({ json: body })
+export async function putUsersMePassword(
+  arg: InferRequestType<(typeof client)['users']['me']['password']['$put']>,
+) {
+  return await client['users']['me']['password']['$put'](arg)
 }
 
 /**
@@ -143,8 +153,10 @@ export async function putUsersMePassword(body: { currentPassword: string; newPas
  *
  * アバター画像アップロード
  */
-export async function putUsersMeAvatar(body: { file: string }) {
-  return await client.users.me.avatar.$put({ json: body })
+export async function putUsersMeAvatar(
+  arg: InferRequestType<(typeof client)['users']['me']['avatar']['$put']>,
+) {
+  return await client['users']['me']['avatar']['$put'](arg)
 }
 
 /**
@@ -153,5 +165,5 @@ export async function putUsersMeAvatar(body: { file: string }) {
  * アバター画像削除
  */
 export async function deleteUsersMeAvatar() {
-  return await client.users.me.avatar.$delete()
+  return await client['users']['me']['avatar']['$delete']()
 }

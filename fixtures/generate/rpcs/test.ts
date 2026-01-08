@@ -19,7 +19,7 @@ export async function getHono() {
  * HonoX
  */
 export async function getHonoX() {
-  return await client['hono-x'].$get()
+  return await client['hono-x']['$get']()
 }
 
 /**
@@ -30,5 +30,5 @@ export async function getHonoX() {
  * ZodOpenAPIHono
  */
 export async function getZodOpenapiHono() {
-  return await client['zod-openapi-hono'].$get()
+  return await client['zod-openapi-hono']['$get']()
 }

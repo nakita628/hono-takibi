@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
 /**
@@ -5,15 +6,8 @@ import { client } from '../clients/38-auth-apikey-management'
  *
  * APIキー一覧取得
  */
-export async function getApiKeys(params: {
-  query: {
-    page: number
-    limit: number
-    status: 'active' | 'revoked' | 'expired'
-    environment: 'production' | 'staging' | 'development' | 'test'
-  }
-}) {
-  return await client['api-keys'].$get({ query: params.query })
+export async function getApiKeys(arg: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return await client['api-keys']['$get'](arg)
 }
 
 /**
@@ -21,14 +15,8 @@ export async function getApiKeys(params: {
  *
  * APIキー作成
  */
-export async function postApiKeys(body: {
-  name: string
-  description?: string
-  environment: 'production' | 'staging' | 'development' | 'test'
-  scopes?: string[]
-  expiresAt?: string
-}) {
-  return await client['api-keys'].$post({ json: body })
+export async function postApiKeys(arg: InferRequestType<(typeof client)['api-keys']['$post']>) {
+  return await client['api-keys']['$post'](arg)
 }
 
 /**
@@ -36,8 +24,10 @@ export async function postApiKeys(body: {
  *
  * APIキー詳細取得
  */
-export async function getApiKeysKeyId(params: { path: { keyId: string } }) {
-  return await client['api-keys'][':keyId'].$get({ param: params.path })
+export async function getApiKeysKeyId(
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+) {
+  return await client['api-keys'][':keyId']['$get'](arg)
 }
 
 /**
@@ -45,8 +35,10 @@ export async function getApiKeysKeyId(params: { path: { keyId: string } }) {
  *
  * APIキー削除
  */
-export async function deleteApiKeysKeyId(params: { path: { keyId: string } }) {
-  return await client['api-keys'][':keyId'].$delete({ param: params.path })
+export async function deleteApiKeysKeyId(
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+) {
+  return await client['api-keys'][':keyId']['$delete'](arg)
 }
 
 /**
@@ -55,10 +47,9 @@ export async function deleteApiKeysKeyId(params: { path: { keyId: string } }) {
  * APIキー更新
  */
 export async function patchApiKeysKeyId(
-  params: { path: { keyId: string } },
-  body: { name?: string; description?: string; scopes?: string[] },
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
 ) {
-  return await client['api-keys'][':keyId'].$patch({ param: params.path, json: body })
+  return await client['api-keys'][':keyId']['$patch'](arg)
 }
 
 /**
@@ -67,10 +58,9 @@ export async function patchApiKeysKeyId(
  * APIキー無効化
  */
 export async function postApiKeysKeyIdRevoke(
-  params: { path: { keyId: string } },
-  body: { reason?: string },
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
 ) {
-  return await client['api-keys'][':keyId'].revoke.$post({ param: params.path, json: body })
+  return await client['api-keys'][':keyId']['revoke']['$post'](arg)
 }
 
 /**
@@ -79,10 +69,9 @@ export async function postApiKeysKeyIdRevoke(
  * APIキーローテーション
  */
 export async function postApiKeysKeyIdRotate(
-  params: { path: { keyId: string } },
-  body: { gracePeriodHours?: number },
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
 ) {
-  return await client['api-keys'][':keyId'].rotate.$post({ param: params.path, json: body })
+  return await client['api-keys'][':keyId']['rotate']['$post'](arg)
 }
 
 /**
@@ -90,11 +79,10 @@ export async function postApiKeysKeyIdRotate(
  *
  * APIキー使用量取得
  */
-export async function getApiKeysKeyIdUsage(params: {
-  path: { keyId: string }
-  query: { from: string; to: string; granularity: 'hour' | 'day' | 'week' | 'month' }
-}) {
-  return await client['api-keys'][':keyId'].usage.$get({ param: params.path, query: params.query })
+export async function getApiKeysKeyIdUsage(
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+) {
+  return await client['api-keys'][':keyId']['usage']['$get'](arg)
 }
 
 /**
@@ -102,8 +90,10 @@ export async function getApiKeysKeyIdUsage(params: {
  *
  * 現在のレート制限状況取得
  */
-export async function getApiKeysKeyIdRateLimitCurrent(params: { path: { keyId: string } }) {
-  return await client['api-keys'][':keyId']['rate-limit'].current.$get({ param: params.path })
+export async function getApiKeysKeyIdRateLimitCurrent(
+  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+) {
+  return await client['api-keys'][':keyId']['rate-limit']['current']['$get'](arg)
 }
 
 /**
@@ -111,8 +101,10 @@ export async function getApiKeysKeyIdRateLimitCurrent(params: { path: { keyId: s
  *
  * APIキー検証
  */
-export async function postApiKeysVerify(body: { apiKey: string; requiredScopes?: string[] }) {
-  return await client['api-keys'].verify.$post({ json: body })
+export async function postApiKeysVerify(
+  arg: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+) {
+  return await client['api-keys']['verify']['$post'](arg)
 }
 
 /**

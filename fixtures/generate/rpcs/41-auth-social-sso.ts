@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
 /**
@@ -7,32 +8,10 @@ import { client } from '../clients/41-auth-social-sso'
  *
  * ソーシャルプロバイダーの認証画面にリダイレクト
  */
-export async function getSocialAuthorizeProvider(params: {
-  path: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  query: {
-    redirect_uri: string
-    state: string
-    scope: string
-    login_hint: string
-    prompt: 'none' | 'consent' | 'select_account'
-  }
-}) {
-  return await client.social.authorize[':provider'].$get({
-    param: params.path,
-    query: params.query,
-  })
+export async function getSocialAuthorizeProvider(
+  arg: InferRequestType<(typeof client)['social']['authorize'][':provider']['$get']>,
+) {
+  return await client['social']['authorize'][':provider']['$get'](arg)
 }
 
 /**
@@ -42,23 +21,10 @@ export async function getSocialAuthorizeProvider(params: {
  *
  * プロバイダーからのコールバックを処理
  */
-export async function getSocialCallbackProvider(params: {
-  path: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  query: { code: string; state: string; error: string; error_description: string }
-}) {
-  return await client.social.callback[':provider'].$get({ param: params.path, query: params.query })
+export async function getSocialCallbackProvider(
+  arg: InferRequestType<(typeof client)['social']['callback'][':provider']['$get']>,
+) {
+  return await client['social']['callback'][':provider']['$get'](arg)
 }
 
 /**
@@ -68,13 +34,10 @@ export async function getSocialCallbackProvider(params: {
  *
  * 認可コードをアクセストークンに交換
  */
-export async function postSocialToken(body: {
-  provider: string
-  code: string
-  redirectUri: string
-  codeVerifier?: string
-}) {
-  return await client.social.token.$post({ json: body })
+export async function postSocialToken(
+  arg: InferRequestType<(typeof client)['social']['token']['$post']>,
+) {
+  return await client['social']['token']['$post'](arg)
 }
 
 /**
@@ -84,12 +47,10 @@ export async function postSocialToken(body: {
  *
  * モバイルアプリから直接取得したトークンを検証
  */
-export async function postSocialTokenNative(body: {
-  provider: string
-  token: string
-  tokenType?: 'id_token' | 'access_token'
-}) {
-  return await client.social.token.native.$post({ json: body })
+export async function postSocialTokenNative(
+  arg: InferRequestType<(typeof client)['social']['token']['native']['$post']>,
+) {
+  return await client['social']['token']['native']['$post'](arg)
 }
 
 /**
@@ -107,7 +68,7 @@ export async function getProviders() {
  * 全プロバイダー一覧（管理用）
  */
 export async function getProvidersAdmin() {
-  return await client.providers.admin.$get()
+  return await client['providers']['admin']['$get']()
 }
 
 /**
@@ -115,23 +76,10 @@ export async function getProvidersAdmin() {
  *
  * プロバイダー追加
  */
-export async function postProvidersAdmin(body: {
-  name: string
-  type: 'oauth2' | 'oidc'
-  clientId: string
-  clientSecret: string
-  authorizationUrl?: string
-  tokenUrl?: string
-  userInfoUrl?: string
-  scopes?: string[]
-  attributeMapping?: {}
-  allowedDomains?: string[]
-  autoCreateUser?: boolean
-  autoLinkUser?: boolean
-  icon?: string
-  buttonColor?: string
-}) {
-  return await client.providers.admin.$post({ json: body })
+export async function postProvidersAdmin(
+  arg: InferRequestType<(typeof client)['providers']['admin']['$post']>,
+) {
+  return await client['providers']['admin']['$post'](arg)
 }
 
 /**
@@ -139,8 +87,10 @@ export async function postProvidersAdmin(body: {
  *
  * プロバイダー詳細取得
  */
-export async function getProvidersProviderId(params: { path: { providerId: string } }) {
-  return await client.providers[':providerId'].$get({ param: params.path })
+export async function getProvidersProviderId(
+  arg: InferRequestType<(typeof client)['providers'][':providerId']['$get']>,
+) {
+  return await client['providers'][':providerId']['$get'](arg)
 }
 
 /**
@@ -149,23 +99,9 @@ export async function getProvidersProviderId(params: { path: { providerId: strin
  * プロバイダー更新
  */
 export async function putProvidersProviderId(
-  params: { path: { providerId: string } },
-  body: {
-    name?: string
-    enabled?: boolean
-    clientId?: string
-    clientSecret?: string
-    authorizationUrl?: string
-    tokenUrl?: string
-    userInfoUrl?: string
-    scopes?: string[]
-    attributeMapping?: {}
-    allowedDomains?: string[]
-    autoCreateUser?: boolean
-    autoLinkUser?: boolean
-  },
+  arg: InferRequestType<(typeof client)['providers'][':providerId']['$put']>,
 ) {
-  return await client.providers[':providerId'].$put({ param: params.path, json: body })
+  return await client['providers'][':providerId']['$put'](arg)
 }
 
 /**
@@ -173,8 +109,10 @@ export async function putProvidersProviderId(
  *
  * プロバイダー削除
  */
-export async function deleteProvidersProviderId(params: { path: { providerId: string } }) {
-  return await client.providers[':providerId'].$delete({ param: params.path })
+export async function deleteProvidersProviderId(
+  arg: InferRequestType<(typeof client)['providers'][':providerId']['$delete']>,
+) {
+  return await client['providers'][':providerId']['$delete'](arg)
 }
 
 /**
@@ -182,8 +120,10 @@ export async function deleteProvidersProviderId(params: { path: { providerId: st
  *
  * プロバイダー接続テスト
  */
-export async function postProvidersProviderIdTest(params: { path: { providerId: string } }) {
-  return await client.providers[':providerId'].test.$post({ param: params.path })
+export async function postProvidersProviderIdTest(
+  arg: InferRequestType<(typeof client)['providers'][':providerId']['test']['$post']>,
+) {
+  return await client['providers'][':providerId']['test']['$post'](arg)
 }
 
 /**
@@ -192,7 +132,7 @@ export async function postProvidersProviderIdTest(params: { path: { providerId: 
  * 連携アカウント一覧
  */
 export async function getAccountLinked() {
-  return await client.account.linked.$get()
+  return await client['account']['linked']['$get']()
 }
 
 /**
@@ -203,24 +143,9 @@ export async function getAccountLinked() {
  * 既存アカウントにソーシャルアカウントを連携
  */
 export async function postAccountLinkProvider(
-  params: {
-    path: {
-      provider:
-        | 'google'
-        | 'github'
-        | 'microsoft'
-        | 'apple'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'slack'
-        | 'discord'
-        | 'custom'
-    }
-  },
-  body: { code: string; redirectUri: string },
+  arg: InferRequestType<(typeof client)['account']['link'][':provider']['$post']>,
 ) {
-  return await client.account.link[':provider'].$post({ param: params.path, json: body })
+  return await client['account']['link'][':provider']['$post'](arg)
 }
 
 /**
@@ -228,22 +153,10 @@ export async function postAccountLinkProvider(
  *
  * アカウント連携解除
  */
-export async function deleteAccountLinkProvider(params: {
-  path: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-}) {
-  return await client.account.link[':provider'].$delete({ param: params.path })
+export async function deleteAccountLinkProvider(
+  arg: InferRequestType<(typeof client)['account']['link'][':provider']['$delete']>,
+) {
+  return await client['account']['link'][':provider']['$delete'](arg)
 }
 
 /**
@@ -252,7 +165,7 @@ export async function deleteAccountLinkProvider(params: {
  * エンタープライズSSO設定一覧
  */
 export async function getEnterpriseSso() {
-  return await client.enterprise.sso.$get()
+  return await client['enterprise']['sso']['$get']()
 }
 
 /**
@@ -260,40 +173,10 @@ export async function getEnterpriseSso() {
  *
  * エンタープライズSSO設定作成
  */
-export async function postEnterpriseSso(body: {
-  name: string
-  type: 'saml' | 'oidc'
-  domains: string[]
-  samlConfig?: {
-    entityId?: string
-    ssoUrl?: string
-    sloUrl?: string
-    certificate?: string
-    signRequest?: boolean
-    signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-    digestAlgorithm?: 'SHA256' | 'SHA512'
-    nameIdFormat?: string
-    attributeMapping?: {
-      email?: string
-      name?: string
-      firstName?: string
-      lastName?: string
-      groups?: string
-    }
-  }
-  oidcConfig?: {
-    issuer?: string
-    clientId?: string
-    authorizationEndpoint?: string
-    tokenEndpoint?: string
-    userInfoEndpoint?: string
-    jwksUri?: string
-    scopes?: string[]
-    attributeMapping?: {}
-  }
-  userProvisioning?: {}
-}) {
-  return await client.enterprise.sso.$post({ json: body })
+export async function postEnterpriseSso(
+  arg: InferRequestType<(typeof client)['enterprise']['sso']['$post']>,
+) {
+  return await client['enterprise']['sso']['$post'](arg)
 }
 
 /**
@@ -301,8 +184,10 @@ export async function postEnterpriseSso(body: {
  *
  * エンタープライズSSO設定詳細
  */
-export async function getEnterpriseSsoConfigId(params: { path: { configId: string } }) {
-  return await client.enterprise.sso[':configId'].$get({ param: params.path })
+export async function getEnterpriseSsoConfigId(
+  arg: InferRequestType<(typeof client)['enterprise']['sso'][':configId']['$get']>,
+) {
+  return await client['enterprise']['sso'][':configId']['$get'](arg)
 }
 
 /**
@@ -311,42 +196,9 @@ export async function getEnterpriseSsoConfigId(params: { path: { configId: strin
  * エンタープライズSSO設定更新
  */
 export async function putEnterpriseSsoConfigId(
-  params: { path: { configId: string } },
-  body: {
-    name?: string
-    enabled?: boolean
-    domains?: string[]
-    samlConfig?: {
-      entityId?: string
-      ssoUrl?: string
-      sloUrl?: string
-      certificate?: string
-      signRequest?: boolean
-      signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-      digestAlgorithm?: 'SHA256' | 'SHA512'
-      nameIdFormat?: string
-      attributeMapping?: {
-        email?: string
-        name?: string
-        firstName?: string
-        lastName?: string
-        groups?: string
-      }
-    }
-    oidcConfig?: {
-      issuer?: string
-      clientId?: string
-      authorizationEndpoint?: string
-      tokenEndpoint?: string
-      userInfoEndpoint?: string
-      jwksUri?: string
-      scopes?: string[]
-      attributeMapping?: {}
-    }
-    userProvisioning?: {}
-  },
+  arg: InferRequestType<(typeof client)['enterprise']['sso'][':configId']['$put']>,
 ) {
-  return await client.enterprise.sso[':configId'].$put({ param: params.path, json: body })
+  return await client['enterprise']['sso'][':configId']['$put'](arg)
 }
 
 /**
@@ -354,8 +206,10 @@ export async function putEnterpriseSsoConfigId(
  *
  * エンタープライズSSO設定削除
  */
-export async function deleteEnterpriseSsoConfigId(params: { path: { configId: string } }) {
-  return await client.enterprise.sso[':configId'].$delete({ param: params.path })
+export async function deleteEnterpriseSsoConfigId(
+  arg: InferRequestType<(typeof client)['enterprise']['sso'][':configId']['$delete']>,
+) {
+  return await client['enterprise']['sso'][':configId']['$delete'](arg)
 }
 
 /**
@@ -363,8 +217,10 @@ export async function deleteEnterpriseSsoConfigId(params: { path: { configId: st
  *
  * ドメインからSSO設定を検索
  */
-export async function getEnterpriseSsoDomainLookup(params: { query: { domain: string } }) {
-  return await client.enterprise.sso['domain-lookup'].$get({ query: params.query })
+export async function getEnterpriseSsoDomainLookup(
+  arg: InferRequestType<(typeof client)['enterprise']['sso']['domain-lookup']['$get']>,
+) {
+  return await client['enterprise']['sso']['domain-lookup']['$get'](arg)
 }
 
 /**
@@ -374,6 +230,8 @@ export async function getEnterpriseSsoDomainLookup(params: { query: { domain: st
  *
  * SAML SP メタデータを XML 形式で取得
  */
-export async function getEnterpriseSsoConfigIdMetadata(params: { path: { configId: string } }) {
-  return await client.enterprise.sso[':configId'].metadata.$get({ param: params.path })
+export async function getEnterpriseSsoConfigIdMetadata(
+  arg: InferRequestType<(typeof client)['enterprise']['sso'][':configId']['metadata']['$get']>,
+) {
+  return await client['enterprise']['sso'][':configId']['metadata']['$get'](arg)
 }

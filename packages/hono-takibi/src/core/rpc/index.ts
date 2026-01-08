@@ -31,130 +31,40 @@ const isOpenAPIPaths = (v: unknown): v is OpenAPIPaths => {
   return true
 }
 
-const isSingleSchema = (items: Schema | readonly Schema[] | undefined): items is Schema =>
-  items !== undefined && !Array.isArray(items)
-
 /* ─────────────────────────────── Formatters ─────────────────────────────── */
 
-const isValidIdent = (s: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(s)
 const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 
-/** '/'->'.index' | '/hono-x'->"['hono-x']" | '/posts/hono/{id}'->".posts.hono[':id']" */
-const formatPath = (p: string) => {
-  const segs = (p === '/' ? ['index'] : p.replace(/^\/+/, '').split('/')).filter(Boolean)
-  return segs
-    .map((seg) =>
-      seg.startsWith('{') && seg.endsWith('}')
-        ? `[':${seg.slice(1, -1)}']`
-        : isValidIdent(seg)
-          ? `.${seg}`
-          : `['${esc(seg)}']`,
-    )
-    .join('')
-}
+/** Check if a string is a valid JavaScript identifier */
+const isValidIdent = (s: string): boolean => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s)
 
-/* ─────────────────────────────── Schema helpers ─────────────────────────────── */
+/**
+ * Format path for Hono RPC access (both type and runtime).
+ * Hono hc client uses PathToChain which splits paths by '/'.
+ *
+ * Rules:
+ * - '/' -> '.index'
+ * - Single segment with valid identifier -> dot notation: '/pet' -> '.pet'
+ * - All other cases -> each segment becomes bracket access: '/files/upload' -> "['files']['upload']"
+ * - Path params converted: '/files/{fileId}' -> "['files'][':fileId']"
+ */
+const formatPath = (p: string): string => {
+  if (p === '/') return '.index'
 
-type JSONTypeName = 'object' | 'array' | 'string' | 'number' | 'integer' | 'boolean' | 'null'
+  const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
 
-const isJSONTypeName = (s: unknown): s is JSONTypeName =>
-  typeof s === 'string' &&
-  (s === 'object' ||
-    s === 'array' ||
-    s === 'string' ||
-    s === 'number' ||
-    s === 'integer' ||
-    s === 'boolean' ||
-    s === 'null')
+  // Convert {param} to :param
+  const honoSegs = segs.map((seg) =>
+    seg.startsWith('{') && seg.endsWith('}') ? `:${seg.slice(1, -1)}` : seg,
+  )
 
-const toTypeArray = (t: unknown): JSONTypeName[] => {
-  if (isJSONTypeName(t)) return [t]
-  if (Array.isArray(t)) return t.filter(isJSONTypeName)
-  return []
-}
-
-const literalFromEnum = (vals: NonNullable<Schema['enum']>): string => {
-  const toLit = (v: unknown) =>
-    typeof v === 'string'
-      ? `'${v.replace(/'/g, "\\'")}'`
-      : typeof v === 'number' || typeof v === 'boolean'
-        ? String(v)
-        : v === null
-          ? 'null'
-          : 'unknown'
-  return vals.map(toLit).join('|')
-}
-
-const createResolveRef =
-  (schemas: Record<string, Schema>) =>
-  (ref?: string): Schema | undefined => {
-    if (!ref) return undefined
-    const m = ref.match(/^#\/components\/schemas\/(.+)$/)
-    if (!m) return undefined
-    const target = schemas[m[1]]
-    return isRecord(target) ? target : undefined
+  // Single segment with valid identifier: use dot notation
+  if (honoSegs.length === 1 && isValidIdent(honoSegs[0])) {
+    return `.${honoSegs[0]}`
   }
 
-/** TS type printer (handles $ref / enums / combinators / additionalProperties / nullable) */
-const createTsTypeFromSchema = (resolveRef: (ref?: string) => Schema | undefined) => {
-  const tt = (schema: Schema | undefined, seen: Set<Schema> = new Set()): string => {
-    if (!schema) return 'unknown'
-
-    if (schema.$ref) {
-      const tgt = resolveRef(schema.$ref)
-      return tt(tgt, seen)
-    }
-
-    if (seen.has(schema)) return 'unknown'
-    const next = new Set(seen)
-    next.add(schema)
-
-    if (Array.isArray(schema.oneOf) && schema.oneOf.length)
-      return schema.oneOf.map((s) => tt(s, next)).join('|') || 'unknown'
-    if (Array.isArray(schema.anyOf) && schema.anyOf.length)
-      return schema.anyOf.map((s) => tt(s, next)).join('|') || 'unknown'
-    if (Array.isArray(schema.allOf) && schema.allOf.length)
-      return schema.allOf.map((s) => tt(s, next)).join('&') || 'unknown'
-
-    if (Array.isArray(schema.enum) && schema.enum.length) {
-      const base = literalFromEnum(schema.enum)
-      return schema.nullable ? `${base}|null` : base
-    }
-
-    const types = toTypeArray(schema.type)
-
-    // array (parentheses when inner contains union/intersection)
-    if (types.includes('array')) {
-      const item = isSingleSchema(schema.items) ? schema.items : undefined
-      const inner = tt(item, next)
-      const needParens = /[|&]/.test(inner) && !/^\(.*\)$/.test(inner)
-      const core = `${needParens ? `(${inner})` : inner}[]`
-      return schema.nullable ? `${core}|null` : core
-    }
-
-    if (types.includes('object')) {
-      const req = new Set<string>(Array.isArray(schema.required) ? schema.required : [])
-      const props = schema.properties ?? {}
-      const fields = Object.entries(props).map(([k, v]) => {
-        const opt = req.has(k) ? '' : '?'
-        const child = isRecord(v) ? v : undefined
-        return `${k}${opt}:${tt(child, next)}`
-      })
-      const ap = schema.additionalProperties
-      const addl =
-        ap === true ? '[key:string]:unknown' : isRecord(ap) ? `[key:string]:${tt(ap, next)}` : ''
-      const members = [...fields, addl].filter(Boolean).join(',')
-      const core = `{${members}}`
-      return schema.nullable ? `${core}|null` : core
-    }
-
-    if (types.length === 0) return schema.nullable ? 'unknown|null' : 'unknown'
-    const prim = types
-      .map((t) => (t === 'integer' ? 'number' : t === 'null' ? 'null' : t))
-      .join('|')
-    return schema.nullable ? `${prim}|null` : prim
-  }
-  return tt
+  // All other cases: each segment becomes separate bracket access
+  return honoSegs.map((seg) => `['${esc(seg)}']`).join('')
 }
 
 /* ─────────────────────────────── Parameters ($ref) ─────────────────────────────── */
@@ -230,10 +140,15 @@ type OperationCode = {
 
 const hasSchemaProp = (v: unknown): v is { schema?: unknown } => isRecord(v) && 'schema' in v
 
-const pickBodySchema = (op: OperationLike): Schema | undefined => {
-  const rb = op.requestBody
-  if (!isRecord(rb)) return undefined
-  const content = rb.content
+/** Extract requestBody name from $ref like "#/components/requestBodies/CreateProduct" */
+const refRequestBodyName = (refLike: unknown): string | undefined => {
+  const ref =
+    typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
+  const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/)
+  return m ? m[1] : undefined
+}
+
+const pickBodySchemaFromContent = (content: unknown): Schema | undefined => {
   if (!isRecord(content)) return undefined
   const order = [
     'application/json',
@@ -250,46 +165,27 @@ const pickBodySchema = (op: OperationLike): Schema | undefined => {
   return undefined
 }
 
-/* ─────────────────────────────── Args builders ─────────────────────────────── */
+const createPickBodySchema =
+  (componentsRequestBodies: Record<string, unknown>) =>
+  (op: OperationLike): Schema | undefined => {
+    const rb = op.requestBody
+    if (!isRecord(rb)) return undefined
 
-const createBuildParamsType =
-  (tsTypeFromSchema: (s: Schema | undefined) => string) =>
-  (pathParams: ParameterLike[], queryParams: ParameterLike[]) => {
-    const pathPart =
-      pathParams.length === 0
-        ? []
-        : [`path:{${pathParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')}}`]
+    // Handle $ref to components/requestBodies
+    const refName = refRequestBodyName(rb)
+    if (refName) {
+      const resolved = componentsRequestBodies[refName]
+      if (isRecord(resolved) && isRecord(resolved.content)) {
+        return pickBodySchemaFromContent(resolved.content)
+      }
+      // If $ref exists but can't resolve content, still consider it has a body
+      if (resolved !== undefined) return {} // Empty schema indicates body exists
+      return undefined
+    }
 
-    const queryPart =
-      queryParams.length === 0
-        ? []
-        : [`query:{${queryParams.map((p) => `${p.name}:${tsTypeFromSchema(p.schema)}`).join(',')}}`]
-
-    const parts = [...pathPart, ...queryPart]
-    return parts.length === 0 ? '' : `{${parts.join(',')}}`
+    // Direct inline requestBody
+    return pickBodySchemaFromContent(rb.content)
   }
-
-const buildArgSignature = (paramsType: string, bodyType: string | null) =>
-  paramsType && bodyType
-    ? `params:${paramsType},body:${bodyType}`
-    : paramsType
-      ? `params:${paramsType}`
-      : bodyType
-        ? `body:${bodyType}`
-        : ''
-
-/** pass path/query as-is (keep numbers/arrays) */
-const buildClientArgs = (
-  pathParams: ParameterLike[],
-  queryParams: ParameterLike[],
-  hasBody: boolean,
-) => {
-  const paramPiece = pathParams.length ? ['param:params.path'] : []
-  const queryPiece = queryParams.length ? ['query:params.query'] : []
-  const bodyPiece = hasBody ? ['json:body'] : []
-  const pieces = [...paramPiece, ...queryPiece, ...bodyPiece]
-  return pieces.length === 0 ? '' : `{${pieces.join(',')}}`
-}
 
 /* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
 
@@ -299,15 +195,15 @@ const generateOperationCode = (
   item: PathItemLike,
   deps: {
     client: string
-    tsTypeFromSchema: (s: Schema | undefined) => string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
+    pickBodySchema: (op: OperationLike) => Schema | undefined
   },
 ): string => {
   const op = item[method]
   if (!isOperationLike(op)) return ''
 
   const funcName = methodPath(method, pathStr)
-  const clientAccess = formatPath(pathStr)
+  const pathAccess = formatPath(pathStr)
 
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
@@ -316,18 +212,22 @@ const generateOperationCode = (
   const pathParams = allParams.filter((p) => p.in === 'path')
   const queryParams = allParams.filter((p) => p.in === 'query')
 
-  const bodySchema = pickBodySchema(op)
+  const bodySchema = deps.pickBodySchema(op)
   const hasBody = bodySchema !== undefined
-  const bodyType = hasBody ? deps.tsTypeFromSchema(bodySchema) : null
+  const hasArgs = pathParams.length > 0 || queryParams.length > 0 || hasBody
 
-  const buildParamsType = createBuildParamsType(deps.tsTypeFromSchema)
-  const paramsType = buildParamsType(pathParams, queryParams)
-  const argSig = buildArgSignature(paramsType, bodyType)
-  const clientArgs = buildClientArgs(pathParams, queryParams, hasBody)
+  // Use unified path format for both type and runtime
+  const hasBracket = pathAccess.includes('[')
+  const methodAccess = hasBracket ? `['$${method}']` : `.$${method}`
 
-  const call = clientArgs
-    ? `${deps.client}${clientAccess}.$${method}(${clientArgs})`
-    : `${deps.client}${clientAccess}.$${method}()`
+  // For type inference, use (typeof client) with brackets when path has brackets
+  const inferType = hasBracket
+    ? `InferRequestType<(typeof ${deps.client})${pathAccess}${methodAccess}>`
+    : `InferRequestType<typeof ${deps.client}${pathAccess}${methodAccess}>`
+  const argSig = hasArgs ? `arg:${inferType}` : ''
+  const call = hasArgs
+    ? `${deps.client}${pathAccess}${methodAccess}(arg)`
+    : `${deps.client}${pathAccess}${methodAccess}()`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
@@ -348,8 +248,8 @@ const buildOperationCodes = (
   paths: OpenAPIPaths,
   deps: {
     client: string
-    tsTypeFromSchema: (s: Schema | undefined) => string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
+    pickBodySchema: (op: OperationLike) => Schema | undefined
   },
 ): OperationCode[] =>
   Object.entries(paths)
@@ -418,6 +318,11 @@ const resolveSplitOutDir = (output: string) => {
  * // Generates: src/rpc/getUsers.ts, src/rpc/postUsers.ts, src/rpc/index.ts
  * ```
  */
+const buildHeader = (importPath: string, usesInferRequestType: boolean): string => {
+  const inferImport = usesInferRequestType ? `import type{InferRequestType}from'hono/client'\n` : ''
+  return `${inferImport}import{client}from'${importPath}'\n\n`
+}
+
 export async function rpc(
   openAPI: OpenAPI,
   output: string | `${string}.ts`,
@@ -427,26 +332,22 @@ export async function rpc(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   const client = 'client'
-  const s = `import{client}from'${importPath}'`
-  const header = s.length ? `${s}\n\n` : ''
 
   const pathsMaybe = openAPI.paths
   if (!isOpenAPIPaths(pathsMaybe)) {
     return { ok: false, error: 'Invalid OpenAPI paths' }
   }
 
-  const schemas = openAPI.components?.schemas ?? {}
-  const resolveRef = createResolveRef(schemas)
-  const tsTypeFromSchema = createTsTypeFromSchema(resolveRef)
-
   const componentsParameters = openAPI.components?.parameters ?? {}
+  const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)
+  const pickBodySchema = createPickBodySchema(componentsRequestBodies)
 
   const deps = {
     client,
-    tsTypeFromSchema,
     toParameterLikes,
+    pickBodySchema,
   }
 
   const operationCodes = buildOperationCodes(pathsMaybe, deps)
@@ -454,6 +355,8 @@ export async function rpc(
   // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
+    const usesInferRequestType = body.includes('InferRequestType')
+    const header = buildHeader(importPath, usesInferRequestType)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -470,6 +373,8 @@ export async function rpc(
 
   const allResults = await Promise.all([
     ...operationCodes.map(({ funcName, code }) => {
+      const usesInferRequestType = code.includes('InferRequestType')
+      const header = buildHeader(importPath, usesInferRequestType)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

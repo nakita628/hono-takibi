@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "tsx src/index.ts",
+    "route": "tsx src/route.ts",
+    "type": "tsx src/type.ts",
+    "rpc": "tsx src/rpc.ts",
+    "client": "tsx src/client.ts",
     "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {

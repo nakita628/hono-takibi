@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/fizz-buzz'
  *
  * Returns the FizzBuzz result for the given number.
  */
-export async function getFizzbuzz(params: { query: { number: number; details: boolean } }) {
-  return await client.fizzbuzz.$get({ query: params.query })
+export async function getFizzbuzz(arg: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return await client.fizzbuzz.$get(arg)
 }

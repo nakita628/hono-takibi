@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -5,20 +6,8 @@ import { client } from '../clients/09-callbacks'
  *
  * Register a webhook endpoint
  */
-export async function postWebhooks(body: {
-  url: string
-  events: (
-    | 'order.created'
-    | 'order.updated'
-    | 'order.cancelled'
-    | 'payment.success'
-    | 'payment.failed'
-    | 'user.created'
-    | 'user.deleted'
-  )[]
-  secret?: string
-}) {
-  return await client.webhooks.$post({ json: body })
+export async function postWebhooks(arg: InferRequestType<typeof client.webhooks.$post>) {
+  return await client.webhooks.$post(arg)
 }
 
 /**
@@ -26,12 +15,8 @@ export async function postWebhooks(body: {
  *
  * Create a subscription with payment callbacks
  */
-export async function postSubscriptions(body: {
-  planId: string
-  paymentMethodId: string
-  callbackUrl: string
-}) {
-  return await client.subscriptions.$post({ json: body })
+export async function postSubscriptions(arg: InferRequestType<typeof client.subscriptions.$post>) {
+  return await client.subscriptions.$post(arg)
 }
 
 /**
@@ -39,12 +24,8 @@ export async function postSubscriptions(body: {
  *
  * Create an async job with progress callbacks
  */
-export async function postJobs(body: {
-  type: 'export' | 'import' | 'process'
-  data?: {}
-  callbackUrl: string
-}) {
-  return await client.jobs.$post({ json: body })
+export async function postJobs(arg: InferRequestType<typeof client.jobs.$post>) {
+  return await client.jobs.$post(arg)
 }
 
 /**
@@ -52,8 +33,8 @@ export async function postJobs(body: {
  *
  * Trigger data sync with callbacks
  */
-export async function postIntegrationsIntegrationIdSync(params: {
-  path: { integrationId: string }
-}) {
-  return await client.integrations[':integrationId'].sync.$post({ param: params.path })
+export async function postIntegrationsIntegrationIdSync(
+  arg: InferRequestType<(typeof client)['integrations'][':integrationId']['sync']['$post']>,
+) {
+  return await client['integrations'][':integrationId']['sync']['$post'](arg)
 }

@@ -1,83 +1,68 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
  * GET /entities
  */
-export async function getEntities(params: {
-  query: {
-    filter: {
-      field?: string
-      operator?:
-        | 'eq'
-        | 'ne'
-        | 'gt'
-        | 'gte'
-        | 'lt'
-        | 'lte'
-        | 'in'
-        | 'nin'
-        | 'contains'
-        | 'startsWith'
-        | 'endsWith'
-      value?: string | number | boolean | string[]
-      and?: unknown[]
-      or?: unknown[]
-    }
-    page: { page?: number; perPage?: number; cursor?: string }
-    sort: { field?: string; direction?: 'asc' | 'desc' }[]
-  }
-}) {
-  return await client.entities.$get({ query: params.query })
+export async function getEntities(arg: InferRequestType<typeof client.entities.$get>) {
+  return await client.entities.$get(arg)
 }
 
 /**
  * POST /entities
  */
-export async function postEntities() {
-  return await client.entities.$post()
+export async function postEntities(arg: InferRequestType<typeof client.entities.$post>) {
+  return await client.entities.$post(arg)
 }
 
 /**
  * GET /entities/{entityId}
  */
-export async function getEntitiesEntityId(params: {
-  path: { entityId: string }
-  query: { include: ('parent' | 'children' | 'owner' | 'members')[] }
-}) {
-  return await client.entities[':entityId'].$get({ param: params.path, query: params.query })
+export async function getEntitiesEntityId(
+  arg: InferRequestType<(typeof client)['entities'][':entityId']['$get']>,
+) {
+  return await client['entities'][':entityId']['$get'](arg)
 }
 
 /**
  * PUT /entities/{entityId}
  */
-export async function putEntitiesEntityId(params: { path: { entityId: string } }) {
-  return await client.entities[':entityId'].$put({ param: params.path })
+export async function putEntitiesEntityId(
+  arg: InferRequestType<(typeof client)['entities'][':entityId']['$put']>,
+) {
+  return await client['entities'][':entityId']['$put'](arg)
 }
 
 /**
  * DELETE /entities/{entityId}
  */
-export async function deleteEntitiesEntityId(params: { path: { entityId: string } }) {
-  return await client.entities[':entityId'].$delete({ param: params.path })
+export async function deleteEntitiesEntityId(
+  arg: InferRequestType<(typeof client)['entities'][':entityId']['$delete']>,
+) {
+  return await client['entities'][':entityId']['$delete'](arg)
 }
 
 /**
  * GET /entities/{entityId}/relationships
  */
-export async function getEntitiesEntityIdRelationships(params: { path: { entityId: string } }) {
-  return await client.entities[':entityId'].relationships.$get({ param: params.path })
+export async function getEntitiesEntityIdRelationships(
+  arg: InferRequestType<(typeof client)['entities'][':entityId']['relationships']['$get']>,
+) {
+  return await client['entities'][':entityId']['relationships']['$get'](arg)
 }
 
 /**
  * POST /entities/{entityId}/relationships
  */
-export async function postEntitiesEntityIdRelationships(params: { path: { entityId: string } }) {
-  return await client.entities[':entityId'].relationships.$post({ param: params.path })
+export async function postEntitiesEntityIdRelationships(
+  arg: InferRequestType<(typeof client)['entities'][':entityId']['relationships']['$post']>,
+) {
+  return await client['entities'][':entityId']['relationships']['$post'](arg)
 }
 
 /**
  * POST /batch
  */
-export async function postBatch() {
-  return await client.batch.$post()
+export async function postBatch(arg: InferRequestType<typeof client.batch.$post>) {
+  return await client.batch.$post(arg)
 }

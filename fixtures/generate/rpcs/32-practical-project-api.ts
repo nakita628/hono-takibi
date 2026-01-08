@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -5,15 +6,8 @@ import { client } from '../clients/32-practical-project-api'
  *
  * プロジェクト一覧取得
  */
-export async function getProjects(params: {
-  query: {
-    page: number
-    limit: number
-    status: 'active' | 'on_hold' | 'completed' | 'archived'
-    search: string
-  }
-}) {
-  return await client.projects.$get({ query: params.query })
+export async function getProjects(arg: InferRequestType<typeof client.projects.$get>) {
+  return await client.projects.$get(arg)
 }
 
 /**
@@ -21,15 +15,8 @@ export async function getProjects(params: {
  *
  * プロジェクト作成
  */
-export async function postProjects(body: {
-  name: string
-  description?: string
-  color?: string
-  teamId?: string
-  startDate?: string
-  endDate?: string
-}) {
-  return await client.projects.$post({ json: body })
+export async function postProjects(arg: InferRequestType<typeof client.projects.$post>) {
+  return await client.projects.$post(arg)
 }
 
 /**
@@ -37,8 +24,10 @@ export async function postProjects(body: {
  *
  * プロジェクト詳細取得
  */
-export async function getProjectsProjectId(params: { path: { projectId: string } }) {
-  return await client.projects[':projectId'].$get({ param: params.path })
+export async function getProjectsProjectId(
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['$get']>,
+) {
+  return await client['projects'][':projectId']['$get'](arg)
 }
 
 /**
@@ -47,17 +36,9 @@ export async function getProjectsProjectId(params: { path: { projectId: string }
  * プロジェクト更新
  */
 export async function putProjectsProjectId(
-  params: { path: { projectId: string } },
-  body: {
-    name?: string
-    description?: string
-    status?: 'active' | 'on_hold' | 'completed' | 'archived'
-    color?: string
-    startDate?: string
-    endDate?: string
-  },
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['$put']>,
 ) {
-  return await client.projects[':projectId'].$put({ param: params.path, json: body })
+  return await client['projects'][':projectId']['$put'](arg)
 }
 
 /**
@@ -65,8 +46,10 @@ export async function putProjectsProjectId(
  *
  * プロジェクト削除
  */
-export async function deleteProjectsProjectId(params: { path: { projectId: string } }) {
-  return await client.projects[':projectId'].$delete({ param: params.path })
+export async function deleteProjectsProjectId(
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['$delete']>,
+) {
+  return await client['projects'][':projectId']['$delete'](arg)
 }
 
 /**
@@ -74,8 +57,10 @@ export async function deleteProjectsProjectId(params: { path: { projectId: strin
  *
  * プロジェクトメンバー一覧
  */
-export async function getProjectsProjectIdMembers(params: { path: { projectId: string } }) {
-  return await client.projects[':projectId'].members.$get({ param: params.path })
+export async function getProjectsProjectIdMembers(
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['members']['$get']>,
+) {
+  return await client['projects'][':projectId']['members']['$get'](arg)
 }
 
 /**
@@ -84,10 +69,9 @@ export async function getProjectsProjectIdMembers(params: { path: { projectId: s
  * メンバー追加
  */
 export async function postProjectsProjectIdMembers(
-  params: { path: { projectId: string } },
-  body: { userId: string; role: 'admin' | 'member' | 'viewer' },
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['members']['$post']>,
 ) {
-  return await client.projects[':projectId'].members.$post({ param: params.path, json: body })
+  return await client['projects'][':projectId']['members']['$post'](arg)
 }
 
 /**
@@ -95,17 +79,10 @@ export async function postProjectsProjectIdMembers(
  *
  * プロジェクトのタスク一覧
  */
-export async function getProjectsProjectIdTasks(params: {
-  path: { projectId: string }
-  query: {
-    page: number
-    limit: number
-    status: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled'
-    assignee: string
-    priority: 'low' | 'medium' | 'high' | 'urgent'
-  }
-}) {
-  return await client.projects[':projectId'].tasks.$get({ param: params.path, query: params.query })
+export async function getProjectsProjectIdTasks(
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['tasks']['$get']>,
+) {
+  return await client['projects'][':projectId']['tasks']['$get'](arg)
 }
 
 /**
@@ -114,21 +91,9 @@ export async function getProjectsProjectIdTasks(params: {
  * タスク作成
  */
 export async function postProjectsProjectIdTasks(
-  params: { path: { projectId: string } },
-  body: {
-    title: string
-    description?: string
-    status?: 'todo' | 'in_progress' | 'in_review' | 'done'
-    priority?: 'low' | 'medium' | 'high' | 'urgent'
-    assigneeId?: string
-    milestoneId?: string
-    dueDate?: string
-    estimatedHours?: number
-    tags?: string[]
-    subtasks?: { title: string }[]
-  },
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['tasks']['$post']>,
 ) {
-  return await client.projects[':projectId'].tasks.$post({ param: params.path, json: body })
+  return await client['projects'][':projectId']['tasks']['$post'](arg)
 }
 
 /**
@@ -136,8 +101,10 @@ export async function postProjectsProjectIdTasks(
  *
  * タスク詳細取得
  */
-export async function getTasksTaskId(params: { path: { taskId: string } }) {
-  return await client.tasks[':taskId'].$get({ param: params.path })
+export async function getTasksTaskId(
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['$get']>,
+) {
+  return await client['tasks'][':taskId']['$get'](arg)
 }
 
 /**
@@ -146,20 +113,9 @@ export async function getTasksTaskId(params: { path: { taskId: string } }) {
  * タスク更新
  */
 export async function putTasksTaskId(
-  params: { path: { taskId: string } },
-  body: {
-    title?: string
-    description?: string
-    status?: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled'
-    priority?: 'low' | 'medium' | 'high' | 'urgent'
-    assigneeId?: string
-    milestoneId?: string
-    dueDate?: string
-    estimatedHours?: number
-    tags?: string[]
-  },
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['$put']>,
 ) {
-  return await client.tasks[':taskId'].$put({ param: params.path, json: body })
+  return await client['tasks'][':taskId']['$put'](arg)
 }
 
 /**
@@ -167,8 +123,10 @@ export async function putTasksTaskId(
  *
  * タスク削除
  */
-export async function deleteTasksTaskId(params: { path: { taskId: string } }) {
-  return await client.tasks[':taskId'].$delete({ param: params.path })
+export async function deleteTasksTaskId(
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['$delete']>,
+) {
+  return await client['tasks'][':taskId']['$delete'](arg)
 }
 
 /**
@@ -177,10 +135,9 @@ export async function deleteTasksTaskId(params: { path: { taskId: string } }) {
  * タスクステータス更新
  */
 export async function patchTasksTaskIdStatus(
-  params: { path: { taskId: string } },
-  body: { status: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled' },
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['status']['$patch']>,
 ) {
-  return await client.tasks[':taskId'].status.$patch({ param: params.path, json: body })
+  return await client['tasks'][':taskId']['status']['$patch'](arg)
 }
 
 /**
@@ -188,8 +145,10 @@ export async function patchTasksTaskIdStatus(
  *
  * タスクコメント一覧
  */
-export async function getTasksTaskIdComments(params: { path: { taskId: string } }) {
-  return await client.tasks[':taskId'].comments.$get({ param: params.path })
+export async function getTasksTaskIdComments(
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['comments']['$get']>,
+) {
+  return await client['tasks'][':taskId']['comments']['$get'](arg)
 }
 
 /**
@@ -198,10 +157,9 @@ export async function getTasksTaskIdComments(params: { path: { taskId: string } 
  * コメント追加
  */
 export async function postTasksTaskIdComments(
-  params: { path: { taskId: string } },
-  body: { content: string },
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['comments']['$post']>,
 ) {
-  return await client.tasks[':taskId'].comments.$post({ param: params.path, json: body })
+  return await client['tasks'][':taskId']['comments']['$post'](arg)
 }
 
 /**
@@ -209,8 +167,10 @@ export async function postTasksTaskIdComments(
  *
  * 時間記録一覧
  */
-export async function getTasksTaskIdTimeEntries(params: { path: { taskId: string } }) {
-  return await client.tasks[':taskId']['time-entries'].$get({ param: params.path })
+export async function getTasksTaskIdTimeEntries(
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['time-entries']['$get']>,
+) {
+  return await client['tasks'][':taskId']['time-entries']['$get'](arg)
 }
 
 /**
@@ -219,10 +179,9 @@ export async function getTasksTaskIdTimeEntries(params: { path: { taskId: string
  * 時間記録作成
  */
 export async function postTasksTaskIdTimeEntries(
-  params: { path: { taskId: string } },
-  body: { description?: string; duration: number; date: string },
+  arg: InferRequestType<(typeof client)['tasks'][':taskId']['time-entries']['$post']>,
 ) {
-  return await client.tasks[':taskId']['time-entries'].$post({ param: params.path, json: body })
+  return await client['tasks'][':taskId']['time-entries']['$post'](arg)
 }
 
 /**
@@ -230,8 +189,10 @@ export async function postTasksTaskIdTimeEntries(
  *
  * マイルストーン一覧
  */
-export async function getProjectsProjectIdMilestones(params: { path: { projectId: string } }) {
-  return await client.projects[':projectId'].milestones.$get({ param: params.path })
+export async function getProjectsProjectIdMilestones(
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['milestones']['$get']>,
+) {
+  return await client['projects'][':projectId']['milestones']['$get'](arg)
 }
 
 /**
@@ -240,10 +201,9 @@ export async function getProjectsProjectIdMilestones(params: { path: { projectId
  * マイルストーン作成
  */
 export async function postProjectsProjectIdMilestones(
-  params: { path: { projectId: string } },
-  body: { name: string; description?: string; dueDate?: string },
+  arg: InferRequestType<(typeof client)['projects'][':projectId']['milestones']['$post']>,
 ) {
-  return await client.projects[':projectId'].milestones.$post({ param: params.path, json: body })
+  return await client['projects'][':projectId']['milestones']['$post'](arg)
 }
 
 /**
@@ -260,10 +220,6 @@ export async function getTeams() {
  *
  * チーム作成
  */
-export async function postTeams(body: {
-  name: string
-  description?: string
-  memberIds?: string[]
-}) {
-  return await client.teams.$post({ json: body })
+export async function postTeams(arg: InferRequestType<typeof client.teams.$post>) {
+  return await client.teams.$post(arg)
 }

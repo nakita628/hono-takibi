@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/06-headers'
 
 /**
@@ -10,23 +11,26 @@ export async function getResources() {
 /**
  * GET /resources/{id}
  */
-export async function getResourcesId(params: { path: { id: string } }) {
-  return await client.resources[':id'].$get({ param: params.path })
+export async function getResourcesId(
+  arg: InferRequestType<(typeof client)['resources'][':id']['$get']>,
+) {
+  return await client['resources'][':id']['$get'](arg)
 }
 
 /**
  * PUT /resources/{id}
  */
 export async function putResourcesId(
-  params: { path: { id: string } },
-  body: { id?: string; name?: string; data?: {} },
+  arg: InferRequestType<(typeof client)['resources'][':id']['$put']>,
 ) {
-  return await client.resources[':id'].$put({ param: params.path, json: body })
+  return await client['resources'][':id']['$put'](arg)
 }
 
 /**
  * GET /download/{id}
  */
-export async function getDownloadId(params: { path: { id: string } }) {
-  return await client.download[':id'].$get({ param: params.path })
+export async function getDownloadId(
+  arg: InferRequestType<(typeof client)['download'][':id']['$get']>,
+) {
+  return await client['download'][':id']['$get'](arg)
 }

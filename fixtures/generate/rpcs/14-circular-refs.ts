@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
@@ -10,14 +11,8 @@ export async function getTrees() {
 /**
  * POST /trees
  */
-export async function postTrees(body: {
-  id: string
-  value: string
-  parent?: unknown
-  children?: unknown[]
-  metadata?: { [key: string]: unknown }
-}) {
-  return await client.trees.$post({ json: body })
+export async function postTrees(arg: InferRequestType<typeof client.trees.$post>) {
+  return await client.trees.$post(arg)
 }
 
 /**
@@ -31,21 +26,21 @@ export async function getGraphs() {
  * GET /linked-lists
  */
 export async function getLinkedLists() {
-  return await client['linked-lists'].$get()
+  return await client['linked-lists']['$get']()
 }
 
 /**
  * GET /social-network
  */
 export async function getSocialNetwork() {
-  return await client['social-network'].$get()
+  return await client['social-network']['$get']()
 }
 
 /**
  * GET /file-system
  */
 export async function getFileSystem() {
-  return await client['file-system'].$get()
+  return await client['file-system']['$get']()
 }
 
 /**

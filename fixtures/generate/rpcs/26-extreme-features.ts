@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
 /**
@@ -14,12 +15,8 @@ export async function getStream() {
  *
  * GraphQL endpoint
  */
-export async function postGraphql(body: {
-  query?: string
-  variables?: {}
-  operationName?: string
-}) {
-  return await client.graphql.$post({ json: body })
+export async function postGraphql(arg: InferRequestType<typeof client.graphql.$post>) {
+  return await client.graphql.$post(arg)
 }
 
 /**
@@ -28,7 +25,7 @@ export async function postGraphql(body: {
  * gRPC-Gateway endpoint
  */
 export async function postGrpcGateway() {
-  return await client['grpc-gateway'].$post()
+  return await client['grpc-gateway']['$post']()
 }
 
 /**
@@ -41,5 +38,5 @@ export async function postGrpcGateway() {
 Please use `/new-endpoint` instead.
  */
 export async function getDeprecatedEndpoint() {
-  return await client['deprecated-endpoint'].$get()
+  return await client['deprecated-endpoint']['$get']()
 }

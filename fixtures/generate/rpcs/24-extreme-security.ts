@@ -15,7 +15,7 @@ export async function getPublic() {
  * Single authentication required
  */
 export async function getSingleAuth() {
-  return await client['single-auth'].$get()
+  return await client['single-auth']['$get']()
 }
 
 /**
@@ -24,7 +24,7 @@ export async function getSingleAuth() {
  * Any of these auth methods works (OR)
  */
 export async function getAnyAuth() {
-  return await client['any-auth'].$get()
+  return await client['any-auth']['$get']()
 }
 
 /**
@@ -33,7 +33,7 @@ export async function getAnyAuth() {
  * All of these auth methods required (AND)
  */
 export async function getAllAuth() {
-  return await client['all-auth'].$get()
+  return await client['all-auth']['$get']()
 }
 
 /**
@@ -42,7 +42,7 @@ export async function getAllAuth() {
  * Complex AND/OR security requirements
  */
 export async function getComplexAuth() {
-  return await client['complex-auth'].$get()
+  return await client['complex-auth']['$get']()
 }
 
 /**
@@ -51,7 +51,7 @@ export async function getComplexAuth() {
  * OAuth with many specific scopes
  */
 export async function getScopedOauth() {
-  return await client['scoped-oauth'].$get()
+  return await client['scoped-oauth']['$get']()
 }
 
 /**
@@ -60,7 +60,7 @@ export async function getScopedOauth() {
  * Path level + operation level security
  */
 export async function getMixedLevelSecurity() {
-  return await client['mixed-level-security'].$get()
+  return await client['mixed-level-security']['$get']()
 }
 
 /**
@@ -69,7 +69,7 @@ export async function getMixedLevelSecurity() {
  * Admin-only security
  */
 export async function putMixedLevelSecurity() {
-  return await client['mixed-level-security'].$put()
+  return await client['mixed-level-security']['$put']()
 }
 
 /**
@@ -78,7 +78,7 @@ export async function putMixedLevelSecurity() {
  * Different security for POST
  */
 export async function postMixedLevelSecurity() {
-  return await client['mixed-level-security'].$post()
+  return await client['mixed-level-security']['$post']()
 }
 
 /**
@@ -87,7 +87,7 @@ export async function postMixedLevelSecurity() {
  * Super admin security
  */
 export async function deleteMixedLevelSecurity() {
-  return await client['mixed-level-security'].$delete()
+  return await client['mixed-level-security']['$delete']()
 }
 
 /**
@@ -96,7 +96,7 @@ export async function deleteMixedLevelSecurity() {
  * Override global security with public
  */
 export async function getOverrideGlobal() {
-  return await client['override-global'].$get()
+  return await client['override-global']['$get']()
 }
 
 /**
@@ -105,7 +105,7 @@ export async function getOverrideGlobal() {
  * Optional auth with enhanced access if authenticated
  */
 export async function getOptionalEnhanced() {
-  return await client['optional-enhanced'].$get()
+  return await client['optional-enhanced']['$get']()
 }
 
 /**
@@ -114,5 +114,5 @@ export async function getOptionalEnhanced() {
  * Multi-tenant with org-level auth
  */
 export async function getMultiTenant() {
-  return await client['multi-tenant'].$get()
+  return await client['multi-tenant']['$get']()
 }

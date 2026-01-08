@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
 /**
@@ -18,8 +19,8 @@ export async function get() {
  *
  * Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
  */
-export async function getPosts(params: { query: { page: number; rows: number } }) {
-  return await client.posts.$get({ query: params.query })
+export async function getPosts(arg: InferRequestType<typeof client.posts.$get>) {
+  return await client.posts.$get(arg)
 }
 
 /**
@@ -29,8 +30,8 @@ export async function getPosts(params: { query: { page: number; rows: number } }
  *
  * Submit a new post with a maximum length of 140 characters.
  */
-export async function postPosts(body: { post: string }) {
-  return await client.posts.$post({ json: body })
+export async function postPosts(arg: InferRequestType<typeof client.posts.$post>) {
+  return await client.posts.$post(arg)
 }
 
 /**
@@ -40,8 +41,8 @@ export async function postPosts(body: { post: string }) {
  *
  * Update the content of an existing post identified by its unique ID.
  */
-export async function putPostsId(params: { path: { id: string } }, body: { post: string }) {
-  return await client.posts[':id'].$put({ param: params.path, json: body })
+export async function putPostsId(arg: InferRequestType<(typeof client)['posts'][':id']['$put']>) {
+  return await client['posts'][':id']['$put'](arg)
 }
 
 /**
@@ -51,6 +52,8 @@ export async function putPostsId(params: { path: { id: string } }, body: { post:
  *
  * Delete an existing post identified by its unique ID.
  */
-export async function deletePostsId(params: { path: { id: string } }) {
-  return await client.posts[':id'].$delete({ param: params.path })
+export async function deletePostsId(
+  arg: InferRequestType<(typeof client)['posts'][':id']['$delete']>,
+) {
+  return await client['posts'][':id']['$delete'](arg)
 }

@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -7,15 +8,8 @@ import { client } from '../clients/11-comprehensive'
  *
  * Retrieve a paginated list of products with optional filtering
  */
-export async function getProducts(params: {
-  query: {
-    page: number
-    limit: number
-    q: string
-    category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-  }
-}) {
-  return await client.products.$get({ query: params.query })
+export async function getProducts(arg: InferRequestType<typeof client.products.$get>) {
+  return await client.products.$get(arg)
 }
 
 /**
@@ -23,8 +17,8 @@ export async function getProducts(params: {
  *
  * Create a new product
  */
-export async function postProducts() {
-  return await client.products.$post()
+export async function postProducts(arg: InferRequestType<typeof client.products.$post>) {
+  return await client.products.$post(arg)
 }
 
 /**
@@ -32,8 +26,10 @@ export async function postProducts() {
  *
  * Get product by ID
  */
-export async function getProductsProductId(params: { path: { productId: string } }) {
-  return await client.products[':productId'].$get({ param: params.path })
+export async function getProductsProductId(
+  arg: InferRequestType<(typeof client)['products'][':productId']['$get']>,
+) {
+  return await client['products'][':productId']['$get'](arg)
 }
 
 /**
@@ -41,8 +37,10 @@ export async function getProductsProductId(params: { path: { productId: string }
  *
  * Update a product
  */
-export async function putProductsProductId(params: { path: { productId: string } }) {
-  return await client.products[':productId'].$put({ param: params.path })
+export async function putProductsProductId(
+  arg: InferRequestType<(typeof client)['products'][':productId']['$put']>,
+) {
+  return await client['products'][':productId']['$put'](arg)
 }
 
 /**
@@ -50,8 +48,10 @@ export async function putProductsProductId(params: { path: { productId: string }
  *
  * Delete a product
  */
-export async function deleteProductsProductId(params: { path: { productId: string } }) {
-  return await client.products[':productId'].$delete({ param: params.path })
+export async function deleteProductsProductId(
+  arg: InferRequestType<(typeof client)['products'][':productId']['$delete']>,
+) {
+  return await client['products'][':productId']['$delete'](arg)
 }
 
 /**
@@ -59,8 +59,8 @@ export async function deleteProductsProductId(params: { path: { productId: strin
  *
  * Create a new order
  */
-export async function postOrders() {
-  return await client.orders.$post()
+export async function postOrders(arg: InferRequestType<typeof client.orders.$post>) {
+  return await client.orders.$post(arg)
 }
 
 /**
@@ -68,6 +68,6 @@ export async function postOrders() {
  *
  * Register a webhook endpoint
  */
-export async function postWebhooks() {
-  return await client.webhooks.$post()
+export async function postWebhooks(arg: InferRequestType<typeof client.webhooks.$post>) {
+  return await client.webhooks.$post(arg)
 }

@@ -1,42 +1,29 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
  * POST /encoding-test
  */
-export async function postEncodingTest(body: {
-  simpleString?: string
-  arrayExplode?: string[]
-  arrayNoExplode?: string[]
-  objectForm?: { key1?: string; key2?: number }
-  objectDeepObject?: { nested?: { deep?: string } }
-  imageFile?: string
-  documentFile?: string
-  jsonString?: { data?: string }
-  base64Data?: string
-  multipleFiles?: string[]
-  complexNested?: { level1?: { level2?: { value?: string; array?: number[] } } }
-  arrayOfObjects?: { id?: number; name?: string }[]
-  partWithHeaders?: string
-}) {
-  return await client['encoding-test'].$post({ json: body })
+export async function postEncodingTest(
+  arg: InferRequestType<(typeof client)['encoding-test']['$post']>,
+) {
+  return await client['encoding-test']['$post'](arg)
 }
 
 /**
  * GET /content-negotiation
  */
 export async function getContentNegotiation() {
-  return await client['content-negotiation'].$get()
+  return await client['content-negotiation']['$get']()
 }
 
 /**
  * POST /binary-variations
  */
-export async function postBinaryVariations(body: {
-  data?: string
-  filename?: string
-  mimeType?: string
-}) {
-  return await client['binary-variations'].$post({ json: body })
+export async function postBinaryVariations(
+  arg: InferRequestType<(typeof client)['binary-variations']['$post']>,
+) {
+  return await client['binary-variations']['$post'](arg)
 }
 
 /**
@@ -49,46 +36,31 @@ export async function getStreaming() {
 /**
  * POST /streaming
  */
-export async function postStreaming(body: string) {
-  return await client.streaming.$post({ json: body })
+export async function postStreaming(arg: InferRequestType<typeof client.streaming.$post>) {
+  return await client.streaming.$post(arg)
 }
 
 /**
  * POST /url-encoded-complex
  */
-export async function postUrlEncodedComplex(body: {
-  string?: string
-  number?: number
-  boolean?: boolean
-  arrayDefault?: string[]
-  arrayExplode?: number[]
-  nested?: { key1?: string; key2?: { subkey?: string } }
-  specialChars?: string
-  unicode?: string
-  emptyString?: string
-  multiValue?: string[]
-}) {
-  return await client['url-encoded-complex'].$post({ json: body })
+export async function postUrlEncodedComplex(
+  arg: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
+) {
+  return await client['url-encoded-complex']['$post'](arg)
 }
 
 /**
  * GET /response-encoding
  */
 export async function getResponseEncoding() {
-  return await client['response-encoding'].$get()
+  return await client['response-encoding']['$get']()
 }
 
 /**
  * POST /schema-encoding
  */
-export async function postSchemaEncoding(body: {
-  base64Field?: string
-  base64urlField?: string
-  jsonString?: string
-  xmlString?: string
-  embeddedJson?: string
-  binaryData?: string
-  imageData?: string
-}) {
-  return await client['schema-encoding'].$post({ json: body })
+export async function postSchemaEncoding(
+  arg: InferRequestType<(typeof client)['schema-encoding']['$post']>,
+) {
+  return await client['schema-encoding']['$post'](arg)
 }

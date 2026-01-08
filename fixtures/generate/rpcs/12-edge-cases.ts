@@ -1,108 +1,110 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
  * GET /all-methods
  */
 export async function getAllMethods() {
-  return await client['all-methods'].$get()
+  return await client['all-methods']['$get']()
 }
 
 /**
  * PUT /all-methods
  */
 export async function putAllMethods() {
-  return await client['all-methods'].$put()
+  return await client['all-methods']['$put']()
 }
 
 /**
  * POST /all-methods
  */
 export async function postAllMethods() {
-  return await client['all-methods'].$post()
+  return await client['all-methods']['$post']()
 }
 
 /**
  * DELETE /all-methods
  */
 export async function deleteAllMethods() {
-  return await client['all-methods'].$delete()
+  return await client['all-methods']['$delete']()
 }
 
 /**
  * OPTIONS /all-methods
  */
 export async function optionsAllMethods() {
-  return await client['all-methods'].$options()
+  return await client['all-methods']['$options']()
 }
 
 /**
  * HEAD /all-methods
  */
 export async function headAllMethods() {
-  return await client['all-methods'].$head()
+  return await client['all-methods']['$head']()
 }
 
 /**
  * PATCH /all-methods
  */
 export async function patchAllMethods() {
-  return await client['all-methods'].$patch()
+  return await client['all-methods']['$patch']()
 }
 
 /**
  * TRACE /all-methods
  */
 export async function traceAllMethods() {
-  return await client['all-methods'].$trace()
+  return await client['all-methods']['$trace']()
 }
 
 /**
  * GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
-export async function getUsersUserIdPostsPostIdCommentsCommentId(params: {
-  path: { userId: string; postId: number; commentId: string }
-}) {
-  return await client.users[':userId'].posts[':postId'].comments[':commentId'].$get({
-    param: params.path,
-  })
+export async function getUsersUserIdPostsPostIdCommentsCommentId(
+  arg: InferRequestType<
+    (typeof client)['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get']
+  >,
+) {
+  return await client['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get'](arg)
 }
 
 /**
  * GET /params-test/{pathParam}
  */
-export async function getParamsTestPathParam(params: {
-  path: { pathParam: string }
-  query: { queryParam: string }
-}) {
-  return await client['params-test'][':pathParam'].$get({ param: params.path, query: params.query })
+export async function getParamsTestPathParam(
+  arg: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+) {
+  return await client['params-test'][':pathParam']['$get'](arg)
 }
 
 /**
  * POST /no-content
  */
 export async function postNoContent() {
-  return await client['no-content'].$post()
+  return await client['no-content']['$post']()
 }
 
 /**
  * GET /multi-content
  */
 export async function getMultiContent() {
-  return await client['multi-content'].$get()
+  return await client['multi-content']['$get']()
 }
 
 /**
  * POST /multi-content
  */
-export async function postMultiContent(body: { data?: {} }) {
-  return await client['multi-content'].$post({ json: body })
+export async function postMultiContent(
+  arg: InferRequestType<(typeof client)['multi-content']['$post']>,
+) {
+  return await client['multi-content']['$post'](arg)
 }
 
 /**
  * GET /response-ranges
  */
 export async function getResponseRanges() {
-  return await client['response-ranges'].$get()
+  return await client['response-ranges']['$get']()
 }
 
 /**
@@ -120,14 +122,14 @@ export async function getDeprecated() {
  * Operation without operationId
  */
 export async function getNoOperationId() {
-  return await client['no-operation-id'].$get()
+  return await client['no-operation-id']['$get']()
 }
 
 /**
  * POST /empty-body
  */
-export async function postEmptyBody(body: {}) {
-  return await client['empty-body'].$post({ json: body })
+export async function postEmptyBody(arg: InferRequestType<(typeof client)['empty-body']['$post']>) {
+  return await client['empty-body']['$post'](arg)
 }
 
 /**
@@ -141,23 +143,23 @@ export async function getCircular() {
  * GET /deep-nesting
  */
 export async function getDeepNesting() {
-  return await client['deep-nesting'].$get()
+  return await client['deep-nesting']['$get']()
 }
 
 /**
  * GET /array-params
  */
-export async function getArrayParams(params: {
-  query: { ids: string[]; tags: string[]; values: number[]; coords: number[] }
-}) {
-  return await client['array-params'].$get({ query: params.query })
+export async function getArrayParams(
+  arg: InferRequestType<(typeof client)['array-params']['$get']>,
+) {
+  return await client['array-params']['$get'](arg)
 }
 
 /**
  * GET /object-param
  */
-export async function getObjectParam(params: {
-  query: { filter: { name?: string; minPrice?: number; maxPrice?: number } }
-}) {
-  return await client['object-param'].$get({ query: params.query })
+export async function getObjectParam(
+  arg: InferRequestType<(typeof client)['object-param']['$get']>,
+) {
+  return await client['object-param']['$get'](arg)
 }

@@ -25,12 +25,12 @@ export async function getAdmin() {
  * GET /oauth-resource
  */
 export async function getOauthResource() {
-  return await client['oauth-resource'].$get()
+  return await client['oauth-resource']['$get']()
 }
 
 /**
  * GET /multi-auth
  */
 export async function getMultiAuth() {
-  return await client['multi-auth'].$get()
+  return await client['multi-auth']['$get']()
 }

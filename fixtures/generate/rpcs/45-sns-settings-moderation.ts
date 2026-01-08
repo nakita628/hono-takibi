@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -6,7 +7,7 @@ import { client } from '../clients/45-sns-settings-moderation'
  * アカウント設定取得
  */
 export async function getSettingsAccount() {
-  return await client.settings.account.$get()
+  return await client['settings']['account']['$get']()
 }
 
 /**
@@ -14,12 +15,10 @@ export async function getSettingsAccount() {
  *
  * アカウント設定更新
  */
-export async function putSettingsAccount(body: {
-  language?: string
-  timezone?: string
-  country?: string
-}) {
-  return await client.settings.account.$put({ json: body })
+export async function putSettingsAccount(
+  arg: InferRequestType<(typeof client)['settings']['account']['$put']>,
+) {
+  return await client['settings']['account']['$put'](arg)
 }
 
 /**
@@ -27,8 +26,10 @@ export async function putSettingsAccount(body: {
  *
  * ユーザー名利用可能確認
  */
-export async function getSettingsUsernameCheck(params: { query: { username: string } }) {
-  return await client.settings.username.check.$get({ query: params.query })
+export async function getSettingsUsernameCheck(
+  arg: InferRequestType<(typeof client)['settings']['username']['check']['$get']>,
+) {
+  return await client['settings']['username']['check']['$get'](arg)
 }
 
 /**
@@ -37,7 +38,7 @@ export async function getSettingsUsernameCheck(params: { query: { username: stri
  * プライバシー設定取得
  */
 export async function getSettingsPrivacy() {
-  return await client.settings.privacy.$get()
+  return await client['settings']['privacy']['$get']()
 }
 
 /**
@@ -45,17 +46,10 @@ export async function getSettingsPrivacy() {
  *
  * プライバシー設定更新
  */
-export async function putSettingsPrivacy(body: {
-  protectedPosts?: boolean
-  allowTagging?: 'everyone' | 'followers' | 'none'
-  allowMentions?: 'everyone' | 'followers' | 'none'
-  discoverableByEmail?: boolean
-  discoverableByPhone?: boolean
-  showLocation?: boolean
-  personalizeAds?: boolean
-  allowDataSharing?: boolean
-}) {
-  return await client.settings.privacy.$put({ json: body })
+export async function putSettingsPrivacy(
+  arg: InferRequestType<(typeof client)['settings']['privacy']['$put']>,
+) {
+  return await client['settings']['privacy']['$put'](arg)
 }
 
 /**
@@ -64,7 +58,7 @@ export async function putSettingsPrivacy(body: {
  * コンテンツ設定取得
  */
 export async function getSettingsContentPreferences() {
-  return await client.settings['content-preferences'].$get()
+  return await client['settings']['content-preferences']['$get']()
 }
 
 /**
@@ -72,15 +66,10 @@ export async function getSettingsContentPreferences() {
  *
  * コンテンツ設定更新
  */
-export async function putSettingsContentPreferences(body: {
-  sensitiveContentFilter?: 'hide' | 'warn' | 'show'
-  autoplayVideos?: 'always' | 'wifi' | 'never'
-  dataUsage?: 'default' | 'reduced'
-  qualityFilter?: boolean
-  hideViewCounts?: boolean
-  hideLikeCounts?: boolean
-}) {
-  return await client.settings['content-preferences'].$put({ json: body })
+export async function putSettingsContentPreferences(
+  arg: InferRequestType<(typeof client)['settings']['content-preferences']['$put']>,
+) {
+  return await client['settings']['content-preferences']['$put'](arg)
 }
 
 /**
@@ -89,7 +78,7 @@ export async function putSettingsContentPreferences(body: {
  * ミュートワード一覧取得
  */
 export async function getSettingsMutedWords() {
-  return await client.settings['muted-words'].$get()
+  return await client['settings']['muted-words']['$get']()
 }
 
 /**
@@ -97,13 +86,10 @@ export async function getSettingsMutedWords() {
  *
  * ミュートワード追加
  */
-export async function postSettingsMutedWords(body: {
-  word: string
-  matchWholeWord?: boolean
-  duration?: number
-  scope?: 'all' | 'home_timeline' | 'notifications'
-}) {
-  return await client.settings['muted-words'].$post({ json: body })
+export async function postSettingsMutedWords(
+  arg: InferRequestType<(typeof client)['settings']['muted-words']['$post']>,
+) {
+  return await client['settings']['muted-words']['$post'](arg)
 }
 
 /**
@@ -111,8 +97,10 @@ export async function postSettingsMutedWords(body: {
  *
  * ミュートワード削除
  */
-export async function deleteSettingsMutedWordsWordId(params: { path: { wordId: string } }) {
-  return await client.settings['muted-words'][':wordId'].$delete({ param: params.path })
+export async function deleteSettingsMutedWordsWordId(
+  arg: InferRequestType<(typeof client)['settings']['muted-words'][':wordId']['$delete']>,
+) {
+  return await client['settings']['muted-words'][':wordId']['$delete'](arg)
 }
 
 /**
@@ -121,7 +109,7 @@ export async function deleteSettingsMutedWordsWordId(params: { path: { wordId: s
  * ログインセッション一覧
  */
 export async function getSettingsSessions() {
-  return await client.settings.sessions.$get()
+  return await client['settings']['sessions']['$get']()
 }
 
 /**
@@ -129,8 +117,10 @@ export async function getSettingsSessions() {
  *
  * セッション無効化
  */
-export async function deleteSettingsSessionsSessionId(params: { path: { sessionId: string } }) {
-  return await client.settings.sessions[':sessionId'].$delete({ param: params.path })
+export async function deleteSettingsSessionsSessionId(
+  arg: InferRequestType<(typeof client)['settings']['sessions'][':sessionId']['$delete']>,
+) {
+  return await client['settings']['sessions'][':sessionId']['$delete'](arg)
 }
 
 /**
@@ -139,7 +129,7 @@ export async function deleteSettingsSessionsSessionId(params: { path: { sessionI
  * 連携アプリ一覧
  */
 export async function getSettingsConnectedApps() {
-  return await client.settings['connected-apps'].$get()
+  return await client['settings']['connected-apps']['$get']()
 }
 
 /**
@@ -147,8 +137,10 @@ export async function getSettingsConnectedApps() {
  *
  * 連携アプリ解除
  */
-export async function deleteSettingsConnectedAppsAppId(params: { path: { appId: string } }) {
-  return await client.settings['connected-apps'][':appId'].$delete({ param: params.path })
+export async function deleteSettingsConnectedAppsAppId(
+  arg: InferRequestType<(typeof client)['settings']['connected-apps'][':appId']['$delete']>,
+) {
+  return await client['settings']['connected-apps'][':appId']['$delete'](arg)
 }
 
 /**
@@ -157,7 +149,7 @@ export async function deleteSettingsConnectedAppsAppId(params: { path: { appId: 
  * データエクスポートリクエスト
  */
 export async function postSettingsDataExport() {
-  return await client.settings['data-export'].$post()
+  return await client['settings']['data-export']['$post']()
 }
 
 /**
@@ -165,8 +157,10 @@ export async function postSettingsDataExport() {
  *
  * データエクスポート状況確認
  */
-export async function getSettingsDataExportRequestId(params: { path: { requestId: string } }) {
-  return await client.settings['data-export'][':requestId'].$get({ param: params.path })
+export async function getSettingsDataExportRequestId(
+  arg: InferRequestType<(typeof client)['settings']['data-export'][':requestId']['$get']>,
+) {
+  return await client['settings']['data-export'][':requestId']['$get'](arg)
 }
 
 /**
@@ -174,8 +168,10 @@ export async function getSettingsDataExportRequestId(params: { path: { requestId
  *
  * アカウント一時停止
  */
-export async function postSettingsDeactivate(body: { password: string }) {
-  return await client.settings.deactivate.$post({ json: body })
+export async function postSettingsDeactivate(
+  arg: InferRequestType<(typeof client)['settings']['deactivate']['$post']>,
+) {
+  return await client['settings']['deactivate']['$post'](arg)
 }
 
 /**
@@ -183,24 +179,8 @@ export async function postSettingsDeactivate(body: { password: string }) {
  *
  * 通報作成
  */
-export async function postReports(body: {
-  type: 'post' | 'user' | 'message'
-  targetId: string
-  reason:
-    | 'spam'
-    | 'harassment'
-    | 'hate_speech'
-    | 'violence'
-    | 'self_harm'
-    | 'misinformation'
-    | 'illegal_content'
-    | 'copyright'
-    | 'impersonation'
-    | 'other'
-  description?: string
-  relatedPostIds?: string[]
-}) {
-  return await client.reports.$post({ json: body })
+export async function postReports(arg: InferRequestType<typeof client.reports.$post>) {
+  return await client.reports.$post(arg)
 }
 
 /**
@@ -208,8 +188,10 @@ export async function postReports(body: {
  *
  * 通報詳細取得
  */
-export async function getReportsReportId(params: { path: { reportId: string } }) {
-  return await client.reports[':reportId'].$get({ param: params.path })
+export async function getReportsReportId(
+  arg: InferRequestType<(typeof client)['reports'][':reportId']['$get']>,
+) {
+  return await client['reports'][':reportId']['$get'](arg)
 }
 
 /**
@@ -219,15 +201,10 @@ export async function getReportsReportId(params: { path: { reportId: string } })
  *
  * モデレーター用
  */
-export async function getModerationQueue(params: {
-  query: {
-    status: 'pending' | 'in_review' | 'resolved'
-    type: 'post' | 'user' | 'message'
-    cursor: string
-    limit: number
-  }
-}) {
-  return await client.moderation.queue.$get({ query: params.query })
+export async function getModerationQueue(
+  arg: InferRequestType<(typeof client)['moderation']['queue']['$get']>,
+) {
+  return await client['moderation']['queue']['$get'](arg)
 }
 
 /**
@@ -235,8 +212,10 @@ export async function getModerationQueue(params: {
  *
  * モデレーションアイテム詳細
  */
-export async function getModerationItemsItemId(params: { path: { itemId: string } }) {
-  return await client.moderation.items[':itemId'].$get({ param: params.path })
+export async function getModerationItemsItemId(
+  arg: InferRequestType<(typeof client)['moderation']['items'][':itemId']['$get']>,
+) {
+  return await client['moderation']['items'][':itemId']['$get'](arg)
 }
 
 /**
@@ -245,15 +224,9 @@ export async function getModerationItemsItemId(params: { path: { itemId: string 
  * モデレーションアクション実行
  */
 export async function postModerationItemsItemIdAction(
-  params: { path: { itemId: string } },
-  body: {
-    action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
-    note?: string
-    suspensionDuration?: number
-    notifyUser?: boolean
-  },
+  arg: InferRequestType<(typeof client)['moderation']['items'][':itemId']['action']['$post']>,
 ) {
-  return await client.moderation.items[':itemId'].action.$post({ param: params.path, json: body })
+  return await client['moderation']['items'][':itemId']['action']['$post'](arg)
 }
 
 /**
@@ -261,8 +234,10 @@ export async function postModerationItemsItemIdAction(
  *
  * ユーザーのモデレーション履歴
  */
-export async function getModerationUsersUserIdHistory(params: { path: { userId: string } }) {
-  return await client.moderation.users[':userId'].history.$get({ param: params.path })
+export async function getModerationUsersUserIdHistory(
+  arg: InferRequestType<(typeof client)['moderation']['users'][':userId']['history']['$get']>,
+) {
+  return await client['moderation']['users'][':userId']['history']['$get'](arg)
 }
 
 /**
@@ -271,10 +246,9 @@ export async function getModerationUsersUserIdHistory(params: { path: { userId: 
  * ユーザー凍結
  */
 export async function postModerationUsersUserIdSuspend(
-  params: { path: { userId: string } },
-  body: { reason: string; duration?: number; note?: string },
+  arg: InferRequestType<(typeof client)['moderation']['users'][':userId']['suspend']['$post']>,
 ) {
-  return await client.moderation.users[':userId'].suspend.$post({ param: params.path, json: body })
+  return await client['moderation']['users'][':userId']['suspend']['$post'](arg)
 }
 
 /**
@@ -283,13 +257,9 @@ export async function postModerationUsersUserIdSuspend(
  * ユーザー凍結解除
  */
 export async function postModerationUsersUserIdUnsuspend(
-  params: { path: { userId: string } },
-  body: { note?: string },
+  arg: InferRequestType<(typeof client)['moderation']['users'][':userId']['unsuspend']['$post']>,
 ) {
-  return await client.moderation.users[':userId'].unsuspend.$post({
-    param: params.path,
-    json: body,
-  })
+  return await client['moderation']['users'][':userId']['unsuspend']['$post'](arg)
 }
 
 /**
@@ -297,8 +267,10 @@ export async function postModerationUsersUserIdUnsuspend(
  *
  * 投稿分析取得
  */
-export async function getAnalyticsPostsPostId(params: { path: { postId: string } }) {
-  return await client.analytics.posts[':postId'].$get({ param: params.path })
+export async function getAnalyticsPostsPostId(
+  arg: InferRequestType<(typeof client)['analytics']['posts'][':postId']['$get']>,
+) {
+  return await client['analytics']['posts'][':postId']['$get'](arg)
 }
 
 /**
@@ -306,8 +278,10 @@ export async function getAnalyticsPostsPostId(params: { path: { postId: string }
  *
  * アカウント分析取得
  */
-export async function getAnalyticsAccount(params: { query: { period: '7d' | '28d' | '90d' } }) {
-  return await client.analytics.account.$get({ query: params.query })
+export async function getAnalyticsAccount(
+  arg: InferRequestType<(typeof client)['analytics']['account']['$get']>,
+) {
+  return await client['analytics']['account']['$get'](arg)
 }
 
 /**
@@ -315,8 +289,10 @@ export async function getAnalyticsAccount(params: { query: { period: '7d' | '28d
  *
  * フォロワー分析取得
  */
-export async function getAnalyticsFollowers(params: { query: { period: '7d' | '28d' | '90d' } }) {
-  return await client.analytics.followers.$get({ query: params.query })
+export async function getAnalyticsFollowers(
+  arg: InferRequestType<(typeof client)['analytics']['followers']['$get']>,
+) {
+  return await client['analytics']['followers']['$get'](arg)
 }
 
 /**
@@ -324,12 +300,8 @@ export async function getAnalyticsFollowers(params: { query: { period: '7d' | '2
  *
  * トップ投稿取得
  */
-export async function getAnalyticsTopPosts(params: {
-  query: {
-    period: '7d' | '28d' | '90d'
-    metric: 'impressions' | 'engagements' | 'likes' | 'reposts'
-    limit: number
-  }
-}) {
-  return await client.analytics['top-posts'].$get({ query: params.query })
+export async function getAnalyticsTopPosts(
+  arg: InferRequestType<(typeof client)['analytics']['top-posts']['$get']>,
+) {
+  return await client['analytics']['top-posts']['$get'](arg)
 }

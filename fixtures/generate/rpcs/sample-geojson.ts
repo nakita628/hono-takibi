@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
 /**
@@ -18,6 +19,6 @@ export async function get() {
  *
  * Get projects related to a given chiban
  */
-export async function getProjects(params: { query: { chiban: string } }) {
-  return await client.projects.$get({ query: params.query })
+export async function getProjects(arg: InferRequestType<typeof client.projects.$get>) {
+  return await client.projects.$get(arg)
 }

@@ -1,3 +1,4 @@
+import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -8,22 +9,10 @@ import { client } from '../clients/35-auth-oauth2-server'
  * Authorization Code フローの認可リクエスト。
 ユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。
  */
-export async function getOauthAuthorize(params: {
-  query: {
-    response_type: 'code' | 'token'
-    client_id: string
-    redirect_uri: string
-    scope: string
-    state: string
-    code_challenge: string
-    code_challenge_method: 'plain' | 'S256'
-    nonce: string
-    prompt: 'none' | 'login' | 'consent' | 'select_account'
-    login_hint: string
-    ui_locales: string
-  }
-}) {
-  return await client.oauth.authorize.$get({ query: params.query })
+export async function getOauthAuthorize(
+  arg: InferRequestType<(typeof client)['oauth']['authorize']['$get']>,
+) {
+  return await client['oauth']['authorize']['$get'](arg)
 }
 
 /**
@@ -35,38 +24,9 @@ export async function getOauthAuthorize(params: {
 Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
 export async function postOauthToken(
-  body:
-    | {
-        grant_type: 'authorization_code'
-        code: string
-        redirect_uri: string
-        client_id: string
-        client_secret?: string
-        code_verifier?: string
-      }
-    | { grant_type: 'client_credentials'; client_id: string; client_secret: string; scope?: string }
-    | {
-        grant_type: 'refresh_token'
-        refresh_token: string
-        client_id?: string
-        client_secret?: string
-        scope?: string
-      }
-    | {
-        grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
-        device_code: string
-        client_id: string
-      }
-    | {
-        grant_type: 'password'
-        username: string
-        password: string
-        client_id?: string
-        client_secret?: string
-        scope?: string
-      },
+  arg: InferRequestType<(typeof client)['oauth']['token']['$post']>,
 ) {
-  return await client.oauth.token.$post({ json: body })
+  return await client['oauth']['token']['$post'](arg)
 }
 
 /**
@@ -76,13 +36,10 @@ export async function postOauthToken(
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export async function postOauthRevoke(body: {
-  token: string
-  token_type_hint?: 'access_token' | 'refresh_token'
-  client_id?: string
-  client_secret?: string
-}) {
-  return await client.oauth.revoke.$post({ json: body })
+export async function postOauthRevoke(
+  arg: InferRequestType<(typeof client)['oauth']['revoke']['$post']>,
+) {
+  return await client['oauth']['revoke']['$post'](arg)
 }
 
 /**
@@ -92,11 +49,10 @@ export async function postOauthRevoke(body: {
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export async function postOauthIntrospect(body: {
-  token: string
-  token_type_hint?: 'access_token' | 'refresh_token'
-}) {
-  return await client.oauth.introspect.$post({ json: body })
+export async function postOauthIntrospect(
+  arg: InferRequestType<(typeof client)['oauth']['introspect']['$post']>,
+) {
+  return await client['oauth']['introspect']['$post'](arg)
 }
 
 /**
@@ -106,8 +62,10 @@ export async function postOauthIntrospect(body: {
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export async function postOauthDeviceCode(body: { client_id: string; scope?: string }) {
-  return await client.oauth.device.code.$post({ json: body })
+export async function postOauthDeviceCode(
+  arg: InferRequestType<(typeof client)['oauth']['device']['code']['$post']>,
+) {
+  return await client['oauth']['device']['code']['$post'](arg)
 }
 
 /**
@@ -118,7 +76,7 @@ export async function postOauthDeviceCode(body: { client_id: string; scope?: str
  * OpenID Connect UserInfo エンドポイント
  */
 export async function getOauthUserinfo() {
-  return await client.oauth.userinfo.$get()
+  return await client['oauth']['userinfo']['$get']()
 }
 
 /**
@@ -129,7 +87,7 @@ export async function getOauthUserinfo() {
  * OpenID Connect の設定情報を返します
  */
 export async function getWellKnownOpenidConfiguration() {
-  return await client['.well-known']['openid-configuration'].$get()
+  return await client['.well-known']['openid-configuration']['$get']()
 }
 
 /**
@@ -140,7 +98,7 @@ export async function getWellKnownOpenidConfiguration() {
  * JWTの検証に使用する公開鍵セット
  */
 export async function getWellKnownJwksJson() {
-  return await client['.well-known']['jwks.json'].$get()
+  return await client['.well-known']['jwks.json']['$get']()
 }
 
 /**
@@ -149,7 +107,7 @@ export async function getWellKnownJwksJson() {
  * クライアント一覧取得
  */
 export async function getOauthClients() {
-  return await client.oauth.clients.$get()
+  return await client['oauth']['clients']['$get']()
 }
 
 /**
@@ -157,27 +115,10 @@ export async function getOauthClients() {
  *
  * クライアント作成
  */
-export async function postOauthClients(body: {
-  clientName: string
-  clientType?: 'public' | 'confidential'
-  redirectUris: string[]
-  grantTypes?: (
-    | 'authorization_code'
-    | 'client_credentials'
-    | 'refresh_token'
-    | 'password'
-    | 'urn:ietf:params:oauth:grant-type:device_code'
-  )[]
-  responseTypes?: ('code' | 'token')[]
-  scope?: string
-  logoUri?: string
-  clientUri?: string
-  policyUri?: string
-  tosUri?: string
-  contacts?: string[]
-  tokenEndpointAuthMethod?: 'client_secret_basic' | 'client_secret_post' | 'none'
-}) {
-  return await client.oauth.clients.$post({ json: body })
+export async function postOauthClients(
+  arg: InferRequestType<(typeof client)['oauth']['clients']['$post']>,
+) {
+  return await client['oauth']['clients']['$post'](arg)
 }
 
 /**
@@ -185,8 +126,10 @@ export async function postOauthClients(body: {
  *
  * クライアント詳細取得
  */
-export async function getOauthClientsClientId(params: { path: { clientId: string } }) {
-  return await client.oauth.clients[':clientId'].$get({ param: params.path })
+export async function getOauthClientsClientId(
+  arg: InferRequestType<(typeof client)['oauth']['clients'][':clientId']['$get']>,
+) {
+  return await client['oauth']['clients'][':clientId']['$get'](arg)
 }
 
 /**
@@ -195,21 +138,9 @@ export async function getOauthClientsClientId(params: { path: { clientId: string
  * クライアント更新
  */
 export async function putOauthClientsClientId(
-  params: { path: { clientId: string } },
-  body: {
-    clientName?: string
-    redirectUris?: string[]
-    grantTypes?: string[]
-    responseTypes?: string[]
-    scope?: string
-    logoUri?: string
-    clientUri?: string
-    policyUri?: string
-    tosUri?: string
-    contacts?: string[]
-  },
+  arg: InferRequestType<(typeof client)['oauth']['clients'][':clientId']['$put']>,
 ) {
-  return await client.oauth.clients[':clientId'].$put({ param: params.path, json: body })
+  return await client['oauth']['clients'][':clientId']['$put'](arg)
 }
 
 /**
@@ -217,8 +148,10 @@ export async function putOauthClientsClientId(
  *
  * クライアント削除
  */
-export async function deleteOauthClientsClientId(params: { path: { clientId: string } }) {
-  return await client.oauth.clients[':clientId'].$delete({ param: params.path })
+export async function deleteOauthClientsClientId(
+  arg: InferRequestType<(typeof client)['oauth']['clients'][':clientId']['$delete']>,
+) {
+  return await client['oauth']['clients'][':clientId']['$delete'](arg)
 }
 
 /**
@@ -226,8 +159,10 @@ export async function deleteOauthClientsClientId(params: { path: { clientId: str
  *
  * クライアントシークレット再生成
  */
-export async function postOauthClientsClientIdSecret(params: { path: { clientId: string } }) {
-  return await client.oauth.clients[':clientId'].secret.$post({ param: params.path })
+export async function postOauthClientsClientIdSecret(
+  arg: InferRequestType<(typeof client)['oauth']['clients'][':clientId']['secret']['$post']>,
+) {
+  return await client['oauth']['clients'][':clientId']['secret']['$post'](arg)
 }
 
 /**
@@ -238,7 +173,7 @@ export async function postOauthClientsClientIdSecret(params: { path: { clientId:
  * ユーザーが許可したアプリケーション一覧
  */
 export async function getOauthConsents() {
-  return await client.oauth.consents.$get()
+  return await client['oauth']['consents']['$get']()
 }
 
 /**
@@ -248,6 +183,8 @@ export async function getOauthConsents() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export async function deleteOauthConsentsClientId(params: { path: { clientId: string } }) {
-  return await client.oauth.consents[':clientId'].$delete({ param: params.path })
+export async function deleteOauthConsentsClientId(
+  arg: InferRequestType<(typeof client)['oauth']['consents'][':clientId']['$delete']>,
+) {
+  return await client['oauth']['consents'][':clientId']['$delete'](arg)
 }

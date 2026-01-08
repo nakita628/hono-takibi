@@ -354,5 +354,5 @@ export async function getHasOwnProperty() {
  * GET /name-collisions
  */
 export async function getNameCollisions() {
-  return await client['name-collisions'].$get()
+  return await client['name-collisions']['$get']()
 }
