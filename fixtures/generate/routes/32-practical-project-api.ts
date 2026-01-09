@@ -176,12 +176,9 @@ const CreateTaskRequestSchema = z
     dueDate: z.iso.date().exactOptional(),
     estimatedHours: z.number().min(0).exactOptional(),
     tags: z.array(z.string()).exactOptional(),
-    subtasks: z.array(
-      z
-        .object({ title: z.string() })
-        .exactOptional()
-        .openapi({ required: ['title'] }),
-    ),
+    subtasks: z
+      .array(z.object({ title: z.string() }).openapi({ required: ['title'] }))
+      .exactOptional(),
   })
   .openapi({ required: ['title'] })
   .openapi('CreateTaskRequest')

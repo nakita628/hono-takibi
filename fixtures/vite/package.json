@@ -12,6 +12,7 @@
     "vite": "^7.1.4"
   },
   "devDependencies": {
-    "@hono/swagger-ui": "^0.5.2"
+    "@hono/swagger-ui": "^0.5.2",
+    "@types/node": "^24.2.1"
   }
 }

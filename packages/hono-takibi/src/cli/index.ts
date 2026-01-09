@@ -21,12 +21,22 @@
  */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { config } from '../config/index.js'
-import { componentsCore } from '../core/index.js'
-import { route } from '../core/route.js'
-import { rpc } from '../core/rpc.js'
-import { takibi } from '../core/takibi.js'
-import { type } from '../core/type.js'
+import { loadConfig } from '../config/index.js'
+import {
+  callbacks,
+  examples,
+  headers,
+  links,
+  parameters,
+  requestBodies,
+  responses,
+  route,
+  rpc,
+  schemas,
+  securitySchemes,
+  takibi,
+  type,
+} from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { parseCli } from '../utils/index.js'
 
@@ -109,16 +119,13 @@ export async function honoTakibi(): Promise<
     return { ok: true, value: takibiResult.value }
   }
 
-  const configResult = await config()
-  if (!configResult.ok) return { ok: false, error: configResult.error }
-  const c = configResult.value
+  const loadConfigResult = await loadConfig()
+  if (!loadConfigResult.ok) return { ok: false, error: loadConfigResult.error }
+  const config = loadConfigResult.value
 
-  const openAPIResult = await parseOpenAPI(c.input)
+  const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
-
-  const zodOpenAPI = c['zod-openapi']
-  const components = zodOpenAPI?.components
 
   const [
     takibiResult,
@@ -135,107 +142,98 @@ export async function honoTakibi(): Promise<
     typeResult,
     rpcResult,
   ] = await Promise.all([
-    zodOpenAPI?.output
-      ? takibi(openAPI, zodOpenAPI.output, false, false, '/', {
-          exportSchemasTypes: zodOpenAPI.exportSchemasTypes ?? false,
-          exportSchemas: zodOpenAPI.exportSchemas ?? false,
-          exportParametersTypes: zodOpenAPI.exportParametersTypes ?? false,
-          exportParameters: zodOpenAPI.exportParameters ?? false,
-          exportSecuritySchemes: zodOpenAPI.exportSecuritySchemes ?? false,
-          exportRequestBodies: zodOpenAPI.exportRequestBodies ?? false,
-          exportResponses: zodOpenAPI.exportResponses ?? false,
-          exportHeadersTypes: zodOpenAPI.exportHeadersTypes ?? false,
-          exportHeaders: zodOpenAPI.exportHeaders ?? false,
-          exportExamples: zodOpenAPI.exportExamples ?? false,
-          exportLinks: zodOpenAPI.exportLinks ?? false,
-          exportCallbacks: zodOpenAPI.exportCallbacks ?? false,
+    config['zod-openapi']?.output
+      ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
+          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
+          exportSchemas: config['zod-openapi'].exportSchemas ?? false,
+          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
+          exportParameters: config['zod-openapi'].exportParameters ?? false,
+          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
+          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
+          exportResponses: config['zod-openapi'].exportResponses ?? false,
+          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
+          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
+          exportExamples: config['zod-openapi'].exportExamples ?? false,
+          exportLinks: config['zod-openapi'].exportLinks ?? false,
+          exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
         })
       : Promise.resolve(undefined),
-    components?.schemas
-      ? componentsCore(
-          { schemas: openAPI.components?.schemas ?? {} },
-          'Schema',
-          components.schemas.output,
-          components.schemas.split ?? false,
-          components.schemas.exportTypes ?? false,
+    config['zod-openapi']?.components?.schemas
+      ? schemas(
+          openAPI.components?.schemas,
+          config['zod-openapi']?.components?.schemas?.output,
+          config['zod-openapi']?.components?.schemas?.split ?? false,
+          config['zod-openapi']?.components?.schemas?.exportTypes ?? false,
         )
       : Promise.resolve(undefined),
-    components?.parameters
-      ? componentsCore(
-          { parameters: openAPI.components?.parameters ?? {} },
-          'Parameter',
-          components.parameters.output,
-          components.parameters.split ?? false,
-          components.parameters.exportTypes ?? false,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+    config['zod-openapi']?.components?.parameters
+      ? parameters(
+          openAPI.components?.parameters,
+          config['zod-openapi']?.components?.parameters?.output,
+          config['zod-openapi']?.components?.parameters?.split ?? false,
+          config['zod-openapi']?.components?.parameters?.exportTypes ?? false,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
-    components?.headers
-      ? componentsCore(
-          { headers: openAPI.components?.headers ?? {} },
-          'Header',
-          components.headers.output,
-          components.headers.split ?? false,
-          components.headers.exportTypes ?? false,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+    config['zod-openapi']?.components?.headers
+      ? headers(
+          openAPI.components?.headers,
+          config['zod-openapi']?.components?.headers?.output,
+          config['zod-openapi']?.components?.headers?.split ?? false,
+          config['zod-openapi']?.components?.headers?.exportTypes ?? false,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
-    components?.examples
-      ? componentsCore(
-          { examples: openAPI.components?.examples ?? {} },
-          'Example',
-          components.examples.output,
-          components.examples.split ?? false,
+    config['zod-openapi']?.components?.examples
+      ? examples(
+          openAPI.components?.examples,
+          config['zod-openapi']?.components?.examples?.output,
+          config['zod-openapi']?.components?.examples?.split ?? false,
         )
       : Promise.resolve(undefined),
-    components?.links
-      ? componentsCore(
-          { links: openAPI.components?.links ?? {} },
-          'Link',
-          components.links.output,
-          components.links.split ?? false,
+    config['zod-openapi']?.components?.links
+      ? links(
+          openAPI.components?.links,
+          config['zod-openapi']?.components?.links?.output,
+          config['zod-openapi']?.components?.links?.split ?? false,
         )
       : Promise.resolve(undefined),
-    components?.callbacks
-      ? componentsCore(
-          { callbacks: openAPI.components?.callbacks ?? {} },
-          'Callback',
-          components.callbacks.output,
-          components.callbacks.split ?? false,
+    config['zod-openapi']?.components?.callbacks
+      ? callbacks(
+          openAPI.components?.callbacks,
+          config['zod-openapi']?.components?.callbacks?.output,
+          config['zod-openapi']?.components?.callbacks?.split ?? false,
         )
       : Promise.resolve(undefined),
-    components?.securitySchemes
-      ? componentsCore(
-          { securitySchemes: openAPI.components?.securitySchemes ?? {} },
-          'SecurityScheme',
-          components.securitySchemes.output,
-          components.securitySchemes.split ?? false,
+    config['zod-openapi']?.components?.securitySchemes
+      ? securitySchemes(
+          openAPI.components?.securitySchemes,
+          config['zod-openapi']?.components?.securitySchemes?.output,
+          config['zod-openapi']?.components?.securitySchemes?.split ?? false,
         )
       : Promise.resolve(undefined),
-    components?.requestBodies
-      ? componentsCore(
-          { requestBodies: openAPI.components?.requestBodies ?? {} },
-          'RequestBody',
-          components.requestBodies.output,
-          components.requestBodies.split ?? false,
-          undefined,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+    config['zod-openapi']?.components?.requestBodies
+      ? requestBodies(
+          openAPI.components?.requestBodies,
+          config['zod-openapi']?.components?.requestBodies?.output,
+          config['zod-openapi']?.components?.requestBodies?.split ?? false,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
-    components?.responses
-      ? componentsCore(
-          { responses: openAPI.components?.responses ?? {} },
-          'Response',
-          components.responses.output,
-          components.responses.split ?? false,
-          undefined,
-          components?.schemas ? { schemas: components.schemas } : undefined,
+    config['zod-openapi']?.components?.responses
+      ? responses(
+          openAPI.components?.responses,
+          config['zod-openapi']?.components?.responses?.output,
+          config['zod-openapi']?.components?.responses?.split ?? false,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
-    zodOpenAPI?.routes ? route(openAPI, zodOpenAPI.routes, components) : Promise.resolve(undefined),
-    c.type ? type(openAPI, c.type.output) : Promise.resolve(undefined),
-    c.rpc
-      ? rpc(openAPI, c.rpc.output, c.rpc.import, c.rpc.split ?? false)
+    config['zod-openapi']?.routes
+      ? route(openAPI, config['zod-openapi'].routes, config['zod-openapi'].components)
+      : Promise.resolve(undefined),
+    config.type ? type(openAPI, config.type.output) : Promise.resolve(undefined),
+    config.rpc
+      ? rpc(openAPI, config.rpc.output, config.rpc.import, config.rpc.split ?? false)
       : Promise.resolve(undefined),
   ])
 

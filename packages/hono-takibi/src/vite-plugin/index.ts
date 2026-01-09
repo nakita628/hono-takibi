@@ -1,16 +1,59 @@
+/**
+ * Vite plugin module for hono-takibi.
+ *
+ * Provides a Vite plugin that automatically regenerates TypeScript code
+ * from OpenAPI specifications during development. Watches for changes
+ * in the OpenAPI spec and config file, triggering hot reloads.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["honoTakibiVite()"] --> B["configureServer()"]
+ *   B --> C["loadConfigHot()"]
+ *   C --> D["parseOpenAPI(input)"]
+ *   D --> E["runAllWithConf()"]
+ *   E --> F["Generate schemas"]
+ *   E --> G["Generate routes"]
+ *   E --> H["Generate types/rpc"]
+ *   F --> I["Write files"]
+ *   G --> I
+ *   H --> I
+ *   I --> J["Hot reload"]
+ * ```
+ *
+ * @module vite-plugin
+ */
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-import { componentsCore } from '../core/index.js'
-import { route } from '../core/route.js'
-import { rpc } from '../core/rpc.js'
-import { takibi } from '../core/takibi.js'
-import { type } from '../core/type.js'
+import { parseConfig } from '../config/index.js'
+import {
+  callbacks,
+  examples,
+  headers,
+  links,
+  parameters,
+  requestBodies,
+  responses,
+  route,
+  rpc,
+  schemas,
+  securitySchemes,
+  takibi,
+  type,
+} from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { isRecord, parseConfig } from '../utils/index.js'
+import { isRecord } from '../utils/index.js'
 
+/**
+ * Parsed configuration type extracted from parseConfig result.
+ */
 type Conf = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
-// Minimal dev-server surface so we do not depend on Vite's types directly
+/**
+ * Minimal Vite dev-server interface.
+ *
+ * Defines only the surface area needed by this plugin, avoiding
+ * direct dependency on Vite's types for better compatibility.
+ */
 type DevServerLike = {
   watcher: {
     add: (paths: string | readonly string[]) => void
@@ -30,10 +73,39 @@ type DevServerLike = {
  * Small helpers (no `as` cast)
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Type guard for configuration objects.
+ *
+ * @param v - Value to check
+ * @returns True if value is a valid configuration object
+ */
 const isConf = (v: unknown): v is Conf => typeof v === 'object' && v !== null
+
+/**
+ * Converts a relative path to an absolute path.
+ *
+ * @param p - Relative path
+ * @returns Absolute path resolved from current working directory
+ */
 const toAbs = (p: string) => path.resolve(process.cwd(), p)
+
+/**
+ * Type guard for TypeScript file paths.
+ *
+ * @param p - Path to check
+ * @returns True if path ends with .ts
+ */
 const isTsFile = (p: string): p is `${string}.ts` => p.endsWith('.ts')
 
+/**
+ * Hot-loads the hono-takibi configuration file.
+ *
+ * Invalidates the module cache and reloads the config file to pick up
+ * changes during development. Uses Vite's SSR module loading.
+ *
+ * @param server - Vite dev server instance
+ * @returns Promise resolving to parsed config or error
+ */
 const loadConfigHot = async (
   server: DevServerLike,
 ): Promise<{ ok: true; value: Conf } | { ok: false; error: string }> => {
@@ -62,6 +134,12 @@ const loadConfigHot = async (
  * Purge helpers (shallow .ts file cleanup)
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Lists TypeScript files in a directory (shallow, non-recursive).
+ *
+ * @param dir - Directory path to scan
+ * @returns Promise resolving to array of absolute file paths
+ */
 const listTsShallow = async (dir: string): Promise<string[]> =>
   fsp
     .stat(dir)
@@ -78,6 +156,14 @@ const listTsShallow = async (dir: string): Promise<string[]> =>
     )
     .catch((): string[] => [])
 
+/**
+ * Deletes all TypeScript files in a directory (shallow, non-recursive).
+ *
+ * Used to clean up stale generated files before regeneration.
+ *
+ * @param dir - Directory path to clean
+ * @returns Promise resolving to array of deleted file paths
+ */
 const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
   listTsShallow(dir).then((files) =>
     Promise.all(
@@ -90,6 +176,16 @@ const deleteAllTsShallow = async (dir: string): Promise<string[]> =>
     ).then((res) => res.filter((x) => x !== null)),
   )
 
+/**
+ * Creates a debounced version of a function.
+ *
+ * Delays invocation until after the specified milliseconds have elapsed
+ * since the last call. Uses WeakMap for cleanup.
+ *
+ * @param ms - Delay in milliseconds
+ * @param fn - Function to debounce
+ * @returns Debounced function
+ */
 const debounce = (ms: number, fn: () => void): (() => void) => {
   const bucket = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
   const wrapped = (): void => {
@@ -104,274 +200,284 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
  * Run generation with current config
  * ────────────────────────────────────────────────────────────── */
 
-const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
-  const openAPIResult = await parseOpenAPI(c.input)
+/**
+ * Runs all code generation tasks based on the provided configuration.
+ *
+ * Executes generation tasks in parallel for optimal performance.
+ * Each task handles a specific component type (schemas, routes, etc.).
+ *
+ * ```mermaid
+ * flowchart LR
+ *   A["runAllWithConf"] --> B["parseOpenAPI"]
+ *   B --> C["Promise.all"]
+ *   C --> D["schemas"]
+ *   C --> E["routes"]
+ *   C --> F["parameters"]
+ *   C --> G["headers"]
+ *   C --> H["responses"]
+ *   C --> I["...others"]
+ * ```
+ *
+ * @param c - Parsed configuration object
+ * @returns Promise resolving to object containing log messages
+ */
+const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
+  const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`✗ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
   const jobs: Array<Promise<string>> = []
 
-  const zo = c['zod-openapi']
-  const components = zo?.components
-
   // zod-openapi top-level output (non-split)
-  if (zo && !(components?.schemas || zo.routes) && zo.output) {
-    const out = toAbs(zo.output)
-    const runZo = async () => {
+  if (
+    config['zod-openapi'] &&
+    !(config['zod-openapi'].components?.schemas || config['zod-openapi'].routes) &&
+    config['zod-openapi'].output
+  ) {
+    const out = toAbs(config['zod-openapi'].output)
+    const runZodOpenAPI = async () => {
       if (!isTsFile(out)) return `✗ zod-openapi: Invalid output format: ${out}`
       const result = await takibi(openAPI, out, false, false, '/', {
-        exportSchemasTypes: zo.exportSchemasTypes ?? false,
-        exportSchemas: zo.exportSchemas ?? false,
-        exportParametersTypes: zo.exportParametersTypes ?? false,
-        exportParameters: zo.exportParameters ?? false,
-        exportSecuritySchemes: zo.exportSecuritySchemes ?? false,
-        exportRequestBodies: zo.exportRequestBodies ?? false,
-        exportResponses: zo.exportResponses ?? false,
-        exportHeadersTypes: zo.exportHeadersTypes ?? false,
-        exportHeaders: zo.exportHeaders ?? false,
-        exportExamples: zo.exportExamples ?? false,
-        exportLinks: zo.exportLinks ?? false,
-        exportCallbacks: zo.exportCallbacks ?? false,
+        exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
+        exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
+        exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
+        exportParameters: config['zod-openapi']?.exportParameters ?? false,
+        exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
+        exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
+        exportResponses: config['zod-openapi']?.exportResponses ?? false,
+        exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
+        exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
+        exportExamples: config['zod-openapi']?.exportExamples ?? false,
+        exportLinks: config['zod-openapi']?.exportLinks ?? false,
+        exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
       })
       return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
     }
-    jobs.push(runZo())
+    jobs.push(runZodOpenAPI())
   }
 
   // components.schemas
-  if (components?.schemas) {
-    const s = components.schemas
+  if (config['zod-openapi']?.components?.schemas) {
+    const schemasConfig = config['zod-openapi'].components.schemas
     const runSchema = async () => {
-      if (s.split === true) {
-        const outDir = toAbs(s.output)
+      if (schemasConfig.split === true) {
+        const outDir = toAbs(schemasConfig.output)
         const removed = await deleteAllTsShallow(outDir)
-        const r = await componentsCore(
-          { schemas: openAPI.components?.schemas ?? {} },
-          'Schema',
+        const schemaResult = await schemas(
+          openAPI.components?.schemas,
           outDir,
           true,
-          s.exportTypes === true,
+          schemasConfig.exportTypes === true,
         )
-        if (!r.ok) return `✗ schemas(split): ${r.error}`
+        if (!schemaResult.ok) return `✗ schemas(split): ${schemaResult.error}`
         return removed.length > 0
           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ schemas(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(s.output)
-      const r = await componentsCore(
-        { schemas: openAPI.components?.schemas ?? {} },
-        'Schema',
+      const out = toAbs(schemasConfig.output)
+      const schemaResult = await schemas(
+        openAPI.components?.schemas,
         out,
         false,
-        s.exportTypes === true,
+        schemasConfig.exportTypes === true,
       )
-      return r.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${r.error}`
+      return schemaResult.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${schemaResult.error}`
     }
     jobs.push(runSchema())
   }
 
   // components.parameters
-  if (components?.parameters) {
-    const p = components.parameters
+  if (config['zod-openapi']?.components?.parameters) {
+    const parametersConfig = config['zod-openapi'].components.parameters
     const runParameters = async () => {
-      const outDir = p.split === true ? toAbs(p.output) : toAbs(p.output)
-      if (p.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { parameters: openAPI.components?.parameters ?? {} },
-        'Parameter',
+      const outDir = toAbs(parametersConfig.output)
+      if (parametersConfig.split === true) await deleteAllTsShallow(outDir)
+      const parameterResult = await parameters(
+        openAPI.components?.parameters,
         outDir,
-        p.split === true,
-        p.exportTypes === true,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        parametersConfig.split === true,
+        parametersConfig.exportTypes === true,
+        config['zod-openapi']?.components,
       )
-      return r.ok
-        ? `✓ parameters${p.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ parameters: ${r.error}`
+      return parameterResult.ok
+        ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ parameters: ${parameterResult.error}`
     }
     jobs.push(runParameters())
   }
 
   // components.headers
-  if (components?.headers) {
-    const h = components.headers
+  if (config['zod-openapi']?.components?.headers) {
+    const headersConfig = config['zod-openapi'].components.headers
     const runHeaders = async () => {
-      const outDir = h.split === true ? toAbs(h.output) : toAbs(h.output)
-      if (h.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { headers: openAPI.components?.headers ?? {} },
-        'Header',
+      const outDir = toAbs(headersConfig.output)
+      if (headersConfig.split === true) await deleteAllTsShallow(outDir)
+      const headersResult = await headers(
+        openAPI.components?.headers,
         outDir,
-        h.split === true,
-        h.exportTypes === true,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        headersConfig.split === true,
+        headersConfig.exportTypes === true,
+        config['zod-openapi']?.components,
       )
-      return r.ok
-        ? `✓ headers${h.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ headers: ${r.error}`
+      return headersResult.ok
+        ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ headers: ${headersResult.error}`
     }
     jobs.push(runHeaders())
   }
 
   // components.examples
-  if (components?.examples) {
-    const e = components.examples
+  if (config['zod-openapi']?.components?.examples) {
+    const examplesConfig = config['zod-openapi'].components.examples
     const runExamples = async () => {
-      const outDir = e.split === true ? toAbs(e.output) : toAbs(e.output)
-      if (e.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { examples: openAPI.components?.examples ?? {} },
-        'Example',
+      const outDir = toAbs(examplesConfig.output)
+      if (examplesConfig.split === true) await deleteAllTsShallow(outDir)
+      const examplesResult = await examples(
+        openAPI.components?.examples,
         outDir,
-        e.split === true,
+        examplesConfig.split === true,
       )
-      return r.ok
-        ? `✓ examples${e.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ examples: ${r.error}`
+      return examplesResult.ok
+        ? `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ examples: ${examplesResult.error}`
     }
     jobs.push(runExamples())
   }
 
   // components.links
-  if (components?.links) {
-    const l = components.links
+  if (config['zod-openapi']?.components?.links) {
+    const linksConfig = config['zod-openapi'].components.links
     const runLinks = async () => {
-      const outDir = l.split === true ? toAbs(l.output) : toAbs(l.output)
-      if (l.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { links: openAPI.components?.links ?? {} },
-        'Link',
-        outDir,
-        l.split === true,
-      )
-      return r.ok
-        ? `✓ links${l.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ links: ${r.error}`
+      const outDir = toAbs(linksConfig.output)
+      if (linksConfig.split === true) await deleteAllTsShallow(outDir)
+      const linksResult = await links(openAPI.components?.links, outDir, linksConfig.split === true)
+      return linksResult.ok
+        ? `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ links: ${linksResult.error}`
     }
     jobs.push(runLinks())
   }
 
   // components.callbacks
-  if (components?.callbacks) {
-    const cb = components.callbacks
+  if (config['zod-openapi']?.components?.callbacks) {
+    const callbacksConfig = config['zod-openapi'].components.callbacks
     const runCallbacks = async () => {
-      const outDir = cb.split === true ? toAbs(cb.output) : toAbs(cb.output)
-      if (cb.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { callbacks: openAPI.components?.callbacks ?? {} },
-        'Callback',
+      const outDir = toAbs(callbacksConfig.output)
+      if (callbacksConfig.split === true) await deleteAllTsShallow(outDir)
+      const callbacksResult = await callbacks(
+        openAPI.components?.callbacks,
         outDir,
-        cb.split === true,
+        callbacksConfig.split === true,
       )
-      return r.ok
-        ? `✓ callbacks${cb.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ callbacks: ${r.error}`
+      return callbacksResult.ok
+        ? `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ callbacks: ${callbacksResult.error}`
     }
     jobs.push(runCallbacks())
   }
 
   // components.securitySchemes
-  if (components?.securitySchemes) {
-    const s = components.securitySchemes
+  if (config['zod-openapi']?.components?.securitySchemes) {
+    const securitySchemesConfig = config['zod-openapi'].components.securitySchemes
     const runSecuritySchemes = async () => {
-      const outDir = s.split === true ? toAbs(s.output) : toAbs(s.output)
-      if (s.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { securitySchemes: openAPI.components?.securitySchemes ?? {} },
-        'SecurityScheme',
+      const outDir = toAbs(securitySchemesConfig.output)
+      if (securitySchemesConfig.split === true) await deleteAllTsShallow(outDir)
+      const securitySchemesResult = await securitySchemes(
+        openAPI.components?.securitySchemes,
         outDir,
-        s.split === true,
+        securitySchemesConfig.split === true,
       )
-      return r.ok
-        ? `✓ securitySchemes${s.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ securitySchemes: ${r.error}`
+      return securitySchemesResult.ok
+        ? `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ securitySchemes: ${securitySchemesResult.error}`
     }
     jobs.push(runSecuritySchemes())
   }
 
   // components.requestBodies
-  if (components?.requestBodies) {
-    const b = components.requestBodies
+  if (config['zod-openapi']?.components?.requestBodies) {
+    const requestBodiesConfig = config['zod-openapi'].components.requestBodies
     const runRequestBodies = async () => {
-      const outDir = b.split === true ? toAbs(b.output) : toAbs(b.output)
-      if (b.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { requestBodies: openAPI.components?.requestBodies ?? {} },
-        'RequestBody',
+      const outDir = toAbs(requestBodiesConfig.output)
+      if (requestBodiesConfig.split === true) await deleteAllTsShallow(outDir)
+      const requestBodiesResult = await requestBodies(
+        openAPI.components?.requestBodies,
         outDir,
-        b.split === true,
-        undefined,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        requestBodiesConfig.split === true,
+        config['zod-openapi']?.components,
       )
-      return r.ok
-        ? `✓ requestBodies${b.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ requestBodies: ${r.error}`
+      return requestBodiesResult.ok
+        ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ requestBodies: ${requestBodiesResult.error}`
     }
     jobs.push(runRequestBodies())
   }
 
   // components.responses
-  if (components?.responses) {
-    const resp = components.responses
+  if (config['zod-openapi']?.components?.responses) {
+    const responsesConfig = config['zod-openapi'].components.responses
     const runResponses = async () => {
-      const outDir = resp.split === true ? toAbs(resp.output) : toAbs(resp.output)
-      if (resp.split === true) await deleteAllTsShallow(outDir)
-      const r = await componentsCore(
-        { responses: openAPI.components?.responses ?? {} },
-        'Response',
+      const outDir = toAbs(responsesConfig.output)
+      if (responsesConfig.split === true) await deleteAllTsShallow(outDir)
+      const responsesResult = await responses(
+        openAPI.components?.responses,
         outDir,
-        resp.split === true,
-        undefined,
-        components?.schemas ? { schemas: components.schemas } : undefined,
+        responsesConfig.split === true,
+        config['zod-openapi']?.components,
       )
-      return r.ok
-        ? `✓ responses${resp.split === true ? '(split)' : ''} -> ${outDir}`
-        : `✗ responses: ${r.error}`
+      return responsesResult.ok
+        ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        : `✗ responses: ${responsesResult.error}`
     }
     jobs.push(runResponses())
   }
 
   // zod-openapi.routes
-  if (zo?.routes) {
-    const r = zo.routes
+  if (config['zod-openapi']?.routes) {
+    const routesConfig = config['zod-openapi'].routes
     const runRoutes = async () => {
-      const out = toAbs(r.output)
-      if (r.split === true) await deleteAllTsShallow(out)
-      const rr = await route(openAPI, { output: out, split: r.split ?? false }, components)
-      return rr.ok
-        ? `✓ routes${r.split === true ? '(split)' : ''} -> ${out}`
-        : `✗ routes: ${rr.error}`
+      const out = toAbs(routesConfig.output)
+      if (routesConfig.split === true) await deleteAllTsShallow(out)
+      const routeResult = await route(
+        openAPI,
+        { output: out, split: routesConfig.split ?? false },
+        config['zod-openapi']?.components,
+      )
+      return routeResult.ok
+        ? `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${out}`
+        : `✗ routes: ${routeResult.error}`
     }
     jobs.push(runRoutes())
   }
 
   // type
-  if (c.type) {
-    const t = c.type
-    const out = toAbs(t.output)
+  if (config.type) {
+    const typeConfig = config.type
+    const out = toAbs(typeConfig.output)
     const runType = async () => {
       if (!isTsFile(out)) return `✗ type: Invalid output format: ${out}`
-      const result = await type(openAPI, out)
-      return result.ok ? `✓ type -> ${out}` : `✗ type: ${result.error}`
+      const typeResult = await type(openAPI, out)
+      return typeResult.ok ? `✓ type -> ${out}` : `✗ type: ${typeResult.error}`
     }
     jobs.push(runType())
   }
 
   // rpc
-  if (c.rpc) {
-    const r = c.rpc
+  if (config.rpc) {
+    const rpcConfig = config.rpc
     const runRpc = async () => {
-      if (r.split === true) {
-        const outDir = toAbs(r.output)
+      if (rpcConfig.split === true) {
+        const outDir = toAbs(rpcConfig.output)
         const removed = await deleteAllTsShallow(outDir)
-        const rr = await rpc(openAPI, outDir, r.import, true)
-        if (!rr.ok) return `✗ rpc(split): ${rr.error}`
+        const rpcResult = await rpc(openAPI, outDir, rpcConfig.import, true)
+        if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
         return removed.length > 0
           ? `✓ rpc(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ rpc(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(r.output)
-      const rr = await rpc(openAPI, out, r.import, false)
-      return rr.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rr.error}`
+      const out = toAbs(rpcConfig.output)
+      const rpcResult = await rpc(openAPI, out, rpcConfig.import, false)
+      return rpcResult.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rpcResult.error}`
     }
     jobs.push(runRpc())
   }
@@ -383,6 +489,15 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
  * Watch helpers
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Adds glob patterns to the Vite file watcher.
+ *
+ * Watches the input file and related files (.yaml, .json, .tsp) in the
+ * same directory for changes.
+ *
+ * @param server - Vite dev server instance
+ * @param absInput - Absolute path to the input OpenAPI file
+ */
 const addInputGlobs = (server: DevServerLike, absInput: string) => {
   const dir = path.dirname(absInput)
   const globs: string[] = [
@@ -398,6 +513,47 @@ const addInputGlobs = (server: DevServerLike, absInput: string) => {
  * Plugin
  * ────────────────────────────────────────────────────────────── */
 
+/**
+ * Creates a Vite plugin for hono-takibi code generation.
+ *
+ * This plugin automatically regenerates TypeScript code from OpenAPI
+ * specifications during development. It watches for changes in:
+ * - The OpenAPI spec file (yaml/json/tsp)
+ * - The hono-takibi.config.ts configuration file
+ *
+ * ```mermaid
+ * sequenceDiagram
+ *   participant V as Vite
+ *   participant P as Plugin
+ *   participant C as Config
+ *   participant G as Generator
+ *
+ *   V->>P: configureServer()
+ *   P->>C: loadConfigHot()
+ *   C-->>P: config
+ *   P->>G: runAllWithConf()
+ *   G-->>P: logs
+ *   P->>V: hot reload
+ *
+ *   Note over V,G: On file change
+ *   V->>P: handleHotUpdate()
+ *   P->>G: runAllWithConf()
+ *   G-->>P: logs
+ *   P->>V: full-reload
+ * ```
+ *
+ * @returns Vite plugin object
+ *
+ * @example
+ * ```ts
+ * // vite.config.ts
+ * import { honoTakibiVite } from 'hono-takibi/vite-plugin'
+ *
+ * export default defineConfig({
+ *   plugins: [honoTakibiVite()]
+ * })
+ * ```
+ */
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
   const state: { current: Conf | null } = { current: null }

@@ -44,12 +44,14 @@ const RegistrationOptionsSchema = z
       .array(PublicKeyCredentialDescriptorSchema)
       .exactOptional()
       .openapi({ description: '除外する既存の認証情報' }),
-    authenticatorSelection: z.object({
-      authenticatorAttachment: z.enum(['platform', 'cross-platform']).exactOptional(),
-      residentKey: z.enum(['discouraged', 'preferred', 'required']).exactOptional(),
-      requireResidentKey: z.boolean().exactOptional().exactOptional().openapi({ deprecated: true }),
-      userVerification: z.enum(['discouraged', 'preferred', 'required']).exactOptional(),
-    }),
+    authenticatorSelection: z
+      .object({
+        authenticatorAttachment: z.enum(['platform', 'cross-platform']).exactOptional(),
+        residentKey: z.enum(['discouraged', 'preferred', 'required']).exactOptional(),
+        requireResidentKey: z.boolean().exactOptional().openapi({ deprecated: true }),
+        userVerification: z.enum(['discouraged', 'preferred', 'required']).exactOptional(),
+      })
+      .exactOptional(),
     attestation: z.enum(['none', 'indirect', 'direct', 'enterprise']).exactOptional(),
     extensions: z.object({ credProps: z.boolean().exactOptional() }).exactOptional(),
   })

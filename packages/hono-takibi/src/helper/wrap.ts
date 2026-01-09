@@ -59,6 +59,7 @@ export function wrap(
   meta?: {
     parameters?: Parameter
     headers?: Header
+    isOptional?: boolean
   },
 ): string {
   // Properties not supported or causing type issues with zod-to-openapi
@@ -110,15 +111,6 @@ export function wrap(
       // Convert non-string values in required array to strings (YAML may parse null/true/false as literals)
       if (key === 'required' && Array.isArray(value)) {
         filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
-        continue
-      }
-      // Skip properties with too many keys to avoid TypeScript overload resolution issues
-      if (
-        key === 'properties' &&
-        typeof value === 'object' &&
-        value !== null &&
-        Object.keys(value).length > 50
-      ) {
         continue
       }
       filtered[key] = filterUnsupportedProps(value)
@@ -242,6 +234,11 @@ export function wrap(
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
   }
-  // propertiesSchema() check
+  // Handle optional object properties
+  if (meta?.isOptional === true) {
+    return openapiProps.length === 0
+      ? `${z}.exactOptional()`
+      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
+  }
   return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
 }

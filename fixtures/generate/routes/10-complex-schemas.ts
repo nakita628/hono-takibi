@@ -227,13 +227,15 @@ const MixedContentSchema: z.ZodType<MixedContentType> = z
           .refine((v) => v !== null)
           .exactOptional()
           .openapi({ not: { type: 'null' } }),
-        restrictedValue: z.string().and(
-          z
-            .any()
-            .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
-            .exactOptional()
-            .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
-        ),
+        restrictedValue: z
+          .string()
+          .and(
+            z
+              .any()
+              .refine((v) => !['forbidden', 'restricted', 'banned'].includes(v))
+              .openapi({ not: { enum: ['forbidden', 'restricted', 'banned'] } }),
+          )
+          .exactOptional(),
       })
       .openapi({ required: ['value'] }),
   )

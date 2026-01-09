@@ -117,16 +117,17 @@ const CreateTemplateRequestSchema = z
     subject: z.string().exactOptional(),
     body: z.string(),
     html: z.string().exactOptional(),
-    variables: z.array(
-      z
-        .object({
-          name: z.string(),
-          required: z.boolean().default(false).exactOptional(),
-          default: z.string().exactOptional(),
-        })
-        .exactOptional()
-        .openapi({ required: ['name'] }),
-    ),
+    variables: z
+      .array(
+        z
+          .object({
+            name: z.string(),
+            required: z.boolean().default(false).exactOptional(),
+            default: z.string().exactOptional(),
+          })
+          .openapi({ required: ['name'] }),
+      )
+      .exactOptional(),
   })
   .openapi({ required: ['name', 'channel', 'body'] })
   .openapi('CreateTemplateRequest')
@@ -138,16 +139,17 @@ const UpdateTemplateRequestSchema = z
     subject: z.string().exactOptional(),
     body: z.string().exactOptional(),
     html: z.string().exactOptional(),
-    variables: z.array(
-      z
-        .object({
-          name: z.string(),
-          required: z.boolean().exactOptional(),
-          default: z.string().exactOptional(),
-        })
-        .exactOptional()
-        .openapi({ required: ['name'] }),
-    ),
+    variables: z
+      .array(
+        z
+          .object({
+            name: z.string(),
+            required: z.boolean().exactOptional(),
+            default: z.string().exactOptional(),
+          })
+          .openapi({ required: ['name'] }),
+      )
+      .exactOptional(),
     active: z.boolean().exactOptional(),
   })
   .openapi('UpdateTemplateRequest')
@@ -159,21 +161,22 @@ const ChannelSettingSchema = z
       .record(z.string(), z.boolean())
       .exactOptional()
       .openapi({ description: 'カテゴリ別の通知設定' }),
-    quietHours: z.object({
-      enabled: z.boolean().exactOptional(),
-      start: z
-        .string()
-        .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
-        .exactOptional()
-        .openapi({ description: '開始時刻（HH:MM）' }),
-      end: z
-        .string()
-        .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
-        .exactOptional()
-        .exactOptional()
-        .openapi({ description: '終了時刻（HH:MM）' }),
-      timezone: z.string().exactOptional(),
-    }),
+    quietHours: z
+      .object({
+        enabled: z.boolean().exactOptional(),
+        start: z
+          .string()
+          .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .exactOptional()
+          .openapi({ description: '開始時刻（HH:MM）' }),
+        end: z
+          .string()
+          .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+          .exactOptional()
+          .openapi({ description: '終了時刻（HH:MM）' }),
+        timezone: z.string().exactOptional(),
+      })
+      .exactOptional(),
   })
   .openapi('ChannelSetting')
 

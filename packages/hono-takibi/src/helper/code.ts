@@ -1,16 +1,6 @@
 import path from 'node:path'
 import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../utils/index.js'
 
-export type ImportTarget = {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-  readonly import?: string
-}
-
-export type ComponentImports = {
-  readonly [k: string]: ImportTarget
-}
-
 /**
  * Builds a relative module specifier from `fromFile` to a configured output.
  */
@@ -43,23 +33,11 @@ export function makeExportConst(value: { readonly [k: string]: unknown }, suffix
     .join('\n\n')
 }
 
-// Regex patterns for each OpenAPI component type
-// Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
-const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*(?<!Params)(?<!Header)Schema)\b/g, key: 'schemas' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*ParamsSchema)\b/g, key: 'parameters' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*RequestBody)\b/g, key: 'requestBodies' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Response)\b/g, key: 'responses' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*HeaderSchema)\b/g, key: 'headers' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Example)\b/g, key: 'examples' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Link)\b/g, key: 'links' },
-  { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Callback)\b/g, key: 'callbacks' },
-]
-
 /**
  * Universal import generator.
- * @param isRoute - true for route files (createRoute), false for components (z only)
- * @param prefix - module prefix for fallback paths (default: '.')
+ *
+ * Automatically detects whether createRoute is needed by checking code content.
+ * @param split - Whether in split mode (affects fallback path: '..' for split, '.' for single file)
  */
 export function makeImports(
   code: string,
@@ -73,9 +51,22 @@ export function makeImports(
         }
       }
     | undefined,
-  isRoute: boolean,
-  prefix = '.',
+  split = false,
 ): string {
+  // Regex patterns for each OpenAPI component type
+  // Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
+  const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*(?<!Params)(?<!Header)Schema)\b/g, key: 'schemas' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*ParamsSchema)\b/g, key: 'parameters' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*RequestBody)\b/g, key: 'requestBodies' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Response)\b/g, key: 'responses' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*HeaderSchema)\b/g, key: 'headers' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Example)\b/g, key: 'examples' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Link)\b/g, key: 'links' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Callback)\b/g, key: 'callbacks' },
+  ]
+
+  const prefix = split ? '..' : '.'
   const resolvePath = (key: string): string => {
     const target = components?.[key]
     return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${prefix}/${key}`)
@@ -89,9 +80,10 @@ export function makeImports(
     ).filter(Boolean),
   )
 
-  // Build hono import
+  // Build hono import - auto-detect createRoute usage
   const needsZ = code.includes('z.')
-  const honoLine = isRoute
+  const needsCreateRoute = code.includes('createRoute(')
+  const honoLine = needsCreateRoute
     ? `import{createRoute${needsZ ? ',z' : ''}}from'@hono/zod-openapi'`
     : needsZ
       ? `import{z}from'@hono/zod-openapi'`

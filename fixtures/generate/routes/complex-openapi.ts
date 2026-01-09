@@ -17,10 +17,12 @@ const UserProfileSchema = z
       .string()
       .exactOptional()
       .openapi({ example: 'Software engineer with 10 years of experience.' }),
-    social: z.strictObject({
-      twitter: z.string().exactOptional().openapi({ example: '@johndoe' }),
-      linkedin: z.string().exactOptional().exactOptional().openapi({ example: 'john-doe' }),
-    }),
+    social: z
+      .strictObject({
+        twitter: z.string().exactOptional().openapi({ example: '@johndoe' }),
+        linkedin: z.string().exactOptional().openapi({ example: 'john-doe' }),
+      })
+      .exactOptional(),
   })
   .openapi('UserProfile')
 
