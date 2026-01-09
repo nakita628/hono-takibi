@@ -230,30 +230,6 @@ That’s it — set `input`, choose one of the two patterns, and (optionally) ad
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
-
-## AI Prompt Example
-
-```sh
-Generate one **OpenAPI 3.x+** YAML (prefer **3.1.0**).
-
-Rules:
-- Use only `components.schemas` (no other `components`).
-- Never include `parameters:`.
-- No path params; all inputs in `requestBody` (`application/json`) with `$ref: '#/components/schemas/*'`.
-- All responses use `application/json` with `$ref: '#/components/schemas/*'`.
-- POST-only action routes: `/resource/create|get|search|update|delete`.
-- No inline schemas in `paths`.
-
-Fill, then generate:
-- title / version / tags
-- resources & fields
-- ops per resource: create / get / search / update / delete
-
-**Output format (strict):**
-- Return a **single fenced code block** labeled `yaml` that contains **only** the YAML.
-- No text before or after the code block.
-```
-
 ### ⚠️ WARNING: Potential Breaking Changes Without Notice
 
 **This package is in active development and may introduce breaking changes without prior notice.**

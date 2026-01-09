@@ -1,16 +1,26 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { UserSchema, ErrorSchema } from '../schemas'
+import { ErrorSchema, UserSchema } from '../schemas'
 
 export const getUsersIdRoute = createRoute({
-  tags: ['Users'],
   method: 'get',
   path: '/users/{id}',
-  operationId: 'getUser',
+  tags: ['Users'],
   summary: 'Get user',
   description: 'Retrieve a single user by ID.',
+  operationId: 'getUser',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'User ID (UUID).',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {

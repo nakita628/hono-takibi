@@ -1,18 +1,37 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { UpdateUserInputSchema, UserSchema, ErrorSchema } from '../schemas'
+import { ErrorSchema, UpdateUserInputSchema, UserSchema } from '../schemas'
 
 export const patchUsersIdRoute = createRoute({
-  tags: ['Users'],
   method: 'patch',
   path: '/users/{id}',
-  operationId: 'updateUser',
+  tags: ['Users'],
   summary: 'Update user (partial)',
   description: 'Partial update (PATCH). Only provided fields will be updated.',
+  operationId: 'updateUser',
   request: {
-    body: { required: true, content: { 'application/json': { schema: UpdateUserInputSchema } } },
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
+    body: {
+      content: {
+        'application/json': {
+          schema: UpdateUserInputSchema,
+          examples: {
+            update: { value: { roles: ['speaker', 'attendee'], pronouns: 'they/them' } },
+          },
+        },
+      },
+      required: true,
+    },
   },
   responses: {
     200: { description: 'Updated.', content: { 'application/json': { schema: UserSchema } } },

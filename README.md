@@ -91,25 +91,32 @@ export const getRoute = createRoute({
 
 ### Options
 
-basic
-
 ```bash
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command
 ```
 
-template
-
-> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing.
 
 ### Example
 
 ```bash
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-schemas --export-schemas-types --template --base-path '/api/v1'
 ```
 
 ## Configuration File (`hono-takibi.config.ts`)
@@ -131,7 +138,7 @@ Config used by both the CLI and the Vite plugin.
 
 ## Single‑file
 
-One file. Set top‑level `output` (don’t define `schema`/`route`).
+One file. Set top‑level `output` (don't define `components`/`routes`).
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
@@ -140,31 +147,8 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts',
-    exportSchema: true,
-    exportType: true,
-  },
-})
-```
-
----
-
-## Schemas & Routes
-
-Define **both** `schema` and `route` (don’t set top‑level `output`).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    // split ON → outputs are directories
-    schema: { output: './src/schemas', split: true },
-    route: { output: './src/routes', import: '../schemas', split: true },
-
-    // split OFF example (one file each):
-    // schema: { output: './src/schemas/index.ts' },
-    // route: { output: './src/routes/index.ts', import: '../schemas' },
+    exportSchemas: true,
+    exportSchemasTypes: true,
   },
 })
 ```
@@ -185,7 +169,7 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
   rpc: { output: './src/rpc', import: '../client', split: true },
 })
 ```
@@ -197,7 +181,7 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
   rpc: { output: './src/rpc/index.ts', import: '../client' },
 })
 ```
@@ -229,30 +213,6 @@ That’s it — set `input`, choose one of the two patterns, and (optionally) ad
 ### Demo (Vite + HMR)
 
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
-
-
-## AI Prompt Example
-
-```sh
-Generate one **OpenAPI 3.x+** YAML (prefer **3.1.0**).
-
-Rules:
-- Use only `components.schemas` (no other `components`).
-- Never include `parameters:`.
-- No path params; all inputs in `requestBody` (`application/json`) with `$ref: '#/components/schemas/*'`.
-- All responses use `application/json` with `$ref: '#/components/schemas/*'`.
-- POST-only action routes: `/resource/create|get|search|update|delete`.
-- No inline schemas in `paths`.
-
-Fill, then generate:
-- title / version / tags
-- resources & fields
-- ops per resource: create / get / search / update / delete
-
-**Output format (strict):**
-- Return a **single fenced code block** labeled `yaml` that contains **only** the YAML.
-- No text before or after the code block.
-```
 
 ### ⚠️ WARNING: Potential Breaking Changes Without Notice
 

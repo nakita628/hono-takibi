@@ -3,14 +3,13 @@ import { RoleSchema } from './role'
 
 export const UpdateUserInputSchema = z
   .strictObject({
-    displayName: z.string().min(1),
-    email: z.email(),
-    roles: z.array(RoleSchema),
-    isStudent: z.boolean(),
-    pronouns: z.string(),
-    affiliations: z.array(z.string()),
+    displayName: z.string().min(1).exactOptional(),
+    email: z.email().exactOptional(),
+    roles: z.array(RoleSchema).exactOptional(),
+    isStudent: z.boolean().exactOptional(),
+    pronouns: z.string().exactOptional(),
+    affiliations: z.array(z.string()).exactOptional(),
   })
-  .partial()
   .openapi({ description: 'Partial update (PATCH). All properties are optional.' })
   .openapi('UpdateUserInput')
 

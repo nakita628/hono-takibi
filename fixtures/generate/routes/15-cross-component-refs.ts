@@ -1,8 +1,23 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-type NestedCustomFieldType = { [key: string]: CustomFieldValueType }
+const NestedCustomFieldSchema: z.ZodType<NestedCustomFieldType> = z
+  .lazy(() => z.record(z.string(), CustomFieldValueSchema))
+  .openapi('NestedCustomField')
 
-type CustomFieldValueType = string | number | boolean | string[] | NestedCustomFieldType
+type CustomFieldValueType =
+  | string
+  | number
+  | boolean
+  | string[]
+  | z.infer<typeof NestedCustomFieldSchema>
+
+const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
+  .lazy(() =>
+    z.xor([z.string(), z.number(), z.boolean(), z.array(z.string()), NestedCustomFieldSchema]),
+  )
+  .openapi('CustomFieldValue')
+
+type NestedCustomFieldType = { [key: string]: z.infer<typeof CustomFieldValueSchema> }
 
 type FilterExpressionType = {
   field?: string
@@ -41,12 +56,6 @@ const TagSchema = z
   .object({ key: z.string().max(50), value: z.string().max(200) })
   .openapi({ required: ['key', 'value'] })
   .openapi('Tag')
-
-const CustomFieldValueSchema: z.ZodType<CustomFieldValueType> = z
-  .lazy(() =>
-    z.xor([z.string(), z.number(), z.boolean(), z.array(z.string()), NestedCustomFieldSchema]),
-  )
-  .openapi('CustomFieldValue')
 
 const EntityAttributesSchema = z
   .looseObject({
@@ -134,10 +143,6 @@ const EntitySchema = z
   })
   .openapi({ required: ['id', 'type', 'attributes'] })
   .openapi('Entity')
-
-const NestedCustomFieldSchema: z.ZodType<NestedCustomFieldType> = z
-  .lazy(() => z.record(z.string(), CustomFieldValueSchema))
-  .openapi('NestedCustomField')
 
 const ListMetaSchema = z
   .object({

@@ -1,18 +1,20 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const getZodOpenapiHonoRoute = createRoute({
-  tags: ['ZodOpenAPIHono'],
   method: 'get',
   path: '/zod-openapi-hono',
-  operationId: 'getZodOpenAPIHono',
+  tags: ['ZodOpenAPIHono'],
   summary: 'ZodOpenAPIHono',
   description: 'Simple ping for ZodOpenAPIHono',
+  operationId: 'getZodOpenAPIHono',
   responses: {
     200: {
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.strictObject({ message: z.string().openapi({ example: 'ZodOpenAPIHono🔥' }) }),
+          schema: z
+            .strictObject({ message: z.string().openapi({ example: 'ZodOpenAPIHono🔥' }) })
+            .openapi({ required: ['message'] }),
         },
       },
     },

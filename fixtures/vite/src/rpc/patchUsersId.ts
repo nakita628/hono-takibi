@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -8,23 +9,26 @@ import { client } from '../client'
  * Partial update (PATCH). Only provided fields will be updated.
  */
 export async function patchUsersId(
-  params: { path: { id: string } },
-  body: {
-    displayName?: string
-    email?: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
+  args: {
+    param: { id: string }
+    json: {
+      displayName?: string
+      email?: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
   },
+  options?: ClientRequestOptions,
 ) {
-  return await client.users[':id'].$patch({ param: params.path, json: body })
+  return await client.users[':id'].$patch(args, options)
 }
