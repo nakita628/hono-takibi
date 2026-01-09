@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-type RecursiveCType = { value?: boolean; refA?: RecursiveAType }
-
-type RecursiveBType = { value?: number; refC?: RecursiveCType }
-
-type RecursiveAType = { value?: string; refB?: RecursiveBType }
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z.object({ value: z.string().exactOptional(), refB: RecursiveBSchema.exactOptional() }),
+  )
+  .openapi('RecursiveA')
 
 const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
   .lazy(() =>
@@ -20,13 +20,31 @@ const ConstrainedTreeSchema: z.ZodType<ConstrainedTreeType> = z
   .openapi('ConstrainedTree')
 
 type RecursiveNightmaresType = {
-  mutuallyRecursive?: RecursiveAType
+  mutuallyRecursive?: z.infer<typeof RecursiveASchema>
   constrainedRecursive?: z.infer<typeof ConstrainedTreeSchema>
   recursiveInAllOf?: { value?: string } & { child?: RecursiveNightmaresType }
   recursiveInOneOf?: string | { nested?: RecursiveNightmaresType }
   recursiveMap?: { [key: string]: RecursiveNightmaresType }
   recursiveArray?: RecursiveNightmaresType[][]
 }
+
+const RecursiveBSchema: z.ZodType<RecursiveBType> = z
+  .lazy(() =>
+    z.object({ value: z.number().exactOptional(), refC: RecursiveCSchema.exactOptional() }),
+  )
+  .openapi('RecursiveB')
+
+type RecursiveAType = { value?: string; refB?: z.infer<typeof RecursiveBSchema> }
+
+const RecursiveCSchema: z.ZodType<RecursiveCType> = z
+  .lazy(() =>
+    z.object({ value: z.boolean().exactOptional(), refA: RecursiveASchema.exactOptional() }),
+  )
+  .openapi('RecursiveC')
+
+type RecursiveBType = { value?: number; refC?: z.infer<typeof RecursiveCSchema> }
+
+type RecursiveCType = { value?: boolean; refA?: z.infer<typeof RecursiveASchema> }
 
 type ConstrainedTreeType = {
   value: string
@@ -365,24 +383,6 @@ const PathologicalRootSchema = z
     composition: CompositionHellSchema.exactOptional(),
   })
   .openapi('PathologicalRoot')
-
-const RecursiveASchema: z.ZodType<RecursiveAType> = z
-  .lazy(() =>
-    z.object({ value: z.string().exactOptional(), refB: RecursiveBSchema.exactOptional() }),
-  )
-  .openapi('RecursiveA')
-
-const RecursiveBSchema: z.ZodType<RecursiveBType> = z
-  .lazy(() =>
-    z.object({ value: z.number().exactOptional(), refC: RecursiveCSchema.exactOptional() }),
-  )
-  .openapi('RecursiveB')
-
-const RecursiveCSchema: z.ZodType<RecursiveCType> = z
-  .lazy(() =>
-    z.object({ value: z.boolean().exactOptional(), refA: RecursiveASchema.exactOptional() }),
-  )
-  .openapi('RecursiveC')
 
 export const postPathologicalRoute = createRoute({
   method: 'post',

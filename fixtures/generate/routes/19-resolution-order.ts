@@ -48,9 +48,32 @@ type DataSchemaType = {
 
 type SimpleConditionType = { field: string; operator: string; value: { [key: string]: unknown } }
 
-type CompoundConditionType = { and?: ConditionType[]; or?: ConditionType[]; not?: ConditionType }
+const SimpleConditionSchema: z.ZodType<SimpleConditionType> = z
+  .object({ field: z.string(), operator: z.string(), value: z.any() })
+  .openapi({ required: ['field', 'operator', 'value'] })
+  .openapi('SimpleCondition')
 
-type ConditionType = SimpleConditionType | CompoundConditionType
+const CompoundConditionSchema: z.ZodType<CompoundConditionType> = z
+  .lazy(() =>
+    z.object({
+      and: z.array(ConditionSchema).exactOptional(),
+      or: z.array(ConditionSchema).exactOptional(),
+      not: ConditionSchema.exactOptional(),
+    }),
+  )
+  .openapi('CompoundCondition')
+
+type ConditionType = z.infer<typeof SimpleConditionSchema> | z.infer<typeof CompoundConditionSchema>
+
+const ConditionSchema: z.ZodType<ConditionType> = z
+  .lazy(() => z.xor([SimpleConditionSchema, CompoundConditionSchema]))
+  .openapi('Condition')
+
+type CompoundConditionType = {
+  and?: z.infer<typeof ConditionSchema>[]
+  or?: z.infer<typeof ConditionSchema>[]
+  not?: z.infer<typeof ConditionSchema>
+}
 
 const EntityTypeSchema = z
   .enum(['service', 'database', 'cache', 'queue', 'gateway'])
@@ -285,10 +308,6 @@ const DataSourceSchema = z
   })
   .openapi('DataSource')
 
-const ConditionSchema: z.ZodType<ConditionType> = z
-  .lazy(() => z.xor([SimpleConditionSchema, CompoundConditionSchema]))
-  .openapi('Condition')
-
 const TransformSchema = z
   .object({
     type: z.string().exactOptional(),
@@ -380,21 +399,6 @@ const ProcessRequestSchema = z
   })
   .openapi({ required: ['input', 'pipeline'] })
   .openapi('ProcessRequest')
-
-const SimpleConditionSchema: z.ZodType<SimpleConditionType> = z
-  .object({ field: z.string(), operator: z.string(), value: z.any() })
-  .openapi({ required: ['field', 'operator', 'value'] })
-  .openapi('SimpleCondition')
-
-const CompoundConditionSchema: z.ZodType<CompoundConditionType> = z
-  .lazy(() =>
-    z.object({
-      and: z.array(ConditionSchema).exactOptional(),
-      or: z.array(ConditionSchema).exactOptional(),
-      not: ConditionSchema.exactOptional(),
-    }),
-  )
-  .openapi('CompoundCondition')
 
 const ProcessErrorSchema = z
   .object({

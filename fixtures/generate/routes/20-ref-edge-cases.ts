@@ -1,30 +1,88 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-type FinalLevelType = { value: string; parent?: Level1Type }
+const Level2Schema: z.ZodType<Level2Type> = z
+  .lazy(() => z.object({ data: Level3Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level2')
 
-type Level12Type = { data?: FinalLevelType; meta?: string }
+type Level1Type = { data?: z.infer<typeof Level2Schema>; meta?: string }
 
-type Level11Type = { data?: Level12Type; meta?: string }
+const Level3Schema: z.ZodType<Level3Type> = z
+  .lazy(() => z.object({ data: Level4Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level3')
 
-type Level10Type = { data?: Level11Type; meta?: string }
+type Level2Type = { data?: z.infer<typeof Level3Schema>; meta?: string }
 
-type Level9Type = { data?: Level10Type; meta?: string }
+const Level4Schema: z.ZodType<Level4Type> = z
+  .lazy(() => z.object({ data: Level5Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level4')
 
-type Level8Type = { data?: Level9Type; meta?: string }
+type Level3Type = { data?: z.infer<typeof Level4Schema>; meta?: string }
 
-type Level7Type = { data?: Level8Type; meta?: string }
+const Level5Schema: z.ZodType<Level5Type> = z
+  .lazy(() => z.object({ data: Level6Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level5')
 
-type Level6Type = { data?: Level7Type; meta?: string }
+type Level4Type = { data?: z.infer<typeof Level5Schema>; meta?: string }
 
-type Level5Type = { data?: Level6Type; meta?: string }
+const Level6Schema: z.ZodType<Level6Type> = z
+  .lazy(() => z.object({ data: Level7Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level6')
 
-type Level4Type = { data?: Level5Type; meta?: string }
+type Level5Type = { data?: z.infer<typeof Level6Schema>; meta?: string }
 
-type Level3Type = { data?: Level4Type; meta?: string }
+const Level7Schema: z.ZodType<Level7Type> = z
+  .lazy(() => z.object({ data: Level8Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level7')
 
-type Level2Type = { data?: Level3Type; meta?: string }
+type Level6Type = { data?: z.infer<typeof Level7Schema>; meta?: string }
 
-type Level1Type = { data?: Level2Type; meta?: string }
+const Level8Schema: z.ZodType<Level8Type> = z
+  .lazy(() => z.object({ data: Level9Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level8')
+
+type Level7Type = { data?: z.infer<typeof Level8Schema>; meta?: string }
+
+const Level9Schema: z.ZodType<Level9Type> = z
+  .lazy(() => z.object({ data: Level10Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level9')
+
+type Level8Type = { data?: z.infer<typeof Level9Schema>; meta?: string }
+
+const Level10Schema: z.ZodType<Level10Type> = z
+  .lazy(() => z.object({ data: Level11Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level10')
+
+type Level9Type = { data?: z.infer<typeof Level10Schema>; meta?: string }
+
+const Level11Schema: z.ZodType<Level11Type> = z
+  .lazy(() => z.object({ data: Level12Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level11')
+
+type Level10Type = { data?: z.infer<typeof Level11Schema>; meta?: string }
+
+const Level12Schema: z.ZodType<Level12Type> = z
+  .lazy(() =>
+    z.object({ data: FinalLevelSchema.exactOptional(), meta: z.string().exactOptional() }),
+  )
+  .openapi('Level12')
+
+type Level11Type = { data?: z.infer<typeof Level12Schema>; meta?: string }
+
+const FinalLevelSchema: z.ZodType<FinalLevelType> = z
+  .lazy(() =>
+    z
+      .object({ value: z.string(), parent: Level1Schema.exactOptional() })
+      .openapi({ required: ['value'] }),
+  )
+  .openapi('FinalLevel')
+
+type Level12Type = { data?: z.infer<typeof FinalLevelSchema>; meta?: string }
+
+const Level1Schema: z.ZodType<Level1Type> = z
+  .lazy(() => z.object({ data: Level2Schema.exactOptional(), meta: z.string().exactOptional() }))
+  .openapi('Level1')
+
+type FinalLevelType = { value: string; parent?: z.infer<typeof Level1Schema> }
 
 type Unnamed137967Type = { 名前?: string; 値?: number; 子要素?: Unnamed137967Type[] }
 
@@ -35,69 +93,53 @@ const ItemSchema = z
 
 type ItemTreeType = { item?: z.infer<typeof ItemSchema>; children?: ItemTreeType[] }
 
-type RecursiveCType = { name?: string; refToA?: RecursiveAType; refToB?: RecursiveBType }
-
-type RecursiveBType = { name?: string; refToC?: RecursiveCType; refToA?: RecursiveAType }
-
-type RecursiveAType = { name?: string; refToB?: RecursiveBType; selfRef?: RecursiveAType }
-
-const Level1Schema: z.ZodType<Level1Type> = z
-  .lazy(() => z.object({ data: Level2Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level1')
-
-const Level2Schema: z.ZodType<Level2Type> = z
-  .lazy(() => z.object({ data: Level3Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level2')
-
-const Level3Schema: z.ZodType<Level3Type> = z
-  .lazy(() => z.object({ data: Level4Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level3')
-
-const Level4Schema: z.ZodType<Level4Type> = z
-  .lazy(() => z.object({ data: Level5Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level4')
-
-const Level5Schema: z.ZodType<Level5Type> = z
-  .lazy(() => z.object({ data: Level6Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level5')
-
-const Level6Schema: z.ZodType<Level6Type> = z
-  .lazy(() => z.object({ data: Level7Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level6')
-
-const Level7Schema: z.ZodType<Level7Type> = z
-  .lazy(() => z.object({ data: Level8Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level7')
-
-const Level8Schema: z.ZodType<Level8Type> = z
-  .lazy(() => z.object({ data: Level9Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level8')
-
-const Level9Schema: z.ZodType<Level9Type> = z
-  .lazy(() => z.object({ data: Level10Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level9')
-
-const Level10Schema: z.ZodType<Level10Type> = z
-  .lazy(() => z.object({ data: Level11Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level10')
-
-const Level11Schema: z.ZodType<Level11Type> = z
-  .lazy(() => z.object({ data: Level12Schema.exactOptional(), meta: z.string().exactOptional() }))
-  .openapi('Level11')
-
-const Level12Schema: z.ZodType<Level12Type> = z
+const RecursiveBSchema: z.ZodType<RecursiveBType> = z
   .lazy(() =>
-    z.object({ data: FinalLevelSchema.exactOptional(), meta: z.string().exactOptional() }),
+    z.object({
+      name: z.string().exactOptional(),
+      refToC: RecursiveCSchema.exactOptional(),
+      refToA: RecursiveASchema.exactOptional(),
+    }),
   )
-  .openapi('Level12')
+  .openapi('RecursiveB')
 
-const FinalLevelSchema: z.ZodType<FinalLevelType> = z
+type RecursiveAType = {
+  name?: string
+  refToB?: z.infer<typeof RecursiveBSchema>
+  selfRef?: RecursiveAType
+}
+
+const RecursiveCSchema: z.ZodType<RecursiveCType> = z
   .lazy(() =>
-    z
-      .object({ value: z.string(), parent: Level1Schema.exactOptional() })
-      .openapi({ required: ['value'] }),
+    z.object({
+      name: z.string().exactOptional(),
+      refToA: RecursiveASchema.exactOptional(),
+      refToB: RecursiveBSchema.exactOptional(),
+    }),
   )
-  .openapi('FinalLevel')
+  .openapi('RecursiveC')
+
+const RecursiveASchema: z.ZodType<RecursiveAType> = z
+  .lazy(() =>
+    z.object({
+      name: z.string().exactOptional(),
+      refToB: RecursiveBSchema.exactOptional(),
+      selfRef: RecursiveASchema.exactOptional(),
+    }),
+  )
+  .openapi('RecursiveA')
+
+type RecursiveBType = {
+  name?: string
+  refToC?: z.infer<typeof RecursiveCSchema>
+  refToA?: z.infer<typeof RecursiveASchema>
+}
+
+type RecursiveCType = {
+  name?: string
+  refToA?: z.infer<typeof RecursiveASchema>
+  refToB?: z.infer<typeof RecursiveBSchema>
+}
 
 const EmptyObjectSchema = z.object({}).openapi('EmptyObject')
 
@@ -250,36 +292,6 @@ const ConditionalSchema = z
     data: z.xor([SimpleDataSchema, ComplexDataSchema]).exactOptional(),
   })
   .openapi('ConditionalSchema')
-
-const RecursiveASchema: z.ZodType<RecursiveAType> = z
-  .lazy(() =>
-    z.object({
-      name: z.string().exactOptional(),
-      refToB: RecursiveBSchema.exactOptional(),
-      selfRef: RecursiveASchema.exactOptional(),
-    }),
-  )
-  .openapi('RecursiveA')
-
-const RecursiveBSchema: z.ZodType<RecursiveBType> = z
-  .lazy(() =>
-    z.object({
-      name: z.string().exactOptional(),
-      refToC: RecursiveCSchema.exactOptional(),
-      refToA: RecursiveASchema.exactOptional(),
-    }),
-  )
-  .openapi('RecursiveB')
-
-const RecursiveCSchema: z.ZodType<RecursiveCType> = z
-  .lazy(() =>
-    z.object({
-      name: z.string().exactOptional(),
-      refToA: RecursiveASchema.exactOptional(),
-      refToB: RecursiveBSchema.exactOptional(),
-    }),
-  )
-  .openapi('RecursiveC')
 
 const NotExampleSchema = BaseSchema.and(
   z.any().openapi({ not: { $ref: '#/components/schemas/Forbidden' } }),
