@@ -62,6 +62,91 @@ describe('makeTypeString', () => {
         'z.infer<typeof UserSchema>',
       )
     })
+
+    it('should handle properties $ref with self-reference', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/User/properties/name' }, 'User')).toBe(
+        'UserType',
+      )
+    })
+
+    it('should handle URL-encoded $ref', () => {
+      expect(makeTypeString({ $ref: '#/components/schemas/User%20Profile' }, 'Test')).toBe(
+        'z.infer<typeof UserProfileSchema>',
+      )
+    })
+  })
+
+  describe('split mode cyclic group compatibility', () => {
+    const cyclicGroup = new Set(['Event', 'UserEventPayload', 'OrderEventPayload', 'TraceContext'])
+
+    it('should use z.infer for oneOf refs in cyclic group', () => {
+      const result = makeTypeString(
+        {
+          oneOf: [
+            { $ref: '#/components/schemas/UserEventPayload' },
+            { $ref: '#/components/schemas/OrderEventPayload' },
+          ],
+        },
+        'Event',
+        cyclicGroup,
+      )
+      expect(result).toBe(
+        '(z.infer<typeof UserEventPayloadSchema>|z.infer<typeof OrderEventPayloadSchema>)',
+      )
+    })
+
+    it('should use z.infer for anyOf refs in cyclic group', () => {
+      const result = makeTypeString(
+        {
+          anyOf: [{ $ref: '#/components/schemas/TraceContext' }, { type: 'null' }],
+        },
+        'Event',
+        cyclicGroup,
+      )
+      expect(result).toContain('z.infer<typeof TraceContextSchema>')
+    })
+
+    it('should use local type for self-reference in cyclic group', () => {
+      const result = makeTypeString({ $ref: '#/components/schemas/Event' }, 'Event', cyclicGroup)
+      expect(result).toBe('EventType')
+    })
+
+    it('should handle nested object with cyclic refs', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          properties: {
+            payload: { $ref: '#/components/schemas/UserEventPayload' },
+            trace: { $ref: '#/components/schemas/TraceContext' },
+          },
+        },
+        'Event',
+        cyclicGroup,
+      )
+      expect(result).toContain('z.infer<typeof UserEventPayloadSchema>')
+      expect(result).toContain('z.infer<typeof TraceContextSchema>')
+    })
+
+    it('should handle additionalProperties with cyclic ref', () => {
+      const result = makeTypeString(
+        {
+          type: 'object',
+          additionalProperties: { $ref: '#/components/schemas/TraceContext' },
+        },
+        'Event',
+        cyclicGroup,
+      )
+      expect(result).toBe('{[key:string]:z.infer<typeof TraceContextSchema>}')
+    })
+
+    it('should not use local type for non-cyclic schema even when cyclicGroup exists', () => {
+      const result = makeTypeString(
+        { $ref: '#/components/schemas/NonCyclicSchema' },
+        'Event',
+        cyclicGroup,
+      )
+      expect(result).toBe('z.infer<typeof NonCyclicSchemaSchema>')
+    })
   })
 
   describe('union types', () => {
