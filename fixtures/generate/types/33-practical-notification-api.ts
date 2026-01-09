@@ -983,14 +983,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 name: string
                 channel: 'push' | 'email' | 'sms' | 'in_app'
                 body: string
-                variables: {
-                  name: string
-                  required?: boolean | undefined
-                  default?: string | undefined
-                }[]
                 description?: string | undefined
                 subject?: string | undefined
                 html?: string | undefined
+                variables?:
+                  | { name: string; required?: boolean | undefined; default?: string | undefined }[]
+                  | undefined
               }
             }
             output: { code: string; message: string }
@@ -1003,14 +1001,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 name: string
                 channel: 'push' | 'email' | 'sms' | 'in_app'
                 body: string
-                variables: {
-                  name: string
-                  required?: boolean | undefined
-                  default?: string | undefined
-                }[]
                 description?: string | undefined
                 subject?: string | undefined
                 html?: string | undefined
+                variables?:
+                  | { name: string; required?: boolean | undefined; default?: string | undefined }[]
+                  | undefined
               }
             }
             output: {
@@ -1041,14 +1037,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 name: string
                 channel: 'push' | 'email' | 'sms' | 'in_app'
                 body: string
-                variables: {
-                  name: string
-                  required?: boolean | undefined
-                  default?: string | undefined
-                }[]
                 description?: string | undefined
                 subject?: string | undefined
                 html?: string | undefined
+                variables?:
+                  | { name: string; required?: boolean | undefined; default?: string | undefined }[]
+                  | undefined
               }
             }
             output: { code: string; message: string }
@@ -1102,16 +1096,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: { param: { templateId: string } } & {
               json: {
-                variables: {
-                  name: string
-                  required?: boolean | undefined
-                  default?: string | undefined
-                }[]
                 name?: string | undefined
                 description?: string | undefined
                 subject?: string | undefined
                 body?: string | undefined
                 html?: string | undefined
+                variables?:
+                  | { name: string; required?: boolean | undefined; default?: string | undefined }[]
+                  | undefined
                 active?: boolean | undefined
               }
             }
@@ -1122,16 +1114,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: { param: { templateId: string } } & {
               json: {
-                variables: {
-                  name: string
-                  required?: boolean | undefined
-                  default?: string | undefined
-                }[]
                 name?: string | undefined
                 description?: string | undefined
                 subject?: string | undefined
                 body?: string | undefined
                 html?: string | undefined
+                variables?:
+                  | { name: string; required?: boolean | undefined; default?: string | undefined }[]
+                  | undefined
                 active?: boolean | undefined
               }
             }
@@ -1212,50 +1202,58 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               email?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               sms?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               push?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               inApp?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
             }
@@ -1271,50 +1269,58 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               json: {
                 email?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 sms?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 push?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 inApp?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
               }
@@ -1328,50 +1334,58 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               json: {
                 email?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 sms?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 push?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
                 inApp?:
                   | {
-                      quietHours: {
-                        enabled?: boolean | undefined
-                        start?: string | undefined
-                        end?: string | undefined
-                        timezone?: string | undefined
-                      }
                       enabled?: boolean | undefined
                       categories?: Record<string, boolean> | undefined
+                      quietHours?:
+                        | {
+                            enabled?: boolean | undefined
+                            start?: string | undefined
+                            end?: string | undefined
+                            timezone?: string | undefined
+                          }
+                        | undefined
                     }
                   | undefined
               }
@@ -1379,50 +1393,58 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               email?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               sms?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               push?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
               inApp?:
                 | {
-                    quietHours: {
-                      enabled?: boolean | undefined
-                      start?: string | undefined
-                      end?: string | undefined
-                      timezone?: string | undefined
-                    }
                     enabled?: boolean | undefined
                     categories?: { [x: string]: boolean } | undefined
+                    quietHours?:
+                      | {
+                          enabled?: boolean | undefined
+                          start?: string | undefined
+                          end?: string | undefined
+                          timezone?: string | undefined
+                        }
+                      | undefined
                   }
                 | undefined
             }

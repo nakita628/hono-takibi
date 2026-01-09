@@ -8,8 +8,8 @@ import { client } from '../clients/sample-geojson'
  *
  * This endpoint is used to check if the server is working properly.
  */
-export async function get(args?: { options?: ClientRequestOptions }) {
-  return await client.index.$get(args)
+export async function get(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.index.$get(args, options)
 }
 
 /**
@@ -19,9 +19,9 @@ export async function get(args?: { options?: ClientRequestOptions }) {
  *
  * Get projects related to a given chiban
  */
-export async function getProjects(args: {
-  query: { chiban: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.projects.$get(args)
+export async function getProjects(
+  args: { query: { chiban: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.projects.$get(args, options)
 }

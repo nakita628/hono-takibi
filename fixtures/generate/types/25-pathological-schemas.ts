@@ -52,7 +52,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             edgeCases?:
               | {
-                  exactlyOneItem: { id: string }[]
                   deepNesting?:
                     | {
                         l1?:
@@ -170,15 +169,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   onlyTrue?: true | undefined
                   onlyNull?: null | undefined
                   exactlyOne?: Record<string, string> | undefined
+                  exactlyOneItem?: { id: string }[] | undefined
                 }
               | undefined
             recursive?: unknown
             composition?:
               | {
-                  allMixed: any
-                  conflictingRequired: { fieldA: string } & { fieldB: string } & {
-                    fieldC: string
-                  } & Record<string, never>
                   nestedAllOf?:
                     | ({ a?: string | undefined } & { b?: string | undefined } & {
                         c?: string | undefined
@@ -186,16 +182,23 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     | undefined
                   nestedOneOf?: 1 | 2 | 'deep1' | 'deep2' | undefined
                   nestedAnyOf?: string | number | boolean | null | undefined
+                  allMixed?: any
                   conditionalInAllOf?: any
                   multiDiscriminator?:
                     | { kind: 'typeA'; valueA?: string | undefined }
                     | { kind: 'typeB'; valueB?: number | undefined }
                     | { kind: 'typeC'; valueC?: boolean | undefined }
                     | undefined
+                  conflictingRequired?:
+                    | ({ fieldA: string } & { fieldB: string } & { fieldC: string } & Record<
+                          string,
+                          never
+                        >)
+                    | undefined
                   overlappingSchemas?:
-                    | { b: string; c: string }
                     | { a: string; b: string }
                     | { a: string; c: string }
+                    | { b: string; c: string }
                     | undefined
                 }
               | undefined

@@ -6,13 +6,15 @@ import { client } from '../clients/edge'
  *
  * Polymorphic object with discriminator
  */
-export async function postPolymorphic(args: {
-  json:
-    | ({ type: string } & { livesLeft?: number })
-    | ({ type: string } & { barkLevel?: 'quiet' | 'normal' | 'loud' })
-  options?: ClientRequestOptions
-}) {
-  return await client.polymorphic.$post(args)
+export async function postPolymorphic(
+  args: {
+    json:
+      | ({ type: string } & { livesLeft?: number })
+      | ({ type: string } & { barkLevel?: 'quiet' | 'normal' | 'loud' })
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.polymorphic.$post(args, options)
 }
 
 /**
@@ -20,11 +22,11 @@ export async function postPolymorphic(args: {
  *
  * Search with complex query
  */
-export async function getSearch(args: {
-  query: { q: string; filter?: string | string[]; exclude?: unknown }
-  options?: ClientRequestOptions
-}) {
-  return await client.search.$get(args)
+export async function getSearch(
+  args: { query: { q: string; filter?: string | string[]; exclude?: unknown } },
+  options?: ClientRequestOptions,
+) {
+  return await client.search.$get(args, options)
 }
 
 /**
@@ -32,9 +34,9 @@ export async function getSearch(args: {
  *
  * Multi-step object definition using allOf
  */
-export async function putMultiStep(args: {
-  json: { id: string; metadata?: { [key: string]: string } | null } & { step?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['multi-step']['$put'](args)
+export async function putMultiStep(
+  args: { json: { id: string; metadata?: { [key: string]: string } | null } & { step?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['multi-step']['$put'](args, options)
 }

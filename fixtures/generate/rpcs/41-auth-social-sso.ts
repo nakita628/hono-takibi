@@ -8,30 +8,32 @@ import { client } from '../clients/41-auth-social-sso'
  *
  * ソーシャルプロバイダーの認証画面にリダイレクト
  */
-export async function getSocialAuthorizeProvider(args: {
-  param: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  query: {
-    redirect_uri: string
-    state?: string
-    scope?: string
-    login_hint?: string
-    prompt?: 'none' | 'consent' | 'select_account'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['social']['authorize'][':provider']['$get'](args)
+export async function getSocialAuthorizeProvider(
+  args: {
+    param: {
+      provider:
+        | 'google'
+        | 'github'
+        | 'microsoft'
+        | 'apple'
+        | 'facebook'
+        | 'twitter'
+        | 'linkedin'
+        | 'slack'
+        | 'discord'
+        | 'custom'
+    }
+    query: {
+      redirect_uri: string
+      state?: string
+      scope?: string
+      login_hint?: string
+      prompt?: 'none' | 'consent' | 'select_account'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['social']['authorize'][':provider']['$get'](args, options)
 }
 
 /**
@@ -41,24 +43,26 @@ export async function getSocialAuthorizeProvider(args: {
  *
  * プロバイダーからのコールバックを処理
  */
-export async function getSocialCallbackProvider(args: {
-  param: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  query: { code?: string; state?: string; error?: string; error_description?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['social']['callback'][':provider']['$get'](args)
+export async function getSocialCallbackProvider(
+  args: {
+    param: {
+      provider:
+        | 'google'
+        | 'github'
+        | 'microsoft'
+        | 'apple'
+        | 'facebook'
+        | 'twitter'
+        | 'linkedin'
+        | 'slack'
+        | 'discord'
+        | 'custom'
+    }
+    query: { code?: string; state?: string; error?: string; error_description?: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['social']['callback'][':provider']['$get'](args, options)
 }
 
 /**
@@ -68,11 +72,11 @@ export async function getSocialCallbackProvider(args: {
  *
  * 認可コードをアクセストークンに交換
  */
-export async function postSocialToken(args: {
-  json: { provider: string; code: string; redirectUri: string; codeVerifier?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['social']['token']['$post'](args)
+export async function postSocialToken(
+  args: { json: { provider: string; code: string; redirectUri: string; codeVerifier?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['social']['token']['$post'](args, options)
 }
 
 /**
@@ -82,11 +86,11 @@ export async function postSocialToken(args: {
  *
  * モバイルアプリから直接取得したトークンを検証
  */
-export async function postSocialTokenNative(args: {
-  json: { provider: string; token: string; tokenType?: 'id_token' | 'access_token' }
-  options?: ClientRequestOptions
-}) {
-  return await client['social']['token']['native']['$post'](args)
+export async function postSocialTokenNative(
+  args: { json: { provider: string; token: string; tokenType?: 'id_token' | 'access_token' } },
+  options?: ClientRequestOptions,
+) {
+  return await client['social']['token']['native']['$post'](args, options)
 }
 
 /**
@@ -94,8 +98,8 @@ export async function postSocialTokenNative(args: {
  *
  * 有効なプロバイダー一覧
  */
-export async function getProviders(args?: { options?: ClientRequestOptions }) {
-  return await client.providers.$get(args)
+export async function getProviders(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.providers.$get(args, options)
 }
 
 /**
@@ -103,8 +107,8 @@ export async function getProviders(args?: { options?: ClientRequestOptions }) {
  *
  * 全プロバイダー一覧（管理用）
  */
-export async function getProvidersAdmin(args?: { options?: ClientRequestOptions }) {
-  return await client['providers']['admin']['$get'](args)
+export async function getProvidersAdmin(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['providers']['admin']['$get'](args, options)
 }
 
 /**
@@ -112,26 +116,28 @@ export async function getProvidersAdmin(args?: { options?: ClientRequestOptions 
  *
  * プロバイダー追加
  */
-export async function postProvidersAdmin(args: {
-  json: {
-    name: string
-    type: 'oauth2' | 'oidc'
-    clientId: string
-    clientSecret: string
-    authorizationUrl?: string
-    tokenUrl?: string
-    userInfoUrl?: string
-    scopes?: string[]
-    attributeMapping?: {}
-    allowedDomains?: string[]
-    autoCreateUser?: boolean
-    autoLinkUser?: boolean
-    icon?: string
-    buttonColor?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['providers']['admin']['$post'](args)
+export async function postProvidersAdmin(
+  args: {
+    json: {
+      name: string
+      type: 'oauth2' | 'oidc'
+      clientId: string
+      clientSecret: string
+      authorizationUrl?: string
+      tokenUrl?: string
+      userInfoUrl?: string
+      scopes?: string[]
+      attributeMapping?: {}
+      allowedDomains?: string[]
+      autoCreateUser?: boolean
+      autoLinkUser?: boolean
+      icon?: string
+      buttonColor?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['providers']['admin']['$post'](args, options)
 }
 
 /**
@@ -139,11 +145,11 @@ export async function postProvidersAdmin(args: {
  *
  * プロバイダー詳細取得
  */
-export async function getProvidersProviderId(args: {
-  param: { providerId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['providers'][':providerId']['$get'](args)
+export async function getProvidersProviderId(
+  args: { param: { providerId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['providers'][':providerId']['$get'](args, options)
 }
 
 /**
@@ -151,25 +157,27 @@ export async function getProvidersProviderId(args: {
  *
  * プロバイダー更新
  */
-export async function putProvidersProviderId(args: {
-  param: { providerId: string }
-  json: {
-    name?: string
-    enabled?: boolean
-    clientId?: string
-    clientSecret?: string
-    authorizationUrl?: string
-    tokenUrl?: string
-    userInfoUrl?: string
-    scopes?: string[]
-    attributeMapping?: {}
-    allowedDomains?: string[]
-    autoCreateUser?: boolean
-    autoLinkUser?: boolean
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['providers'][':providerId']['$put'](args)
+export async function putProvidersProviderId(
+  args: {
+    param: { providerId: string }
+    json: {
+      name?: string
+      enabled?: boolean
+      clientId?: string
+      clientSecret?: string
+      authorizationUrl?: string
+      tokenUrl?: string
+      userInfoUrl?: string
+      scopes?: string[]
+      attributeMapping?: {}
+      allowedDomains?: string[]
+      autoCreateUser?: boolean
+      autoLinkUser?: boolean
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['providers'][':providerId']['$put'](args, options)
 }
 
 /**
@@ -177,11 +185,11 @@ export async function putProvidersProviderId(args: {
  *
  * プロバイダー削除
  */
-export async function deleteProvidersProviderId(args: {
-  param: { providerId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['providers'][':providerId']['$delete'](args)
+export async function deleteProvidersProviderId(
+  args: { param: { providerId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['providers'][':providerId']['$delete'](args, options)
 }
 
 /**
@@ -189,11 +197,11 @@ export async function deleteProvidersProviderId(args: {
  *
  * プロバイダー接続テスト
  */
-export async function postProvidersProviderIdTest(args: {
-  param: { providerId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['providers'][':providerId']['test']['$post'](args)
+export async function postProvidersProviderIdTest(
+  args: { param: { providerId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['providers'][':providerId']['test']['$post'](args, options)
 }
 
 /**
@@ -201,8 +209,8 @@ export async function postProvidersProviderIdTest(args: {
  *
  * 連携アカウント一覧
  */
-export async function getAccountLinked(args?: { options?: ClientRequestOptions }) {
-  return await client['account']['linked']['$get'](args)
+export async function getAccountLinked(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['account']['linked']['$get'](args, options)
 }
 
 /**
@@ -212,24 +220,26 @@ export async function getAccountLinked(args?: { options?: ClientRequestOptions }
  *
  * 既存アカウントにソーシャルアカウントを連携
  */
-export async function postAccountLinkProvider(args: {
-  param: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  json: { code: string; redirectUri: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['account']['link'][':provider']['$post'](args)
+export async function postAccountLinkProvider(
+  args: {
+    param: {
+      provider:
+        | 'google'
+        | 'github'
+        | 'microsoft'
+        | 'apple'
+        | 'facebook'
+        | 'twitter'
+        | 'linkedin'
+        | 'slack'
+        | 'discord'
+        | 'custom'
+    }
+    json: { code: string; redirectUri: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['account']['link'][':provider']['$post'](args, options)
 }
 
 /**
@@ -237,23 +247,25 @@ export async function postAccountLinkProvider(args: {
  *
  * アカウント連携解除
  */
-export async function deleteAccountLinkProvider(args: {
-  param: {
-    provider:
-      | 'google'
-      | 'github'
-      | 'microsoft'
-      | 'apple'
-      | 'facebook'
-      | 'twitter'
-      | 'linkedin'
-      | 'slack'
-      | 'discord'
-      | 'custom'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['account']['link'][':provider']['$delete'](args)
+export async function deleteAccountLinkProvider(
+  args: {
+    param: {
+      provider:
+        | 'google'
+        | 'github'
+        | 'microsoft'
+        | 'apple'
+        | 'facebook'
+        | 'twitter'
+        | 'linkedin'
+        | 'slack'
+        | 'discord'
+        | 'custom'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['account']['link'][':provider']['$delete'](args, options)
 }
 
 /**
@@ -261,8 +273,8 @@ export async function deleteAccountLinkProvider(args: {
  *
  * エンタープライズSSO設定一覧
  */
-export async function getEnterpriseSso(args?: { options?: ClientRequestOptions }) {
-  return await client['enterprise']['sso']['$get'](args)
+export async function getEnterpriseSso(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['enterprise']['sso']['$get'](args, options)
 }
 
 /**
@@ -270,43 +282,45 @@ export async function getEnterpriseSso(args?: { options?: ClientRequestOptions }
  *
  * エンタープライズSSO設定作成
  */
-export async function postEnterpriseSso(args: {
-  json: {
-    name: string
-    type: 'saml' | 'oidc'
-    domains: string[]
-    samlConfig?: {
-      entityId?: string
-      ssoUrl?: string
-      sloUrl?: string
-      certificate?: string
-      signRequest?: boolean
-      signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-      digestAlgorithm?: 'SHA256' | 'SHA512'
-      nameIdFormat?: string
-      attributeMapping?: {
-        email?: string
-        name?: string
-        firstName?: string
-        lastName?: string
-        groups?: string
+export async function postEnterpriseSso(
+  args: {
+    json: {
+      name: string
+      type: 'saml' | 'oidc'
+      domains: string[]
+      samlConfig?: {
+        entityId?: string
+        ssoUrl?: string
+        sloUrl?: string
+        certificate?: string
+        signRequest?: boolean
+        signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
+        digestAlgorithm?: 'SHA256' | 'SHA512'
+        nameIdFormat?: string
+        attributeMapping?: {
+          email?: string
+          name?: string
+          firstName?: string
+          lastName?: string
+          groups?: string
+        }
       }
+      oidcConfig?: {
+        issuer?: string
+        clientId?: string
+        authorizationEndpoint?: string
+        tokenEndpoint?: string
+        userInfoEndpoint?: string
+        jwksUri?: string
+        scopes?: string[]
+        attributeMapping?: {}
+      }
+      userProvisioning?: {}
     }
-    oidcConfig?: {
-      issuer?: string
-      clientId?: string
-      authorizationEndpoint?: string
-      tokenEndpoint?: string
-      userInfoEndpoint?: string
-      jwksUri?: string
-      scopes?: string[]
-      attributeMapping?: {}
-    }
-    userProvisioning?: {}
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso']['$post'](args)
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso']['$post'](args, options)
 }
 
 /**
@@ -314,11 +328,11 @@ export async function postEnterpriseSso(args: {
  *
  * エンタープライズSSO設定詳細
  */
-export async function getEnterpriseSsoConfigId(args: {
-  param: { configId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso'][':configId']['$get'](args)
+export async function getEnterpriseSsoConfigId(
+  args: { param: { configId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso'][':configId']['$get'](args, options)
 }
 
 /**
@@ -326,44 +340,46 @@ export async function getEnterpriseSsoConfigId(args: {
  *
  * エンタープライズSSO設定更新
  */
-export async function putEnterpriseSsoConfigId(args: {
-  param: { configId: string }
-  json: {
-    name?: string
-    enabled?: boolean
-    domains?: string[]
-    samlConfig?: {
-      entityId?: string
-      ssoUrl?: string
-      sloUrl?: string
-      certificate?: string
-      signRequest?: boolean
-      signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-      digestAlgorithm?: 'SHA256' | 'SHA512'
-      nameIdFormat?: string
-      attributeMapping?: {
-        email?: string
-        name?: string
-        firstName?: string
-        lastName?: string
-        groups?: string
+export async function putEnterpriseSsoConfigId(
+  args: {
+    param: { configId: string }
+    json: {
+      name?: string
+      enabled?: boolean
+      domains?: string[]
+      samlConfig?: {
+        entityId?: string
+        ssoUrl?: string
+        sloUrl?: string
+        certificate?: string
+        signRequest?: boolean
+        signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
+        digestAlgorithm?: 'SHA256' | 'SHA512'
+        nameIdFormat?: string
+        attributeMapping?: {
+          email?: string
+          name?: string
+          firstName?: string
+          lastName?: string
+          groups?: string
+        }
       }
+      oidcConfig?: {
+        issuer?: string
+        clientId?: string
+        authorizationEndpoint?: string
+        tokenEndpoint?: string
+        userInfoEndpoint?: string
+        jwksUri?: string
+        scopes?: string[]
+        attributeMapping?: {}
+      }
+      userProvisioning?: {}
     }
-    oidcConfig?: {
-      issuer?: string
-      clientId?: string
-      authorizationEndpoint?: string
-      tokenEndpoint?: string
-      userInfoEndpoint?: string
-      jwksUri?: string
-      scopes?: string[]
-      attributeMapping?: {}
-    }
-    userProvisioning?: {}
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso'][':configId']['$put'](args)
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso'][':configId']['$put'](args, options)
 }
 
 /**
@@ -371,11 +387,11 @@ export async function putEnterpriseSsoConfigId(args: {
  *
  * エンタープライズSSO設定削除
  */
-export async function deleteEnterpriseSsoConfigId(args: {
-  param: { configId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso'][':configId']['$delete'](args)
+export async function deleteEnterpriseSsoConfigId(
+  args: { param: { configId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso'][':configId']['$delete'](args, options)
 }
 
 /**
@@ -383,11 +399,11 @@ export async function deleteEnterpriseSsoConfigId(args: {
  *
  * ドメインからSSO設定を検索
  */
-export async function getEnterpriseSsoDomainLookup(args: {
-  query: { domain: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso']['domain-lookup']['$get'](args)
+export async function getEnterpriseSsoDomainLookup(
+  args: { query: { domain: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso']['domain-lookup']['$get'](args, options)
 }
 
 /**
@@ -397,9 +413,9 @@ export async function getEnterpriseSsoDomainLookup(args: {
  *
  * SAML SP メタデータを XML 形式で取得
  */
-export async function getEnterpriseSsoConfigIdMetadata(args: {
-  param: { configId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['enterprise']['sso'][':configId']['metadata']['$get'](args)
+export async function getEnterpriseSsoConfigIdMetadata(
+  args: { param: { configId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['enterprise']['sso'][':configId']['metadata']['$get'](args, options)
 }

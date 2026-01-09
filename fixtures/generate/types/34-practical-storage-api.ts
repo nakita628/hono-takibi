@@ -729,7 +729,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: { param: { fileId: string } } & {
               json: {
-                collaborators: { email: string; permission: 'viewer' | 'editor' }[]
+                collaborators?: { email: string; permission: 'viewer' | 'editor' }[] | undefined
                 message?: string | undefined
                 notifyByEmail?: boolean | undefined
               }
@@ -741,7 +741,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: { param: { fileId: string } } & {
               json: {
-                collaborators: { email: string; permission: 'viewer' | 'editor' }[]
+                collaborators?: { email: string; permission: 'viewer' | 'editor' }[] | undefined
                 message?: string | undefined
                 notifyByEmail?: boolean | undefined
               }

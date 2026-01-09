@@ -6,11 +6,11 @@ import { client } from '../clients/43-sns-users-relationships'
  *
  * ユーザー情報取得
  */
-export async function getUsersUserId(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['$get'](args)
+export async function getUsersUserId(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['$get'](args, options)
 }
 
 /**
@@ -18,11 +18,11 @@ export async function getUsersUserId(args: {
  *
  * ユーザー名でユーザー取得
  */
-export async function getUsersByUsernameUsername(args: {
-  param: { username: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['by']['username'][':username']['$get'](args)
+export async function getUsersByUsernameUsername(
+  args: { param: { username: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['by']['username'][':username']['$get'](args, options)
 }
 
 /**
@@ -30,11 +30,11 @@ export async function getUsersByUsernameUsername(args: {
  *
  * ユーザー検索
  */
-export async function getUsersSearch(args: {
-  query: { q: string; cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['search']['$get'](args)
+export async function getUsersSearch(
+  args: { query: { q: string; cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['search']['$get'](args, options)
 }
 
 /**
@@ -42,11 +42,11 @@ export async function getUsersSearch(args: {
  *
  * 複数ユーザー一括取得
  */
-export async function getUsersLookup(args: {
-  query: { ids?: string; usernames?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['lookup']['$get'](args)
+export async function getUsersLookup(
+  args: { query: { ids?: string; usernames?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['lookup']['$get'](args, options)
 }
 
 /**
@@ -54,8 +54,8 @@ export async function getUsersLookup(args: {
  *
  * 現在のユーザー情報取得
  */
-export async function getMe(args?: { options?: ClientRequestOptions }) {
-  return await client.me.$get(args)
+export async function getMe(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.me.$get(args, options)
 }
 
 /**
@@ -63,19 +63,21 @@ export async function getMe(args?: { options?: ClientRequestOptions }) {
  *
  * プロフィール更新
  */
-export async function patchMe(args: {
-  json: {
-    displayName?: string
-    bio?: string
-    location?: string
-    website?: string
-    birthDate?: string
-    isProtected?: boolean
-    pinnedPostId?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.me.$patch(args)
+export async function patchMe(
+  args: {
+    json: {
+      displayName?: string
+      bio?: string
+      location?: string
+      website?: string
+      birthDate?: string
+      isProtected?: boolean
+      pinnedPostId?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.me.$patch(args, options)
 }
 
 /**
@@ -83,11 +85,11 @@ export async function patchMe(args: {
  *
  * アバターアップロード
  */
-export async function postMeAvatar(args: {
-  form: { image: File }
-  options?: ClientRequestOptions
-}) {
-  return await client['me']['avatar']['$post'](args)
+export async function postMeAvatar(
+  args: { form: { image: File } },
+  options?: ClientRequestOptions,
+) {
+  return await client['me']['avatar']['$post'](args, options)
 }
 
 /**
@@ -95,8 +97,8 @@ export async function postMeAvatar(args: {
  *
  * アバター削除
  */
-export async function deleteMeAvatar(args?: { options?: ClientRequestOptions }) {
-  return await client['me']['avatar']['$delete'](args)
+export async function deleteMeAvatar(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['me']['avatar']['$delete'](args, options)
 }
 
 /**
@@ -104,11 +106,11 @@ export async function deleteMeAvatar(args?: { options?: ClientRequestOptions }) 
  *
  * バナー画像アップロード
  */
-export async function postMeBanner(args: {
-  form: { image: File }
-  options?: ClientRequestOptions
-}) {
-  return await client['me']['banner']['$post'](args)
+export async function postMeBanner(
+  args: { form: { image: File } },
+  options?: ClientRequestOptions,
+) {
+  return await client['me']['banner']['$post'](args, options)
 }
 
 /**
@@ -116,8 +118,8 @@ export async function postMeBanner(args: {
  *
  * バナー画像削除
  */
-export async function deleteMeBanner(args?: { options?: ClientRequestOptions }) {
-  return await client['me']['banner']['$delete'](args)
+export async function deleteMeBanner(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['me']['banner']['$delete'](args, options)
 }
 
 /**
@@ -125,11 +127,11 @@ export async function deleteMeBanner(args?: { options?: ClientRequestOptions }) 
  *
  * フォロー
  */
-export async function postUsersUserIdFollow(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['follow']['$post'](args)
+export async function postUsersUserIdFollow(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['follow']['$post'](args, options)
 }
 
 /**
@@ -137,11 +139,11 @@ export async function postUsersUserIdFollow(args: {
  *
  * フォロー解除
  */
-export async function deleteUsersUserIdFollow(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['follow']['$delete'](args)
+export async function deleteUsersUserIdFollow(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['follow']['$delete'](args, options)
 }
 
 /**
@@ -149,12 +151,11 @@ export async function deleteUsersUserIdFollow(args: {
  *
  * フォロワー一覧取得
  */
-export async function getUsersUserIdFollowers(args: {
-  param: { userId: string }
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['followers']['$get'](args)
+export async function getUsersUserIdFollowers(
+  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['followers']['$get'](args, options)
 }
 
 /**
@@ -162,12 +163,11 @@ export async function getUsersUserIdFollowers(args: {
  *
  * フォロー中一覧取得
  */
-export async function getUsersUserIdFollowing(args: {
-  param: { userId: string }
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['following']['$get'](args)
+export async function getUsersUserIdFollowing(
+  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['following']['$get'](args, options)
 }
 
 /**
@@ -177,11 +177,11 @@ export async function getUsersUserIdFollowing(args: {
  *
  * 自分のフォロワーから削除
  */
-export async function postUsersUserIdFollowersRemove(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['followers']['remove']['$post'](args)
+export async function postUsersUserIdFollowersRemove(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['followers']['remove']['$post'](args, options)
 }
 
 /**
@@ -189,11 +189,11 @@ export async function postUsersUserIdFollowersRemove(args: {
  *
  * 関係性一括取得
  */
-export async function getRelationships(args: {
-  query: { userIds: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.relationships.$get(args)
+export async function getRelationships(
+  args: { query: { userIds: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.relationships.$get(args, options)
 }
 
 /**
@@ -203,11 +203,11 @@ export async function getRelationships(args: {
  *
  * 非公開アカウントへのフォローリクエスト
  */
-export async function getFollowRequests(args: {
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['follow-requests']['$get'](args)
+export async function getFollowRequests(
+  args: { query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['follow-requests']['$get'](args, options)
 }
 
 /**
@@ -215,11 +215,11 @@ export async function getFollowRequests(args: {
  *
  * フォローリクエスト承認
  */
-export async function postFollowRequestsUserIdAccept(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['follow-requests'][':userId']['accept']['$post'](args)
+export async function postFollowRequestsUserIdAccept(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['follow-requests'][':userId']['accept']['$post'](args, options)
 }
 
 /**
@@ -227,11 +227,11 @@ export async function postFollowRequestsUserIdAccept(args: {
  *
  * フォローリクエスト拒否
  */
-export async function postFollowRequestsUserIdReject(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['follow-requests'][':userId']['reject']['$post'](args)
+export async function postFollowRequestsUserIdReject(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['follow-requests'][':userId']['reject']['$post'](args, options)
 }
 
 /**
@@ -239,11 +239,11 @@ export async function postFollowRequestsUserIdReject(args: {
  *
  * ブロック
  */
-export async function postUsersUserIdBlock(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['block']['$post'](args)
+export async function postUsersUserIdBlock(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['block']['$post'](args, options)
 }
 
 /**
@@ -251,11 +251,11 @@ export async function postUsersUserIdBlock(args: {
  *
  * ブロック解除
  */
-export async function deleteUsersUserIdBlock(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['block']['$delete'](args)
+export async function deleteUsersUserIdBlock(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['block']['$delete'](args, options)
 }
 
 /**
@@ -263,12 +263,11 @@ export async function deleteUsersUserIdBlock(args: {
  *
  * ミュート
  */
-export async function postUsersUserIdMute(args: {
-  param: { userId: string }
-  json: { duration?: number; notifications?: boolean }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['mute']['$post'](args)
+export async function postUsersUserIdMute(
+  args: { param: { userId: string }; json: { duration?: number; notifications?: boolean } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['mute']['$post'](args, options)
 }
 
 /**
@@ -276,11 +275,11 @@ export async function postUsersUserIdMute(args: {
  *
  * ミュート解除
  */
-export async function deleteUsersUserIdMute(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['mute']['$delete'](args)
+export async function deleteUsersUserIdMute(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['mute']['$delete'](args, options)
 }
 
 /**
@@ -288,11 +287,11 @@ export async function deleteUsersUserIdMute(args: {
  *
  * ブロックユーザー一覧
  */
-export async function getBlocks(args: {
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client.blocks.$get(args)
+export async function getBlocks(
+  args: { query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client.blocks.$get(args, options)
 }
 
 /**
@@ -300,11 +299,11 @@ export async function getBlocks(args: {
  *
  * ミュートユーザー一覧
  */
-export async function getMutes(args: {
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client.mutes.$get(args)
+export async function getMutes(
+  args: { query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client.mutes.$get(args, options)
 }
 
 /**
@@ -312,8 +311,8 @@ export async function getMutes(args: {
  *
  * リスト一覧取得
  */
-export async function getLists(args?: { options?: ClientRequestOptions }) {
-  return await client.lists.$get(args)
+export async function getLists(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.lists.$get(args, options)
 }
 
 /**
@@ -321,11 +320,11 @@ export async function getLists(args?: { options?: ClientRequestOptions }) {
  *
  * リスト作成
  */
-export async function postLists(args: {
-  json: { name: string; description?: string; isPrivate?: boolean }
-  options?: ClientRequestOptions
-}) {
-  return await client.lists.$post(args)
+export async function postLists(
+  args: { json: { name: string; description?: string; isPrivate?: boolean } },
+  options?: ClientRequestOptions,
+) {
+  return await client.lists.$post(args, options)
 }
 
 /**
@@ -333,11 +332,11 @@ export async function postLists(args: {
  *
  * リスト詳細取得
  */
-export async function getListsListId(args: {
-  param: { listId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['$get'](args)
+export async function getListsListId(
+  args: { param: { listId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['$get'](args, options)
 }
 
 /**
@@ -345,12 +344,14 @@ export async function getListsListId(args: {
  *
  * リスト更新
  */
-export async function putListsListId(args: {
-  param: { listId: string }
-  json: { name?: string; description?: string; isPrivate?: boolean }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['$put'](args)
+export async function putListsListId(
+  args: {
+    param: { listId: string }
+    json: { name?: string; description?: string; isPrivate?: boolean }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['$put'](args, options)
 }
 
 /**
@@ -358,11 +359,11 @@ export async function putListsListId(args: {
  *
  * リスト削除
  */
-export async function deleteListsListId(args: {
-  param: { listId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['$delete'](args)
+export async function deleteListsListId(
+  args: { param: { listId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['$delete'](args, options)
 }
 
 /**
@@ -370,12 +371,11 @@ export async function deleteListsListId(args: {
  *
  * リストメンバー一覧
  */
-export async function getListsListIdMembers(args: {
-  param: { listId: string }
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['members']['$get'](args)
+export async function getListsListIdMembers(
+  args: { param: { listId: string }; query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['members']['$get'](args, options)
 }
 
 /**
@@ -383,12 +383,11 @@ export async function getListsListIdMembers(args: {
  *
  * リストにメンバー追加
  */
-export async function postListsListIdMembers(args: {
-  param: { listId: string }
-  json: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['members']['$post'](args)
+export async function postListsListIdMembers(
+  args: { param: { listId: string }; json: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['members']['$post'](args, options)
 }
 
 /**
@@ -396,11 +395,11 @@ export async function postListsListIdMembers(args: {
  *
  * リストからメンバー削除
  */
-export async function deleteListsListIdMembersUserId(args: {
-  param: { listId: string; userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['members'][':userId']['$delete'](args)
+export async function deleteListsListIdMembersUserId(
+  args: { param: { listId: string; userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['members'][':userId']['$delete'](args, options)
 }
 
 /**
@@ -408,12 +407,11 @@ export async function deleteListsListIdMembersUserId(args: {
  *
  * リストタイムライン取得
  */
-export async function getListsListIdTimeline(args: {
-  param: { listId: string }
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['lists'][':listId']['timeline']['$get'](args)
+export async function getListsListIdTimeline(
+  args: { param: { listId: string }; query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['lists'][':listId']['timeline']['$get'](args, options)
 }
 
 /**
@@ -421,10 +419,9 @@ export async function getListsListIdTimeline(args: {
  *
  * ユーザーが所属するリスト一覧
  */
-export async function getUsersUserIdLists(args: {
-  param: { userId: string }
-  query: { cursor?: string; limit?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['lists']['$get'](args)
+export async function getUsersUserIdLists(
+  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['lists']['$get'](args, options)
 }

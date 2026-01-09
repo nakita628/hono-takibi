@@ -245,11 +245,10 @@ const ExtremeCompositionsSchema: z.ZodType<ExtremeCompositionsType> = z
         ])
         .and(z.object({ e: z.string().exactOptional() }))
         .exactOptional(),
-      complexNot: z.object({ value: z.string().exactOptional() }).and(
-        z
-          .any()
-          .exactOptional()
-          .openapi({
+      complexNot: z
+        .object({ value: z.string().exactOptional() })
+        .and(
+          z.any().openapi({
             not: {
               anyOf: [
                 { type: 'object', properties: { value: { const: 'forbidden1' } } },
@@ -258,7 +257,8 @@ const ExtremeCompositionsSchema: z.ZodType<ExtremeCompositionsType> = z
               ],
             },
           }),
-      ),
+        )
+        .exactOptional(),
       conditionalChain: z.object({}).exactOptional(),
       conflictingAllOf: z
         .object({ shared: z.string().min(5).exactOptional() })

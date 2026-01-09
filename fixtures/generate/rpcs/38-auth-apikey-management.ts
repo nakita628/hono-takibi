@@ -6,16 +6,18 @@ import { client } from '../clients/38-auth-apikey-management'
  *
  * APIキー一覧取得
  */
-export async function getApiKeys(args: {
-  query: {
-    page?: number
-    limit?: number
-    status?: 'active' | 'revoked' | 'expired'
-    environment?: 'production' | 'staging' | 'development' | 'test'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys']['$get'](args)
+export async function getApiKeys(
+  args: {
+    query: {
+      page?: number
+      limit?: number
+      status?: 'active' | 'revoked' | 'expired'
+      environment?: 'production' | 'staging' | 'development' | 'test'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys']['$get'](args, options)
 }
 
 /**
@@ -23,17 +25,19 @@ export async function getApiKeys(args: {
  *
  * APIキー作成
  */
-export async function postApiKeys(args: {
-  json: {
-    name: string
-    description?: string
-    environment: 'production' | 'staging' | 'development' | 'test'
-    scopes?: string[]
-    expiresAt?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys']['$post'](args)
+export async function postApiKeys(
+  args: {
+    json: {
+      name: string
+      description?: string
+      environment: 'production' | 'staging' | 'development' | 'test'
+      scopes?: string[]
+      expiresAt?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys']['$post'](args, options)
 }
 
 /**
@@ -41,11 +45,11 @@ export async function postApiKeys(args: {
  *
  * APIキー詳細取得
  */
-export async function getApiKeysKeyId(args: {
-  param: { keyId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['$get'](args)
+export async function getApiKeysKeyId(
+  args: { param: { keyId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['$get'](args, options)
 }
 
 /**
@@ -53,11 +57,11 @@ export async function getApiKeysKeyId(args: {
  *
  * APIキー削除
  */
-export async function deleteApiKeysKeyId(args: {
-  param: { keyId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['$delete'](args)
+export async function deleteApiKeysKeyId(
+  args: { param: { keyId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['$delete'](args, options)
 }
 
 /**
@@ -65,12 +69,14 @@ export async function deleteApiKeysKeyId(args: {
  *
  * APIキー更新
  */
-export async function patchApiKeysKeyId(args: {
-  param: { keyId: string }
-  json: { name?: string; description?: string; scopes?: string[] }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['$patch'](args)
+export async function patchApiKeysKeyId(
+  args: {
+    param: { keyId: string }
+    json: { name?: string; description?: string; scopes?: string[] }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['$patch'](args, options)
 }
 
 /**
@@ -78,12 +84,11 @@ export async function patchApiKeysKeyId(args: {
  *
  * APIキー無効化
  */
-export async function postApiKeysKeyIdRevoke(args: {
-  param: { keyId: string }
-  json: { reason?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['revoke']['$post'](args)
+export async function postApiKeysKeyIdRevoke(
+  args: { param: { keyId: string }; json: { reason?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['revoke']['$post'](args, options)
 }
 
 /**
@@ -91,12 +96,11 @@ export async function postApiKeysKeyIdRevoke(args: {
  *
  * APIキーローテーション
  */
-export async function postApiKeysKeyIdRotate(args: {
-  param: { keyId: string }
-  json: { gracePeriodHours?: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['rotate']['$post'](args)
+export async function postApiKeysKeyIdRotate(
+  args: { param: { keyId: string }; json: { gracePeriodHours?: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['rotate']['$post'](args, options)
 }
 
 /**
@@ -104,12 +108,14 @@ export async function postApiKeysKeyIdRotate(args: {
  *
  * APIキー使用量取得
  */
-export async function getApiKeysKeyIdUsage(args: {
-  param: { keyId: string }
-  query: { from: string; to: string; granularity?: 'hour' | 'day' | 'week' | 'month' }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['usage']['$get'](args)
+export async function getApiKeysKeyIdUsage(
+  args: {
+    param: { keyId: string }
+    query: { from: string; to: string; granularity?: 'hour' | 'day' | 'week' | 'month' }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['usage']['$get'](args, options)
 }
 
 /**
@@ -117,11 +123,11 @@ export async function getApiKeysKeyIdUsage(args: {
  *
  * 現在のレート制限状況取得
  */
-export async function getApiKeysKeyIdRateLimitCurrent(args: {
-  param: { keyId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys'][':keyId']['rate-limit']['current']['$get'](args)
+export async function getApiKeysKeyIdRateLimitCurrent(
+  args: { param: { keyId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys'][':keyId']['rate-limit']['current']['$get'](args, options)
 }
 
 /**
@@ -129,11 +135,11 @@ export async function getApiKeysKeyIdRateLimitCurrent(args: {
  *
  * APIキー検証
  */
-export async function postApiKeysVerify(args: {
-  json: { apiKey: string; requiredScopes?: string[] }
-  options?: ClientRequestOptions
-}) {
-  return await client['api-keys']['verify']['$post'](args)
+export async function postApiKeysVerify(
+  args: { json: { apiKey: string; requiredScopes?: string[] } },
+  options?: ClientRequestOptions,
+) {
+  return await client['api-keys']['verify']['$post'](args, options)
 }
 
 /**
@@ -141,6 +147,6 @@ export async function postApiKeysVerify(args: {
  *
  * 利用可能なスコープ一覧
  */
-export async function getScopes(args?: { options?: ClientRequestOptions }) {
-  return await client.scopes.$get(args)
+export async function getScopes(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.scopes.$get(args, options)
 }

@@ -6,6 +6,6 @@ import { client } from '../clients/complex-schema-reference-random'
  *
  * Test endpoint for comprehensive schema references
  */
-export async function getTest(args?: { options?: ClientRequestOptions }) {
-  return await client.test.$get(args)
+export async function getTest(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.test.$get(args, options)
 }

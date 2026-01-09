@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-string'
  *
  * zod string
  */
-export async function getString(args?: { options?: ClientRequestOptions }) {
-  return await client.string.$get(args)
+export async function getString(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.string.$get(args, options)
 }

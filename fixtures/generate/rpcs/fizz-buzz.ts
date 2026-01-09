@@ -8,9 +8,9 @@ import { client } from '../clients/fizz-buzz'
  *
  * Returns the FizzBuzz result for the given number.
  */
-export async function getFizzbuzz(args: {
-  query: { number: number; details?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.fizzbuzz.$get(args)
+export async function getFizzbuzz(
+  args: { query: { number: number; details?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.fizzbuzz.$get(args, options)
 }

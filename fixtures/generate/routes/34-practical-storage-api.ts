@@ -83,12 +83,13 @@ const ShareSettingsSchema = z
 
 const ShareRequestSchema = z
   .object({
-    collaborators: z.array(
-      z
-        .object({ email: z.email(), permission: z.enum(['viewer', 'editor']) })
-        .exactOptional()
-        .openapi({ required: ['email', 'permission'] }),
-    ),
+    collaborators: z
+      .array(
+        z
+          .object({ email: z.email(), permission: z.enum(['viewer', 'editor']) })
+          .openapi({ required: ['email', 'permission'] }),
+      )
+      .exactOptional(),
     message: z.string().exactOptional().openapi({ description: '招待メッセージ' }),
     notifyByEmail: z.boolean().default(true).exactOptional(),
   })

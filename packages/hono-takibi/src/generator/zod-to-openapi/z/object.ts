@@ -13,24 +13,11 @@ export function object(schema: Schema): string {
     properties: { readonly [k: string]: Schema },
     required: readonly string[],
   ) => {
-    const objectProperties = Object.entries(properties).map(([key, schema]) => {
+    const objectProperties = Object.entries(properties).map(([key, propSchema]) => {
       const isRequired = required.includes(key)
-      const z = zodToOpenAPI(schema)
       const safeKey = getToSafeIdentifier(key)
-      if (isRequired) {
-        return `${safeKey}:${z}`
-      }
-      // .exactOptional() insert before last .openapi()
-      // example: z.string().openapi({...}) → z.string().exactOptional().openapi({...})
-      // use lastIndexOf to handle nested schemas like z.array(z.string().openapi({...})).openapi({...})
-      // slice Before .openapi()
-      const openapiIndex = z.lastIndexOf('.openapi(')
-      // openapiIndex === -1 → not found
-      const optionalZ =
-        openapiIndex === -1
-          ? `${z}.exactOptional()`
-          : `${z.slice(0, openapiIndex)}.exactOptional()${z.slice(openapiIndex)}`
-      return `${safeKey}:${optionalZ}`
+      const z = zodToOpenAPI(propSchema, isRequired ? undefined : { isOptional: true })
+      return `${safeKey}:${z}`
     })
     return `z.object({${objectProperties}})`
   }

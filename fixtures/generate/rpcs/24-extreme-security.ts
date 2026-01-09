@@ -6,8 +6,8 @@ import { client } from '../clients/24-extreme-security'
  *
  * Completely public endpoint
  */
-export async function getPublic(args?: { options?: ClientRequestOptions }) {
-  return await client.public.$get(args)
+export async function getPublic(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.public.$get(args, options)
 }
 
 /**
@@ -15,8 +15,8 @@ export async function getPublic(args?: { options?: ClientRequestOptions }) {
  *
  * Single authentication required
  */
-export async function getSingleAuth(args?: { options?: ClientRequestOptions }) {
-  return await client['single-auth']['$get'](args)
+export async function getSingleAuth(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['single-auth']['$get'](args, options)
 }
 
 /**
@@ -24,8 +24,8 @@ export async function getSingleAuth(args?: { options?: ClientRequestOptions }) {
  *
  * Any of these auth methods works (OR)
  */
-export async function getAnyAuth(args?: { options?: ClientRequestOptions }) {
-  return await client['any-auth']['$get'](args)
+export async function getAnyAuth(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['any-auth']['$get'](args, options)
 }
 
 /**
@@ -33,8 +33,8 @@ export async function getAnyAuth(args?: { options?: ClientRequestOptions }) {
  *
  * All of these auth methods required (AND)
  */
-export async function getAllAuth(args?: { options?: ClientRequestOptions }) {
-  return await client['all-auth']['$get'](args)
+export async function getAllAuth(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['all-auth']['$get'](args, options)
 }
 
 /**
@@ -42,8 +42,8 @@ export async function getAllAuth(args?: { options?: ClientRequestOptions }) {
  *
  * Complex AND/OR security requirements
  */
-export async function getComplexAuth(args?: { options?: ClientRequestOptions }) {
-  return await client['complex-auth']['$get'](args)
+export async function getComplexAuth(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['complex-auth']['$get'](args, options)
 }
 
 /**
@@ -51,8 +51,8 @@ export async function getComplexAuth(args?: { options?: ClientRequestOptions }) 
  *
  * OAuth with many specific scopes
  */
-export async function getScopedOauth(args?: { options?: ClientRequestOptions }) {
-  return await client['scoped-oauth']['$get'](args)
+export async function getScopedOauth(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['scoped-oauth']['$get'](args, options)
 }
 
 /**
@@ -60,8 +60,8 @@ export async function getScopedOauth(args?: { options?: ClientRequestOptions }) 
  *
  * Path level + operation level security
  */
-export async function getMixedLevelSecurity(args?: { options?: ClientRequestOptions }) {
-  return await client['mixed-level-security']['$get'](args)
+export async function getMixedLevelSecurity(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['mixed-level-security']['$get'](args, options)
 }
 
 /**
@@ -69,8 +69,8 @@ export async function getMixedLevelSecurity(args?: { options?: ClientRequestOpti
  *
  * Admin-only security
  */
-export async function putMixedLevelSecurity(args?: { options?: ClientRequestOptions }) {
-  return await client['mixed-level-security']['$put'](args)
+export async function putMixedLevelSecurity(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['mixed-level-security']['$put'](args, options)
 }
 
 /**
@@ -78,8 +78,11 @@ export async function putMixedLevelSecurity(args?: { options?: ClientRequestOpti
  *
  * Different security for POST
  */
-export async function postMixedLevelSecurity(args?: { options?: ClientRequestOptions }) {
-  return await client['mixed-level-security']['$post'](args)
+export async function postMixedLevelSecurity(
+  args?: {} | undefined,
+  options?: ClientRequestOptions,
+) {
+  return await client['mixed-level-security']['$post'](args, options)
 }
 
 /**
@@ -87,8 +90,11 @@ export async function postMixedLevelSecurity(args?: { options?: ClientRequestOpt
  *
  * Super admin security
  */
-export async function deleteMixedLevelSecurity(args?: { options?: ClientRequestOptions }) {
-  return await client['mixed-level-security']['$delete'](args)
+export async function deleteMixedLevelSecurity(
+  args?: {} | undefined,
+  options?: ClientRequestOptions,
+) {
+  return await client['mixed-level-security']['$delete'](args, options)
 }
 
 /**
@@ -96,8 +102,8 @@ export async function deleteMixedLevelSecurity(args?: { options?: ClientRequestO
  *
  * Override global security with public
  */
-export async function getOverrideGlobal(args?: { options?: ClientRequestOptions }) {
-  return await client['override-global']['$get'](args)
+export async function getOverrideGlobal(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['override-global']['$get'](args, options)
 }
 
 /**
@@ -105,8 +111,8 @@ export async function getOverrideGlobal(args?: { options?: ClientRequestOptions 
  *
  * Optional auth with enhanced access if authenticated
  */
-export async function getOptionalEnhanced(args?: { options?: ClientRequestOptions }) {
-  return await client['optional-enhanced']['$get'](args)
+export async function getOptionalEnhanced(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['optional-enhanced']['$get'](args, options)
 }
 
 /**
@@ -114,6 +120,6 @@ export async function getOptionalEnhanced(args?: { options?: ClientRequestOption
  *
  * Multi-tenant with org-level auth
  */
-export async function getMultiTenant(args?: { options?: ClientRequestOptions }) {
-  return await client['multi-tenant']['$get'](args)
+export async function getMultiTenant(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['multi-tenant']['$get'](args, options)
 }

@@ -13,8 +13,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | undefined
           profile?:
             | {
-                social: { twitter?: string | undefined; linkedin?: string | undefined }
                 bio?: string | undefined
+                social?: { twitter?: string | undefined; linkedin?: string | undefined } | undefined
               }
             | undefined
         }[]
@@ -34,8 +34,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             profile?:
               | {
-                  social: { twitter?: string | undefined; linkedin?: string | undefined }
                   bio?: string | undefined
+                  social?:
+                    | { twitter?: string | undefined; linkedin?: string | undefined }
+                    | undefined
                 }
               | undefined
           }
@@ -49,8 +51,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | undefined
           profile?:
             | {
-                social: { twitter?: string | undefined; linkedin?: string | undefined }
                 bio?: string | undefined
+                social?: { twitter?: string | undefined; linkedin?: string | undefined } | undefined
               }
             | undefined
         }
@@ -78,8 +80,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | undefined
               profile?:
                 | {
-                    social: { twitter?: string | undefined; linkedin?: string | undefined }
                     bio?: string | undefined
+                    social?:
+                      | { twitter?: string | undefined; linkedin?: string | undefined }
+                      | undefined
                   }
                 | undefined
             }
@@ -107,8 +111,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | undefined
                 profile?:
                   | {
-                      social: { twitter?: string | undefined; linkedin?: string | undefined }
                       bio?: string | undefined
+                      social?:
+                        | { twitter?: string | undefined; linkedin?: string | undefined }
+                        | undefined
                     }
                   | undefined
               }
@@ -128,8 +134,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | undefined
               profile?:
                 | {
-                    social: { twitter?: string | undefined; linkedin?: string | undefined }
                     bio?: string | undefined
+                    social?:
+                      | { twitter?: string | undefined; linkedin?: string | undefined }
+                      | undefined
                   }
                 | undefined
             }
@@ -152,8 +160,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | undefined
                 profile?:
                   | {
-                      social: { twitter?: string | undefined; linkedin?: string | undefined }
                       bio?: string | undefined
+                      social?:
+                        | { twitter?: string | undefined; linkedin?: string | undefined }
+                        | undefined
                     }
                   | undefined
               }
@@ -184,8 +194,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             profile?:
               | {
-                  social: { twitter?: string | undefined; linkedin?: string | undefined }
                   bio?: string | undefined
+                  social?:
+                    | { twitter?: string | undefined; linkedin?: string | undefined }
+                    | undefined
                 }
               | undefined
           }
@@ -235,8 +247,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             profile?:
               | {
-                  social: { twitter?: string | undefined; linkedin?: string | undefined }
                   bio?: string | undefined
+                  social?:
+                    | { twitter?: string | undefined; linkedin?: string | undefined }
+                    | undefined
                 }
               | undefined
           }

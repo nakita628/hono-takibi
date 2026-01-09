@@ -8,17 +8,19 @@ import { client } from '../clients/11-comprehensive'
  *
  * Retrieve a paginated list of products with optional filtering
  */
-export async function getProducts(args: {
-  query: {
-    page?: number
-    limit?: number
-    q?: string
-    category?: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-  }
-  header: { 'Accept-Language'?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.products.$get(args)
+export async function getProducts(
+  args: {
+    query: {
+      page?: number
+      limit?: number
+      q?: string
+      category?: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
+    }
+    header: { 'Accept-Language'?: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.products.$get(args, options)
 }
 
 /**
@@ -26,20 +28,22 @@ export async function getProducts(args: {
  *
  * Create a new product
  */
-export async function postProducts(args: {
-  json: {
-    sku?: string
-    name: string
-    description?: string
-    price: { amount: number; currency: string }
-    category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-    tags?: string[]
-    inventory?: number
-    images?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.products.$post(args)
+export async function postProducts(
+  args: {
+    json: {
+      sku?: string
+      name: string
+      description?: string
+      price: { amount: number; currency: string }
+      category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
+      tags?: string[]
+      inventory?: number
+      images?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.products.$post(args, options)
 }
 
 /**
@@ -47,12 +51,11 @@ export async function postProducts(args: {
  *
  * Get product by ID
  */
-export async function getProductsProductId(args: {
-  param: { productId: string }
-  header: { 'If-None-Match'?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$get'](args)
+export async function getProductsProductId(
+  args: { param: { productId: string }; header: { 'If-None-Match'?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$get'](args, options)
 }
 
 /**
@@ -60,22 +63,24 @@ export async function getProductsProductId(args: {
  *
  * Update a product
  */
-export async function putProductsProductId(args: {
-  param: { productId: string }
-  header: { 'If-Match'?: string }
-  json: {
-    sku?: string
-    name: string
-    description?: string
-    price: { amount: number; currency: string }
-    category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-    tags?: string[]
-    inventory?: number
-    images?: string[]
-  } & { status?: 'draft' | 'active' | 'archived' }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$put'](args)
+export async function putProductsProductId(
+  args: {
+    param: { productId: string }
+    header: { 'If-Match'?: string }
+    json: {
+      sku?: string
+      name: string
+      description?: string
+      price: { amount: number; currency: string }
+      category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
+      tags?: string[]
+      inventory?: number
+      images?: string[]
+    } & { status?: 'draft' | 'active' | 'archived' }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$put'](args, options)
 }
 
 /**
@@ -83,12 +88,11 @@ export async function putProductsProductId(args: {
  *
  * Delete a product
  */
-export async function deleteProductsProductId(args: {
-  param: { productId: string }
-  header: { 'If-Match'?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$delete'](args)
+export async function deleteProductsProductId(
+  args: { param: { productId: string }; header: { 'If-Match'?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$delete'](args, options)
 }
 
 /**
@@ -96,28 +100,30 @@ export async function deleteProductsProductId(args: {
  *
  * Create a new order
  */
-export async function postOrders(args: {
-  json: {
-    items: { productId: string; quantity: number }[]
-    shippingAddress: {
-      street: string
-      city: string
-      state?: string
-      postalCode?: string
-      country: string
+export async function postOrders(
+  args: {
+    json: {
+      items: { productId: string; quantity: number }[]
+      shippingAddress: {
+        street: string
+        city: string
+        state?: string
+        postalCode?: string
+        country: string
+      }
+      billingAddress?: {
+        street: string
+        city: string
+        state?: string
+        postalCode?: string
+        country: string
+      }
+      callbackUrl?: string
     }
-    billingAddress?: {
-      street: string
-      city: string
-      state?: string
-      postalCode?: string
-      country: string
-    }
-    callbackUrl?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.orders.$post(args)
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.orders.$post(args, options)
 }
 
 /**
@@ -125,9 +131,9 @@ export async function postOrders(args: {
  *
  * Register a webhook endpoint
  */
-export async function postWebhooks(args: {
-  json: { url: string; events: string[]; secret?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.webhooks.$post(args)
+export async function postWebhooks(
+  args: { json: { url: string; events: string[]; secret?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.webhooks.$post(args, options)
 }

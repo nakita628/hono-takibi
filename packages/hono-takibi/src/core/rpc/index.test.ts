@@ -451,8 +451,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for Hono
  */
-export async function getHono(args?: { options?: ClientRequestOptions }) {
-  return await client.hono.$get(args)
+export async function getHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.hono.$get(args, options)
 }
 
 /**
@@ -462,8 +462,8 @@ export async function getHono(args?: { options?: ClientRequestOptions }) {
  *
  * Simple ping for HonoX
  */
-export async function getHonoX(args?: { options?: ClientRequestOptions }) {
-  return await client['hono-x']['$get'](args)
+export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['hono-x']['$get'](args, options)
 }
 
 /**
@@ -473,8 +473,8 @@ export async function getHonoX(args?: { options?: ClientRequestOptions }) {
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions }) {
-  return await client['zod-openapi-hono']['$get'](args)
+export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono']['$get'](args, options)
 }
 
 /**
@@ -484,24 +484,26 @@ export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions 
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(args: {
-  query: {
-    limit?: number
-    offset?: number
-    role?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    q?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.users.$get(args)
+export async function getUsers(
+  args: {
+    query: {
+      limit?: number
+      offset?: number
+      role?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      q?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$get(args, options)
 }
 
 /**
@@ -511,26 +513,28 @@ export async function getUsers(args: {
  *
  * Create a new user.
  */
-export async function postUsers(args: {
-  json: {
-    displayName: string
-    email: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.users.$post(args)
+export async function postUsers(
+  args: {
+    json: {
+      displayName: string
+      email: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$post(args, options)
 }
 
 /**
@@ -540,8 +544,8 @@ export async function postUsers(args: {
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(args: { param: { id: string }; options?: ClientRequestOptions }) {
-  return await client['users'][':id']['$get'](args)
+export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
+  return await client['users'][':id']['$get'](args, options)
 }
 
 /**
@@ -551,27 +555,29 @@ export async function getUsersId(args: { param: { id: string }; options?: Client
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(args: {
-  param: { id: string }
-  json: {
-    displayName: string
-    email: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$put'](args)
+export async function putUsersId(
+  args: {
+    param: { id: string }
+    json: {
+      displayName: string
+      email: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$put'](args, options)
 }
 
 /**
@@ -581,11 +587,11 @@ export async function putUsersId(args: {
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(args: {
-  param: { id: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$delete'](args)
+export async function deleteUsersId(
+  args: { param: { id: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$delete'](args, options)
 }
 
 /**
@@ -595,27 +601,29 @@ export async function deleteUsersId(args: {
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(args: {
-  param: { id: string }
-  json: {
-    displayName?: string
-    email?: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$patch'](args)
+export async function patchUsersId(
+  args: {
+    param: { id: string }
+    json: {
+      displayName?: string
+      email?: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$patch'](args, options)
 }
 `
 
@@ -665,11 +673,11 @@ import { client } from '../index.ts'
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(args: {
-  param: { id: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$delete'](args)
+export async function deleteUsersId(
+  args: { param: { id: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$delete'](args, options)
 }
 `
 
@@ -686,8 +694,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for Hono
  */
-export async function getHono(args?: { options?: ClientRequestOptions }) {
-  return await client.hono.$get(args)
+export async function getHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.hono.$get(args, options)
 }
 `
 
@@ -704,8 +712,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for HonoX
  */
-export async function getHonoX(args?: { options?: ClientRequestOptions }) {
-  return await client['hono-x']['$get'](args)
+export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['hono-x']['$get'](args, options)
 }
 `
 
@@ -723,24 +731,26 @@ import { client } from '../index.ts'
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(args: {
-  query: {
-    limit?: number
-    offset?: number
-    role?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    q?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.users.$get(args)
+export async function getUsers(
+  args: {
+    query: {
+      limit?: number
+      offset?: number
+      role?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      q?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$get(args, options)
 }
 `
 
@@ -758,8 +768,8 @@ import { client } from '../index.ts'
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(args: { param: { id: string }; options?: ClientRequestOptions }) {
-  return await client['users'][':id']['$get'](args)
+export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
+  return await client['users'][':id']['$get'](args, options)
 }
 `
       expect(getUsersId).toBe(getUsersIdExpected)
@@ -779,8 +789,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions }) {
-  return await client['zod-openapi-hono']['$get'](args)
+export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono']['$get'](args, options)
 }
 `
       expect(getZodOpenapiHono).toBe(getZodOpenapiHonoExpected)
@@ -797,27 +807,29 @@ import { client } from '../index.ts'
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(args: {
-  param: { id: string }
-  json: {
-    displayName?: string
-    email?: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$patch'](args)
+export async function patchUsersId(
+  args: {
+    param: { id: string }
+    json: {
+      displayName?: string
+      email?: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$patch'](args, options)
 }
 `
       expect(patchUsersId).toBe(patchUsersIdExpected)
@@ -833,26 +845,28 @@ import { client } from '../index.ts'
  *
  * Create a new user.
  */
-export async function postUsers(args: {
-  json: {
-    displayName: string
-    email: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.users.$post(args)
+export async function postUsers(
+  args: {
+    json: {
+      displayName: string
+      email: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$post(args, options)
 }
 `
       expect(postUsers).toBe(postUsersExpected)
@@ -869,30 +883,400 @@ import { client } from '../index.ts'
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(args: {
-  param: { id: string }
-  json: {
-    displayName: string
-    email: string
-    roles?: (
-      | 'attendee'
-      | 'speaker'
-      | 'lt-speaker'
-      | 'staff'
-      | 'sponsor'
-      | 'mc'
-      | 'ghost-wifi-fixer'
-    )[]
-    isStudent?: boolean
-    pronouns?: string
-    affiliations?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':id']['$put'](args)
+export async function putUsersId(
+  args: {
+    param: { id: string }
+    json: {
+      displayName: string
+      email: string
+      roles?: (
+        | 'attendee'
+        | 'speaker'
+        | 'lt-speaker'
+        | 'staff'
+        | 'sponsor'
+        | 'mc'
+        | 'ghost-wifi-fixer'
+      )[]
+      isStudent?: boolean
+      pronouns?: string
+      affiliations?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':id']['$put'](args, options)
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated rpc code written to ${path.join(dir, 'rpc')}/*.ts (index.ts included)`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+/** Test OpenAPI spec focused on isOptional (required: true/false) */
+const openapiIsOptional: OpenAPI = {
+  openapi: '3.1.0',
+  info: {
+    title: 'isOptional Test API',
+    version: '1.0.0',
+  },
+  paths: {
+    '/items': {
+      get: {
+        summary: 'List items with mixed required/optional params',
+        operationId: 'listItems',
+        parameters: [
+          {
+            name: 'page',
+            in: 'query',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'Page number (required)',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer' },
+            description: 'Items per page (optional)',
+          },
+          {
+            name: 'filter',
+            in: 'query',
+            // required not specified - should be treated as optional
+            schema: { type: 'string' },
+            description: 'Filter string (optional - required not specified)',
+          },
+          {
+            name: 'X-Request-ID',
+            in: 'header',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Request ID (required header)',
+          },
+          {
+            name: 'X-Correlation-ID',
+            in: 'header',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Correlation ID (optional header)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    items: { type: 'array', items: { type: 'string' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/items/{id}': {
+      get: {
+        summary: 'Get item by ID',
+        operationId: 'getItem',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Item ID (path params are always required)',
+          },
+          {
+            name: 'expand',
+            in: 'query',
+            required: false,
+            schema: { type: 'boolean' },
+            description: 'Expand nested resources (optional)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    name: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/all-required': {
+      post: {
+        summary: 'All required params',
+        operationId: 'allRequiredParams',
+        parameters: [
+          {
+            name: 'tenant',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'Authorization',
+            in: 'header',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  value: { type: 'number' },
+                },
+                required: ['name', 'value'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': { description: 'Created' },
+        },
+      },
+    },
+    '/all-optional': {
+      get: {
+        summary: 'All optional params',
+        operationId: 'allOptionalParams',
+        parameters: [
+          {
+            name: 'search',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'sort',
+            in: 'query',
+            // required not specified
+            schema: { type: 'string' },
+          },
+          {
+            name: 'X-Debug',
+            in: 'header',
+            required: false,
+            schema: { type: 'boolean' },
+          },
+        ],
+        responses: {
+          '200': { description: 'OK' },
+        },
+      },
+    },
+  },
+}
+
+describe('rpc (isOptional tests)', () => {
+  it('should correctly handle required: true vs required: false for parameters', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const result = await rpc(openapiIsOptional, out, '../client', false)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const generated = fs.readFileSync(out, 'utf-8')
+
+      const expected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /items
+ *
+ * List items with mixed required/optional params
+ */
+export async function getItems(
+  args: {
+    query: { page: number; limit?: number; filter?: string }
+    header: { 'X-Request-ID': string; 'X-Correlation-ID'?: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.items.$get(args, options)
+}
+
+/**
+ * GET /items/{id}
+ *
+ * Get item by ID
+ */
+export async function getItemsId(
+  args: { param: { id: string }; query: { expand?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['items'][':id']['$get'](args, options)
+}
+
+/**
+ * POST /all-required
+ *
+ * All required params
+ */
+export async function postAllRequired(
+  args: {
+    query: { tenant: string }
+    header: { Authorization: string }
+    json: { name: string; value: number }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['all-required']['$post'](args, options)
+}
+
+/**
+ * GET /all-optional
+ *
+ * All optional params
+ */
+export async function getAllOptional(
+  args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
+  options?: ClientRequestOptions,
+) {
+  return await client['all-optional']['$get'](args, options)
+}
+`
+
+      expect(generated).toBe(expected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated rpc code written to ${out}`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate optional params in split mode correctly', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-split-'))
+    try {
+      const out = path.join(dir, 'rpc', 'index.ts')
+      const result = await rpc(openapiIsOptional, out, '../client', true)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      // Check getItems.ts for mixed required/optional
+      const getItems = fs.readFileSync(path.join(dir, 'rpc', 'getItems.ts'), 'utf-8')
+      const getItemsExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /items
+ *
+ * List items with mixed required/optional params
+ */
+export async function getItems(
+  args: {
+    query: { page: number; limit?: number; filter?: string }
+    header: { 'X-Request-ID': string; 'X-Correlation-ID'?: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.items.$get(args, options)
+}
+`
+      expect(getItems).toBe(getItemsExpected)
+
+      // Check getItemsId.ts for path param + optional query
+      const getItemsId = fs.readFileSync(path.join(dir, 'rpc', 'getItemsId.ts'), 'utf-8')
+      const getItemsIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /items/{id}
+ *
+ * Get item by ID
+ */
+export async function getItemsId(
+  args: { param: { id: string }; query: { expand?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['items'][':id']['$get'](args, options)
+}
+`
+      expect(getItemsId).toBe(getItemsIdExpected)
+
+      // Check postAllRequired.ts - all required params
+      const postAllRequired = fs.readFileSync(path.join(dir, 'rpc', 'postAllRequired.ts'), 'utf-8')
+      const postAllRequiredExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * POST /all-required
+ *
+ * All required params
+ */
+export async function postAllRequired(
+  args: {
+    query: { tenant: string }
+    header: { Authorization: string }
+    json: { name: string; value: number }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['all-required']['$post'](args, options)
+}
+`
+      expect(postAllRequired).toBe(postAllRequiredExpected)
+
+      // Check getAllOptional.ts - all optional params
+      const getAllOptional = fs.readFileSync(path.join(dir, 'rpc', 'getAllOptional.ts'), 'utf-8')
+      const getAllOptionalExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /all-optional
+ *
+ * All optional params
+ */
+export async function getAllOptional(
+  args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
+  options?: ClientRequestOptions,
+) {
+  return await client['all-optional']['$get'](args, options)
+}
+`
+      expect(getAllOptional).toBe(getAllOptionalExpected)
+
+      // Check index.ts barrel file
+      const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
+      const indexExpected = `export * from './getItems'
+export * from './getItemsId'
+export * from './postAllRequired'
+export * from './getAllOptional'
+`
+      expect(index).toBe(indexExpected)
 
       expect(result).toStrictEqual({
         ok: true,

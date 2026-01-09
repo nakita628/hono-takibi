@@ -254,13 +254,9 @@ const EdgeCasesSchema = z
       .exactOptional()
       .openapi({ minProperties: 1, maxProperties: 1 }),
     exactlyOneItem: z
-      .array(
-        z
-          .object({ id: z.string() })
-          .exactOptional()
-          .openapi({ required: ['id'] }),
-      )
-      .length(1),
+      .array(z.object({ id: z.string() }).openapi({ required: ['id'] }))
+      .length(1)
+      .exactOptional(),
   })
   .openapi('EdgeCases')
 
@@ -325,9 +321,9 @@ const CompositionHellSchema = z
         z
           .any()
           .refine((v) => v !== null)
-          .exactOptional()
           .openapi({ not: { const: null } }),
-      ),
+      )
+      .exactOptional(),
     conditionalInAllOf: z.object({ type: z.string().exactOptional() }).and(z.any()).exactOptional(),
     multiDiscriminator: z
       .xor([DiscrimASchema, DiscrimBSchema, DiscrimCSchema])
@@ -346,21 +342,16 @@ const CompositionHellSchema = z
       .object({ fieldA: z.string() })
       .openapi({ required: ['fieldA'] })
       .and(z.object({ fieldB: z.string() }).openapi({ required: ['fieldB'] }))
-      .and(
-        z
-          .object({ fieldC: z.string() })
-          .exactOptional()
-          .openapi({ required: ['fieldC'] }),
-      )
-      .and(z.strictObject({})),
-    overlappingSchemas: z.xor([
-      z.object({ a: z.string(), b: z.string() }).openapi({ required: ['a', 'b'] }),
-      z.object({ a: z.string(), c: z.string() }).openapi({ required: ['a', 'c'] }),
-      z
-        .object({ b: z.string(), c: z.string() })
-        .exactOptional()
-        .openapi({ required: ['b', 'c'] }),
-    ]),
+      .and(z.object({ fieldC: z.string() }).openapi({ required: ['fieldC'] }))
+      .and(z.strictObject({}))
+      .exactOptional(),
+    overlappingSchemas: z
+      .xor([
+        z.object({ a: z.string(), b: z.string() }).openapi({ required: ['a', 'b'] }),
+        z.object({ a: z.string(), c: z.string() }).openapi({ required: ['a', 'c'] }),
+        z.object({ b: z.string(), c: z.string() }).openapi({ required: ['b', 'c'] }),
+      ])
+      .exactOptional(),
   })
   .openapi('CompositionHell')
 

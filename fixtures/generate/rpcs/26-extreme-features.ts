@@ -6,8 +6,8 @@ import { client } from '../clients/26-extreme-features'
  *
  * Stream data with Server-Sent Events
  */
-export async function getStream(args?: { options?: ClientRequestOptions }) {
-  return await client.stream.$get(args)
+export async function getStream(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.stream.$get(args, options)
 }
 
 /**
@@ -15,11 +15,11 @@ export async function getStream(args?: { options?: ClientRequestOptions }) {
  *
  * GraphQL endpoint
  */
-export async function postGraphql(args: {
-  json: string | { query?: string; variables?: {}; operationName?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.graphql.$post(args)
+export async function postGraphql(
+  args: { json: string | { query?: string; variables?: {}; operationName?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.graphql.$post(args, options)
 }
 
 /**
@@ -27,8 +27,8 @@ export async function postGraphql(args: {
  *
  * gRPC-Gateway endpoint
  */
-export async function postGrpcGateway(args: { json: File | File; options?: ClientRequestOptions }) {
-  return await client['grpc-gateway']['$post'](args)
+export async function postGrpcGateway(args: { json: File | File }, options?: ClientRequestOptions) {
+  return await client['grpc-gateway']['$post'](args, options)
 }
 
 /**
@@ -40,6 +40,6 @@ export async function postGrpcGateway(args: { json: File | File; options?: Clien
 
 Please use `/new-endpoint` instead.
  */
-export async function getDeprecatedEndpoint(args?: { options?: ClientRequestOptions }) {
-  return await client['deprecated-endpoint']['$get'](args)
+export async function getDeprecatedEndpoint(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['deprecated-endpoint']['$get'](args, options)
 }

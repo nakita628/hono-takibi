@@ -8,11 +8,11 @@ import { client } from '../clients/29-practical-user-api'
  *
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
-export async function postAuthRegister(args: {
-  json: { email: string; password: string; name: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['auth']['register']['$post'](args)
+export async function postAuthRegister(
+  args: { json: { email: string; password: string; name: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['auth']['register']['$post'](args, options)
 }
 
 /**
@@ -22,11 +22,11 @@ export async function postAuthRegister(args: {
  *
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
-export async function postAuthLogin(args: {
-  json: { email: string; password: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['auth']['login']['$post'](args)
+export async function postAuthLogin(
+  args: { json: { email: string; password: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['auth']['login']['$post'](args, options)
 }
 
 /**
@@ -36,11 +36,11 @@ export async function postAuthLogin(args: {
  *
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
-export async function postAuthRefresh(args: {
-  json: { refreshToken: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['auth']['refresh']['$post'](args)
+export async function postAuthRefresh(
+  args: { json: { refreshToken: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['auth']['refresh']['$post'](args, options)
 }
 
 /**
@@ -48,8 +48,8 @@ export async function postAuthRefresh(args: {
  *
  * ログアウト
  */
-export async function postAuthLogout(args?: { options?: ClientRequestOptions }) {
-  return await client['auth']['logout']['$post'](args)
+export async function postAuthLogout(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['auth']['logout']['$post'](args, options)
 }
 
 /**
@@ -59,11 +59,11 @@ export async function postAuthLogout(args?: { options?: ClientRequestOptions }) 
  *
  * パスワードリセット用のメールを送信します
  */
-export async function postAuthPasswordForgot(args: {
-  json: { email: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['auth']['password']['forgot']['$post'](args)
+export async function postAuthPasswordForgot(
+  args: { json: { email: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['auth']['password']['forgot']['$post'](args, options)
 }
 
 /**
@@ -71,11 +71,11 @@ export async function postAuthPasswordForgot(args: {
  *
  * パスワードリセット実行
  */
-export async function postAuthPasswordReset(args: {
-  json: { token: string; password: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['auth']['password']['reset']['$post'](args)
+export async function postAuthPasswordReset(
+  args: { json: { token: string; password: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['auth']['password']['reset']['$post'](args, options)
 }
 
 /**
@@ -85,17 +85,19 @@ export async function postAuthPasswordReset(args: {
  *
  * ページネーション付きでユーザー一覧を取得します（管理者のみ）
  */
-export async function getUsers(args: {
-  query: {
-    page?: number
-    limit?: number
-    sort?: string
-    search?: string
-    status?: 'active' | 'inactive' | 'suspended'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.users.$get(args)
+export async function getUsers(
+  args: {
+    query: {
+      page?: number
+      limit?: number
+      sort?: string
+      search?: string
+      status?: 'active' | 'inactive' | 'suspended'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$get(args, options)
 }
 
 /**
@@ -103,11 +105,11 @@ export async function getUsers(args: {
  *
  * ユーザー詳細取得
  */
-export async function getUsersUserId(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['$get'](args)
+export async function getUsersUserId(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['$get'](args, options)
 }
 
 /**
@@ -115,11 +117,11 @@ export async function getUsersUserId(args: {
  *
  * ユーザー削除
  */
-export async function deleteUsersUserId(args: {
-  param: { userId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['$delete'](args)
+export async function deleteUsersUserId(
+  args: { param: { userId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['$delete'](args, options)
 }
 
 /**
@@ -127,12 +129,14 @@ export async function deleteUsersUserId(args: {
  *
  * ユーザー情報更新
  */
-export async function patchUsersUserId(args: {
-  param: { userId: string }
-  json: { name?: string; status?: 'active' | 'inactive' | 'suspended'; role?: 'user' | 'admin' }
-  options?: ClientRequestOptions
-}) {
-  return await client['users'][':userId']['$patch'](args)
+export async function patchUsersUserId(
+  args: {
+    param: { userId: string }
+    json: { name?: string; status?: 'active' | 'inactive' | 'suspended'; role?: 'user' | 'admin' }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['users'][':userId']['$patch'](args, options)
 }
 
 /**
@@ -140,8 +144,8 @@ export async function patchUsersUserId(args: {
  *
  * 現在のユーザー情報取得
  */
-export async function getUsersMe(args?: { options?: ClientRequestOptions }) {
-  return await client['users']['me']['$get'](args)
+export async function getUsersMe(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['users']['me']['$get'](args, options)
 }
 
 /**
@@ -149,11 +153,11 @@ export async function getUsersMe(args?: { options?: ClientRequestOptions }) {
  *
  * 現在のユーザー情報更新
  */
-export async function patchUsersMe(args: {
-  json: { name?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['me']['$patch'](args)
+export async function patchUsersMe(
+  args: { json: { name?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['me']['$patch'](args, options)
 }
 
 /**
@@ -161,11 +165,11 @@ export async function patchUsersMe(args: {
  *
  * パスワード変更
  */
-export async function putUsersMePassword(args: {
-  json: { currentPassword: string; newPassword: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['me']['password']['$put'](args)
+export async function putUsersMePassword(
+  args: { json: { currentPassword: string; newPassword: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['me']['password']['$put'](args, options)
 }
 
 /**
@@ -173,11 +177,11 @@ export async function putUsersMePassword(args: {
  *
  * アバター画像アップロード
  */
-export async function putUsersMeAvatar(args: {
-  form: { file: File }
-  options?: ClientRequestOptions
-}) {
-  return await client['users']['me']['avatar']['$put'](args)
+export async function putUsersMeAvatar(
+  args: { form: { file: File } },
+  options?: ClientRequestOptions,
+) {
+  return await client['users']['me']['avatar']['$put'](args, options)
 }
 
 /**
@@ -185,6 +189,6 @@ export async function putUsersMeAvatar(args: {
  *
  * アバター画像削除
  */
-export async function deleteUsersMeAvatar(args?: { options?: ClientRequestOptions }) {
-  return await client['users']['me']['avatar']['$delete'](args)
+export async function deleteUsersMeAvatar(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['users']['me']['avatar']['$delete'](args, options)
 }

@@ -417,7 +417,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { projectId: string } } & {
               json: {
                 title: string
-                subtasks: { title: string }[]
                 description?: string | undefined
                 status?: 'todo' | 'in_progress' | 'in_review' | 'done' | undefined
                 priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
@@ -426,6 +425,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 dueDate?: string | undefined
                 estimatedHours?: number | undefined
                 tags?: string[] | undefined
+                subtasks?: { title: string }[] | undefined
               }
             }
             output: { code: string; message: string }
@@ -436,7 +436,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { projectId: string } } & {
               json: {
                 title: string
-                subtasks: { title: string }[]
                 description?: string | undefined
                 status?: 'todo' | 'in_progress' | 'in_review' | 'done' | undefined
                 priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
@@ -445,6 +444,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 dueDate?: string | undefined
                 estimatedHours?: number | undefined
                 tags?: string[] | undefined
+                subtasks?: { title: string }[] | undefined
               }
             }
             output: {

@@ -6,26 +6,28 @@ import { client } from '../clients/30-practical-ecommerce-api'
  *
  * 商品一覧取得
  */
-export async function getProducts(args: {
-  query: {
-    page?: number
-    limit?: number
-    category?: string
-    minPrice?: number
-    maxPrice?: number
-    inStock?: string
-    search?: string
-    sort?:
-      | 'price:asc'
-      | 'price:desc'
-      | 'name:asc'
-      | 'name:desc'
-      | 'createdAt:desc'
-      | 'popularity:desc'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.products.$get(args)
+export async function getProducts(
+  args: {
+    query: {
+      page?: number
+      limit?: number
+      category?: string
+      minPrice?: number
+      maxPrice?: number
+      inStock?: string
+      search?: string
+      sort?:
+        | 'price:asc'
+        | 'price:desc'
+        | 'name:asc'
+        | 'name:desc'
+        | 'createdAt:desc'
+        | 'popularity:desc'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.products.$get(args, options)
 }
 
 /**
@@ -33,22 +35,24 @@ export async function getProducts(args: {
  *
  * 商品作成
  */
-export async function postProducts(args: {
-  json: {
-    name: string
-    description?: string
-    price: number
-    compareAtPrice?: number
-    sku?: string
-    barcode?: string
-    categoryId?: string
-    status?: 'draft' | 'active'
-    attributes?: { [key: string]: string }
-    tags?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.products.$post(args)
+export async function postProducts(
+  args: {
+    json: {
+      name: string
+      description?: string
+      price: number
+      compareAtPrice?: number
+      sku?: string
+      barcode?: string
+      categoryId?: string
+      status?: 'draft' | 'active'
+      attributes?: { [key: string]: string }
+      tags?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.products.$post(args, options)
 }
 
 /**
@@ -56,11 +60,11 @@ export async function postProducts(args: {
  *
  * 商品詳細取得
  */
-export async function getProductsProductId(args: {
-  param: { productId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$get'](args)
+export async function getProductsProductId(
+  args: { param: { productId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$get'](args, options)
 }
 
 /**
@@ -68,23 +72,25 @@ export async function getProductsProductId(args: {
  *
  * 商品更新
  */
-export async function putProductsProductId(args: {
-  param: { productId: string }
-  json: {
-    name?: string
-    description?: string
-    price?: number
-    compareAtPrice?: number
-    sku?: string
-    barcode?: string
-    categoryId?: string
-    status?: 'draft' | 'active' | 'archived'
-    attributes?: { [key: string]: string }
-    tags?: string[]
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$put'](args)
+export async function putProductsProductId(
+  args: {
+    param: { productId: string }
+    json: {
+      name?: string
+      description?: string
+      price?: number
+      compareAtPrice?: number
+      sku?: string
+      barcode?: string
+      categoryId?: string
+      status?: 'draft' | 'active' | 'archived'
+      attributes?: { [key: string]: string }
+      tags?: string[]
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$put'](args, options)
 }
 
 /**
@@ -92,11 +98,11 @@ export async function putProductsProductId(args: {
  *
  * 商品削除
  */
-export async function deleteProductsProductId(args: {
-  param: { productId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['$delete'](args)
+export async function deleteProductsProductId(
+  args: { param: { productId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['$delete'](args, options)
 }
 
 /**
@@ -104,12 +110,11 @@ export async function deleteProductsProductId(args: {
  *
  * 商品画像アップロード
  */
-export async function postProductsProductIdImages(args: {
-  param: { productId: string }
-  form: { file: File; isPrimary?: boolean }
-  options?: ClientRequestOptions
-}) {
-  return await client['products'][':productId']['images']['$post'](args)
+export async function postProductsProductIdImages(
+  args: { param: { productId: string }; form: { file: File; isPrimary?: boolean } },
+  options?: ClientRequestOptions,
+) {
+  return await client['products'][':productId']['images']['$post'](args, options)
 }
 
 /**
@@ -117,8 +122,8 @@ export async function postProductsProductIdImages(args: {
  *
  * カテゴリ一覧取得
  */
-export async function getCategories(args?: { options?: ClientRequestOptions }) {
-  return await client.categories.$get(args)
+export async function getCategories(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.categories.$get(args, options)
 }
 
 /**
@@ -126,11 +131,11 @@ export async function getCategories(args?: { options?: ClientRequestOptions }) {
  *
  * カテゴリ作成
  */
-export async function postCategories(args: {
-  json: { name: string; slug?: string; description?: string; parentId?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.categories.$post(args)
+export async function postCategories(
+  args: { json: { name: string; slug?: string; description?: string; parentId?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.categories.$post(args, options)
 }
 
 /**
@@ -138,8 +143,8 @@ export async function postCategories(args: {
  *
  * カート取得
  */
-export async function getCart(args?: { options?: ClientRequestOptions }) {
-  return await client.cart.$get(args)
+export async function getCart(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.cart.$get(args, options)
 }
 
 /**
@@ -147,8 +152,8 @@ export async function getCart(args?: { options?: ClientRequestOptions }) {
  *
  * カートをクリア
  */
-export async function deleteCart(args?: { options?: ClientRequestOptions }) {
-  return await client.cart.$delete(args)
+export async function deleteCart(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.cart.$delete(args, options)
 }
 
 /**
@@ -156,11 +161,11 @@ export async function deleteCart(args?: { options?: ClientRequestOptions }) {
  *
  * カートに商品追加
  */
-export async function postCartItems(args: {
-  json: { productId: string; quantity: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['cart']['items']['$post'](args)
+export async function postCartItems(
+  args: { json: { productId: string; quantity: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['cart']['items']['$post'](args, options)
 }
 
 /**
@@ -168,12 +173,11 @@ export async function postCartItems(args: {
  *
  * カートアイテム数量変更
  */
-export async function putCartItemsItemId(args: {
-  param: { itemId: string }
-  json: { quantity: number }
-  options?: ClientRequestOptions
-}) {
-  return await client['cart']['items'][':itemId']['$put'](args)
+export async function putCartItemsItemId(
+  args: { param: { itemId: string }; json: { quantity: number } },
+  options?: ClientRequestOptions,
+) {
+  return await client['cart']['items'][':itemId']['$put'](args, options)
 }
 
 /**
@@ -181,11 +185,11 @@ export async function putCartItemsItemId(args: {
  *
  * カートから商品削除
  */
-export async function deleteCartItemsItemId(args: {
-  param: { itemId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['cart']['items'][':itemId']['$delete'](args)
+export async function deleteCartItemsItemId(
+  args: { param: { itemId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['cart']['items'][':itemId']['$delete'](args, options)
 }
 
 /**
@@ -193,15 +197,17 @@ export async function deleteCartItemsItemId(args: {
  *
  * 注文一覧取得
  */
-export async function getOrders(args: {
-  query: {
-    page?: number
-    limit?: number
-    status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.orders.$get(args)
+export async function getOrders(
+  args: {
+    query: {
+      page?: number
+      limit?: number
+      status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.orders.$get(args, options)
 }
 
 /**
@@ -211,33 +217,35 @@ export async function getOrders(args: {
  *
  * カートの内容から注文を作成します
  */
-export async function postOrders(args: {
-  json: {
-    shippingAddress: {
-      name: string
-      postalCode: string
-      prefecture: string
-      city: string
-      address1: string
-      address2?: string
-      phone?: string
+export async function postOrders(
+  args: {
+    json: {
+      shippingAddress: {
+        name: string
+        postalCode: string
+        prefecture: string
+        city: string
+        address1: string
+        address2?: string
+        phone?: string
+      }
+      billingAddress?: {
+        name: string
+        postalCode: string
+        prefecture: string
+        city: string
+        address1: string
+        address2?: string
+        phone?: string
+      }
+      paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
+      notes?: string
+      couponCode?: string
     }
-    billingAddress?: {
-      name: string
-      postalCode: string
-      prefecture: string
-      city: string
-      address1: string
-      address2?: string
-      phone?: string
-    }
-    paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
-    notes?: string
-    couponCode?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.orders.$post(args)
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.orders.$post(args, options)
 }
 
 /**
@@ -245,11 +253,11 @@ export async function postOrders(args: {
  *
  * 注文詳細取得
  */
-export async function getOrdersOrderId(args: {
-  param: { orderId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['orders'][':orderId']['$get'](args)
+export async function getOrdersOrderId(
+  args: { param: { orderId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['orders'][':orderId']['$get'](args, options)
 }
 
 /**
@@ -257,12 +265,11 @@ export async function getOrdersOrderId(args: {
  *
  * 注文キャンセル
  */
-export async function postOrdersOrderIdCancel(args: {
-  param: { orderId: string }
-  json: { reason?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['orders'][':orderId']['cancel']['$post'](args)
+export async function postOrdersOrderIdCancel(
+  args: { param: { orderId: string }; json: { reason?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['orders'][':orderId']['cancel']['$post'](args, options)
 }
 
 /**
@@ -270,11 +277,11 @@ export async function postOrdersOrderIdCancel(args: {
  *
  * 在庫情報取得
  */
-export async function getInventoryProductId(args: {
-  param: { productId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['inventory'][':productId']['$get'](args)
+export async function getInventoryProductId(
+  args: { param: { productId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['inventory'][':productId']['$get'](args, options)
 }
 
 /**
@@ -282,10 +289,12 @@ export async function getInventoryProductId(args: {
  *
  * 在庫更新
  */
-export async function putInventoryProductId(args: {
-  param: { productId: string }
-  json: { quantity?: number; lowStockThreshold?: number; trackInventory?: boolean }
-  options?: ClientRequestOptions
-}) {
-  return await client['inventory'][':productId']['$put'](args)
+export async function putInventoryProductId(
+  args: {
+    param: { productId: string }
+    json: { quantity?: number; lowStockThreshold?: number; trackInventory?: boolean }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['inventory'][':productId']['$put'](args, options)
 }

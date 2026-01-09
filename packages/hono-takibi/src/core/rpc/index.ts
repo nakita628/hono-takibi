@@ -15,6 +15,7 @@
  * ```
  *
  * @module core/rpc
+ * @link https://github.com/honojs/hono/blob/main/src/client/types.ts#L46-L76
  */
 import path from 'node:path'
 import { core } from '../../helper/index.js'
@@ -193,71 +194,58 @@ const schemaToTsType = (
 
   // Handle type
   const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
+  const wrap = (t: string) => (nullable ? `(${t} | null)` : t)
 
-  switch (type) {
-    case 'string':
-      // format: binary should be File type for Hono RPC compatibility
-      if (schema.format === 'binary') {
-        return nullable ? '(File | null)' : 'File'
-      }
-      return nullable ? '(string | null)' : 'string'
-    case 'number':
-    case 'integer':
-      // int64 format becomes bigint in Hono
-      if (schema.format === 'int64') {
-        return nullable ? '(bigint | null)' : 'bigint'
-      }
-      return nullable ? '(number | null)' : 'number'
-    case 'boolean':
-      // Query parameters in HTTP are always strings, so boolean becomes string
-      if (options.isQueryParam) {
-        return nullable ? '(string | null)' : 'string'
-      }
-      return nullable ? '(boolean | null)' : 'boolean'
-    case 'null':
-      return 'null'
-    case 'array': {
-      const itemType = schema.items
-        ? schemaToTsType(
-            Array.isArray(schema.items) ? schema.items[0] : schema.items,
-            componentsSchemas,
-            visited,
-            options,
-          )
-        : 'unknown'
-      // Wrap union types in parentheses for correct array syntax
-      const needsParens = itemType.includes(' | ') || itemType.includes(' & ')
-      const arrayType = needsParens ? `(${itemType})[]` : `${itemType}[]`
-      return nullable ? `(${arrayType} | null)` : arrayType
-    }
-    case 'object': {
-      if (!schema.properties) {
-        // Record type for additionalProperties
-        if (schema.additionalProperties) {
-          const valueType =
-            typeof schema.additionalProperties === 'boolean'
-              ? 'unknown'
-              : schemaToTsType(schema.additionalProperties, componentsSchemas, visited, options)
-          return nullable
-            ? `({ [key: string]: ${valueType} } | null)`
-            : `{ [key: string]: ${valueType} }`
-        }
-        return nullable ? '({} | null)' : '{}'
-      }
-      const required = new Set(schema.required || [])
-      const props = Object.entries(schema.properties)
-        .map(([key, propSchema]) => {
-          const propType = schemaToTsType(propSchema, componentsSchemas, visited, options)
-          const isRequired = required.has(key)
-          const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : JSON.stringify(key)
-          return `${safeKey}${isRequired ? '' : '?'}: ${propType}`
-        })
-        .join('; ')
-      return nullable ? `({ ${props} } | null)` : `{ ${props} }`
-    }
-    default:
-      return 'unknown'
+  if (type === 'null') return 'null'
+
+  if (type === 'string') {
+    return wrap(schema.format === 'binary' ? 'File' : 'string')
   }
+
+  if (type === 'number' || type === 'integer') {
+    return wrap(schema.format === 'int64' ? 'bigint' : 'number')
+  }
+
+  if (type === 'boolean') {
+    return wrap(options.isQueryParam ? 'string' : 'boolean')
+  }
+
+  if (type === 'array') {
+    const itemType = schema.items
+      ? schemaToTsType(
+          Array.isArray(schema.items) ? schema.items[0] : schema.items,
+          componentsSchemas,
+          visited,
+          options,
+        )
+      : 'unknown'
+    const needsParens = itemType.includes(' | ') || itemType.includes(' & ')
+    return wrap(needsParens ? `(${itemType})[]` : `${itemType}[]`)
+  }
+
+  if (type === 'object') {
+    if (!schema.properties) {
+      if (schema.additionalProperties) {
+        const valueType =
+          typeof schema.additionalProperties === 'boolean'
+            ? 'unknown'
+            : schemaToTsType(schema.additionalProperties, componentsSchemas, visited, options)
+        return wrap(`{ [key: string]: ${valueType} }`)
+      }
+      return wrap('{}')
+    }
+    const required = new Set(schema.required || [])
+    const props = Object.entries(schema.properties)
+      .map(([key, propSchema]) => {
+        const propType = schemaToTsType(propSchema, componentsSchemas, visited, options)
+        const safeKey = isValidIdent(key) ? key : JSON.stringify(key)
+        return `${safeKey}${required.has(key) ? '' : '?'}: ${propType}`
+      })
+      .join('; ')
+    return wrap(`{ ${props} }`)
+  }
+
+  return 'unknown'
 }
 
 /** Body info with schema and content type */
@@ -352,9 +340,6 @@ const generateArgType = (
     }
   }
 
-  // Always add options parameter for ClientRequestOptions
-  parts.push('options?: ClientRequestOptions')
-
   return parts.length > 0 ? `{ ${parts.join('; ')} }` : ''
 }
 
@@ -419,7 +404,11 @@ const pickAllBodyInfoFromContent = (content: unknown): AllBodyInfo | undefined =
 
     const info: BodyInfo = { schema: mediaObj.schema, contentType: ct }
 
-    if (formContentTypes.includes(ct)) {
+    // Extract base content type (before semicolon) for matching
+    // e.g., "multipart/form-data; boundary=..." -> "multipart/form-data"
+    const baseContentType = ct.split(';')[0].trim()
+
+    if (formContentTypes.includes(baseContentType)) {
       formInfos.push(info)
     } else {
       // All other content types go to json
@@ -506,10 +495,13 @@ const generateOperationCode = (
     allBodyInfo,
     deps.componentsSchemas,
   )
+  // options is always a separate parameter
   // If there are required args (params, query, body, etc.), args is required
-  // If only options, args is optional
-  const argSig = hasArgs ? `args:${argType}` : `args?:${argType}`
-  const call = `${deps.client}${pathAccess}${methodAccess}(args)`
+  // If no args, use args?: {} | undefined
+  const argSig = hasArgs
+    ? `args: ${argType}, options?: ClientRequestOptions`
+    : 'args?: {} | undefined, options?: ClientRequestOptions'
+  const call = `${deps.client}${pathAccess}${methodAccess}(args, options)`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''

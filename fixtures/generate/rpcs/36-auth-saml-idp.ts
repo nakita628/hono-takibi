@@ -8,11 +8,13 @@ import { client } from '../clients/36-auth-saml-idp'
  *
  * HTTP-Redirect バインディングでのSSO処理
  */
-export async function getSamlSso(args: {
-  query: { SAMLRequest: string; RelayState?: string; SigAlg?: string; Signature?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['saml']['sso']['$get'](args)
+export async function getSamlSso(
+  args: {
+    query: { SAMLRequest: string; RelayState?: string; SigAlg?: string; Signature?: string }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['saml']['sso']['$get'](args, options)
 }
 
 /**
@@ -22,11 +24,11 @@ export async function getSamlSso(args: {
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export async function postSamlSso(args: {
-  form: { SAMLRequest: string; RelayState?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['saml']['sso']['$post'](args)
+export async function postSamlSso(
+  args: { form: { SAMLRequest: string; RelayState?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['saml']['sso']['$post'](args, options)
 }
 
 /**
@@ -36,17 +38,19 @@ export async function postSamlSso(args: {
  *
  * HTTP-Redirect バインディングでのシングルログアウト
  */
-export async function getSamlSlo(args: {
-  query: {
-    SAMLRequest?: string
-    SAMLResponse?: string
-    RelayState?: string
-    SigAlg?: string
-    Signature?: string
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['saml']['slo']['$get'](args)
+export async function getSamlSlo(
+  args: {
+    query: {
+      SAMLRequest?: string
+      SAMLResponse?: string
+      RelayState?: string
+      SigAlg?: string
+      Signature?: string
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['saml']['slo']['$get'](args, options)
 }
 
 /**
@@ -56,11 +60,11 @@ export async function getSamlSlo(args: {
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export async function postSamlSlo(args: {
-  form: { SAMLRequest?: string; SAMLResponse?: string; RelayState?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['saml']['slo']['$post'](args)
+export async function postSamlSlo(
+  args: { form: { SAMLRequest?: string; SAMLResponse?: string; RelayState?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['saml']['slo']['$post'](args, options)
 }
 
 /**
@@ -70,11 +74,11 @@ export async function postSamlSlo(args: {
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export async function postSamlAcs(args: {
-  form: { SAMLResponse: string; RelayState?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['saml']['acs']['$post'](args)
+export async function postSamlAcs(
+  args: { form: { SAMLResponse: string; RelayState?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['saml']['acs']['$post'](args, options)
 }
 
 /**
@@ -84,8 +88,8 @@ export async function postSamlAcs(args: {
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export async function getSamlMetadata(args?: { options?: ClientRequestOptions }) {
-  return await client['saml']['metadata']['$get'](args)
+export async function getSamlMetadata(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['saml']['metadata']['$get'](args, options)
 }
 
 /**
@@ -93,11 +97,11 @@ export async function getSamlMetadata(args?: { options?: ClientRequestOptions })
  *
  * SP一覧取得
  */
-export async function getServiceProviders(args: {
-  query: { search?: string; enabled?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers']['$get'](args)
+export async function getServiceProviders(
+  args: { query: { search?: string; enabled?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers']['$get'](args, options)
 }
 
 /**
@@ -105,38 +109,40 @@ export async function getServiceProviders(args: {
  *
  * SP登録
  */
-export async function postServiceProviders(args: {
-  json:
-    | {
-        entityId: string
-        name: string
-        description?: string
-        metadataUrl?: string
-        assertionConsumerServices?: {
-          binding:
-            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-          location: string
-          index?: number
-          isDefault?: boolean
-        }[]
-        singleLogoutServices?: {
-          binding:
-            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-          location: string
-          responseLocation?: string
-        }[]
-        nameIdFormat?: string
-        signAssertions?: boolean
-        encryptAssertions?: boolean
-        signingCertificate?: string
-        encryptionCertificate?: string
-      }
-    | string
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers']['$post'](args)
+export async function postServiceProviders(
+  args: {
+    json:
+      | {
+          entityId: string
+          name: string
+          description?: string
+          metadataUrl?: string
+          assertionConsumerServices?: {
+            binding:
+              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+            location: string
+            index?: number
+            isDefault?: boolean
+          }[]
+          singleLogoutServices?: {
+            binding:
+              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+            location: string
+            responseLocation?: string
+          }[]
+          nameIdFormat?: string
+          signAssertions?: boolean
+          encryptAssertions?: boolean
+          signingCertificate?: string
+          encryptionCertificate?: string
+        }
+      | string
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers']['$post'](args, options)
 }
 
 /**
@@ -144,11 +150,11 @@ export async function postServiceProviders(args: {
  *
  * SP詳細取得
  */
-export async function getServiceProvidersSpId(args: {
-  param: { spId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['$get'](args)
+export async function getServiceProvidersSpId(
+  args: { param: { spId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['$get'](args, options)
 }
 
 /**
@@ -156,38 +162,40 @@ export async function getServiceProvidersSpId(args: {
  *
  * SP更新
  */
-export async function putServiceProvidersSpId(args: {
-  param: { spId: string }
-  json: {
-    name?: string
-    description?: string
-    enabled?: boolean
-    assertionConsumerServices?: {
-      binding:
-        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-      location: string
-      index?: number
-      isDefault?: boolean
-    }[]
-    singleLogoutServices?: {
-      binding:
-        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-      location: string
-      responseLocation?: string
-    }[]
-    nameIdFormat?: string
-    signAssertions?: boolean
-    signResponses?: boolean
-    encryptAssertions?: boolean
-    wantAuthnRequestsSigned?: boolean
-    defaultRelayState?: string
-    sessionDuration?: number
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['$put'](args)
+export async function putServiceProvidersSpId(
+  args: {
+    param: { spId: string }
+    json: {
+      name?: string
+      description?: string
+      enabled?: boolean
+      assertionConsumerServices?: {
+        binding:
+          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+        location: string
+        index?: number
+        isDefault?: boolean
+      }[]
+      singleLogoutServices?: {
+        binding:
+          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+        location: string
+        responseLocation?: string
+      }[]
+      nameIdFormat?: string
+      signAssertions?: boolean
+      signResponses?: boolean
+      encryptAssertions?: boolean
+      wantAuthnRequestsSigned?: boolean
+      defaultRelayState?: string
+      sessionDuration?: number
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['$put'](args, options)
 }
 
 /**
@@ -195,11 +203,11 @@ export async function putServiceProvidersSpId(args: {
  *
  * SP削除
  */
-export async function deleteServiceProvidersSpId(args: {
-  param: { spId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['$delete'](args)
+export async function deleteServiceProvidersSpId(
+  args: { param: { spId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['$delete'](args, options)
 }
 
 /**
@@ -207,11 +215,11 @@ export async function deleteServiceProvidersSpId(args: {
  *
  * SPメタデータ取得
  */
-export async function getServiceProvidersSpIdMetadata(args: {
-  param: { spId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['metadata']['$get'](args)
+export async function getServiceProvidersSpIdMetadata(
+  args: { param: { spId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['metadata']['$get'](args, options)
 }
 
 /**
@@ -219,13 +227,11 @@ export async function getServiceProvidersSpIdMetadata(args: {
  *
  * SPメタデータ更新
  */
-export async function putServiceProvidersSpIdMetadata(args: {
-  param: { spId: string }
-  form: { file?: File }
-  json: string
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['metadata']['$put'](args)
+export async function putServiceProvidersSpIdMetadata(
+  args: { param: { spId: string }; form: { file?: File }; json: string },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['metadata']['$put'](args, options)
 }
 
 /**
@@ -233,11 +239,11 @@ export async function putServiceProvidersSpIdMetadata(args: {
  *
  * SP属性マッピング取得
  */
-export async function getServiceProvidersSpIdAttributes(args: {
-  param: { spId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['attributes']['$get'](args)
+export async function getServiceProvidersSpIdAttributes(
+  args: { param: { spId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['attributes']['$get'](args, options)
 }
 
 /**
@@ -245,23 +251,25 @@ export async function getServiceProvidersSpIdAttributes(args: {
  *
  * SP属性マッピング更新
  */
-export async function putServiceProvidersSpIdAttributes(args: {
-  param: { spId: string }
-  json: {
-    id?: string
-    sourceAttribute: string
-    samlAttribute: string
-    samlAttributeNameFormat?:
-      | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
-      | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-      | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
-    friendlyName?: string
-    required?: boolean
-    transform?: string
-  }[]
-  options?: ClientRequestOptions
-}) {
-  return await client['service-providers'][':spId']['attributes']['$put'](args)
+export async function putServiceProvidersSpIdAttributes(
+  args: {
+    param: { spId: string }
+    json: {
+      id?: string
+      sourceAttribute: string
+      samlAttribute: string
+      samlAttributeNameFormat?:
+        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
+        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
+      friendlyName?: string
+      required?: boolean
+      transform?: string
+    }[]
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['service-providers'][':spId']['attributes']['$put'](args, options)
 }
 
 /**
@@ -269,8 +277,8 @@ export async function putServiceProvidersSpIdAttributes(args: {
  *
  * 利用可能な属性一覧
  */
-export async function getAttributes(args?: { options?: ClientRequestOptions }) {
-  return await client.attributes.$get(args)
+export async function getAttributes(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.attributes.$get(args, options)
 }
 
 /**
@@ -278,8 +286,8 @@ export async function getAttributes(args?: { options?: ClientRequestOptions }) {
  *
  * 証明書一覧取得
  */
-export async function getCertificates(args?: { options?: ClientRequestOptions }) {
-  return await client.certificates.$get(args)
+export async function getCertificates(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.certificates.$get(args, options)
 }
 
 /**
@@ -287,16 +295,18 @@ export async function getCertificates(args?: { options?: ClientRequestOptions })
  *
  * 証明書アップロード
  */
-export async function postCertificates(args: {
-  form: {
-    certificate: File
-    privateKey: File
-    passphrase?: string
-    purpose?: 'signing' | 'encryption' | 'both'
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client.certificates.$post(args)
+export async function postCertificates(
+  args: {
+    form: {
+      certificate: File
+      privateKey: File
+      passphrase?: string
+      purpose?: 'signing' | 'encryption' | 'both'
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client.certificates.$post(args, options)
 }
 
 /**
@@ -304,11 +314,11 @@ export async function postCertificates(args: {
  *
  * 証明書削除
  */
-export async function deleteCertificatesCertId(args: {
-  param: { certId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['certificates'][':certId']['$delete'](args)
+export async function deleteCertificatesCertId(
+  args: { param: { certId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['certificates'][':certId']['$delete'](args, options)
 }
 
 /**
@@ -316,11 +326,11 @@ export async function deleteCertificatesCertId(args: {
  *
  * 証明書有効化
  */
-export async function postCertificatesCertIdActivate(args: {
-  param: { certId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['certificates'][':certId']['activate']['$post'](args)
+export async function postCertificatesCertIdActivate(
+  args: { param: { certId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['certificates'][':certId']['activate']['$post'](args, options)
 }
 
 /**
@@ -328,11 +338,11 @@ export async function postCertificatesCertIdActivate(args: {
  *
  * アクティブセッション一覧
  */
-export async function getSessions(args: {
-  query: { userId?: string }
-  options?: ClientRequestOptions
-}) {
-  return await client.sessions.$get(args)
+export async function getSessions(
+  args: { query: { userId?: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client.sessions.$get(args, options)
 }
 
 /**
@@ -340,11 +350,11 @@ export async function getSessions(args: {
  *
  * セッション終了
  */
-export async function deleteSessionsSessionId(args: {
-  param: { sessionId: string }
-  options?: ClientRequestOptions
-}) {
-  return await client['sessions'][':sessionId']['$delete'](args)
+export async function deleteSessionsSessionId(
+  args: { param: { sessionId: string } },
+  options?: ClientRequestOptions,
+) {
+  return await client['sessions'][':sessionId']['$delete'](args, options)
 }
 
 /**
@@ -352,17 +362,19 @@ export async function deleteSessionsSessionId(args: {
  *
  * SAML監査ログ取得
  */
-export async function getAuditLogs(args: {
-  query: {
-    from?: string
-    to?: string
-    spId?: string
-    userId?: string
-    eventType?: 'sso_success' | 'sso_failure' | 'slo_success' | 'slo_failure'
-    page?: number
-    limit?: number
-  }
-  options?: ClientRequestOptions
-}) {
-  return await client['audit-logs']['$get'](args)
+export async function getAuditLogs(
+  args: {
+    query: {
+      from?: string
+      to?: string
+      spId?: string
+      userId?: string
+      eventType?: 'sso_success' | 'sso_failure' | 'slo_success' | 'slo_failure'
+      page?: number
+      limit?: number
+    }
+  },
+  options?: ClientRequestOptions,
+) {
+  return await client['audit-logs']['$get'](args, options)
 }

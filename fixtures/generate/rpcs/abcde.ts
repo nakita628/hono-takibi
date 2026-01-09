@@ -6,6 +6,6 @@ import { client } from '../clients/abcde'
  *
  * Get example data
  */
-export async function getExample(args?: { options?: ClientRequestOptions }) {
-  return await client.example.$get(args)
+export async function getExample(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.example.$get(args, options)
 }

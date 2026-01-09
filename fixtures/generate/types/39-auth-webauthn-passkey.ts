@@ -17,12 +17,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               rp: { name: string; id: string }
               user: { id: string; name: string; displayName: string }
               pubKeyCredParams: { type: 'public-key'; alg: number }[]
-              authenticatorSelection: {
-                authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-                residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
-                requireResidentKey?: boolean | undefined
-                userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
-              }
               timeout?: number | undefined
               excludeCredentials?:
                 | {
@@ -32,6 +26,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
                       | undefined
                   }[]
+                | undefined
+              authenticatorSelection?:
+                | {
+                    authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
+                    residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
+                    requireResidentKey?: boolean | undefined
+                    userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+                  }
                 | undefined
               attestation?: 'none' | 'indirect' | 'direct' | 'enterprise' | undefined
               extensions?: { credProps?: boolean | undefined } | undefined

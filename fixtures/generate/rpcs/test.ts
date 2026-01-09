@@ -8,8 +8,8 @@ import { client } from '../clients/test'
  *
  * Hono
  */
-export async function getHono(args?: { options?: ClientRequestOptions }) {
-  return await client.hono.$get(args)
+export async function getHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client.hono.$get(args, options)
 }
 
 /**
@@ -19,8 +19,8 @@ export async function getHono(args?: { options?: ClientRequestOptions }) {
  *
  * HonoX
  */
-export async function getHonoX(args?: { options?: ClientRequestOptions }) {
-  return await client['hono-x']['$get'](args)
+export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['hono-x']['$get'](args, options)
 }
 
 /**
@@ -30,6 +30,6 @@ export async function getHonoX(args?: { options?: ClientRequestOptions }) {
  *
  * ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions }) {
-  return await client['zod-openapi-hono']['$get'](args)
+export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono']['$get'](args, options)
 }

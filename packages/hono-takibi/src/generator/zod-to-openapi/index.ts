@@ -81,9 +81,15 @@ export function zodToOpenAPI(
   meta?: {
     parameters?: Parameter
     headers?: Header
+    isOptional?: boolean
   },
 ): string {
   if (schema === undefined) throw new Error('Schema is undefined')
+  // isOptional should only affect the outermost schema, not nested schemas
+  // Strip isOptional for recursive calls
+  const innerMeta: typeof meta = meta?.isOptional
+    ? (Object.fromEntries(Object.entries(meta).filter(([k]) => k !== 'isOptional')) as typeof meta)
+    : meta
   /** ref */
   if (schema.$ref !== undefined) {
     return wrap(makeRef(schema.$ref), schema, meta)
@@ -105,7 +111,7 @@ export function zodToOpenAPI(
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
 
     const schemas = nonNull.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta),
     )
     const isBareRef =
       schemas.length === 1 &&
@@ -127,7 +133,7 @@ export function zodToOpenAPI(
           return makeRef(subSchema.$ref)
         }
       }
-      return zodToOpenAPI(subSchema, meta)
+      return zodToOpenAPI(subSchema, innerMeta)
     })
     const z = `z.union([${anyOfSchemas.join(',')}])`
     return wrap(z, schema, meta)
@@ -146,7 +152,7 @@ export function zodToOpenAPI(
           return makeRef(s.$ref)
         }
       }
-      return zodToOpenAPI(s, meta)
+      return zodToOpenAPI(s, innerMeta)
     })
     const discriminator = schema.discriminator?.propertyName
     // Use z.xor when $ref is present (referenced schema might use allOf)
@@ -224,7 +230,7 @@ export function zodToOpenAPI(
     const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
-        : zodToOpenAPI(itemSchema, meta)
+        : zodToOpenAPI(itemSchema, innerMeta)
       : 'z.any()'
     const z = `z.array(${item})`
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
