@@ -1,16 +1,6 @@
 import path from 'node:path'
 import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../utils/index.js'
 
-export type ImportTarget = {
-  readonly output: string | `${string}.ts`
-  readonly split?: boolean
-  readonly import?: string
-}
-
-export type ComponentImports = {
-  readonly [k: string]: ImportTarget
-}
-
 /**
  * Builds a relative module specifier from `fromFile` to a configured output.
  */
