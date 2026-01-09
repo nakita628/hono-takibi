@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { SecretRotationSchema, type SecretRotation } from './secretRotation'
+import { SecretRotationSchema } from './secretRotation'
 
-type SecretRefType = { secretId: string; rotation?: SecretRotation }
+type SecretRefType = { secretId: string; rotation?: z.infer<typeof SecretRotationSchema> }
 
 export const SecretRefSchema: z.ZodType<SecretRefType> = z
   .lazy(() =>

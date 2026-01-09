@@ -1,13 +1,13 @@
 import { z } from '@hono/zod-openapi'
-import { EntitySchema, type Entity } from './entity'
-import { CompanySchema, type Company } from './company'
-import { MoneySchema, type Money } from './money'
+import { CompanySchema } from './company'
+import { EntitySchema } from './entity'
+import { MoneySchema } from './money'
 
-type ProductType = Entity & {
+type ProductType = z.infer<typeof EntitySchema> & {
   name: string
-  supplier?: Company
+  supplier?: z.infer<typeof CompanySchema>
   relatedProducts?: ProductType[]
-  price?: Money
+  price?: z.infer<typeof MoneySchema>
 }
 
 export const ProductSchema: z.ZodType<ProductType> = z

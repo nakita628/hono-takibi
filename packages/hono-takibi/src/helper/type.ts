@@ -43,19 +43,22 @@ export function makeTypeString(
 function makeRefTypeString(
   ref: string,
   selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
+  _cyclicGroup?: ReadonlySet<string>,
 ): string {
   const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-    if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+    // Only use local type name for self-references
+    if (parentName === selfTypeName) {
       return `${parentName}Type`
     }
     return `z.infer<typeof ${parentName}Schema>`
   }
   const rawRef = ref.split('/').at(-1) ?? ''
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-  if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+  // Only use local type name for self-references
+  // For other schemas (including those in cyclic group), use z.infer
+  if (refName === selfTypeName) {
     return `${refName}Type`
   }
   return `z.infer<typeof ${refName}Schema>`
@@ -144,14 +147,16 @@ function makeArrayTypeString(
     const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-      if (parentName === selfTypeName || cyclicGroup?.has(parentName)) {
+      // Only use local type name for self-references
+      if (parentName === selfTypeName) {
         return `${parentName}Type[]`
       }
       return `z.infer<typeof ${parentName}Schema>[]`
     }
     const rawRef = items.$ref.split('/').at(-1) ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-    if (refName === selfTypeName || cyclicGroup?.has(refName)) {
+    // Only use local type name for self-references
+    if (refName === selfTypeName) {
       return `${refName}Type[]`
     }
     return `z.infer<typeof ${refName}Schema>[]`

@@ -1,19 +1,46 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { ReplaceUserInputSchema, UserSchema, ErrorSchema } from '../schemas'
+import { ErrorSchema, ReplaceUserInputSchema, UserSchema } from '../schemas'
 
 export const putUsersIdRoute = createRoute({
-  tags: ['Users'],
   method: 'put',
   path: '/users/{id}',
-  operationId: 'replaceUser',
+  tags: ['Users'],
   summary: 'Replace user',
   description:
     'Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.',
+  operationId: 'replaceUser',
   request: {
-    body: { required: true, content: { 'application/json': { schema: ReplaceUserInputSchema } } },
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
+    body: {
+      content: {
+        'application/json': {
+          schema: ReplaceUserInputSchema,
+          examples: {
+            replace: {
+              value: {
+                displayName: 'Alice Updated',
+                email: 'alice.updated@example.com',
+                roles: ['speaker', 'mc'],
+                affiliations: ['Honoconf 2025'],
+                isStudent: false,
+              },
+            },
+          },
+        },
+      },
+      required: true,
+    },
   },
   responses: {
     200: { description: 'Replaced.', content: { 'application/json': { schema: UserSchema } } },

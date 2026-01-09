@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { GeoGraphSchema, type GeoGraph } from './geoGraph'
+import { GeoGraphSchema } from './geoGraph'
 
-type GeoPointType = { lat: number; lng: number; graph?: GeoGraph }
+type GeoPointType = { lat: number; lng: number; graph?: z.infer<typeof GeoGraphSchema> }
 
 export const GeoPointSchema: z.ZodType<GeoPointType> = z
   .lazy(() =>

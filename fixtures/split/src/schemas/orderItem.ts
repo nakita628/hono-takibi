@@ -1,8 +1,12 @@
 import { z } from '@hono/zod-openapi'
-import { ProductSchema, type Product } from './product'
-import { MoneySchema, type Money } from './money'
+import { MoneySchema } from './money'
+import { ProductSchema } from './product'
 
-type OrderItemType = { product: Product; quantity: number; unitPrice?: Money }
+type OrderItemType = {
+  product: z.infer<typeof ProductSchema>
+  quantity: number
+  unitPrice?: z.infer<typeof MoneySchema>
+}
 
 export const OrderItemSchema: z.ZodType<OrderItemType> = z
   .lazy(() =>

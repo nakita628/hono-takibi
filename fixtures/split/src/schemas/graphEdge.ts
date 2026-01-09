@@ -1,8 +1,12 @@
 import { z } from '@hono/zod-openapi'
-import { GraphNodeSchema, type GraphNode } from './graphNode'
-import { MetaSchema, type Meta } from './meta'
+import { GraphNodeSchema } from './graphNode'
+import { MetaSchema } from './meta'
 
-type GraphEdgeType = { to: GraphNode; weight?: number; meta?: Meta }
+type GraphEdgeType = {
+  to: z.infer<typeof GraphNodeSchema>
+  weight?: number
+  meta?: z.infer<typeof MetaSchema>
+}
 
 export const GraphEdgeSchema: z.ZodType<GraphEdgeType> = z
   .lazy(() =>

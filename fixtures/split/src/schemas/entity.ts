@@ -1,8 +1,8 @@
 import { z } from '@hono/zod-openapi'
-import { IdSchema, type Id } from './id'
-import { MetaSchema, type Meta } from './meta'
+import { IdSchema } from './id'
+import { MetaSchema } from './meta'
 
-type EntityType = { id: Id; meta: Meta }
+type EntityType = { id: z.infer<typeof IdSchema>; meta: z.infer<typeof MetaSchema> }
 
 export const EntitySchema: z.ZodType<EntityType> = z
   .object({ id: IdSchema, meta: MetaSchema })

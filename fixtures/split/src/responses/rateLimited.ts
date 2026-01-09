@@ -1,12 +1,12 @@
 import { z } from '@hono/zod-openapi'
-import { ProblemDetailsSchema } from '../schemas'
+import { ProblemRateLimitedExample } from '../examples'
 import {
   RateLimitLimitHeaderHeaderSchema,
   RateLimitRemainingHeaderHeaderSchema,
   RateLimitResetHeaderHeaderSchema,
   TraceIdHeaderHeaderSchema,
 } from '../headers'
-import { ProblemRateLimitedExample } from '../examples'
+import { ProblemDetailsSchema } from '../schemas'
 
 export const RateLimitedResponse = {
   description: 'Too Many Requests',

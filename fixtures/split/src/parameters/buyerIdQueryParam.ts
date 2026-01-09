@@ -1,4 +1,4 @@
-import { z } from '@hono/zod-openapi'
+import type { z } from '@hono/zod-openapi'
 import { IdSchema } from '../schemas'
 
 export const BuyerIdQueryParamParamsSchema = IdSchema.exactOptional().openapi({

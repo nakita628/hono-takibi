@@ -1,6 +1,5 @@
-import { z } from '@hono/zod-openapi'
+import type { z } from '@hono/zod-openapi'
 import { TraceIdSchema } from '../schemas'
-import { TraceIdExample } from '../examples'
 
 export const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().openapi({
   param: {

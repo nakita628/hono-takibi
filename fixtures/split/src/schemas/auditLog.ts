@@ -1,9 +1,13 @@
 import { z } from '@hono/zod-openapi'
-import { EntityRefSchema, type EntityRef } from './entityRef'
-import { EventSchema, type Event } from './event'
-import { MetaSchema, type Meta } from './meta'
+import { EntityRefSchema } from './entityRef'
+import { EventSchema } from './event'
+import { MetaSchema } from './meta'
 
-type AuditLogType = { entity: EntityRef; event: Event; meta?: Meta }
+type AuditLogType = {
+  entity: z.infer<typeof EntityRefSchema>
+  event: z.infer<typeof EventSchema>
+  meta?: z.infer<typeof MetaSchema>
+}
 
 export const AuditLogSchema: z.ZodType<AuditLogType> = z
   .lazy(() =>

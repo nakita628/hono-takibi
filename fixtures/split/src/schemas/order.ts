@@ -1,20 +1,20 @@
 import { z } from '@hono/zod-openapi'
-import { EntitySchema, type Entity } from './entity'
-import { UserSchema, type User } from './user'
-import { OrderStatusSchema, type OrderStatus } from './orderStatus'
-import { OrderItemSchema, type OrderItem } from './orderItem'
-import { AddressSchema, type Address } from './address'
-import { AuditLogSchema, type AuditLog } from './auditLog'
-import { ResourceLinksSchema, type ResourceLinks } from './resourceLinks'
+import { AddressSchema } from './address'
+import { AuditLogSchema } from './auditLog'
+import { EntitySchema } from './entity'
+import { OrderItemSchema } from './orderItem'
+import { OrderStatusSchema } from './orderStatus'
+import { ResourceLinksSchema } from './resourceLinks'
+import { UserSchema } from './user'
 
-type OrderType = Entity & {
-  buyer: User
-  status: OrderStatus
-  items: OrderItem[]
-  shippingAddress?: Address
-  billingAddress?: Address
-  auditTrail?: AuditLog[]
-  links?: ResourceLinks
+type OrderType = z.infer<typeof EntitySchema> & {
+  buyer: z.infer<typeof UserSchema>
+  status: z.infer<typeof OrderStatusSchema>
+  items: z.infer<typeof OrderItemSchema>[]
+  shippingAddress?: z.infer<typeof AddressSchema>
+  billingAddress?: z.infer<typeof AddressSchema>
+  auditTrail?: z.infer<typeof AuditLogSchema>[]
+  links?: z.infer<typeof ResourceLinksSchema>
 }
 
 export const OrderSchema: z.ZodType<OrderType> = z

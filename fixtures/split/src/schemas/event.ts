@@ -1,15 +1,18 @@
 import { z } from '@hono/zod-openapi'
-import { EventTypeSchema, type EventType } from './eventType'
-import { UserEventPayloadSchema, type UserEventPayload } from './userEventPayload'
-import { OrderEventPayloadSchema, type OrderEventPayload } from './orderEventPayload'
-import { SystemEventPayloadSchema, type SystemEventPayload } from './systemEventPayload'
-import { TraceContextSchema, type TraceContext } from './traceContext'
+import { EventTypeSchema } from './eventType'
+import { OrderEventPayloadSchema } from './orderEventPayload'
+import { SystemEventPayloadSchema } from './systemEventPayload'
+import { TraceContextSchema } from './traceContext'
+import { UserEventPayloadSchema } from './userEventPayload'
 
 type EventType = {
-  type: EventType
-  payload: UserEventPayload | OrderEventPayload | SystemEventPayload
+  type: z.infer<typeof EventTypeSchema>
+  payload:
+    | z.infer<typeof UserEventPayloadSchema>
+    | z.infer<typeof OrderEventPayloadSchema>
+    | z.infer<typeof SystemEventPayloadSchema>
   causedBy?: EventType[]
-  trace?: TraceContext
+  trace?: z.infer<typeof TraceContextSchema>
 }
 
 export const EventSchema: z.ZodType<EventType> = z

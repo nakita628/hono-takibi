@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { MetaSchema, type Meta } from './meta'
+import { MetaSchema } from './meta'
 
-type LinkType = { href: string; rel?: string; meta?: Meta; next?: LinkType }
+type LinkType = { href: string; rel?: string; meta?: z.infer<typeof MetaSchema>; next?: LinkType }
 
 export const LinkSchema: z.ZodType<LinkType> = z
   .lazy(() =>

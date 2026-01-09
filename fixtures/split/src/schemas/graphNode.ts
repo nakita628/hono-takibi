@@ -1,9 +1,13 @@
 import { z } from '@hono/zod-openapi'
-import { IdSchema, type Id } from './id'
-import { GraphEdgeSchema, type GraphEdge } from './graphEdge'
-import { EntityRefSchema, type EntityRef } from './entityRef'
+import { EntityRefSchema } from './entityRef'
+import { GraphEdgeSchema } from './graphEdge'
+import { IdSchema } from './id'
 
-type GraphNodeType = { id: Id; edges?: GraphEdge[]; entity?: EntityRef }
+type GraphNodeType = {
+  id: z.infer<typeof IdSchema>
+  edges?: z.infer<typeof GraphEdgeSchema>[]
+  entity?: z.infer<typeof EntityRefSchema>
+}
 
 export const GraphNodeSchema: z.ZodType<GraphNodeType> = z
   .lazy(() =>

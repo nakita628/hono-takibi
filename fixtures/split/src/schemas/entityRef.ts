@@ -1,11 +1,16 @@
 import { z } from '@hono/zod-openapi'
-import { UserSchema, type User } from './user'
-import { CompanySchema, type Company } from './company'
-import { OrderSchema, type Order } from './order'
-import { ProductSchema, type Product } from './product'
-import { PersonSchema, type Person } from './person'
+import { CompanySchema } from './company'
+import { OrderSchema } from './order'
+import { PersonSchema } from './person'
+import { ProductSchema } from './product'
+import { UserSchema } from './user'
 
-type EntityRefType = User | Company | Order | Product | Person
+type EntityRefType =
+  | z.infer<typeof UserSchema>
+  | z.infer<typeof CompanySchema>
+  | z.infer<typeof OrderSchema>
+  | z.infer<typeof ProductSchema>
+  | z.infer<typeof PersonSchema>
 
 export const EntityRefSchema: z.ZodType<EntityRefType> = z
   .lazy(() =>

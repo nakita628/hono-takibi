@@ -1,21 +1,21 @@
 import { z } from '@hono/zod-openapi'
-import { EntitySchema, type Entity } from './entity'
-import { CompanySchema, type Company } from './company'
-import { AddressSchema, type Address } from './address'
-import { UserPreferencesSchema, type UserPreferences } from './userPreferences'
-import { OrderSchema, type Order } from './order'
-import { ResourceLinksSchema, type ResourceLinks } from './resourceLinks'
+import { AddressSchema } from './address'
+import { CompanySchema } from './company'
+import { EntitySchema } from './entity'
+import { OrderSchema } from './order'
+import { ResourceLinksSchema } from './resourceLinks'
+import { UserPreferencesSchema } from './userPreferences'
 
-type UserType = Entity & {
+type UserType = z.infer<typeof EntitySchema> & {
   name: string
   email: string
-  company?: Company
+  company?: z.infer<typeof CompanySchema>
   manager?: UserType
   reports?: UserType[]
-  addresses?: Address[]
-  preferences?: UserPreferences
-  recentOrders?: Order[]
-  links?: ResourceLinks
+  addresses?: z.infer<typeof AddressSchema>[]
+  preferences?: z.infer<typeof UserPreferencesSchema>
+  recentOrders?: z.infer<typeof OrderSchema>[]
+  links?: z.infer<typeof ResourceLinksSchema>
 }
 
 export const UserSchema: z.ZodType<UserType> = z

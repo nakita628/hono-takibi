@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { EntityRefSchema, type EntityRef } from './entityRef'
+import { EntityRefSchema } from './entityRef'
 
-type SystemEventPayloadType = { message: string; related?: EntityRef }
+type SystemEventPayloadType = { message: string; related?: z.infer<typeof EntityRefSchema> }
 
 export const SystemEventPayloadSchema: z.ZodType<SystemEventPayloadType> = z
   .lazy(() =>

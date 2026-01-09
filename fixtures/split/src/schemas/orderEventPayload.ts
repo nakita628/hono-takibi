@@ -1,8 +1,11 @@
 import { z } from '@hono/zod-openapi'
-import { OrderSchema, type Order } from './order'
-import { OrderStatusSchema, type OrderStatus } from './orderStatus'
+import { OrderSchema } from './order'
+import { OrderStatusSchema } from './orderStatus'
 
-type OrderEventPayloadType = { order: Order; previousStatus?: OrderStatus }
+type OrderEventPayloadType = {
+  order: z.infer<typeof OrderSchema>
+  previousStatus?: z.infer<typeof OrderStatusSchema>
+}
 
 export const OrderEventPayloadSchema: z.ZodType<OrderEventPayloadType> = z
   .lazy(() =>

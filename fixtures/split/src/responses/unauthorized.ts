@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { ProblemDetailsSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema, WwwAuthenticateHeaderHeaderSchema } from '../headers'
 import { ProblemUnauthorizedExample } from '../examples'
+import { TraceIdHeaderHeaderSchema, WwwAuthenticateHeaderHeaderSchema } from '../headers'
+import { ProblemDetailsSchema } from '../schemas'
 
 export const UnauthorizedResponse = {
   description: 'Unauthorized',

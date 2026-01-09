@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { UuidSchema } from './uuid'
 import { UlidSchema } from './ulid'
+import { UuidSchema } from './uuid'
 
 type IdType = z.infer<typeof UuidSchema> | z.infer<typeof UlidSchema>
 

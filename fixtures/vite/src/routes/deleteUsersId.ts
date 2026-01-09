@@ -2,15 +2,24 @@ import { createRoute, z } from '@hono/zod-openapi'
 import { ErrorSchema } from '../schemas'
 
 export const deleteUsersIdRoute = createRoute({
-  tags: ['Users'],
   method: 'delete',
   path: '/users/{id}',
-  operationId: 'deleteUser',
+  tags: ['Users'],
   summary: 'Delete user',
   description: 'Delete a user by ID.',
+  operationId: 'deleteUser',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {

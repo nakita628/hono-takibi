@@ -2,12 +2,12 @@ import { createRoute, z } from '@hono/zod-openapi'
 import { RoleSchema, UserSchema } from '../schemas'
 
 export const getUsersRoute = createRoute({
-  tags: ['Users'],
   method: 'get',
   path: '/users',
-  operationId: 'listUsers',
+  tags: ['Users'],
   summary: 'List users',
   description: 'List users with pagination and optional role filter.',
+  operationId: 'listUsers',
   request: {
     query: z.object({
       limit: z
@@ -15,23 +15,57 @@ export const getUsersRoute = createRoute({
         .min(1)
         .max(200)
         .default(20)
-        .openapi({ param: { in: 'query', name: 'limit', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 200, default: 20 },
+            description: 'Items per page.',
+          },
+        }),
       offset: z
         .int()
         .min(0)
         .default(0)
-        .openapi({ param: { in: 'query', name: 'offset', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'offset',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 0, default: 0 },
+            description: 'Number of items to skip.',
+          },
+        }),
       role: z
         .array(RoleSchema)
-        .openapi({ param: { in: 'query', name: 'role', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'role',
+            in: 'query',
+            required: false,
+            description: 'Filter by role (repeatable).',
+            schema: { type: 'array', items: { $ref: '#/components/schemas/Role' } },
+            style: 'form',
+            explode: true,
+          },
+        }),
       q: z
         .string()
         .min(1)
-        .openapi({ param: { in: 'query', name: 'q', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'q',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', minLength: 1 },
+            description: 'Search term for displayName or affiliations.',
+          },
+        }),
     }),
   },
   responses: {
@@ -39,7 +73,9 @@ export const getUsersRoute = createRoute({
       description: 'List retrieved.',
       content: {
         'application/json': {
-          schema: z.strictObject({ total: z.int().min(0), items: z.array(UserSchema) }),
+          schema: z
+            .strictObject({ total: z.int().min(0), items: z.array(UserSchema) })
+            .openapi({ required: ['total', 'items'] }),
           examples: {
             ok: {
               value: {

@@ -1,15 +1,32 @@
 import { createRoute } from '@hono/zod-openapi'
-import { CreateUserInputSchema, UserSchema, ErrorSchema } from '../schemas'
+import { CreateUserInputSchema, ErrorSchema, UserSchema } from '../schemas'
 
 export const postUsersRoute = createRoute({
-  tags: ['Users'],
   method: 'post',
   path: '/users',
-  operationId: 'createUser',
+  tags: ['Users'],
   summary: 'Create user',
   description: 'Create a new user.',
+  operationId: 'createUser',
   request: {
-    body: { required: true, content: { 'application/json': { schema: CreateUserInputSchema } } },
+    body: {
+      content: {
+        'application/json': {
+          schema: CreateUserInputSchema,
+          examples: {
+            create: {
+              value: {
+                displayName: 'Carol',
+                email: 'carol@example.com',
+                roles: ['attendee', 'ghost-wifi-fixer'],
+                isStudent: true,
+              },
+            },
+          },
+        },
+      },
+      required: true,
+    },
   },
   responses: {
     201: { description: 'Created.', content: { 'application/json': { schema: UserSchema } } },

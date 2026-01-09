@@ -51,8 +51,9 @@ describe('makeTypeString', () => {
 
     it('should handle cyclic group reference', () => {
       const cyclicGroup = new Set(['Parent', 'Child'])
+      // For non-self references (even in cyclic group), use z.infer for split mode compatibility
       expect(makeTypeString({ $ref: '#/components/schemas/Parent' }, 'Child', cyclicGroup)).toBe(
-        'ParentType',
+        'z.infer<typeof ParentSchema>',
       )
     })
 
@@ -151,6 +152,18 @@ describe('makeTypeString', () => {
       expect(
         makeTypeString({ type: 'array', items: { $ref: '#/components/schemas/Node' } }, 'Node'),
       ).toBe('NodeType[]')
+    })
+
+    it('should handle cyclic group array reference (split mode compatibility)', () => {
+      const cyclicGroup = new Set(['Event', 'UserEventPayload', 'TraceContext'])
+      // For non-self references in cyclic group, use z.infer for split mode compatibility
+      expect(
+        makeTypeString(
+          { type: 'array', items: { $ref: '#/components/schemas/TraceContext' } },
+          'Event',
+          cyclicGroup,
+        ),
+      ).toBe('z.infer<typeof TraceContextSchema>[]')
     })
 
     it('should handle array without items', () => {

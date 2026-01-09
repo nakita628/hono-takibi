@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../client'
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono() {
-  return await client['zod-openapi-hono'].$get()
+export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono'].$get(args, options)
 }

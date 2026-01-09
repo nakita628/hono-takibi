@@ -1,12 +1,12 @@
 import { z } from '@hono/zod-openapi'
-import { TraceContextSchema, type TraceContext } from './traceContext'
-import { ResourceLinksSchema, type ResourceLinks } from './resourceLinks'
+import { ResourceLinksSchema } from './resourceLinks'
+import { TraceContextSchema } from './traceContext'
 
 type MetaType = {
   createdAt: string
   updatedAt?: string
-  trace?: TraceContext
-  links?: ResourceLinks
+  trace?: z.infer<typeof TraceContextSchema>
+  links?: z.infer<typeof ResourceLinksSchema>
 }
 
 export const MetaSchema: z.ZodType<MetaType> = z

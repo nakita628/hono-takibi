@@ -1,8 +1,12 @@
 import { z } from '@hono/zod-openapi'
 import { CurrencySchema } from './currency'
-import { TraceContextSchema, type TraceContext } from './traceContext'
+import { TraceContextSchema } from './traceContext'
 
-type MoneyType = { currency: z.infer<typeof CurrencySchema>; amount: number; trace?: TraceContext }
+type MoneyType = {
+  currency: z.infer<typeof CurrencySchema>
+  amount: number
+  trace?: z.infer<typeof TraceContextSchema>
+}
 
 export const MoneySchema: z.ZodType<MoneyType> = z
   .object({

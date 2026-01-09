@@ -1,8 +1,8 @@
 import { z } from '@hono/zod-openapi'
 import { EntitySchema } from './entity'
+import { EventSchema } from './event'
 import { EventTypeSchema } from './eventType'
 import { SecretRefSchema } from './secretRef'
-import { EventSchema } from './event'
 
 export const WebhookSubscriptionSchema = EntitySchema.and(
   z
