@@ -23,7 +23,7 @@ jobs:
           version: 10
 
       - name: Install Dependencies
-        run: pnpm install
+        run: pnpm -F hono-takibi deps
 
       - name: Check
         run: pnpm check
